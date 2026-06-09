@@ -1,0 +1,343 @@
+---
+name: add-feature-template
+description: >
+  Scaffold the wiring skeleton for a new Flutter feature: folder tree, empty
+  repository interface, empty data source, empty repository impl, BLoC with
+  sealed states, page, screen, and DI registration. Invoke with
+  $add-feature-template <feature_name>, or ask to scaffold/add a new feature.
+---
+
+If the feature name was not passed as an argument, ask:
+"What is the feature name? (e.g. `products`, `auth`, `settings`)"
+
+Derive the two required substitution forms from the answer:
+- `{Feature}` = PascalCase, e.g. `Products`
+- `{feature}` = snake_case, e.g. `products`
+
+Then follow every step below exactly, substituting these values throughout all
+folder names, file names, class names, and import paths. Do not skip any step.
+Run `make gen` and `make analyze` at the end before reporting done.
+
+---
+
+## Naming substitution table
+
+| Placeholder | Form       | Example                          |
+|-------------|------------|----------------------------------|
+| `{Feature}` | PascalCase | `Products`                       |
+| `{feature}` | snake_case | `products`                       |
+| `{action}`  | snake_case | `get_product`, `search_products` |
+| `{Action}`  | PascalCase | `GetProduct`, `SearchProducts`   |
+
+---
+
+## Step 1 — Create the folder tree
+
+```bash
+mkdir -p lib/feature/{feature}/data/data_source
+mkdir -p lib/feature/{feature}/data/models
+mkdir -p lib/feature/{feature}/data/repository_impl
+mkdir -p lib/feature/{feature}/domain/entities
+mkdir -p lib/feature/{feature}/domain/repository
+mkdir -p lib/feature/{feature}/domain/usecase
+mkdir -p lib/feature/{feature}/presentation/bloc
+mkdir -p lib/feature/{feature}/presentation/view
+mkdir -p lib/feature/{feature}/presentation/widgets
+```
+
+---
+
+## Step 2 — Domain: repository interface
+
+`lib/feature/{feature}/domain/repository/{feature}_repository.dart`
+
+```dart
+abstract interface class {Feature}Repository {}
+```
+
+Rules:
+- `abstract interface class` — not `abstract class`.
+- No `dio`, `retrofit`, or Flutter imports here.
+- Methods are added once entities exist. Return type is always `Either<Failure, T>`.
+
+---
+
+## Step 3 — Data: remote data source
+
+`lib/feature/{feature}/data/data_source/{feature}_remote_data_source.dart`
+
+```dart
+abstract interface class {Feature}RemoteDataSource {}
+```
+
+`lib/feature/{feature}/data/data_source/{feature}_remote_data_source_impl.dart`
+
+```dart
+import 'package:dio/dio.dart';
+import 'package:retrofit/retrofit.dart';
+
+import '{feature}_remote_data_source.dart';
+
+part '{feature}_remote_data_source_impl.g.dart';
+
+@RestApi()
+abstract class {Feature}RemoteDataSourceImpl implements {Feature}RemoteDataSource {
+  factory {Feature}RemoteDataSourceImpl(Dio dio, {String? baseUrl}) =
+      _{Feature}RemoteDataSourceImpl;
+}
+```
+
+---
+
+## Step 4 — Data: repository implementation
+
+`lib/feature/{feature}/data/repository_impl/{feature}_repository_impl.dart`
+
+```dart
+import '../../../../core/base/base_repository.dart';
+import '../../domain/repository/{feature}_repository.dart';
+import '../data_source/{feature}_remote_data_source.dart';
+
+class {Feature}RepositoryImpl with BaseRepository implements {Feature}Repository {
+  final {Feature}RemoteDataSource _dataSource;
+
+  const {Feature}RepositoryImpl(this._dataSource);
+}
+```
+
+Rules:
+- Use `handleRequest()` from `BaseRepository` when adding methods — never write `try/catch`.
+- Never expose `*Model` classes outside this file.
+
+---
+
+## Step 5 — Presentation: BLoC
+
+`lib/feature/{feature}/presentation/bloc/{feature}_event.dart`
+
+```dart
+part of '{feature}_bloc.dart';
+
+@freezed
+sealed class {Feature}Event with _${Feature}Event {
+  const factory {Feature}Event.fetched() = {Feature}Fetched;
+}
+```
+
+`lib/feature/{feature}/presentation/bloc/{feature}_state.dart`
+
+```dart
+part of '{feature}_bloc.dart';
+
+@freezed
+sealed class {Feature}State with _${Feature}State {
+  const factory {Feature}State.initial()                         = {Feature}Initial;
+  const factory {Feature}State.loading()                        = {Feature}Loading;
+  const factory {Feature}State.loaded()                         = {Feature}Loaded;
+  const factory {Feature}State.error({required String message}) = {Feature}Error;
+}
+```
+
+`lib/feature/{feature}/presentation/bloc/{feature}_bloc.dart`
+
+```dart
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part '{feature}_bloc.freezed.dart';
+part '{feature}_event.dart';
+part '{feature}_state.dart';
+
+class {Feature}Bloc extends Bloc<{Feature}Event, {Feature}State> {
+  {Feature}Bloc() : super(const {Feature}State.initial()) {
+    on<{Feature}Fetched>(_onFetched);
+  }
+
+  Future<void> _onFetched({Feature}Fetched event, Emitter<{Feature}State> emit) async {
+    emit(const {Feature}State.loading());
+    // TODO: inject use case, call it here, fold the Either result
+    emit(const {Feature}State.loaded());
+  }
+}
+```
+
+Rules:
+- `sealed class` + `@freezed` on both event and state — always `switch`, never `if (state is X)`.
+- One BLoC per feature.
+
+---
+
+## Step 6 — Presentation: page
+
+`lib/feature/{feature}/presentation/view/{feature}_page.dart`
+
+```dart
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../../../../core/base/base_page.dart';
+import '../../../../core/constants/value_const.dart';
+import '../../../../core/di/injection_container.dart';
+import '../../../../core/ui/atoms/top_bar.dart';
+import '../bloc/{feature}_bloc.dart';
+import '{feature}_screen.dart';
+
+class {Feature}Page extends BasePage {
+  const {Feature}Page({super.key});
+
+  @override
+  State<{Feature}Page> createState() => _{Feature}PageState();
+}
+
+class _{Feature}PageState extends BasePageState<{Feature}Page> {
+  @override
+  Widget buildBlocProviders(Widget child) => BlocProvider(
+        create: (_) => sl<{Feature}Bloc>(),
+        child: child,
+      );
+
+  @override
+  PreferredSizeWidget buildAppBar(BuildContext context) =>
+      AppTopBar.primary(title: ValueConst.{feature}AppBarTitle);
+
+  @override
+  Widget buildBody(BuildContext context) => const {Feature}Screen();
+}
+```
+
+Rules:
+- Page is DI + Scaffold only — no `BlocBuilder`, no business logic.
+- Extend `BasePage` / `BasePageState`, never `StatefulWidget` directly.
+
+---
+
+## Step 7 — Presentation: screen
+
+`lib/feature/{feature}/presentation/view/{feature}_screen.dart`
+
+```dart
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../../../../core/base/base_screen.dart';
+import '../../../../core/base/bloc/master_bloc.dart';
+import '../../../../core/ui/molecules/error_view.dart';
+import '../bloc/{feature}_bloc.dart';
+
+class {Feature}Screen extends BaseScreen {
+  const {Feature}Screen({super.key});
+
+  @override
+  State<{Feature}Screen> createState() => _{Feature}ScreenState();
+}
+
+class _{Feature}ScreenState extends BaseScreenState<{Feature}Screen> {
+  @override
+  Widget body(BuildContext context) {
+    return BlocConsumer<{Feature}Bloc, {Feature}State>(
+      listener: (context, state) {
+        final master = context.read<MasterBloc>();
+        switch (state) {
+          case {Feature}Loading():
+            master.add(ShowLoader());
+          case {Feature}Loaded() || {Feature}Error():
+            master.add(HideLoader());
+          default:
+            break;
+        }
+      },
+      builder: (context, state) => switch (state) {
+        {Feature}Initial()             => const SizedBox.shrink(),
+        {Feature}Loading()             => const SizedBox.shrink(),
+        {Feature}Loaded()              => const SizedBox.shrink(), // replace with content widget
+        {Feature}Error(:final message) => ErrorView(message: message),
+      },
+    );
+  }
+}
+```
+
+Rules:
+- Screen is UI-only — no `sl<T>()` calls.
+- Extend `BaseScreen` / `BaseScreenState`, never `StatefulWidget` directly.
+- Use `showAppBottomSheet()` (inherited) — never call `AppBottomSheet.show()` directly.
+
+---
+
+## Step 8 — Wire up DI
+
+In `lib/core/di/injection_container.dart`, add in this order:
+
+```dart
+// Network — only if this feature uses a different base URL
+sl.registerLazySingleton(
+  () => createDioClient(baseUrl: ApiConstants.{feature}BaseUrl),
+  instanceName: '{feature}',
+);
+
+// Data sources
+sl.registerLazySingleton<{Feature}RemoteDataSource>(
+  () => {Feature}RemoteDataSourceImpl(sl()),
+);
+
+// Repositories
+sl.registerLazySingleton<{Feature}Repository>(
+  () => {Feature}RepositoryImpl(sl()),
+);
+
+// BLoCs — factory gives a fresh instance per page
+sl.registerFactory(() => {Feature}Bloc());
+```
+
+---
+
+## Step 9 — Add app bar string constant
+
+In `lib/core/constants/value_const.dart`:
+
+```dart
+static const String {feature}AppBarTitle = '{Human readable title}';
+```
+
+Never use an inline string literal in widget files.
+
+---
+
+## Step 10 — Run code generation
+
+```bash
+make gen
+```
+
+---
+
+## Step 11 — Verify
+
+```bash
+make analyze   # must return zero issues
+make test      # all existing tests must still pass
+```
+
+Checklist:
+- [ ] `flutter analyze` returns zero issues
+- [ ] No `import 'package:dio/...'` or `import 'package:retrofit/...'` in any `domain/` file
+- [ ] All `switch` on BLoC state are exhaustive (no `if (state is X)`)
+- [ ] Data source, repository, and BLoC registered in `injection_container.dart`
+- [ ] App bar title added to `ValueConst`
+- [ ] No hardcoded colours, spacing, or radii in widget files
+
+---
+
+## Forbidden patterns
+
+```
+❌  if (state is {Feature}Loading)          →  use switch
+❌  Colors.red / Color(0xFF...)             →  use Theme.of(context).colorScheme.*
+❌  EdgeInsets.all(16)                      →  use AppSpacing.*
+❌  BorderRadius.circular(8)               →  use AppRadius.*
+❌  'Some string'  in a widget file        →  add to ValueConst
+❌  throw SomeException()  in repository   →  return left(Failure.*)
+❌  DioException  reaching a BLoC          →  caught by BaseRepository.handleRequest
+❌  sl<T>()  inside a screen file          →  DI belongs in the page only
+❌  manually editing .freezed.dart/.g.dart →  run make gen
+```

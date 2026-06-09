@@ -35,6 +35,7 @@ claude
 **How context loads** — `CLAUDE.md` is auto-loaded on every session. It eagerly loads `docs/ai-rules/conventions.md`, `docs/reference/architecture.md`, and `docs/explanation/end-goal.md`. Contributing and agent guides are named for on-demand fetch.
 
 **Setup skill** — run `/setup-project` to check all prerequisites.
+**Scaffold skill** — run `/add-feature-template` (or `/add-feature-template <name>`) to scaffold a new feature.
 
 ---
 
@@ -47,6 +48,7 @@ claude
 **How context loads** — `.cursor/rules/conventions.mdc` has `alwaysApply: true` so it is included in every Agent request. It contains conventions and named pointers to `docs/reference/architecture.md` and `docs/explanation/end-goal.md`.
 
 **Setup skill** — ask *"help me set up this project"* — Cursor auto-includes `.cursor/rules/setup-project.mdc`.
+**Scaffold skill** — ask *"scaffold a products feature"* — Cursor auto-includes `.cursor/rules/add-feature-template.mdc`.
 
 ---
 
@@ -70,6 +72,7 @@ gemini
 **How context loads** — `GEMINI.md` is auto-loaded at session start. It eagerly loads conventions, architecture, end-goal, and the setup checklist via `@` imports.
 
 **Setup skill** — ask *"help me set up this project"*.
+**Scaffold skill** — ask *"scaffold a products feature"*.
 
 ---
 
@@ -82,6 +85,7 @@ gemini
 **How context loads** — `AGENTS.md` is auto-loaded. It contains conventions inline and named pointers to `docs/reference/architecture.md` and `docs/explanation/end-goal.md`.
 
 **Setup skill** — ask *"help me set up this project"*.
+**Scaffold skill** — ask *"scaffold a products feature"*.
 
 ---
 
@@ -105,6 +109,7 @@ codex
 **How context loads** — `AGENTS.md` is auto-loaded at session start. It contains conventions inline and named pointers to `docs/reference/architecture.md` and `docs/explanation/end-goal.md`.
 
 **Setup skill** — type `$setup-project` to run the environment checklist, or ask about project setup and Codex auto-triggers it.
+**Scaffold skill** — type `$add-feature-template <name>` to scaffold a new feature.
 
 ---
 
@@ -131,16 +136,17 @@ q chat
 **How context loads** — all files in `.amazonq/rules/` are auto-loaded on every interaction. Four symlinks point to the docs sources: `conventions.md`, `architecture.md`, `end-goal.md`, and `setup-project.md`.
 
 **Setup skill** — Amazon Q loads `setup-project.md` automatically. Ask *"check my project setup"* to trigger it explicitly.
+**Scaffold skill** — Amazon Q loads `add-feature-template.md` automatically. Ask *"scaffold a products feature"* to trigger it.
 
 ---
 
 ## Quick comparison
 
-| Agent | Instruction file | Setup trigger |
-|---|---|---|
-| Claude Code | `CLAUDE.md` | `/setup-project` |
-| Cursor | `.cursor/rules/conventions.mdc` | Ask about setup |
-| Gemini CLI | `GEMINI.md` | Ask about setup |
-| Android Studio | `AGENTS.md` | Ask about setup |
-| Codex CLI | `AGENTS.md` | `$setup-project` |
-| Amazon Q | `.amazonq/rules/` (all files) | Always loaded |
+| Agent | Instruction file | Setup trigger | Scaffold trigger |
+|---|---|---|---|
+| Claude Code | `CLAUDE.md` | `/setup-project` | `/add-feature-template` |
+| Cursor | `.cursor/rules/conventions.mdc` | Ask about setup | Ask to scaffold a feature |
+| Gemini CLI | `GEMINI.md` | Ask about setup | Ask to scaffold a feature |
+| Android Studio | `AGENTS.md` | Ask about setup | Ask to scaffold a feature |
+| Codex CLI | `AGENTS.md` | `$setup-project` | `$add-feature-template` |
+| Amazon Q | `.amazonq/rules/` (all files) | Always loaded | Always loaded |

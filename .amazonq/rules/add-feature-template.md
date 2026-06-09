@@ -1,0 +1,1 @@
+../../docs/how-to/add-feature-template.md
