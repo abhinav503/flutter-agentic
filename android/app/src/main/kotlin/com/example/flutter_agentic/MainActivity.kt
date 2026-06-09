@@ -1,4 +1,4 @@
-package com.example.cordelia_base
+package com.example.flutter_agentic
 
 import io.flutter.embedding.android.FlutterActivity
 

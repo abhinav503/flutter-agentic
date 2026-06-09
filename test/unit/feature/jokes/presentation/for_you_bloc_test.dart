@@ -1,8 +1,8 @@
 import 'package:bloc_test/bloc_test.dart';
-import 'package:cordelia_base/core/error/failure.dart';
-import 'package:cordelia_base/feature/jokes/domain/entities/joke_entity.dart';
-import 'package:cordelia_base/feature/jokes/domain/usecase/get_random_joke_usecase.dart';
-import 'package:cordelia_base/feature/jokes/presentation/bloc/for_you_bloc.dart';
+import 'package:flutter_agentic/core/error/failure.dart';
+import 'package:flutter_agentic/feature/jokes/domain/entities/joke_entity.dart';
+import 'package:flutter_agentic/feature/jokes/domain/usecase/get_random_joke_usecase.dart';
+import 'package:flutter_agentic/feature/jokes/presentation/bloc/for_you_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fpdart/fpdart.dart';
 

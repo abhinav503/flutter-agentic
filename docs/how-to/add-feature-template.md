@@ -233,4 +233,4 @@ make gen && make analyze
 
 **BLoC part files:** `{feature}_event.dart` and `{feature}_state.dart` begin with `part of '{feature}_bloc.dart'`. The bloc declares `part '{feature}_event.dart'` and `part '{feature}_state.dart'`. One `make gen` covers all three.
 
-**Imports:** always relative (`../../../../`), never `package:cordelia_base/...`.
+**Imports:** always relative (`../../../../`), never `package:flutter_agentic/...`.

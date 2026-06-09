@@ -14,7 +14,7 @@ If the feature name was not passed as an argument, ask:
 
 Scaffold only — do NOT create entity, model, or use case files.
 BLoCs are never registered in GetIt.
-All imports are relative (`../../../../`), never `package:cordelia_base/...`.
+All imports are relative (`../../../../`), never `package:flutter_agentic/...`.
 Run `make gen` and `make analyze` at the end before reporting done.
 
 ---

@@ -1,4 +1,4 @@
-# Cordelia Base — GitHub Copilot Instructions
+# FlutterAgentic — GitHub Copilot Instructions
 
 ## Documentation Index
 

@@ -1,4 +1,4 @@
-# Cordelia Base — Agent Rules (Android Studio · Codex CLI)
+# FlutterAgentic — Agent Rules (Android Studio · Codex CLI)
 
 > Full reference → `docs/` folder · Setup skill → `$setup-project` or ask about project setup
 

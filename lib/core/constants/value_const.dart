@@ -1,6 +1,6 @@
 abstract final class ValueConst {
   // ── App ───────────────────────────────────────────────────────────────────
-  static const appTitle = 'Cordelia Base';
+  static const appTitle = 'FlutterAgentic';
 
   // ── Jokes feature ─────────────────────────────────────────────────────────
   static const jokeAppBarTitle   = 'Dad Jokes';
