@@ -3,75 +3,60 @@ name: setup-project
 description: >
   Check all prerequisites needed to run this Flutter project locally.
   Verifies Flutter SDK, Dart, dependencies, generated files, git hooks,
-  Android emulator, iOS simulator (macOS only), connected devices, theme
-  config, and static analysis. Auto-fixes missing dependencies and generated
-  files. Invoke with $setup-project or ask about project setup.
+  available run targets, and static analysis. Auto-fixes missing dependencies
+  and generated files. For platform tools (Android Studio, Xcode), shows
+  flutter doctor output only — no install or configuration commands.
+  Invoke with $setup-project or ask about project setup.
 ---
 
-Check every prerequisite needed to run this Flutter project locally, then show the user a checklist with the status of each item and any fix commands for missing ones.
+Check every prerequisite needed to run this Flutter project locally, then show the user a checklist with the status of each item.
 
 ## What to check
 
 Run these checks using terminal/shell tools. Never assume — always verify the actual state.
 
-### 1. Detect OS
-- Run `uname -s` to detect the operating system
-- `Darwin` → macOS (check both Android emulator AND iOS simulator)
-- `Linux` / `MINGW*` / `MSYS*` → Windows/Linux (check Android emulator only)
-- This determines which simulator checks apply below
-
-### 2. Flutter SDK
+### 1. Flutter SDK
 - Run `flutter --version` — capture the version string
-- Run `flutter doctor -v` — check for any issues relevant to the current OS
 - Check that the Flutter version meets the `environment.sdk` constraint in `pubspec.yaml`
+- If Flutter is not installed or the wrong version: ❌ — tell the user to install Flutter from https://docs.flutter.dev/get-started/install
 
-### 3. Dart SDK
+### 2. Dart SDK
 - Confirm Dart version from `dart --version`
 - Cross-check against `environment.sdk` in `pubspec.yaml`
 
-### 4. Dependencies
+### 3. Dependencies
 - Check if `pubspec.lock` exists
 - If missing: **automatically run `flutter pub get`** and report it as fixed, not as an error
 - Show ✅ after it completes successfully, ❌ if it fails
 
-### 5. Code generation
+### 4. Code generation
 - Scan `lib/` for `part '*.freezed.dart'` and `part '*.g.dart'` declarations whose target files don't exist on disk
 - If any are missing: **automatically run `dart run build_runner build --delete-conflicting-outputs`** and report it as fixed
 - Show ✅ after it completes successfully, ❌ if it fails
 - Do not ask the user — just run it and report the outcome
 
-### 6. Git hooks
+### 5. Git hooks
 - Check if `git config core.hooksPath` is set to `.githooks`
 - Check if `.githooks/pre-commit` is executable (`-x` permission)
 
-### 7. Android emulator (all platforms)
-- Detect Android SDK: check `$ANDROID_HOME` / `$ANDROID_SDK_ROOT`, or run `sdkmanager --list_installed 2>/dev/null`
-- If Android SDK not found: ❌
-- If SDK found, check AVDs: run `emulator -list-avds 2>/dev/null`
-  - No AVDs: ❌ — provide create instructions
-  - AVDs exist but none running: ⚠️ — show name(s) + start command
-  - Emulator running: ✅
-
-### 8. iOS simulator (macOS only — skip entirely on Linux/Windows)
-- Check Xcode is installed: run `xcode-select -p 2>/dev/null`
-- If Xcode missing: ❌ — `xcode-select --install`
-- Check Xcode license accepted: run `xcodebuild -license status 2>/dev/null`
-- If license not accepted: ❌ — `sudo xcodebuild -license accept`
-- List available simulators: run `xcrun simctl list devices available 2>/dev/null`
-  - No simulators: ❌ — open Xcode → Platforms → download an iOS simulator runtime
-  - Simulators available but none booted: ⚠️ — show device name + `xcrun simctl boot "<name>"`
-  - A simulator is already booted: ✅
-
-### 9. Connected devices
+### 6. Available run targets
 - Run `flutter devices` — list all currently visible targets
-- If no devices at all: ⚠️ (warning only — not a blocker if simulators/emulators exist)
+- Report each device/simulator/emulator found as ✅
+- If no Android target is found: ⚠️ — "No Android emulator detected"
+- If on macOS and no iOS target found: ⚠️ — "No iOS simulator detected"
+- If no targets at all: ❌
 
-### 10. Theme config
+### 7. flutter doctor (platform tools)
+- Run `flutter doctor` — show its output as-is for the Android and iOS/Xcode sections only
+- Do **not** attempt to install, configure, or fix anything in Android Studio, Xcode, or SDKs — that is the user's responsibility
+- The flutter doctor output is informational only
+
+### 8. Theme config
 - Confirm `assets/theme/theme_config.json` exists
 - Confirm it is listed under `flutter > assets` in `pubspec.yaml`
 - Parse and show the current `activeTheme` value
 
-### 11. Static analysis
+### 9. Static analysis
 - Run `flutter analyze --no-pub`
 - Report pass or list issues
 
@@ -84,64 +69,37 @@ Show a single checklist. Each item must have:
 - ✅ *(auto-fixed)* — was missing but was fixed automatically during this check
 - ❌ failing — one-line reason (requires manual action)
 - ⚠️ warning / optional
-- *(skipped)* — for iOS checks on non-macOS systems
 
-After the checklist, show a **"What to do"** section listing only items that still require manual action with the exact command for each.
+After the checklist, show a **"What to do"** section listing only items that still require manual action.
+
+For platform tool issues (Android Studio, Xcode, simulators), always direct the user to the `flutter doctor` output — never provide install commands for those tools.
 
 Dependencies and generated files are **auto-fixed silently** — run the commands, then show the result. Never ask the user first.
 
 ---
 
-## Example output — macOS
+## Example output
 
 ```
 ## Project Setup Checklist
 
-✅ OS: macOS — checking Android + iOS targets
 ✅ Flutter 3.x.x (stable) — meets SDK constraint ^3.x.x
 ✅ Dart 3.x.x
 ✅ Dependencies fetched *(auto-fixed — ran flutter pub get)*
 ✅ Generated files *(auto-fixed — ran build_runner)*
 ✅ Git hooks active (.githooks/pre-commit executable)
-⚠️ Android emulator — AVD "Pixel_8" exists but not running
-✅ Xcode 15.x installed, license accepted
-⚠️ iOS simulator — "iPhone 15" available but not booted
-⚠️ Flutter devices — no device currently running
+⚠️ Android — no emulator detected
+⚠️ iOS — no simulator detected
 ✅ Theme config — activeTheme: "dadJokes"
 ✅ flutter analyze — no issues
 
-## What to do
+## flutter doctor (platform tools)
 
-⚠️ Start Android emulator
-   → emulator -avd Pixel_8
-
-⚠️ Boot iOS simulator
-   → xcrun simctl boot "iPhone 15"
-   → open -a Simulator
-```
-
-## Example output — Linux/Windows
-
-```
-## Project Setup Checklist
-
-✅ OS: Linux — checking Android target only
-✅ Flutter 3.x.x (stable)
-✅ Dart 3.x.x
-✅ Dependencies fetched
-✅ Generated files present
-✅ Git hooks active
-❌ Android SDK not found
-iOS simulator — (skipped, macOS only)
-⚠️ Flutter devices — no device currently running
-✅ Theme config — activeTheme: "oceanBreeze"
-✅ flutter analyze — no issues
+[paste relevant Android / Xcode sections from flutter doctor output here]
 
 ## What to do
 
-❌ Android SDK not found
-   → Install Android Studio: https://developer.android.com/studio
-   → Set ANDROID_HOME in your shell profile after installation
+⚠️ No run targets found — see flutter doctor output above to set up Android Studio or Xcode
 ```
 
 Keep output concise. Do not explain items that are already passing.

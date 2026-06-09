@@ -1,7 +1,4 @@
----
-description: Project-wide coding conventions and rules for Cordelia Base. Always include for all code generation tasks.
-alwaysApply: true
----
+# Cordelia Base — GitHub Copilot Instructions
 
 ## Documentation Index
 
@@ -17,9 +14,27 @@ Read on demand:
 
 ---
 
-## Build & Run
+## Architecture
 
-After cloning, run `make setup` once to install git hooks and fetch packages.
+Feature-first Clean Architecture. Three layers per feature, strict dependency rule:
+
+```
+presentation  →  domain  ←  data
+```
+
+- `domain/` — zero imports from Flutter, Dio, Retrofit, or BLoC
+- `data/` — zero imports from BLoC or UI packages
+- `presentation/` — zero imports from Dio or Retrofit
+
+State: `flutter_bloc` with `@freezed` sealed events/states — always use exhaustive `switch` in builders, never `if (state is X)`.
+
+Errors: `fpdart` `Either<Failure, T>` — no `throw` across layer boundaries, never let `DioException` reach a BLoC or widget.
+
+DI: `get_it` service locator (`sl<T>()`). BLoCs are NOT registered in GetIt — instantiate them in `BlocProvider` inside `buildBody`.
+
+---
+
+## Build & Run
 
 ```bash
 make setup    # first-time setup: git hooks + flutter pub get
@@ -30,7 +45,7 @@ make analyze  # flutter analyze
 make gen      # dart run build_runner build --delete-conflicting-outputs
 ```
 
-The pre-commit hook formats staged Dart files and runs `flutter analyze` — commits are blocked if analysis fails.
+Run `make gen` after changing any `@freezed`, `@JsonSerializable`, or `@RestApi()` file. Never manually edit `.freezed.dart` or `.g.dart` files.
 
 ---
 
@@ -56,17 +71,7 @@ The pre-commit hook formats staged Dart files and runs `flutter analyze` — com
 
 ---
 
-## Code Generation
-
-Run after changing any `@freezed`, `@JsonSerializable`, or `@RestApi()` file:
-
-```bash
-dart run build_runner build --delete-conflicting-outputs
-```
-
----
-
-## Git
+## Git Commit Format
 
 ```
 <type>: <summary under 72 chars>
@@ -79,3 +84,9 @@ Why:
 ```
 
 Types: `feat` `fix` `chore` `refactor` `test` `docs` `ci`
+
+---
+
+## Project Setup
+
+When the user asks about running the project locally, setting up their environment, or troubleshooting missing tools or emulators, follow the instructions in `docs/ai-rules/setup-project.md`.
