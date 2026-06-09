@@ -1,6 +1,8 @@
-# How to Add a New Feature
+# How to Scaffold a New Feature
 
 > **Diataxis type:** How-to guide — goal-oriented, step-by-step.
+> This guide creates the wiring skeleton only. Entities, models, and use cases are
+> added separately once the data source shape is known.
 > For architecture rationale see `docs/reference/architecture.md`.
 > For layer rules and forbidden patterns see `docs/ai-rules/conventions.md`.
 
@@ -21,19 +23,16 @@
 lib/feature/{feature}/
 ├── data/
 │   ├── data_source/
-│   │   ├── {feature}_remote_data_source.dart        abstract interface
-│   │   └── {feature}_remote_data_source_impl.dart   @RestApi() Retrofit impl
-│   ├── models/
-│   │   └── {feature}_model.dart                     @freezed DTO
+│   │   ├── {feature}_remote_data_source.dart        empty abstract interface
+│   │   └── {feature}_remote_data_source_impl.dart   empty @RestApi() stub
+│   ├── models/                                       empty — populate when API shape is known
 │   └── repository_impl/
-│       └── {feature}_repository_impl.dart
+│       └── {feature}_repository_impl.dart           empty, wired to BaseRepository
 ├── domain/
-│   ├── entities/
-│   │   └── {feature}_entity.dart
+│   ├── entities/                                     empty — add after models are defined
 │   ├── repository/
-│   │   └── {feature}_repository.dart                abstract interface
-│   └── usecase/
-│       └── get_{feature}_usecase.dart
+│   │   └── {feature}_repository.dart                empty abstract interface
+│   └── usecase/                                      empty — add after entities are defined
 └── presentation/
     ├── bloc/
     │   ├── {feature}_bloc.dart
@@ -65,116 +64,27 @@ mkdir -p lib/feature/{feature}/presentation/widgets
 
 ---
 
-### 2. Domain — entity
-
-`lib/feature/{feature}/domain/entities/{feature}_entity.dart`
-
-```dart
-class {Feature}Entity {
-  final String id;
-
-  const {Feature}Entity({required this.id});
-}
-```
-
-Rules:
-- Plain Dart only — no Flutter, no Freezed annotations, no JSON annotations.
-- Suffix must be `Entity`. Never expose this class outside `domain/`.
-
----
-
-### 3. Domain — repository interface
+### 2. Domain — repository interface
 
 `lib/feature/{feature}/domain/repository/{feature}_repository.dart`
 
 ```dart
-import 'package:fpdart/fpdart.dart';
-
-import '../../../../core/error/failure.dart';
-import '../entities/{feature}_entity.dart';
-
-abstract interface class {Feature}Repository {
-  Future<Either<Failure, {Feature}Entity>> get{Feature}();
-}
+abstract interface class {Feature}Repository {}
 ```
 
 Rules:
 - `abstract interface class` — not `abstract class`.
-- Return type is always `Either<Failure, T>`. Never `throw` across layer boundaries.
 - No `dio`, `retrofit`, or Flutter imports here.
+- Methods are added here once entities exist. Return type is always `Either<Failure, T>` — never `throw` across layer boundaries.
 
 ---
 
-### 4. Domain — use case
-
-`lib/feature/{feature}/domain/usecase/get_{feature}_usecase.dart`
-
-```dart
-import 'package:fpdart/fpdart.dart';
-
-import '../../../../core/error/failure.dart';
-import '../../../../core/usecase/usecase.dart';
-import '../entities/{feature}_entity.dart';
-import '../repository/{feature}_repository.dart';
-
-class Get{Feature}UseCase extends UseCase<Either<Failure, {Feature}Entity>, NoParams> {
-  final {Feature}Repository _repository;
-
-  const Get{Feature}UseCase(this._repository);
-
-  @override
-  Future<Either<Failure, {Feature}Entity>> call(NoParams params) =>
-      _repository.get{Feature}();
-}
-```
-
-Use `NoParams` when the use case needs no input. For parameterised use cases define a `{Action}Params` class in the same file.
-
----
-
-### 5. Data — model (DTO)
-
-`lib/feature/{feature}/data/models/{feature}_model.dart`
-
-```dart
-import 'package:freezed_annotation/freezed_annotation.dart';
-
-part '{feature}_model.freezed.dart';
-part '{feature}_model.g.dart';
-
-@freezed
-abstract class {Feature}Model with _${Feature}Model {
-  const factory {Feature}Model({
-    required String id,
-  }) = _{Feature}Model;
-
-  factory {Feature}Model.fromJson(Map<String, dynamic> json) =>
-      _${Feature}ModelFromJson(json);
-}
-```
-
-After saving, run code generation:
-
-```bash
-make gen
-```
-
-Rules:
-- Never expose `*Model` classes outside `data/`.
-- Use `@JsonKey(name: 'snake_key')` when the JSON key differs from the Dart field name.
-
----
-
-### 6. Data — remote data source
+### 3. Data — remote data source
 
 **Interface** — `lib/feature/{feature}/data/data_source/{feature}_remote_data_source.dart`
 
 ```dart
-import '../models/{feature}_model.dart';
-
-abstract interface class {Feature}RemoteDataSource {
-  Future<{Feature}Model> get{Feature}();
-}
+abstract interface class {Feature}RemoteDataSource {}
 ```
 
 **Retrofit implementation** — `lib/feature/{feature}/data/data_source/{feature}_remote_data_source_impl.dart`
@@ -183,7 +93,6 @@ abstract interface class {Feature}RemoteDataSource {
 import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
 
-import '../models/{feature}_model.dart';
 import '{feature}_remote_data_source.dart';
 
 part '{feature}_remote_data_source_impl.g.dart';
@@ -192,10 +101,6 @@ part '{feature}_remote_data_source_impl.g.dart';
 abstract class {Feature}RemoteDataSourceImpl implements {Feature}RemoteDataSource {
   factory {Feature}RemoteDataSourceImpl(Dio dio, {String? baseUrl}) =
       _{Feature}RemoteDataSourceImpl;
-
-  @override
-  @GET('/endpoint')
-  Future<{Feature}Model> get{Feature}();
 }
 ```
 
@@ -203,16 +108,12 @@ Run `make gen` after saving.
 
 ---
 
-### 7. Data — repository implementation
+### 4. Data — repository implementation
 
 `lib/feature/{feature}/data/repository_impl/{feature}_repository_impl.dart`
 
 ```dart
-import 'package:fpdart/fpdart.dart';
-
 import '../../../../core/base/base_repository.dart';
-import '../../../../core/error/failure.dart';
-import '../../domain/entities/{feature}_entity.dart';
 import '../../domain/repository/{feature}_repository.dart';
 import '../data_source/{feature}_remote_data_source.dart';
 
@@ -220,23 +121,16 @@ class {Feature}RepositoryImpl with BaseRepository implements {Feature}Repository
   final {Feature}RemoteDataSource _dataSource;
 
   const {Feature}RepositoryImpl(this._dataSource);
-
-  @override
-  Future<Either<Failure, {Feature}Entity>> get{Feature}() =>
-      handleRequest(() async {
-        final model = await _dataSource.get{Feature}();
-        return right({Feature}Entity(id: model.id));
-      });
 }
 ```
 
 Rules:
-- Always use `handleRequest()` from `BaseRepository` — never write `try/catch` manually.
-- Map model fields to entity fields here. Do not leak `*Model` out of this class.
+- Always use `handleRequest()` from `BaseRepository` when adding methods — never write `try/catch` manually.
+- Map model fields to entity fields inside `handleRequest`. Never leak `*Model` outside this class.
 
 ---
 
-### 8. Presentation — BLoC
+### 5. Presentation — BLoC
 
 Three files. The event and state files are `part of` the bloc file.
 
@@ -258,12 +152,15 @@ part of '{feature}_bloc.dart';
 
 @freezed
 sealed class {Feature}State with _${Feature}State {
-  const factory {Feature}State.initial()                              = {Feature}Initial;
-  const factory {Feature}State.loading()                             = {Feature}Loading;
-  const factory {Feature}State.loaded({required {Feature}Entity item}) = {Feature}Loaded;
-  const factory {Feature}State.error({required String message})      = {Feature}Error;
+  const factory {Feature}State.initial()                         = {Feature}Initial;
+  const factory {Feature}State.loading()                        = {Feature}Loading;
+  const factory {Feature}State.loaded()                         = {Feature}Loaded;
+  const factory {Feature}State.error({required String message}) = {Feature}Error;
 }
 ```
+
+> Add data fields to `loaded` once the entity is defined, e.g.
+> `const factory {Feature}State.loaded({required {Feature}Entity item}) = {Feature}Loaded;`
 
 **`lib/feature/{feature}/presentation/bloc/{feature}_bloc.dart`**
 
@@ -271,28 +168,19 @@ sealed class {Feature}State with _${Feature}State {
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import '../../../../core/usecase/usecase.dart';
-import '../../domain/entities/{feature}_entity.dart';
-import '../../domain/usecase/get_{feature}_usecase.dart';
-
 part '{feature}_bloc.freezed.dart';
 part '{feature}_event.dart';
 part '{feature}_state.dart';
 
 class {Feature}Bloc extends Bloc<{Feature}Event, {Feature}State> {
-  final Get{Feature}UseCase _get{Feature};
-
-  {Feature}Bloc(this._get{Feature}) : super(const {Feature}State.initial()) {
+  {Feature}Bloc() : super(const {Feature}State.initial()) {
     on<{Feature}Fetched>(_onFetched);
   }
 
   Future<void> _onFetched({Feature}Fetched event, Emitter<{Feature}State> emit) async {
     emit(const {Feature}State.loading());
-    final result = await _get{Feature}(const NoParams());
-    result.fold(
-      (failure) => emit({Feature}State.error(message: failure.message)),
-      (item)    => emit({Feature}State.loaded(item: item)),
-    );
+    // TODO: inject use case, call it here, fold the Either result
+    emit(const {Feature}State.loaded());
   }
 }
 ```
@@ -306,7 +194,7 @@ Rules:
 
 ---
 
-### 9. Presentation — page
+### 6. Presentation — page
 
 `lib/feature/{feature}/presentation/view/{feature}_page.dart`
 
@@ -364,7 +252,7 @@ Widget buildBlocProviders(Widget child) => MultiBlocProvider(
 
 ---
 
-### 10. Presentation — screen
+### 7. Presentation — screen
 
 `lib/feature/{feature}/presentation/view/{feature}_screen.dart`
 
@@ -400,10 +288,10 @@ class _{Feature}ScreenState extends BaseScreenState<{Feature}Screen> {
         }
       },
       builder: (context, state) => switch (state) {
-        {Feature}Initial()              => const SizedBox.shrink(),
-        {Feature}Loading()              => const SizedBox.shrink(),
-        {Feature}Loaded(:final item)    => Text(item.id),
-        {Feature}Error(:final message)  => ErrorView(message: message),
+        {Feature}Initial()             => const SizedBox.shrink(),
+        {Feature}Loading()             => const SizedBox.shrink(),
+        {Feature}Loaded()              => const SizedBox.shrink(), // replace with content widget
+        {Feature}Error(:final message) => ErrorView(message: message),
       },
     );
   }
@@ -418,7 +306,7 @@ Rules:
 
 ---
 
-### 11. Wire up DI
+### 8. Wire up DI
 
 Add registrations to `lib/core/di/injection_container.dart` in this exact order:
 
@@ -439,18 +327,16 @@ sl.registerLazySingleton<{Feature}Repository>(
   () => {Feature}RepositoryImpl(sl()),
 );
 
-// Use cases
-sl.registerLazySingleton(() => Get{Feature}UseCase(sl()));
-
 // BLoCs — factory gives a fresh instance per page
-sl.registerFactory(() => {Feature}Bloc(sl()));
+sl.registerFactory(() => {Feature}Bloc());
 ```
 
 If the feature shares the existing Dio client, omit the network registration and pass `sl()` directly.
+Add use case registrations (`sl.registerLazySingleton(() => Get{Feature}UseCase(sl()))`) and update the BLoC factory once use cases exist.
 
 ---
 
-### 12. Add the app bar string constant
+### 9. Add the app bar string constant
 
 `lib/core/constants/value_const.dart` — add one line:
 
@@ -462,7 +348,7 @@ Never use an inline string literal in the page file.
 
 ---
 
-### 13. Run code generation
+### 10. Run code generation
 
 ```bash
 make gen
@@ -472,7 +358,7 @@ This regenerates all `.freezed.dart` and `.g.dart` files. Never edit those files
 
 ---
 
-### 14. Verify
+### 11. Verify
 
 ```bash
 make analyze   # must produce zero issues
@@ -482,9 +368,8 @@ make test      # all existing tests must still pass
 Checklist:
 - [ ] `flutter analyze` returns zero issues
 - [ ] No `import 'package:dio/...'` or `import 'package:retrofit/...'` in any `domain/` file
-- [ ] No `*Model` class referenced outside `data/`
 - [ ] All `switch` on BLoC state are exhaustive (no `if (state is X)`)
-- [ ] Every new class registered in `injection_container.dart`
+- [ ] Data source, repository, and BLoC registered in `injection_container.dart`
 - [ ] App bar title string added to `ValueConst`
 - [ ] No hardcoded colours, spacing, or radii in widget files
 
@@ -502,6 +387,8 @@ Checklist:
 | `{feature}` | snake\_case | `products` |
 | `{action}` | snake\_case verb | `get_product`, `search_products` |
 | `{Action}` | PascalCase verb | `GetProduct`, `SearchProducts` |
+
+**Scaffold scope** — this guide produces only the wiring skeleton. Do NOT create entity files, model files, or use cases during scaffolding. Those are added in a separate step after the API response shape is confirmed.
 
 **Part/part-of relationship** — the three BLoC files share one Freezed compilation unit:
 - `{feature}_bloc.dart` declares `part '{feature}_event.dart'` and `part '{feature}_state.dart'`

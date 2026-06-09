@@ -7,7 +7,7 @@
 @docs/explanation/end-goal.md
 
 Read `docs/how-to/contributing.md` for contributor workflow and git hooks.
-Read `docs/how-to/add-feature.md` when scaffolding a new feature — it has the full folder tree, empty class skeletons, DI registration order, and a forbidden-pattern checklist.
+Read `docs/how-to/add-feature-template.md` when scaffolding a new feature — it has the full folder tree, empty class skeletons, DI registration order, and a forbidden-pattern checklist.
 Read `docs/explanation/ai-agents.md` for per-agent install and usage.
 
 ---

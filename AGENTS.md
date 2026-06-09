@@ -10,7 +10,7 @@ Read before writing or modifying any code:
 
 Read on demand:
 - `docs/how-to/contributing.md` — contributor workflow and git hooks
-- `docs/how-to/add-feature.md` — full folder tree, empty class skeletons, DI wiring, and forbidden-pattern checklist for scaffolding a new feature
+- `docs/how-to/add-feature-template.md` — full folder tree, empty class skeletons, DI wiring, and forbidden-pattern checklist for scaffolding a new feature
 - `docs/explanation/ai-agents.md` — per-agent install and usage
 
 ---
