@@ -15,6 +15,33 @@ Most Flutter starters give you folders. FlutterAgentic gives you a rulebook plus
 
 The documentation is organised with the [Diataxis](https://diataxis.fr/) framework, so both humans and AI agents can quickly separate task guides, exact architecture reference, project reasoning, and operational coding rules.
 
+## Why AI Agents Need Rules, Skills & Architecture
+
+Think of an AI agent like a talented contractor joining your team. Without a handbook, every contractor codes differently — different file names, different patterns, different assumptions. After five features the codebase is a mess no one wants to touch.
+
+FlutterAgentic is the handbook. Every agent that opens this repo gets the same rules, the same scaffold skills, and the same architecture blueprint — before writing a single line.
+
+```mermaid
+flowchart LR
+    subgraph Agents["🤖 AI Agents"]
+        A["Claude Code\nGitHub Copilot\nCursor · Codex\nGemini · Amazon Q"]
+    end
+
+    subgraph FA["📦 FlutterAgentic"]
+        direction TB
+        R["📋 Rules\nPatterns · naming · boundaries"]
+        SK["🔧 Skills\nScaffold · rename · setup"]
+        AR["🏗️ Architecture\nLayers · DI · testing"]
+        R --> SK --> AR
+    end
+
+    subgraph OUT["✅ Output"]
+        O["Consistent\nLayered\nNo violations\nTestable"]
+    end
+
+    Agents --> FA --> OUT
+```
+
 ## AI Agent Support
 
 FlutterAgentic includes repo-native instructions for Claude Code, Codex CLI, Cursor, Gemini, Android Studio, GitHub Copilot, and Amazon Q.
@@ -27,13 +54,14 @@ FlutterAgentic includes repo-native instructions for Claude Code, Codex CLI, Cur
 | <img alt="Cursor" src="https://img.shields.io/badge/Cursor-000000?logo=cursor&logoColor=white" /> | `.cursor/rules/` | Ask to set up or scaffold a feature |
 | <img alt="Gemini CLI" src="https://img.shields.io/badge/Gemini_CLI-4285F4?logo=googlegemini&logoColor=white" /> | `GEMINI.md` | Ask to set up or scaffold a feature |
 | <img alt="Android Studio" src="https://img.shields.io/badge/Android_Studio-3DDC84?logo=androidstudio&logoColor=111827" /> | `AGENTS.md` | Ask to set up or scaffold a feature |
-| <img alt="Amazon Q" src="https://img.shields.io/badge/Amazon_Q-232F3E?logo=amazonaws&logoColor=white" /> | `.amazonq/rules/` | Rules are loaded from the repo |
+| <img alt="Amazon Q" src="https://img.shields.io/badge/Amazon_Q-232F3E?logo=amazonwebservices&logoColor=white" /> | `.amazonq/rules/` | Rules are loaded from the repo |
 
 Available skills:
 
 - `setup-project` — checks Flutter/Dart setup, dependencies, generated files, hooks, run targets, and analysis.
 - `add-feature-template` — scaffolds a new Clean Architecture feature with folders, class skeletons, BLoC state, screen/page files, and DI wiring.
 - `rename-app` — renames the app across all platform files (iOS, Android, Web), Dart source, test imports, VS Code config, and all AI rules docs in one pass.
+- `review-code` — audits generated or modified code against the project's architecture contracts, forbidden-pattern checklist, naming conventions, DI rules, and test coverage expectations. Run this after any code generation for best results.
 
 ## Why Fork This?
 
@@ -221,6 +249,22 @@ GitHub Actions runs on every push and pull request:
 - `flutter test --coverage`
 
 See [`.github/workflows/validate.yml`](.github/workflows/validate.yml).
+
+## A Note on AI-Generated Code
+
+FlutterAgentic gives every AI agent the same rules, patterns, and architecture contracts — but it does not guarantee perfect output on the first attempt.
+
+AI agents are probabilistic. They can miss a rule, drift on a complex feature, or make a subtle layer violation even with a full rulebook in front of them. **That is normal.** The value of this template is not that agents get it right once — it is that they get it right consistently across iterations, because every review and every retry is anchored to the same rules.
+
+**The recommended workflow:**
+
+1. Generate code with your agent of choice
+2. Run `/review-code` (or `$review-code`) — the agent re-reads the project rules and checks the generated output against them
+3. Fix any flagged issues and iterate
+
+Two or three iterations with a shared rulebook produces far better results than ten iterations without one.
+
+> `/review-code` is a skill in this repo. It reads the architecture contracts, forbidden-pattern checklist, and naming conventions, then audits the code you just generated and reports exactly what to fix.
 
 ## Quick Links
 
