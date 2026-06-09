@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import '../../domain/entities/joke_search_result_entity.dart';
+import '../../domain/entities/joke_entity.dart';
 import '../../domain/usecase/search_jokes_usecase.dart';
 
 part 'search_page_bloc.freezed.dart';
@@ -23,12 +23,24 @@ class SearchPageBloc extends Bloc<SearchPageEvent, SearchPageState> {
     SearchPageSubmitted event,
     Emitter<SearchPageState> emit,
   ) async {
+    await _doSearch(term: event.term, emit: emit);
+  }
+
+  Future<void> _onChipSelected(
+    SearchPageChipSelected event,
+    Emitter<SearchPageState> emit,
+  ) async {
+    await _doSearch(term: event.term, emit: emit);
+  }
+
+  Future<void> _doSearch({
+    required String term,
+    required Emitter<SearchPageState> emit,
+  }) async {
     emit(const SearchPageState.loading());
-    final result = await _searchJokes(
-      SearchJokesParams(term: event.term, page: 1),
-    );
+    final result = await _searchJokes(SearchJokesParams(term: term, page: 1));
     result.fold(
-      (f) => emit(SearchPageState.error(message: f.message)),
+      (f) => emit(SearchPageState.error(message: f.message, searchTerm: term)),
       (page) => emit(SearchPageState.loaded(
         results: page.results,
         totalJokes: page.totalJokes,
@@ -37,13 +49,6 @@ class SearchPageBloc extends Bloc<SearchPageEvent, SearchPageState> {
         searchTerm: page.searchTerm,
       )),
     );
-  }
-
-  Future<void> _onChipSelected(
-    SearchPageChipSelected event,
-    Emitter<SearchPageState> emit,
-  ) async {
-    add(SearchPageEvent.submitted(term: event.term));
   }
 
   Future<void> _onLoadMore(

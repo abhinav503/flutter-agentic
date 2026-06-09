@@ -4,14 +4,14 @@ import '../../../../core/constants/value_const.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/ui/atoms/badge.dart';
 import '../../../../core/ui/atoms/button.dart';
-import '../../domain/entities/joke_search_result_entity.dart';
+import '../../domain/entities/joke_entity.dart';
 import '../bloc/search_page_bloc.dart';
 
 import 'joke_list_tile.dart';
 
 class JokeResultsView extends StatelessWidget {
   final SearchPageLoaded state;
-  final void Function(JokeSearchResultEntity) onTileTap;
+  final void Function(JokeEntity) onTileTap;
   final VoidCallback onLoadMore;
 
   const JokeResultsView({

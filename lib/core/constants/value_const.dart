@@ -7,7 +7,7 @@ abstract final class ValueConst {
   static const jokeFabTooltip    = 'Random joke';
   static const jokeSheetTitle    = 'Dad Joke';
   static const jokeCardBadge     = 'Dad Joke';
-static const jokeEmptyTitle    = 'Ready for a laugh?';
+  static const jokeEmptyTitle    = 'Ready for a laugh?';
   static const jokeEmptySubtitle = 'Search above or tap below for a random joke.';
   static const jokeEmptyButton   = 'Get a Random Joke';
   static const jokeSearchHint    = 'Search jokes...';
@@ -25,4 +25,7 @@ static const jokeEmptyTitle    = 'Ready for a laugh?';
   static const jokeTapForMore      = 'Tap for more';
   static const jokeSheetKeepButton = 'Keep this one';
   static const jokeSearchEmptyHint = 'Search for a joke above';
+
+  // ── Shared UI ─────────────────────────────────────────────────────────────
+  static const retryButton = 'Retry';
 }

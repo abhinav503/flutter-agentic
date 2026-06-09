@@ -11,7 +11,6 @@ import '../../../core/theme/app_spacing.dart';
 /// AppBottomSheet.show(
 ///   context,
 ///   title: 'Filter',
-///   onClose: () => Navigator.pop(context),
 ///   child: FilterOptions(),
 /// );
 /// ```
@@ -50,9 +49,12 @@ class AppBottomSheet extends StatelessWidget {
       enableDrag: enableDrag,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => AppBottomSheet(
+      builder: (sheetContext) => AppBottomSheet(
         title: title,
-        onClose: onClose ?? () => Navigator.of(context).pop(),
+        onClose: () {
+          Navigator.of(sheetContext).pop();
+          onClose?.call();
+        },
         actions: actions,
         isScrollable: isScrollable,
         maxHeightFraction: maxHeightFraction,
@@ -85,7 +87,6 @@ class AppBottomSheet extends StatelessWidget {
             SliverPersistentHeader(
               pinned: true,
               delegate: _HeaderDelegate(
-                context: context,
                 title: title,
                 onClose: onClose,
               ),
@@ -94,12 +95,7 @@ class AppBottomSheet extends StatelessWidget {
             if (actions != null && actions!.isNotEmpty)
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                    AppSpacing.lg,
-                    AppSpacing.lg,
-                    AppSpacing.lg,
-                    AppSpacing.lg,
-                  ),
+                  padding: const EdgeInsets.all(AppSpacing.lg),
                   child: Row(
                     children: [
                       for (int i = 0; i < actions!.length; i++) ...[
@@ -118,17 +114,12 @@ class AppBottomSheet extends StatelessWidget {
 }
 
 class _HeaderDelegate extends SliverPersistentHeaderDelegate {
-  final BuildContext context;
   final String? title;
   final VoidCallback? onClose;
 
   static const double _height = 56;
 
-  _HeaderDelegate({
-    required this.context,
-    this.title,
-    this.onClose,
-  });
+  _HeaderDelegate({this.title, this.onClose});
 
   @override
   Widget build(
@@ -140,7 +131,6 @@ class _HeaderDelegate extends SliverPersistentHeaderDelegate {
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
       child: Row(
         children: [
-          // Drag handle / title
           Expanded(
             child: title != null
                 ? Text(

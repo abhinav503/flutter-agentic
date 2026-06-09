@@ -34,14 +34,9 @@ presentation  →  domain  ←  data
 lib/
 ├── core/                            shared infrastructure, no feature logic
 │   ├── base/
-│   │   ├── base_page.dart           BasePage + BasePageState (Scaffold + body-scoped loader; getter-based bottom nav)
-│   │   ├── base_page_without_bloc.dart
+│   │   ├── base_page.dart           BasePage + BasePageState (Scaffold + getter-based bottom nav)
 │   │   ├── base_repository.dart     BaseRepository mixin (Dio→Failure mapping)
-│   │   ├── base_screen.dart         BaseScreen + BaseScreenState (showAppBottomSheet, showSnackBar)
-│   │   └── bloc/
-│   │       ├── master_bloc.dart     ShowLoader / HideLoader → body-scoped overlay (auth / form submit only)
-│   │       ├── master_event.dart
-│   │       └── master_state.dart
+│   │   └── base_screen.dart         BaseScreen + BaseScreenState (showAppBottomSheet, showSnackBar)
 │   ├── constants/
 │   │   ├── api_constants.dart       base URLs, endpoint paths
 │   │   └── value_const.dart         ALL string/value constants — no inline literals anywhere
@@ -246,6 +241,37 @@ class JokeBloc extends Bloc<JokeEvent, JokeState> {
 }
 ```
 
+**Error states must carry retry context.** Every `*Error` state should include the inputs the BLoC needs to re-run the operation. This avoids the forbidden `if (state is PreviousState)` pattern in screens:
+
+```dart
+// ✅ — error carries searchTerm; screen retries cleanly
+const factory SearchPageState.error({
+  required String message,
+  required String searchTerm,  // enough to re-dispatch
+}) = SearchPageError;
+
+// in screen:
+SearchPageError(:final message, :final searchTerm) => ErrorView(
+  message: message,
+  onRetry: () => context.read<SearchPageBloc>()
+      .add(SearchPageEvent.submitted(term: searchTerm)),
+),
+
+// ❌ — screen reads prior state to recover inputs
+onRetry: () {
+  final s = bloc.state;
+  if (s is SearchPageLoaded) ...  // forbidden is-check
+},
+```
+
+**When multiple events share logic**, factor it into a private `_doWork()` method rather than calling `add()` from within a handler:
+```dart
+Future<void> _onEventA(EventA event, Emitter<State> emit) async => _doWork(event.term, emit);
+Future<void> _onEventB(EventB event, Emitter<State> emit) async => _doWork(event.term, emit);
+
+Future<void> _doWork(String term, Emitter<State> emit) async { ... }
+```
+
 **Cubit for shared in-memory state** — no Freezed needed for simple list state:
 ```dart
 class KeptJokesCubit extends Cubit<List<JokeEntity>> {
@@ -289,7 +315,7 @@ class _JokesScreenState extends BaseScreenState<JokesScreen> {
     return BlocConsumer<JokeBloc, JokeState>(
       // listener: side effects only (snackbars, navigation)
       listener: (context, state) {
-        if (state is JokeError) showSnackBar(state.message);
+        if (state case JokeError(:final message)) showSnackBar(message);
       },
       builder: (context, state) => switch (state) {
         JokeLoading()             => const LoadingIndicator(),
@@ -310,13 +336,6 @@ class _JokesScreenState extends BaseScreenState<JokesScreen> {
 @override int get selectedNavIndex => _currentTab;
 @override void onNavItemTapped(int index) => setState(() => _currentTab = index);
 ```
-
-**Custom loader** — override `buildLoader` to swap the default spinner:
-```dart
-@override
-Widget buildLoader(BuildContext context) => const MyBrandedSpinner();
-```
-The loader renders inside the Scaffold body only — it never covers the AppBar or BottomNavigationBar.
 
 ---
 
@@ -414,11 +433,6 @@ ValueConst.jokeResultsCount(state.totalJokes)   // dynamic → static method
 'Load More'
 ```
 
-### MasterBloc — body-scoped overlay
-`BasePage` renders a scrim + spinner **inside the Scaffold body** when `MasterBloc` emits `MasterLoading` — it does not cover the AppBar or BottomNavigationBar.
-Use it only for operations that block the whole body (auth, form submit).
-**Never drive it from a screen widget** — screens use inline `LoadingIndicator` or a per-state spinner for their own content loading.
-
 ### Theme configuration
 Colours and font set in `assets/theme/theme_config.json`.
 Change `activeTheme` to switch between `dadJokes`, `oceanBreeze`, `forestWalk` presets.
@@ -437,6 +451,7 @@ Individual colour roles can be overridden by key — all others are seed-generat
 
 Rules:
 - Manual fakes only — no `mockito`, no `mocktail`
-- Fake exposes a `result` field set per test
+- Fake exposes a `result` field set per test; always use the shared fake from `test/helpers/`
 - Widget tests use `BlocProvider.value(value: mockBloc, child: MaterialApp(home: Screen()))`
 - Use `bloc_test` `MockBloc` for widget tests — never wire real BLoCs
+- No real-network calls in any test — inject fakes at the data-source boundary

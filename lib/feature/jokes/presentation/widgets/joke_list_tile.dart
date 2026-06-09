@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_spacing.dart';
-import '../../domain/entities/joke_search_result_entity.dart';
+import '../../domain/entities/joke_entity.dart';
 
 class JokeListTile extends StatelessWidget {
-  final JokeSearchResultEntity joke;
+  final JokeEntity joke;
   final VoidCallback onTap;
 
   const JokeListTile({super.key, required this.joke, required this.onTap});

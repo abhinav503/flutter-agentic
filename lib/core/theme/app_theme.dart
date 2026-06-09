@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'app_colors_extension.dart';
+import 'app_radius.dart';
 import 'app_spacing.dart';
 import 'app_theme_config.dart';
 
@@ -175,27 +176,27 @@ class AppTheme {
           vertical: AppSpacing.sm,
         ),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(AppRadius.mdValue),
           borderSide: BorderSide(color: cs.outline),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(AppRadius.mdValue),
           borderSide: BorderSide(color: cs.outline),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(AppRadius.mdValue),
           borderSide: BorderSide(color: cs.primary, width: 2),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(AppRadius.mdValue),
           borderSide: BorderSide(color: cs.error),
         ),
         focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(AppRadius.mdValue),
           borderSide: BorderSide(color: cs.error, width: 2),
         ),
         disabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(AppRadius.mdValue),
           borderSide: BorderSide(color: cs.onSurface.withValues(alpha: 0.12)),
         ),
         hintStyle: TextStyle(color: cs.onSurfaceVariant),

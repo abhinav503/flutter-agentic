@@ -1,5 +1,4 @@
 import 'package:bloc_test/bloc_test.dart';
-import 'package:cordelia_base/core/base/bloc/master_bloc.dart';
 import 'package:cordelia_base/core/constants/value_const.dart';
 import 'package:cordelia_base/core/theme/app_theme.dart';
 import 'package:cordelia_base/core/theme/app_theme_config.dart';
@@ -19,7 +18,6 @@ Widget _wrap(ForYouBloc forYouBloc) {
     theme: AppTheme.fromConfig(AppThemeConfig.defaults),
     home: MultiBlocProvider(
       providers: [
-        BlocProvider<MasterBloc>(create: (_) => MasterBloc()),
         BlocProvider<ForYouBloc>.value(value: forYouBloc),
         BlocProvider<KeptJokesCubit>(create: (_) => KeptJokesCubit()),
       ],
@@ -66,7 +64,7 @@ void main() {
       await tester.pumpWidget(_wrap(forYouBloc));
 
       expect(find.text('No internet'), findsOneWidget);
-      expect(find.text('Retry'), findsOneWidget);
+      expect(find.text(ValueConst.retryButton), findsOneWidget);
     });
   });
 }
