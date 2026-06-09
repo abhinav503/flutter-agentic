@@ -24,7 +24,7 @@ void main() {
       'emits [loading, loaded] when fetch succeeds',
       build: () {
         fakeRepository.result = right(joke);
-        return JokeBloc(useCase);
+        return JokeBloc(getRandomJokeUseCase: useCase);
       },
       act: (bloc) => bloc.add(const JokeEvent.fetched()),
       expect: () => [
@@ -37,7 +37,7 @@ void main() {
       'emits [loading, error] when fetch fails',
       build: () {
         fakeRepository.result = left(const Failure.network(message: 'No internet'));
-        return JokeBloc(useCase);
+        return JokeBloc(getRandomJokeUseCase: useCase);
       },
       act: (bloc) => bloc.add(const JokeEvent.fetched()),
       expect: () => [

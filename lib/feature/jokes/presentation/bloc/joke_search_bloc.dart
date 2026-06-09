@@ -11,7 +11,9 @@ part 'joke_search_state.dart';
 class JokeSearchBloc extends Bloc<JokeSearchEvent, JokeSearchState> {
   final SearchJokesUseCase _searchJokes;
 
-  JokeSearchBloc(this._searchJokes) : super(const JokeSearchState.initial()) {
+  JokeSearchBloc({required SearchJokesUseCase searchJokesUseCase})
+      : _searchJokes = searchJokesUseCase,
+        super(const JokeSearchState.initial()) {
     on<JokeSearchSubmitted>(_onSubmitted);
     on<JokeSearchChipSelected>(_onChipSelected);
     on<JokeSearchLoadMore>(_onLoadMore);
