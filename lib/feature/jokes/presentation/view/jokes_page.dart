@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../core/constants/value_const.dart';
 import '../../../../core/base/base_page.dart';
+import '../../../../core/constants/value_const.dart';
 import '../../../../core/di/injection_container.dart';
+import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/ui/atoms/badge.dart';
 import '../../../../core/ui/atoms/top_bar.dart';
-import '../bloc/joke_bloc.dart';
-import '../bloc/joke_search_bloc.dart';
-
-import 'jokes_screen.dart';
+import '../../domain/entities/joke_entity.dart';
+import '../bloc/for_you_bloc.dart';
+import '../bloc/kept_jokes_cubit.dart';
+import '../bloc/search_page_bloc.dart';
+import 'for_you_screen.dart';
+import 'search_screen.dart';
 
 class JokesPage extends BasePage {
   const JokesPage({super.key});
@@ -18,41 +22,78 @@ class JokesPage extends BasePage {
 }
 
 class _JokesPageState extends BasePageState<JokesPage> {
+  int _currentTab = 0;
+
   @override
-  Widget buildBlocProviders(Widget child) => MultiBlocProvider(
-        providers: [
-          BlocProvider(create: (_) => JokeBloc(getRandomJokeUseCase: sl())),
-          BlocProvider(create: (_) => JokeSearchBloc(searchJokesUseCase: sl())),
-        ],
+  Widget buildBlocProviders(Widget child) => BlocProvider(
+        create: (_) => KeptJokesCubit(),
         child: child,
       );
 
   @override
-  PreferredSizeWidget buildAppBar(BuildContext context) =>
-      AppTopBar.primary(
-        title: ValueConst.jokeAppBarTitle,
-        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-      );
-
-  @override
-  Widget buildBody(BuildContext context) => const JokesScreen();
-
-  // FAB is hidden while search is active — use Builder so the context
-  // is a descendant of the BlocProviders added by buildBlocProviders.
-  @override
-  Widget? buildFab(BuildContext context) {
-    return Builder(
-      builder: (ctx) => BlocBuilder<JokeSearchBloc, JokeSearchState>(
-        builder: (_, searchState) {
-          if (searchState is! JokeSearchInitial) return const SizedBox.shrink();
-          return FloatingActionButton(
-            tooltip: ValueConst.jokeFabTooltip,
-            onPressed: () =>
-                ctx.read<JokeBloc>().add(const JokeEvent.fetched()),
-            child: const Icon(Icons.refresh),
-          );
-        },
-      ),
+  PreferredSizeWidget buildAppBar(BuildContext context) {
+    if (_currentTab == 1) {
+      return AppTopBar.primary(title: ValueConst.jokeSearchTabTitle);
+    }
+    return AppTopBar.primary(
+      title: ValueConst.jokeForYouTabTitle,
+      backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+      actions: [
+        BlocBuilder<KeptJokesCubit, List<JokeEntity>>(
+          builder: (_, jokes) {
+            if (jokes.isEmpty) return const SizedBox.shrink();
+            return Padding(
+              padding: const EdgeInsets.only(right: AppSpacing.base),
+              child: Center(
+                child: AppBadge(
+                  text: jokes.length.toString(),
+                  intent: AppBadgeIntent.success,
+                ),
+              ),
+            );
+          },
+        ),
+      ],
     );
   }
+
+  @override
+  Widget buildBody(BuildContext context) => IndexedStack(
+        index: _currentTab,
+        children: [
+          BlocProvider(
+            create: (_) => ForYouBloc(getRandomJokeUseCase: sl())
+              ..add(const ForYouEvent.started()),
+            child: const ForYouScreen(),
+          ),
+          BlocProvider(
+            create: (_) => SearchPageBloc(searchJokesUseCase: sl()),
+            child: const SearchScreen(),
+          ),
+        ],
+      );
+
+  // ── Bottom nav via BasePage getters ───────────────────────────────────────
+  @override
+  bool get showBottomNav => true;
+
+  @override
+  List<BottomNavigationBarItem> get bottomNavItems => const [
+        BottomNavigationBarItem(
+          icon: Icon(Icons.auto_awesome_outlined),
+          activeIcon: Icon(Icons.auto_awesome),
+          label: ValueConst.jokeForYouTabTitle,
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.search_outlined),
+          activeIcon: Icon(Icons.search),
+          label: ValueConst.jokeSearchTabTitle,
+        ),
+      ];
+
+  @override
+  int get selectedNavIndex => _currentTab;
+
+  @override
+  void onNavItemTapped(int index) => setState(() => _currentTab = index);
 }

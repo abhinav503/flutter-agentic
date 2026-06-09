@@ -1,25 +1,23 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "CordeliaBase",
-            "request": "launch",
-            "type": "dart"
-        },
-        {
-            "name": "CordeliaBase (profile mode)",
+            "name": "CordeliaBase (debug)",
             "request": "launch",
             "type": "dart",
-            "flutterMode": "profile"
+            "flutterMode": "debug",
         },
         {
-            "name": "CordeliaBase (release mode)",
+            "name": "CordeliaBase (profile)",
             "request": "launch",
             "type": "dart",
-            "flutterMode": "release"
+            "flutterMode": "profile",
+        },
+        {
+            "name": "CordeliaBase (release)",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release",
         }
     ]
 }

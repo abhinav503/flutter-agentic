@@ -1,58 +1,69 @@
 import 'package:bloc_test/bloc_test.dart';
+import 'package:cordelia_base/core/base/bloc/master_bloc.dart';
+import 'package:cordelia_base/core/constants/value_const.dart';
+import 'package:cordelia_base/core/theme/app_theme.dart';
+import 'package:cordelia_base/core/theme/app_theme_config.dart';
 import 'package:cordelia_base/feature/jokes/domain/entities/joke_entity.dart';
-import 'package:cordelia_base/feature/jokes/presentation/bloc/joke_bloc.dart';
-import 'package:cordelia_base/feature/jokes/presentation/view/jokes_page.dart';
+import 'package:cordelia_base/feature/jokes/presentation/bloc/for_you_bloc.dart';
+import 'package:cordelia_base/feature/jokes/presentation/bloc/kept_jokes_cubit.dart';
+import 'package:cordelia_base/feature/jokes/presentation/view/for_you_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-class _MockJokeBloc extends MockBloc<JokeEvent, JokeState> implements JokeBloc {}
+class _MockForYouBloc extends MockBloc<ForYouEvent, ForYouState>
+    implements ForYouBloc {}
 
-Widget _wrap(Widget child, JokeBloc bloc) {
+Widget _wrap(ForYouBloc forYouBloc) {
   return MaterialApp(
-    home: BlocProvider<JokeBloc>.value(
-      value: bloc,
-      child: child,
+    theme: AppTheme.fromConfig(AppThemeConfig.defaults),
+    home: MultiBlocProvider(
+      providers: [
+        BlocProvider<MasterBloc>(create: (_) => MasterBloc()),
+        BlocProvider<ForYouBloc>.value(value: forYouBloc),
+        BlocProvider<KeptJokesCubit>(create: (_) => KeptJokesCubit()),
+      ],
+      child: const Scaffold(body: ForYouScreen()),
     ),
   );
 }
 
 void main() {
-  late _MockJokeBloc bloc;
+  late _MockForYouBloc forYouBloc;
 
-  setUp(() => bloc = _MockJokeBloc());
-  tearDown(() => bloc.close());
+  setUp(() => forYouBloc = _MockForYouBloc());
+  tearDown(() => forYouBloc.close());
 
-  group('JokesPage', () {
-    testWidgets('shows prompt text in initial state', (tester) async {
-      whenListen(bloc, Stream<JokeState>.empty(), initialState: const JokeState.initial());
+  group('ForYouScreen', () {
+    testWidgets('shows spinner in loading state', (tester) async {
+      whenListen(forYouBloc, Stream<ForYouState>.empty(),
+          initialState: const ForYouState.loading());
 
-      await tester.pumpWidget(_wrap(const JokesPage(), bloc));
-
-      expect(find.text('Tap ➕ for a joke'), findsOneWidget);
-    });
-
-    testWidgets('shows loading indicator in loading state', (tester) async {
-      whenListen(bloc, Stream<JokeState>.empty(), initialState: const JokeState.loading());
-
-      await tester.pumpWidget(_wrap(const JokesPage(), bloc));
+      await tester.pumpWidget(_wrap(forYouBloc));
 
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
     });
 
     testWidgets('shows joke content in loaded state', (tester) async {
       const joke = JokeEntity(id: '1', content: 'Why did the chicken?');
-      whenListen(bloc, Stream<JokeState>.empty(), initialState: JokeState.loaded(joke: joke));
+      whenListen(
+        forYouBloc,
+        Stream.fromIterable([ForYouState.loaded(joke: joke)]),
+        initialState: const ForYouState.loading(),
+      );
 
-      await tester.pumpWidget(_wrap(const JokesPage(), bloc));
+      await tester.pumpWidget(_wrap(forYouBloc));
+      await tester.pumpAndSettle();
 
       expect(find.text('Why did the chicken?'), findsOneWidget);
+      expect(find.text(ValueConst.jokeTapForMore), findsOneWidget);
     });
 
-    testWidgets('shows error message and retry button in error state', (tester) async {
-      whenListen(bloc, Stream<JokeState>.empty(), initialState: const JokeState.error(message: 'No internet'));
+    testWidgets('shows error on first-load failure', (tester) async {
+      whenListen(forYouBloc, Stream<ForYouState>.empty(),
+          initialState: const ForYouState.error(message: 'No internet'));
 
-      await tester.pumpWidget(_wrap(const JokesPage(), bloc));
+      await tester.pumpWidget(_wrap(forYouBloc));
 
       expect(find.text('No internet'), findsOneWidget);
       expect(find.text('Retry'), findsOneWidget);

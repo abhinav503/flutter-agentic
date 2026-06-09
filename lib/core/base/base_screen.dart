@@ -30,6 +30,7 @@ abstract class BaseScreenState<T extends BaseScreen> extends State<T> {
   Future<R?> showAppBottomSheet<R>({
     String? title,
     Widget? child,
+    List<Widget>? actions,
     bool isDismissible = true,
     bool enableDrag = true,
     double maxHeightFraction = 0.9,
@@ -38,6 +39,7 @@ abstract class BaseScreenState<T extends BaseScreen> extends State<T> {
         context,
         title: title,
         child: child ?? buildBottomSheetContent(),
+        actions: actions,
         isDismissible: isDismissible,
         enableDrag: enableDrag,
         maxHeightFraction: maxHeightFraction,

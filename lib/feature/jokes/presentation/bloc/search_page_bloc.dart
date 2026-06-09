@@ -4,32 +4,32 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import '../../domain/entities/joke_search_result_entity.dart';
 import '../../domain/usecase/search_jokes_usecase.dart';
 
-part 'joke_search_bloc.freezed.dart';
-part 'joke_search_event.dart';
-part 'joke_search_state.dart';
+part 'search_page_bloc.freezed.dart';
+part 'search_page_event.dart';
+part 'search_page_state.dart';
 
-class JokeSearchBloc extends Bloc<JokeSearchEvent, JokeSearchState> {
+class SearchPageBloc extends Bloc<SearchPageEvent, SearchPageState> {
   final SearchJokesUseCase _searchJokes;
 
-  JokeSearchBloc({required SearchJokesUseCase searchJokesUseCase})
+  SearchPageBloc({required SearchJokesUseCase searchJokesUseCase})
       : _searchJokes = searchJokesUseCase,
-        super(const JokeSearchState.initial()) {
-    on<JokeSearchSubmitted>(_onSubmitted);
-    on<JokeSearchChipSelected>(_onChipSelected);
-    on<JokeSearchLoadMore>(_onLoadMore);
+        super(const SearchPageState.initial()) {
+    on<SearchPageSubmitted>(_onSubmitted);
+    on<SearchPageChipSelected>(_onChipSelected);
+    on<SearchPageLoadMore>(_onLoadMore);
   }
 
   Future<void> _onSubmitted(
-    JokeSearchSubmitted event,
-    Emitter<JokeSearchState> emit,
+    SearchPageSubmitted event,
+    Emitter<SearchPageState> emit,
   ) async {
-    emit(const JokeSearchState.loading());
+    emit(const SearchPageState.loading());
     final result = await _searchJokes(
       SearchJokesParams(term: event.term, page: 1),
     );
     result.fold(
-      (f) => emit(JokeSearchState.error(message: f.message)),
-      (page) => emit(JokeSearchState.loaded(
+      (f) => emit(SearchPageState.error(message: f.message)),
+      (page) => emit(SearchPageState.loaded(
         results: page.results,
         totalJokes: page.totalJokes,
         totalPages: page.totalPages,
@@ -40,18 +40,18 @@ class JokeSearchBloc extends Bloc<JokeSearchEvent, JokeSearchState> {
   }
 
   Future<void> _onChipSelected(
-    JokeSearchChipSelected event,
-    Emitter<JokeSearchState> emit,
+    SearchPageChipSelected event,
+    Emitter<SearchPageState> emit,
   ) async {
-    add(JokeSearchEvent.submitted(term: event.term));
+    add(SearchPageEvent.submitted(term: event.term));
   }
 
   Future<void> _onLoadMore(
-    JokeSearchLoadMore event,
-    Emitter<JokeSearchState> emit,
+    SearchPageLoadMore event,
+    Emitter<SearchPageState> emit,
   ) async {
     final current = state;
-    if (current is! JokeSearchLoaded) return;
+    if (current is! SearchPageLoaded) return;
     if (current.currentPage >= current.totalPages) return;
 
     emit(current.copyWith(isLoadingMore: true));

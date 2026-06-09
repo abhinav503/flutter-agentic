@@ -7,8 +7,7 @@ abstract final class ValueConst {
   static const jokeFabTooltip    = 'Random joke';
   static const jokeSheetTitle    = 'Dad Joke';
   static const jokeCardBadge     = 'Dad Joke';
-  static const jokeCloseButton   = 'Close';
-  static const jokeEmptyTitle    = 'Ready for a laugh?';
+static const jokeEmptyTitle    = 'Ready for a laugh?';
   static const jokeEmptySubtitle = 'Search above or tap below for a random joke.';
   static const jokeEmptyButton   = 'Get a Random Joke';
   static const jokeSearchHint    = 'Search jokes...';
@@ -19,4 +18,11 @@ abstract final class ValueConst {
   static const List<String> jokeQuickFilters = [
     'cat', 'dog', 'math', 'music', 'computer',
   ];
+
+  // ── For You tab ───────────────────────────────────────────────────────────
+  static const jokeForYouTabTitle  = 'For You';
+  static const jokeSearchTabTitle  = 'Search';
+  static const jokeTapForMore      = 'Tap for more';
+  static const jokeSheetKeepButton = 'Keep this one';
+  static const jokeSearchEmptyHint = 'Search for a joke above';
 }

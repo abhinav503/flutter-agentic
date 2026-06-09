@@ -47,8 +47,8 @@ The repo is not opinionated about _what_ you build. It is opinionated about _how
 - [x] `BaseRepository` mixin with Dio-to-Failure error mapping
 - [x] `Either<Failure, T>` error handling via fpdart
 - [x] GoRouter navigation
-- [x] `BasePage` / `BaseScreen` / `BasePageWithoutBloc` base classes
-- [x] `MasterBloc` for page-level loader
+- [x] `BasePage` / `BaseScreen` / `BasePageWithoutBloc` base classes — body-scoped loader, getter-based bottom nav, `buildLoader()` hook
+- [x] `MasterBloc` for body-scoped blocking loader (auth / form submit only)
 - [x] `CLAUDE.md` with full architecture, layer rules, and AI coding conventions
 
 ### Design System
@@ -58,7 +58,7 @@ The repo is not opinionated about _what_ you build. It is opinionated about _how
 - [x] `AppTextField` — label, hint, error state, focus-aware border
 - [x] `AppBadge` — neutral / info / success / warning / error intents
 - [x] `AppChip` — selectable, with icon support
-- [x] `AppBottomSheet` — pinned header + scrollable body, static `show()` helper
+- [x] `AppBottomSheet` — pinned header + scrollable body, static `show()` helper, `actions:` row
 
 ### Planned
 - [x] `AppTheme` builder — light/dark `ThemeData` from a single seed colour, wired to `ThemeMode.system`
