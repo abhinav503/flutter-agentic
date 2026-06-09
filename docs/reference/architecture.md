@@ -225,7 +225,9 @@ sealed class JokeState with _$JokeState {
 class JokeBloc extends Bloc<JokeEvent, JokeState> {
   final GetRandomJokeUseCase _getRandomJoke;
 
-  JokeBloc(this._getRandomJoke) : super(const JokeState.initial()) {
+  JokeBloc({required GetRandomJokeUseCase getRandomJokeUseCase})
+      : _getRandomJoke = getRandomJokeUseCase,
+        super(const JokeState.initial()) {
     on<JokeFetched>(_onFetched);
   }
 
@@ -246,7 +248,7 @@ class JokeBloc extends Bloc<JokeEvent, JokeState> {
 class _JokesPageState extends BasePageState<JokesPage> {
   @override
   Widget buildBlocProviders(Widget child) => BlocProvider(
-    create: (_) => sl<JokeBloc>(), child: child);
+    create: (_) => JokeBloc(getRandomJokeUseCase: sl()), child: child);
 
   @override
   PreferredSizeWidget buildAppBar(BuildContext context) =>
@@ -299,8 +301,9 @@ sl.registerLazySingleton<JokesRepository>(() => JokesRepositoryImpl(sl()));
 // 4. Use cases
 sl.registerLazySingleton(() => GetRandomJokeUseCase(sl()));
 
-// 5. BLoCs — factory gives a fresh instance per page
-sl.registerFactory(() => JokeBloc(sl()));
+// BLoCs are NOT registered in GetIt — they are instantiated directly in each
+// page's BlocProvider so their lifetime is tied to the widget tree:
+// BlocProvider(create: (_) => JokeBloc(getRandomJokeUseCase: sl()))
 ```
 
 ---

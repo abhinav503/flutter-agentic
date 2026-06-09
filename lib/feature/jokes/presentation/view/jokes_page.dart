@@ -21,8 +21,8 @@ class _JokesPageState extends BasePageState<JokesPage> {
   @override
   Widget buildBlocProviders(Widget child) => MultiBlocProvider(
         providers: [
-          BlocProvider(create: (_) => sl<JokeBloc>()),
-          BlocProvider(create: (_) => sl<JokeSearchBloc>()),
+          BlocProvider(create: (_) => JokeBloc(getRandomJokeUseCase: sl())),
+          BlocProvider(create: (_) => JokeSearchBloc(searchJokesUseCase: sl())),
         ],
         child: child,
       );

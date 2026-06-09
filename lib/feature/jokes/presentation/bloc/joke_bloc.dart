@@ -12,7 +12,9 @@ part 'joke_state.dart';
 class JokeBloc extends Bloc<JokeEvent, JokeState> {
   final GetRandomJokeUseCase _getRandomJoke;
 
-  JokeBloc(this._getRandomJoke) : super(const JokeState.initial()) {
+  JokeBloc({required GetRandomJokeUseCase getRandomJokeUseCase})
+      : _getRandomJoke = getRandomJokeUseCase,
+        super(const JokeState.initial()) {
     on<JokeFetched>(_onFetched);
   }
 

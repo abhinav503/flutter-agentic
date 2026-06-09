@@ -8,8 +8,6 @@ import '../../feature/jokes/data/repository_impl/jokes_repository_impl.dart';
 import '../../feature/jokes/domain/repository/jokes_repository.dart';
 import '../../feature/jokes/domain/usecase/get_random_joke_usecase.dart';
 import '../../feature/jokes/domain/usecase/search_jokes_usecase.dart';
-import '../../feature/jokes/presentation/bloc/joke_bloc.dart';
-import '../../feature/jokes/presentation/bloc/joke_search_bloc.dart';
 
 final sl = GetIt.instance;
 
@@ -33,7 +31,6 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton(() => GetRandomJokeUseCase(sl()));
   sl.registerLazySingleton(() => SearchJokesUseCase(sl()));
 
-  // BLoCs — factory so each page gets a fresh instance
-  sl.registerFactory(() => JokeBloc(sl()));
-  sl.registerFactory(() => JokeSearchBloc(sl()));
+  // BLoCs are NOT registered here — instantiate them directly in each page's
+  // BlocProvider so their lifetime is tied to the widget tree, not the app.
 }
