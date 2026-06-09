@@ -77,5 +77,5 @@ The repo is not opinionated about _what_ you build. It is opinionated about _how
 
 The template is ready when:
 1. A developer can scaffold a new feature by copying the jokes feature and changing names — with no layer violations flagged by `flutter analyze`.
-2. An AI agent given `CLAUDE.md` and a feature spec can generate a correct feature (data + domain + presentation + tests) in one pass with no manual fixes.
+2. An AI agent given `CLAUDE.md` and a feature spec can generate a correct feature (data + domain + presentation + tests) with minimal iterations — running `/review-code` after generation catches any drift before it is merged.
 3. The app runs on both Android/iOS and Web from the same codebase with zero platform-specific hacks in `core/`.
