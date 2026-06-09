@@ -1,9 +1,9 @@
-import 'package:cordelia_base/app.dart';
-import 'package:cordelia_base/core/di/injection_container.dart';
-import 'package:cordelia_base/feature/jokes/domain/entities/joke_entity.dart';
-import 'package:cordelia_base/feature/jokes/domain/repository/jokes_repository.dart';
-import 'package:cordelia_base/feature/jokes/domain/usecase/get_random_joke_usecase.dart';
-import 'package:cordelia_base/feature/jokes/domain/usecase/search_jokes_usecase.dart';
+import 'package:flutter_agentic/app.dart';
+import 'package:flutter_agentic/core/di/injection_container.dart';
+import 'package:flutter_agentic/feature/jokes/domain/entities/joke_entity.dart';
+import 'package:flutter_agentic/feature/jokes/domain/repository/jokes_repository.dart';
+import 'package:flutter_agentic/feature/jokes/domain/usecase/get_random_joke_usecase.dart';
+import 'package:flutter_agentic/feature/jokes/domain/usecase/search_jokes_usecase.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:get_it/get_it.dart';

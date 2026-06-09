@@ -1,4 +1,4 @@
-# Cordelia Base — Gemini Rules
+# FlutterAgentic — Gemini Rules
 
 > Full reference → `docs/` folder
 

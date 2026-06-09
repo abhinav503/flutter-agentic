@@ -1,4 +1,4 @@
-# Cordelia Base — AI Rules
+# FlutterAgentic — AI Rules
 
 > **Claude Code** (this file) · **Cursor** → `.cursor/rules/` · **GitHub Copilot** → `.github/copilot-instructions.md` · **Gemini** → `GEMINI.md` · **Codex/Android Studio** → `AGENTS.md` · **Amazon Q** → `.amazonq/rules/`
 

@@ -1,4 +1,4 @@
-# Cordelia Base
+# FlutterAgentic
 
 <p>
   <img alt="Flutter" src="https://img.shields.io/badge/Flutter-frontend-blue?logo=flutter" />
@@ -9,15 +9,15 @@
 
 **An open-source, AI-first Flutter frontend starter.**
 
-Cordelia Base gives Flutter developers a production-grade Clean Architecture foundation that AI coding agents can actually follow. Fork it, open it in Claude Code, Codex, GitHub Copilot, Cursor, Gemini, Android Studio, or Amazon Q, and the agent gets the same architecture rules, forbidden patterns, naming conventions, test expectations, and feature scaffolding docs that a human teammate would use.
+FlutterAgentic gives Flutter developers a production-grade Clean Architecture foundation that AI coding agents can actually follow. Fork it, open it in Claude Code, Codex, GitHub Copilot, Cursor, Gemini, Android Studio, or Amazon Q, and the agent gets the same architecture rules, forbidden patterns, naming conventions, test expectations, and feature scaffolding docs that a human teammate would use.
 
-Most Flutter starters give you folders. Cordelia Base gives you a rulebook plus a runnable app structure, so AI-generated code is less likely to drift into random widgets, leaked DTOs, untestable state, or inconsistent feature layouts.
+Most Flutter starters give you folders. FlutterAgentic gives you a rulebook plus a runnable app structure, so AI-generated code is less likely to drift into random widgets, leaked DTOs, untestable state, or inconsistent feature layouts.
 
 The documentation is organised with the [Diataxis](https://diataxis.fr/) framework, so both humans and AI agents can quickly separate task guides, exact architecture reference, project reasoning, and operational coding rules.
 
 ## AI Agent Support
 
-Cordelia Base includes repo-native instructions for Claude Code, Codex CLI, Cursor, Gemini, Android Studio, GitHub Copilot, and Amazon Q.
+FlutterAgentic includes repo-native instructions for Claude Code, Codex CLI, Cursor, Gemini, Android Studio, GitHub Copilot, and Amazon Q.
 
 | Agent | Instruction source | Setup / scaffold path |
 |---|---|---|
@@ -33,12 +33,13 @@ Available skills:
 
 - `setup-project` — checks Flutter/Dart setup, dependencies, generated files, hooks, run targets, and analysis.
 - `add-feature-template` — scaffolds a new Clean Architecture feature with folders, class skeletons, BLoC state, screen/page files, and DI wiring.
+- `rename-app` — renames the app across all platform files (iOS, Android, Web), Dart source, test imports, VS Code config, and all AI rules docs in one pass.
 
 ## Why Fork This?
 
 AI can generate Flutter quickly. The hard part is keeping the codebase consistent after the fifth feature.
 
-Cordelia Base is built for developers who want:
+FlutterAgentic is built for developers who want:
 
 - A Flutter frontend template that is open-source and community-improvable
 - Clean Architecture feature folders from day one
@@ -65,12 +66,12 @@ The core project is Flutter-first. Backend, React, Node.js, Python, or other fol
 
 ## How It Is Different
 
-| Alternative | What it gives you | Cordelia Base difference |
+| Alternative | What it gives you | FlutterAgentic difference |
 |---|---|---|
 | Regular Flutter boilerplates | App folders, dependencies, sometimes example screens | Adds explicit AI-agent rules, forbidden patterns, docs, scaffold flow, tests, and architecture contracts |
-| Paid AI Flutter starters like [Create Flutter App](https://createflutterapp.com/) | AI-optimised Flutter template with backend/product modules | Cordelia Base is open-source, Flutter-frontend-first, and designed for community improvement |
-| Paid kits with AI rules like [ApparenceKit](https://apparencekit.dev/flutter-templates/claude-rules/) | Commercial Flutter templates with `CLAUDE.md` rules for their architecture | Cordelia Base ships multi-agent rules plus the runnable app, CI, tests, design tokens, and feature structure |
-| Standalone skills like [building-flutter-apps](https://www.awesomeskills.dev/en/skill/sgaabdu4-building-flutter-apps) | An installable AI-agent skill for Flutter patterns | Cordelia Base is repo-native: any new Flutter dev can fork, run, edit, and contribute to the app, rules, docs, examples, and verification commands together |
+| Paid AI Flutter starters like [Create Flutter App](https://createflutterapp.com/) | AI-optimised Flutter template with backend/product modules | FlutterAgentic is open-source, Flutter-frontend-first, and designed for community improvement |
+| Paid kits with AI rules like [ApparenceKit](https://apparencekit.dev/flutter-templates/claude-rules/) | Commercial Flutter templates with `CLAUDE.md` rules for their architecture | FlutterAgentic ships multi-agent rules plus the runnable app, CI, tests, design tokens, and feature structure |
+| Standalone skills like [building-flutter-apps](https://www.awesomeskills.dev/en/skill/sgaabdu4-building-flutter-apps) | An installable AI-agent skill for Flutter patterns | FlutterAgentic is repo-native: any new Flutter dev can fork, run, edit, and contribute to the app, rules, docs, examples, and verification commands together |
 
 ## Stack
 

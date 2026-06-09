@@ -1,4 +1,4 @@
-# CordeliaBase — End Goal
+# FlutterAgentic — End Goal
 
 ## Vision
 

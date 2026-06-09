@@ -2,19 +2,19 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "CordeliaBase (debug)",
+            "name": "FlutterAgentic (debug)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "debug",
         },
         {
-            "name": "CordeliaBase (profile)",
+            "name": "FlutterAgentic (profile)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "profile",
         },
         {
-            "name": "CordeliaBase (release)",
+            "name": "FlutterAgentic (release)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "release",

@@ -1,6 +1,6 @@
 {
-    "name": "cordelia_base",
-    "short_name": "cordelia_base",
+    "name": "FlutterAgentic",
+    "short_name": "FlutterAgentic",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
