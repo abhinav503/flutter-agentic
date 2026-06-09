@@ -8,7 +8,6 @@ import '../../../../core/ui/atoms/button.dart';
 import '../../../../core/ui/atoms/loading_indicator.dart';
 import '../../../../core/ui/molecules/error_view.dart';
 import '../../domain/entities/joke_entity.dart';
-import '../../domain/entities/joke_search_result_entity.dart';
 import '../bloc/kept_jokes_cubit.dart';
 import '../bloc/search_page_bloc.dart';
 import '../widgets/joke_results_view.dart';
@@ -39,15 +38,11 @@ class _SearchScreenState extends BaseScreenState<SearchScreen> {
                       .read<SearchPageBloc>()
                       .add(const SearchPageEvent.loadMore()),
                 ),
-              SearchPageError(:final message) => ErrorView(
+              SearchPageError(:final message, :final searchTerm) => ErrorView(
                   message: message,
-                  onRetry: () {
-                    final bloc = context.read<SearchPageBloc>();
-                    final s = bloc.state;
-                    if (s is SearchPageLoaded) {
-                      bloc.add(SearchPageEvent.submitted(term: s.searchTerm));
-                    }
-                  },
+                  onRetry: () => context
+                      .read<SearchPageBloc>()
+                      .add(SearchPageEvent.submitted(term: searchTerm)),
                 ),
             },
           ),
@@ -56,7 +51,7 @@ class _SearchScreenState extends BaseScreenState<SearchScreen> {
     );
   }
 
-  void _showDetail(JokeSearchResultEntity joke) {
+  void _showDetail(JokeEntity joke) {
     showAppBottomSheet(
       title: ValueConst.jokeSheetTitle,
       child: Padding(
@@ -69,9 +64,7 @@ class _SearchScreenState extends BaseScreenState<SearchScreen> {
           variant: AppButtonVariant.primary,
           fullWidth: true,
           onTap: () {
-            context
-                .read<KeptJokesCubit>()
-                .keep(JokeEntity(id: joke.id, content: joke.content));
+            context.read<KeptJokesCubit>().keep(joke);
             Navigator.of(context).pop();
           },
         ),

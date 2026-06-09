@@ -2,7 +2,7 @@ import 'package:fpdart/fpdart.dart';
 
 import '../../../../core/error/failure.dart';
 import '../entities/joke_entity.dart';
-import '../entities/joke_search_result_entity.dart';
+import '../entities/joke_search_page_entity.dart';
 
 abstract interface class JokesRepository {
   Future<Either<Failure, JokeEntity>> getRandomJoke();

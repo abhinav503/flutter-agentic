@@ -455,13 +455,13 @@ return error(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function( List<JokeSearchResultEntity> results,  int totalJokes,  int totalPages,  int currentPage,  String searchTerm,  bool isLoadingMore)?  loaded,TResult Function( String message)?  error,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function( List<JokeEntity> results,  int totalJokes,  int totalPages,  int currentPage,  String searchTerm,  bool isLoadingMore)?  loaded,TResult Function( String message,  String searchTerm)?  error,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case SearchPageInitial() when initial != null:
 return initial();case SearchPageLoading() when loading != null:
 return loading();case SearchPageLoaded() when loaded != null:
 return loaded(_that.results,_that.totalJokes,_that.totalPages,_that.currentPage,_that.searchTerm,_that.isLoadingMore);case SearchPageError() when error != null:
-return error(_that.message);case _:
+return error(_that.message,_that.searchTerm);case _:
   return orElse();
 
 }
@@ -479,13 +479,13 @@ return error(_that.message);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function( List<JokeSearchResultEntity> results,  int totalJokes,  int totalPages,  int currentPage,  String searchTerm,  bool isLoadingMore)  loaded,required TResult Function( String message)  error,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function( List<JokeEntity> results,  int totalJokes,  int totalPages,  int currentPage,  String searchTerm,  bool isLoadingMore)  loaded,required TResult Function( String message,  String searchTerm)  error,}) {final _that = this;
 switch (_that) {
 case SearchPageInitial():
 return initial();case SearchPageLoading():
 return loading();case SearchPageLoaded():
 return loaded(_that.results,_that.totalJokes,_that.totalPages,_that.currentPage,_that.searchTerm,_that.isLoadingMore);case SearchPageError():
-return error(_that.message);}
+return error(_that.message,_that.searchTerm);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -499,13 +499,13 @@ return error(_that.message);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function( List<JokeSearchResultEntity> results,  int totalJokes,  int totalPages,  int currentPage,  String searchTerm,  bool isLoadingMore)?  loaded,TResult? Function( String message)?  error,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function( List<JokeEntity> results,  int totalJokes,  int totalPages,  int currentPage,  String searchTerm,  bool isLoadingMore)?  loaded,TResult? Function( String message,  String searchTerm)?  error,}) {final _that = this;
 switch (_that) {
 case SearchPageInitial() when initial != null:
 return initial();case SearchPageLoading() when loading != null:
 return loading();case SearchPageLoaded() when loaded != null:
 return loaded(_that.results,_that.totalJokes,_that.totalPages,_that.currentPage,_that.searchTerm,_that.isLoadingMore);case SearchPageError() when error != null:
-return error(_that.message);case _:
+return error(_that.message,_that.searchTerm);case _:
   return null;
 
 }
@@ -581,11 +581,11 @@ String toString() {
 
 
 class SearchPageLoaded implements SearchPageState {
-  const SearchPageLoaded({required final  List<JokeSearchResultEntity> results, required this.totalJokes, required this.totalPages, required this.currentPage, required this.searchTerm, this.isLoadingMore = false}): _results = results;
+  const SearchPageLoaded({required final  List<JokeEntity> results, required this.totalJokes, required this.totalPages, required this.currentPage, required this.searchTerm, this.isLoadingMore = false}): _results = results;
   
 
- final  List<JokeSearchResultEntity> _results;
- List<JokeSearchResultEntity> get results {
+ final  List<JokeEntity> _results;
+ List<JokeEntity> get results {
   if (_results is EqualUnmodifiableListView) return _results;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableListView(_results);
@@ -627,7 +627,7 @@ abstract mixin class $SearchPageLoadedCopyWith<$Res> implements $SearchPageState
   factory $SearchPageLoadedCopyWith(SearchPageLoaded value, $Res Function(SearchPageLoaded) _then) = _$SearchPageLoadedCopyWithImpl;
 @useResult
 $Res call({
- List<JokeSearchResultEntity> results, int totalJokes, int totalPages, int currentPage, String searchTerm, bool isLoadingMore
+ List<JokeEntity> results, int totalJokes, int totalPages, int currentPage, String searchTerm, bool isLoadingMore
 });
 
 
@@ -647,7 +647,7 @@ class _$SearchPageLoadedCopyWithImpl<$Res>
 @pragma('vm:prefer-inline') $Res call({Object? results = null,Object? totalJokes = null,Object? totalPages = null,Object? currentPage = null,Object? searchTerm = null,Object? isLoadingMore = null,}) {
   return _then(SearchPageLoaded(
 results: null == results ? _self._results : results // ignore: cast_nullable_to_non_nullable
-as List<JokeSearchResultEntity>,totalJokes: null == totalJokes ? _self.totalJokes : totalJokes // ignore: cast_nullable_to_non_nullable
+as List<JokeEntity>,totalJokes: null == totalJokes ? _self.totalJokes : totalJokes // ignore: cast_nullable_to_non_nullable
 as int,totalPages: null == totalPages ? _self.totalPages : totalPages // ignore: cast_nullable_to_non_nullable
 as int,currentPage: null == currentPage ? _self.currentPage : currentPage // ignore: cast_nullable_to_non_nullable
 as int,searchTerm: null == searchTerm ? _self.searchTerm : searchTerm // ignore: cast_nullable_to_non_nullable
@@ -663,10 +663,11 @@ as bool,
 
 
 class SearchPageError implements SearchPageState {
-  const SearchPageError({required this.message});
+  const SearchPageError({required this.message, required this.searchTerm});
   
 
  final  String message;
+ final  String searchTerm;
 
 /// Create a copy of SearchPageState
 /// with the given fields replaced by the non-null parameter values.
@@ -678,16 +679,16 @@ $SearchPageErrorCopyWith<SearchPageError> get copyWith => _$SearchPageErrorCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is SearchPageError&&(identical(other.message, message) || other.message == message));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SearchPageError&&(identical(other.message, message) || other.message == message)&&(identical(other.searchTerm, searchTerm) || other.searchTerm == searchTerm));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,message);
+int get hashCode => Object.hash(runtimeType,message,searchTerm);
 
 @override
 String toString() {
-  return 'SearchPageState.error(message: $message)';
+  return 'SearchPageState.error(message: $message, searchTerm: $searchTerm)';
 }
 
 
@@ -698,7 +699,7 @@ abstract mixin class $SearchPageErrorCopyWith<$Res> implements $SearchPageStateC
   factory $SearchPageErrorCopyWith(SearchPageError value, $Res Function(SearchPageError) _then) = _$SearchPageErrorCopyWithImpl;
 @useResult
 $Res call({
- String message
+ String message, String searchTerm
 });
 
 
@@ -715,9 +716,10 @@ class _$SearchPageErrorCopyWithImpl<$Res>
 
 /// Create a copy of SearchPageState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? message = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? message = null,Object? searchTerm = null,}) {
   return _then(SearchPageError(
 message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
+as String,searchTerm: null == searchTerm ? _self.searchTerm : searchTerm // ignore: cast_nullable_to_non_nullable
 as String,
   ));
 }

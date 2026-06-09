@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../../constants/value_const.dart';
 import '../../theme/app_spacing.dart';
+import '../atoms/button.dart';
 
 class ErrorView extends StatelessWidget {
   final String message;
@@ -26,7 +28,11 @@ class ErrorView extends StatelessWidget {
           ),
           if (onRetry != null) ...[
             const SizedBox(height: AppSpacing.base),
-            ElevatedButton(onPressed: onRetry, child: const Text('Retry')),
+            AppButton(
+              label: ValueConst.retryButton,
+              variant: AppButtonVariant.primary,
+              onTap: onRetry,
+            ),
           ],
         ],
       ),

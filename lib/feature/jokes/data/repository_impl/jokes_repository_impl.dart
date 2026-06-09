@@ -3,7 +3,7 @@ import 'package:fpdart/fpdart.dart';
 import '../../../../core/base/base_repository.dart';
 import '../../../../core/error/failure.dart';
 import '../../domain/entities/joke_entity.dart';
-import '../../domain/entities/joke_search_result_entity.dart';
+import '../../domain/entities/joke_search_page_entity.dart'; // JokeSearchPageEntity
 import '../../domain/repository/jokes_repository.dart';
 import '../data_source/jokes_remote_data_source.dart';
 
@@ -37,7 +37,7 @@ class JokesRepositoryImpl with BaseRepository implements JokesRepository {
           nextPage: model.nextPage,
           searchTerm: model.searchTerm,
           results: model.results
-              .map((r) => JokeSearchResultEntity(id: r.id, content: r.joke))
+              .map((r) => JokeEntity(id: r.id, content: r.joke))
               .toList(),
         ));
       });

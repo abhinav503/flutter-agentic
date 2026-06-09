@@ -31,8 +31,12 @@ The pre-commit hook formats staged Dart files and runs `flutter analyze` — com
 - Extending `StatelessWidget`/`StatefulWidget` directly for full pages or screens
 - Manually editing `.freezed.dart` or `.g.dart` files
 - Using `setState` in a screen to store values that come from BLoC events — put them in BLoC state instead
-- Driving `MasterBloc` from a screen widget for content loading — use inline `LoadingIndicator`; `MasterBloc` is for page-level blocking ops only (auth, form submit)
 - Putting a screen-specific BLoC in `buildBlocProviders` when it is not needed above the body — provide it in `buildBody` wrapping the screen instead
+- Calling `add()` from inside a BLoC event handler — factor shared logic into a private method instead
+- Using Flutter's built-in button widgets (`ElevatedButton`, `TextButton`, `OutlinedButton`, `FilledButton`) in screens or molecules — use `AppButton` with the appropriate `AppButtonVariant`
+- Inline `CircularProgressIndicator` in screens — use `LoadingIndicator` from `core/ui/atoms/`
+- Error states that omit the data needed to retry — every `*Error` state must carry enough context (e.g. `searchTerm`, `page`) for the BLoC to re-dispatch without reading prior state; screens must never inspect preceding states for retry inputs
+- Creating a new entity that is structurally identical to an existing one — reuse the existing entity; a single `JokeEntity` works for both single-result and list-result use cases
 
 ---
 

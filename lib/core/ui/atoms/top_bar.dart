@@ -114,7 +114,7 @@ class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
     if (leading != null) return leading;
     if (!showBackButton) return null;
     final iconColor = ThemeData.estimateBrightnessForColor(effectiveBg) == Brightness.dark
-        ? Colors.white
+        ? cs.onInverseSurface
         : cs.onSurface;
     return IconButton(
       icon: Icon(Icons.arrow_back_ios_new, size: 18, color: iconColor),
@@ -128,7 +128,7 @@ class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
     if (title == null || title!.isEmpty) return null;
     // Pick the foreground colour that M3 guarantees readable on effectiveBg.
     final fg = ThemeData.estimateBrightnessForColor(effectiveBg) == Brightness.dark
-        ? Colors.white
+        ? cs.onInverseSurface
         : cs.onSurface;
     return Text(title!, style: tt.titleLarge!.copyWith(color: fg));
   }

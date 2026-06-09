@@ -1,9 +1,4 @@
-class JokeSearchResultEntity {
-  final String id;
-  final String content;
-
-  const JokeSearchResultEntity({required this.id, required this.content});
-}
+import 'joke_entity.dart';
 
 class JokeSearchPageEntity {
   final int currentPage;
@@ -11,7 +6,7 @@ class JokeSearchPageEntity {
   final int totalPages;
   final int nextPage;
   final String searchTerm;
-  final List<JokeSearchResultEntity> results;
+  final List<JokeEntity> results;
 
   const JokeSearchPageEntity({
     required this.currentPage,

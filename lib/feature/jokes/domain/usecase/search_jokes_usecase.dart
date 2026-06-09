@@ -2,7 +2,7 @@ import 'package:fpdart/fpdart.dart';
 
 import '../../../../core/error/failure.dart';
 import '../../../../core/usecase/usecase.dart';
-import '../entities/joke_search_result_entity.dart';
+import '../entities/joke_search_page_entity.dart';
 import '../repository/jokes_repository.dart';
 
 class SearchJokesParams {
