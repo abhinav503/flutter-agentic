@@ -1,0 +1,22 @@
+#!/bin/sh
+# Runs on every commit:
+#   1. Formats staged Dart files
+#   2. Runs flutter analyze — blocks commit on any error
+#
+# Activate with: git config core.hooksPath .githooks
+
+STAGED=$(git diff --cached --name-only --diff-filter=ACMR | grep '\.dart$')
+
+if [ -n "$STAGED" ]; then
+  dart format $STAGED
+  git add $STAGED
+fi
+
+echo "Running flutter analyze..."
+flutter analyze --no-pub --fatal-infos
+
+if [ $? -ne 0 ]; then
+  echo ""
+  echo "Commit blocked: fix the issues above before committing."
+  exit 1
+fi
