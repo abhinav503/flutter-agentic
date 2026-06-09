@@ -5,8 +5,7 @@ import '../../../../core/constants/value_const.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/ui/atoms/chip.dart';
 import '../../../../core/ui/atoms/text_field.dart';
-import '../bloc/joke_search_bloc.dart';
-
+import '../bloc/search_page_bloc.dart';
 
 class JokeSearchHeader extends StatefulWidget {
   const JokeSearchHeader({super.key});
@@ -28,13 +27,13 @@ class _JokeSearchHeaderState extends State<JokeSearchHeader> {
   void _submit(String term) {
     final trimmed = term.trim();
     if (trimmed.isEmpty) return;
-    context.read<JokeSearchBloc>().add(JokeSearchEvent.submitted(term: trimmed));
+    context.read<SearchPageBloc>().add(SearchPageEvent.submitted(term: trimmed));
   }
 
   void _selectChip(String term) {
     setState(() => _selectedChip = term);
     _controller.text = term;
-    context.read<JokeSearchBloc>().add(JokeSearchEvent.chipSelected(term: term));
+    context.read<SearchPageBloc>().add(SearchPageEvent.chipSelected(term: term));
   }
 
   @override

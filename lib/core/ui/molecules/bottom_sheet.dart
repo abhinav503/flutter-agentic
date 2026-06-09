@@ -19,6 +19,7 @@ class AppBottomSheet extends StatelessWidget {
   final Widget child;
   final String? title;
   final VoidCallback? onClose;
+  final List<Widget>? actions;
   final bool isScrollable;
   final double maxHeightFraction;
 
@@ -27,6 +28,7 @@ class AppBottomSheet extends StatelessWidget {
     required this.child,
     this.title,
     this.onClose,
+    this.actions,
     this.isScrollable = true,
     this.maxHeightFraction = 0.9,
   });
@@ -36,6 +38,7 @@ class AppBottomSheet extends StatelessWidget {
     required Widget child,
     String? title,
     VoidCallback? onClose,
+    List<Widget>? actions,
     bool isScrollable = true,
     double maxHeightFraction = 0.9,
     bool isDismissible = true,
@@ -50,6 +53,7 @@ class AppBottomSheet extends StatelessWidget {
       builder: (_) => AppBottomSheet(
         title: title,
         onClose: onClose ?? () => Navigator.of(context).pop(),
+        actions: actions,
         isScrollable: isScrollable,
         maxHeightFraction: maxHeightFraction,
         child: child,
@@ -87,6 +91,25 @@ class AppBottomSheet extends StatelessWidget {
               ),
             ),
             SliverToBoxAdapter(child: child),
+            if (actions != null && actions!.isNotEmpty)
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.lg,
+                    AppSpacing.lg,
+                    AppSpacing.lg,
+                    AppSpacing.lg,
+                  ),
+                  child: Row(
+                    children: [
+                      for (int i = 0; i < actions!.length; i++) ...[
+                        if (i > 0) const SizedBox(width: AppSpacing.base),
+                        Expanded(child: actions![i]),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
           ],
         ),
       ),

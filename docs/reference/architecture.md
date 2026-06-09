@@ -34,12 +34,12 @@ presentation  →  domain  ←  data
 lib/
 ├── core/                            shared infrastructure, no feature logic
 │   ├── base/
-│   │   ├── base_page.dart           BasePage + BasePageState (Scaffold + MasterBloc overlay)
+│   │   ├── base_page.dart           BasePage + BasePageState (Scaffold + body-scoped loader; getter-based bottom nav)
 │   │   ├── base_page_without_bloc.dart
 │   │   ├── base_repository.dart     BaseRepository mixin (Dio→Failure mapping)
 │   │   ├── base_screen.dart         BaseScreen + BaseScreenState (showAppBottomSheet, showSnackBar)
 │   │   └── bloc/
-│   │       ├── master_bloc.dart     ShowLoader / HideLoader → page-level overlay
+│   │       ├── master_bloc.dart     ShowLoader / HideLoader → body-scoped overlay (auth / form submit only)
 │   │       ├── master_event.dart
 │   │       └── master_state.dart
 │   ├── constants/
@@ -209,71 +209,90 @@ class GetRandomJokeUseCase extends UseCase<Either<Failure, JokeEntity>, NoParams
 // event (part file)
 @freezed
 sealed class JokeEvent with _$JokeEvent {
-  const factory JokeEvent.fetched() = JokeFetched;
+  const factory JokeEvent.started()       = JokeStarted;      // triggers first fetch
+  const factory JokeEvent.nextRequested() = JokeNextRequested; // user action
 }
 
-// state (part file)
+// state (part file) — cover every observable state; no "initial" needed when auto-fetching
 @freezed
 sealed class JokeState with _$JokeState {
-  const factory JokeState.initial()                           = JokeInitial;
   const factory JokeState.loading()                          = JokeLoading;
   const factory JokeState.loaded({required JokeEntity joke}) = JokeLoaded;
   const factory JokeState.error({required String message})   = JokeError;
 }
 
-// bloc
+// bloc — starts in loading; dispatches started via cascade on creation
 class JokeBloc extends Bloc<JokeEvent, JokeState> {
   final GetRandomJokeUseCase _getRandomJoke;
 
   JokeBloc({required GetRandomJokeUseCase getRandomJokeUseCase})
       : _getRandomJoke = getRandomJokeUseCase,
-        super(const JokeState.initial()) {
-    on<JokeFetched>(_onFetched);
+        super(const JokeState.loading()) {
+    on<JokeStarted>(_onStarted);
+    on<JokeNextRequested>(_onNextRequested);
   }
 
-  Future<void> _onFetched(JokeFetched event, Emitter<JokeState> emit) async {
-    emit(const JokeState.loading());
+  Future<void> _onStarted(JokeStarted event, Emitter<JokeState> emit) async {
     final result = await _getRandomJoke(const NoParams());
     result.fold(
       (failure) => emit(JokeState.error(message: failure.message)),
       (joke)    => emit(JokeState.loaded(joke: joke)),
     );
   }
+
+  Future<void> _onNextRequested(JokeNextRequested event, Emitter<JokeState> emit) async {
+    // keep showing current content while fetching
+  }
+}
+```
+
+**Cubit for shared in-memory state** — no Freezed needed for simple list state:
+```dart
+class KeptJokesCubit extends Cubit<List<JokeEntity>> {
+  KeptJokesCubit() : super([]);
+  void keep(JokeEntity joke) {
+    if (!state.any((j) => j.id == joke.id)) emit([...state, joke]);
+  }
+  void remove(String id) => emit(state.where((j) => j.id != id).toList());
 }
 ```
 
 ### Page + Screen
+
+**BLoC scoping rule:**
+- `buildBlocProviders` — only for state shared across multiple screens or read by the AppBar. Typically a `Cubit`.
+- `buildBody` — wrap each screen in its own `BlocProvider`. The BLoC lifetime is tied to that screen's subtree.
+
 ```dart
-// page — DI only
+// page — shared cubit in buildBlocProviders; screen-specific BLoC in buildBody
 class _JokesPageState extends BasePageState<JokesPage> {
   @override
   Widget buildBlocProviders(Widget child) => BlocProvider(
-    create: (_) => JokeBloc(getRandomJokeUseCase: sl()), child: child);
+    create: (_) => KeptJokesCubit(), child: child); // read by AppBar + screen
 
   @override
   PreferredSizeWidget buildAppBar(BuildContext context) =>
       AppTopBar.primary(title: ValueConst.jokeAppBarTitle);
 
   @override
-  Widget buildBody(BuildContext context) => const JokesScreen();
+  Widget buildBody(BuildContext context) => BlocProvider(
+    // cascade auto-dispatches started so the screen begins loading immediately
+    create: (_) => JokeBloc(getRandomJokeUseCase: sl())..add(const JokeEvent.started()),
+    child: const JokesScreen(),
+  );
 }
 
-// screen — UI only
+// screen — pure switch(state) builder; no setState for BLoC-derived values
 class _JokesScreenState extends BaseScreenState<JokesScreen> {
   @override
   Widget body(BuildContext context) {
     return BlocConsumer<JokeBloc, JokeState>(
+      // listener: side effects only (snackbars, navigation)
       listener: (context, state) {
-        final master = context.read<MasterBloc>();
-        switch (state) {
-          case JokeLoading():              master.add(ShowLoader());
-          case JokeLoaded() || JokeError(): master.add(HideLoader());
-          default: break;
-        }
+        if (state is JokeError) showSnackBar(state.message);
       },
       builder: (context, state) => switch (state) {
-        JokeInitial()             => const JokeEmptyState(),
-        JokeLoading()             => const SizedBox.shrink(),
+        JokeLoading()             => const LoadingIndicator(),
         JokeLoaded(:final joke)   => JokeCard(joke: joke),
         JokeError(:final message) => ErrorView(message: message),
       },
@@ -281,6 +300,23 @@ class _JokesScreenState extends BaseScreenState<JokesScreen> {
   }
 }
 ```
+
+> For a single-screen page where the AppBar also needs to read the BLoC, putting it in `buildBlocProviders` is fine. The rule is: scope as tightly as the consumers require.
+
+**Bottom navigation** — override only the getters you need; `BasePage` renders the bar automatically:
+```dart
+@override bool get showBottomNav => true;
+@override List<BottomNavigationBarItem> get bottomNavItems => const [...];
+@override int get selectedNavIndex => _currentTab;
+@override void onNavItemTapped(int index) => setState(() => _currentTab = index);
+```
+
+**Custom loader** — override `buildLoader` to swap the default spinner:
+```dart
+@override
+Widget buildLoader(BuildContext context) => const MyBrandedSpinner();
+```
+The loader renders inside the Scaffold body only — it never covers the AppBar or BottomNavigationBar.
 
 ---
 
@@ -301,9 +337,9 @@ sl.registerLazySingleton<JokesRepository>(() => JokesRepositoryImpl(sl()));
 // 4. Use cases
 sl.registerLazySingleton(() => GetRandomJokeUseCase(sl()));
 
-// BLoCs are NOT registered in GetIt — they are instantiated directly in each
-// page's BlocProvider so their lifetime is tied to the widget tree:
-// BlocProvider(create: (_) => JokeBloc(getRandomJokeUseCase: sl()))
+// BLoCs are NOT registered in GetIt — instantiated in BlocProvider inside buildBody:
+// BlocProvider(create: (_) => JokeBloc(getRandomJokeUseCase: sl())..add(const JokeEvent.started()))
+// Cubits for shared state also instantiated in buildBlocProviders (not GetIt).
 ```
 
 ---
@@ -330,7 +366,7 @@ Never `throw` across layer boundaries. Never let `DioException` reach a BLoC or 
 
 ### Atomic hierarchy
 - **atoms** — single widget, no BLoC reads: `AppButton`, `AppTextField`, `AppBadge`, `AppChip`, `AppTopBar`, `LoadingIndicator`
-- **molecules** — composed atoms, may read BLoC via context: `AppBottomSheet`, `ErrorView`
+- **molecules** — composed atoms, may read BLoC via context: `AppBottomSheet` (supports `actions:` row), `ErrorView`
 - **feature/widgets** — feature-local, may read that feature's BLoC
 
 ### Colours — never hardcode
@@ -378,10 +414,10 @@ ValueConst.jokeResultsCount(state.totalJokes)   // dynamic → static method
 'Load More'
 ```
 
-### MasterBloc — page-level overlay
-`BasePage` renders a scrim + spinner over the entire page when `MasterBloc` emits `MasterLoading`.
-Use it for operations that lock the whole page (auth, form submit).
-Use inline `LoadingIndicator` for list/content loading — not the overlay.
+### MasterBloc — body-scoped overlay
+`BasePage` renders a scrim + spinner **inside the Scaffold body** when `MasterBloc` emits `MasterLoading` — it does not cover the AppBar or BottomNavigationBar.
+Use it only for operations that block the whole body (auth, form submit).
+**Never drive it from a screen widget** — screens use inline `LoadingIndicator` or a per-state spinner for their own content loading.
 
 ### Theme configuration
 Colours and font set in `assets/theme/theme_config.json`.

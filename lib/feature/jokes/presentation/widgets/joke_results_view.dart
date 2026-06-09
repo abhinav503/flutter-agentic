@@ -5,12 +5,12 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/ui/atoms/badge.dart';
 import '../../../../core/ui/atoms/button.dart';
 import '../../domain/entities/joke_search_result_entity.dart';
-import '../bloc/joke_search_bloc.dart';
+import '../bloc/search_page_bloc.dart';
 
 import 'joke_list_tile.dart';
 
 class JokeResultsView extends StatelessWidget {
-  final JokeSearchLoaded state;
+  final SearchPageLoaded state;
   final void Function(JokeSearchResultEntity) onTileTap;
   final VoidCallback onLoadMore;
 

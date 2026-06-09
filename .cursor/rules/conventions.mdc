@@ -46,6 +46,9 @@ The pre-commit hook formats staged Dart files and runs `flutter analyze` — com
 - Calling `AppBottomSheet.show()` directly in a screen — use `showAppBottomSheet()` from `BaseScreenState`
 - Extending `StatelessWidget`/`StatefulWidget` directly for full pages or screens
 - Manually editing `.freezed.dart` or `.g.dart` files
+- Using `setState` in a screen to store values that come from BLoC events — put them in BLoC state instead
+- Driving `MasterBloc` from a screen widget for content loading — use inline `LoadingIndicator`; `MasterBloc` is for page-level blocking ops only (auth, form submit)
+- Putting a screen-specific BLoC in `buildBlocProviders` when it is not needed above the body — provide it in `buildBody` wrapping the screen instead
 
 ---
 

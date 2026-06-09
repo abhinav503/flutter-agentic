@@ -12,6 +12,8 @@ void main() {
   testWidgets('app renders without crashing', (tester) async {
     await tester.pumpWidget(const App());
     await tester.pump();
-    expect(find.text('Dad Jokes'), findsOneWidget);
+    expect(find.text('For You'), findsAtLeastNWidgets(1));
+    // Advance past Dio's 10s connectTimeout so no timers are left pending.
+    await tester.pump(const Duration(seconds: 11));
   });
 }
