@@ -1,6 +1,6 @@
 # Cordelia Base — AI Rules
 
-> **Claude Code** (this file) · **Cursor** → `.cursor/rules/` · **Gemini** → `GEMINI.md` · **Codex/Android Studio** → `AGENTS.md` · **Amazon Q** → `.amazonq/rules/`
+> **Claude Code** (this file) · **Cursor** → `.cursor/rules/` · **GitHub Copilot** → `.github/copilot-instructions.md` · **Gemini** → `GEMINI.md` · **Codex/Android Studio** → `AGENTS.md` · **Amazon Q** → `.amazonq/rules/`
 
 @docs/ai-rules/conventions.md
 @docs/reference/architecture.md
