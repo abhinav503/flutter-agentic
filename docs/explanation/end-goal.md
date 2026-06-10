@@ -39,7 +39,9 @@ The repo is not opinionated about _what_ you build. It is opinionated about _how
 
 ## Progress
 
-### Foundation
+### Phase 1 — Foundation ✅ Complete
+
+**Core architecture**
 - [x] Clean Architecture folder structure (`feature/{name}/data|domain|presentation`)
 - [x] BLoC + Freezed sealed events/states
 - [x] `get_it` DI with `initDependencies()` wired in `main()`
@@ -50,7 +52,7 @@ The repo is not opinionated about _what_ you build. It is opinionated about _how
 - [x] `BasePage` / `BaseScreen` base classes — getter-based bottom nav, `buildBody` / `buildBlocProviders` hooks
 - [x] `CLAUDE.md` with full architecture, layer rules, and AI coding conventions
 
-### Design System
+**Design system**
 - [x] `AppSpacing` token scale
 - [x] `AppRadius` token scale
 - [x] `AppButton` — primary / secondary / text variants, three sizes, loading state
@@ -58,15 +60,46 @@ The repo is not opinionated about _what_ you build. It is opinionated about _how
 - [x] `AppBadge` — neutral / info / success / warning / error intents
 - [x] `AppChip` — selectable, with icon support
 - [x] `AppBottomSheet` — pinned header + scrollable body, static `show()` helper, `actions:` row
-
-### Planned
 - [x] `AppTheme` builder — light/dark `ThemeData` from a single seed colour, wired to `ThemeMode.system`
+
+**AI agent support**
+- [x] Multi-agent rules: Claude Code, Cursor, Copilot, Gemini, Codex, Android Studio, Amazon Q
+- [x] Skills: `setup-project`, `add-feature-template`, `rename-app`, `review-code`, `change-app-id`
+- [x] Published to GitHub as open-source template
+
+---
+
+### Phase 2 — Production App + Core Infrastructure
+
+The first public phase is complete. Phase 2 runs two parallel tracks:
+
+**Track A — Receipt/Bill-to-PDF Scanner (publishable app, Feature #2)**
+
+The goal is a real app, published to the App Store and Play Store, that proves the template works for production — not just demos. The app solves a real-world need: consolidate multiple photos of receipts or bills into a single downloadable PDF for expense reimbursement.
+
+- [ ] `feature/doc_scanner/` — multi-image picker (camera + gallery)
+- [ ] Image preview and reorder screen
+- [ ] On-device PDF generation — `pdf` package, no backend, works offline
+- [ ] File share/save via native share sheet — `share_plus` + `path_provider`
+- [ ] Runtime permission handling — `permission_handler`
+- [ ] Published to App Store and Play Store
+
+**Track B — Core infrastructure modules**
+
+Modules that every Flutter app eventually needs, structured as abstract interfaces with concrete implementations so any developer can swap the backend.
+
 - [ ] `AppCheckbox` and `AppRadioGroup` atoms
 - [ ] `AppSnackbar` helper (success / error / info variants)
 - [ ] `AppDialog` — confirm/alert modal
 - [ ] Pagination mixin for list features
+- [ ] Secure storage — `flutter_secure_storage` backed interface in `core/storage/`
+- [ ] Push notifications — FCM-backed `NotificationService` abstraction in `core/notifications/`
+- [ ] Deep linking — `app_links` backed `DeepLinkService` in `core/deep_link/` (GoRouter wired)
+- [ ] Connectivity awareness — `OfflineBanner` molecule + `ConnectivityService`
+- [ ] Analytics abstraction — `AnalyticsService` + `NoOpAnalyticsService` default
+- [ ] Crash reporting abstraction — `CrashReportingService` + `NoOpCrashReportingService` default
+- [ ] Auth scaffold — `feature/auth/` with login → token → protected route pattern
 - [ ] CI pipeline (GitHub Actions) — format check, analyse, test
-- [ ] Example second feature (non-jokes) to prove the pattern generalises
 - [ ] Web-specific layout helpers (responsive breakpoints, side-nav shell)
 - [ ] README with quickstart and architecture diagram
 
@@ -74,7 +107,8 @@ The repo is not opinionated about _what_ you build. It is opinionated about _how
 
 ## How to Measure Success
 
-The template is ready when:
-1. A developer can scaffold a new feature by copying the jokes feature and changing names — with no layer violations flagged by `flutter analyze`.
-2. An AI agent given `CLAUDE.md` and a feature spec can generate a correct feature (data + domain + presentation + tests) with minimal iterations — running `/review-code` after generation catches any drift before it is merged.
-3. The app runs on both Android/iOS and Web from the same codebase with zero platform-specific hacks in `core/`.
+Phase 2 is complete when:
+1. The doc scanner app is live on both the App Store and Play Store, built entirely from this template.
+2. A developer can clone this repo and add push notifications, deep links, and secure storage without writing any infrastructure code — only wiring up the existing interfaces.
+3. An AI agent given `CLAUDE.md` and a feature spec can generate a correct feature (data + domain + presentation + tests) with minimal iterations — running `/review-code` after generation catches any drift before it is merged.
+4. The app runs on both Android/iOS and Web from the same codebase with zero platform-specific hacks in `core/`.
