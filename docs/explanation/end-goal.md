@@ -28,7 +28,7 @@ The repo is not opinionated about _what_ you build. It is opinionated about _how
 | **Networking** | Dio + Retrofit generated clients; `BaseRepository` error mapping |
 | **Error handling** | `Either<Failure, T>` — no thrown exceptions across layers |
 | **Navigation** | GoRouter with typed routes |
-| **Base classes** | `BasePage` (DI + Scaffold + MasterBloc), `BaseScreen` (UI only), `BaseRepository` |
+| **Base classes** | `BasePage` (DI + Scaffold), `BaseScreen` (UI only), `BaseRepository` |
 | **Design tokens** | `AppSpacing`, `AppRadius` — neutral scale, no brand colours |
 | **UI atoms** | `AppButton`, `AppTextField`, `AppBadge`, `AppChip` |
 | **UI molecules** | `AppBottomSheet`, `ErrorView`, `LoadingIndicator` |
@@ -47,8 +47,7 @@ The repo is not opinionated about _what_ you build. It is opinionated about _how
 - [x] `BaseRepository` mixin with Dio-to-Failure error mapping
 - [x] `Either<Failure, T>` error handling via fpdart
 - [x] GoRouter navigation
-- [x] `BasePage` / `BaseScreen` / `BasePageWithoutBloc` base classes — body-scoped loader, getter-based bottom nav, `buildLoader()` hook
-- [x] `MasterBloc` for body-scoped blocking loader (auth / form submit only)
+- [x] `BasePage` / `BaseScreen` base classes — getter-based bottom nav, `buildBody` / `buildBlocProviders` hooks
 - [x] `CLAUDE.md` with full architecture, layer rules, and AI coding conventions
 
 ### Design System

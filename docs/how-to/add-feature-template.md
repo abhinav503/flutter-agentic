@@ -4,7 +4,7 @@
 > Layer rules and forbidden patterns: `docs/ai-rules/conventions.md`.
 > Full architecture reference: `docs/reference/architecture.md`.
 
-`{Feature}` = PascalCase &nbsp;·&nbsp; `{feature}` = snake_case
+`{Feature}` = PascalCase &nbsp;·&nbsp; `{feature}` = snake_case &nbsp;·&nbsp; `{Action}` = PascalCase verb &nbsp;·&nbsp; `{action}` = snake_case verb (e.g. `GetProducts` / `get_products`)
 
 ---
 
@@ -225,11 +225,9 @@ make gen && make analyze
 
 ---
 
-## AI notes
+## Notes
 
-**Naming:** `{Feature}` = PascalCase · `{feature}` = snake_case · `{Action}` = PascalCase verb · `{action}` = snake_case verb
-
-**Scaffold scope:** Do NOT create entity, model, or use case files — those follow separately.
+**Scaffold scope:** Do NOT create entity, model, or use case files — those follow separately via `docs/how-to/add-usecase.md`.
 
 **BLoC part files:** `{feature}_event.dart` and `{feature}_state.dart` begin with `part of '{feature}_bloc.dart'`. The bloc declares `part '{feature}_event.dart'` and `part '{feature}_state.dart'`. One `make gen` covers all three.
 
