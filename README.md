@@ -106,7 +106,7 @@ The core project is Flutter-first. Backend, React, Node.js, Python, or other fol
 | Concern | Library |
 |---|---|
 | State management | [flutter_bloc](https://pub.dev/packages/flutter_bloc) |
-| Dependency injection | [get_it](https://pub.dev/packages/get_it) — service locator (`sl<T>()`) |
+| Dependency injection | [get_it](https://pub.dev/packages/get_it) — composition-root-only service locator; all domain and data classes use pure constructor injection |
 | Navigation | [go_router](https://pub.dev/packages/go_router) |
 | Networking | [Dio](https://pub.dev/packages/dio) + [Retrofit](https://pub.dev/packages/retrofit) |
 | Models / serialization | [Freezed](https://pub.dev/packages/freezed) + [json_serializable](https://pub.dev/packages/json_serializable) |
