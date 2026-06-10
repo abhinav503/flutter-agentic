@@ -67,8 +67,8 @@ Run `make gen` after changing any `@freezed`, `@JsonSerializable`, or `@RestApi(
 - Calling `add()` from inside a BLoC event handler — factor shared logic into a private method instead
 - Using Flutter's built-in button widgets (`ElevatedButton`, `TextButton`, `OutlinedButton`, `FilledButton`) in screens or molecules — use `AppButton` with the appropriate `AppButtonVariant`
 - Inline `CircularProgressIndicator` in screens — use `LoadingIndicator` from `core/ui/atoms/`
-- Error states that omit the data needed to retry — every `*Error` state must carry enough context (e.g. `searchTerm`) for the BLoC to re-dispatch without reading prior state
-- Creating a new entity that is structurally identical to an existing one — reuse the existing entity
+- Error states that omit the data needed to retry — every `*Error` state must carry enough context (e.g. `searchTerm`, `page`) for the BLoC to re-dispatch without reading prior state; screens must never inspect preceding states for retry inputs
+- Creating a new entity that is structurally identical to an existing one — reuse the existing entity; a single entity works for both single-result and list-result use cases
 
 ---
 

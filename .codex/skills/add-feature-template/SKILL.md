@@ -10,7 +10,8 @@ description: >
 If the feature name was not passed as an argument, ask:
 "What is the feature name? (e.g. `products`, `auth`, `settings`)"
 
-`{Feature}` = PascalCase · `{feature}` = snake_case
+- `{Feature}` = PascalCase · `{feature}` = snake_case
+- `{Action}` = PascalCase verb · `{action}` = snake_case verb (e.g. `GetProducts` / `get_products`)
 
 Scaffold only — do NOT create entity, model, or use case files.
 BLoCs are never registered in GetIt.
@@ -84,7 +85,7 @@ part of '{feature}_bloc.dart';
 
 @freezed
 sealed class {Feature}Event with _${Feature}Event {
-  const factory {Feature}Event.fetched() = {Feature}Fetched;
+  const factory {Feature}Event.started() = {Feature}Started; // auto-dispatched on creation
 }
 ```
 
@@ -94,7 +95,6 @@ part of '{feature}_bloc.dart';
 
 @freezed
 sealed class {Feature}State with _${Feature}State {
-  const factory {Feature}State.initial()                         = {Feature}Initial;
   const factory {Feature}State.loading()                        = {Feature}Loading;
   const factory {Feature}State.loaded()                         = {Feature}Loaded;
   const factory {Feature}State.error({required String message}) = {Feature}Error;
@@ -111,12 +111,11 @@ part '{feature}_event.dart';
 part '{feature}_state.dart';
 
 class {Feature}Bloc extends Bloc<{Feature}Event, {Feature}State> {
-  {Feature}Bloc() : super(const {Feature}State.initial()) {
-    on<{Feature}Fetched>(_onFetched);
+  {Feature}Bloc() : super(const {Feature}State.loading()) {
+    on<{Feature}Started>(_onStarted);
   }
 
-  Future<void> _onFetched({Feature}Fetched event, Emitter<{Feature}State> emit) async {
-    emit(const {Feature}State.loading());
+  Future<void> _onStarted({Feature}Started event, Emitter<{Feature}State> emit) async {
     // TODO: inject use case, call it, fold the Either
     emit(const {Feature}State.loaded());
   }
@@ -131,6 +130,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/base/base_page.dart';
 import '../../../../core/constants/value_const.dart';
+import '../../../../core/di/injection_container.dart';
 import '../../../../core/ui/atoms/top_bar.dart';
 import '../bloc/{feature}_bloc.dart';
 import '{feature}_screen.dart';
@@ -143,15 +143,15 @@ class {Feature}Page extends BasePage {
 
 class _{Feature}PageState extends BasePageState<{Feature}Page> {
   @override
-  Widget buildBlocProviders(Widget child) =>
-      BlocProvider(create: (_) => {Feature}Bloc(), child: child);
-
-  @override
   PreferredSizeWidget buildAppBar(BuildContext context) =>
       AppTopBar.primary(title: ValueConst.{feature}AppBarTitle);
 
+  // BLoC scoped to the screen subtree; cascade dispatches started immediately
   @override
-  Widget buildBody(BuildContext context) => const {Feature}Screen();
+  Widget buildBody(BuildContext context) => BlocProvider(
+    create: (_) => {Feature}Bloc({action}UseCase: sl())..add(const {Feature}Event.started()),
+    child: const {Feature}Screen(),
+  );
 }
 ```
 
@@ -162,7 +162,7 @@ class _{Feature}PageState extends BasePageState<{Feature}Page> {
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/base/base_screen.dart';
-import '../../../../core/base/bloc/master_bloc.dart';
+import '../../../../core/ui/atoms/loading_indicator.dart';
 import '../../../../core/ui/molecules/error_view.dart';
 import '../bloc/{feature}_bloc.dart';
 
@@ -175,25 +175,18 @@ class {Feature}Screen extends BaseScreen {
 class _{Feature}ScreenState extends BaseScreenState<{Feature}Screen> {
   @override
   Widget body(BuildContext context) {
-    return BlocConsumer<{Feature}Bloc, {Feature}State>(
-      listener: (context, state) {
-        final master = context.read<MasterBloc>();
-        switch (state) {
-          case {Feature}Loading(): master.add(ShowLoader());
-          case {Feature}Loaded() || {Feature}Error(): master.add(HideLoader());
-          default: break;
-        }
-      },
+    return BlocBuilder<{Feature}Bloc, {Feature}State>(
       builder: (context, state) => switch (state) {
-        {Feature}Initial()             => const SizedBox.shrink(),
-        {Feature}Loading()             => const SizedBox.shrink(),
-        {Feature}Loaded()              => const SizedBox.shrink(),
+        {Feature}Loading()             => const LoadingIndicator(),
+        {Feature}Loaded()              => const SizedBox.shrink(), // replace with content
         {Feature}Error(:final message) => ErrorView(message: message),
       },
     );
   }
 }
 ```
+
+> Use `BlocConsumer` (adding a `listener:`) only when you need side effects such as a snackbar or navigation on a specific state transition.
 
 ## 8. DI
 
