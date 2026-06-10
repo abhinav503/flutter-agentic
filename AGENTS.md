@@ -14,6 +14,7 @@ Read on demand:
 - `docs/how-to/add-usecase.md` — create a use case class and register it in `injection_container.dart`
 - `docs/how-to/design-screen-state.md` — business-logic naming for events and states, retry context rules, screen rendering pattern; use the jokes feature as the reference
 - `docs/how-to/review-code.md` — when asked to review, audit, or check generated code; run through the full checklist and report ✅/❌ per section
+- `docs/how-to/change-app-id.md` — when asked to change the application ID or bundle identifier; covers Android (`build.gradle.kts` + `MainActivity.kt` package path) and iOS (`project.pbxproj`), with Xcode manual steps and provisioning notes
 - `docs/explanation/ai-agents.md` — per-agent install and usage
 
 ---

@@ -30,7 +30,7 @@ flowchart LR
     subgraph FA["📦 FlutterAgentic"]
         direction TB
         R["📋 Rules\nPatterns · naming · boundaries"]
-        SK["🔧 Skills\nScaffold · rename · setup"]
+        SK["🔧 Skills\nScaffold · rename · setup · change-id"]
         AR["🏗️ Architecture\nLayers · DI · testing"]
         R --> SK --> AR
     end
@@ -61,6 +61,7 @@ Available skills:
 - `setup-project` — checks Flutter/Dart setup, dependencies, generated files, hooks, run targets, and analysis.
 - `add-feature-template` — scaffolds a new Clean Architecture feature with folders, class skeletons, BLoC state, screen/page files, and DI wiring.
 - `rename-app` — renames the app across all platform files (iOS, Android, Web), Dart source, test imports, VS Code config, and all AI rules docs in one pass.
+- `change-app-id` — changes the application ID / bundle identifier on Android (`build.gradle.kts` + `MainActivity.kt` package path) and iOS (`project.pbxproj`), with Xcode manual instructions and provisioning notes included.
 - `review-code` — audits generated or modified code against the project's architecture contracts, forbidden-pattern checklist, naming conventions, DI rules, and test coverage expectations. Run this after any code generation for best results.
 
 ## Why Fork This?
@@ -322,15 +323,31 @@ docs/
 
 ## Roadmap
 
-- App checkbox and radio group atoms
-- Snackbar and dialog helpers
-- Notifications foundation
-- Deep link foundation
-- Secure storage foundation
-- Pagination helpers for list features
+Phase 1 is complete and published. Phase 2 runs two parallel tracks:
+
+**Track A — Receipt/Bill-to-PDF scanner (publishable app)**
+
+A real app heading to the App Store and Play Store — proof that the template works for production, not just demos. It solves a concrete problem: consolidate photos of receipts and bills into a single PDF for expense reimbursement.
+
+- Multi-image picker (camera + gallery)
+- On-device PDF generation — no backend, works offline
+- File sharing via native share sheet
+- Published to App Store and Play Store
+
+**Track B — Core infrastructure modules**
+
+Abstract interfaces with concrete implementations so any developer can drop them in or swap the backend.
+
+- `AppCheckbox`, `AppRadioGroup`, `AppSnackbar`, `AppDialog` atoms
+- Pagination mixin for list features
+- Secure storage (`flutter_secure_storage` backed)
+- Push notifications (FCM-backed `NotificationService` abstraction)
+- Deep linking (`app_links` backed, GoRouter wired)
+- Connectivity awareness with offline banner
+- Analytics and crash reporting abstractions
+- Auth scaffold — login → token → protected route pattern
+- CI pipeline (GitHub Actions)
 - Responsive web layout helpers
-- Second non-jokes example feature
-- More community-reviewed agent rules and feature templates
 
 ## CI
 
