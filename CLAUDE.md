@@ -9,4 +9,5 @@
 Read `docs/how-to/contributing.md` for contributor workflow and git hooks.
 Read `docs/how-to/add-feature-template.md` when scaffolding a new feature — it has the full folder tree, empty class skeletons, DI registration order, and a forbidden-pattern checklist.
 Read `docs/how-to/add-usecase.md` when adding a use case — create the class and register it in `injection_container.dart`.
+Read `docs/how-to/design-screen-state.md` when designing BLoC events and states — covers business-logic naming, state design, retry context, and screen rendering rules with examples from the jokes feature.
 Read `docs/explanation/ai-agents.md` for per-agent install and usage.

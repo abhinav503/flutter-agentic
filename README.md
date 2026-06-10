@@ -155,6 +155,98 @@ Domain never imports Flutter, Dio, Retrofit, or presentation code. Data never im
 
 See [`docs/reference/architecture.md`](docs/reference/architecture.md) for folder structure, naming, DI, error flow, design system rules, and testing patterns.
 
+## Architecture in Practice
+
+The `jokes` feature is a complete, working reference implementation of every layer. Here is the full stack from API call to rendered UI — no hand-waving.
+
+**Domain entity** — pure Dart, no framework imports:
+```dart
+// lib/feature/jokes/domain/entities/joke_entity.dart
+class JokeEntity {
+  final String id;
+  final String content;
+  const JokeEntity({required this.id, required this.content});
+}
+```
+
+**Repository interface** — domain owns the contract, data fulfils it:
+```dart
+// lib/feature/jokes/domain/repository/jokes_repository.dart
+abstract interface class JokesRepository {
+  Future<Either<Failure, JokeEntity>> getRandomJoke();
+  Future<Either<Failure, JokeSearchResultEntity>> searchJokes(SearchJokesParams params);
+}
+```
+
+**Repository implementation** — maps Dio failures to typed `Left`, maps DTOs to entities:
+```dart
+// lib/feature/jokes/data/repository_impl/jokes_repository_impl.dart
+class JokesRepositoryImpl with BaseRepository implements JokesRepository {
+  final JokesRemoteDataSource _dataSource;
+  const JokesRepositoryImpl(this._dataSource);
+
+  @override
+  Future<Either<Failure, JokeEntity>> getRandomJoke() =>
+      handleRequest(() async {
+        final model = await _dataSource.getRandomJoke();
+        return right(JokeEntity(id: model.id, content: model.joke));
+      });
+}
+```
+
+**BLoC** — sealed Freezed states, no `setState`, no nullable fields:
+```dart
+// lib/feature/jokes/presentation/bloc/joke_bloc.dart
+class JokeBloc extends Bloc<JokeEvent, JokeState> {
+  JokeBloc({required GetRandomJokeUseCase getRandomJokeUseCase})
+      : _getRandomJoke = getRandomJokeUseCase,
+        super(const JokeState.loading()) {
+    on<JokeStarted>(_onStarted);
+  }
+
+  Future<void> _onStarted(JokeStarted event, Emitter<JokeState> emit) async {
+    final result = await _getRandomJoke(const NoParams());
+    result.fold(
+      (failure) => emit(JokeState.error(message: failure.message)),
+      (joke)    => emit(JokeState.loaded(joke: joke)),
+    );
+  }
+}
+```
+
+**Screen** — exhaustive `switch`, no `if (state is X)`, no raw `CircularProgressIndicator`:
+```dart
+// lib/feature/jokes/presentation/view/jokes_screen.dart
+builder: (context, state) => switch (state) {
+  JokeLoading()           => const LoadingIndicator(),
+  JokeLoaded(:final joke) => JokeCard(joke: joke),
+  JokeError(:final msg)   => ErrorView(message: msg),
+},
+```
+
+Every layer is independently testable with manual fakes — no mocks, no real network calls. See [`test/`](test/) for use case, BLoC, and widget tests.
+
+**Business logic flow** — a user action travels through every layer in one direction, and the UI never decides anything:
+
+```
+User taps "Next Joke"
+  → screen dispatches JokeEvent.nextRequested()         (UI layer — zero logic)
+  → JokeBloc calls GetRandomJokeUseCase(NoParams())     (BLoC — orchestration only)
+  → use case calls JokesRepository.getRandomJoke()      (domain — business rule lives here)
+  → repository calls data source, maps DioException     (data — I/O + failure mapping)
+  → returns Either<Failure, JokeEntity>
+  → BLoC folds the Either:
+      Left(failure)  → emit(JokeState.error(...))
+      Right(entity)  → emit(JokeState.loaded(...))      (BLoC — state decision)
+  → screen switch(state) renders the right widget       (UI layer — zero logic again)
+```
+
+No business logic in `build()`. No `setState` for BLoC-derived values. No `DioException` reaching a widget. The screen is a pure function of state — it renders what the BLoC tells it to render, nothing more.
+
+This extends to naming: events are **user intentions** (`nextRequested`, `submitted`, `chipSelected`), not API calls (`fetchJoke`, `callSearchApi`). States are **business outcomes** (`loaded`, `nextFetchFailed`), not flag combinations (`isLoading: true, error: null`). A separate `nextFetchFailed` state keeps the current joke visible while reporting the error — a design decision that cannot be expressed with nullable fields.
+
+---
+
 ## Using This as a Template
 
 1. Click **Use this template** on GitHub to create your repo.
