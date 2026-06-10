@@ -12,6 +12,7 @@ Read on demand:
 - `docs/how-to/contributing.md` — contributor workflow and git hooks
 - `docs/how-to/add-feature-template.md` — full folder tree, empty class skeletons, DI wiring, and forbidden-pattern checklist for scaffolding a new feature
 - `docs/how-to/add-usecase.md` — create a use case class and register it in `injection_container.dart`
+- `docs/how-to/design-screen-state.md` — business-logic naming for events and states, retry context rules, screen rendering pattern; use the jokes feature as the reference
 - `docs/how-to/review-code.md` — when asked to review, audit, or check generated code; run through the full checklist and report ✅/❌ per section
 - `docs/explanation/ai-agents.md` — per-agent install and usage
 

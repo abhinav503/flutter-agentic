@@ -44,10 +44,7 @@ class _ForYouScreenState extends BaseScreenState<ForYouScreen> {
                 const Positioned(
                   bottom: AppSpacing.xl4,
                   right: AppSpacing.lg,
-                  child: SizedBox.square(
-                    dimension: 24,
-                    child: CircularProgressIndicator(strokeWidth: 2.5),
-                  ),
+                  child: LoadingIndicator(size: 24, strokeWidth: 2.5),
                 ),
             ],
           ),
