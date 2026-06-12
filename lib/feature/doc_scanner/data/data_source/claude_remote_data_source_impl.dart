@@ -27,9 +27,7 @@ class ClaudeRemoteDataSourceImpl implements DocScannerRemoteDataSource {
       data: {
         'model': modelId,
         'max_tokens': 256,
-        'system': 'You are a receipt data extractor. '
-            'Always respond with valid JSON only. '
-            'No markdown, no explanation, no code blocks.',
+        'system': ValueConst.docScannerSystemPromptClaude,
         'messages': [
           {
             'role': 'user',

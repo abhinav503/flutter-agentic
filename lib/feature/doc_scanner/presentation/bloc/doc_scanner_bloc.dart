@@ -2,6 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../../../core/constants/value_const.dart';
 import '../../../../core/error/failure.dart';
 import '../../../../core/services/image_picker/image_picker_service.dart';
 import '../../../../core/usecase/usecase.dart';
@@ -208,7 +209,7 @@ class DocScannerBloc extends Bloc<DocScannerEvent, DocScannerState> {
         errorMessage: switch (failure) {
           ServerFailure(:final statusCode)
               when statusCode == 401 || statusCode == 403 =>
-            'Invalid or missing API key — tap the model icon to add yours',
+            ValueConst.docScannerApiKeyInvalid,
           _ => failure.message,
         },
       ),

@@ -192,10 +192,6 @@ class _DatePickerField extends StatelessWidget {
     );
   }
 
-  static const _months = [
-    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
-  ];
   static String _format(DateTime d) =>
-      '${d.day} ${_months[d.month - 1]} ${d.year}';
+      '${d.day} ${ValueConst.docScannerMonthAbbreviations[d.month - 1]} ${d.year}';
 }

@@ -85,6 +85,20 @@ abstract final class ValueConst {
   static const docScannerApiKeySave = 'Save';
   static const docScannerApiKeyCancel = 'Cancel';
   static const docScannerApiKeyDialogHint = 'Paste your API key here';
+  static const docScannerApiKeyInvalid =
+      'Invalid or missing API key — tap the model icon to add yours';
+  static String docScannerApiKeyDialogTitle(String modelName) =>
+      'API Key — $modelName';
+
+  static const docScannerSystemPromptClaude =
+      'You are a receipt data extractor. '
+      'Always respond with valid JSON only. '
+      'No markdown, no explanation, no code blocks.';
+
+  static const List<String> docScannerMonthAbbreviations = [
+    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+  ];
 
   // ── AI scan models ────────────────────────────────────────────────────────────
   static const aiModelGroqId          = 'groq-llama-4-scout';
