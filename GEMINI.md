@@ -16,7 +16,7 @@ Read `docs/how-to/rename-app.md` when the user asks to rename the app — covers
 Read `docs/explanation/ai-agents.md` for per-agent install and usage.
 Read `docs/tutorials/solid-principles.md` to understand how SOLID principles are applied across all layers — useful context when designing new classes or reviewing layer boundaries.
 Read `docs/tutorials/design-patterns-and-concepts.md` for design patterns used in this codebase (Singleton, Repository, DTO, Either, Sealed Classes, Strategy, and more) — explains the why behind structural decisions.
-Read `.claude/skills/release/SKILL.md` when the user asks to do a release — follow the steps in that file to compare branches, bump the version, write release notes, merge to main, and create a GitHub Release.
+Read `docs/how-to/release.md` when the user asks to do a release — follow the steps to compare branches, bump the version, write release notes, merge to main, and create a GitHub Release.
 
 ---
 
