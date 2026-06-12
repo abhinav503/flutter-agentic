@@ -1,31 +1,47 @@
 import 'package:flutter_agentic/app.dart';
 import 'package:flutter_agentic/core/di/injection_container.dart';
-import 'package:flutter_agentic/feature/jokes/domain/entities/joke_entity.dart';
-import 'package:flutter_agentic/feature/jokes/domain/repository/jokes_repository.dart';
-import 'package:flutter_agentic/feature/jokes/domain/usecase/get_random_joke_usecase.dart';
-import 'package:flutter_agentic/feature/jokes/domain/usecase/search_jokes_usecase.dart';
+import 'package:flutter_agentic/feature/doc_scanner/domain/repository/receipt_scan_repository.dart';
+import 'package:flutter_agentic/feature/doc_scanner/domain/usecase/delete_receipt_usecase.dart';
+import 'package:flutter_agentic/feature/doc_scanner/domain/usecase/edit_receipt_usecase.dart';
+import 'package:flutter_agentic/feature/doc_scanner/domain/usecase/generate_pdf_usecase.dart';
+import 'package:flutter_agentic/feature/doc_scanner/domain/usecase/get_api_keys_usecase.dart';
+import 'package:flutter_agentic/feature/doc_scanner/domain/usecase/get_selected_model_usecase.dart';
+import 'package:flutter_agentic/feature/doc_scanner/domain/usecase/load_receipts_usecase.dart';
+import 'package:flutter_agentic/feature/doc_scanner/domain/usecase/resolve_image_usecase.dart';
+import 'package:flutter_agentic/feature/doc_scanner/domain/usecase/save_api_key_usecase.dart';
+import 'package:flutter_agentic/feature/doc_scanner/domain/usecase/save_receipt_usecase.dart';
+import 'package:flutter_agentic/feature/doc_scanner/domain/usecase/scan_receipt_usecase.dart';
+import 'package:flutter_agentic/feature/doc_scanner/domain/usecase/select_model_usecase.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:fpdart/fpdart.dart';
 import 'package:get_it/get_it.dart';
 
-import 'helpers/fake_jokes_repository.dart';
+import 'helpers/fake_receipt_scan_repository.dart';
 
 void main() {
   setUpAll(() async {
     await GetIt.instance.reset();
 
-    final fakeRepo = FakeJokesRepository()
-      ..result = right(const JokeEntity(id: '1', content: 'Smoke-test joke'));
+    sl.registerLazySingleton<ReceiptScanRepository>(
+      () => FakeReceiptScanRepository(),
+    );
 
-    sl.registerLazySingleton<JokesRepository>(() => fakeRepo);
-    sl.registerLazySingleton(() => GetRandomJokeUseCase(sl()));
-    sl.registerLazySingleton(() => SearchJokesUseCase(sl()));
+    sl.registerLazySingleton(() => ResolveImageUseCase(sl()));
+    sl.registerLazySingleton(() => ScanReceiptUseCase(sl()));
+    sl.registerLazySingleton(() => GeneratePdfUseCase(sl()));
+    sl.registerLazySingleton(() => LoadReceiptsUseCase(sl()));
+    sl.registerLazySingleton(() => SaveReceiptUseCase(sl()));
+    sl.registerLazySingleton(() => EditReceiptUseCase(sl()));
+    sl.registerLazySingleton(() => DeleteReceiptUseCase(sl()));
+    sl.registerLazySingleton(() => GetSelectedModelUseCase(sl()));
+    sl.registerLazySingleton(() => SelectModelUseCase(sl()));
+    sl.registerLazySingleton(() => GetApiKeysUseCase(sl()));
+    sl.registerLazySingleton(() => SaveApiKeyUseCase(sl()));
   });
 
   testWidgets('app renders without crashing', (tester) async {
     await tester.pumpWidget(const App());
     await tester.pump();
 
-    expect(find.text('For You'), findsAtLeastNWidgets(1));
+    expect(find.text('Scan Receipts'), findsOneWidget);
   });
 }
