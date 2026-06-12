@@ -86,7 +86,7 @@ The core project is Flutter-first. Backend, React, Node.js, Python, or other fol
 
 | Area | Included |
 |---|---|
-| App shape | Flutter frontend starter with one complete example feature |
+| App shape | Flutter frontend starter with one reference feature and a real production app in progress |
 | Architecture | Feature-first Clean Architecture with strict layer boundaries |
 | AI support | Repo-native instructions for eight AI coding surfaces |
 | State | BLoC events/states generated with Freezed |
@@ -112,6 +112,7 @@ The core project is Flutter-first. Backend, React, Node.js, Python, or other fol
 | Networking | [Dio](https://pub.dev/packages/dio) + [Retrofit](https://pub.dev/packages/retrofit) |
 | Models / serialization | [Freezed](https://pub.dev/packages/freezed) + [json_serializable](https://pub.dev/packages/json_serializable) |
 | Error handling | [fpdart](https://pub.dev/packages/fpdart) (`Either<Failure, T>`) |
+| Image picking | [image_picker](https://pub.dev/packages/image_picker) via `ImagePickerService` static singleton |
 
 ## Documentation System
 
@@ -179,7 +180,47 @@ abstract interface class JokesRepository {
 }
 ```
 
-**Repository implementation** — maps Dio failures to typed `Left`, maps DTOs to entities:
+**Model (DTO)** — Freezed with `const ._()` to unlock `fromEntity` / `toEntity` instance methods:
+```dart
+// lib/feature/jokes/data/models/joke_model.dart
+@freezed
+abstract class JokeModel with _$JokeModel {
+  const JokeModel._(); // required to add instance methods to a freezed class
+
+  const factory JokeModel({
+    required String id,
+    required String joke,
+    required int status,
+  }) = _JokeModel;
+
+  factory JokeModel.fromJson(Map<String, dynamic> json) => _$JokeModelFromJson(json);
+
+  factory JokeModel.fromEntity(JokeEntity e) =>
+      JokeModel(id: e.id, joke: e.content, status: 200);
+
+  JokeEntity toEntity() => JokeEntity(id: id, content: joke);
+}
+```
+
+Domain entities never import models. Repositories call `model.toEntity()` and `Model.fromEntity(entity)` — never field-by-field construction inline.
+
+**Data source** — `const` no-arg constructor; reaches the network through `HttpService.instance`, never constructor-injected:
+```dart
+// lib/feature/jokes/data/data_source/jokes_remote_data_source_impl.dart
+class JokesRemoteDataSourceImpl implements JokesRemoteDataSource {
+  const JokesRemoteDataSourceImpl(); // no params — infrastructure via static singleton
+
+  @override
+  Future<JokeModel> getRandomJoke() async {
+    final response = await HttpService.instance.get<Map<String, dynamic>>(
+      '${ApiConstants.jokesBaseUrl}/',
+    );
+    return JokeModel.fromJson(response.data!);
+  }
+}
+```
+
+**Repository implementation** — maps Dio failures to typed `Left`, converts DTOs via `toEntity()`:
 ```dart
 // lib/feature/jokes/data/repository_impl/jokes_repository_impl.dart
 class JokesRepositoryImpl with BaseRepository implements JokesRepository {
@@ -190,7 +231,7 @@ class JokesRepositoryImpl with BaseRepository implements JokesRepository {
   Future<Either<Failure, JokeEntity>> getRandomJoke() =>
       handleRequest(() async {
         final model = await _dataSource.getRandomJoke();
-        return right(JokeEntity(id: model.id, content: model.joke));
+        return right(model.toEntity()); // ✅ never build entities field-by-field here
       });
 }
 ```
@@ -226,6 +267,29 @@ builder: (context, state) => switch (state) {
 ```
 
 Every layer is independently testable with manual fakes — no mocks, no real network calls. See [`test/`](test/) for use case, BLoC, and widget tests.
+
+**Infrastructure services** — private constructor + `static final instance`; never registered in GetIt:
+```dart
+// lib/core/network/http_service.dart
+class HttpService {
+  HttpService._(); // private — callers use HttpService.instance, never sl<HttpService>()
+  static final HttpService instance = HttpService._();
+
+  Future<Response<T>> get<T>(String url, {Map<String, dynamic>? queryParameters}) => ...
+  Future<Response<T>> post<T>(String url, {dynamic data}) => ...
+}
+
+// lib/core/services/image_picker/image_picker_service.dart
+class ImagePickerService {
+  ImagePickerService._();
+  static final ImagePickerService instance = ImagePickerService._();
+
+  Future<List<XFile>> fromCamera() => ...
+  Future<List<XFile>> fromGallery() => ...
+}
+```
+
+Any class with `static final instance` follows this rule — it is **never** passed through GetIt (`sl<T>()`) and **never** constructor-injected into data sources. Call `.instance` directly at the call site.
 
 **Business logic flow** — a user action travels through every layer in one direction, and the UI never decides anything:
 
@@ -300,12 +364,16 @@ lib/
 │   ├── di/              # injection_container.dart, full dependency graph
 │   ├── error/           # Failure sealed class
 │   ├── network/         # Dio client factory + interceptors
+│   ├── services/
+│   │   ├── image_picker/      # ImagePickerService static singleton (camera + gallery)
+│   │   └── shared_pref_service/
 │   ├── theme/           # AppTheme, AppSpacing, AppRadius, AppColorsExtension
 │   └── ui/
 │       ├── atoms/       # AppButton, AppTextField, AppBadge, AppChip, AppTopBar
-│       └── molecules/   # AppBottomSheet, ErrorView, LoadingIndicator
+│       └── molecules/   # AppBottomSheet, AppDialog, ErrorView, LoadingIndicator
 ├── feature/
-│   └── jokes/           # Full example feature
+│   ├── jokes/           # Full reference implementation
+│   └── doc_scanner/     # Receipt/bill PDF scanner (Phase 2 Track A)
 ├── app.dart             # MaterialApp.router + GoRouter config
 └── main.dart            # Entry point
 
@@ -329,17 +397,19 @@ Phase 1 is complete and published. Phase 2 runs two parallel tracks:
 
 A real app heading to the App Store and Play Store — proof that the template works for production, not just demos. It solves a concrete problem: consolidate photos of receipts and bills into a single PDF for expense reimbursement.
 
-- Multi-image picker (camera + gallery)
-- On-device PDF generation — no backend, works offline
-- File sharing via native share sheet
-- Published to App Store and Play Store
+- [x] Multi-image picker (camera + gallery) — `ImagePickerService` static singleton
+- [x] AI receipt extraction (Groq, Gemini, Claude backends with dispatcher pattern)
+- [ ] On-device PDF generation — no backend, works offline
+- [ ] File sharing via native share sheet
+- [ ] Published to App Store and Play Store
 
 **Track B — Core infrastructure modules**
 
 Abstract interfaces with concrete implementations so any developer can drop them in or swap the backend.
 
-- `AppCheckbox`, `AppRadioGroup`, `AppSnackbar`, `AppDialog` atoms
-- Pagination mixin for list features
+- [x] `AppDialog` molecule — `AppDialog.show()` wraps `showDialog` + `AlertDialog`
+- [ ] `AppCheckbox`, `AppRadioGroup`, `AppSnackbar` atoms
+- [ ] Pagination mixin for list features
 - Secure storage (`flutter_secure_storage` backed)
 - Push notifications (FCM-backed `NotificationService` abstraction)
 - Deep linking (`app_links` backed, GoRouter wired)

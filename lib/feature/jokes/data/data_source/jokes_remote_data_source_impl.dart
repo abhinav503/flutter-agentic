@@ -1,26 +1,30 @@
-import 'package:dio/dio.dart';
-import 'package:retrofit/retrofit.dart';
-
+import '../../../../core/constants/api_constants.dart';
+import '../../../../core/network/http_service.dart';
 import '../models/joke_model.dart';
 import '../models/joke_search_response_model.dart';
 import 'jokes_remote_data_source.dart';
 
-part 'jokes_remote_data_source_impl.g.dart';
-
-@RestApi()
-abstract class JokesRemoteDataSourceImpl implements JokesRemoteDataSource {
-  factory JokesRemoteDataSourceImpl(Dio dio, {String? baseUrl}) =
-      _JokesRemoteDataSourceImpl;
+class JokesRemoteDataSourceImpl implements JokesRemoteDataSource {
+  const JokesRemoteDataSourceImpl();
 
   @override
-  @GET('/')
-  Future<JokeModel> getRandomJoke();
+  Future<JokeModel> getRandomJoke() async {
+    final response = await HttpService.instance.get<Map<String, dynamic>>(
+      '${ApiConstants.jokesBaseUrl}/',
+    );
+    return JokeModel.fromJson(response.data!);
+  }
 
   @override
-  @GET('/search')
   Future<JokeSearchResponseModel> searchJokes({
-    @Query('term')  required String term,
-    @Query('page')  required int page,
-    @Query('limit') int limit = 20,
-  });
+    required String term,
+    required int page,
+    int limit = 20,
+  }) async {
+    final response = await HttpService.instance.get<Map<String, dynamic>>(
+      '${ApiConstants.jokesBaseUrl}/search',
+      queryParameters: {'term': term, 'page': page, 'limit': limit},
+    );
+    return JokeSearchResponseModel.fromJson(response.data!);
+  }
 }

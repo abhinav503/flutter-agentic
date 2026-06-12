@@ -47,6 +47,10 @@
 			</array>
 		</dict>
 	</dict>
+	<key>NSCameraUsageDescription</key>
+	<string>Used to photograph receipts for PDF generation.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Used to select receipt images for PDF generation.</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>

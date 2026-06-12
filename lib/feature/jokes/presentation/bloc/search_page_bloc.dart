@@ -55,8 +55,11 @@ class SearchPageBloc extends Bloc<SearchPageEvent, SearchPageState> {
     SearchPageLoadMore event,
     Emitter<SearchPageState> emit,
   ) async {
-    final current = state;
-    if (current is! SearchPageLoaded) return;
+    final current = switch (state) {
+      SearchPageLoaded() => state as SearchPageLoaded,
+      _ => null,
+    };
+    if (current == null) return;
     if (current.currentPage >= current.totalPages) return;
 
     emit(current.copyWith(isLoadingMore: true));

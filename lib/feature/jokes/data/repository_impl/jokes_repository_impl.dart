@@ -3,7 +3,7 @@ import 'package:fpdart/fpdart.dart';
 import '../../../../core/base/base_repository.dart';
 import '../../../../core/error/failure.dart';
 import '../../domain/entities/joke_entity.dart';
-import '../../domain/entities/joke_search_page_entity.dart'; // JokeSearchPageEntity
+import '../../domain/entities/joke_search_page_entity.dart';
 import '../../domain/repository/jokes_repository.dart';
 import '../data_source/jokes_remote_data_source.dart';
 
@@ -15,7 +15,7 @@ class JokesRepositoryImpl with BaseRepository implements JokesRepository {
   @override
   Future<Either<Failure, JokeEntity>> getRandomJoke() => handleRequest(() async {
         final model = await _dataSource.getRandomJoke();
-        return right(JokeEntity(id: model.id, content: model.joke));
+        return right(model.toEntity());
       });
 
   @override
@@ -30,15 +30,6 @@ class JokesRepositoryImpl with BaseRepository implements JokesRepository {
           page: page,
           limit: limit,
         );
-        return right(JokeSearchPageEntity(
-          currentPage: model.currentPage,
-          totalJokes: model.totalJokes,
-          totalPages: model.totalPages,
-          nextPage: model.nextPage,
-          searchTerm: model.searchTerm,
-          results: model.results
-              .map((r) => JokeEntity(id: r.id, content: r.joke))
-              .toList(),
-        ));
+        return right(model.toEntity());
       });
 }

@@ -1,15 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_agentic/feature/jokes/presentation/view/jokes_page.dart';
 import 'package:go_router/go_router.dart';
 
 import 'core/theme/app_theme.dart';
 import 'core/theme/app_theme_config.dart';
-import 'feature/jokes/presentation/view/jokes_page.dart';
+import 'feature/doc_scanner/presentation/view/doc_scanner_page.dart';
 
 final _router = GoRouter(
   routes: [
     GoRoute(
       path: '/',
-      builder: (context, _) => const JokesPage(),
+      builder: (context, _) => const DocScannerPage(),
+    ),
+    GoRoute(
+      path: '/scan',
+      builder: (context, _) => const DocScannerPage(),
     ),
   ],
 );

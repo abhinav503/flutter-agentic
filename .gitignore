@@ -47,3 +47,11 @@ app.*.map.json
 # Local machine config — never commit
 android/local.properties
 .claude/settings.local.json
+
+# API keys and secrets — local only, never commit
+.env
+.vscode/launch.json
+
+# Firebase config — never commit to public repo
+ios/Runner/GoogleService-Info.plist
+android/app/google-services.json

@@ -209,8 +209,8 @@ return $default(_that.id,_that.joke);case _:
 /// @nodoc
 @JsonSerializable()
 
-class _JokeSearchResultModel implements JokeSearchResultModel {
-  const _JokeSearchResultModel({required this.id, required this.joke});
+class _JokeSearchResultModel extends JokeSearchResultModel {
+  const _JokeSearchResultModel({required this.id, required this.joke}): super._();
   factory _JokeSearchResultModel.fromJson(Map<String, dynamic> json) => _$JokeSearchResultModelFromJson(json);
 
 @override final  String id;
@@ -482,8 +482,8 @@ return $default(_that.currentPage,_that.limit,_that.nextPage,_that.previousPage,
 /// @nodoc
 @JsonSerializable()
 
-class _JokeSearchResponseModel implements JokeSearchResponseModel {
-  const _JokeSearchResponseModel({@JsonKey(name: 'current_page') required this.currentPage, required this.limit, @JsonKey(name: 'next_page') required this.nextPage, @JsonKey(name: 'previous_page') required this.previousPage, required final  List<JokeSearchResultModel> results, @JsonKey(name: 'search_term') required this.searchTerm, required this.status, @JsonKey(name: 'total_jokes') required this.totalJokes, @JsonKey(name: 'total_pages') required this.totalPages}): _results = results;
+class _JokeSearchResponseModel extends JokeSearchResponseModel {
+  const _JokeSearchResponseModel({@JsonKey(name: 'current_page') required this.currentPage, required this.limit, @JsonKey(name: 'next_page') required this.nextPage, @JsonKey(name: 'previous_page') required this.previousPage, required final  List<JokeSearchResultModel> results, @JsonKey(name: 'search_term') required this.searchTerm, required this.status, @JsonKey(name: 'total_jokes') required this.totalJokes, @JsonKey(name: 'total_pages') required this.totalPages}): _results = results,super._();
   factory _JokeSearchResponseModel.fromJson(Map<String, dynamic> json) => _$JokeSearchResponseModelFromJson(json);
 
 @override@JsonKey(name: 'current_page') final  int currentPage;

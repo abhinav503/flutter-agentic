@@ -3,7 +3,7 @@
 ## Documentation Index
 
 Read before writing or modifying any code:
-- `docs/reference/architecture.md` — folder structure, layer patterns, naming, DI, error flow, design system, testing
+- `docs/reference/architecture.md` — core folder map, layer patterns, naming, DI, error flow, design system, testing
 - `docs/explanation/end-goal.md` — project vision and guiding principles
 
 Read on demand:
@@ -13,7 +13,10 @@ Read on demand:
 - `docs/how-to/design-screen-state.md` — business-logic naming for events and states, retry context rules, screen rendering pattern; use the jokes feature as the reference
 - `docs/how-to/review-code.md` — when asked to review, audit, or check generated code; run through the full checklist and report ✅/❌ per section
 - `docs/how-to/change-app-id.md` — when asked to change the application ID or bundle identifier; covers Android (`build.gradle.kts` + `MainActivity.kt` package path) and iOS (`project.pbxproj`), with Xcode manual steps and provisioning notes
+- `docs/how-to/rename-app.md` — when asked to rename the app; covers display name, package name, and all files that reference the old name
 - `docs/explanation/ai-agents.md` — per-agent install and usage
+- `docs/tutorials/solid-principles.md` — how SOLID principles are applied across all layers; useful when designing new classes or reviewing layer boundaries
+- `docs/tutorials/design-patterns-and-concepts.md` — design patterns used in this codebase (Singleton, Repository, DTO, Either, Sealed Classes, Strategy, and more)
 
 ---
 
@@ -33,7 +36,7 @@ State: `flutter_bloc` with `@freezed` sealed events/states — always use exhaus
 
 Errors: `fpdart` `Either<Failure, T>` — no `throw` across layer boundaries, never let `DioException` reach a BLoC or widget.
 
-DI: `get_it` service locator (`sl<T>()`). BLoCs are NOT registered in GetIt — instantiate them in `BlocProvider` inside `buildBody`.
+DI: `get_it` service locator (`sl<T>()`). BLoCs are NOT registered in GetIt — instantiate them in `BlocProvider` inside `buildBody`. Infrastructure services that use the static singleton pattern (`HttpService`, `SharedPreferenceService`, `ImagePickerService`) are also NOT registered in GetIt — always access via `ServiceName.instance`.
 
 ---
 
@@ -56,7 +59,7 @@ Run `make gen` after changing any `@freezed`, `@JsonSerializable`, or `@RestApi(
 
 - Hardcoded colours, strings, spacing, or radii in widget files
 - Business logic in `build()` or widget classes
-- `import 'package:dio/...'` or `import 'package:retrofit/...'` from `domain/`
+- `import 'package:dio/...'` from `domain/`
 - `if (state is XState)` — always use exhaustive `switch`
 - `context.read<T>()` after an `await` without a `mounted` check
 - More than one feature's logic in a single BLoC
@@ -71,6 +74,11 @@ Run `make gen` after changing any `@freezed`, `@JsonSerializable`, or `@RestApi(
 - Inline `CircularProgressIndicator` in screens — use `LoadingIndicator` from `core/ui/atoms/`
 - Error states that omit the data needed to retry — every `*Error` state must carry enough context (e.g. `searchTerm`, `page`) for the BLoC to re-dispatch without reading prior state; screens must never inspect preceding states for retry inputs
 - Creating a new entity that is structurally identical to an existing one — reuse the existing entity; a single entity works for both single-result and list-result use cases
+- Adding constructor parameters to data source impls for infrastructure — data sources are `const` no-arg; they reach infrastructure through static singleton `.instance` calls
+- Duplicating UI concerns (safe-area padding, snackbars, bottom sheet or dialog presentation) across screens — these belong in `BaseScreenState`, `AppBottomSheet`, or `AppDialog`; if something appears in more than one screen, move it to the appropriate base class
+- Creating a `*Model` without a corresponding `*Entity`, or a `*Entity` without a corresponding `*Model` — every DTO in `data/` must map to an entity in `domain/` and vice versa; they are always a pair
+- Registering a static-singleton service (`HttpService`, `SharedPreferenceService`, `ImagePickerService`, or any class with a `static final instance`) in GetIt, or calling `sl<T>()` for it — these are never in the GetIt graph; always access them via `ServiceName.instance`
+- Writing field-by-field `Model(field: entity.field, ...)` construction inside a repository — use `Model.fromEntity(entity)` and `model.toEntity()` instead; every `*Model` must expose both
 
 ---
 
@@ -87,6 +95,19 @@ Why:
 ```
 
 Types: `feat` `fix` `chore` `refactor` `test` `docs` `ci`
+
+---
+
+## UI Molecules
+
+Use these shared components rather than their raw Flutter equivalents:
+
+| Component | Use instead of |
+|---|---|
+| `AppBottomSheet.show(context, title:, child:)` | `showModalBottomSheet` directly |
+| `AppDialog.show(context, title:, child:, actions:)` | `showDialog` + `AlertDialog` directly |
+| `AppButton` with `AppButtonVariant` | `ElevatedButton`, `TextButton`, `FilledButton`, etc. |
+| `LoadingIndicator` | `CircularProgressIndicator` inline |
 
 ---
 

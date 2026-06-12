@@ -210,8 +210,8 @@ return $default(_that.id,_that.joke,_that.status);case _:
 /// @nodoc
 @JsonSerializable()
 
-class _JokeModel implements JokeModel {
-  const _JokeModel({required this.id, required this.joke, required this.status});
+class _JokeModel extends JokeModel {
+  const _JokeModel({required this.id, required this.joke, required this.status}): super._();
   factory _JokeModel.fromJson(Map<String, dynamic> json) => _$JokeModelFromJson(json);
 
 @override final  String id;
