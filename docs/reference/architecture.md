@@ -7,7 +7,7 @@
 | State management | `flutter_bloc` | Explicit event→state transitions; sealed Freezed classes give compiler-enforced exhaustive `switch` |
 | Error handling | `fpdart` `Either<Failure, T>` | Compiler rejects callers that ignore `Left`; error paths are visible in every signature |
 | Models + BLoC events/states | `freezed` | Immutable value types, `copyWith`, `==`, pattern matching — same package across all layers |
-| Networking | `dio` + `retrofit` | Retrofit generates type-safe clients from annotated interfaces; fake the interface in tests |
+| Networking | `dio` via `HttpService` | Static singleton owns one `Dio` instance; data sources call `HttpService.instance.get/post` with full URLs |
 | Navigation | `go_router` | Declarative, deep-link ready, web-URL capable, Flutter-team maintained |
 | DI | `get_it` | Service locator (`sl<T>()`); BLoCs as factories, everything else lazy singletons |
 | UI baseline | Material 3 | No component library imposed — bring your own or use the design system atoms in `core/ui/` |
@@ -22,9 +22,9 @@
 presentation  →  domain  ←  data
 ```
 
-- `domain` — zero imports from `flutter`, `flutter_bloc`, `dio`, `retrofit`
+- `domain` — zero imports from `flutter`, `flutter_bloc`, `dio`
 - `data` — zero imports from `flutter_bloc` or any UI package
-- `presentation` — zero imports from `dio` or `retrofit`
+- `presentation` — zero imports from `dio`
 
 ---
 
@@ -45,7 +45,11 @@ lib/
 │   ├── error/
 │   │   └── failure.dart             sealed Failure class; add variants only here
 │   ├── network/
-│   │   └── api_client.dart          createDioClient() factory
+│   │   ├── http_service.dart        HttpService static singleton (get/post via single Dio)
+│   │   └── interceptors/            logging and other Dio interceptors
+│   ├── services/
+│   │   └── shared_pref_service/
+│   │       └── shared_preference_service.dart  SharedPreferenceService static singleton
 │   ├── theme/
 │   │   ├── app_colors_extension.dart  ThemeExtension for success/warning colours
 │   │   ├── app_radius.dart            border-radius token scale
@@ -62,6 +66,7 @@ lib/
 │   │   │   └── top_bar.dart         AppTopBar (primary / secondary named constructors)
 │   │   └── molecules/               composed atoms
 │   │       ├── bottom_sheet.dart    AppBottomSheet (static show())
+│   │       ├── dialog.dart          AppDialog (static show())
 │   │       └── error_view.dart      ErrorView
 │   └── usecase/
 │       └── usecase.dart             UseCase<Output, Param> base; NoParams
@@ -70,8 +75,7 @@ lib/
         ├── data/
         │   ├── data_source/
         │   │   ├── {name}_remote_data_source.dart         abstract interface
-        │   │   ├── {name}_remote_data_source_impl.dart    @RestApi() Retrofit impl
-        │   │   └── {name}_remote_data_source_impl.g.dart  generated
+        │   │   └── {name}_remote_data_source_impl.dart    concrete impl; calls HttpService.instance
         │   ├── models/
         │   │   ├── {name}_model.dart          @freezed + @JsonSerializable DTO
         │   │   ├── {name}_model.freezed.dart  generated
@@ -131,18 +135,33 @@ class JokeEntity {
 ```
 
 ### Model (DTO)
+
+Every `*Model` must expose two conversion methods:
+- `Model.fromEntity(entity)` — factory constructor; data layer imports domain, which is allowed
+- `model.toEntity()` — instance method returning the domain entity
+
+Domain entities must **not** import models (dependency rule). Add `const ClassName._()` private constructor to the freezed class to unlock instance methods. Repository impls call these instead of writing field-by-field construction inline. Business-logic transforms (e.g. status normalization on load) stay in the repository, not in the model methods.
+
 ```dart
 // data/models/joke_model.dart
 @freezed
 abstract class JokeModel with _$JokeModel {
+  const JokeModel._();
+
   const factory JokeModel({
     required String id,
     required String joke,       // JSON key matches field name
     required int status,
   }) = _JokeModel;
+
   factory JokeModel.fromJson(Map<String, dynamic> json) => _$JokeModelFromJson(json);
+  // Use @JsonKey(name: 'snake_key') for any key that doesn't match camelCase
+
+  factory JokeModel.fromEntity(JokeEntity e) =>
+      JokeModel(id: e.id, joke: e.content, status: 200);
+
+  JokeEntity toEntity() => JokeEntity(id: id, content: joke);
 }
-// Use @JsonKey(name: 'snake_key') for any key that doesn't match camelCase
 ```
 
 ### Data Source
@@ -152,22 +171,17 @@ abstract interface class JokesRemoteDataSource {
   Future<JokeModel> getRandomJoke();
 }
 
-// Retrofit impl
-@RestApi()
-abstract class JokesRemoteDataSourceImpl implements JokesRemoteDataSource {
-  factory JokesRemoteDataSourceImpl(Dio dio, {String? baseUrl}) = _JokesRemoteDataSourceImpl;
+// impl — const no-arg constructor; reaches network via HttpService.instance
+class JokesRemoteDataSourceImpl implements JokesRemoteDataSource {
+  const JokesRemoteDataSourceImpl();
 
   @override
-  @GET('/')
-  Future<JokeModel> getRandomJoke();
-
-  @override
-  @GET('/search')
-  Future<JokeSearchResponseModel> searchJokes({
-    @Query('term')  required String term,
-    @Query('page')  required int page,
-    @Query('limit') int limit = 20,
-  });
+  Future<JokeModel> getRandomJoke() async {
+    final response = await HttpService.instance.get<Map<String, dynamic>>(
+      '${ApiConstants.jokesBaseUrl}/',
+    );
+    return JokeModel.fromJson(response.data!);
+  }
 }
 ```
 
@@ -182,7 +196,7 @@ class JokesRepositoryImpl with BaseRepository implements JokesRepository {
   Future<Either<Failure, JokeEntity>> getRandomJoke() =>
       handleRequest(() async {
         final model = await _dataSource.getRandomJoke();
-        return right(JokeEntity(id: model.id, content: model.joke));
+        return right(model.toEntity()); // ✅ use toEntity(), not field-by-field construction
       });
 }
 ```
@@ -204,8 +218,7 @@ class GetRandomJokeUseCase extends UseCase<Either<Failure, JokeEntity>, NoParams
 // event (part file)
 @freezed
 sealed class JokeEvent with _$JokeEvent {
-  const factory JokeEvent.started()       = JokeStarted;      // triggers first fetch
-  const factory JokeEvent.nextRequested() = JokeNextRequested; // user action
+  const factory JokeEvent.started() = JokeStarted; // triggers first fetch
 }
 
 // state (part file) — cover every observable state; no "initial" needed when auto-fetching
@@ -224,7 +237,6 @@ class JokeBloc extends Bloc<JokeEvent, JokeState> {
       : _getRandomJoke = getRandomJokeUseCase,
         super(const JokeState.loading()) {
     on<JokeStarted>(_onStarted);
-    on<JokeNextRequested>(_onNextRequested);
   }
 
   Future<void> _onStarted(JokeStarted event, Emitter<JokeState> emit) async {
@@ -233,10 +245,6 @@ class JokeBloc extends Bloc<JokeEvent, JokeState> {
       (failure) => emit(JokeState.error(message: failure.message)),
       (joke)    => emit(JokeState.loaded(joke: joke)),
     );
-  }
-
-  Future<void> _onNextRequested(JokeNextRequested event, Emitter<JokeState> emit) async {
-    // keep showing current content while fetching
   }
 }
 ```
@@ -339,16 +347,46 @@ class _JokesScreenState extends BaseScreenState<JokesScreen> {
 
 ---
 
+## Infrastructure Services
+
+Infrastructure with async init (`SharedPreferenceService`) or a shared resource (`HttpService`) uses the **static singleton** pattern — one class file, private constructor, `static final instance`. They are **never registered in GetIt** — any class with a `static final instance` field follows this rule.
+
+```dart
+// HttpService — synchronous; Dio is created at class load time
+class HttpService {
+  HttpService._();
+  static final HttpService instance = HttpService._();
+  static final Dio _dio = Dio(BaseOptions(...))..interceptors.add(LoggingInterceptor());
+
+  Future<Response<T>> get<T>(String url, {...}) => _dio.get(...);
+  Future<Response<T>> post<T>(String url, {...}) => _dio.post(...);
+}
+
+// SharedPreferenceService — async init called once in initDependencies()
+class SharedPreferenceService {
+  SharedPreferenceService._();
+  static final SharedPreferenceService instance = SharedPreferenceService._();
+  late SharedPreferences _prefs;
+
+  Future<void> init() async { _prefs = await SharedPreferences.getInstance(); }
+  String? getString(String key) => _prefs.getString(key);
+  // ...
+}
+```
+
+---
+
 ## Dependency Injection
 
 Registration order inside `initDependencies()`:
 
 ```dart
-// 1. Network
-sl.registerLazySingleton(() => createDioClient(baseUrl: ApiConstants.jokesBaseUrl));
+// 1. Async service init — not registered in GetIt, called directly
+await SharedPreferenceService.instance.init();
+// HttpService needs no init — Dio is synchronous
 
-// 2. Data sources
-sl.registerLazySingleton<JokesRemoteDataSource>(() => JokesRemoteDataSourceImpl(sl()));
+// 2. Data sources — const no-arg; infrastructure accessed via static .instance
+sl.registerLazySingleton<JokesRemoteDataSource>(() => const JokesRemoteDataSourceImpl());
 
 // 3. Repositories
 sl.registerLazySingleton<JokesRepository>(() => JokesRepositoryImpl(sl()));
@@ -368,7 +406,8 @@ sl.registerLazySingleton(() => GetRandomJokeUseCase(sl()));
 ```
 data source throws DioException
   ↓ BaseRepository.handleRequest() catches it
-  ↓ returns Left(Failure.network(...))  or  Left(Failure.server(statusCode, ...))
+  ↓ returns Left(Failure.network(...))  — for connectionError, timeout, or (unknown && response == null)
+     Left(Failure.server(statusCode, ...)) — for 4xx/5xx responses
 
 use case returns Either<Failure, T> unchanged
 
@@ -379,6 +418,8 @@ BLoC folds the Either:
 
 Never `throw` across layer boundaries. Never let `DioException` reach a BLoC or widget.
 
+`DioExceptionType.unknown` with `response == null` is a network error (SSL/socket failure) — treat it the same as `connectionError`. Always log `err.error` in the interceptor to surface the underlying cause.
+
 ---
 
 ## UI Design System
@@ -388,49 +429,27 @@ Never `throw` across layer boundaries. Never let `DioException` reach a BLoC or 
 - **molecules** — composed atoms, may read BLoC via context: `AppBottomSheet` (supports `actions:` row), `ErrorView`
 - **feature/widgets** — feature-local, may read that feature's BLoC
 
-### Colours — never hardcode
+### Never hardcode — use tokens
 ```dart
-// ✅
+// colours ✅
 Theme.of(context).colorScheme.primary
 Theme.of(context).extension<AppColorsExtension>()!.successContainer
-colorScheme.scrim.withValues(alpha: 0.33)   // overlay / scrim
+colorScheme.scrim.withValues(alpha: 0.33)
+// colours ❌  Color(0xFF186752) / Colors.red / Colors.black54
 
-// ❌
-Color(0xFF186752)
-Colors.red
-Colors.black54
-```
-
-### Text styles — never hardcode
-```dart
-// ✅
+// text styles ✅
 Theme.of(context).textTheme.bodyLarge!.copyWith(color: cs.onSurface)
+// text styles ❌  TextStyle(fontSize: 16, fontWeight: FontWeight.w400)
 
-// ❌
-TextStyle(fontSize: 16, fontWeight: FontWeight.w400)
-```
-
-### Spacing + radius — use tokens
-```dart
-// ✅
+// spacing + radius ✅
 AppSpacing.lg          // 16
 AppRadius.md           // BorderRadius.all(Radius.circular(8))
-AppRadius.mdValue      // 8 (double)
+// spacing ❌  EdgeInsets.all(16) / BorderRadius.circular(8)
 
-// ❌
-EdgeInsets.all(16)
-BorderRadius.circular(8)
-```
-
-### Strings — use ValueConst
-```dart
-// ✅  (lib/core/constants/value_const.dart)
+// strings ✅  (lib/core/constants/value_const.dart)
 ValueConst.jokeAppBarTitle
 ValueConst.jokeResultsCount(state.totalJokes)   // dynamic → static method
-
-// ❌
-'Dad Jokes'
-'Load More'
+// strings ❌  'Dad Jokes' / 'Load More'
 ```
 
 ### Theme configuration

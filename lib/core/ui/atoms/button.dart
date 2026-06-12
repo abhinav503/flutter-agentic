@@ -66,19 +66,22 @@ class AppButton extends StatelessWidget {
               valueColor: AlwaysStoppedAnimation(fg),
             ),
           )
-        : Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (leadingIcon != null) ...[
-                leadingIcon!,
-                const SizedBox(width: AppSpacing.xs),
+        : FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (leadingIcon != null) ...[
+                  leadingIcon!,
+                  const SizedBox(width: AppSpacing.xs),
+                ],
+                Text(label, style: textStyle),
+                if (trailingIcon != null) ...[
+                  const SizedBox(width: AppSpacing.xs),
+                  trailingIcon!,
+                ],
               ],
-              Text(label, style: textStyle),
-              if (trailingIcon != null) ...[
-                const SizedBox(width: AppSpacing.xs),
-                trailingIcon!,
-              ],
-            ],
+            ),
           );
 
     final button = GestureDetector(

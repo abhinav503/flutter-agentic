@@ -19,7 +19,7 @@ mixin BaseRepository {
       }
       return left(Failure.server(
         statusCode: e.response?.statusCode ?? 0,
-        message: e.message ?? 'Server error',
+        message: _serverMessage(e),
       ));
     } catch (e) {
       return left(Failure.unexpected(message: e.toString()));
@@ -30,5 +30,22 @@ mixin BaseRepository {
       e.type == DioExceptionType.connectionError ||
       e.type == DioExceptionType.connectionTimeout ||
       e.type == DioExceptionType.receiveTimeout ||
-      e.type == DioExceptionType.sendTimeout;
+      e.type == DioExceptionType.sendTimeout ||
+      // unknown wraps socket/SSL exceptions that produce no HTTP response
+      (e.type == DioExceptionType.unknown && e.response == null);
+
+  // Extracts a human-readable message from the response body when the API
+  // returns a structured error (e.g. {"error": {"message": "..."}}), so the
+  // caller sees the real reason instead of Dio's generic description.
+  String _serverMessage(DioException e) {
+    final data = e.response?.data;
+    if (data is Map) {
+      final error = data['error'];
+      if (error is Map && error['message'] is String) {
+        return error['message'] as String;
+      }
+      if (data['message'] is String) return data['message'] as String;
+    }
+    return e.message ?? e.error?.toString() ?? 'Server error';
+  }
 }

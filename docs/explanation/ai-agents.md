@@ -47,8 +47,8 @@ claude
 
 **How context loads** — `.cursor/rules/conventions.mdc` has `alwaysApply: true` so it is included in every Agent request. It contains conventions and named pointers to `docs/reference/architecture.md` and `docs/explanation/end-goal.md`.
 
-**Setup skill** — ask *"help me set up this project"* — Cursor auto-includes `.cursor/rules/setup-project.mdc`.
-**Scaffold skill** — ask *"scaffold a products feature"* — Cursor auto-includes `.cursor/rules/add-feature-template.mdc`.
+**Setup skill** — ask *"help me set up this project"*.
+**Scaffold skill** — ask *"scaffold a products feature"*.
 
 ---
 
@@ -69,7 +69,7 @@ gemini auth login
 gemini
 ```
 
-**How context loads** — `GEMINI.md` is auto-loaded at session start. It eagerly loads conventions, architecture, end-goal, and the setup checklist via `@` imports.
+**How context loads** — `GEMINI.md` is auto-loaded at session start. It eagerly loads conventions, architecture, and end-goal via `@` imports.
 
 **Setup skill** — ask *"help me set up this project"*.
 **Scaffold skill** — ask *"scaffold a products feature"*.
@@ -133,10 +133,10 @@ q login
 q chat
 ```
 
-**How context loads** — all files in `.amazonq/rules/` are auto-loaded on every interaction. Four symlinks point to the docs sources: `conventions.md`, `architecture.md`, `end-goal.md`, and `setup-project.md`.
+**How context loads** — all files in `.amazonq/rules/` are auto-loaded on every interaction. `instructions.md` points to all key docs; `review-code.md` and `change-app-id.md` provide specialised rules for those tasks.
 
-**Setup skill** — Amazon Q loads `setup-project.md` automatically. Ask *"check my project setup"* to trigger it explicitly.
-**Scaffold skill** — Amazon Q loads `add-feature-template.md` automatically. Ask *"scaffold a products feature"* to trigger it.
+**Setup skill** — ask *"help me set up this project"*.
+**Scaffold skill** — ask *"scaffold a products feature"*.
 
 ---
 
@@ -149,4 +149,4 @@ q chat
 | Gemini CLI | `GEMINI.md` | Ask about setup | Ask to scaffold a feature |
 | Android Studio | `AGENTS.md` | Ask about setup | Ask to scaffold a feature |
 | Codex CLI | `AGENTS.md` | `$setup-project` | `$add-feature-template` |
-| Amazon Q | `.amazonq/rules/` (all files) | Always loaded | Always loaded |
+| Amazon Q | `.amazonq/rules/` (all files) | Ask about setup | Ask to scaffold a feature |
