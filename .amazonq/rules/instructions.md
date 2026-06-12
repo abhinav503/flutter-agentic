@@ -16,4 +16,4 @@ Read on demand:
 - `docs/tutorials/solid-principles.md` — how SOLID principles are applied across all layers
 - `docs/tutorials/design-patterns-and-concepts.md` — design patterns used in this codebase (Singleton, Repository, DTO, Either, Sealed Classes, Strategy, and more)
 - `docs/explanation/ai-agents.md` — per-agent install and usage
-- `docs/how-to/release.md` — when asked to do a release; follow the steps to compare branches, bump version, write release notes, merge to main, and create a GitHub Release
+- `release.md` (in this rules folder) — full release workflow; automatically loaded by Amazon Q
