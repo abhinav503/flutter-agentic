@@ -12,12 +12,13 @@ Read `docs/how-to/add-usecase.md` when adding a use case — create the class an
 Read `docs/how-to/design-screen-state.md` when designing BLoC events and states — covers business-logic naming, state design, retry context, and screen rendering rules with examples from the jokes feature.
 Read `docs/how-to/review-code.md` when the user asks to review, audit, or check generated code — run through the full checklist and report ✅/❌ per section.
 Read `docs/how-to/change-app-id.md` when the user asks to change the application ID or bundle identifier — covers Android (`build.gradle.kts` + `MainActivity.kt` package path) and iOS (`project.pbxproj`), with Xcode manual steps and provisioning notes.
+Read `docs/how-to/rename-app.md` when the user asks to rename the app — covers display name, package name, and all files that reference the old name.
 Read `docs/explanation/ai-agents.md` for per-agent install and usage.
+Read `docs/tutorials/solid-principles.md` to understand how SOLID principles are applied across all layers — useful context when designing new classes or reviewing layer boundaries.
+Read `docs/tutorials/design-patterns-and-concepts.md` for design patterns used in this codebase (Singleton, Repository, DTO, Either, Sealed Classes, Strategy, and more) — explains the why behind structural decisions.
 
 ---
 
 ## Project Setup
 
 When the user asks about running the project locally, setting up their environment, or troubleshooting missing tools or emulators, follow the instructions in `docs/ai-rules/setup-project.md`.
-
-@docs/ai-rules/setup-project.md
