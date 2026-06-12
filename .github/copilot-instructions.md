@@ -15,7 +15,17 @@ Read on demand:
 - `docs/how-to/change-app-id.md` — when asked to change the application ID or bundle identifier; covers Android (`build.gradle.kts` + `MainActivity.kt` package path) and iOS (`project.pbxproj`), with Xcode manual steps and provisioning notes
 - `docs/how-to/rename-app.md` — when asked to rename the app; covers display name, package name, and all files that reference the old name
 - `docs/explanation/ai-agents.md` — per-agent install and usage
-- `docs/how-to/release.md` — when asked to do a release; follow the steps to compare branches, bump version, write release notes, merge to main, and create a GitHub Release
+- **Release workflow** — when asked to do a release, follow these steps interactively; ask for confirmation at each step before proceeding:
+  1. Check `gh` is installed (`which gh && gh auth status`). Stop if not ready.
+  2. Get current branch (`git branch --show-current`). Confirm release branch with user.
+  3. Compare to main: `git log main..{BRANCH} --oneline` + `git diff main..{BRANCH} --stat`. Show commits.
+  4. Read version (`grep "^version:" pubspec.yaml`). Propose bump: Major = breaking; Minor = feat: or new component/skill; Patch = fix/chore/docs. Wait for confirmation.
+  5. Edit `pubspec.yaml` with confirmed version.
+  6. Create `docs/releases/v{VERSION}.md` from `docs/releases/_template.md`. Two sections: **Features** (what developers gain) and **Agent Context Improvements** (what agents gain). Plain language, one sentence per bullet, no duplicates. Show draft and wait for confirmation.
+  7. Commit: `git add pubspec.yaml docs/releases/v{VERSION}.md && git commit -m "chore: release v{VERSION}" && git push`
+  8. Merge: `git checkout main && git pull origin main && git merge --no-ff {BRANCH} -m "chore: merge {BRANCH} into main for v{VERSION}" && git push origin main`
+  9. Tag and release: `git tag v{VERSION} && git push origin v{VERSION}` then `gh release create v{VERSION} --title "v{VERSION} — {TITLE}" --notes-file docs/releases/v{VERSION}.md --target main`. Report URL.
+  10. Ask to delete release branch. If yes: `git branch -d {BRANCH} && git push origin --delete {BRANCH}`
 - `docs/tutorials/solid-principles.md` — how SOLID principles are applied across all layers; useful when designing new classes or reviewing layer boundaries
 - `docs/tutorials/design-patterns-and-concepts.md` — design patterns used in this codebase (Singleton, Repository, DTO, Either, Sealed Classes, Strategy, and more)
 
