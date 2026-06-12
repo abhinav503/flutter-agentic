@@ -5,6 +5,7 @@
   <img alt="AI first" src="https://img.shields.io/badge/AI--first-agent--ready-5B5FC7" />
   <img alt="Architecture" src="https://img.shields.io/badge/Clean%20Architecture-BLoC%20%2B%20Freezed-0A7EA4" />
   <img alt="Open source" src="https://img.shields.io/badge/Open%20Source-community--improvable-2E7D32" />
+  <a href="https://github.com/abhinav503/flutter-agentic/releases"><img alt="Latest release" src="https://img.shields.io/github/v/release/abhinav503/flutter-agentic?label=release&color=0A7EA4" /></a>
 </p>
 
 **An open-source, AI-first Flutter frontend starter.**
