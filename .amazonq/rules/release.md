@@ -61,6 +61,21 @@ gh release create v{NEW_VERSION} \
 ```
 Report the release URL to the user.
 
+**Step 8b — Build and attach Android APK**
+
+Build the release APK:
+```bash
+fvm flutter build apk --release
+```
+If `fvm` is unavailable, fall back to `flutter build apk --release`. Output: `build/app/outputs/flutter-apk/app-release.apk`.
+
+Upload as a named asset:
+```bash
+gh release upload v{NEW_VERSION} \
+  build/app/outputs/flutter-apk/app-release.apk#FlutterAgentic-v{NEW_VERSION}.apk
+```
+Confirm the asset appears on the release page before continuing.
+
 **Step 9 — Clean up** — ask: "`{RELEASE_BRANCH}` has been merged. Delete it?" If yes:
 ```bash
 git branch -d {RELEASE_BRANCH}
