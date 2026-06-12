@@ -106,6 +106,9 @@ class AppBottomSheet extends StatelessWidget {
                   ),
                 ),
               ),
+            SliverToBoxAdapter(
+              child: SizedBox(height: MediaQuery.paddingOf(context).bottom),
+            ),
           ],
         ),
       ),
@@ -125,36 +128,52 @@ class _HeaderDelegate extends SliverPersistentHeaderDelegate {
   Widget build(
       BuildContext context, double shrinkOffset, bool overlapsContent) {
     final cs = Theme.of(context).colorScheme;
-    return Container(
-      height: _height,
+    return Material(
+      elevation: overlapsContent ? 2 : 0,
       color: cs.surface,
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-      child: Row(
+      child: Column(
         children: [
           Expanded(
-            child: title != null
-                ? Text(
-                    title!,
-                    style: Theme.of(context).textTheme.titleMedium,
-                    overflow: TextOverflow.ellipsis,
-                  )
-                : Center(
-                    child: Container(
-                      width: 40,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: cs.onSurfaceVariant.withValues(alpha: 0.4),
-                        borderRadius: BorderRadius.circular(AppRadius.smValue),
-                      ),
-                    ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: title != null
+                        ? Text(
+                            title!,
+                            style: Theme.of(context).textTheme.titleMedium,
+                            overflow: TextOverflow.ellipsis,
+                          )
+                        : Center(
+                            child: Container(
+                              width: 40,
+                              height: 4,
+                              decoration: BoxDecoration(
+                                color: cs.onSurfaceVariant.withValues(alpha: 0.4),
+                                borderRadius:
+                                    BorderRadius.circular(AppRadius.smValue),
+                              ),
+                            ),
+                          ),
                   ),
-          ),
-          if (onClose != null)
-            IconButton(
-              icon: const Icon(Icons.close),
-              onPressed: onClose,
-              color: cs.onSurfaceVariant,
+                  if (onClose != null)
+                    IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: onClose,
+                      color: cs.onSurfaceVariant,
+                    ),
+                ],
+              ),
             ),
+          ),
+          Divider(
+            height: 1,
+            thickness: 1,
+            color: overlapsContent
+                ? Colors.transparent
+                : cs.outlineVariant.withValues(alpha: 0.5),
+          ),
         ],
       ),
     );

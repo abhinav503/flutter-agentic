@@ -16,7 +16,7 @@ Work through each section below. For every item, read the relevant source files 
 
 Read `docs/reference/architecture.md` — Dependency Rule section.
 
-- `domain/` files must not import `flutter`, `flutter_bloc`, `dio`, `retrofit`, or any `data/` or `presentation/` file
+- `domain/` files must not import `flutter`, `flutter_bloc`, `dio`, or any `data/` or `presentation/` file
 - `data/` files must not import `flutter_bloc` or any UI package
 - `presentation/` files must not import `dio` or `retrofit`
 
