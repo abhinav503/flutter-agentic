@@ -84,15 +84,7 @@ class ReceiptScanRepositoryImpl
         final cached = await _getCached(receipt.imagePath);
         if (cached != null) {
           debugPrint('[Cache] hit: ${receipt.imagePath}');
-          return right(ScannedReceiptEntity(
-            id: receipt.id,
-            imagePath: receipt.imagePath,
-            restaurantName: cached.restaurantName,
-            date: cached.date,
-            amount: cached.amount,
-            currency: cached.currency,
-            status: ExtractionStatus.done,
-          ));
+          return right(cached);
         }
 
         final bytes = await File(receipt.imagePath).readAsBytes();

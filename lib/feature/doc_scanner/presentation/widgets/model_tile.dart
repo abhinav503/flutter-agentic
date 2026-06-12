@@ -4,6 +4,7 @@ import '../../../../core/constants/value_const.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/ui/atoms/button.dart';
 import '../../../../core/ui/atoms/checkbox.dart';
+import '../../../../core/ui/atoms/text_field.dart';
 import '../../../../core/ui/molecules/dialog.dart';
 import '../../domain/entities/ai_scan_model.dart';
 import 'model_api_key_row.dart';
@@ -68,19 +69,14 @@ class ModelTile extends StatelessWidget {
   }
 
   void _showApiKeyDialog(BuildContext context) {
-    String value = apiKey ?? '';
+    final controller = TextEditingController(text: apiKey ?? '');
     AppDialog.show(
       context,
-      title: 'API Key — ${model.displayName}',
-      child: TextFormField(
-        initialValue: apiKey,
-        onChanged: (v) => value = v,
+      title: ValueConst.docScannerApiKeyDialogTitle(model.displayName),
+      child: AppTextField(
+        controller: controller,
+        hint: ValueConst.docScannerApiKeyDialogHint,
         obscureText: true,
-        enableSuggestions: false,
-        autocorrect: false,
-        decoration: const InputDecoration(
-          hintText: ValueConst.docScannerApiKeyDialogHint,
-        ),
       ),
       actions: [
         AppButton(
@@ -94,7 +90,7 @@ class ModelTile extends StatelessWidget {
           variant: AppButtonVariant.text,
           size: AppButtonSize.small,
           onTap: () {
-            onApiKeySaved(value);
+            onApiKeySaved(controller.text);
             Navigator.pop(context);
           },
         ),

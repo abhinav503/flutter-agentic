@@ -52,6 +52,11 @@ android/local.properties
 .env
 .vscode/launch.json
 
+# Android signing — never commit
+android/key.properties
+*.keystore
+*.jks
+
 # Firebase config — never commit to public repo
 ios/Runner/GoogleService-Info.plist
 android/app/google-services.json
