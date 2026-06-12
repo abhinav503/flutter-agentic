@@ -7,6 +7,7 @@
 @docs/explanation/end-goal.md
 
 Read `docs/how-to/contributing.md` for contributor workflow and git hooks.
+Run `/release` to guide a full release — branch comparison, version bump, release notes, and GitHub Release creation.
 Read `docs/how-to/add-feature-template.md` when scaffolding a new feature — it has the full folder tree, empty class skeletons, DI registration order, and a forbidden-pattern checklist.
 Read `docs/how-to/add-usecase.md` when adding a use case — create the class and register it in `injection_container.dart`.
 Read `docs/how-to/design-screen-state.md` when designing BLoC events and states — covers business-logic naming, state design, retry context, and screen rendering rules with examples from the jokes feature.
