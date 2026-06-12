@@ -1,5 +1,3 @@
-# v{VERSION} — {TITLE}
-
 > {DATE} · `{BRANCH}` → `main`
 
 ## Summary
