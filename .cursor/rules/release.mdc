@@ -1,0 +1,71 @@
+---
+description: Release workflow for FlutterAgentic. Follow these steps when the user asks to do a release.
+alwaysApply: false
+---
+
+When the user asks to do a release, follow these steps interactively — ask for confirmation at each step before proceeding.
+
+**Prerequisites** — check `gh` is installed and authenticated:
+```bash
+which gh && gh auth status
+```
+If missing: `brew install gh` then `gh auth login`. Stop if not ready.
+
+**Step 1 — Identify release branch**
+```bash
+git branch --show-current
+```
+If not `main`, ask: "Release from `{branch}`? Confirm or type a different name." Record as `{RELEASE_BRANCH}`.
+
+**Step 2 — Compare to main**
+```bash
+git log main..{RELEASE_BRANCH} --oneline
+git diff main..{RELEASE_BRANCH} --stat
+```
+Show the commit list for the user to review.
+
+**Step 3 — Version bump** — read current version:
+```bash
+grep "^version:" pubspec.yaml
+```
+Format: `MAJOR.MINOR.PATCH`. Rules: Major = breaking change; Minor = any `feat:` commit or new component/skill; Patch = fix/chore/docs/refactor only. Propose bump with one sentence of reasoning. Wait for confirmation.
+
+**Step 4 — Update `pubspec.yaml`** — replace the version line with the confirmed version.
+
+**Step 5 — Write release notes** — create `docs/releases/v{NEW_VERSION}.md` from `docs/releases/_template.md`. Two sections only:
+- **Features** — what a developer gains: new components, apps, integrations
+- **Agent Context Improvements** — what AI agents gain: new skills, rules, doc refs
+
+Rules: plain language only; one bullet per change; one sentence per bullet; no duplicates across sections; nothing obvious. Show draft and ask "Does this look good?" Wait for confirmation.
+
+**Step 6 — Commit on release branch**
+```bash
+git add pubspec.yaml docs/releases/v{NEW_VERSION}.md
+git commit -m "chore: release v{NEW_VERSION}"
+git push
+```
+
+**Step 7 — Merge to main**
+```bash
+git checkout main && git pull origin main
+git merge --no-ff {RELEASE_BRANCH} -m "chore: merge {RELEASE_BRANCH} into main for v{NEW_VERSION}"
+git push origin main
+```
+Stop on conflicts — ask user to resolve, then continue.
+
+**Step 8 — Tag and GitHub Release**
+```bash
+git tag v{NEW_VERSION}
+git push origin v{NEW_VERSION}
+gh release create v{NEW_VERSION} \
+  --title "v{NEW_VERSION} — {SUMMARY_TITLE}" \
+  --notes-file docs/releases/v{NEW_VERSION}.md \
+  --target main
+```
+Report the release URL to the user.
+
+**Step 9 — Clean up** — ask: "`{RELEASE_BRANCH}` has been merged. Delete it?" If yes:
+```bash
+git branch -d {RELEASE_BRANCH}
+git push origin --delete {RELEASE_BRANCH}
+```
