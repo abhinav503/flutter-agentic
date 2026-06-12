@@ -129,6 +129,33 @@ Report the release URL to the user.
 
 ---
 
+## Step 8b — Build and attach Android APK
+
+Build a release APK (requires a connected device or emulator is not needed — this is a pure build):
+
+```bash
+fvm flutter build apk --release
+```
+
+If `fvm` is not available, fall back to:
+
+```bash
+flutter build apk --release
+```
+
+The APK is output to `build/app/outputs/flutter-apk/app-release.apk`.
+
+Upload it to the release as a named asset:
+
+```bash
+gh release upload v{NEW_VERSION} \
+  build/app/outputs/flutter-apk/app-release.apk#FlutterAgentic-v{NEW_VERSION}.apk
+```
+
+Confirm the asset appears on the release page before continuing.
+
+---
+
 ## Step 9 — Clean up release branch
 
 Ask the user: "`{RELEASE_BRANCH}` has been merged. Delete it?"
