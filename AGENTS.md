@@ -1,6 +1,6 @@
 # FlutterAgentic — Agent Rules (Android Studio · Codex CLI)
 
-> Full reference → `docs/` folder · Setup skill → `$setup-project` or ask about project setup
+> Full reference → `docs/` folder · Setup → `$setup-project` · Release → `$release`
 
 ## Documentation Index
 
@@ -19,6 +19,7 @@ Read on demand:
 - `docs/explanation/ai-agents.md` — per-agent install and usage
 - `docs/tutorials/solid-principles.md` — how SOLID principles are applied across all layers; useful when designing new classes or reviewing layer boundaries
 - `docs/tutorials/design-patterns-and-concepts.md` — design patterns used in this codebase (Singleton, Repository, DTO, Either, Sealed Classes, Strategy, and more)
+- `.codex/skills/release/SKILL.md` — when asked to do a release; invoke with `$release` or follow the steps in that file directly
 
 ---
 
