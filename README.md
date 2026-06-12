@@ -30,7 +30,7 @@ flowchart LR
     subgraph FA["📦 FlutterAgentic"]
         direction TB
         R["📋 Rules\nPatterns · naming · boundaries"]
-        SK["🔧 Skills\nScaffold · rename · setup · change-id"]
+        SK["🔧 Skills\nScaffold · rename · setup · change-id · release"]
         AR["🏗️ Architecture\nLayers · DI · testing"]
         R --> SK --> AR
     end
@@ -63,6 +63,7 @@ Available skills:
 - `rename-app` — renames the app across all platform files (iOS, Android, Web), Dart source, test imports, VS Code config, and all AI rules docs in one pass.
 - `change-app-id` — changes the application ID / bundle identifier on Android (`build.gradle.kts` + `MainActivity.kt` package path) and iOS (`project.pbxproj`), with Xcode manual instructions and provisioning notes included.
 - `review-code` — audits generated or modified code against the project's architecture contracts, forbidden-pattern checklist, naming conventions, DI rules, and test coverage expectations. Run this after any code generation for best results.
+- `release` — guides a full release from any branch: branch comparison, version bump, release notes, merge to main, GitHub Release creation, and branch cleanup.
 
 ## Why Fork This?
 
@@ -399,8 +400,8 @@ A real app heading to the App Store and Play Store — proof that the template w
 
 - [x] Multi-image picker (camera + gallery) — `ImagePickerService` static singleton
 - [x] AI receipt extraction (Groq, Gemini, Claude backends with dispatcher pattern)
-- [ ] On-device PDF generation — no backend, works offline
-- [ ] File sharing via native share sheet
+- [x] On-device PDF generation — no backend, works offline
+- [x] File sharing via native share sheet
 - [ ] Published to App Store and Play Store
 
 **Track B — Core infrastructure modules**
@@ -408,7 +409,8 @@ A real app heading to the App Store and Play Store — proof that the template w
 Abstract interfaces with concrete implementations so any developer can drop them in or swap the backend.
 
 - [x] `AppDialog` molecule — `AppDialog.show()` wraps `showDialog` + `AlertDialog`
-- [ ] `AppCheckbox`, `AppRadioGroup`, `AppSnackbar` atoms
+- [x] `AppCheckbox` atom
+- [ ] `AppRadioGroup`, `AppSnackbar` atoms
 - [ ] Pagination mixin for list features
 - Secure storage (`flutter_secure_storage` backed)
 - Push notifications (FCM-backed `NotificationService` abstraction)
