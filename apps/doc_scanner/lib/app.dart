@@ -26,7 +26,7 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      title: 'FlutterAgentic',
+      title: 'DocScanner',
       routerConfig: _router,
       theme: AppTheme.fromConfig(themeConfig),
       darkTheme: AppTheme.fromConfig(themeConfig, dark: true),

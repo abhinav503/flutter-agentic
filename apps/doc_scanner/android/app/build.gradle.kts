@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.app.flutter_agentic"
+    namespace = "com.abhinavsintoo.docscanner"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -20,7 +20,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.app.flutter_agentic"
+        applicationId = "com.abhinavsintoo.docscanner"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
