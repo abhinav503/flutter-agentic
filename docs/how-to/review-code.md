@@ -18,7 +18,7 @@ Read `docs/reference/architecture.md` — Dependency Rule section.
 
 - `domain/` files must not import `flutter`, `flutter_bloc`, `dio`, or any `data/` or `presentation/` file
 - `data/` files must not import `flutter_bloc` or any UI package
-- `presentation/` files must not import `dio` or `retrofit`
+- `presentation/` files must not import `dio`
 
 Check every `import` in the changed files. Flag any that cross a boundary.
 
@@ -46,7 +46,27 @@ Read the **Forbidden Patterns** list in `docs/ai-rules/conventions.md`. Check th
 
 ---
 
-### 3. Naming conventions
+### 3. Reuse & promotion to core
+
+Before accepting new widgets, utilities, or services, check whether the capability already exists or should be shared. This is the easiest thing for generated code to get wrong — it tends to reinvent rather than reuse.
+
+**Reuse what core already provides.** Skim `packages/core/lib/core/ui/`, `base/`, `network/`, and `usecase/` before judging new code. Flag ❌ when the change reimplements something core already has:
+- molecules: `EmptyState`, `ErrorView`, `AppBottomSheet`, `AppDialog`
+- atoms: `AppButton`, `AppTextField`, `AppBadge`, `AppChip`, `AppTopBar`, `AppCheckbox`, `LoadingIndicator`, `LoadingDots`, `AppDropdownMenu`
+- logic: `BaseRepository` (`handleRequest` / `handleStream`), `UseCase` / `StreamUseCase`, `HttpService` (`get` / `post` / `postStream`)
+
+**No raw Material widgets where a design-system equivalent exists.** Flag direct use of `PopupMenuButton` / `DropdownButton` (→ `AppDropdownMenu`), `TextField` (→ `AppTextField`), `ElevatedButton` / `TextButton` / `OutlinedButton` / `FilledButton` (→ `AppButton`), `CircularProgressIndicator` (→ `LoadingIndicator`), or a hand-rolled empty/error view (→ `EmptyState` / `ErrorView`). If no atom fits, the fix is to add one to core (next point) — not to inline raw Material.
+
+**Promote genuinely generic code to core (⚠️).** Flag app-local code that is dependency-free, app-agnostic, and reusable, and recommend moving it down:
+- generic widgets → `core/ui/atoms` or `core/ui/molecules`
+- generic mechanism (networking, base classes, stream/error handling) → the matching `core/` folder
+- Keep **provider/product specifics** (API URLs, prompts, model ids, feature logic) in the app. Never promote anything that would add a new dependency to `core` — core stays dependency-lean.
+
+**Don't duplicate across screens.** Safe-area padding, snackbars, and sheet/dialog presentation belong in `BaseScreenState` / `AppBottomSheet` / `AppDialog`; if the same concern appears in two screens, it should move down.
+
+---
+
+### 4. Naming conventions
 
 Read the **Naming Conventions** table in `docs/reference/architecture.md`.
 
@@ -61,7 +81,7 @@ Read the **Naming Conventions** table in `docs/reference/architecture.md`.
 
 ---
 
-### 4. DI registration order
+### 5. DI registration order
 
 Read the **Dependency Injection** section in `docs/reference/architecture.md`.
 
@@ -71,7 +91,7 @@ Read the **Dependency Injection** section in `docs/reference/architecture.md`.
 
 ---
 
-### 5. Error state retry context
+### 6. Error state retry context
 
 Every `*Error` state must carry enough fields for the BLoC to re-dispatch without reading prior state. Check that:
 - The error state includes the inputs that triggered the operation (e.g. `searchTerm`, `page`)
@@ -79,7 +99,7 @@ Every `*Error` state must carry enough fields for the BLoC to re-dispatch withou
 
 ---
 
-### 6. Test coverage
+### 7. Test coverage
 
 Check that new code has a corresponding test file:
 - Use case → `apps/{app}/test/unit/feature/{name}/domain/`
@@ -100,6 +120,7 @@ Report a checklist:
 
 ### Layer boundaries        ✅ / ❌
 ### Forbidden patterns      ✅ / ❌ (list each violation)
+### Reuse & promotion       ✅ / ⚠️ / ❌
 ### Naming conventions      ✅ / ❌
 ### DI registration         ✅ / ❌
 ### Error state retry ctx   ✅ / ❌

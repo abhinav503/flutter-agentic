@@ -77,7 +77,7 @@ FlutterAgentic is built for developers who want:
 - Clean Architecture feature folders from day one
 - BLoC + Freezed sealed events/states with exhaustive UI rendering
 - `Either<Failure, T>` error handling instead of thrown exceptions across layers
-- Dio + Retrofit networking with repository-level failure mapping
+- Dio networking via a single `HttpService` with repository-level failure mapping
 - GoRouter navigation and a central DI graph
 - Design tokens and reusable UI atoms instead of hardcoded styling
 - Agent instructions for Claude, Codex, Copilot, Cursor, Gemini, Android Studio, and Amazon Q
@@ -89,9 +89,9 @@ The core project is Flutter-first. Backend, React, Node.js, Python, or other fol
 
 | Area | Included |
 |---|---|
-| App shape | Flutter frontend starter with one reference feature and a real production app in progress |
+| App shape | Flutter frontend starter with two real reference apps — request/response (`doc_scanner`) and streaming (`ai_chat`) — plus a demo (`jokes`) |
 | Architecture | Feature-first Clean Architecture with strict layer boundaries |
-| AI support | Repo-native instructions for eight AI coding surfaces |
+| AI support | Repo-native instructions for seven AI coding surfaces |
 | State | BLoC events/states generated with Freezed |
 | Quality gates | Git hooks, analysis, tests, CI, and generated-code workflow |
 | Extension path | Add features through documented scaffolding rules |
@@ -112,7 +112,7 @@ The core project is Flutter-first. Backend, React, Node.js, Python, or other fol
 | State management | [flutter_bloc](https://pub.dev/packages/flutter_bloc) |
 | Dependency injection | [get_it](https://pub.dev/packages/get_it) — composition-root-only service locator; all domain and data classes use pure constructor injection |
 | Navigation | [go_router](https://pub.dev/packages/go_router) |
-| Networking | [Dio](https://pub.dev/packages/dio) + [Retrofit](https://pub.dev/packages/retrofit) |
+| Networking | [Dio](https://pub.dev/packages/dio) via a single `HttpService` (`get` / `post` / `postStream`) |
 | Models / serialization | [Freezed](https://pub.dev/packages/freezed) + [json_serializable](https://pub.dev/packages/json_serializable) |
 | Error handling | [fpdart](https://pub.dev/packages/fpdart) (`Either<Failure, T>`) |
 | Image picking | [image_picker](https://pub.dev/packages/image_picker) via `ImagePickerService` static singleton |
@@ -139,10 +139,13 @@ flutter_agentic/
 ├── packages/core/     shared toolbelt → import 'package:core/core/…'  (no app-specific code)
 └── apps/
     ├── jokes/         demo app
-    └── doc_scanner/   real/publishable app
+    ├── doc_scanner/   real app — request/response reference
+    └── ai_chat/       real app — streaming (SSE-style) reference
 ```
 
 Each app owns its `main.dart`, `app.dart`, `di/`, `constants/` (`ValueConst`/`ApiConstants`), and `feature/home/`; `core` holds only generic constants (`CoreConst`).
+
+Per-app feature docs: [jokes](apps/jokes/README.md) · [doc_scanner](apps/doc_scanner/README.md) · [ai_chat](apps/ai_chat/README.md).
 
 Each feature lives under `apps/{app}/lib/feature/{name}/` (the primary feature is always `home`) with three layers:
 
@@ -168,7 +171,7 @@ The dependency rule is simple:
 presentation  ->  domain  <-  data
 ```
 
-Domain never imports Flutter, Dio, Retrofit, or presentation code. Data never imports UI or BLoC code. Presentation never imports Dio or Retrofit.
+Domain never imports Flutter, Dio, or presentation code. Data never imports UI or BLoC code. Presentation never imports Dio.
 
 See [`docs/reference/architecture.md`](docs/reference/architecture.md) for folder structure, naming, DI, error flow, design system rules, and testing patterns.
 
@@ -332,7 +335,7 @@ This extends to naming: events are **user intentions** (`nextRequested`, `submit
 1. Click **Use this template** on GitHub to create your repo.
 2. Clone your new repo.
 3. Run `make setup` to install git hooks and fetch packages (one root `flutter pub get` resolves the whole workspace).
-4. Run `make gen` to generate Freezed / Retrofit code across all packages.
+4. Run `make gen` to generate Freezed / JSON-serialization code across all packages.
 5. Run `make test` to verify the starter.
 6. Add a new app under `apps/`, or replace/extend the `feature/home` of an existing app.
 
@@ -342,6 +345,7 @@ All `make` targets run from the repo root; an app runs from its own folder (`app
 make setup            # first-time: git hooks + root flutter pub get
 make run-jokes        # run the jokes app (cd apps/jokes && flutter run)
 make run-doc-scanner  # run the doc_scanner app
+make run-ai-chat      # run the ai_chat app
 make web-jokes        # run jokes on Chrome
 make test             # flutter test in each app
 make analyze          # flutter analyze — whole workspace
@@ -359,7 +363,7 @@ make clean            # flutter clean per package, then root pub get
 | `make web-jokes` / `make web-doc-scanner` | Run an app in Chrome |
 | `make test` | Run each app's Flutter tests |
 | `make analyze` | Run static analysis across the workspace |
-| `make gen` | Generate Freezed / Retrofit code in every package |
+| `make gen` | Generate Freezed / JSON-serialization code in every package |
 | `make clean` | `flutter clean` per package, then root pub get |
 
 </details>
@@ -393,8 +397,8 @@ flutter_agentic/
 │       │   └── shared_pref_service/
 │       ├── theme/           # AppTheme, AppSpacing, AppRadius, AppColorsExtension
 │       └── ui/
-│           ├── atoms/       # AppButton, AppTextField, AppBadge, AppChip, AppTopBar
-│           └── molecules/   # AppBottomSheet, AppDialog, ErrorView, LoadingIndicator
+│           ├── atoms/       # AppButton, AppTextField, AppBadge, AppChip, AppCheckbox, AppTopBar, AppDropdownMenu, LoadingIndicator, LoadingDots
+│           └── molecules/   # AppBottomSheet, AppDialog, EmptyState, ErrorView
 │
 └── apps/
     ├── jokes/               # demo app
@@ -405,7 +409,8 @@ flutter_agentic/
     │   │   └── feature/home/ # full reference implementation
     │   ├── test/            # helpers/ · unit/feature/home/ · widget/feature/home/
     │   └── android/ · ios/ · web/ · assets/theme/
-    └── doc_scanner/         # real app — Receipt/bill PDF scanner (Phase 2)
+    ├── doc_scanner/         # real app — Receipt/bill PDF scanner (request/response, Phase 2)
+    └── ai_chat/             # real app — streaming AI chat (SSE-style token streaming, Phase 3)
         └── lib/ (+ enums/ for app-level shared enums)
 
 docs/
@@ -419,7 +424,7 @@ docs/
 
 **Phase 1 — Foundation** ✅ complete. Clean Architecture, BLoC + Freezed, design system, multi-agent rules — published as an open-source template.
 
-**Phase 2 — Production app (`doc_scanner`)** ✅ complete (v1.1.0). A real Receipt/Bill-to-PDF scanner, proving the template works for production, not just demos.
+**Phase 2 — `doc_scanner`: the request/response reference** ✅ complete (v1.1.0). A real Receipt/Bill-to-PDF scanner — one call, one result — proving the template works for production, not just demos.
 
 - [x] Multi-image picker (camera + gallery) via `image_picker`
 - [x] AI receipt extraction (Groq, Gemini, Claude backends with dispatcher pattern)
@@ -427,14 +432,16 @@ docs/
 - [x] File sharing via native share sheet (`share_plus` + `path_provider`)
 - [x] `AppDialog` molecule + `AppCheckbox` atom
 
-**Phase 3 — Monorepo migration + store launch** (in progress). Convert to a Dart pub-workspace monorepo and ship `doc_scanner` to both stores.
+**Phase 3 — Monorepo + `ai_chat`: the streaming reference** (in progress). Complete the monorepo migration (shipped v1.2.0) and add the streaming counterpart to `doc_scanner`.
 
 - [x] Monorepo migration — pub-workspace (`packages/core` + `apps/*`)
 - [x] All agent rules + skills updated for the monorepo
 - [x] CI pipeline (GitHub Actions) — see [`validate.yml`](.github/workflows/validate.yml)
 - [x] README quickstart + architecture diagram
-- [ ] Per-app version handling in the `release` skill (build AAB/IPA)
-- [ ] Published to the Play Store and App Store
+- [x] `StreamUseCase` pattern in `core` (see [`stream-usecase.md`](docs/how-to/stream-usecase.md))
+- [x] `ai_chat` — AI chat with a real Groq backend (in-app BYOK key) + zero-setup local mock; toggle streaming (token-by-token) vs one-shot; markdown, Stop/cancel, retry
+
+> Store-publishing `doc_scanner` is deferred (high friction, low payoff for the template goal). The readiness checklist lives in [`publish-to-stores.md`](docs/how-to/publish-to-stores.md).
 
 **Phase 4 — Core infrastructure modules** (later). Abstract interfaces with concrete implementations so any developer can drop them in or swap the backend.
 

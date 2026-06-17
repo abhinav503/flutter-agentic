@@ -8,7 +8,8 @@ Dart pub-workspace monorepo: one shared `core` package consumed by multiple Flut
 
 ```
 packages/core/   shared toolbelt → import 'package:core/core/…'   (no app-specific code)
-apps/jokes/      demo app          apps/doc_scanner/  real app
+apps/jokes/      demo app          apps/doc_scanner/  request/response app
+apps/ai_chat/    streaming app
 ```
 
 One `flutter pub get` at the repo root resolves all packages. Run `make` targets from the root; run an app from its folder (`apps/<app>`). Each app owns its `main.dart`, `di/injection_container.dart`, and `constants/` (`ValueConst`/`ApiConstants`); `core` holds only `CoreConst`. The primary feature is always `feature/home/`.

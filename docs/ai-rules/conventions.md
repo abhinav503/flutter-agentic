@@ -8,6 +8,7 @@ After cloning, run `make setup` once to install git hooks and fetch packages.
 make setup            # first-time setup: git hooks + root flutter pub get
 make run-jokes        # run the jokes app        (cd apps/jokes && flutter run)
 make run-doc-scanner  # run the doc_scanner app  (cd apps/doc_scanner && flutter run)
+make run-ai-chat      # run the ai_chat app      (cd apps/ai_chat && flutter run)
 make web-jokes        # run jokes on Chrome
 make analyze          # flutter analyze — covers the WHOLE workspace in one pass
 make test             # flutter test in each app
@@ -40,7 +41,9 @@ The pre-commit hook formats staged Dart files and runs `flutter analyze` at the 
 - Putting a screen-specific BLoC in `buildBlocProviders` when it is not needed above the body — provide it in `buildBody` wrapping the screen instead
 - Calling `add()` from inside a BLoC event handler — factor shared logic into a private method instead
 - Using Flutter's built-in button widgets (`ElevatedButton`, `TextButton`, `OutlinedButton`, `FilledButton`) in screens or molecules — use `AppButton` with the appropriate `AppButtonVariant`
-- Inline `CircularProgressIndicator` in screens — use `LoadingIndicator` from `package:core/core/ui/atoms/`
+- Using a raw `PopupMenuButton` / `DropdownButton` for a menu/select — use `AppDropdownMenu` (themed, with `AppDropdownItem`)
+- Inline `CircularProgressIndicator` in screens — use `LoadingIndicator` (spinner) or `LoadingDots` (inline "working…") from `package:core/core/ui/atoms/`
+- A hand-rolled empty/placeholder view — use the `EmptyState` molecule
 - Error states that omit the data needed to retry — every `*Error` state must carry enough context (e.g. `searchTerm`, `page`) for the BLoC to re-dispatch without reading prior state; screens must never inspect preceding states for retry inputs
 - Creating a new entity that is structurally identical to an existing one — reuse the existing entity; a single `JokeEntity` works for both single-result and list-result use cases
 - Adding constructor parameters to data source impls for infrastructure — data sources are `const` no-arg; they reach infrastructure through static singleton `.instance` calls
@@ -56,7 +59,7 @@ The pre-commit hook formats staged Dart files and runs `flutter analyze` at the 
 
 ## Code Generation
 
-Run after changing any `@freezed`, `@JsonSerializable`, or `@RestApi()` file. From the repo root, regenerate every package at once:
+Run after changing any `@freezed` or `@JsonSerializable` file. From the repo root, regenerate every package at once:
 
 ```bash
 make gen

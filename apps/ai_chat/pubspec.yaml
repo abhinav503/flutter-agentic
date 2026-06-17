@@ -1,0 +1,47 @@
+name: ai_chat
+description: Streaming AI chat — reference app demonstrating SSE-style token streaming on the FlutterAgentic template.
+publish_to: 'none'
+version: 1.0.0
+resolution: workspace
+
+environment:
+  sdk: ^3.12.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  core:
+    path: ../../packages/core
+
+  # State management
+  flutter_bloc: ^9.1.1
+
+  # Navigation
+  go_router: ^17.2.3
+
+  # Functional error handling
+  fpdart: ^1.1.0
+
+  # Models
+  freezed_annotation: ^3.1.0
+  json_annotation: ^4.9.0
+
+  # Markdown rendering for streamed assistant messages (tolerant of partial
+  # markdown as tokens arrive). flutter_markdown is deprecated — not used.
+  gpt_markdown: ^1.0.19
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  build_runner: ^2.4.15
+  freezed: ^3.2.5
+  json_serializable: ^6.9.5
+  bloc_test: ^10.0.0
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/theme/theme_config.json

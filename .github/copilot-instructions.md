@@ -37,7 +37,8 @@ Dart pub-workspace monorepo: one shared `core` package consumed by multiple Flut
 
 ```
 packages/core/   shared toolbelt → import 'package:core/core/…'   (no app-specific code)
-apps/jokes/      demo app          apps/doc_scanner/  real app
+apps/jokes/      demo app          apps/doc_scanner/  request/response app
+apps/ai_chat/    streaming app
 ```
 
 One `flutter pub get` at the repo root resolves all packages; editing `core` is live in any running app. Each app owns its `main.dart`, `app.dart`, `di/injection_container.dart`, `constants/` (`ValueConst`/`ApiConstants`), and `feature/home/`; `core` holds only `CoreConst`. Run `make` targets from the repo root; run an app from its folder (`apps/<app>`).
@@ -52,9 +53,9 @@ Feature-first Clean Architecture. Three layers per feature, strict dependency ru
 presentation  →  domain  ←  data
 ```
 
-- `domain/` — zero imports from Flutter, Dio, Retrofit, or BLoC
+- `domain/` — zero imports from Flutter, Dio, or BLoC
 - `data/` — zero imports from BLoC or UI packages
-- `presentation/` — zero imports from Dio or Retrofit
+- `presentation/` — zero imports from Dio
 
 State: `flutter_bloc` with `@freezed` sealed events/states — always use exhaustive `switch` in builders, never `if (state is X)`.
 
@@ -72,6 +73,7 @@ Run `make` targets from the repo root; run an app from its folder.
 make setup            # first-time setup: git hooks + root flutter pub get
 make run-jokes        # run the jokes app (cd apps/jokes && flutter run)
 make run-doc-scanner  # run the doc_scanner app
+make run-ai-chat      # run the ai_chat app
 make web-jokes        # run jokes on Chrome
 make test             # flutter test in each app
 make analyze          # flutter analyze — whole workspace
@@ -79,7 +81,7 @@ make gen              # build_runner in core + each app
 make clean            # flutter clean per package, then root pub get
 ```
 
-Run `make gen` after changing any `@freezed`, `@JsonSerializable`, or `@RestApi()` file. Never manually edit `.freezed.dart` or `.g.dart` files.
+Run `make gen` after changing any `@freezed` or `@JsonSerializable` file. Never manually edit `.freezed.dart` or `.g.dart` files.
 
 ---
 
@@ -99,7 +101,9 @@ Run `make gen` after changing any `@freezed`, `@JsonSerializable`, or `@RestApi(
 - Putting a screen-specific BLoC in `buildBlocProviders` when it is not needed above the body — provide it in `buildBody` wrapping the screen instead
 - Calling `add()` from inside a BLoC event handler — factor shared logic into a private method instead
 - Using Flutter's built-in button widgets (`ElevatedButton`, `TextButton`, `OutlinedButton`, `FilledButton`) in screens or molecules — use `AppButton` with the appropriate `AppButtonVariant`
-- Inline `CircularProgressIndicator` in screens — use `LoadingIndicator` from `package:core/core/ui/atoms/`
+- Using a raw `PopupMenuButton` / `DropdownButton` for a menu/select — use `AppDropdownMenu` (themed, with `AppDropdownItem`)
+- Inline `CircularProgressIndicator` in screens — use `LoadingIndicator` (spinner) or `LoadingDots` (inline "working…") from `package:core/core/ui/atoms/`
+- A hand-rolled empty/placeholder view — use the `EmptyState` molecule
 - Error states that omit the data needed to retry — every `*Error` state must carry enough context (e.g. `searchTerm`, `page`) for the BLoC to re-dispatch without reading prior state; screens must never inspect preceding states for retry inputs
 - Creating a new entity that is structurally identical to an existing one — reuse the existing entity; a single entity works for both single-result and list-result use cases
 - Adding constructor parameters to data source impls for infrastructure — data sources are `const` no-arg; they reach infrastructure through static singleton `.instance` calls
@@ -138,7 +142,9 @@ Use these shared components rather than their raw Flutter equivalents:
 | `AppBottomSheet.show(context, title:, child:)` | `showModalBottomSheet` directly |
 | `AppDialog.show(context, title:, child:, actions:)` | `showDialog` + `AlertDialog` directly |
 | `AppButton` with `AppButtonVariant` | `ElevatedButton`, `TextButton`, `FilledButton`, etc. |
-| `LoadingIndicator` | `CircularProgressIndicator` inline |
+| `AppDropdownMenu` with `AppDropdownItem` | raw `PopupMenuButton` / `DropdownButton` |
+| `LoadingIndicator` / `LoadingDots` | `CircularProgressIndicator` inline |
+| `EmptyState` | hand-rolled empty/placeholder view |
 
 ---
 

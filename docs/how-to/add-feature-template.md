@@ -42,16 +42,12 @@ abstract interface class {Feature}RemoteDataSource {}
 
 `{feature}_remote_data_source_impl.dart`
 ```dart
-import 'package:dio/dio.dart';
-import 'package:retrofit/retrofit.dart';
 import '{feature}_remote_data_source.dart';
 
-part '{feature}_remote_data_source_impl.g.dart';
-
-@RestApi()
-abstract class {Feature}RemoteDataSourceImpl implements {Feature}RemoteDataSource {
-  factory {Feature}RemoteDataSourceImpl(Dio dio, {String? baseUrl}) =
-      _{Feature}RemoteDataSourceImpl;
+// const no-arg; reaches the network via HttpService.instance (from core),
+// e.g. HttpService.instance.get<Map<String, dynamic>>(ApiConstants.someUrl).
+class {Feature}RemoteDataSourceImpl implements {Feature}RemoteDataSource {
+  const {Feature}RemoteDataSourceImpl();
 }
 ```
 
@@ -225,7 +221,7 @@ make gen && make analyze
 ```
 
 - [ ] Zero analysis issues
-- [ ] No `dio`/`retrofit` imports in `domain/`
+- [ ] No `dio` imports in `domain/`
 - [ ] Data source and repository registered in the app's `di/injection_container.dart`
 - [ ] App bar title in the app's `ValueConst` (not in `core`)
 

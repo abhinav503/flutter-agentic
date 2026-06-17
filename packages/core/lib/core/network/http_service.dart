@@ -26,12 +26,36 @@ class HttpService {
     String url, {
     dynamic data,
     Map<String, dynamic>? queryParameters,
+    Map<String, dynamic>? headers,
     Options? options,
   }) =>
       _dio.post<T>(
         url,
         data: data,
         queryParameters: queryParameters,
-        options: options,
+        options: headers != null
+            ? (options ?? Options()).copyWith(headers: headers)
+            : options,
+      );
+
+  /// Streaming POST for server-sent events (SSE) and other chunked responses.
+  ///
+  /// Returns the raw byte stream of the response body
+  /// (`response.data!.stream`), which the caller decodes and parses (e.g. SSE
+  /// `data:` frames). Used for token-by-token LLM streaming. The receive
+  /// timeout is relaxed so a long-running stream isn't aborted between tokens.
+  Future<Response<ResponseBody>> postStream(
+    String url, {
+    dynamic data,
+    Map<String, dynamic>? headers,
+  }) =>
+      _dio.post<ResponseBody>(
+        url,
+        data: data,
+        options: Options(
+          responseType: ResponseType.stream,
+          receiveTimeout: const Duration(minutes: 5),
+          headers: headers,
+        ),
       );
 }
