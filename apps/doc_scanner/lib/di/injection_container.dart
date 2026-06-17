@@ -1,7 +1,4 @@
 import 'package:core/core/di/core_injection.dart';
-// Re-export the shared service locator so consumers can import `sl` from the
-// app's own DI entrypoint.
-export 'package:core/core/di/core_injection.dart' show sl;
 
 import '../feature/home/data/data_source/doc_scanner_data_source_dispatcher.dart';
 import '../feature/home/data/data_source/doc_scanner_local_data_source.dart';
@@ -20,6 +17,10 @@ import '../feature/home/domain/usecase/save_receipt_usecase.dart';
 import '../feature/home/domain/usecase/scan_receipt_usecase.dart';
 import '../feature/home/domain/usecase/edit_receipt_usecase.dart';
 import '../feature/home/domain/usecase/select_model_usecase.dart';
+
+// Re-export the shared service locator so consumers can import `sl` from the
+// app's own DI entrypoint.
+export 'package:core/core/di/core_injection.dart' show sl;
 
 /// Wires the doc_scanner app: shared core services first, then doc_scanner.
 Future<void> initDependencies() async {
