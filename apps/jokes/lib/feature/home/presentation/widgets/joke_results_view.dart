@@ -1,0 +1,66 @@
+import 'package:flutter/material.dart';
+
+import 'package:jokes/constants/value_const.dart';
+import 'package:core/core/theme/app_spacing.dart';
+import 'package:core/core/ui/atoms/badge.dart';
+import 'package:core/core/ui/atoms/button.dart';
+import '../../domain/entities/joke_entity.dart';
+import '../bloc/search_page_bloc.dart';
+
+import 'joke_list_tile.dart';
+
+class JokeResultsView extends StatelessWidget {
+  final SearchPageLoaded state;
+  final void Function(JokeEntity) onTileTap;
+  final VoidCallback onLoadMore;
+
+  const JokeResultsView({
+    super.key,
+    required this.state,
+    required this.onTileTap,
+    required this.onLoadMore,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomScrollView(
+      slivers: [
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.lg,
+              vertical: AppSpacing.base,
+            ),
+            child: AppBadge(
+              text: ValueConst.jokeResultsCount(state.totalJokes),
+              intent: AppBadgeIntent.info,
+            ),
+          ),
+        ),
+        SliverList.builder(
+          itemCount: state.results.length,
+          itemBuilder: (_, i) => JokeListTile(
+            joke: state.results[i],
+            onTap: () => onTileTap(state.results[i]),
+          ),
+        ),
+        if (state.currentPage < state.totalPages)
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(AppSpacing.lg),
+              child: AppButton(
+                label: ValueConst.jokeLoadMore,
+                variant: AppButtonVariant.primary,
+                size: AppButtonSize.medium,
+                state: state.isLoadingMore
+                    ? AppButtonState.loading
+                    : AppButtonState.idle,
+                fullWidth: true,
+                onTap: onLoadMore,
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}

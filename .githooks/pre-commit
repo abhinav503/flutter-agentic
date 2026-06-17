@@ -1,7 +1,8 @@
 #!/bin/sh
 # Runs on every commit:
 #   1. Formats staged Dart files
-#   2. Runs flutter analyze — blocks commit on any error
+#   2. Runs flutter analyze at the workspace root — analyzes every package
+#      and blocks the commit on any error
 #
 # Activate with: git config core.hooksPath .githooks
 
@@ -12,7 +13,7 @@ if [ -n "$STAGED" ]; then
   git add $STAGED
 fi
 
-echo "Running flutter analyze..."
+echo "Running flutter analyze (workspace)..."
 flutter analyze --no-pub --fatal-infos
 
 if [ $? -ne 0 ]; then
