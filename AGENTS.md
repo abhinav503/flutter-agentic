@@ -101,7 +101,7 @@ The pre-commit hook formats staged Dart files and runs `flutter analyze` at the 
 
 ## Code Generation
 
-Run after changing any `@freezed`, `@JsonSerializable`, or `@RestApi()` file:
+Run after changing any `@freezed` or `@JsonSerializable` file:
 
 ```bash
 dart run build_runner build --delete-conflicting-outputs

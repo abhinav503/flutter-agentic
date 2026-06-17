@@ -25,13 +25,13 @@ The repo is not opinionated about _what_ you build. It is opinionated about _how
 | **Architecture** | Clean Architecture — `domain/` → `data/` → `presentation/` per feature |
 | **State management** | BLoC + Freezed sealed events/states |
 | **DI** | `get_it` service locator wired in `injection_container.dart` |
-| **Networking** | Dio + Retrofit generated clients; `BaseRepository` error mapping |
+| **Networking** | Dio via `HttpService` (static singleton); `BaseRepository` error mapping |
 | **Error handling** | `Either<Failure, T>` — no thrown exceptions across layers |
-| **Navigation** | GoRouter with typed routes |
+| **Navigation** | GoRouter (declarative routes) |
 | **Base classes** | `BasePage` (DI + Scaffold), `BaseScreen` (UI only), `BaseRepository` |
 | **Design tokens** | `AppSpacing`, `AppRadius` — neutral scale, no brand colours |
-| **UI atoms** | `AppButton`, `AppTextField`, `AppBadge`, `AppChip` |
-| **UI molecules** | `AppBottomSheet`, `ErrorView`, `LoadingIndicator` |
+| **UI atoms** | `AppButton`, `AppTextField`, `AppBadge`, `AppChip`, `AppCheckbox`, `AppDropdownMenu`, `LoadingIndicator`, `LoadingDots` |
+| **UI molecules** | `AppBottomSheet`, `AppDialog`, `EmptyState`, `ErrorView` |
 | **Testing** | Manual fakes pattern; `bloc_test`; widget test conventions |
 | **AI rules** | `CLAUDE.md` with layer rules, forbidden patterns, commit format |
 
@@ -45,7 +45,7 @@ The repo is not opinionated about _what_ you build. It is opinionated about _how
 - [x] Clean Architecture folder structure (`feature/{name}/data|domain|presentation`)
 - [x] BLoC + Freezed sealed events/states
 - [x] `get_it` DI with `initDependencies()` wired in `main()`
-- [x] Dio + Retrofit networking
+- [x] Dio networking via `HttpService` (`get` / `post` / `postStream`)
 - [x] `BaseRepository` mixin with Dio-to-Failure error mapping
 - [x] `Either<Failure, T>` error handling via fpdart
 - [x] GoRouter navigation

@@ -53,9 +53,9 @@ Feature-first Clean Architecture. Three layers per feature, strict dependency ru
 presentation  →  domain  ←  data
 ```
 
-- `domain/` — zero imports from Flutter, Dio, Retrofit, or BLoC
+- `domain/` — zero imports from Flutter, Dio, or BLoC
 - `data/` — zero imports from BLoC or UI packages
-- `presentation/` — zero imports from Dio or Retrofit
+- `presentation/` — zero imports from Dio
 
 State: `flutter_bloc` with `@freezed` sealed events/states — always use exhaustive `switch` in builders, never `if (state is X)`.
 
@@ -81,7 +81,7 @@ make gen              # build_runner in core + each app
 make clean            # flutter clean per package, then root pub get
 ```
 
-Run `make gen` after changing any `@freezed`, `@JsonSerializable`, or `@RestApi()` file. Never manually edit `.freezed.dart` or `.g.dart` files.
+Run `make gen` after changing any `@freezed` or `@JsonSerializable` file. Never manually edit `.freezed.dart` or `.g.dart` files.
 
 ---
 

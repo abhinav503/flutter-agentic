@@ -79,4 +79,4 @@ make analyze
 
 - [ ] No analysis issues
 - [ ] Use case registered after its repository in `injection_container.dart`
-- [ ] No `dio`, `retrofit`, or Flutter imports in the use case file
+- [ ] No `dio` or Flutter imports in the use case file

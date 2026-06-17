@@ -77,7 +77,7 @@ FlutterAgentic is built for developers who want:
 - Clean Architecture feature folders from day one
 - BLoC + Freezed sealed events/states with exhaustive UI rendering
 - `Either<Failure, T>` error handling instead of thrown exceptions across layers
-- Dio + Retrofit networking with repository-level failure mapping
+- Dio networking via a single `HttpService` with repository-level failure mapping
 - GoRouter navigation and a central DI graph
 - Design tokens and reusable UI atoms instead of hardcoded styling
 - Agent instructions for Claude, Codex, Copilot, Cursor, Gemini, Android Studio, and Amazon Q
@@ -91,7 +91,7 @@ The core project is Flutter-first. Backend, React, Node.js, Python, or other fol
 |---|---|
 | App shape | Flutter frontend starter with two real reference apps — request/response (`doc_scanner`) and streaming (`ai_chat`) — plus a demo (`jokes`) |
 | Architecture | Feature-first Clean Architecture with strict layer boundaries |
-| AI support | Repo-native instructions for eight AI coding surfaces |
+| AI support | Repo-native instructions for seven AI coding surfaces |
 | State | BLoC events/states generated with Freezed |
 | Quality gates | Git hooks, analysis, tests, CI, and generated-code workflow |
 | Extension path | Add features through documented scaffolding rules |
@@ -112,7 +112,7 @@ The core project is Flutter-first. Backend, React, Node.js, Python, or other fol
 | State management | [flutter_bloc](https://pub.dev/packages/flutter_bloc) |
 | Dependency injection | [get_it](https://pub.dev/packages/get_it) — composition-root-only service locator; all domain and data classes use pure constructor injection |
 | Navigation | [go_router](https://pub.dev/packages/go_router) |
-| Networking | [Dio](https://pub.dev/packages/dio) + [Retrofit](https://pub.dev/packages/retrofit) |
+| Networking | [Dio](https://pub.dev/packages/dio) via a single `HttpService` (`get` / `post` / `postStream`) |
 | Models / serialization | [Freezed](https://pub.dev/packages/freezed) + [json_serializable](https://pub.dev/packages/json_serializable) |
 | Error handling | [fpdart](https://pub.dev/packages/fpdart) (`Either<Failure, T>`) |
 | Image picking | [image_picker](https://pub.dev/packages/image_picker) via `ImagePickerService` static singleton |
@@ -169,7 +169,7 @@ The dependency rule is simple:
 presentation  ->  domain  <-  data
 ```
 
-Domain never imports Flutter, Dio, Retrofit, or presentation code. Data never imports UI or BLoC code. Presentation never imports Dio or Retrofit.
+Domain never imports Flutter, Dio, or presentation code. Data never imports UI or BLoC code. Presentation never imports Dio.
 
 See [`docs/reference/architecture.md`](docs/reference/architecture.md) for folder structure, naming, DI, error flow, design system rules, and testing patterns.
 
@@ -333,7 +333,7 @@ This extends to naming: events are **user intentions** (`nextRequested`, `submit
 1. Click **Use this template** on GitHub to create your repo.
 2. Clone your new repo.
 3. Run `make setup` to install git hooks and fetch packages (one root `flutter pub get` resolves the whole workspace).
-4. Run `make gen` to generate Freezed / Retrofit code across all packages.
+4. Run `make gen` to generate Freezed / JSON-serialization code across all packages.
 5. Run `make test` to verify the starter.
 6. Add a new app under `apps/`, or replace/extend the `feature/home` of an existing app.
 
@@ -361,7 +361,7 @@ make clean            # flutter clean per package, then root pub get
 | `make web-jokes` / `make web-doc-scanner` | Run an app in Chrome |
 | `make test` | Run each app's Flutter tests |
 | `make analyze` | Run static analysis across the workspace |
-| `make gen` | Generate Freezed / Retrofit code in every package |
+| `make gen` | Generate Freezed / JSON-serialization code in every package |
 | `make clean` | `flutter clean` per package, then root pub get |
 
 </details>

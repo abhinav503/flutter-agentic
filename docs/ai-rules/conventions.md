@@ -59,7 +59,7 @@ The pre-commit hook formats staged Dart files and runs `flutter analyze` at the 
 
 ## Code Generation
 
-Run after changing any `@freezed`, `@JsonSerializable`, or `@RestApi()` file. From the repo root, regenerate every package at once:
+Run after changing any `@freezed` or `@JsonSerializable` file. From the repo root, regenerate every package at once:
 
 ```bash
 make gen
