@@ -14,16 +14,38 @@ mixin BaseRepository {
     try {
       return await request();
     } on DioException catch (e) {
-      if (_isNetworkError(e)) {
-        return left(Failure.network(message: e.message ?? 'Network error'));
-      }
-      return left(Failure.server(
-        statusCode: e.response?.statusCode ?? 0,
-        message: _serverMessage(e),
-      ));
+      return left(_mapDioError(e));
     } catch (e) {
       return left(Failure.unexpected(message: e.toString()));
     }
+  }
+
+  /// Streaming counterpart to [handleRequest]. Wraps a source [Stream] of
+  /// values (e.g. SSE token deltas) and yields each as `right(value)`, mapping
+  /// any error into a typed [Failure] so no exception crosses the layer
+  /// boundary. Completes naturally when the source completes.
+  Stream<Either<Failure, T>> handleStream<T>(
+    Stream<T> Function() source,
+  ) async* {
+    try {
+      await for (final value in source()) {
+        yield right(value);
+      }
+    } on DioException catch (e) {
+      yield left(_mapDioError(e));
+    } catch (e) {
+      yield left(Failure.unexpected(message: e.toString()));
+    }
+  }
+
+  Failure _mapDioError(DioException e) {
+    if (_isNetworkError(e)) {
+      return Failure.network(message: e.message ?? 'Network error');
+    }
+    return Failure.server(
+      statusCode: e.response?.statusCode ?? 0,
+      message: _serverMessage(e),
+    );
   }
 
   bool _isNetworkError(DioException e) =>

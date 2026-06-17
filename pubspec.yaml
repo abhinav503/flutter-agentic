@@ -12,3 +12,4 @@ workspace:
   - packages/core
   - apps/jokes
   - apps/doc_scanner
+  - apps/ai_chat

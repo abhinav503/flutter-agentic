@@ -1,0 +1,9 @@
+{
+  "activeTheme": "oceanBreeze",
+
+  "fontFamily": "Quicksand",
+
+  "light": { "seed": "#00B4D8" },
+
+  "dark": { "seed": "#023E8A" }
+}

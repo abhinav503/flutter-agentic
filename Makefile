@@ -2,8 +2,8 @@
 # A single `flutter pub get` at the root resolves every package (Dart pub
 # workspace), and edits to packages/core are picked up live by any running app.
 
-APPS = apps/jokes apps/doc_scanner
-GEN_PACKAGES = packages/core apps/jokes apps/doc_scanner
+APPS = apps/jokes apps/doc_scanner apps/ai_chat
+GEN_PACKAGES = packages/core apps/jokes apps/doc_scanner apps/ai_chat
 
 setup:
 	git config core.hooksPath .githooks
@@ -16,11 +16,17 @@ run-jokes:
 run-doc-scanner:
 	cd apps/doc_scanner && flutter run
 
+run-ai-chat:
+	cd apps/ai_chat && flutter run
+
 web-jokes:
 	cd apps/jokes && flutter run -d chrome
 
 web-doc-scanner:
 	cd apps/doc_scanner && flutter run -d chrome
+
+web-ai-chat:
+	cd apps/ai_chat && flutter run -d chrome
 
 # --- workspace-wide ---
 analyze:

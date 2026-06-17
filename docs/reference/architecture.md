@@ -12,7 +12,8 @@ flutter_agentic/
 │   └── core/                    shared package  →  import 'package:core/core/…'
 └── apps/
     ├── jokes/                   demo app
-    └── doc_scanner/             real/publishable app
+    ├── doc_scanner/             real app — request/response reference (image → JSON)
+    └── ai_chat/                 real app — streaming reference (SSE token streaming)
 ```
 
 - **`packages/core`** — the shared mobile toolbelt: base classes, design system, networking, DI seed, generic device services. Zero app-specific copy, feature logic, or product API URLs. Imported everywhere as `package:core/core/…`.
@@ -30,7 +31,7 @@ flutter_agentic/
 | State management | `flutter_bloc` | Explicit event→state transitions; sealed Freezed classes give compiler-enforced exhaustive `switch` |
 | Error handling | `fpdart` `Either<Failure, T>` | Compiler rejects callers that ignore `Left`; error paths are visible in every signature |
 | Models + BLoC events/states | `freezed` | Immutable value types, `copyWith`, `==`, pattern matching — same package across all layers |
-| Networking | `dio` via `HttpService` | Static singleton owns one `Dio` instance; data sources call `HttpService.instance.get/post` with full URLs |
+| Networking | `dio` via `HttpService` | Static singleton owns one `Dio` instance; data sources call `HttpService.instance.get/post` with full URLs (`postStream` for SSE/token streaming) |
 | Navigation | `go_router` | Declarative, deep-link ready, web-URL capable, Flutter-team maintained |
 | DI | `get_it` | Shared `sl` lives in `core`; BLoCs as factories, everything else lazy singletons |
 | UI baseline | Material 3 | No component library imposed — use the design system atoms in `package:core/core/ui/` |
@@ -61,7 +62,7 @@ Across packages: **`apps/*` depend on `core`; `core` never imports an app.** Sha
 core/
 ├── base/
 │   ├── base_page.dart           BasePage + BasePageState (Scaffold + getter-based bottom nav)
-│   ├── base_repository.dart     BaseRepository mixin (Dio→Failure mapping)
+│   ├── base_repository.dart     BaseRepository mixin (Dio→Failure mapping; handleRequest + handleStream)
 │   └── base_screen.dart         BaseScreen + BaseScreenState (showAppBottomSheet, showSnackBar)
 ├── constants/
 │   └── core_const.dart          CoreConst — ONLY generic constants core's own code uses
@@ -71,7 +72,7 @@ core/
 ├── error/
 │   └── failure.dart             sealed Failure class; add variants only here
 ├── network/
-│   ├── http_service.dart        HttpService static singleton (get/post via single Dio)
+│   ├── http_service.dart        HttpService static singleton (get/post/postStream via single Dio)
 │   └── interceptors/            logging and other Dio interceptors
 ├── services/
 │   ├── image_picker/
@@ -88,16 +89,20 @@ core/
 │   ├── atoms/                   single-responsibility widgets, no BLoC reads
 │   │   ├── badge.dart           AppBadge
 │   │   ├── button.dart          AppButton
+│   │   ├── checkbox.dart        AppCheckbox
 │   │   ├── chip.dart            AppChip
+│   │   ├── dropdown_menu.dart   AppDropdownMenu (themed PopupMenuButton + AppDropdownItem)
+│   │   ├── loading_dots.dart    LoadingDots (pulsing "working…" dots)
 │   │   ├── loading_indicator.dart
-│   │   ├── text_field.dart      AppTextField
+│   │   ├── text_field.dart      AppTextField (`dense` for compact rows)
 │   │   └── top_bar.dart         AppTopBar (primary / secondary named constructors)
 │   └── molecules/               composed atoms
 │       ├── bottom_sheet.dart    AppBottomSheet (static show())
 │       ├── dialog.dart          AppDialog (static show())
+│       ├── empty_state.dart     EmptyState (icon + title + subtitle + actions)
 │       └── error_view.dart      ErrorView
 └── usecase/
-    └── usecase.dart             UseCase<Output, Param> base; NoParams
+    └── usecase.dart             UseCase (Future) + StreamUseCase (Stream); NoParams
 ```
 
 ### App — `apps/<app>/lib/`
@@ -491,8 +496,8 @@ Never `throw` across layer boundaries. Never let `DioException` reach a BLoC or 
 ## UI Design System
 
 ### Atomic hierarchy
-- **atoms** — single widget, no BLoC reads: `AppButton`, `AppTextField`, `AppBadge`, `AppChip`, `AppTopBar`, `LoadingIndicator` (all in `package:core/core/ui/atoms/`)
-- **molecules** — composed atoms, may read BLoC via context: `AppBottomSheet` (supports `actions:` row), `ErrorView`
+- **atoms** — single widget, no BLoC reads: `AppButton`, `AppTextField` (`dense` option), `AppBadge`, `AppChip`, `AppCheckbox`, `AppTopBar`, `AppDropdownMenu`, `LoadingIndicator`, `LoadingDots` (all in `package:core/core/ui/atoms/`)
+- **molecules** — composed atoms, may read BLoC via context: `AppBottomSheet` (supports `actions:` row), `AppDialog`, `EmptyState`, `ErrorView`
 - **feature/widgets** — feature-local, may read that feature's BLoC
 
 ### Never hardcode — use tokens

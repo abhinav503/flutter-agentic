@@ -40,6 +40,10 @@ class AppTextField extends StatefulWidget {
   final GestureTapCallback? onTap;
   final List<TextInputFormatter>? inputFormatters;
 
+  /// Compact variant: tighter vertical padding + `isDense`, for tight spots
+  /// like a chat input bar. Default keeps the standard comfortable height.
+  final bool dense;
+
   const AppTextField({
     super.key,
     required this.controller,
@@ -59,6 +63,7 @@ class AppTextField extends StatefulWidget {
     this.onSubmitted,
     this.onTap,
     this.inputFormatters,
+    this.dense = false,
   });
 
   @override
@@ -136,9 +141,10 @@ class _AppTextFieldState extends State<AppTextField> {
             hintText: widget.hint,
             prefixIcon: widget.prefix,
             suffixIcon: widget.suffix,
-            contentPadding: const EdgeInsets.symmetric(
+            isDense: widget.dense,
+            contentPadding: EdgeInsets.symmetric(
               horizontal: AppSpacing.base,
-              vertical: AppSpacing.sm,
+              vertical: widget.dense ? AppSpacing.xs : AppSpacing.sm,
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: radius,

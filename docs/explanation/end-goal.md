@@ -69,9 +69,9 @@ The repo is not opinionated about _what_ you build. It is opinionated about _how
 
 ---
 
-### Phase 2 — Production App (Receipt/Bill-to-PDF Scanner) ✅ Complete (v1.1.0)
+### Phase 2 — Production App: request/response reference (`doc_scanner`) ✅ Complete (v1.1.0)
 
-A real, production-grade app built entirely on the template — proof it works for more than demos. `apps/doc_scanner` solves a concrete need: consolidate multiple photos of receipts or bills into a single downloadable PDF for expense reimbursement.
+A real, production-grade app built entirely on the template — proof it works for more than demos, and the template's **request/response** reference (one call → one result). `apps/doc_scanner` solves a concrete need: consolidate multiple photos of receipts or bills into a single downloadable PDF for expense reimbursement.
 
 - [x] `apps/doc_scanner/lib/feature/home/` — multi-image picker (camera + gallery) via `image_picker`
 - [x] AI receipt extraction — Groq / Gemini / Claude backends behind a dispatcher
@@ -81,17 +81,18 @@ A real, production-grade app built entirely on the template — proof it works f
 
 ---
 
-### Phase 3 — Monorepo Migration + Store Launch (in progress)
+### Phase 3 — Monorepo + streaming reference (`ai_chat`)
 
-Convert the repo to a Dart pub-workspace monorepo and ship `doc_scanner` to both stores, building the supporting skills along the way.
+Two themes: complete the monorepo migration (done, shipped in v1.2.0), and add the template's **streaming** reference app + the reusable `StreamUseCase` pattern — the counterpart to `doc_scanner`'s request/response.
 
 - [x] Monorepo migration — pub-workspace (`packages/core` + `apps/*`); one root `flutter pub get` resolves all
 - [x] All agent rules + skills updated for the monorepo (Claude, Codex, Cursor, Copilot, Gemini, Android Studio, Amazon Q)
 - [x] CI pipeline (GitHub Actions) — `build_runner`, `flutter analyze`, `flutter test` (`.github/workflows/validate.yml`)
 - [x] README with quickstart and architecture diagram
-- [ ] Per-app version handling in the `release` skill (bump `apps/<app>/pubspec.yaml`, build AAB/IPA)
-- [ ] Publish `doc_scanner` to the Play Store
-- [ ] Publish `doc_scanner` to the App Store
+- [x] `StreamUseCase` base + `BaseRepository.handleStream` in `core`, documented in `docs/how-to/stream-usecase.md`
+- [x] `apps/ai_chat` — AI chat with a real Groq backend (OpenAI-compatible) **and** a zero-setup local mock; in-app Groq API key entry (BYOK, stored on-device) with a dispatcher that routes to Groq once a key is set; user-toggleable streaming (token-by-token SSE) vs one-shot replies; markdown via `gpt_markdown`; Stop/cancel mid-stream; retry.
+
+> **Store publishing — deferred / optional.** Shipping `doc_scanner` to the App Store / Play Store is no longer a phase goal: high friction, low payoff for the template's goal, and BYOK review risk. The full readiness checklist is preserved in `docs/how-to/publish-to-stores.md` for anyone who wants to do it (per-app version handling in the `release` skill is the first prerequisite there).
 
 ---
 

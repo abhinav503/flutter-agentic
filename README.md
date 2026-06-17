@@ -89,7 +89,7 @@ The core project is Flutter-first. Backend, React, Node.js, Python, or other fol
 
 | Area | Included |
 |---|---|
-| App shape | Flutter frontend starter with one reference feature and a real production app in progress |
+| App shape | Flutter frontend starter with two real reference apps — request/response (`doc_scanner`) and streaming (`ai_chat`) — plus a demo (`jokes`) |
 | Architecture | Feature-first Clean Architecture with strict layer boundaries |
 | AI support | Repo-native instructions for eight AI coding surfaces |
 | State | BLoC events/states generated with Freezed |
@@ -139,7 +139,8 @@ flutter_agentic/
 ├── packages/core/     shared toolbelt → import 'package:core/core/…'  (no app-specific code)
 └── apps/
     ├── jokes/         demo app
-    └── doc_scanner/   real/publishable app
+    ├── doc_scanner/   real app — request/response reference
+    └── ai_chat/       real app — streaming (SSE-style) reference
 ```
 
 Each app owns its `main.dart`, `app.dart`, `di/`, `constants/` (`ValueConst`/`ApiConstants`), and `feature/home/`; `core` holds only generic constants (`CoreConst`).
@@ -342,6 +343,7 @@ All `make` targets run from the repo root; an app runs from its own folder (`app
 make setup            # first-time: git hooks + root flutter pub get
 make run-jokes        # run the jokes app (cd apps/jokes && flutter run)
 make run-doc-scanner  # run the doc_scanner app
+make run-ai-chat      # run the ai_chat app
 make web-jokes        # run jokes on Chrome
 make test             # flutter test in each app
 make analyze          # flutter analyze — whole workspace
@@ -393,8 +395,8 @@ flutter_agentic/
 │       │   └── shared_pref_service/
 │       ├── theme/           # AppTheme, AppSpacing, AppRadius, AppColorsExtension
 │       └── ui/
-│           ├── atoms/       # AppButton, AppTextField, AppBadge, AppChip, AppTopBar
-│           └── molecules/   # AppBottomSheet, AppDialog, ErrorView, LoadingIndicator
+│           ├── atoms/       # AppButton, AppTextField, AppBadge, AppChip, AppCheckbox, AppTopBar, AppDropdownMenu, LoadingIndicator, LoadingDots
+│           └── molecules/   # AppBottomSheet, AppDialog, EmptyState, ErrorView
 │
 └── apps/
     ├── jokes/               # demo app
@@ -405,7 +407,8 @@ flutter_agentic/
     │   │   └── feature/home/ # full reference implementation
     │   ├── test/            # helpers/ · unit/feature/home/ · widget/feature/home/
     │   └── android/ · ios/ · web/ · assets/theme/
-    └── doc_scanner/         # real app — Receipt/bill PDF scanner (Phase 2)
+    ├── doc_scanner/         # real app — Receipt/bill PDF scanner (request/response, Phase 2)
+    └── ai_chat/             # real app — streaming AI chat (SSE-style token streaming, Phase 3)
         └── lib/ (+ enums/ for app-level shared enums)
 
 docs/
@@ -419,7 +422,7 @@ docs/
 
 **Phase 1 — Foundation** ✅ complete. Clean Architecture, BLoC + Freezed, design system, multi-agent rules — published as an open-source template.
 
-**Phase 2 — Production app (`doc_scanner`)** ✅ complete (v1.1.0). A real Receipt/Bill-to-PDF scanner, proving the template works for production, not just demos.
+**Phase 2 — `doc_scanner`: the request/response reference** ✅ complete (v1.1.0). A real Receipt/Bill-to-PDF scanner — one call, one result — proving the template works for production, not just demos.
 
 - [x] Multi-image picker (camera + gallery) via `image_picker`
 - [x] AI receipt extraction (Groq, Gemini, Claude backends with dispatcher pattern)
@@ -427,14 +430,16 @@ docs/
 - [x] File sharing via native share sheet (`share_plus` + `path_provider`)
 - [x] `AppDialog` molecule + `AppCheckbox` atom
 
-**Phase 3 — Monorepo migration + store launch** (in progress). Convert to a Dart pub-workspace monorepo and ship `doc_scanner` to both stores.
+**Phase 3 — Monorepo + `ai_chat`: the streaming reference** (in progress). Complete the monorepo migration (shipped v1.2.0) and add the streaming counterpart to `doc_scanner`.
 
 - [x] Monorepo migration — pub-workspace (`packages/core` + `apps/*`)
 - [x] All agent rules + skills updated for the monorepo
 - [x] CI pipeline (GitHub Actions) — see [`validate.yml`](.github/workflows/validate.yml)
 - [x] README quickstart + architecture diagram
-- [ ] Per-app version handling in the `release` skill (build AAB/IPA)
-- [ ] Published to the Play Store and App Store
+- [x] `StreamUseCase` pattern in `core` (see [`stream-usecase.md`](docs/how-to/stream-usecase.md))
+- [x] `ai_chat` — AI chat with a real Groq backend (in-app BYOK key) + zero-setup local mock; toggle streaming (token-by-token) vs one-shot; markdown, Stop/cancel, retry
+
+> Store-publishing `doc_scanner` is deferred (high friction, low payoff for the template goal). The readiness checklist lives in [`publish-to-stores.md`](docs/how-to/publish-to-stores.md).
 
 **Phase 4 — Core infrastructure modules** (later). Abstract interfaces with concrete implementations so any developer can drop them in or swap the backend.
 
