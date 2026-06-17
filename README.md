@@ -405,7 +405,7 @@ flutter_agentic/
     │   │   └── feature/home/ # full reference implementation
     │   ├── test/            # helpers/ · unit/feature/home/ · widget/feature/home/
     │   └── android/ · ios/ · web/ · assets/theme/
-    └── doc_scanner/         # real app — Receipt/bill PDF scanner (Phase 2 Track A)
+    └── doc_scanner/         # real app — Receipt/bill PDF scanner (Phase 2)
         └── lib/ (+ enums/ for app-level shared enums)
 
 docs/
@@ -417,33 +417,35 @@ docs/
 
 ## Roadmap
 
-Phase 1 is complete and published. Phase 2 runs two parallel tracks:
+**Phase 1 — Foundation** ✅ complete. Clean Architecture, BLoC + Freezed, design system, multi-agent rules — published as an open-source template.
 
-**Track A — Receipt/Bill-to-PDF scanner (publishable app)**
+**Phase 2 — Production app (`doc_scanner`)** ✅ complete (v1.1.0). A real Receipt/Bill-to-PDF scanner, proving the template works for production, not just demos.
 
-A real app heading to the App Store and Play Store — proof that the template works for production, not just demos. It solves a concrete problem: consolidate photos of receipts and bills into a single PDF for expense reimbursement.
-
-- [x] Multi-image picker (camera + gallery) — `ImagePickerService` static singleton
+- [x] Multi-image picker (camera + gallery) via `image_picker`
 - [x] AI receipt extraction (Groq, Gemini, Claude backends with dispatcher pattern)
 - [x] On-device PDF generation — no backend, works offline
-- [x] File sharing via native share sheet
-- [ ] Published to App Store and Play Store
+- [x] File sharing via native share sheet (`share_plus` + `path_provider`)
+- [x] `AppDialog` molecule + `AppCheckbox` atom
 
-**Track B — Core infrastructure modules**
+**Phase 3 — Monorepo migration + store launch** (in progress). Convert to a Dart pub-workspace monorepo and ship `doc_scanner` to both stores.
 
-Abstract interfaces with concrete implementations so any developer can drop them in or swap the backend.
+- [x] Monorepo migration — pub-workspace (`packages/core` + `apps/*`)
+- [x] All agent rules + skills updated for the monorepo
+- [x] CI pipeline (GitHub Actions) — see [`validate.yml`](.github/workflows/validate.yml)
+- [x] README quickstart + architecture diagram
+- [ ] Per-app version handling in the `release` skill (build AAB/IPA)
+- [ ] Published to the Play Store and App Store
 
-- [x] `AppDialog` molecule — `AppDialog.show()` wraps `showDialog` + `AlertDialog`
-- [x] `AppCheckbox` atom
-- [ ] `AppRadioGroup`, `AppSnackbar` atoms
-- [ ] Pagination mixin for list features
+**Phase 4 — Core infrastructure modules** (later). Abstract interfaces with concrete implementations so any developer can drop them in or swap the backend.
+
+- `AppRadioGroup`, `AppSnackbar` atoms
+- Pagination mixin for list features
 - Secure storage (`flutter_secure_storage` backed)
 - Push notifications (FCM-backed `NotificationService` abstraction)
 - Deep linking (`app_links` backed, GoRouter wired)
 - Connectivity awareness with offline banner
 - Analytics and crash reporting abstractions
 - Auth scaffold — login → token → protected route pattern
-- CI pipeline (GitHub Actions)
 - Responsive web layout helpers
 
 ## CI

@@ -69,28 +69,37 @@ The repo is not opinionated about _what_ you build. It is opinionated about _how
 
 ---
 
-### Phase 2 — Production App + Core Infrastructure
+### Phase 2 — Production App (Receipt/Bill-to-PDF Scanner) ✅ Complete (v1.1.0)
 
-The first public phase is complete. Phase 2 runs two parallel tracks:
+A real, production-grade app built entirely on the template — proof it works for more than demos. `apps/doc_scanner` solves a concrete need: consolidate multiple photos of receipts or bills into a single downloadable PDF for expense reimbursement.
 
-**Track A — Receipt/Bill-to-PDF Scanner (publishable app, Feature #2)**
+- [x] `apps/doc_scanner/lib/feature/home/` — multi-image picker (camera + gallery) via `image_picker`
+- [x] AI receipt extraction — Groq / Gemini / Claude backends behind a dispatcher
+- [x] On-device PDF generation — `pdf` package, no backend, works offline
+- [x] File share/save via native share sheet — `share_plus` + `path_provider`
+- [x] Design-system additions used by the app: `AppDialog` molecule, `AppCheckbox` atom
 
-The goal is a real app, published to the App Store and Play Store, that proves the template works for production — not just demos. The app solves a real-world need: consolidate multiple photos of receipts or bills into a single downloadable PDF for expense reimbursement.
+---
 
-- [ ] `apps/doc_scanner/lib/feature/home/` — multi-image picker (camera + gallery)
-- [ ] Image preview and reorder screen
-- [ ] On-device PDF generation — `pdf` package, no backend, works offline
-- [ ] File share/save via native share sheet — `share_plus` + `path_provider`
-- [ ] Runtime permission handling — `permission_handler`
-- [ ] Published to App Store and Play Store
+### Phase 3 — Monorepo Migration + Store Launch (in progress)
 
-**Track B — Core infrastructure modules**
+Convert the repo to a Dart pub-workspace monorepo and ship `doc_scanner` to both stores, building the supporting skills along the way.
+
+- [x] Monorepo migration — pub-workspace (`packages/core` + `apps/*`); one root `flutter pub get` resolves all
+- [x] All agent rules + skills updated for the monorepo (Claude, Codex, Cursor, Copilot, Gemini, Android Studio, Amazon Q)
+- [x] CI pipeline (GitHub Actions) — `build_runner`, `flutter analyze`, `flutter test` (`.github/workflows/validate.yml`)
+- [x] README with quickstart and architecture diagram
+- [ ] Per-app version handling in the `release` skill (bump `apps/<app>/pubspec.yaml`, build AAB/IPA)
+- [ ] Publish `doc_scanner` to the Play Store
+- [ ] Publish `doc_scanner` to the App Store
+
+---
+
+### Phase 4 — Core Infrastructure Modules (later)
 
 Modules that every Flutter app eventually needs, structured as abstract interfaces with concrete implementations so any developer can swap the backend.
 
-- [ ] `AppCheckbox` and `AppRadioGroup` atoms
-- [ ] `AppSnackbar` helper (success / error / info variants)
-- [ ] `AppDialog` — confirm/alert modal
+- [ ] `AppRadioGroup` and `AppSnackbar` atoms (success / error / info variants)
 - [ ] Pagination mixin for list features
 - [ ] Secure storage — `flutter_secure_storage` backed interface in `core/storage/`
 - [ ] Push notifications — FCM-backed `NotificationService` abstraction in `core/notifications/`
@@ -99,16 +108,14 @@ Modules that every Flutter app eventually needs, structured as abstract interfac
 - [ ] Analytics abstraction — `AnalyticsService` + `NoOpAnalyticsService` default
 - [ ] Crash reporting abstraction — `CrashReportingService` + `NoOpCrashReportingService` default
 - [ ] Auth scaffold — `feature/auth/` with login → token → protected route pattern
-- [ ] CI pipeline (GitHub Actions) — format check, analyse, test
 - [ ] Web-specific layout helpers (responsive breakpoints, side-nav shell)
-- [ ] README with quickstart and architecture diagram
 
 ---
 
 ## How to Measure Success
 
-Phase 2 is complete when:
-1. The doc scanner app is live on both the App Store and Play Store, built entirely from this template.
-2. A developer can clone this repo and add push notifications, deep links, and secure storage without writing any infrastructure code — only wiring up the existing interfaces.
+The end goal is reached when:
+1. `doc_scanner` is live on both the App Store and Play Store, built entirely from this template (Phase 3).
+2. A developer can clone this repo and add push notifications, deep links, and secure storage without writing any infrastructure code — only wiring up the existing interfaces (Phase 4).
 3. An AI agent given `CLAUDE.md` and a feature spec can generate a correct feature (data + domain + presentation + tests) with minimal iterations — running `/review-code` after generation catches any drift before it is merged.
 4. The app runs on both Android/iOS and Web from the same codebase with zero platform-specific hacks in `core/`.
