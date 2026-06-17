@@ -31,6 +31,19 @@ Read on demand:
 
 ---
 
+## Monorepo Layout
+
+Dart pub-workspace monorepo: one shared `core` package consumed by multiple Flutter apps.
+
+```
+packages/core/   shared toolbelt → import 'package:core/core/…'   (no app-specific code)
+apps/jokes/      demo app          apps/doc_scanner/  real app
+```
+
+One `flutter pub get` at the repo root resolves all packages; editing `core` is live in any running app. Each app owns its `main.dart`, `app.dart`, `di/injection_container.dart`, `constants/` (`ValueConst`/`ApiConstants`), and `feature/home/`; `core` holds only `CoreConst`. Run `make` targets from the repo root; run an app from its folder (`apps/<app>`).
+
+---
+
 ## Architecture
 
 Feature-first Clean Architecture. Three layers per feature, strict dependency rule:
@@ -47,19 +60,23 @@ State: `flutter_bloc` with `@freezed` sealed events/states — always use exhaus
 
 Errors: `fpdart` `Either<Failure, T>` — no `throw` across layer boundaries, never let `DioException` reach a BLoC or widget.
 
-DI: `get_it` service locator (`sl<T>()`). BLoCs are NOT registered in GetIt — instantiate them in `BlocProvider` inside `buildBody`. Infrastructure services that use the static singleton pattern (`HttpService`, `SharedPreferenceService`, `ImagePickerService`) are also NOT registered in GetIt — always access via `ServiceName.instance`.
+DI: `get_it` service locator (`sl<T>()`). The shared `sl` and `initCoreDependencies()` live in `core` (`package:core/core/di/core_injection.dart`); each app's `lib/di/injection_container.dart` calls `initCoreDependencies()` then registers its features. BLoCs are NOT registered in GetIt — instantiate them in `BlocProvider` inside `buildBody`. Infrastructure services that use the static singleton pattern (`HttpService`, `SharedPreferenceService`, `ImagePickerService`) are also NOT registered in GetIt — always access via `ServiceName.instance`.
 
 ---
 
 ## Build & Run
 
+Run `make` targets from the repo root; run an app from its folder.
+
 ```bash
-make setup    # first-time setup: git hooks + flutter pub get
-make run      # flutter run (connected device)
-make web      # flutter run -d chrome
-make test     # flutter test
-make analyze  # flutter analyze
-make gen      # dart run build_runner build --delete-conflicting-outputs
+make setup            # first-time setup: git hooks + root flutter pub get
+make run-jokes        # run the jokes app (cd apps/jokes && flutter run)
+make run-doc-scanner  # run the doc_scanner app
+make web-jokes        # run jokes on Chrome
+make test             # flutter test in each app
+make analyze          # flutter analyze — whole workspace
+make gen              # build_runner in core + each app
+make clean            # flutter clean per package, then root pub get
 ```
 
 Run `make gen` after changing any `@freezed`, `@JsonSerializable`, or `@RestApi()` file. Never manually edit `.freezed.dart` or `.g.dart` files.
@@ -82,7 +99,7 @@ Run `make gen` after changing any `@freezed`, `@JsonSerializable`, or `@RestApi(
 - Putting a screen-specific BLoC in `buildBlocProviders` when it is not needed above the body — provide it in `buildBody` wrapping the screen instead
 - Calling `add()` from inside a BLoC event handler — factor shared logic into a private method instead
 - Using Flutter's built-in button widgets (`ElevatedButton`, `TextButton`, `OutlinedButton`, `FilledButton`) in screens or molecules — use `AppButton` with the appropriate `AppButtonVariant`
-- Inline `CircularProgressIndicator` in screens — use `LoadingIndicator` from `core/ui/atoms/`
+- Inline `CircularProgressIndicator` in screens — use `LoadingIndicator` from `package:core/core/ui/atoms/`
 - Error states that omit the data needed to retry — every `*Error` state must carry enough context (e.g. `searchTerm`, `page`) for the BLoC to re-dispatch without reading prior state; screens must never inspect preceding states for retry inputs
 - Creating a new entity that is structurally identical to an existing one — reuse the existing entity; a single entity works for both single-result and list-result use cases
 - Adding constructor parameters to data source impls for infrastructure — data sources are `const` no-arg; they reach infrastructure through static singleton `.instance` calls
@@ -90,6 +107,9 @@ Run `make gen` after changing any `@freezed`, `@JsonSerializable`, or `@RestApi(
 - Creating a `*Model` without a corresponding `*Entity`, or a `*Entity` without a corresponding `*Model` — every DTO in `data/` must map to an entity in `domain/` and vice versa; they are always a pair
 - Registering a static-singleton service (`HttpService`, `SharedPreferenceService`, `ImagePickerService`, or any class with a `static final instance`) in GetIt, or calling `sl<T>()` for it — these are never in the GetIt graph; always access them via `ServiceName.instance`
 - Writing field-by-field `Model(field: entity.field, ...)` construction inside a repository — use `Model.fromEntity(entity)` and `model.toEntity()` instead; every `*Model` must expose both
+- Putting app-specific copy, feature logic, or product API URLs in `core` — `core` is the generic shared toolbelt; product strings/URLs go in each app's `lib/constants/` (`ValueConst`/`ApiConstants`), `core` keeps only `CoreConst`
+- Listing a package in an app's `pubspec.yaml` the app doesn't import directly — declare only direct deps; keep `core` dependency-lean
+- Naming the primary feature after the product — it's always `feature/home/` with `HomePage`/`HomeScreen`
 
 ---
 

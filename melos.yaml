@@ -1,0 +1,20 @@
+name: flutter_agentic
+
+packages:
+  - packages/**
+  - apps/**
+
+scripts:
+  analyze:
+    description: Analyze every package.
+    exec: flutter analyze
+  test:
+    description: Run tests in every package that has a test/ dir.
+    exec: flutter test
+    packageFilters:
+      dirExists: test
+  gen:
+    description: Run build_runner in every package that depends on it.
+    exec: dart run build_runner build --delete-conflicting-outputs
+    packageFilters:
+      dependsOn: build_runner

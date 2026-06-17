@@ -2,6 +2,19 @@
 
 > **Claude Code** (this file) · **Cursor** → `.cursor/rules/` · **GitHub Copilot** → `.github/copilot-instructions.md` · **Gemini** → `GEMINI.md` · **Codex/Android Studio** → `AGENTS.md` · **Amazon Q** → `.amazonq/rules/`
 
+## Monorepo layout
+
+This is a **Dart pub-workspace monorepo**: one shared `core` package consumed by multiple Flutter apps.
+
+```
+packages/core/   shared toolbelt → import 'package:core/core/…'   (no app-specific code)
+apps/jokes/      demo app          apps/doc_scanner/  real app
+```
+
+- One `flutter pub get` at the repo root resolves all packages; editing `core` is live in any running app.
+- Run `make` targets from the repo root; run an app from its folder (`apps/<app>`). See `docs/ai-rules/conventions.md` for commands.
+- Each app: its own `main.dart`, `app.dart`, `di/injection_container.dart`, `constants/` (`ValueConst`/`ApiConstants`), and `feature/home/`. `core` holds only generic constants (`CoreConst`). Keep `core` dependency-lean; each app lists only the deps it imports directly.
+
 @docs/ai-rules/conventions.md
 @docs/reference/architecture.md
 @docs/explanation/end-goal.md

@@ -2,7 +2,9 @@
 
 When the user asks to change the application ID, bundle identifier, or package name, follow every step below. If the new ID was not provided, ask: "What is the new application ID? Use reverse-domain notation, e.g. `com.company.appname`"
 
-Derive the old application ID from the `applicationId` field in `android/app/build.gradle.kts`.
+> **Monorepo note:** application IDs are per app. All paths below are relative to the target app folder `apps/{app}/` (e.g. `apps/doc_scanner/android/app/build.gradle.kts`). Run verification commands from inside that app folder.
+
+Derive the old application ID from the `applicationId` field in `apps/{app}/android/app/build.gradle.kts`.
 
 ---
 

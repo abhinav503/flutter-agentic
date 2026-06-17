@@ -6,6 +6,15 @@ on:
   pull_request:
     branches: [main]
 
+# Cancel superseded runs on the same ref to save CI minutes.
+concurrency:
+  group: validate-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Keep in sync with .fvm/fvm_config.json
+  FLUTTER_VERSION: "3.44.0"
+
 jobs:
   validate:
     name: Analyze & Test
@@ -16,18 +25,29 @@ jobs:
 
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: "3.x"
+          flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: stable
           cache: true
 
+      # One pub get at the workspace root resolves every package.
       - name: Install dependencies
         run: flutter pub get
 
+      # Generate before analyze/test so .freezed/.g outputs are present & fresh.
       - name: Generate code
-        run: dart run build_runner build --delete-conflicting-outputs
+        run: |
+          for pkg in packages/core apps/jokes apps/doc_scanner; do
+            echo "== gen: $pkg =="
+            (cd "$pkg" && dart run build_runner build --delete-conflicting-outputs)
+          done
 
+      # Root analyze covers every package in the workspace.
       - name: Analyze
         run: flutter analyze --fatal-infos
 
       - name: Test
-        run: flutter test --coverage
+        run: |
+          for app in apps/jokes apps/doc_scanner; do
+            echo "== test: $app =="
+            (cd "$app" && flutter test)
+          done

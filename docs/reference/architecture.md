@@ -1,5 +1,28 @@
 # Architecture
 
+## Monorepo Layout
+
+This repo is a **Dart pub-workspace monorepo**: one shared `core` package consumed by many Flutter apps. Editing `packages/core` is picked up live by any running app — no republish, one `flutter pub get` at the root resolves everything.
+
+```
+flutter_agentic/
+├── pubspec.yaml                 workspace root (lists members; no app code)
+├── melos.yaml                   optional task runner (see Makefile for the no-melos path)
+├── packages/
+│   └── core/                    shared package  →  import 'package:core/core/…'
+└── apps/
+    ├── jokes/                   demo app
+    └── doc_scanner/             real/publishable app
+```
+
+- **`packages/core`** — the shared mobile toolbelt: base classes, design system, networking, DI seed, generic device services. Zero app-specific copy, feature logic, or product API URLs. Imported everywhere as `package:core/core/…`.
+- **`apps/<app>`** — a runnable Flutter app: its own `main.dart`, `app.dart`, `di/`, `constants/`, `feature/`, native folders, and `assets/theme/`. Each app depends on `core` (and only the extra packages its own code imports — see `docs/ai-rules/conventions.md`).
+- Every member declares `resolution: workspace`; the root `pubspec.yaml` lists them under `workspace:`.
+
+**Adding a new app:** scaffold native folders (`flutter create`), add `core` as a `path:` dependency with `resolution: workspace`, register it in the root `workspace:` list, and add `run-<app>` to the `Makefile`. The primary feature folder is always `feature/home/` (see Folder Structure).
+
+---
+
 ## Stack
 
 | Concern | Choice | Why |
@@ -9,8 +32,8 @@
 | Models + BLoC events/states | `freezed` | Immutable value types, `copyWith`, `==`, pattern matching — same package across all layers |
 | Networking | `dio` via `HttpService` | Static singleton owns one `Dio` instance; data sources call `HttpService.instance.get/post` with full URLs |
 | Navigation | `go_router` | Declarative, deep-link ready, web-URL capable, Flutter-team maintained |
-| DI | `get_it` | Service locator (`sl<T>()`); BLoCs as factories, everything else lazy singletons |
-| UI baseline | Material 3 | No component library imposed — bring your own or use the design system atoms in `core/ui/` |
+| DI | `get_it` | Shared `sl` lives in `core`; BLoCs as factories, everything else lazy singletons |
+| UI baseline | Material 3 | No component library imposed — use the design system atoms in `package:core/core/ui/` |
 
 ---
 
@@ -26,52 +49,73 @@ presentation  →  domain  ←  data
 - `data` — zero imports from `flutter_bloc` or any UI package
 - `presentation` — zero imports from `dio`
 
+Across packages: **`apps/*` depend on `core`; `core` never imports an app.** Shared mechanism goes down into `core`; product copy, feature logic, and product API URLs stay up in the app.
+
 ---
 
 ## Folder Structure
 
+### Shared package — `packages/core/lib/core/`
+
+```
+core/
+├── base/
+│   ├── base_page.dart           BasePage + BasePageState (Scaffold + getter-based bottom nav)
+│   ├── base_repository.dart     BaseRepository mixin (Dio→Failure mapping)
+│   └── base_screen.dart         BaseScreen + BaseScreenState (showAppBottomSheet, showSnackBar)
+├── constants/
+│   └── core_const.dart          CoreConst — ONLY generic constants core's own code uses
+│                                (e.g. retryButton, imagePicker* config). No app copy here.
+├── di/
+│   └── core_injection.dart      shared `sl` (GetIt) + initCoreDependencies()
+├── error/
+│   └── failure.dart             sealed Failure class; add variants only here
+├── network/
+│   ├── http_service.dart        HttpService static singleton (get/post via single Dio)
+│   └── interceptors/            logging and other Dio interceptors
+├── services/
+│   ├── image_picker/
+│   │   └── image_picker_service.dart  ImagePickerService static singleton (shared device util)
+│   └── shared_pref_service/
+│       └── shared_preference_service.dart  SharedPreferenceService static singleton
+├── theme/
+│   ├── app_colors_extension.dart  ThemeExtension for success/warning colours
+│   ├── app_radius.dart            border-radius token scale
+│   ├── app_spacing.dart           spacing token scale
+│   ├── app_theme.dart             AppTheme.light() / .dark() / .fromConfig()
+│   └── app_theme_config.dart      parses assets/theme/theme_config.json
+├── ui/
+│   ├── atoms/                   single-responsibility widgets, no BLoC reads
+│   │   ├── badge.dart           AppBadge
+│   │   ├── button.dart          AppButton
+│   │   ├── chip.dart            AppChip
+│   │   ├── loading_indicator.dart
+│   │   ├── text_field.dart      AppTextField
+│   │   └── top_bar.dart         AppTopBar (primary / secondary named constructors)
+│   └── molecules/               composed atoms
+│       ├── bottom_sheet.dart    AppBottomSheet (static show())
+│       ├── dialog.dart          AppDialog (static show())
+│       └── error_view.dart      ErrorView
+└── usecase/
+    └── usecase.dart             UseCase<Output, Param> base; NoParams
+```
+
+### App — `apps/<app>/lib/`
+
 ```
 lib/
-├── core/                            shared infrastructure, no feature logic
-│   ├── base/
-│   │   ├── base_page.dart           BasePage + BasePageState (Scaffold + getter-based bottom nav)
-│   │   ├── base_repository.dart     BaseRepository mixin (Dio→Failure mapping)
-│   │   └── base_screen.dart         BaseScreen + BaseScreenState (showAppBottomSheet, showSnackBar)
-│   ├── constants/
-│   │   ├── api_constants.dart       base URLs, endpoint paths
-│   │   └── value_const.dart         ALL string/value constants — no inline literals anywhere
-│   ├── di/
-│   │   └── injection_container.dart full dependency graph; call initDependencies() in main()
-│   ├── error/
-│   │   └── failure.dart             sealed Failure class; add variants only here
-│   ├── network/
-│   │   ├── http_service.dart        HttpService static singleton (get/post via single Dio)
-│   │   └── interceptors/            logging and other Dio interceptors
-│   ├── services/
-│   │   └── shared_pref_service/
-│   │       └── shared_preference_service.dart  SharedPreferenceService static singleton
-│   ├── theme/
-│   │   ├── app_colors_extension.dart  ThemeExtension for success/warning colours
-│   │   ├── app_radius.dart            border-radius token scale
-│   │   ├── app_spacing.dart           spacing token scale
-│   │   ├── app_theme.dart             AppTheme.light() / .dark() / .fromConfig()
-│   │   └── app_theme_config.dart      parses assets/theme/theme_config.json
-│   ├── ui/
-│   │   ├── atoms/                   single-responsibility widgets, no BLoC reads
-│   │   │   ├── badge.dart           AppBadge
-│   │   │   ├── button.dart          AppButton
-│   │   │   ├── chip.dart            AppChip
-│   │   │   ├── loading_indicator.dart
-│   │   │   ├── text_field.dart      AppTextField
-│   │   │   └── top_bar.dart         AppTopBar (primary / secondary named constructors)
-│   │   └── molecules/               composed atoms
-│   │       ├── bottom_sheet.dart    AppBottomSheet (static show())
-│   │       ├── dialog.dart          AppDialog (static show())
-│   │       └── error_view.dart      ErrorView
-│   └── usecase/
-│       └── usecase.dart             UseCase<Output, Param> base; NoParams
+├── main.dart                    bootstraps theme + initDependencies(), runApp(App())
+├── app.dart                     MaterialApp.router + GoRouter (routes to HomePage)
+├── constants/
+│   ├── api_constants.dart       ApiConstants — this app's base URLs / endpoint paths
+│   └── value_const.dart         ValueConst — ALL of this app's strings; no inline literals
+├── di/
+│   └── injection_container.dart initDependencies(): calls initCoreDependencies(), then
+│                                registers this app's data sources / repos / use cases.
+│                                Re-exports `sl` from core for convenience.
+├── enums/                       app-level shared enums (e.g. extraction_status.dart)
 └── feature/
-    └── {name}/
+    └── home/                    the app's primary feature (always named `home`)
         ├── data/
         │   ├── data_source/
         │   │   ├── {name}_remote_data_source.dart         abstract interface
@@ -95,11 +139,16 @@ lib/
             │   ├── {name}_event.dart   @freezed sealed class, part of bloc file
             │   └── {name}_state.dart   @freezed sealed class, part of bloc file
             ├── view/
-            │   ├── {name}_page.dart    DI + Scaffold (extends BasePage)
-            │   └── {name}_screen.dart  UI only (extends BaseScreen)
+            │   ├── home_page.dart      DI + Scaffold (extends BasePage) → HomePage
+            │   └── home_screen.dart    UI only (extends BaseScreen) → HomeScreen
             └── widgets/
                 └── {name}_*.dart       feature-local reusable widgets
 ```
+
+**Import rules of thumb:**
+- Anything in `core` → `import 'package:core/core/…'`.
+- Same-feature files → relative imports (`../domain/…`).
+- App-level shared (`di`, `constants`, `enums`) from a feature → `package:<app>/…` import.
 
 ---
 
@@ -116,13 +165,17 @@ lib/
 | Use case | `{action}_usecase.dart` | `{Action}UseCase` | `GetRandomJokeUseCase` |
 | Use case params | — (same file) | `{Action}Params` | `SearchJokesParams` |
 | BLoC | `{feature}_bloc.dart` | `{Feature}Bloc` | `JokeBloc` |
-| Page | `{feature}_page.dart` | `{Feature}Page` | `JokesPage` |
-| Screen | `{feature}_screen.dart` | `{Feature}Screen` | `JokesScreen` |
+| Entry page | `home_page.dart` | `HomePage` | the app's primary feature page |
+| Entry screen | `home_screen.dart` | `HomeScreen` | the app's primary feature screen |
 | Widget | `{feature}_{description}.dart` | `{Feature}{Description}` | `joke_card.dart` → `JokeCard` |
+
+> The feature **folder** and its **entry page/screen** are always `home` / `HomePage` / `HomeScreen`. Domain and data symbols keep their real concept names (`JokeEntity`, `ScannedReceiptEntity`, `JokesRepository`, `DocScannerBloc`) — they are not renamed to "home".
 
 ---
 
 ## Layer Implementation Patterns
+
+> Imports are omitted for brevity. In real files, `core` types (`HttpService`, `Failure`, `UseCase`, `BasePage`…) come from `package:core/core/…`; `ApiConstants`/`ValueConst` come from the app's own `package:<app>/constants/…`.
 
 ### Entity
 ```dart
@@ -171,14 +224,14 @@ abstract interface class JokesRemoteDataSource {
   Future<JokeModel> getRandomJoke();
 }
 
-// impl — const no-arg constructor; reaches network via HttpService.instance
+// impl — const no-arg constructor; reaches network via HttpService.instance (from core)
 class JokesRemoteDataSourceImpl implements JokesRemoteDataSource {
   const JokesRemoteDataSourceImpl();
 
   @override
   Future<JokeModel> getRandomJoke() async {
     final response = await HttpService.instance.get<Map<String, dynamic>>(
-      '${ApiConstants.jokesBaseUrl}/',
+      '${ApiConstants.jokesBaseUrl}/',   // ApiConstants from package:<app>/constants/
     );
     return JokeModel.fromJson(response.data!);
   }
@@ -298,26 +351,26 @@ class KeptJokesCubit extends Cubit<List<JokeEntity>> {
 - `buildBody` — wrap each screen in its own `BlocProvider`. The BLoC lifetime is tied to that screen's subtree.
 
 ```dart
-// page — shared cubit in buildBlocProviders; screen-specific BLoC in buildBody
-class _JokesPageState extends BasePageState<JokesPage> {
+// home_page.dart — shared cubit in buildBlocProviders; screen-specific BLoC in buildBody
+class _HomePageState extends BasePageState<HomePage> {
   @override
   Widget buildBlocProviders(Widget child) => BlocProvider(
     create: (_) => KeptJokesCubit(), child: child); // read by AppBar + screen
 
   @override
   PreferredSizeWidget buildAppBar(BuildContext context) =>
-      AppTopBar.primary(title: ValueConst.jokeAppBarTitle);
+      AppTopBar.primary(title: ValueConst.jokeAppBarTitle); // ValueConst from package:<app>/constants/
 
   @override
   Widget buildBody(BuildContext context) => BlocProvider(
     // cascade auto-dispatches started so the screen begins loading immediately
     create: (_) => JokeBloc(getRandomJokeUseCase: sl())..add(const JokeEvent.started()),
-    child: const JokesScreen(),
+    child: const HomeScreen(),
   );
 }
 
-// screen — pure switch(state) builder; no setState for BLoC-derived values
-class _JokesScreenState extends BaseScreenState<JokesScreen> {
+// home_screen.dart — pure switch(state) builder; no setState for BLoC-derived values
+class _HomeScreenState extends BaseScreenState<HomeScreen> {
   @override
   Widget body(BuildContext context) {
     return BlocConsumer<JokeBloc, JokeState>(
@@ -349,7 +402,7 @@ class _JokesScreenState extends BaseScreenState<JokesScreen> {
 
 ## Infrastructure Services
 
-Infrastructure with async init (`SharedPreferenceService`) or a shared resource (`HttpService`) uses the **static singleton** pattern — one class file, private constructor, `static final instance`. They are **never registered in GetIt** — any class with a `static final instance` field follows this rule.
+Infrastructure with async init (`SharedPreferenceService`), a shared resource (`HttpService`), or a shared device capability (`ImagePickerService`) uses the **static singleton** pattern — one class file, private constructor, `static final instance`. They live in `core` and are **never registered in GetIt** — any class with a `static final instance` field follows this rule.
 
 ```dart
 // HttpService — synchronous; Dio is created at class load time
@@ -362,7 +415,7 @@ class HttpService {
   Future<Response<T>> post<T>(String url, {...}) => _dio.post(...);
 }
 
-// SharedPreferenceService — async init called once in initDependencies()
+// SharedPreferenceService — async init called once in initCoreDependencies()
 class SharedPreferenceService {
   SharedPreferenceService._();
   static final SharedPreferenceService instance = SharedPreferenceService._();
@@ -378,26 +431,39 @@ class SharedPreferenceService {
 
 ## Dependency Injection
 
-Registration order inside `initDependencies()`:
+The shared service locator `sl` and `initCoreDependencies()` live in **`core`** (`package:core/core/di/core_injection.dart`). Each app has its **own** `lib/di/injection_container.dart` that initialises core first, then registers its features.
 
 ```dart
-// 1. Async service init — not registered in GetIt, called directly
-await SharedPreferenceService.instance.init();
-// HttpService needs no init — Dio is synchronous
+// packages/core/lib/core/di/core_injection.dart
+final sl = GetIt.instance;
 
-// 2. Data sources — const no-arg; infrastructure accessed via static .instance
-sl.registerLazySingleton<JokesRemoteDataSource>(() => const JokesRemoteDataSourceImpl());
-
-// 3. Repositories
-sl.registerLazySingleton<JokesRepository>(() => JokesRepositoryImpl(sl()));
-
-// 4. Use cases
-sl.registerLazySingleton(() => GetRandomJokeUseCase(sl()));
-
-// BLoCs are NOT registered in GetIt — instantiated in BlocProvider inside buildBody:
-// BlocProvider(create: (_) => JokeBloc(getRandomJokeUseCase: sl())..add(const JokeEvent.started()))
-// Cubits for shared state also instantiated in buildBlocProviders (not GetIt).
+Future<void> initCoreDependencies() async {
+  await SharedPreferenceService.instance.init();   // static singletons — not in GetIt
+}
 ```
+
+```dart
+// apps/<app>/lib/di/injection_container.dart
+import 'package:core/core/di/core_injection.dart';
+export 'package:core/core/di/core_injection.dart' show sl;   // so consumers import `sl` from here
+
+Future<void> initDependencies() async {
+  await initCoreDependencies();
+
+  // 1. Data sources — const no-arg; infrastructure accessed via static .instance
+  sl.registerLazySingleton<JokesRemoteDataSource>(() => const JokesRemoteDataSourceImpl());
+  // 2. Repositories
+  sl.registerLazySingleton<JokesRepository>(() => JokesRepositoryImpl(sl()));
+  // 3. Use cases
+  sl.registerLazySingleton(() => GetRandomJokeUseCase(sl()));
+
+  // BLoCs are NOT registered in GetIt — instantiated in BlocProvider inside buildBody:
+  // BlocProvider(create: (_) => JokeBloc(getRandomJokeUseCase: sl())..add(const JokeEvent.started()))
+  // Cubits for shared state also instantiated in buildBlocProviders (not GetIt).
+}
+```
+
+`main.dart` calls the app's `initDependencies()` once before `runApp`.
 
 ---
 
@@ -425,7 +491,7 @@ Never `throw` across layer boundaries. Never let `DioException` reach a BLoC or 
 ## UI Design System
 
 ### Atomic hierarchy
-- **atoms** — single widget, no BLoC reads: `AppButton`, `AppTextField`, `AppBadge`, `AppChip`, `AppTopBar`, `LoadingIndicator`
+- **atoms** — single widget, no BLoC reads: `AppButton`, `AppTextField`, `AppBadge`, `AppChip`, `AppTopBar`, `LoadingIndicator` (all in `package:core/core/ui/atoms/`)
 - **molecules** — composed atoms, may read BLoC via context: `AppBottomSheet` (supports `actions:` row), `ErrorView`
 - **feature/widgets** — feature-local, may read that feature's BLoC
 
@@ -446,14 +512,18 @@ AppSpacing.lg          // 16
 AppRadius.md           // BorderRadius.all(Radius.circular(8))
 // spacing ❌  EdgeInsets.all(16) / BorderRadius.circular(8)
 
-// strings ✅  (lib/core/constants/value_const.dart)
+// strings ✅  app copy → apps/<app>/lib/constants/value_const.dart  (class ValueConst)
 ValueConst.jokeAppBarTitle
 ValueConst.jokeResultsCount(state.totalJokes)   // dynamic → static method
+// generic core-owned strings → CoreConst (package:core/core/constants/core_const.dart)
+CoreConst.retryButton
 // strings ❌  'Dad Jokes' / 'Load More'
 ```
 
+> **Constants split:** product copy and API URLs live in each app (`ValueConst` / `ApiConstants` under `apps/<app>/lib/constants/`). `core` only holds the handful of generic constants its own widgets/services need, in `CoreConst` — so a file can use both `CoreConst.x` and `ValueConst.y` without a name clash.
+
 ### Theme configuration
-Colours and font set in `assets/theme/theme_config.json`.
+Each app owns `assets/theme/theme_config.json` (colours + font). `AppTheme.fromConfig` (in core) parses it.
 Change `activeTheme` to switch between `dadJokes`, `oceanBreeze`, `forestWalk` presets.
 Individual colour roles can be overridden by key — all others are seed-generated by M3.
 
@@ -461,12 +531,14 @@ Individual colour roles can be overridden by key — all others are seed-generat
 
 ## Testing
 
+Tests live inside each app (`apps/<app>/test/`). `core` has its own `packages/core/test/`.
+
 | Subject | Location | Tool |
 |---|---|---|
-| Use case | `test/unit/feature/{name}/domain/` | `flutter_test` |
-| BLoC | `test/unit/feature/{name}/presentation/` | `bloc_test` |
-| Screen/page | `test/widget/feature/{name}/` | `flutter_test` + `MockBloc` |
-| Shared fakes | `test/helpers/` | manual fake implements interface |
+| Use case | `apps/<app>/test/unit/feature/{name}/domain/` | `flutter_test` |
+| BLoC | `apps/<app>/test/unit/feature/{name}/presentation/` | `bloc_test` |
+| Screen/page | `apps/<app>/test/widget/feature/{name}/` | `flutter_test` + `MockBloc` |
+| Shared fakes | `apps/<app>/test/helpers/` | manual fake implements interface |
 
 Rules:
 - Manual fakes only — no `mockito`, no `mocktail`
@@ -474,3 +546,4 @@ Rules:
 - Widget tests use `BlocProvider.value(value: mockBloc, child: MaterialApp(home: Screen()))`
 - Use `bloc_test` `MockBloc` for widget tests — never wire real BLoCs
 - No real-network calls in any test — inject fakes at the data-source boundary
+- Run with `make test` (loops both apps) or `cd apps/<app> && flutter test`

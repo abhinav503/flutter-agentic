@@ -2,6 +2,8 @@
 
 Covers Android and iOS. Replace `{OLD_ID}` and `{NEW_ID}` with the actual values throughout.
 
+> **Monorepo note:** application IDs are **per app**. All paths below are relative to the target app folder, `apps/{app}/` (e.g. `apps/doc_scanner/android/app/build.gradle.kts`). Run the verification commands from inside that app folder, or prefix the paths with `apps/{app}/`.
+
 ---
 
 ## Android

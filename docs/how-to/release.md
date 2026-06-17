@@ -129,27 +129,29 @@ Report the release URL to the user.
 
 ---
 
-## Step 8b — Build and attach Android APK
+## Step 8b — Build and attach Android APK (optional, per app)
 
-Build a release APK (requires a connected device or emulator is not needed — this is a pure build):
+> **Monorepo:** the repo root has no runnable app — apps live under `apps/<app>/`. The APK must be built **from inside an app folder**, never the root. Skip this step entirely for a pure template/structure release that ships no app binary.
+
+Ask the user which app to attach (e.g. `doc_scanner`, `jokes`); record it as `{APP}`. Build a release APK from that app folder (a pure build — no device needed):
 
 ```bash
-fvm flutter build apk --release
+cd apps/{APP} && fvm flutter build apk --release
 ```
 
 If `fvm` is not available, fall back to:
 
 ```bash
-flutter build apk --release
+cd apps/{APP} && flutter build apk --release
 ```
 
-The APK is output to `build/app/outputs/flutter-apk/app-release.apk`.
+The APK is output to `apps/{APP}/build/app/outputs/flutter-apk/app-release.apk`.
 
-Upload it to the release as a named asset:
+Upload it to the release as a named asset (name it after the app + version):
 
 ```bash
 gh release upload v{NEW_VERSION} \
-  build/app/outputs/flutter-apk/app-release.apk#FlutterAgentic-v{NEW_VERSION}.apk
+  apps/{APP}/build/app/outputs/flutter-apk/app-release.apk#{APP}-v{NEW_VERSION}.apk
 ```
 
 Confirm the asset appears on the release page before continuing.

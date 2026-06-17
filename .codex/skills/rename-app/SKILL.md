@@ -11,8 +11,10 @@ If the new app name was not passed as an argument, ask:
 1. Display name (PascalCase or branded, shown to users) e.g. `MyApp`
 2. Package name (snake_case, used in Dart imports) e.g. `my_app`"
 
-Derive the old package name from the current `name:` field in `pubspec.yaml`.
-Derive the old display name from `ValueConst.appTitle` in `lib/core/constants/value_const.dart`.
+This is a monorepo — each app lives under `apps/{app}/` (e.g. `apps/jokes`, `apps/doc_scanner`). Ask which app to rename if ambiguous; all paths below are relative to `apps/{app}/`. `core` is never renamed.
+
+Derive the old package name from the `name:` field in `apps/{app}/pubspec.yaml`.
+Derive the old display name from the `title:` string in `apps/{app}/lib/app.dart`.
 
 `{NewDisplay}` = the branded display name (e.g. `FlutterAgentic`)
 `{NewPackage}` = snake_case Dart package name (e.g. `flutter_agentic`)
@@ -23,34 +25,34 @@ Derive the old display name from `ValueConst.appTitle` in `lib/core/constants/va
 ## Files to update
 
 ### 1. pubspec.yaml
-Replace `name: {OldPackage}` with `name: {NewPackage}`
+In `apps/{app}/pubspec.yaml`, replace `name: {OldPackage}` with `name: {NewPackage}`, then update this app's `package:{OldPackage}/...` imports across its lib/ and test/
 
 ### 2. Dart source
-- `lib/app.dart` — `title:` string
-- `lib/core/constants/value_const.dart` — `appTitle` constant
+- `apps/{app}/lib/app.dart` — `title:` string
+- `apps/{app}/lib/constants/value_const.dart` — title constant, only if the app defines one (title usually lives inline in app.dart)
 
 ### 3. Web
-- `web/index.html` — `<title>` and `apple-mobile-web-app-title` meta
-- `web/manifest.json` — `name` and `short_name`
+- `apps/{app}/web/index.html` — `<title>` and `apple-mobile-web-app-title` meta
+- `apps/{app}/web/manifest.json` — `name` and `short_name`
 
 ### 4. iOS
-- `ios/Runner/Info.plist` — `CFBundleDisplayName` (user-visible) and `CFBundleName` (snake_case)
+- `apps/{app}/ios/Runner/Info.plist` — `CFBundleDisplayName` (user-visible) and `CFBundleName` (snake_case)
 
 ### 5. Android
-- `android/app/src/main/AndroidManifest.xml` — `android:label`
-- `android/app/build.gradle.kts` — `namespace` and `applicationId`
-- `android/app/src/main/kotlin/com/example/{OldPackage}/MainActivity.kt`:
-  1. Create `android/app/src/main/kotlin/com/example/{NewPackage}/`
+- `apps/{app}/android/app/src/main/AndroidManifest.xml` — `android:label`
+- `apps/{app}/android/app/build.gradle.kts` — `namespace` and `applicationId`
+- `apps/{app}/android/app/src/main/kotlin/com/example/{OldPackage}/MainActivity.kt`:
+  1. Create `apps/{app}/android/app/src/main/kotlin/com/example/{NewPackage}/`
   2. Move `MainActivity.kt` into it
   3. Update the `package` declaration at the top
   4. Delete the old directory
 
 ### 6. Test imports
-Find-and-replace across all `test/` files:
+Find-and-replace across all `apps/{app}/test/` files:
 `package:{OldPackage}/` → `package:{NewPackage}/`
 
 ### 7. VS Code
-- `.vscode/launch.json` — all three configuration `name` strings
+- `.vscode/launch.json` — the renamed app's config trio (debug/profile/release): `name` strings and `cwd` (apps/{app})
 
 ### 8. AI rules and docs
 Global find-and-replace on all of: `CLAUDE.md`, `AGENTS.md`, `GEMINI.md`,
@@ -67,9 +69,9 @@ Replace all three text forms:
 ## Finish
 Run these commands in order and report the result:
 ```bash
-flutter pub get
-flutter analyze
-flutter test
+flutter pub get          # at repo root — re-resolves the workspace
+flutter analyze --no-pub
+cd apps/{NewPackage} && flutter test
 ```
 
 Zero issues = rename complete. List any remaining references if found.

@@ -1,12 +1,15 @@
 # How to Rename the App
 
-Use this guide when you need to change the app's display name and Dart package name across all platform files, AI rules, and test imports.
+Use this guide when you need to change an app's display name and Dart package name across all platform files, AI rules, and test imports.
 
-You will need two values:
+> **Monorepo note:** each app lives under `apps/{app}/` (e.g. `apps/jokes`, `apps/doc_scanner`). All paths below are relative to that app folder. Renaming the package name also changes its `package:{app}/…` imports — update them within that app. `core` is never renamed.
+
+You will need:
 
 | Token | Form | Example |
 |---|---|---|
-| `{OldPackage}` | snake_case — current `name:` in `pubspec.yaml` | `flutter_agentic` |
+| `{app}` | the app's folder under `apps/` | `doc_scanner` |
+| `{OldPackage}` | snake_case — current `name:` in `apps/{app}/pubspec.yaml` | `doc_scanner` |
 | `{NewPackage}` | snake_case — desired Dart package name | `my_app` |
 | `{NewDisplay}` | PascalCase or branded string — shown to users | `MyApp` |
 | `{NewBundleId}` | reverse-DNS — Android/iOS bundle identifier | `com.example.my_app` |
@@ -15,55 +18,55 @@ You will need two values:
 
 ## 1. pubspec.yaml
 
+**`apps/{app}/pubspec.yaml`**
 ```
 name: {OldPackage}   →   name: {NewPackage}
 ```
+Then update this app's own `package:{OldPackage}/…` imports → `package:{NewPackage}/…` across its `lib/` and `test/`.
+
+If you also rename the **folder** (`apps/{app}` → `apps/{NewName}`), update the root **`pubspec.yaml`** `workspace:` list to point at the new path, then run `flutter pub get` at the root.
 
 ## 2. Dart source — app title
 
-**`lib/app.dart`**
+**`apps/{app}/lib/app.dart`**
 ```dart
 title: '{OldDisplay}'   →   title: '{NewDisplay}'
 ```
-
-**`lib/core/constants/value_const.dart`**
-```dart
-static const appTitle = '{OldDisplay}';   →   static const appTitle = '{NewDisplay}';
-```
+If the app keeps a title constant, it lives in **`apps/{app}/lib/constants/value_const.dart`** (class `ValueConst`) — not in `core`.
 
 ## 3. Web
 
-**`web/index.html`**
+**`apps/{app}/web/index.html`**
 - `<meta name="apple-mobile-web-app-title" content="...">` → `{NewDisplay}`
 - `<title>...</title>` → `{NewDisplay}`
 
-**`web/manifest.json`**
+**`apps/{app}/web/manifest.json`**
 - `"name"` and `"short_name"` → `{NewDisplay}`
 
 ## 4. iOS
 
-**`ios/Runner/Info.plist`**
+**`apps/{app}/ios/Runner/Info.plist`**
 - `CFBundleDisplayName` → `{NewDisplay}`
 - `CFBundleName` → `{NewPackage}`
 
 ## 5. Android
 
-**`android/app/src/main/AndroidManifest.xml`**
+**`apps/{app}/android/app/src/main/AndroidManifest.xml`**
 - `android:label` → `{NewDisplay}`
 
-**`android/app/build.gradle.kts`**
+**`apps/{app}/android/app/build.gradle.kts`**
 - `namespace` → `{NewBundleId}`
 - `applicationId` → `{NewBundleId}`
 
-**`android/app/src/main/kotlin/.../{OldPackage}/MainActivity.kt`**
-1. Create directory: `android/app/src/main/kotlin/com/example/{NewPackage}/`
+**`apps/{app}/android/app/src/main/kotlin/.../{OldPackage}/MainActivity.kt`**
+1. Create directory: `apps/{app}/android/app/src/main/kotlin/com/example/{NewPackage}/`
 2. Move `MainActivity.kt` into the new directory
 3. Update the `package` declaration at the top of the file to `{NewBundleId}`
 4. Delete the old directory
 
 ## 6. Test imports
 
-Run a find-and-replace across all files under `test/`:
+Run a find-and-replace across all files under `apps/{app}/test/`:
 
 ```
 package:{OldPackage}/   →   package:{NewPackage}/
@@ -71,11 +74,11 @@ package:{OldPackage}/   →   package:{NewPackage}/
 
 ## 7. VS Code launch config
 
-**`.vscode/launch.json`** — update the three `name` strings:
+**`.vscode/launch.json`** — this file holds a config trio (debug/profile/release) per app, keyed by the app folder name. Update the renamed app's three `name` strings and its `program`/`cwd` paths:
 ```
-{OldDisplay} (debug)    →   {NewDisplay} (debug)
-{OldDisplay} (profile)  →   {NewDisplay} (profile)
-{OldDisplay} (release)  →   {NewDisplay} (release)
+{app} (debug)    →   {NewName} (debug)      cwd: apps/{app}  →  apps/{NewName}
+{app} (profile)  →   {NewName} (profile)
+{app} (release)  →   {NewName} (release)
 ```
 
 ## 8. AI rules and docs
@@ -100,9 +103,9 @@ Replace all three forms:
 ## 9. Verify
 
 ```bash
-flutter pub get
-flutter analyze
-flutter test
+flutter pub get                       # at the repo root — re-resolves the workspace
+flutter analyze --no-pub              # covers the whole workspace
+cd apps/{NewName} && flutter test     # run the renamed app's tests
 ```
 
 Zero issues = rename complete.

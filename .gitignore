@@ -24,14 +24,24 @@ migrate_working_dir/
 #.vscode/
 
 # Flutter/Dart/Pub related
+# Monorepo: build/coverage artifacts live under each package (apps/*, packages/*),
+# so these must match at any depth — not just the repo root.
 **/doc/api/
 **/ios/Flutter/.last_build_id
 .dart_tool/
 .flutter-plugins-dependencies
 .pub-cache/
 .pub/
-/build/
-/coverage/
+**/build/
+**/coverage/
+
+# Dart pub workspace / Melos
+**/pubspec_overrides.yaml
+.melos_tool/
+
+# fvm — pinned SDK is a local symlink; keep .fvmrc / fvm_config.json, ignore the SDK
+.fvm/flutter_sdk
+.fvm/versions/
 
 # Symbolication related
 app.*.symbols
@@ -39,13 +49,13 @@ app.*.symbols
 # Obfuscation related
 app.*.map.json
 
-# Android Studio will place build artifacts here
-/android/app/debug
-/android/app/profile
-/android/app/release
+# Android Studio will place build artifacts here (any app under apps/*)
+**/android/app/debug
+**/android/app/profile
+**/android/app/release
 
 # Local machine config — never commit
-android/local.properties
+**/android/local.properties
 .claude/settings.local.json
 
 # API keys and secrets — local only, never commit
@@ -53,10 +63,10 @@ android/local.properties
 .vscode/launch.json
 
 # Android signing — never commit
-android/key.properties
+**/android/key.properties
 *.keystore
 *.jks
 
 # Firebase config — never commit to public repo
-ios/Runner/GoogleService-Info.plist
-android/app/google-services.json
+**/ios/Runner/GoogleService-Info.plist
+**/android/app/google-services.json
