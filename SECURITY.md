@@ -8,7 +8,7 @@ This is a template repository. Security fixes are applied to the latest version 
 
 Please **do not** open a public GitHub issue for security vulnerabilities.
 
-Report vulnerabilities by email to **cordeliaapps@gmail.com** with:
+Report vulnerabilities by email to **abhinavkumarsintoo@gmail.com** with:
 
 - A description of the vulnerability
 - Steps to reproduce

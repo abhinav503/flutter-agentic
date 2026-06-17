@@ -1,5 +1,5 @@
-name: cordelia_base
-description: Cordelia monorepo — one shared core package consumed by multiple Flutter apps.
+name: flutter_agentic
+description: FlutterAgentic monorepo — one shared core package consumed by multiple Flutter apps.
 publish_to: 'none'
 version: 1.1.0
 

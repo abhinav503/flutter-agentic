@@ -1,5 +1,5 @@
 name: jokes
-description: Dad Jokes demo app — reference feature for the Cordelia template.
+description: Dad Jokes demo app — reference feature for the FlutterAgentic template.
 publish_to: 'none'
 version: 1.0.0
 resolution: workspace

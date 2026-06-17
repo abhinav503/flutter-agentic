@@ -77,7 +77,7 @@ The first public phase is complete. Phase 2 runs two parallel tracks:
 
 The goal is a real app, published to the App Store and Play Store, that proves the template works for production — not just demos. The app solves a real-world need: consolidate multiple photos of receipts or bills into a single downloadable PDF for expense reimbursement.
 
-- [ ] `feature/doc_scanner/` — multi-image picker (camera + gallery)
+- [ ] `apps/doc_scanner/lib/feature/home/` — multi-image picker (camera + gallery)
 - [ ] Image preview and reorder screen
 - [ ] On-device PDF generation — `pdf` package, no backend, works offline
 - [ ] File share/save via native share sheet — `share_plus` + `path_provider`

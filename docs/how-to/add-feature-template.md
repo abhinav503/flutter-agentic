@@ -6,11 +6,14 @@
 
 `{Feature}` = PascalCase &nbsp;·&nbsp; `{feature}` = snake_case &nbsp;·&nbsp; `{Action}` = PascalCase verb &nbsp;·&nbsp; `{action}` = snake_case verb (e.g. `GetProducts` / `get_products`)
 
+> **Monorepo note:** features live inside an app — `apps/{app}/lib/feature/{feature}/`. An app's primary feature is always `feature/home/`; add a differently-named feature folder only for a genuinely separate area. `core` types come from `package:core/core/…`; app-level `di`/`constants` come from `package:{app}/…`; same-feature files use relative imports. Run all `make` commands from the repo root.
+
 ---
 
 ## 1. Folder tree
 
 ```bash
+cd apps/{app}
 mkdir -p lib/feature/{feature}/data/data_source
 mkdir -p lib/feature/{feature}/data/models
 mkdir -p lib/feature/{feature}/data/repository_impl
@@ -24,7 +27,7 @@ mkdir -p lib/feature/{feature}/presentation/widgets
 
 ## 2. Domain — repository interface
 
-`lib/feature/{feature}/domain/repository/{feature}_repository.dart`
+`apps/{app}/lib/feature/{feature}/domain/repository/{feature}_repository.dart`
 
 ```dart
 abstract interface class {Feature}Repository {}
@@ -54,10 +57,10 @@ abstract class {Feature}RemoteDataSourceImpl implements {Feature}RemoteDataSourc
 
 ## 4. Data — repository impl
 
-`lib/feature/{feature}/data/repository_impl/{feature}_repository_impl.dart`
+`apps/{app}/lib/feature/{feature}/data/repository_impl/{feature}_repository_impl.dart`
 
 ```dart
-import '../../../../core/base/base_repository.dart';
+import 'package:core/core/base/base_repository.dart';
 import '../../domain/repository/{feature}_repository.dart';
 import '../data_source/{feature}_remote_data_source.dart';
 
@@ -116,15 +119,16 @@ Run `make gen` after saving.
 
 ## 6. Presentation — page
 
-`lib/feature/{feature}/presentation/view/{feature}_page.dart`
+`apps/{app}/lib/feature/{feature}/presentation/view/{feature}_page.dart`
+(for the primary feature this is `home_page.dart` → `HomePage`)
 
 ```dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../core/base/base_page.dart';
-import '../../../../core/constants/value_const.dart';
-import '../../../../core/di/injection_container.dart';
-import '../../../../core/ui/atoms/top_bar.dart';
+import 'package:core/core/base/base_page.dart';
+import 'package:core/core/ui/atoms/top_bar.dart';
+import 'package:{app}/constants/value_const.dart';
+import 'package:{app}/di/injection_container.dart';   // provides `sl`
 import '../bloc/{feature}_bloc.dart';
 import '{feature}_screen.dart';
 
@@ -152,14 +156,15 @@ class _{Feature}PageState extends BasePageState<{Feature}Page> {
 
 ## 7. Presentation — screen
 
-`lib/feature/{feature}/presentation/view/{feature}_screen.dart`
+`apps/{app}/lib/feature/{feature}/presentation/view/{feature}_screen.dart`
+(for the primary feature this is `home_screen.dart` → `HomeScreen`)
 
 ```dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../core/base/base_screen.dart';
-import '../../../../core/ui/atoms/loading_indicator.dart';
-import '../../../../core/ui/molecules/error_view.dart';
+import 'package:core/core/base/base_screen.dart';
+import 'package:core/core/ui/atoms/loading_indicator.dart';
+import 'package:core/core/ui/molecules/error_view.dart';
 import '../bloc/{feature}_bloc.dart';
 
 class {Feature}Screen extends BaseScreen {
@@ -186,7 +191,7 @@ class _{Feature}ScreenState extends BaseScreenState<{Feature}Screen> {
 
 ## 8. DI — data source and repository
 
-`lib/core/di/injection_container.dart`
+`apps/{app}/lib/di/injection_container.dart` — inside `initDependencies()` (which calls `initCoreDependencies()` first)
 
 ```dart
 // Network — only if this feature has a new base URL
@@ -207,10 +212,11 @@ BLoCs are never registered in GetIt. Use cases are added via `docs/how-to/add-us
 
 ## 9. App bar constant
 
-`lib/core/constants/value_const.dart`
+`apps/{app}/lib/constants/value_const.dart` (class `ValueConst` — app-specific copy; never put app strings in core)
 ```dart
 static const String {feature}AppBarTitle = '{Title}';
 ```
+> If you also need a new base URL, add it to `apps/{app}/lib/constants/api_constants.dart` (class `ApiConstants`).
 
 ## 10. Verify
 
@@ -220,8 +226,8 @@ make gen && make analyze
 
 - [ ] Zero analysis issues
 - [ ] No `dio`/`retrofit` imports in `domain/`
-- [ ] Data source and repository registered in `injection_container.dart`
-- [ ] App bar title in `ValueConst`
+- [ ] Data source and repository registered in the app's `di/injection_container.dart`
+- [ ] App bar title in the app's `ValueConst` (not in `core`)
 
 ---
 
@@ -231,4 +237,4 @@ make gen && make analyze
 
 **BLoC part files:** `{feature}_event.dart` and `{feature}_state.dart` begin with `part of '{feature}_bloc.dart'`. The bloc declares `part '{feature}_event.dart'` and `part '{feature}_state.dart'`. One `make gen` covers all three.
 
-**Imports:** always relative (`../../../../`), never `package:flutter_agentic/...`.
+**Imports:** `core` types → `package:core/core/…`; app-level `di`/`constants`/`enums` → `package:{app}/…`; same-feature files → relative (`../bloc/…`). Never use the old single-app `package:flutter_agentic/...`.

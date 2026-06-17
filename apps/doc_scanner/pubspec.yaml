@@ -1,5 +1,5 @@
 name: doc_scanner
-description: Receipt/Bill-to-PDF scanner — production app built on the Cordelia template.
+description: Receipt/Bill-to-PDF scanner — production app built on the FlutterAgentic template.
 publish_to: 'none'
 version: 1.1.0
 resolution: workspace

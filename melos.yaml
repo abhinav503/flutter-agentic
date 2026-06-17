@@ -1,4 +1,4 @@
-name: cordelia_base
+name: flutter_agentic
 
 packages:
   - packages/**

@@ -132,7 +132,19 @@ Tutorial-style docs can be added later when the project has more real app exampl
 
 ## Architecture
 
-Each feature lives under `lib/feature/{name}/` with three layers:
+This is a **Dart pub-workspace monorepo**: one shared `core` package consumed by multiple Flutter apps. One `flutter pub get` at the repo root resolves everything, and editing `packages/core` is picked up live by any running app.
+
+```text
+flutter_agentic/
+├── packages/core/     shared toolbelt → import 'package:core/core/…'  (no app-specific code)
+└── apps/
+    ├── jokes/         demo app
+    └── doc_scanner/   real/publishable app
+```
+
+Each app owns its `main.dart`, `app.dart`, `di/`, `constants/` (`ValueConst`/`ApiConstants`), and `feature/home/`; `core` holds only generic constants (`CoreConst`).
+
+Each feature lives under `apps/{app}/lib/feature/{name}/` (the primary feature is always `home`) with three layers:
 
 ```mermaid
 flowchart LR
@@ -144,7 +156,7 @@ flowchart LR
 ```
 
 ```text
-feature/jokes/
+apps/jokes/lib/feature/home/
 ├── data/               # API clients, DTOs, repository implementations
 ├── domain/             # Entities, repository interfaces, use cases (pure Dart)
 └── presentation/       # BLoC + screens + widgets
@@ -166,7 +178,7 @@ The `jokes` feature is a complete, working reference implementation of every lay
 
 **Domain entity** — pure Dart, no framework imports:
 ```dart
-// lib/feature/jokes/domain/entities/joke_entity.dart
+// apps/jokes/lib/feature/home/domain/entities/joke_entity.dart
 class JokeEntity {
   final String id;
   final String content;
@@ -176,7 +188,7 @@ class JokeEntity {
 
 **Repository interface** — domain owns the contract, data fulfils it:
 ```dart
-// lib/feature/jokes/domain/repository/jokes_repository.dart
+// apps/jokes/lib/feature/home/domain/repository/jokes_repository.dart
 abstract interface class JokesRepository {
   Future<Either<Failure, JokeEntity>> getRandomJoke();
   Future<Either<Failure, JokeSearchResultEntity>> searchJokes(SearchJokesParams params);
@@ -185,7 +197,7 @@ abstract interface class JokesRepository {
 
 **Model (DTO)** — Freezed with `const ._()` to unlock `fromEntity` / `toEntity` instance methods:
 ```dart
-// lib/feature/jokes/data/models/joke_model.dart
+// apps/jokes/lib/feature/home/data/models/joke_model.dart
 @freezed
 abstract class JokeModel with _$JokeModel {
   const JokeModel._(); // required to add instance methods to a freezed class
@@ -209,7 +221,7 @@ Domain entities never import models. Repositories call `model.toEntity()` and `M
 
 **Data source** — `const` no-arg constructor; reaches the network through `HttpService.instance`, never constructor-injected:
 ```dart
-// lib/feature/jokes/data/data_source/jokes_remote_data_source_impl.dart
+// apps/jokes/lib/feature/home/data/data_source/jokes_remote_data_source_impl.dart
 class JokesRemoteDataSourceImpl implements JokesRemoteDataSource {
   const JokesRemoteDataSourceImpl(); // no params — infrastructure via static singleton
 
@@ -225,7 +237,7 @@ class JokesRemoteDataSourceImpl implements JokesRemoteDataSource {
 
 **Repository implementation** — maps Dio failures to typed `Left`, converts DTOs via `toEntity()`:
 ```dart
-// lib/feature/jokes/data/repository_impl/jokes_repository_impl.dart
+// apps/jokes/lib/feature/home/data/repository_impl/jokes_repository_impl.dart
 class JokesRepositoryImpl with BaseRepository implements JokesRepository {
   final JokesRemoteDataSource _dataSource;
   const JokesRepositoryImpl(this._dataSource);
@@ -241,7 +253,7 @@ class JokesRepositoryImpl with BaseRepository implements JokesRepository {
 
 **BLoC** — sealed Freezed states, no `setState`, no nullable fields:
 ```dart
-// lib/feature/jokes/presentation/bloc/joke_bloc.dart
+// apps/jokes/lib/feature/home/presentation/bloc/joke_bloc.dart
 class JokeBloc extends Bloc<JokeEvent, JokeState> {
   JokeBloc({required GetRandomJokeUseCase getRandomJokeUseCase})
       : _getRandomJoke = getRandomJokeUseCase,
@@ -261,7 +273,7 @@ class JokeBloc extends Bloc<JokeEvent, JokeState> {
 
 **Screen** — exhaustive `switch`, no `if (state is X)`, no raw `CircularProgressIndicator`:
 ```dart
-// lib/feature/jokes/presentation/view/jokes_screen.dart
+// apps/jokes/lib/feature/home/presentation/view/home_screen.dart
 builder: (context, state) => switch (state) {
   JokeLoading()           => const LoadingIndicator(),
   JokeLoaded(:final joke) => JokeCard(joke: joke),
@@ -273,7 +285,7 @@ Every layer is independently testable with manual fakes — no mocks, no real ne
 
 **Infrastructure services** — private constructor + `static final instance`; never registered in GetIt:
 ```dart
-// lib/core/network/http_service.dart
+// packages/core/lib/core/network/http_service.dart
 class HttpService {
   HttpService._(); // private — callers use HttpService.instance, never sl<HttpService>()
   static final HttpService instance = HttpService._();
@@ -282,7 +294,7 @@ class HttpService {
   Future<Response<T>> post<T>(String url, {dynamic data}) => ...
 }
 
-// lib/core/services/image_picker/image_picker_service.dart
+// packages/core/lib/core/services/image_picker/image_picker_service.dart
 class ImagePickerService {
   ImagePickerService._();
   static final ImagePickerService instance = ImagePickerService._();
@@ -319,18 +331,22 @@ This extends to naming: events are **user intentions** (`nextRequested`, `submit
 
 1. Click **Use this template** on GitHub to create your repo.
 2. Clone your new repo.
-3. Run `make setup` to install git hooks and fetch packages.
-4. Run `make gen` to generate Freezed / Retrofit code.
+3. Run `make setup` to install git hooks and fetch packages (one root `flutter pub get` resolves the whole workspace).
+4. Run `make gen` to generate Freezed / Retrofit code across all packages.
 5. Run `make test` to verify the starter.
-6. Replace or extend the `jokes` feature with your first real feature.
+6. Add a new app under `apps/`, or replace/extend the `feature/home` of an existing app.
+
+All `make` targets run from the repo root; an app runs from its own folder (`apps/<app>`).
 
 ```bash
-make setup   # first-time: git hooks + flutter pub get
-make run     # flutter run on a connected device
-make web     # flutter run -d chrome
-make test    # flutter test
-make analyze # flutter analyze
-make gen     # dart run build_runner build --delete-conflicting-outputs
+make setup            # first-time: git hooks + root flutter pub get
+make run-jokes        # run the jokes app (cd apps/jokes && flutter run)
+make run-doc-scanner  # run the doc_scanner app
+make web-jokes        # run jokes on Chrome
+make test             # flutter test in each app
+make analyze          # flutter analyze — whole workspace
+make gen              # build_runner in core + each app
+make clean            # flutter clean per package, then root pub get
 ```
 
 <details>
@@ -338,12 +354,13 @@ make gen     # dart run build_runner build --delete-conflicting-outputs
 
 | Command | Purpose |
 |---|---|
-| `make setup` | First-time setup: git hooks + `flutter pub get` |
-| `make run` | Run on a connected device |
-| `make web` | Run in Chrome |
-| `make test` | Run Flutter tests |
-| `make analyze` | Run static analysis |
-| `make gen` | Generate Freezed / Retrofit code |
+| `make setup` | First-time setup: git hooks + root `flutter pub get` |
+| `make run-jokes` / `make run-doc-scanner` | Run an app on a connected device |
+| `make web-jokes` / `make web-doc-scanner` | Run an app in Chrome |
+| `make test` | Run each app's Flutter tests |
+| `make analyze` | Run static analysis across the workspace |
+| `make gen` | Generate Freezed / Retrofit code in every package |
+| `make clean` | `flutter clean` per package, then root pub get |
 
 </details>
 
@@ -352,7 +369,7 @@ make gen     # dart run build_runner build --delete-conflicting-outputs
 ```bash
 make setup
 make gen
-make run
+make run-jokes
 ```
 
 The example feature fetches dad jokes from [icanhazdadjoke.com](https://icanhazdadjoke.com) and demonstrates the full data -> domain -> presentation stack, including search, saved jokes, BLoC state, repository mapping, and widget tests.
@@ -360,30 +377,36 @@ The example feature fetches dad jokes from [icanhazdadjoke.com](https://icanhazd
 ## Project Structure
 
 ```text
-lib/
-├── core/
-│   ├── base/            # BasePage, BaseScreen, BaseRepository
-│   ├── constants/       # API base URLs, app-wide string constants
-│   ├── di/              # injection_container.dart, full dependency graph
-│   ├── error/           # Failure sealed class
-│   ├── network/         # Dio client factory + interceptors
-│   ├── services/
-│   │   ├── image_picker/      # ImagePickerService static singleton (camera + gallery)
-│   │   └── shared_pref_service/
-│   ├── theme/           # AppTheme, AppSpacing, AppRadius, AppColorsExtension
-│   └── ui/
-│       ├── atoms/       # AppButton, AppTextField, AppBadge, AppChip, AppTopBar
-│       └── molecules/   # AppBottomSheet, AppDialog, ErrorView, LoadingIndicator
-├── feature/
-│   ├── jokes/           # Full reference implementation
-│   └── doc_scanner/     # Receipt/bill PDF scanner (Phase 2 Track A)
-├── app.dart             # MaterialApp.router + GoRouter config
-└── main.dart            # Entry point
-
-test/
-├── helpers/             # Shared fakes
-├── unit/feature/jokes/  # Use case + BLoC unit tests
-└── widget/feature/jokes/# Screen widget tests
+flutter_agentic/
+├── pubspec.yaml             # workspace root (lists members; no app code)
+├── melos.yaml               # optional task runner (Makefile is the no-melos path)
+│
+├── packages/core/           # shared package → import 'package:core/core/…'
+│   └── lib/core/
+│       ├── base/            # BasePage, BaseScreen, BaseRepository
+│       ├── constants/       # CoreConst — generic constants only (no app copy)
+│       ├── di/              # core_injection.dart — shared `sl` + initCoreDependencies()
+│       ├── error/           # Failure sealed class
+│       ├── network/         # Dio client + interceptors
+│       ├── services/
+│       │   ├── image_picker/        # ImagePickerService static singleton
+│       │   └── shared_pref_service/
+│       ├── theme/           # AppTheme, AppSpacing, AppRadius, AppColorsExtension
+│       └── ui/
+│           ├── atoms/       # AppButton, AppTextField, AppBadge, AppChip, AppTopBar
+│           └── molecules/   # AppBottomSheet, AppDialog, ErrorView, LoadingIndicator
+│
+└── apps/
+    ├── jokes/               # demo app
+    │   ├── lib/
+    │   │   ├── main.dart · app.dart      # entry + MaterialApp.router/GoRouter
+    │   │   ├── constants/   # ValueConst / ApiConstants (this app's copy + URLs)
+    │   │   ├── di/          # injection_container.dart (initDependencies)
+    │   │   └── feature/home/ # full reference implementation
+    │   ├── test/            # helpers/ · unit/feature/home/ · widget/feature/home/
+    │   └── android/ · ios/ · web/ · assets/theme/
+    └── doc_scanner/         # real app — Receipt/bill PDF scanner (Phase 2 Track A)
+        └── lib/ (+ enums/ for app-level shared enums)
 
 docs/
 ├── ai-rules/            # Conventions loaded by agent instruction files

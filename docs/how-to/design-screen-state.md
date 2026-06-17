@@ -31,7 +31,7 @@ Ask: *what can the user trigger on this screen?*
 The ForYou screen has two user intentions:
 
 ```dart
-// lib/feature/jokes/presentation/bloc/for_you_event.dart
+// apps/jokes/lib/feature/home/presentation/bloc/for_you_event.dart
 sealed class ForYouEvent with _$ForYouEvent {
   const factory ForYouEvent.started()       = ForYouStarted;       // page opened
   const factory ForYouEvent.nextRequested() = ForYouNextRequested; // user tapped next
@@ -43,7 +43,7 @@ sealed class ForYouEvent with _$ForYouEvent {
 The Search screen has three user intentions:
 
 ```dart
-// lib/feature/jokes/presentation/bloc/search_page_event.dart
+// apps/jokes/lib/feature/home/presentation/bloc/search_page_event.dart
 sealed class SearchPageEvent with _$SearchPageEvent {
   const factory SearchPageEvent.submitted({required String term})  = SearchPageSubmitted;
   const factory SearchPageEvent.chipSelected({required String term}) = SearchPageChipSelected;

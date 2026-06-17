@@ -3,12 +3,14 @@
 ## First-time setup
 
 ```bash
-make setup   # wires git hooks + flutter pub get
+make setup   # wires git hooks + root flutter pub get
 ```
 
-This runs two things:
+This is a **Dart pub-workspace monorepo** (`packages/core` + `apps/*`). `make setup` runs two things:
 - `git config core.hooksPath .githooks` — activates the pre-commit hook
-- `flutter pub get` — fetches all packages
+- `flutter pub get` at the repo root — resolves every package in the workspace in one pass
+
+Run `make` targets from the repo root; run an app from its own folder (`apps/<app>`).
 
 ---
 
@@ -56,11 +58,15 @@ See `docs/explanation/ai-agents.md` for per-agent install and usage instructions
 
 ## Makefile targets
 
+Run all targets from the repo root.
+
 | Target | What it does |
 |---|---|
-| `make setup` | First-time setup: git hooks + `flutter pub get` |
-| `make run` | `flutter run` on connected device |
-| `make web` | `flutter run -d chrome` |
-| `make test` | `flutter test` |
-| `make analyze` | `flutter analyze --no-pub` |
-| `make gen` | `dart run build_runner build --delete-conflicting-outputs` |
+| `make setup` | First-time setup: git hooks + root `flutter pub get` |
+| `make run-jokes` | Run the jokes app (`cd apps/jokes && flutter run`) |
+| `make run-doc-scanner` | Run the doc_scanner app |
+| `make web-jokes` / `make web-doc-scanner` | Run an app on Chrome |
+| `make test` | `flutter test` in each app |
+| `make analyze` | `flutter analyze` — covers the whole workspace |
+| `make gen` | `build_runner` in core + each app |
+| `make clean` | `flutter clean` per package, then root `flutter pub get` |

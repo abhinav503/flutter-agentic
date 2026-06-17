@@ -1,5 +1,7 @@
 # FlutterAgentic — Amazon Q Rules
 
+> **Monorepo:** Dart pub-workspace — shared `core` package (`packages/core`, import `package:core/core/…`) consumed by Flutter apps (`apps/jokes`, `apps/doc_scanner`). One `flutter pub get` at the repo root resolves all; run an app from its folder. Each app owns its `di/`, `constants/` (`ValueConst`/`ApiConstants`), and `feature/home/`; `core` holds only `CoreConst`. Keep `core` free of app-specific copy and lean on dependencies.
+
 Read before writing or modifying any code:
 - `docs/ai-rules/conventions.md` — forbidden patterns, build commands, git format
 - `docs/reference/architecture.md` — core folder map, layer patterns, naming, DI, error flow, design system, testing

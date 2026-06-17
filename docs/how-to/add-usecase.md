@@ -16,15 +16,16 @@
 
 ## Step 1 — Create the use case
 
-`lib/feature/{feature}/domain/usecase/{action}_usecase.dart`
+`apps/{app}/lib/feature/{feature}/domain/usecase/{action}_usecase.dart`
+(the app's primary feature is `feature/home/`)
 
 **No parameters:**
 
 ```dart
 import 'package:fpdart/fpdart.dart';
 
-import '../../../../core/error/failure.dart';
-import '../../../../core/usecase/usecase.dart';
+import 'package:core/core/error/failure.dart';
+import 'package:core/core/usecase/usecase.dart';
 import '../entities/{feature}_entity.dart';
 import '../repository/{feature}_repository.dart';
 
@@ -60,7 +61,7 @@ class {Action}UseCase extends UseCase<Either<Failure, {Feature}Entity>, {Action}
 
 ## Step 2 — Register in DI
 
-`lib/core/di/injection_container.dart` — add after the repository registration:
+`apps/{app}/lib/di/injection_container.dart` — add after the repository registration (inside `initDependencies()`, which calls `initCoreDependencies()` first):
 
 ```dart
 sl.registerLazySingleton(() => {Action}UseCase(sl()));

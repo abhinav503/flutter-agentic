@@ -65,7 +65,7 @@ Read the **Naming Conventions** table in `docs/reference/architecture.md`.
 
 Read the **Dependency Injection** section in `docs/reference/architecture.md`.
 
-- Check `lib/core/di/injection_container.dart` for the new registration
+- Check the app's `apps/{app}/lib/di/injection_container.dart` for the new registration
 - Order must be: Network → Data sources → Repositories → Use cases
 - BLoCs must NOT be registered in GetIt — they must be instantiated inside `BlocProvider` in `buildBody`
 
@@ -82,10 +82,10 @@ Every `*Error` state must carry enough fields for the BLoC to re-dispatch withou
 ### 6. Test coverage
 
 Check that new code has a corresponding test file:
-- Use case → `test/unit/feature/{name}/domain/`
-- BLoC → `test/unit/feature/{name}/presentation/`
-- Screen → `test/widget/feature/{name}/`
-- Fakes → `test/helpers/` (shared, no duplicates)
+- Use case → `apps/{app}/test/unit/feature/{name}/domain/`
+- BLoC → `apps/{app}/test/unit/feature/{name}/presentation/`
+- Screen → `apps/{app}/test/widget/feature/{name}/`
+- Fakes → `apps/{app}/test/helpers/` (shared, no duplicates)
 
 Tests must use manual fakes only — no `mockito` or `mocktail` imports.
 

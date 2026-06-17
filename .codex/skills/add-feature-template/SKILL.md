@@ -15,7 +15,7 @@ If the feature name was not passed as an argument, ask:
 
 Scaffold only — do NOT create entity, model, or use case files.
 BLoCs are never registered in GetIt.
-All imports are relative (`../../../../`), never `package:flutter_agentic/...`.
+Imports: core types -> `package:core/core/...`; app-level di/constants -> `package:{app}/...`; same-feature files -> relative. Never the old `package:flutter_agentic/...`.
 Run `make gen` and `make analyze` at the end before reporting done.
 
 ---
@@ -23,20 +23,20 @@ Run `make gen` and `make analyze` at the end before reporting done.
 ## 1. Folder tree
 
 ```bash
-mkdir -p lib/feature/{feature}/data/data_source
-mkdir -p lib/feature/{feature}/data/models
-mkdir -p lib/feature/{feature}/data/repository_impl
-mkdir -p lib/feature/{feature}/domain/entities
-mkdir -p lib/feature/{feature}/domain/repository
-mkdir -p lib/feature/{feature}/domain/usecase
-mkdir -p lib/feature/{feature}/presentation/bloc
-mkdir -p lib/feature/{feature}/presentation/view
-mkdir -p lib/feature/{feature}/presentation/widgets
+mkdir -p apps/{app}/lib/feature/{feature}/data/data_source
+mkdir -p apps/{app}/lib/feature/{feature}/data/models
+mkdir -p apps/{app}/lib/feature/{feature}/data/repository_impl
+mkdir -p apps/{app}/lib/feature/{feature}/domain/entities
+mkdir -p apps/{app}/lib/feature/{feature}/domain/repository
+mkdir -p apps/{app}/lib/feature/{feature}/domain/usecase
+mkdir -p apps/{app}/lib/feature/{feature}/presentation/bloc
+mkdir -p apps/{app}/lib/feature/{feature}/presentation/view
+mkdir -p apps/{app}/lib/feature/{feature}/presentation/widgets
 ```
 
 ## 2. Domain — repository interface
 
-`lib/feature/{feature}/domain/repository/{feature}_repository.dart`
+`apps/{app}/lib/feature/{feature}/domain/repository/{feature}_repository.dart`
 ```dart
 abstract interface class {Feature}Repository {}
 ```
@@ -65,9 +65,9 @@ abstract class {Feature}RemoteDataSourceImpl implements {Feature}RemoteDataSourc
 
 ## 4. Data — repository impl
 
-`lib/feature/{feature}/data/repository_impl/{feature}_repository_impl.dart`
+`apps/{app}/lib/feature/{feature}/data/repository_impl/{feature}_repository_impl.dart`
 ```dart
-import '../../../../core/base/base_repository.dart';
+import 'package:core/core/base/base_repository.dart';
 import '../../domain/repository/{feature}_repository.dart';
 import '../data_source/{feature}_remote_data_source.dart';
 
@@ -124,14 +124,14 @@ class {Feature}Bloc extends Bloc<{Feature}Event, {Feature}State> {
 
 ## 6. Presentation — page
 
-`lib/feature/{feature}/presentation/view/{feature}_page.dart`
+`apps/{app}/lib/feature/{feature}/presentation/view/{feature}_page.dart`
 ```dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../core/base/base_page.dart';
-import '../../../../core/constants/value_const.dart';
-import '../../../../core/di/injection_container.dart';
-import '../../../../core/ui/atoms/top_bar.dart';
+import 'package:core/core/base/base_page.dart';
+import 'package:{app}/constants/value_const.dart';
+import 'package:{app}/di/injection_container.dart';
+import 'package:core/core/ui/atoms/top_bar.dart';
 import '../bloc/{feature}_bloc.dart';
 import '{feature}_screen.dart';
 
@@ -157,13 +157,13 @@ class _{Feature}PageState extends BasePageState<{Feature}Page> {
 
 ## 7. Presentation — screen
 
-`lib/feature/{feature}/presentation/view/{feature}_screen.dart`
+`apps/{app}/lib/feature/{feature}/presentation/view/{feature}_screen.dart`
 ```dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../core/base/base_screen.dart';
-import '../../../../core/ui/atoms/loading_indicator.dart';
-import '../../../../core/ui/molecules/error_view.dart';
+import 'package:core/core/base/base_screen.dart';
+import 'package:core/core/ui/atoms/loading_indicator.dart';
+import 'package:core/core/ui/molecules/error_view.dart';
 import '../bloc/{feature}_bloc.dart';
 
 class {Feature}Screen extends BaseScreen {
@@ -190,7 +190,7 @@ class _{Feature}ScreenState extends BaseScreenState<{Feature}Screen> {
 
 ## 8. DI
 
-`lib/core/di/injection_container.dart`
+`apps/{app}/lib/di/injection_container.dart`
 ```dart
 // Network — only if this feature has a new base URL
 sl.registerLazySingleton(
@@ -207,7 +207,7 @@ sl.registerLazySingleton<{Feature}Repository>(
 
 ## 9. App bar constant
 
-`lib/core/constants/value_const.dart`
+`apps/{app}/lib/constants/value_const.dart`
 ```dart
 static const String {feature}AppBarTitle = '{Title}';
 ```
