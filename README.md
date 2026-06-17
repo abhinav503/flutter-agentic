@@ -145,6 +145,8 @@ flutter_agentic/
 
 Each app owns its `main.dart`, `app.dart`, `di/`, `constants/` (`ValueConst`/`ApiConstants`), and `feature/home/`; `core` holds only generic constants (`CoreConst`).
 
+Per-app feature docs: [jokes](apps/jokes/README.md) · [doc_scanner](apps/doc_scanner/README.md) · [ai_chat](apps/ai_chat/README.md).
+
 Each feature lives under `apps/{app}/lib/feature/{name}/` (the primary feature is always `home`) with three layers:
 
 ```mermaid
