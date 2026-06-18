@@ -34,8 +34,8 @@ abstract interface class ReceiptScanRepository {
     required ScannedReceiptEntity receipt,
   });
 
-  /// Deletes the cached data for the given image path.
-  Future<Either<Failure, Unit>> deleteReceipt({required String imagePath});
+  /// Deletes the saved receipt with the given id.
+  Future<Either<Failure, Unit>> deleteReceipt({required String id});
 
   /// Returns the persisted model selection, falling back to the default.
   Future<AiScanModel> getSelectedModel();

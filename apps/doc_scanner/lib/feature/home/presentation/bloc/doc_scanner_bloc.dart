@@ -275,7 +275,7 @@ class DocScannerBloc extends Bloc<DocScannerEvent, DocScannerState> {
     emit(DocScannerState.idle(
         receipts: _sortReceipts(updatedReceipts), selectedIds: updatedIds));
     if (removing != null) {
-      await _deleteReceipt(DeleteReceiptParams(imagePath: removing.imagePath));
+      await _deleteReceipt(DeleteReceiptParams(id: removing.id));
     }
   }
 

@@ -1,5 +1,7 @@
 import 'dart:ui';
 
+import 'app_theme_presets.dart';
+
 /// Parsed representation of `assets/theme/theme_config.json`.
 ///
 /// All 45 Material Design 3 color roles are supported as optional overrides.
@@ -39,17 +41,24 @@ class AppThemeConfig {
   );
 
   factory AppThemeConfig.fromJson(Map<String, dynamic> json) {
-    // If activeTheme is set, delegate to the matching preset in _themes.
+    // If activeTheme is set, resolve the named preset and build from it.
+    // Look-up order: an inline `_themes` block in this file (back-compat),
+    // then the shared presets in `app_theme_presets.dart` (kThemePresets).
     final activeKey = json['activeTheme'] as String?;
     if (activeKey != null) {
-      final themes = (json['_themes'] as Map?)?.cast<String, dynamic>() ?? {};
-      if (themes.containsKey(activeKey) && themes[activeKey] is Map) {
-        return AppThemeConfig.fromJson(
-          (themes[activeKey] as Map).cast<String, dynamic>(),
-        );
-      }
+      final inline = (json['_themes'] as Map?)?.cast<String, dynamic>() ?? {};
+      final preset = (inline[activeKey] is Map)
+          ? (inline[activeKey] as Map).cast<String, dynamic>()
+          : kThemePresets[activeKey];
+      if (preset != null) return AppThemeConfig._fromThemeMap(preset);
     }
 
+    return AppThemeConfig._fromThemeMap(json);
+  }
+
+  /// Builds a config from a single theme map: `fontFamily` + `light`/`dark`
+  /// role maps. Does not consult `activeTheme`/`_themes` (already resolved).
+  factory AppThemeConfig._fromThemeMap(Map<String, dynamic> json) {
     final lightJson = (json['light'] as Map?)?.cast<String, dynamic>() ?? {};
     final darkJson = (json['dark'] as Map?)?.cast<String, dynamic>() ?? {};
 

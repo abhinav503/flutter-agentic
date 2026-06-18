@@ -37,7 +37,7 @@ class FakeReceiptScanRepository implements ReceiptScanRepository {
 
   @override
   Future<Either<Failure, Unit>> deleteReceipt({
-    required String imagePath,
+    required String id,
   }) async =>
       right(unit);
 

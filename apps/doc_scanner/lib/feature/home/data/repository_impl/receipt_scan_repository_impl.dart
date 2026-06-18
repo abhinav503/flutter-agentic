@@ -58,11 +58,12 @@ class ReceiptScanRepositoryImpl
 
   // ── Cache helpers ────────────────────────────────────────────────────────────
 
-  Future<ScannedReceiptEntity?> _getCached(String imagePath) async {
+  Future<ScannedReceiptEntity?> _getCached(String id) async {
     final all = await _local.loadAll();
+    final docsPath = await _documentsPath();
     for (final m in all) {
-      if (m.imagePath == imagePath && m.status == ExtractionStatus.done) {
-        return _fromModel(m);
+      if (m.id == id && m.status == ExtractionStatus.done) {
+        return _fromModel(m, docsPath);
       }
     }
     return null;
@@ -81,7 +82,7 @@ class ReceiptScanRepositoryImpl
     required String apiKey,
   }) =>
       handleRequest(() async {
-        final cached = await _getCached(receipt.imagePath);
+        final cached = await _getCached(receipt.id);
         if (cached != null) {
           debugPrint('[Cache] hit: ${receipt.imagePath}');
           return right(cached);
@@ -109,7 +110,8 @@ class ReceiptScanRepositoryImpl
   Future<Either<Failure, List<ScannedReceiptEntity>>> loadReceipts() async {
     try {
       final all = await _local.loadAll();
-      return right(all.map(_fromModel).toList());
+      final docsPath = await _documentsPath();
+      return right(all.map((m) => _fromModel(m, docsPath)).toList());
     } catch (e) {
       return left(Failure.unexpected(message: e.toString()));
     }
@@ -129,13 +131,31 @@ class ReceiptScanRepositoryImpl
 
   @override
   Future<Either<Failure, Unit>> deleteReceipt({
-    required String imagePath,
+    required String id,
   }) async {
     try {
-      await _local.deleteByImagePath(imagePath);
+      await _deleteImageFile(id);
+      await _local.deleteById(id);
       return right(unit);
     } catch (e) {
       return left(Failure.unexpected(message: e.toString()));
+    }
+  }
+
+  /// Best-effort removal of the copied image file backing [id]. Files are
+  /// content-addressed (named by the same MD5 hash as the id), so no other
+  /// record can reference this file — deleting it is safe. Failures here never
+  /// block record deletion: a leftover file is harmless, a stuck record is not.
+  Future<void> _deleteImageFile(String id) async {
+    try {
+      final all = await _local.loadAll();
+      final matches = all.where((m) => m.id == id);
+      if (matches.isEmpty) return;
+      final docsPath = await _documentsPath();
+      final file = File(_toAbsolutePath(matches.first.imagePath, docsPath));
+      if (file.existsSync()) await file.delete();
+    } catch (_) {
+      // Ignore — orphaned file cleanup is non-critical.
     }
   }
 
@@ -213,13 +233,34 @@ class ReceiptScanRepositoryImpl
     return SharedPreferenceService.instance.setString(prefKey, trimmed);
   }
 
+  // ── Image path persistence ───────────────────────────────────────────────────
+  //
+  // The OS may relocate the app's documents directory between launches (on iOS
+  // the container UUID changes on every reinstall), so an absolute path saved in
+  // one run is invalid in the next. We persist only the path *relative* to the
+  // documents directory and re-anchor it to the current absolute path on load.
+  // Resolution is by file name, so legacy absolute paths from older builds also
+  // migrate transparently (the file always lives in <docs>/receipts/<name>).
+
+  Future<String> _documentsPath() async =>
+      (await getApplicationDocumentsDirectory()).path;
+
+  static String _toStoredPath(String absolutePath) =>
+      'receipts/${absolutePath.split('/').last}';
+
+  static String _toAbsolutePath(String storedPath, String docsPath) =>
+      '$docsPath/receipts/${storedPath.split('/').last}';
+
   // ── Model ↔ Entity conversion ────────────────────────────────────────────────
 
   ScannedReceiptModel _toModel(ScannedReceiptEntity e) =>
-      ScannedReceiptModel.fromEntity(e);
+      ScannedReceiptModel.fromEntity(e)
+          .copyWith(imagePath: _toStoredPath(e.imagePath));
 
-  ScannedReceiptEntity _fromModel(ScannedReceiptModel m) {
-    final entity = m.toEntity();
+  ScannedReceiptEntity _fromModel(ScannedReceiptModel m, String docsPath) {
+    final entity = m
+        .toEntity()
+        .copyWith(imagePath: _toAbsolutePath(m.imagePath, docsPath));
     // Never resume mid-processing state after an app restart.
     if (entity.status == ExtractionStatus.processing) {
       return entity.copyWith(status: ExtractionStatus.pending);

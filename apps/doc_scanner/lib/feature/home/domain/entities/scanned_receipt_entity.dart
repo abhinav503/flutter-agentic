@@ -22,6 +22,7 @@ class ScannedReceiptEntity {
   });
 
   ScannedReceiptEntity copyWith({
+    String? imagePath,
     String? restaurantName,
     String? date,
     double? amount,
@@ -31,7 +32,7 @@ class ScannedReceiptEntity {
   }) =>
       ScannedReceiptEntity(
         id: id,
-        imagePath: imagePath,
+        imagePath: imagePath ?? this.imagePath,
         restaurantName: restaurantName ?? this.restaurantName,
         date: date ?? this.date,
         amount: amount ?? this.amount,

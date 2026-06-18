@@ -5,8 +5,8 @@ import 'package:core/core/usecase/usecase.dart';
 import '../repository/receipt_scan_repository.dart';
 
 class DeleteReceiptParams {
-  final String imagePath;
-  const DeleteReceiptParams({required this.imagePath});
+  final String id;
+  const DeleteReceiptParams({required this.id});
 }
 
 class DeleteReceiptUseCase
@@ -16,5 +16,5 @@ class DeleteReceiptUseCase
 
   @override
   Future<Either<Failure, Unit>> call(DeleteReceiptParams params) =>
-      _repository.deleteReceipt(imagePath: params.imagePath);
+      _repository.deleteReceipt(id: params.id);
 }

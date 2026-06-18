@@ -22,7 +22,7 @@ class DocScannerLocalDataSourceImpl implements DocScannerLocalDataSource {
   @override
   Future<void> save(ScannedReceiptModel receipt) async {
     final all = await loadAll();
-    final idx = all.indexWhere((r) => r.imagePath == receipt.imagePath);
+    final idx = all.indexWhere((r) => r.id == receipt.id);
     final updated =
         idx >= 0 ? ([...all]..[idx] = receipt) : [...all, receipt];
     await SharedPreferenceService.instance.setString(
@@ -32,9 +32,9 @@ class DocScannerLocalDataSourceImpl implements DocScannerLocalDataSource {
   }
 
   @override
-  Future<void> deleteByImagePath(String imagePath) async {
+  Future<void> deleteById(String id) async {
     final all = await loadAll();
-    final filtered = all.where((r) => r.imagePath != imagePath).toList();
+    final filtered = all.where((r) => r.id != id).toList();
     await SharedPreferenceService.instance.setString(
       _key,
       jsonEncode(filtered.map((r) => r.toJson()).toList()),
