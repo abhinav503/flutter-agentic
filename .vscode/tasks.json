@@ -1,0 +1,37 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      // Starts the local PTY bridge on :3000 before the web_terminal app
+      // launches. Idempotent: if something is already listening on :3000 it
+      // just reports ready instead of failing with EADDRINUSE. Installs node
+      // deps on first run.
+      "label": "terminal-bridge",
+      "type": "shell",
+      // PATH fallback first: VS Code tasks run in a non-login shell that sources
+      // ~/.zshrc only, which here does NOT add homebrew's bin (that lives in
+      // ~/.zprofile), so npm/node would otherwise be 'command not found'.
+      "command": "command -v npm >/dev/null 2>&1 || export PATH=\"/opt/homebrew/bin:/usr/local/bin:$PATH\"; if lsof -ti tcp:3000 -sTCP:LISTEN >/dev/null 2>&1; then echo 'bridge already running on :3000 — Bound to 127.0.0.1'; else [ -d node_modules ] || npm install; npm start; fi",
+      "options": {
+        "cwd": "${workspaceFolder}/web-terminal/server"
+      },
+      "isBackground": true,
+      "problemMatcher": {
+        "pattern": {
+          "regexp": "^(.*)$",
+          "file": 1
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".*",
+          "endsPattern": "Bound to 127\\.0\\.0\\.1"
+        }
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "web_terminal"
+      }
+    }
+  ]
+}

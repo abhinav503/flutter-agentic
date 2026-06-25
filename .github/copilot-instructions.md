@@ -91,6 +91,12 @@ Run `make gen` after changing any `@freezed` or `@JsonSerializable` file. Never 
 - Business logic in `build()` or widget classes
 - `import 'package:dio/...'` from `domain/`
 - `if (state is XState)` — always use exhaustive `switch`
+- Giving an enum methods/fields in its own body (enhanced enum) when an `extension on` it would do — keep enums as bare case lists; put helpers, `switch` mappings, and string ↔ enum conversion in an extension beside the enum. Likewise, put repeated `String`/`num`/`DateTime` logic in an `extension on` that type, not a `*Utils` helper class or inline. Don't add a conversion extension for an enum that never crosses a string boundary; parse wire strings in the `*Model` (data layer), not the UI
+- Comments that restate what the code or name already says — with business-logic naming most doc comments are redundant. Write **why** (non-obvious decisions, gotchas, constraints), not **what**. Don't repeat the same note in two places, and reserve longer comments for genuinely complex logic. Examples:
+  - ❌ `/// Stops the app.` above `Future<…> stopApp(String name)` — the name says it
+  - ❌ `/// Param is the app name.` above `RunAppUseCase` — the signature says it
+  - ✅ `// Not const — owns the live WebSocket the other methods act on`
+  - ✅ `// Returning a state equal to the current one is a no-op, so per-chunk updates don't rebuild`
 - `context.read<T>()` after an `await` without a `mounted` check
 - More than one feature's logic in a single BLoC
 - Exposing `*Model` classes outside the `data/` layer
@@ -151,3 +157,22 @@ Use these shared components rather than their raw Flutter equivalents:
 ## Project Setup
 
 When the user asks about running the project locally, setting up their environment, or troubleshooting missing tools or emulators, follow the instructions in `docs/ai-rules/setup-project.md`.
+
+---
+
+## Maintaining agent instructions
+
+This repo serves **7 AI agents** across **6 instruction surfaces** (Codex CLI + Android Studio share `AGENTS.md`). The canonical rule docs are `docs/ai-rules/conventions.md` and `docs/reference/architecture.md`.
+
+When you change a shared rule, update **every** surface in the same commit:
+
+| Surface | Agent(s) | Picks up canonical-doc edits |
+|---|---|---|
+| `CLAUDE.md` | Claude Code | ✅ auto (`@docs/…` import) |
+| `GEMINI.md` | Gemini CLI | ✅ auto (`@docs/…` import) |
+| `.amazonq/rules/` | Amazon Q | ✅ auto (symlinks the docs) |
+| `.cursor/rules/conventions.mdc` | Cursor | ⚠️ hand-sync — self-contained copy |
+| `.github/copilot-instructions.md` | GitHub Copilot | ⚠️ hand-sync — self-contained copy |
+| `AGENTS.md` | Codex CLI, Android Studio | ⚠️ hand-sync — self-contained copy |
+
+The three ⚠️ files only **name** the doc path as prose; they carry their own condensed copy that drifts unless edited directly. Full per-agent detail: `docs/explanation/ai-agents.md`.

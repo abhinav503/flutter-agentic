@@ -1,0 +1,20 @@
+{
+  "name": "web-terminal-server",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Local PTY bridge: spawns a real shell and streams it to the Flutter web terminal over a WebSocket.",
+  "type": "commonjs",
+  "main": "server.js",
+  "scripts": {
+    "fix-perms": "chmod +x node_modules/node-pty/prebuilds/*/spawn-helper 2>/dev/null || true",
+    "postinstall": "npm run fix-perms",
+    "start": "npm run fix-perms && node server.js"
+  },
+  "dependencies": {
+    "node-pty": "^1.0.0",
+    "ws": "^8.18.0"
+  },
+  "allowScripts": {
+    "node-pty@1.1.0": true
+  }
+}

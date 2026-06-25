@@ -17,9 +17,6 @@ dependencies:
   # State management
   flutter_bloc: ^9.1.1
 
-  # Service locator
-  get_it: ^8.0.1
-
   # Navigation
   go_router: ^17.2.3
 

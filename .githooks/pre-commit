@@ -4,17 +4,22 @@
 #   2. Runs flutter analyze at the workspace root — analyzes every package
 #      and blocks the commit on any error
 #
+# All Flutter/Dart commands go through fvm (the SDK version is pinned in .fvm).
 # Activate with: git config core.hooksPath .githooks
+
+# GUI git clients run hooks in a minimal shell that may not have fvm on PATH
+# (it lives in Homebrew's bin). Add the usual locations as a fallback.
+command -v fvm >/dev/null 2>&1 || PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
 
 STAGED=$(git diff --cached --name-only --diff-filter=ACMR | grep '\.dart$')
 
 if [ -n "$STAGED" ]; then
-  dart format $STAGED
+  fvm dart format $STAGED
   git add $STAGED
 fi
 
 echo "Running flutter analyze (workspace)..."
-flutter analyze --no-pub --fatal-infos
+fvm flutter analyze --no-pub --fatal-infos
 
 if [ $? -ne 0 ]; then
   echo ""
