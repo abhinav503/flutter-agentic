@@ -32,11 +32,13 @@ When the user asks to do a release, follow the steps below interactively — ask
 
 ## Release Workflow
 
-**Prerequisites** — check `gh` is installed and authenticated:
+**Prerequisites** — this repo uses **multiple GitHub accounts**, so release auth must be explicit. The token lives in a git-ignored `.env` at the repo root. Load it and verify `gh`:
 ```bash
-which gh && gh auth status
+which gh
+set -a && . ./.env && set +a    # exports GH_TOKEN from the root .env
+gh auth status
 ```
-If missing: `brew install gh` then `gh auth login`. Stop if not ready.
+`gh auth status` should report `Logged in … (GH_TOKEN)`. Source `.env` in every shell that runs a `gh` command — non-interactive shells don't inherit it. If `gh` is missing: `brew install gh`. If `.env` has no `GH_TOKEN`, create a fine-grained PAT (Contents: Read and write on this repo) at https://github.com/settings/personal-access-tokens/new and add it as `GH_TOKEN=…` to `.env` (never commit it). Stop if not ready. If `gh auth status` reports the token as invalid, confirm the shell has network access before replacing it — in a sandboxed agent environment, blocked network access can surface as an auth failure; re-run with network permission and `.env` sourced first.
 
 **Step 1 — Identify release branch**
 ```bash

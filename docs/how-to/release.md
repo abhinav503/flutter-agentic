@@ -6,14 +6,27 @@ Guide for performing a full release: branch comparison, version bump, release no
 
 ## Prerequisites
 
-Check that `gh` is installed and authenticated:
+This repo uses **multiple GitHub accounts**, so release auth must be explicit — never rely on whichever account `gh auth login` happens to have active. The token lives in a git-ignored **`.env`** file at the repo root; `gh` honors `GH_TOKEN` over any stored login, so every agent and shell behaves identically once it's sourced.
+
+Load the token from `.env` and check that `gh` is installed and authenticated:
 
 ```bash
 which gh
+set -a && . ./.env && set +a    # exports GH_TOKEN from the root .env
 gh auth status
 ```
 
-If `gh` is missing, install it (`brew install gh` on macOS or https://cli.github.com) and run `gh auth login`. Stop here if not ready.
+`gh auth status` should report `Logged in … (GH_TOKEN)`. **Source `.env` (the `set -a … set +a` line) at the start of every shell that runs a `gh` command in this workflow** — a non-interactive shell does not inherit it automatically.
+
+> **Invalid-token warning in a sandbox:** if `gh auth status` reports the `GH_TOKEN` as invalid, confirm the shell actually has network access before replacing the token. In sandboxed agent environments, blocked network access can surface as an auth failure even when the token is fine. Re-run the check from a shell with network permission and `.env` sourced before assuming the token is bad.
+
+If `gh` is missing, install it (`brew install gh` on macOS or https://cli.github.com).
+
+If the root `.env` does not exist or has no `GH_TOKEN`, create a Personal Access Token for the **account that owns this repo** and add it as `GH_TOKEN=…` in `.env` (the file is git-ignored — never commit it):
+- **Fine-grained token** (scoped to one repo, recommended): https://github.com/settings/personal-access-tokens/new — grant **Contents: Read and write** on this repo.
+- **Classic token**: https://github.com/settings/tokens/new — tick the `repo` scope (plus `workflow` if the release touches Actions).
+
+Stop here if `GH_TOKEN` is not available.
 
 ---
 

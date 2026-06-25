@@ -16,7 +16,7 @@ Read on demand:
 - `docs/how-to/rename-app.md` — when asked to rename the app; covers display name, package name, and all files that reference the old name
 - `docs/explanation/ai-agents.md` — per-agent install and usage
 - **Release workflow** — when asked to do a release, follow these steps interactively; ask for confirmation at each step before proceeding:
-  1. Check `gh` is installed (`which gh && gh auth status`). Stop if not ready.
+  1. Load `GH_TOKEN` from the git-ignored root `.env` (`set -a && . ./.env && set +a`) — release auth is explicit because the repo uses multiple GitHub accounts — then check `gh auth status` reports `(GH_TOKEN)`. Source `.env` in every shell that runs `gh`. If `.env` lacks a token, create a fine-grained PAT (Contents: Read and write) at https://github.com/settings/personal-access-tokens/new and add `GH_TOKEN=…`. Stop if not ready. If `gh auth status` reports the token as invalid, confirm the shell has network access before replacing it — in a sandboxed agent environment, blocked network access can surface as an auth failure; re-run with network permission and `.env` sourced first.
   2. Get current branch (`git branch --show-current`). Confirm release branch with user.
   3. Compare to main: `git log main..{BRANCH} --oneline` + `git diff main..{BRANCH} --stat`. Show commits.
   4. Read version (`grep "^version:" pubspec.yaml`). Propose bump: Major = breaking; Minor = feat: or new component/skill; Patch = fix/chore/docs. Wait for confirmation.
