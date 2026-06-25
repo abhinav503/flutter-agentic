@@ -1,0 +1,63 @@
+name: web_terminal
+description: Web terminal — Flutter web UI that renders a local shell streamed from the Node PTY bridge over a WebSocket.
+publish_to: 'none'
+version: 1.0.0
+resolution: workspace
+
+environment:
+  sdk: ^3.12.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  core:
+    path: ../../packages/core
+
+  # State management
+  flutter_bloc: ^9.1.1
+
+  # restartable() transformer — a reconnect cancels the prior session cleanly
+  bloc_concurrency: ^0.3.0
+
+  # Navigation
+  go_router: ^17.2.3
+
+  # Functional error handling
+  fpdart: ^1.1.0
+
+  # Models (sealed events/states + the WS message DTO)
+  freezed_annotation: ^3.1.0
+
+  # Terminal emulator widget — renders PTY output, captures keystrokes/resize
+  xterm: ^4.0.0
+
+  # Duplex transport to the local PTY bridge
+  web_socket_channel: ^3.0.0
+
+  # Web DOM access for the preview pane's <iframe> (web-only; reached through a
+  # conditional import so non-web targets compile against a stub instead).
+  web: ^1.1.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  build_runner: ^2.4.15
+  freezed: ^3.2.5
+  bloc_test: ^10.0.0
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/theme/theme_config.json
+
+  # Bundled monospace font so the terminal renders identically on every browser
+  # (web's generic 'monospace' has loose, platform-dependent metrics).
+  fonts:
+    - family: JetBrainsMono
+      fonts:
+        - asset: assets/fonts/JetBrainsMono-Regular.ttf
+        - asset: assets/fonts/JetBrainsMono-Bold.ttf
+          weight: 700

@@ -13,6 +13,21 @@ Each agent reads instruction files that eagerly load high-signal docs and name t
 
 Conventions and architecture shape every coding decision so they pay their token cost on every request. The others are situational.
 
+### Updating shared docs — inline vs reference
+
+The canonical docs are `docs/ai-rules/conventions.md` and `docs/reference/architecture.md`. Agents consume them two ways. **When you change a canonical doc, update the inline copies in the same commit** — referencing agents are automatic, inlining agents are not.
+
+| Agent | How it loads the docs | On a doc change |
+|---|---|---|
+| Claude Code (`CLAUDE.md`) | `@docs/...` import | ✅ automatic |
+| Gemini CLI (`GEMINI.md`) | `@docs/...` import | ✅ automatic |
+| Amazon Q (`.amazonq/rules/`) | symlinks the docs | ✅ automatic |
+| Cursor (`.cursor/rules/conventions.mdc`) | self-contained copy | ⚠️ edit this file too |
+| Copilot (`.github/copilot-instructions.md`) | self-contained copy | ⚠️ edit this file too |
+| Codex / Android Studio (`AGENTS.md`) | self-contained copy | ⚠️ edit this file too |
+
+The three self-contained files only **name** the canonical doc path as prose — they don't pull its content — so they carry their own condensed `Forbidden Patterns` list that drifts unless hand-synced.
+
 ---
 
 ## Claude Code

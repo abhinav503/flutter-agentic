@@ -178,6 +178,54 @@ lib/
 
 ---
 
+## Dart Conventions
+
+### Add behaviour with extensions, not bloated declarations
+
+When a type needs helper methods or computed values, attach them with a Dart `extension` rather than inflating the type's own declaration. This keeps the type a clean data declaration and groups the behaviour where it reads naturally.
+
+**Enums stay as bare value lists; behaviour lives in an extension.** Declare the enum as a plain list of cases, then add any mapping/label/parsing in an `extension on` it. Never grow an enhanced enum with fields and a body just to hold a `switch`.
+
+```dart
+// enums/extraction_status.dart — the enum is only the cases
+enum ExtractionStatus { pending, processing, completed, failed }
+
+// keep the extension beside the enum (same file)
+extension ExtractionStatusX on ExtractionStatus {
+  bool get isTerminal =>
+      this == ExtractionStatus.completed || this == ExtractionStatus.failed;
+
+  // enum → wire/string (Dart gives `.name` for free; wrap only when the
+  // external value differs from the Dart case name)
+  String get apiValue => switch (this) {
+        ExtractionStatus.pending    => 'PENDING',
+        ExtractionStatus.processing => 'IN_PROGRESS',
+        ExtractionStatus.completed  => 'DONE',
+        ExtractionStatus.failed     => 'ERROR',
+      };
+}
+
+// string → enum: a static helper on the extension (tolerates unknown values)
+extension ExtractionStatusParse on String {
+  ExtractionStatus toExtractionStatus() => switch (this) {
+        'IN_PROGRESS' => ExtractionStatus.processing,
+        'DONE'        => ExtractionStatus.completed,
+        'ERROR'       => ExtractionStatus.failed,
+        _             => ExtractionStatus.pending, // safe default
+      };
+}
+```
+
+**Reach for `String`/`num`/`DateTime` extensions instead of free-function utils or inline logic.** A repeated `String` transform (formatting, validation, parsing to an enum) belongs in an `extension on String`, not a `StringUtils.foo(s)` helper class and not copy-pasted inline.
+
+**Where the extension lives:**
+- An enum's own helpers → **same file as the enum** (`lib/enums/` for app-shared enums, or beside a feature-local enum).
+- A generic `String`/`num`/`DateTime` extension used across a package → a `…_extensions.dart` file in that package (`core` if every app needs it, otherwise the app).
+
+**Only add the extension when there's a real caller.** Don't pre-emptively write `toX()`/`fromString()` for an enum that never crosses a string boundary — that's dead API. Enums used purely in-memory (chosen in the UI, matched with an exhaustive `switch`) need **no** conversion extension at all. When a value genuinely arrives as a string from the wire, parse it at the **data layer** (in the `*Model`), not in the UI.
+
+---
+
 ## Layer Implementation Patterns
 
 > Imports are omitted for brevity. In real files, `core` types (`HttpService`, `Failure`, `UseCase`, `BasePage`…) come from `package:core/core/…`; `ApiConstants`/`ValueConst` come from the app's own `package:<app>/constants/…`.
