@@ -1,6 +1,9 @@
 import 'package:core/core/base/base_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'package:web_terminal/feature/setup/presentation/cubit/setup_cubit.dart';
+import 'package:web_terminal/feature/setup/presentation/widgets/setup_panel.dart';
 import '../widgets/terminal_apps_bar.dart';
 import '../widgets/terminal_console.dart';
 import '../widgets/terminal_preview.dart';
@@ -28,7 +31,7 @@ class _HomeScreenState extends BaseScreenState<HomeScreen> {
             children: [
               Expanded(child: terminal),
               const VerticalDivider(),
-              const Expanded(child: TerminalPreview()),
+              const Expanded(child: _RightPane()),
             ],
           );
         },
@@ -43,6 +46,19 @@ class _HomeScreenState extends BaseScreenState<HomeScreen> {
         TerminalAppsBar(),
         Expanded(child: TerminalConsole()),
       ],
+    );
+  }
+}
+
+class _RightPane extends StatelessWidget {
+  const _RightPane();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<SetupCubit, SetupState>(
+      buildWhen: (a, b) => a.isOpen != b.isOpen,
+      builder: (context, state) =>
+          state.isOpen ? const SetupPanel() : const TerminalPreview(),
     );
   }
 }

@@ -34,6 +34,24 @@ class ValueConst {
   static const appStopLabel = 'Stop';
   static const appStartingLabel = 'Starting…';
 
+  // Setup checklist (top-bar button + right pane)
+  static const setupTooltip = 'Local setup';
+  static const setupPanelTitle = 'Local setup';
+  static const setupRefreshTooltip = 'Re-check';
+  static const setupCloseTooltip = 'Close setup';
+  static const setupChecking = 'Checking your machine…';
+  static const setupAllInstalled = "Everything is installed. You're ready to go.";
+  static const setupInstalledLabel = 'Installed';
+  static const setupMissingLabel = 'Not installed';
+  static const setupManualLabel = 'Manual step';
+  static String setupMissingCount(int n) =>
+      n == 1 ? '1 item left to install' : '$n items left to install';
+
+  // Command block (run/copy a shell command) — reusable across features.
+  static const commandRunLabel = 'Run';
+  static const commandCopyLabel = 'Copy';
+  static const commandCopiedNotice = 'Copied to clipboard';
+
   // Agent dropdown (top-bar)
   static const agentTooltip = 'Switch agent';
   static const agentTerminalLabel = 'Terminal';

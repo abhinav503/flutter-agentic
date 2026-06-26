@@ -31,6 +31,7 @@ const {
   listAppsWithState,
   disposeAllApps,
 } = require('./src/app-runner');
+const { getSetupStatus } = require('./src/setup');
 
 // ── HTTP ────────────────────────────────────────────────────────────────────
 
@@ -94,6 +95,11 @@ const server = http.createServer((req, res) => {
   // Lists the apps under apps/ with their live run state (status + port).
   if (route === '/apps' && req.method === 'GET') {
     sendJson(req, res, { apps: listAppsWithState() });
+    return;
+  }
+  // Detects which local dev prerequisites are installed + their install steps.
+  if (route === '/setup' && req.method === 'GET') {
+    getSetupStatus().then((status) => sendJson(req, res, status));
     return;
   }
   const action = route.match(/^\/apps\/([A-Za-z0-9_]+)\/(run|stop)$/);
