@@ -40,10 +40,15 @@ class BridgeClient {
             .then((r) => r.data!),
       );
 
-  /// POST [path] (joined onto the resolved origin) and return the JSON body.
-  Future<Map<String, dynamic>> postJson(String path) => send(
+  /// POST [path] (joined onto the resolved origin) with an optional JSON [body]
+  /// and return the JSON response.
+  Future<Map<String, dynamic>> postJson(
+    String path, {
+    Map<String, dynamic>? body,
+  }) =>
+      send(
         (origin) => HttpService.instance
-            .post<Map<String, dynamic>>('$origin$path')
+            .post<Map<String, dynamic>>('$origin$path', data: body)
             .then((r) => r.data!),
       );
 }

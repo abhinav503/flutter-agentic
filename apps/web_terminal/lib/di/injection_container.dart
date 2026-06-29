@@ -9,6 +9,11 @@ import '../feature/apps/domain/repository/apps_repository.dart';
 import '../feature/apps/domain/usecase/list_apps_usecase.dart';
 import '../feature/apps/domain/usecase/run_app_usecase.dart';
 import '../feature/apps/domain/usecase/stop_app_usecase.dart';
+import '../feature/devices/data/data_source/devices_remote_data_source.dart';
+import '../feature/devices/data/data_source/devices_remote_data_source_impl.dart';
+import '../feature/devices/data/repository_impl/devices_repository_impl.dart';
+import '../feature/devices/domain/repository/devices_repository.dart';
+import '../feature/devices/domain/usecase/list_devices_usecase.dart';
 import '../feature/home/data/data_source/terminal_remote_data_source.dart';
 import '../feature/home/data/data_source/terminal_remote_data_source_impl.dart';
 import '../feature/home/data/repository_impl/terminal_repository_impl.dart';
@@ -54,6 +59,15 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton(() => ListAppsUseCase(sl()));
   sl.registerLazySingleton(() => RunAppUseCase(sl()));
   sl.registerLazySingleton(() => StopAppUseCase(sl()));
+
+  // Devices feature — run targets (web preview + flutter devices).
+  sl.registerLazySingleton<DevicesRemoteDataSource>(
+    () => const DevicesRemoteDataSourceImpl(),
+  );
+  sl.registerLazySingleton<DevicesRepository>(
+    () => DevicesRepositoryImpl(sl()),
+  );
+  sl.registerLazySingleton(() => ListDevicesUseCase(sl()));
 
   // Setup feature — detects local dev prerequisites for the checklist.
   sl.registerLazySingleton<SetupRemoteDataSource>(

@@ -71,8 +71,8 @@ class _TerminalPreviewState extends State<TerminalPreview> {
           a.selected?.name != b.selected?.name ||
           a.selected?.status != b.selected?.status,
       listener: (context, state) {
-        final app = state.selected;
-        if (app != null) _pointAt(app.previewUrl, force: true);
+        final url = state.selected?.previewUrl;
+        if (url != null) _pointAt(url, force: true);
       },
       child: Column(
         children: [

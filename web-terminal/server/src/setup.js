@@ -147,6 +147,25 @@ const ITEMS = [
     steps: [cmd('Install CocoaPods', 'brew install cocoapods')],
   },
   {
+    id: 'accessibility',
+    name: 'Window tiling (Accessibility)',
+    description:
+      'Lets the bridge place the device window beside the terminal on a native run.',
+    mac: true,
+    // A no-op keystroke only succeeds when the launching app (Terminal / VS Code)
+    // has Accessibility — the same trust the window-tiler needs.
+    detect: () =>
+      probe(
+        'osascript -e \'tell application "System Events" to keystroke ""\' >/dev/null 2>&1 && echo "Accessibility granted"',
+      ),
+    steps: [
+      manual(
+        'Grant Accessibility',
+        'Open System Settings → Privacy & Security → Accessibility and enable your terminal app (Terminal, iTerm, or VS Code) — the one you launched this bridge from. Then re-check.',
+      ),
+    ],
+  },
+  {
     id: 'android-studio',
     name: 'Android Studio',
     description: 'Android SDK + IDE — for running apps on Android.',

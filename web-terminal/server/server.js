@@ -32,6 +32,7 @@ const {
   disposeAllApps,
 } = require('./src/app-runner');
 const { getSetupStatus } = require('./src/setup');
+const { listDevices } = require('./src/devices');
 
 // ── HTTP ────────────────────────────────────────────────────────────────────
 
@@ -66,10 +67,37 @@ function handlePreflight(req, res) {
   res.writeHead(204, headers).end();
 }
 
-// POST /apps/:name/run|stop — start or stop a managed `flutter run` process.
-function handleAppAction(req, res, name, action) {
+// Collect a small JSON request body; resolve {} on empty/invalid (the run
+// target is optional — no body means the default web-server target).
+function readJsonBody(req) {
+  return new Promise((resolve) => {
+    let raw = '';
+    req.on('data', (chunk) => {
+      raw += chunk;
+      if (raw.length > 4096) req.destroy(); // tiny payload; reject anything large
+    });
+    req.on('end', () => {
+      try {
+        resolve(raw ? JSON.parse(raw) : {});
+      } catch {
+        resolve({});
+      }
+    });
+    req.on('error', () => resolve({}));
+  });
+}
+
+// POST /apps/:name/run|stop — start or stop a managed `flutter run` process. run
+// takes an optional `{ deviceId, platform }` body to pick the run target.
+async function handleAppAction(req, res, name, action) {
   try {
-    const app = action === 'run' ? runApp(name) : stopApp(name);
+    let app;
+    if (action === 'run') {
+      const { deviceId, platform, kind } = await readJsonBody(req);
+      app = runApp(name, { deviceId, platform, kind });
+    } else {
+      app = stopApp(name);
+    }
     sendJson(req, res, { app });
   } catch (e) {
     res
@@ -95,6 +123,12 @@ const server = http.createServer((req, res) => {
   // Lists the apps under apps/ with their live run state (status + port).
   if (route === '/apps' && req.method === 'GET') {
     sendJson(req, res, { apps: listAppsWithState() });
+    return;
+  }
+  // Run targets: the synthetic "Web preview" plus whatever `flutter devices`
+  // reports (simulators, emulators, phones).
+  if (route === '/devices' && req.method === 'GET') {
+    listDevices().then((devices) => sendJson(req, res, { devices }));
     return;
   }
   // Detects which local dev prerequisites are installed + their install steps.

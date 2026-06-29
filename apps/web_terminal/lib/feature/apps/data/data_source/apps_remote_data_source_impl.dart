@@ -16,15 +16,23 @@ class AppsRemoteDataSourceImpl implements AppsRemoteDataSource {
   }
 
   @override
-  Future<AppModel> runApp(String name) =>
-      _appAction('${ApiConstants.appsPath}/$name/run');
+  Future<AppModel> runApp(
+    String name, {
+    required String deviceId,
+    required String platform,
+    required String kind,
+  }) =>
+      _appAction(
+        '${ApiConstants.appsPath}/$name/run',
+        body: {'deviceId': deviceId, 'platform': platform, 'kind': kind},
+      );
 
   @override
   Future<AppModel> stopApp(String name) =>
       _appAction('${ApiConstants.appsPath}/$name/stop');
 
-  Future<AppModel> _appAction(String path) async {
-    final data = await BridgeClient.instance.postJson(path);
+  Future<AppModel> _appAction(String path, {Map<String, dynamic>? body}) async {
+    final data = await BridgeClient.instance.postJson(path, body: body);
     return AppModel.fromJson(data['app'] as Map<String, dynamic>);
   }
 }
