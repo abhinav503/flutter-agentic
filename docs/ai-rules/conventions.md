@@ -107,7 +107,7 @@ When you change a shared rule, update **every** surface in the same commit:
 |---|---|---|
 | `CLAUDE.md` | Claude Code | ✅ auto (`@docs/…` import) |
 | `GEMINI.md` | Gemini CLI | ✅ auto (`@docs/…` import) |
-| `.amazonq/rules/` | Amazon Q | ✅ auto (symlinks the docs) |
+| `.amazonq/rules/` | Amazon Q | ⚠️ hand-sync — write a self-contained inline `.md` file per how-to (Amazon Q cannot follow doc path references) |
 | `.cursor/rules/conventions.mdc` | Cursor | ⚠️ hand-sync — self-contained copy |
 | `.github/copilot-instructions.md` | GitHub Copilot | ⚠️ hand-sync — self-contained copy |
 | `AGENTS.md` | Codex CLI, Android Studio | ⚠️ hand-sync — self-contained copy |
