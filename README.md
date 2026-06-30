@@ -65,6 +65,8 @@ Available skills:
 - `rename-app` — renames the app across all platform files (iOS, Android, Web), Dart source, test imports, VS Code config, and all AI rules docs in one pass.
 - `change-app-id` — changes the application ID / bundle identifier on Android (`build.gradle.kts` + `MainActivity.kt` package path) and iOS (`project.pbxproj`), with Xcode manual instructions and provisioning notes included.
 - `review-code` — audits generated or modified code against the project's architecture contracts, forbidden-pattern checklist, naming conventions, DI rules, and test coverage expectations. Run this after any code generation for best results.
+- `connect-firebase` — connects an app to a Firebase project: Firebase + FlutterFire CLI checks, `flutterfire configure`, per-app `firebase_core`, `main.dart` init, Android Gradle plugin, and the Xcode `GoogleService-Info.plist` step.
+- `add-notification-feature` — adds Firebase Cloud Messaging push notifications (token, foreground/background/terminated handling, tap-to-open-a-page routing, image notifications) split into shared Flutter code plus separate iOS and Android tracks. Builds on `connect-firebase`.
 - `release` — guides a full release from any branch: branch comparison, version bump, release notes, merge to main, GitHub Release creation, and branch cleanup.
 
 ## Why Fork This?
