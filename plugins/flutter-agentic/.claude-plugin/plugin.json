@@ -1,0 +1,13 @@
+{
+  "name": "flutter-agentic",
+  "version": "0.1.0",
+  "description": "AI-first Flutter Clean Architecture skills for Claude Code — scaffold features, wire BLoC + Freezed + Either, and keep AI-generated code on-pattern. Pilot release ships /add-feature-template.",
+  "author": {
+    "name": "Abhinav Kumar",
+    "url": "https://github.com/abhinav503"
+  },
+  "homepage": "https://github.com/abhinav503/flutter-agentic",
+  "repository": "https://github.com/abhinav503/flutter-agentic",
+  "license": "MIT",
+  "keywords": ["flutter", "dart", "clean-architecture", "bloc", "freezed", "scaffolding"]
+}

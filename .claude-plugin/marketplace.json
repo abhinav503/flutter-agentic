@@ -1,0 +1,21 @@
+{
+  "name": "flutter-agentic",
+  "owner": {
+    "name": "Abhinav Kumar",
+    "url": "https://github.com/abhinav503"
+  },
+  "metadata": {
+    "description": "FlutterAgentic — AI-first Flutter Clean Architecture skills for Claude Code.",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "flutter-agentic",
+      "source": "./plugins/flutter-agentic",
+      "description": "Production-grade Clean Architecture scaffolding for Flutter (BLoC + Freezed + Either), packaged as Claude Code skills. Pilot: /add-feature-template.",
+      "version": "0.1.0",
+      "category": "scaffolding",
+      "keywords": ["flutter", "dart", "clean-architecture", "bloc", "scaffolding"]
+    }
+  ]
+}
