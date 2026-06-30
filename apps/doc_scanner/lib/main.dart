@@ -1,14 +1,30 @@
 import 'dart:convert';
 
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'app.dart';
 import 'di/injection_container.dart';
+import 'firebase_options.dart';
 import 'package:core/core/theme/app_theme_config.dart';
+
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  // Runs in a separate isolate. Keep it light; no navigation here — tapping the
+  // delivered notification routes via onMessageOpenedApp / getInitialMessage.
+  debugPrint('FCM background message: '
+      'notification=${message.notification?.title} data=${message.data}');
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   final config = await _loadThemeConfig();
   await initDependencies();

@@ -1,6 +1,7 @@
 import 'package:core/core/usecase/usecase.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'package:web_terminal/feature/devices/domain/entities/device_entity.dart';
 import '../../domain/entities/app_entity.dart';
 import '../../domain/usecase/list_apps_usecase.dart';
 import '../../domain/usecase/run_app_usecase.dart';
@@ -44,11 +45,17 @@ class AppsCubit extends Cubit<AppsState> {
 
   void select(AppEntity app) => emit(state.copyWith(selected: app));
 
-  // Select it (so the preview follows), then poll until its dev server serves.
-  Future<void> run(AppEntity app) async {
+  // Select it (so the preview follows), then poll until it settles — a web
+  // target serves on its port, a native target launches on [device].
+  Future<void> run(AppEntity app, DeviceEntity device) async {
     final gen = ++_gen;
     emit(state.copyWith(selected: app));
-    final result = await _runApp(app.name);
+    final result = await _runApp(RunAppParams(
+      name: app.name,
+      deviceId: device.id,
+      platform: device.platform.name,
+      kind: device.kind.name,
+    ));
     result.fold((_) {}, (started) {
       _replace(started);
       _pollUntilSettled(app.name, gen);

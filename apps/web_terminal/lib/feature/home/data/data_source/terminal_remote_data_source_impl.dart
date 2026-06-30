@@ -4,6 +4,7 @@ import 'package:core/core/network/http_service.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 import 'package:web_terminal/constants/api_constants.dart';
+import 'package:web_terminal/network/bridge_client.dart';
 import '../models/terminal_message_model.dart';
 import 'terminal_remote_data_source.dart';
 
@@ -44,17 +45,12 @@ class TerminalRemoteDataSourceImpl implements TerminalRemoteDataSource {
     _channel = null;
   }
 
-  // `/config.json` from the serving origin first, then the default bridge
-  // address (dev fallback).
-  Future<({String wsUrl})> _resolveConfig() async {
-    final candidates = <String>{
-      if (Uri.base.scheme.startsWith('http')) Uri.base.origin,
-      ApiConstants.defaultBridgeOrigin,
-    };
-
-    Object? lastError;
-    for (final origin in candidates) {
-      try {
+  // Fetch `/config.json` from the working origin (serving origin, then dev
+  // fallback) and build the WebSocket URL against that same origin. Uses
+  // [BridgeClient.send] for the origin policy, but the GET goes through
+  // [HttpService] directly since [send] already supplies the resolved origin.
+  Future<({String wsUrl})> _resolveConfig() =>
+      BridgeClient.instance.send((origin) async {
         final response = await HttpService.instance
             .get<Map<String, dynamic>>('$origin${ApiConstants.configPath}');
         final body = response.data!;
@@ -65,10 +61,5 @@ class TerminalRemoteDataSourceImpl implements TerminalRemoteDataSource {
         final wsUrl =
             '$wsScheme://${base.host}:$wsPort${ApiConstants.wsPath}?token=$token';
         return (wsUrl: wsUrl);
-      } catch (e) {
-        lastError = e;
-      }
-    }
-    throw Exception('Could not reach the local terminal bridge. $lastError');
-  }
+      });
 }

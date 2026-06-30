@@ -30,6 +30,13 @@ dependencies:
   freezed_annotation: ^3.1.0
   json_annotation: ^4.9.0
 
+  # Firebase
+  firebase_core: ^4.1.1
+  firebase_messaging: ^16.4.1
+
+  # Push notifications — renders FCM messages while foregrounded (Android) + tap payloads
+  flutter_local_notifications: ^22.0.1
+
   # Receipt scanner — app-specific
   crypto: ^3.0.3
   image_picker: ^1.1.2

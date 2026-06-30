@@ -6,6 +6,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:web_terminal/constants/value_const.dart';
 import 'package:web_terminal/feature/apps/presentation/cubit/apps_cubit.dart';
+import 'package:web_terminal/feature/devices/presentation/cubit/devices_cubit.dart';
+import 'package:web_terminal/feature/setup/presentation/cubit/setup_cubit.dart';
+import 'package:web_terminal/feature/setup/presentation/widgets/setup_button.dart';
 import '../bloc/terminal_bloc.dart';
 import 'home_screen.dart';
 
@@ -37,6 +40,13 @@ class _HomePageState extends BasePageState<HomePage> {
               stopAppUseCase: sl(),
             )..load(),
           ),
+          BlocProvider(
+            create: (_) => DevicesCubit(listDevicesUseCase: sl())..load(),
+          ),
+          BlocProvider(
+            create: (_) =>
+                SetupCubit(getSetupStatusUseCase: sl()),
+          ),
         ],
         child: child,
       );
@@ -44,6 +54,7 @@ class _HomePageState extends BasePageState<HomePage> {
   @override
   PreferredSizeWidget buildAppBar(BuildContext context) => AppTopBar.primary(
         title: ValueConst.homeAppBarTitle,
+        actions: const [SetupButton()],
       );
 
   @override

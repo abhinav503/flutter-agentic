@@ -14,6 +14,13 @@ class ApiConstants {
   static const wsPath = '/ws';
   static const appsPath = '/apps';
 
+  /// `{ devices: [{ id, name, platform, isEmulator }] }` — run targets
+  /// (the synthetic "Web preview" plus `flutter devices`).
+  static const devicesPath = '/devices';
+
+  /// `{ platform, items: [...] }` — detected local dev prerequisites.
+  static const setupPath = '/setup';
+
   /// A local dev server the user runs from the terminal — never the bridge's
   /// own origin (that would re-load the terminal itself). Address bar stays
   /// editable, so any port works.

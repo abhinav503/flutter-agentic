@@ -4,8 +4,10 @@ import 'package:go_router/go_router.dart';
 import 'package:core/core/theme/app_theme.dart';
 import 'package:core/core/theme/app_theme_config.dart';
 import 'feature/home/presentation/view/home_page.dart';
+import 'services/notification/notification_navigator.dart';
 
 final _router = GoRouter(
+  navigatorKey: rootNavigatorKey,
   routes: [
     GoRoute(
       path: '/',

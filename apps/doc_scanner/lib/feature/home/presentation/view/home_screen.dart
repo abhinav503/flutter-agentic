@@ -6,6 +6,7 @@ import 'package:core/core/base/base_screen.dart';
 import 'package:doc_scanner/constants/value_const.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:doc_scanner/enums/extraction_status.dart';
+import 'package:doc_scanner/services/notification/firebase_messaging_service.dart';
 import '../bloc/doc_scanner_bloc.dart';
 import '../widgets/doc_scanner_action_bar.dart';
 import '../widgets/doc_scanner_empty_state.dart';
@@ -22,6 +23,16 @@ class HomeScreen extends BaseScreen {
 }
 
 class _HomeScreenState extends BaseScreenState<HomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // First frame, not main(): guarantees the router is mounted and lets iOS
+    // surface the terminated-state launch notification (see add-notification-feature A2).
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      FirebaseMessagingService.instance.init();
+    });
+  }
+
   @override
   Widget body(BuildContext context) {
     return BlocConsumer<DocScannerBloc, DocScannerState>(

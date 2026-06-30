@@ -16,6 +16,7 @@ Read on demand:
 - `docs/how-to/review-code.md` — when asked to review, audit, or check generated code; run through the full checklist and report ✅/❌ per section
 - `docs/how-to/change-app-id.md` — when asked to change the application ID or bundle identifier; covers Android (`build.gradle.kts` + `MainActivity.kt` package path) and iOS (`project.pbxproj`), with Xcode manual steps and provisioning notes
 - `docs/how-to/rename-app.md` — when asked to rename the app; covers display name, package name, and all files that reference the old name
+- `docs/how-to/connect-firebase.md` (or run `$connect-firebase`) — when connecting an app to Firebase; covers checking/installing the Firebase + FlutterFire CLIs, running `flutterfire configure`, per-app `firebase_core`, `main.dart` init, Android Gradle plugin, iOS deployment target (15.0+), and the Xcode `GoogleService-Info.plist` registration check
 - `docs/explanation/ai-agents.md` — per-agent install and usage
 - `docs/tutorials/solid-principles.md` — how SOLID principles are applied across all layers; useful when designing new classes or reviewing layer boundaries
 - `docs/tutorials/design-patterns-and-concepts.md` — design patterns used in this codebase (Singleton, Repository, DTO, Either, Sealed Classes, Strategy, and more)
@@ -162,9 +163,11 @@ When you change a shared rule, update **every** surface in the same commit:
 |---|---|---|
 | `CLAUDE.md` | Claude Code | ✅ auto (`@docs/…` import) |
 | `GEMINI.md` | Gemini CLI | ✅ auto (`@docs/…` import) |
-| `.amazonq/rules/` | Amazon Q | ✅ auto (symlinks the docs) |
+| `.amazonq/rules/` | Amazon Q | ⚠️ hybrid — plain rule docs are **symlinks** into `docs/` (auto-sync); per-skill files are **self-contained copies** (hand-sync, drift). Amazon Q reads symlink targets but cannot follow `@docs/…` prose references |
 | `.cursor/rules/conventions.mdc` | Cursor | ⚠️ hand-sync — self-contained copy |
 | `.github/copilot-instructions.md` | GitHub Copilot | ⚠️ hand-sync — self-contained copy |
 | `AGENTS.md` | Codex CLI, Android Studio | ⚠️ hand-sync — self-contained copy |
 
 The three ⚠️ files only **name** the doc path as prose; they carry their own condensed copy that drifts unless edited directly. Full per-agent detail: `docs/explanation/ai-agents.md`.
+
+**Skills live in two parallel trees — keep them in sync.** Both Claude Code (`.claude/skills/`) and Codex CLI (`.codex/skills/`) read per-skill `SKILL.md` folders, but in different formats: Claude skills are thin (body + `@docs/…` import), Codex skills are **self-contained inline** (full content with YAML frontmatter, since Codex can't follow `@docs/…`). When you add, remove, or rename a skill, update **both** trees in the same commit — `.codex/skills/` does not inherit `.claude/skills/` edits — and add the matching self-contained `.amazonq/rules/<skill>.md`. A skill that exists in only one tree is the most common drift; verify with `ls .claude/skills .codex/skills`.
