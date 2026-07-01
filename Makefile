@@ -8,13 +8,13 @@
 FLUTTER ?= fvm flutter
 DART ?= fvm dart
 
-APPS = apps/jokes apps/doc_scanner apps/ai_chat apps/web_terminal
-GEN_PACKAGES = packages/core apps/jokes apps/doc_scanner apps/ai_chat apps/web_terminal
+APPS = apps/jokes apps/doc_scanner apps/ai_chat
+GEN_PACKAGES = packages/core apps/jokes apps/doc_scanner apps/ai_chat
 
 # web-terminal collides with the web-terminal/ directory, so targets must be
 # declared phony or make treats them as up-to-date files.
 .PHONY: setup run-jokes run-doc-scanner run-ai-chat web-jokes web-doc-scanner \
-        web-ai-chat web-terminal terminal-bridge dev-web-terminal analyze test \
+        web-ai-chat console terminal-bridge dev-web-terminal analyze test \
         gen clean
 
 setup:
@@ -40,24 +40,22 @@ web-doc-scanner:
 web-ai-chat:
 	cd apps/ai_chat && $(FLUTTER) run -d chrome
 
-# --- web_terminal: Flutter web UI + local Node PTY bridge ---
-# The Flutter app (apps/web_terminal) renders a real shell streamed from the
-# Node bridge (web-terminal/server). The bridge holds your local permissions.
+# --- web-terminal console: React/Next.js UI + local Node PTY bridge ---
+# The console (web-terminal/console) is a Next.js app that streams a real shell
+# from the Node bridge (web-terminal/server). The bridge holds your local
+# permissions. Two servers, two shells: bridge on :3000, console on :4000.
 
-# One-port experience: build the web app, then the bridge serves it on :3000.
-# Open http://localhost:3000 and run `claude` in the terminal.
-web-terminal:
-	cd apps/web_terminal && $(FLUTTER) build web
-	cd web-terminal/server && npm install && npm start
-
-# Just the PTY bridge on :3000 (run alongside `make dev-web-terminal`).
+# Shell 1 — the PTY bridge on :3000.
 terminal-bridge:
 	cd web-terminal/server && npm install && npm start
 
-# Hot-reload dev: Flutter on :4000, talking to the bridge on :3000.
+# Shell 2 — the React console on :4000, talking to the bridge on :3000.
 # Run `make terminal-bridge` in another shell first.
-dev-web-terminal:
-	cd apps/web_terminal && $(FLUTTER) run -d chrome --web-port 4000
+console:
+	cd web-terminal/console && npm install && npm run dev
+
+# Backwards-compatible alias for the console dev server.
+dev-web-terminal: console
 
 # --- workspace-wide ---
 analyze:

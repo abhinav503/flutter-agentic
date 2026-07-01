@@ -1,4 +1,0 @@
-{
-  "_doc": "Pick a shared preset by name. Palettes live in packages/core/lib/core/theme/app_theme_presets.dart. Available: dadJokes, oceanBreeze, forestWalk. To override a single role for this app only, add a light/dark block here with M3 role keys.",
-  "activeTheme": "oceanBreeze"
-}

@@ -13,4 +13,3 @@ workspace:
   - apps/jokes
   - apps/doc_scanner
   - apps/ai_chat
-  - apps/web_terminal
