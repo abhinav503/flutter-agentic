@@ -2,10 +2,10 @@
   "version": "2.0.0",
   "tasks": [
     {
-      // Starts the local PTY bridge on :3000 before the web_terminal app
-      // launches. Idempotent: if something is already listening on :3000 it
-      // just reports ready instead of failing with EADDRINUSE. Installs node
-      // deps on first run.
+      // Starts the local PTY bridge on :3000 before the console launches.
+      // Idempotent: if something is already listening on :3000 it just reports
+      // ready instead of failing with EADDRINUSE. Installs node deps on first
+      // run.
       "label": "terminal-bridge",
       "type": "shell",
       // PATH fallback first: VS Code tasks run in a non-login shell that sources
@@ -25,6 +25,38 @@
           "activeOnStart": true,
           "beginsPattern": ".*",
           "endsPattern": "Bound to 127\\.0\\.0\\.1"
+        }
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "web_terminal"
+      }
+    },
+    {
+      // Runs the Next.js dev server on :4000 for the React console. dependsOn
+      // (sequence) starts terminal-bridge first, so the PTY bridge on :3000 is
+      // up before the console loads and fetches its token. Installs node deps
+      // on first run. Same PATH fallback as terminal-bridge — VS Code tasks run
+      // in a non-login shell that doesn't pick up homebrew's bin.
+      "label": "console-dev",
+      "type": "shell",
+      "command": "command -v npm >/dev/null 2>&1 || export PATH=\"/opt/homebrew/bin:/usr/local/bin:$PATH\"; [ -d node_modules ] || npm install; npm run dev",
+      "options": {
+        "cwd": "${workspaceFolder}/web-terminal/console"
+      },
+      "dependsOn": ["terminal-bridge"],
+      "dependsOrder": "sequence",
+      "isBackground": true,
+      "problemMatcher": {
+        "pattern": {
+          "regexp": "^(.*)$",
+          "file": 1
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".*",
+          "endsPattern": "(Ready in|- Local:|Local:\\s+http)"
         }
       },
       "presentation": {

@@ -78,7 +78,6 @@ app.*.map.json
 
 # API keys and secrets — local only, never commit
 .env
-.vscode/launch.json
 
 # Android signing — never commit
 **/android/key.properties
