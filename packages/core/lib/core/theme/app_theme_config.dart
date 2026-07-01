@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'app_shapes_extension.dart';
 import 'app_theme_presets.dart';
 
 /// Parsed representation of `assets/theme/theme_config.json`.
@@ -27,12 +28,22 @@ class AppThemeConfig {
   /// Per-role overrides applied on top of the seed-generated dark scheme.
   final Map<String, Color> darkOverrides;
 
+  /// Brand corner radii for buttons/chips/cards/inputs/sheets. Drives both the
+  /// component themes (raw Material) and the atoms. Omitted → [AppShapes.standard].
+  final AppShapes shapes;
+
+  /// Visual-density adjustment applied to every Material widget (compact ≈ -2 …
+  /// standard 0 … comfortable ≈ 1). Omitted → 0 (standard).
+  final double density;
+
   const AppThemeConfig({
     required this.lightSeed,
     required this.darkSeed,
     this.fontFamily,
     this.lightOverrides = const {},
     this.darkOverrides = const {},
+    this.shapes = AppShapes.standard,
+    this.density = 0,
   });
 
   static const AppThemeConfig defaults = AppThemeConfig(
@@ -74,6 +85,28 @@ class AppThemeConfig {
       fontFamily: json['fontFamily'] as String?,
       lightOverrides: _parseOverrides(lightJson),
       darkOverrides: _parseOverrides(darkJson),
+      shapes: _parseShapes(json),
+      density: (json['density'] as num?)?.toDouble() ?? 0,
+    );
+  }
+
+  /// Reads an optional `shape` block (`{ button, chip, card, input, sheet }`),
+  /// falling back to [AppShapes.standard] for the block and any missing key.
+  static AppShapes _parseShapes(Map<String, dynamic> json) {
+    final s = (json['shape'] as Map?)?.cast<String, dynamic>();
+    if (s == null) return AppShapes.standard;
+    double pick(String key, double fallback) {
+      final v = s[key];
+      return v is num ? v.toDouble() : fallback;
+    }
+
+    const base = AppShapes.standard;
+    return base.copyWith(
+      buttonRadius: pick('button', base.buttonRadius),
+      chipRadius: pick('chip', base.chipRadius),
+      cardRadius: pick('card', base.cardRadius),
+      inputRadius: pick('input', base.inputRadius),
+      sheetRadius: pick('sheet', base.sheetRadius),
     );
   }
 

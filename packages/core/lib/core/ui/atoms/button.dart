@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../theme/app_radius.dart';
+import '../../theme/app_shapes_extension.dart';
 import '../../theme/app_spacing.dart';
 
 enum AppButtonVariant { primary, secondary, text }
@@ -49,6 +49,7 @@ class AppButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final shapes = Theme.of(context).extension<AppShapes>() ?? AppShapes.standard;
     final isDisabled = state == AppButtonState.disabled;
     final isLoading = state == AppButtonState.loading;
 
@@ -91,7 +92,7 @@ class AppButton extends StatelessWidget {
         padding: padding,
         decoration: BoxDecoration(
           color: bg,
-          borderRadius: AppRadius.md,
+          borderRadius: BorderRadius.circular(shapes.buttonRadius),
           border: border != null ? Border.fromBorderSide(border) : null,
         ),
         child: Center(child: content),

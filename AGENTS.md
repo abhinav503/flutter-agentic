@@ -148,6 +148,17 @@ Use these shared components rather than their raw Flutter equivalents:
 
 ---
 
+## Theme
+
+Config-driven: each app's `assets/theme/theme_config.json` → `AppTheme.fromConfig` → `ThemeData`. A new look is a new config, never per-app theme Dart.
+
+- **Colours:** `activeTheme` picks a preset (`dadJokes`, `oceanBreeze`, `forestWalk`, `rocketWarm`); a seed generates all M3 roles, any role overridable by key. Extra success/warning roles → `AppColorsExtension`.
+- **Shape:** optional `"shape": { button, chip, card, input, sheet }` (+ `"density"`) sets brand corner radii. These populate `ThemeData`'s component themes (`elevatedButtonTheme`, `chipTheme`, `cardTheme`, …) **and** the `AppShapes` extension the atoms read — so a raw `ElevatedButton` and `AppButton` match and re-skin together. Read radius from `Theme.of(context).extension<AppShapes>()!`, never hardcode it.
+- **Dark/light:** `ThemeMode.system` by default. Manual toggle = `ThemeModeController` (persisted `ValueNotifier<ThemeMode>` in core — not a Cubit, keeps core free of `flutter_bloc`) + `ThemeModeScope` + the `ThemeModeToggle` atom (System→Light→Dark) in the AppBar.
+- Full detail: `docs/reference/architecture.md` → Theme configuration.
+
+---
+
 ## Project Setup
 
 When the user asks about running the project locally, follow the checklist in `docs/ai-rules/setup-project.md`.

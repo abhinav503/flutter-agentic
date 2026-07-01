@@ -4,6 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:core/core/base/base_page.dart';
 import 'package:doc_scanner/constants/value_const.dart';
 import 'package:core/core/di/core_injection.dart';
+import 'package:core/core/theme/theme_mode_scope.dart';
+import 'package:core/core/ui/atoms/theme_mode_toggle.dart';
 import 'package:core/core/ui/atoms/top_bar.dart';
 import 'package:core/core/ui/molecules/bottom_sheet.dart';
 import '../bloc/doc_scanner_bloc.dart';
@@ -31,24 +33,28 @@ class _HomePageState extends BasePageState<HomePage> {
       );
 
   @override
-  PreferredSizeWidget buildAppBar(BuildContext context) =>
-      AppTopBar.primary(
-        title: ValueConst.docScannerAppBarTitle,
-        actions: [
-          IconButton(
-            tooltip: ValueConst.docScannerModelSelectorTooltip,
-            icon: const Icon(Icons.tune_rounded),
-            onPressed: () => AppBottomSheet.show(
-              context,
-              title: ValueConst.docScannerModelSelectorTitle,
-              child: BlocProvider.value(
-                value: context.read<ModelSelectorCubit>(),
-                child: const ModelSelectorSheetContent(),
-              ),
+  PreferredSizeWidget buildAppBar(BuildContext context) {
+    final themeMode = ThemeModeScope.maybeOf(context);
+    return AppTopBar.primary(
+      title: ValueConst.docScannerAppBarTitle,
+      actions: [
+        IconButton(
+          tooltip: ValueConst.docScannerModelSelectorTooltip,
+          icon: const Icon(Icons.tune_rounded),
+          onPressed: () => AppBottomSheet.show(
+            context,
+            title: ValueConst.docScannerModelSelectorTitle,
+            child: BlocProvider.value(
+              value: context.read<ModelSelectorCubit>(),
+              child: const ModelSelectorSheetContent(),
             ),
           ),
-        ],
-      );
+        ),
+        if (themeMode != null)
+          ThemeModeToggle(mode: themeMode.value, onTap: themeMode.cycle),
+      ],
+    );
+  }
 
   @override
   Widget buildBody(BuildContext context) => BlocProvider(

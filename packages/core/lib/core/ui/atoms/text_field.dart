@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../../theme/app_radius.dart';
+import '../../theme/app_shapes_extension.dart';
 import '../../theme/app_spacing.dart';
 
 enum AppTextFieldState { idle, error, disabled }
 
 /// General-purpose text field with label, hint, error message, and focus-aware
 /// border. All colours come from [ColorScheme] and all text styles from
-/// [TextTheme]. Borders use [AppRadius] tokens.
+/// [TextTheme]. Border radius comes from the theme's [AppShapes] extension.
 ///
 /// ```dart
 /// AppTextField(
@@ -104,7 +104,8 @@ class _AppTextFieldState extends State<AppTextField> {
             ? cs.primary
             : cs.outline;
 
-    final radius = BorderRadius.circular(AppRadius.mdValue);
+    final shapes = Theme.of(context).extension<AppShapes>() ?? AppShapes.standard;
+    final radius = BorderRadius.circular(shapes.inputRadius);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

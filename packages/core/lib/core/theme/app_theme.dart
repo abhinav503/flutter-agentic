@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'app_colors_extension.dart';
-import 'app_radius.dart';
+import 'app_shapes_extension.dart';
 import 'app_spacing.dart';
 import 'app_theme_config.dart';
 
@@ -32,7 +32,12 @@ class AppTheme {
 
     cs = _applyOverrides(cs, dark ? config.darkOverrides : config.lightOverrides);
 
-    return _build(cs, fontFamily: config.fontFamily);
+    return _build(
+      cs,
+      fontFamily: config.fontFamily,
+      shapes: config.shapes,
+      density: config.density,
+    );
   }
 
   /// Convenience constructor — useful in tests or when skipping JSON loading.
@@ -149,56 +154,91 @@ class AppTheme {
     return fontFamily != null ? scale.apply(fontFamily: fontFamily) : scale;
   }
 
-  static ThemeData _build(ColorScheme cs, {String? fontFamily}) {
+  static ThemeData _build(
+    ColorScheme cs, {
+    String? fontFamily,
+    AppShapes shapes = AppShapes.standard,
+    double density = 0,
+  }) {
     final isDark = cs.brightness == Brightness.dark;
+
+    // Every brand shape is derived from the config's radii, so raw Material
+    // widgets (ElevatedButton, Chip, Card…) and our atoms — which read the same
+    // AppShapes extension — stay identical and re-skin together per theme.
+    final buttonShape = RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(shapes.buttonRadius),
+    );
+    final chipShape = RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(shapes.chipRadius),
+    );
+    final cardShape = RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(shapes.cardRadius),
+    );
+    final inputRadius = BorderRadius.circular(shapes.inputRadius);
+
+    OutlineInputBorder inputBorder(Color color, {double width = 1}) =>
+        OutlineInputBorder(
+          borderRadius: inputRadius,
+          borderSide: BorderSide(color: color, width: width),
+        );
+
     return ThemeData(
       useMaterial3: true,
       colorScheme: cs,
+      visualDensity: VisualDensity(horizontal: density, vertical: density),
 
-      // ── Custom semantic colours ───────────────────────────────────────────
-      // success/warning roles not covered by M3 ColorScheme — access via
-      // Theme.of(context).extension<AppColorsExtension>()!
-      extensions: [isDark ? AppColorsExtension.dark : AppColorsExtension.light],
+      // ── Custom theme extensions ───────────────────────────────────────────
+      // success/warning colours via AppColorsExtension; brand radii via
+      // AppShapes — atoms read both from Theme.of(context).extension<…>().
+      extensions: [
+        isDark ? AppColorsExtension.dark : AppColorsExtension.light,
+        shapes,
+      ],
 
       // ── Text theme ────────────────────────────────────────────────────────
       // Explicit M3 type scale — change sizes/weights here, not in widgets.
       // Font family is stamped across all styles via TextTheme.apply().
       textTheme: _textTheme(fontFamily),
 
+      // ── Component themes (make RAW Material widgets on-brand) ──────────────
+      // Colours already come from the ColorScheme automatically; these add the
+      // brand shape so a plain ElevatedButton looks exactly like an AppButton.
+      elevatedButtonTheme:
+          ElevatedButtonThemeData(style: ElevatedButton.styleFrom(shape: buttonShape)),
+      filledButtonTheme:
+          FilledButtonThemeData(style: FilledButton.styleFrom(shape: buttonShape)),
+      outlinedButtonTheme:
+          OutlinedButtonThemeData(style: OutlinedButton.styleFrom(shape: buttonShape)),
+      textButtonTheme:
+          TextButtonThemeData(style: TextButton.styleFrom(shape: buttonShape)),
+      chipTheme: ChipThemeData(shape: chipShape),
+      cardTheme: CardThemeData(clipBehavior: Clip.antiAlias, shape: cardShape),
+      dialogTheme: DialogThemeData(shape: cardShape),
+      bottomSheetTheme: BottomSheetThemeData(
+        shape: RoundedRectangleBorder(
+          borderRadius:
+              BorderRadius.vertical(top: Radius.circular(shapes.sheetRadius)),
+        ),
+      ),
+      floatingActionButtonTheme:
+          FloatingActionButtonThemeData(shape: buttonShape),
+
       // ── Input fields ──────────────────────────────────────────────────────
       // M3 default uses an underline border. This switches every TextFormField
-      // to an outlined rounded style so plain fields match AppTextField.
-      // hintStyle/labelStyle inherit the textTheme font via the theme cascade.
+      // to an outlined rounded style (radius from shapes.inputRadius) so plain
+      // fields match AppTextField. hint/label inherit the textTheme font.
       inputDecorationTheme: InputDecorationTheme(
         filled: false,
         contentPadding: const EdgeInsets.symmetric(
           horizontal: AppSpacing.base,
           vertical: AppSpacing.sm,
         ),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppRadius.mdValue),
-          borderSide: BorderSide(color: cs.outline),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppRadius.mdValue),
-          borderSide: BorderSide(color: cs.outline),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppRadius.mdValue),
-          borderSide: BorderSide(color: cs.primary, width: 2),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppRadius.mdValue),
-          borderSide: BorderSide(color: cs.error),
-        ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppRadius.mdValue),
-          borderSide: BorderSide(color: cs.error, width: 2),
-        ),
-        disabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppRadius.mdValue),
-          borderSide: BorderSide(color: cs.onSurface.withValues(alpha: 0.12)),
-        ),
+        border: inputBorder(cs.outline),
+        enabledBorder: inputBorder(cs.outline),
+        focusedBorder: inputBorder(cs.primary, width: 2),
+        errorBorder: inputBorder(cs.error),
+        focusedErrorBorder: inputBorder(cs.error, width: 2),
+        disabledBorder: inputBorder(cs.onSurface.withValues(alpha: 0.12)),
         hintStyle: TextStyle(color: cs.onSurfaceVariant),
         labelStyle: TextStyle(color: cs.onSurfaceVariant),
         errorStyle: TextStyle(color: cs.error, fontSize: 12),
