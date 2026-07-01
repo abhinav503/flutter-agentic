@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:share_plus/share_plus.dart';
@@ -29,8 +30,21 @@ class _HomeScreenState extends BaseScreenState<HomeScreen> {
     // First frame, not main(): guarantees the router is mounted and lets iOS
     // surface the terminated-state launch notification (see add-notification-feature A2).
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      FirebaseMessagingService.instance.init();
+      // FCM is mobile-only; skipping it on web keeps the preview from crashing
+      // (this is the sole entry point to the Firebase/local-notification stack).
+      if (!kIsWeb) FirebaseMessagingService.instance.init();
     });
+  }
+
+  // Camera/gallery capture is mobile-only; on the web preview there's no
+  // capture pipeline, so surface a snackbar and skip the picker instead of
+  // opening a browser file dialog that goes nowhere.
+  void _requestImages(BuildContext context, DocScannerEvent event) {
+    if (kIsWeb) {
+      showSnackBar(ValueConst.docScannerMobileOnly);
+      return;
+    }
+    context.read<DocScannerBloc>().add(event);
   }
 
   @override
@@ -86,12 +100,10 @@ class _HomeScreenState extends BaseScreenState<HomeScreen> {
             Expanded(
               child: receipts.isEmpty
                   ? DocScannerEmptyState(
-                      onCamera: () => context
-                          .read<DocScannerBloc>()
-                          .add(const DocScannerEvent.cameraRequested()),
-                      onGallery: () => context
-                          .read<DocScannerBloc>()
-                          .add(const DocScannerEvent.galleryRequested()),
+                      onCamera: () => _requestImages(
+                          context, const DocScannerEvent.cameraRequested()),
+                      onGallery: () => _requestImages(
+                          context, const DocScannerEvent.galleryRequested()),
                     )
                   : ListView.builder(
                       padding: const EdgeInsets.all(AppSpacing.lg),
@@ -145,12 +157,10 @@ class _HomeScreenState extends BaseScreenState<HomeScreen> {
                 isGenerating: isGenerating,
                 canGenerate: selectedCount > 0,
                 canShowLedger: selectedDoneCount > 0,
-                onCamera: () => context
-                    .read<DocScannerBloc>()
-                    .add(const DocScannerEvent.cameraRequested()),
-                onGallery: () => context
-                    .read<DocScannerBloc>()
-                    .add(const DocScannerEvent.galleryRequested()),
+                onCamera: () => _requestImages(
+                    context, const DocScannerEvent.cameraRequested()),
+                onGallery: () => _requestImages(
+                    context, const DocScannerEvent.galleryRequested()),
                 onGeneratePdf: () => context
                     .read<DocScannerBloc>()
                     .add(const DocScannerEvent.pdfRequested()),

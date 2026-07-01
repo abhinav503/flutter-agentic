@@ -78,14 +78,20 @@ Run from repo root: `flutter pub get`
 
 ```dart
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  // Web-safe: firebase_options.dart throws on web unless web is configured, and
+  // apps are previewed as Flutter Web. Guard so the preview boots; device
+  // behaviour is unchanged.
+  if (!kIsWeb) {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  }
 
   final config = await _loadThemeConfig();
   await initDependencies();

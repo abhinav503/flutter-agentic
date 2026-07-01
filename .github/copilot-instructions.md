@@ -121,6 +121,7 @@ Run `make gen` after changing any `@freezed` or `@JsonSerializable` file. Never 
 - Putting app-specific copy, feature logic, or product API URLs in `core` — `core` is the generic shared toolbelt; product strings/URLs go in each app's `lib/constants/` (`ValueConst`/`ApiConstants`), `core` keeps only `CoreConst`
 - Listing a package in an app's `pubspec.yaml` the app doesn't import directly — declare only direct deps; keep `core` dependency-lean
 - Naming the primary feature after the product — it's always `feature/home/` with `HomePage`/`HomeScreen`
+- Unguarded native-only init or actions — apps are **previewed as Flutter Web**, so the boot path and tap handlers must never crash on web. Guard native/platform code behind `kIsWeb`: wrap web-throwing init (`Firebase.initializeApp`, FCM, `flutter_local_notifications`) in `if (!kIsWeb) { … }`; make native-only user actions (camera/gallery, native share) no-op **with a snackbar** (e.g. `'… only available on mobile'`) — never a silent dead button or a thrown exception. Prefer plugins with a web implementation. **If a package won't *compile* for web** (pulls in `dart:io`/`dart:ffi`), a runtime `kIsWeb` isn't enough — isolate it behind a **conditional import** with a web stub (`export 'x_stub.dart' if (dart.library.io) 'x_io.dart' if (dart.library.js_interop) 'x_web.dart';`), not Dart deferred loading. Rule: *compiles but throws* → `kIsWeb`; *won't compile* → conditional import
 
 ---
 

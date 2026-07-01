@@ -241,18 +241,22 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  // Web-safe: FCM/Firebase are mobile-only; guard so the Flutter Web preview
+  // boots. Needs: import 'package:flutter/foundation.dart' show kIsWeb;
+  if (!kIsWeb) {
+    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  }
   // ...existing initDependencies() + runApp(...)
 }
 ```
-**`home_screen.dart`** — init on first frame:
+**`home_screen.dart`** — init on first frame (guard so the web preview stays off native-only plugins; needs `import 'package:flutter/foundation.dart' show kIsWeb;`):
 ```dart
 @override
 void initState() {
   super.initState();
   WidgetsBinding.instance.addPostFrameCallback((_) {
-    FirebaseMessagingService.instance.init();
+    if (!kIsWeb) FirebaseMessagingService.instance.init();
   });
 }
 ```

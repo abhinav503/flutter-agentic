@@ -4,6 +4,15 @@ import { useEffect, useState } from "react";
 import { RotateCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { DeviceFrame } from "@/components/preview/device-frame";
+import { DEVICE_FRAMES, deviceFrameById } from "@/lib/device-frames";
 import { useApps } from "@/hooks/use-apps";
 import { useSelectionStore } from "@/stores/selection-store";
 
@@ -17,6 +26,9 @@ export function TerminalPreview() {
   const pointPreviewAt = useSelectionStore((s) => s.pointPreviewAt);
   const reloadPreview = useSelectionStore((s) => s.reloadPreview);
   const selectedAppName = useSelectionStore((s) => s.selectedAppName);
+  const selectedDeviceFrameId = useSelectionStore((s) => s.selectedDeviceFrameId);
+  const setSelectedDeviceFrame = useSelectionStore((s) => s.setSelectedDeviceFrame);
+  const device = deviceFrameById(selectedDeviceFrameId);
 
   // Local address-bar text, resynced whenever the store URL changes from the
   // outside (e.g. a web app going live). Adjust-during-render is React's
@@ -69,15 +81,31 @@ export function TerminalPreview() {
           <RotateCw className="size-3.5" />
           Reload
         </Button>
+        <Select
+          value={device.id}
+          onValueChange={setSelectedDeviceFrame}
+        >
+          <SelectTrigger size="sm" className="ml-auto w-[190px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {DEVICE_FRAMES.map((d) => (
+              <SelectItem key={d.id} value={d.id}>
+                {d.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </form>
-      <div className="min-h-0 flex-1 bg-white">
+      <DeviceFrame device={device}>
         <iframe
           key={`${previewUrl}#${reloadToken}`}
           src={previewUrl}
-          className="h-full w-full border-0"
+          className="border-0"
+          style={{ width: device.width, height: device.height }}
           title="App preview"
         />
-      </div>
+      </DeviceFrame>
     </div>
   );
 }
