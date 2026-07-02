@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { cn } from "@/lib/utils";
 import type { DeviceFrame as DeviceFrameSpec } from "@/lib/device-frames";
 
 // Bezel thickness around the app, and the breathing room kept between the
@@ -9,9 +8,11 @@ import type { DeviceFrame as DeviceFrameSpec } from "@/lib/device-frames";
 const BEZEL = 12;
 const MARGIN = 24;
 
-// Wraps the preview iframe in a minimal phone bezel sized to `device`, then
-// scales the whole thing down (never up) so it always fits the pane and stays
-// centered. The children keep true device pixels — only the visual is scaled.
+// Wraps the preview iframe in a phone shell sized to `device` — dark bezel,
+// Dynamic Island (modern iPhones) or punch-hole camera (Android), and side
+// buttons — then scales the whole thing down (never up) so it always fits the
+// pane and stays centered. The children keep true device pixels — only the
+// visual is scaled.
 export function DeviceFrame({
   device,
   children,
@@ -42,16 +43,17 @@ export function DeviceFrame({
       ? Math.min(1, (avail.w - MARGIN) / frameW, (avail.h - MARGIN) / frameH)
       : 1;
 
+  // Older/small iPhones (SE) have a plain bezel, not a Dynamic Island.
+  const hasIsland = device.platform === "ios" && device.height > 700;
+  const hasPunchHole = device.platform === "android";
+
   return (
     <div
       ref={containerRef}
-      className="flex min-h-0 flex-1 items-center justify-center overflow-hidden bg-muted/30"
+      className="flex min-h-0 flex-1 items-center justify-center overflow-hidden bg-muted/40"
     >
       <div
-        className={cn(
-          "rounded-[2.2rem] border bg-card p-3 shadow-xl",
-          "shrink-0",
-        )}
+        className="relative shrink-0 rounded-[44px] bg-neutral-900 p-3 shadow-2xl ring-1 ring-black/20"
         style={{
           width: frameW,
           height: frameH,
@@ -59,11 +61,22 @@ export function DeviceFrame({
           transformOrigin: "center",
         }}
       >
+        {/* side buttons */}
+        <div className="absolute top-24 -left-[3px] h-10 w-[3px] rounded-l-sm bg-neutral-700" />
+        <div className="absolute top-38 -left-[3px] h-14 w-[3px] rounded-l-sm bg-neutral-700" />
+        <div className="absolute top-30 -right-[3px] h-16 w-[3px] rounded-r-sm bg-neutral-700" />
+
         <div
-          className="overflow-hidden rounded-[1.4rem] bg-white"
+          className="relative overflow-hidden rounded-[32px] bg-white"
           style={{ width: device.width, height: device.height }}
         >
           {children}
+          {hasIsland && (
+            <div className="pointer-events-none absolute top-2 left-1/2 z-10 h-[26px] w-[92px] -translate-x-1/2 rounded-full bg-black" />
+          )}
+          {hasPunchHole && (
+            <div className="pointer-events-none absolute top-2.5 left-1/2 z-10 size-3.5 -translate-x-1/2 rounded-full bg-black" />
+          )}
         </div>
       </div>
     </div>

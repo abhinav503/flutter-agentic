@@ -16,7 +16,9 @@ import { useDevices } from "@/hooks/use-devices";
 import { useSelectionStore } from "@/stores/selection-store";
 import type { AppRunStatus } from "@/lib/types";
 
-export function AppsBar() {
+// Run-target row under the project header: device select + Run/Stop for the
+// app picked in ProjectHeader.
+export function RunBar() {
   const { apps } = useApps();
   const { devices } = useDevices();
   const runApp = useRunApp();
@@ -56,22 +58,8 @@ export function AppsBar() {
     stopApp.mutate(app.name, { onError: (e) => toast.error(e.message) });
 
   return (
-    <div className="flex flex-wrap items-center gap-2 border-b px-3 py-2 text-sm">
-      <span className="text-muted-foreground">Preview app</span>
-      <Select value={app.name} onValueChange={setSelectedApp}>
-        <SelectTrigger size="sm" className="w-[160px]">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          {apps.map((a) => (
-            <SelectItem key={a.name} value={a.name}>
-              {a.name}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-
-      <span className="text-muted-foreground">on</span>
+    <div className="flex flex-wrap items-center gap-2 border-b px-3 py-1.5 text-sm">
+      <span className="text-muted-foreground text-xs">Run on</span>
       <Select value={device?.id} onValueChange={setSelectedDevice}>
         <SelectTrigger size="sm" className="w-[180px]">
           <SelectValue />

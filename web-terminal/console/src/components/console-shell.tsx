@@ -5,8 +5,9 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
-import { TerminalStatusBar } from "@/components/terminal/terminal-status-bar";
-import { AppsBar } from "@/components/terminal/apps-bar";
+import { IconRail } from "@/components/shell/icon-rail";
+import { ProjectHeader } from "@/components/terminal/project-header";
+import { RunBar } from "@/components/terminal/run-bar";
 import { TerminalConsole } from "@/components/terminal/terminal-console";
 import { RightPane } from "@/components/right-pane";
 import { useMediaQuery } from "@/hooks/use-media-query";
@@ -14,9 +15,9 @@ import { SPLIT_BREAKPOINT } from "@/lib/config";
 
 function TerminalPane() {
   return (
-    <div className="flex min-h-0 flex-1 flex-col">
-      <TerminalStatusBar />
-      <AppsBar />
+    <div className="flex h-full min-h-0 flex-1 flex-col">
+      <ProjectHeader />
+      <RunBar />
       <TerminalConsole />
     </div>
   );
@@ -34,18 +35,21 @@ export function ConsoleShell() {
   }
 
   return (
-    <main className="h-dvh">
-      <ResizablePanelGroup orientation="horizontal">
-        <ResizablePanel defaultSize={50} minSize={30}>
-          <TerminalPane />
-        </ResizablePanel>
-        <ResizableHandle withHandle />
-        <ResizablePanel defaultSize={50} minSize={25}>
-          <div className="flex h-full min-h-0 flex-col">
-            <RightPane />
-          </div>
-        </ResizablePanel>
-      </ResizablePanelGroup>
+    <main className="flex h-dvh">
+      <IconRail />
+      <div className="min-w-0 flex-1">
+        <ResizablePanelGroup orientation="horizontal">
+          <ResizablePanel defaultSize={42} minSize={25}>
+            <TerminalPane />
+          </ResizablePanel>
+          <ResizableHandle withHandle />
+          <ResizablePanel defaultSize={58} minSize={30}>
+            <div className="flex h-full min-h-0 flex-col">
+              <RightPane />
+            </div>
+          </ResizablePanel>
+        </ResizablePanelGroup>
+      </div>
     </main>
   );
 }

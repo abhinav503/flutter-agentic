@@ -19,11 +19,14 @@ const AGENTS: { value: TerminalAgent; label: string; hint: string }[] = [
 export function AgentSelector() {
   const agent = useTerminalStore((s) => s.agent);
   const setAgent = useTerminalStore((s) => s.setAgent);
+  const current = AGENTS.find((a) => a.value === agent);
 
   return (
     <Select value={agent} onValueChange={(v) => setAgent(v as TerminalAgent)}>
-      <SelectTrigger size="sm" className="w-[130px]">
-        <SelectValue />
+      <SelectTrigger size="sm" className="w-[110px]">
+        {/* Children override ItemText so the closed trigger shows only the
+            label, not the two-line label+hint rendered in the list. */}
+        <SelectValue>{current?.label}</SelectValue>
       </SelectTrigger>
       <SelectContent>
         {AGENTS.map((a) => (

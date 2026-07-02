@@ -12,7 +12,7 @@ const geistSans = Geist({
 });
 
 export const metadata: Metadata = {
-  title: "Local Terminal",
+  title: "FlutterAgentic Console",
   description: "FlutterAgentic builder console",
 };
 
@@ -24,7 +24,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${jetBrainsMono.variable} dark h-full antialiased`}
+      className={`${geistSans.variable} ${jetBrainsMono.variable} h-full antialiased`}
     >
       <body className="min-h-full">
         <QueryProvider>
