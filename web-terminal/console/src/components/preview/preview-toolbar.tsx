@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Braces,
   Camera,
@@ -36,6 +36,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { DEVICE_FRAMES } from "@/lib/device-frames";
+import { useApps } from "@/hooks/use-apps";
 import { useSelectionStore } from "@/stores/selection-store";
 import { useUiStore } from "@/stores/ui-store";
 import { cn } from "@/lib/utils";
@@ -67,22 +68,44 @@ function StubIconButton({
   );
 }
 
-// Rocket-style toolbar above the preview canvas: Preview/Full-screen toggle,
-// overflow menu (Code / Connectors / APIs — stubs), address bar with reload,
-// stub actions, viewport picker, and the Launch button.
+// Rocket-style toolbar above the right pane: Preview/Full-screen toggle,
+// overflow menu (Code opens the code view), address bar with reload, Edit-mode
+// toggle, viewport picker, and the Launch button. Always mounted (also above
+// the code view), so it owns the point-at-live-app effect.
 export function PreviewToolbar() {
   const previewMode = useUiStore((s) => s.previewMode);
   const setPreviewMode = useUiStore((s) => s.setPreviewMode);
+  const rightView = useUiStore((s) => s.rightView);
+  const setRightView = useUiStore((s) => s.setRightView);
+  const editMode = useUiStore((s) => s.editMode);
+  const toggleEditMode = useUiStore((s) => s.toggleEditMode);
+  const openCode = useUiStore((s) => s.openCode);
 
+  const { apps } = useApps();
   const previewUrl = useSelectionStore((s) => s.previewUrl);
   const setPreviewUrl = useSelectionStore((s) => s.setPreviewUrl);
+  const pointPreviewAt = useSelectionStore((s) => s.pointPreviewAt);
   const reloadPreview = useSelectionStore((s) => s.reloadPreview);
+  const selectedAppName = useSelectionStore((s) => s.selectedAppName);
   const selectedDeviceFrameId = useSelectionStore(
     (s) => s.selectedDeviceFrameId,
   );
   const setSelectedDeviceFrame = useSelectionStore(
     (s) => s.setSelectedDeviceFrame,
   );
+
+  // When the selected app goes live on a web target, point the iframe at it.
+  const app = apps.find((a) => a.name === selectedAppName);
+  useEffect(() => {
+    if (
+      app &&
+      app.status === "running" &&
+      app.target === "web" &&
+      app.previewPort
+    ) {
+      pointPreviewAt(`http://localhost:${app.previewPort}`);
+    }
+  }, [app, pointPreviewAt]);
 
   // Local address-bar text, resynced whenever the store URL changes from the
   // outside (e.g. a web app going live).
@@ -98,26 +121,46 @@ export function PreviewToolbar() {
     reloadPreview();
   };
 
+  const showPreview = (mode: "device" | "fill") => {
+    setPreviewMode(mode);
+    setRightView("preview");
+  };
+
+  const inPreview = rightView === "preview";
+
   return (
     <div className="flex flex-wrap items-center gap-1.5 border-b px-2 py-1.5">
       <div className="flex items-center rounded-lg border p-0.5">
         <Button
           size="xs"
-          variant={previewMode === "device" ? "secondary" : "ghost"}
-          className={cn(previewMode !== "device" && "text-muted-foreground")}
-          onClick={() => setPreviewMode("device")}
+          variant={inPreview && previewMode === "device" ? "secondary" : "ghost"}
+          className={cn(
+            !(inPreview && previewMode === "device") && "text-muted-foreground",
+          )}
+          onClick={() => showPreview("device")}
         >
           <Eye className="size-3.5" />
           Preview
         </Button>
         <Button
           size="xs"
-          variant={previewMode === "fill" ? "secondary" : "ghost"}
-          className={cn(previewMode !== "fill" && "text-muted-foreground")}
-          onClick={() => setPreviewMode("fill")}
+          variant={inPreview && previewMode === "fill" ? "secondary" : "ghost"}
+          className={cn(
+            !(inPreview && previewMode === "fill") && "text-muted-foreground",
+          )}
+          onClick={() => showPreview("fill")}
         >
           <Maximize2 className="size-3.5" />
           Full screen
+        </Button>
+        <Button
+          size="xs"
+          variant={rightView === "code" ? "secondary" : "ghost"}
+          className={cn(rightView !== "code" && "text-muted-foreground")}
+          onClick={() => openCode()}
+        >
+          <Code2 className="size-3.5" />
+          Code
         </Button>
       </div>
 
@@ -133,7 +176,7 @@ export function PreviewToolbar() {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start">
-          <DropdownMenuItem onSelect={() => comingSoon("Code view")}>
+          <DropdownMenuItem onSelect={() => openCode()}>
             <Code2 />
             Code
           </DropdownMenuItem>
@@ -174,11 +217,19 @@ export function PreviewToolbar() {
         </Button>
       </form>
 
-      <StubIconButton icon={Pencil} label="Visual edit" />
+      <Button
+        size="xs"
+        variant={editMode ? "secondary" : "ghost"}
+        className={cn(!editMode && "text-muted-foreground")}
+        onClick={toggleEditMode}
+      >
+        <Pencil className="size-3.5" />
+        Edit
+      </Button>
       <StubIconButton icon={Camera} label="Screenshot" />
       <StubIconButton icon={UserPlus} label="Invite" />
 
-      {previewMode === "device" && (
+      {inPreview && previewMode === "device" && (
         <Select
           value={selectedDeviceFrameId}
           onValueChange={setSelectedDeviceFrame}

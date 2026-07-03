@@ -9,7 +9,10 @@ import type {
   AppState,
   BridgeConfig,
   DeviceInfo,
+  FileNode,
   RunAppInput,
+  SearchHit,
+  SourceTarget,
   SetupItem,
 } from "@/lib/types";
 
@@ -79,4 +82,67 @@ export async function getDevices(): Promise<DeviceInfo[]> {
 export async function getSetup(): Promise<SetupItem[]> {
   const { items } = await getJson<{ items: SetupItem[] }>(ENDPOINTS.setup);
   return items;
+}
+
+// --- Source files (code view + visual edit) ---
+
+const appPath = (app: string, kind: string) =>
+  `${ENDPOINTS.apps}/${encodeURIComponent(app)}/${kind}`;
+
+export async function getFileTree(app: string): Promise<FileNode[]> {
+  const { tree } = await getJson<{ tree: FileNode[] }>(appPath(app, "files"));
+  return tree;
+}
+
+export async function getFile(
+  app: string,
+  path: string,
+): Promise<{ path: string; content: string }> {
+  return getJson(`${appPath(app, "file")}?path=${encodeURIComponent(path)}`);
+}
+
+export async function saveFile(
+  app: string,
+  path: string,
+  content: string,
+): Promise<void> {
+  await postJson<{ ok: boolean }>(appPath(app, "file"), { path, content });
+}
+
+// `prefer: "usage"` ranks widget usages above constant definitions — right for
+// jump-to-code. Omit it for the text-replace flow, which edits the constant.
+export async function searchApp(
+  app: string,
+  query: string,
+  prefer?: "usage",
+): Promise<SearchHit[]> {
+  const suffix = prefer ? `&prefer=${prefer}` : "";
+  const { hits } = await getJson<{ hits: SearchHit[] }>(
+    `${appPath(app, "search")}?q=${encodeURIComponent(query)}${suffix}`,
+  );
+  return hits;
+}
+
+// Hot-restarts the running `flutter run` process; resolves when the new build
+// is being served (so the caller can reload the iframe).
+export async function reloadApp(
+  app: string,
+): Promise<{ ok: boolean; message?: string }> {
+  return postJson(appPath(app, "reload"));
+}
+
+export async function setInspectorEnabled(
+  app: string,
+  enabled: boolean,
+): Promise<{ ok: boolean; message?: string }> {
+  return postJson(appPath(app, "inspect"), { enabled });
+}
+
+export async function getSelectedWidgetSource(
+  app: string,
+): Promise<SourceTarget | null> {
+  const { source } = await getJson<{ source: SourceTarget | null }>(
+    appPath(app, "inspect/selected"),
+  );
+  return source;
 }

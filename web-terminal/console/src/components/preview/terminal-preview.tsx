@@ -1,17 +1,34 @@
 "use client";
 
-import { useEffect } from "react";
+import { useRef } from "react";
 import { Play, Smartphone } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { DeviceFrame } from "@/components/preview/device-frame";
-import { PreviewToolbar } from "@/components/preview/preview-toolbar";
+import { EditOverlay } from "@/components/preview/edit-overlay";
+import { RocketLoader } from "@/components/ui/rocket-loader";
 import { deviceFrameById } from "@/lib/device-frames";
 import { DEFAULT_PREVIEW_URL } from "@/lib/config";
 import { useApps, useRunApp } from "@/hooks/use-apps";
 import { useDevices } from "@/hooks/use-devices";
 import { useSelectionStore } from "@/stores/selection-store";
 import { useUiStore } from "@/stores/ui-store";
+
+// Edit mode must read the iframe's DOM, which the browser only allows
+// same-origin — so local preview URLs are rerouted through /preview-proxy/.
+// Non-local URLs pass through untouched (the overlay just can't inspect them).
+function toSameOrigin(previewUrl: string): string {
+  try {
+    const url = new URL(previewUrl);
+    if (url.hostname === "localhost" || url.hostname === "127.0.0.1") {
+      // No trailing slash — Next 308-redirects "/preview-proxy/" to it anyway.
+      return `/preview-proxy?port=${url.port || "80"}`;
+    }
+  } catch {
+    /* leave malformed URLs alone */
+  }
+  return previewUrl;
+}
 
 // Empty canvas shown inside the frame until the selected app is running (or
 // the user points the address bar somewhere).
@@ -59,68 +76,58 @@ function PreviewPlaceholder({ appName }: { appName: string | null }) {
   );
 }
 
-// Right pane for web targets: Rocket-style toolbar + live iframe, framed in a
-// phone shell or filling the pane. The iframe reloads by re-keying on
-// reloadToken.
+// The live preview canvas: iframe (re-keyed on reloadToken to reload), framed
+// in a phone shell or filling the pane, plus the edit-mode inspection overlay.
 export function TerminalPreview() {
   const { apps } = useApps();
   const previewUrl = useSelectionStore((s) => s.previewUrl);
   const reloadToken = useSelectionStore((s) => s.reloadToken);
-  const pointPreviewAt = useSelectionStore((s) => s.pointPreviewAt);
   const selectedAppName = useSelectionStore((s) => s.selectedAppName);
   const selectedDeviceFrameId = useSelectionStore(
     (s) => s.selectedDeviceFrameId,
   );
   const previewMode = useUiStore((s) => s.previewMode);
+  const editMode = useUiStore((s) => s.editMode);
   const device = deviceFrameById(selectedDeviceFrameId);
+  const iframeRef = useRef<HTMLIFrameElement | null>(null);
 
-  // When the selected app goes live on a web target, point the iframe at it.
   const app = apps.find((a) => a.name === selectedAppName);
-  useEffect(() => {
-    if (
-      app &&
-      app.status === "running" &&
-      app.target === "web" &&
-      app.previewPort
-    ) {
-      pointPreviewAt(`http://localhost:${app.previewPort}`);
-    }
-  }, [app, pointPreviewAt]);
-
   // Only guess "nothing to show" while the address bar is untouched; a manual
   // URL always wins over the placeholder.
   const appLive = app?.status === "running" || app?.status === "starting";
   const showPlaceholder = previewUrl === DEFAULT_PREVIEW_URL && !appLive;
 
-  const iframe = (
-    <iframe
-      key={`${previewUrl}#${reloadToken}`}
-      src={previewUrl}
-      className="h-full w-full border-0"
-      title="App preview"
-    />
-  );
+  const src = editMode ? toSameOrigin(previewUrl) : previewUrl;
 
-  return (
-    <div className="flex min-h-0 flex-1 flex-col">
-      <PreviewToolbar />
-      {previewMode === "fill" ? (
-        <div className="min-h-0 flex-1 bg-white">
-          {showPlaceholder ? (
-            <PreviewPlaceholder appName={app?.name ?? null} />
-          ) : (
-            iframe
-          )}
-        </div>
-      ) : (
-        <DeviceFrame device={device}>
-          {showPlaceholder ? (
-            <PreviewPlaceholder appName={app?.name ?? null} />
-          ) : (
-            iframe
-          )}
-        </DeviceFrame>
-      )}
-    </div>
-  );
+  let content: React.ReactNode;
+  if (showPlaceholder) {
+    content = <PreviewPlaceholder appName={app?.name ?? null} />;
+  } else if (app?.status === "starting") {
+    // The dev server isn't serving yet — a bare iframe would just show a
+    // connection error, so hold the launch loader until it's running.
+    content = (
+      <RocketLoader
+        label={`Launching ${app.name}…`}
+        sublabel="Starting the preview server"
+      />
+    );
+  } else {
+    content = (
+      <div className="relative h-full w-full bg-white">
+        <iframe
+          key={`${src}#${reloadToken}`}
+          ref={iframeRef}
+          src={src}
+          className="h-full w-full border-0"
+          title="App preview"
+        />
+        {editMode && <EditOverlay iframeRef={iframeRef} />}
+      </div>
+    );
+  }
+
+  if (previewMode === "fill") {
+    return <div className="min-h-0 flex-1 bg-white">{content}</div>;
+  }
+  return <DeviceFrame device={device}>{content}</DeviceFrame>;
 }

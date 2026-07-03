@@ -128,3 +128,132 @@
     @apply font-sans;
   }
 }
+
+/* ── Rocket launch loader ─────────────────────────────────────────────────
+   Used while an app is starting and while edit mode boots the preview. The
+   rocket bobs (outer) and vibrates (inner) to imply thrust; the flame flickers
+   and sparks stream out the bottom. */
+
+@keyframes rocket-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-7px);
+  }
+}
+
+@keyframes rocket-shake {
+  0%,
+  100% {
+    transform: translateX(-0.6px);
+  }
+  25% {
+    transform: translateX(0.6px) translateY(0.3px);
+  }
+  50% {
+    transform: translateX(-0.4px) translateY(-0.3px);
+  }
+  75% {
+    transform: translateX(0.5px);
+  }
+}
+
+@keyframes rocket-flame {
+  0%,
+  100% {
+    transform: scaleY(1) scaleX(1);
+    opacity: 0.95;
+  }
+  50% {
+    transform: scaleY(0.6) scaleX(0.82);
+    opacity: 0.65;
+  }
+}
+
+@keyframes rocket-spark {
+  0% {
+    transform: translate(-50%, 0) scale(1);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, 46px) scale(0.3);
+    opacity: 0;
+  }
+}
+
+@keyframes rocket-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.rocket-bob {
+  animation: rocket-bob 1.8s ease-in-out infinite;
+}
+.rocket-shake {
+  animation: rocket-shake 0.12s linear infinite;
+}
+.rocket-flame {
+  transform-origin: top center;
+  animation: rocket-flame 0.18s ease-in-out infinite;
+}
+.rocket-spark {
+  animation: rocket-spark 0.9s ease-in infinite;
+}
+.rocket-pulse {
+  animation: rocket-pulse 1.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rocket-bob,
+  .rocket-shake,
+  .rocket-flame,
+  .rocket-spark,
+  .rocket-pulse {
+    animation: none;
+  }
+}
+/* Jump-to-code target line in the Monaco code view (edit-overlay "go to code").
+   The persistent band marks where the jump landed so it survives the next
+   click, unlike Monaco's transient current-line box; the flash plays once. */
+.edit-target-line {
+  background: rgba(56, 189, 248, 0.22);
+  box-shadow: inset 3px 0 0 0 #0ea5e9;
+}
+.edit-target-glyph {
+  background: #0ea5e9;
+  width: 4px !important;
+  margin-left: 3px;
+}
+/* A bright amber pop that settles into the resting sky band over 2s, so the
+   jump is unmistakable even when the target line is already on screen. */
+.edit-target-flash {
+  animation: editTargetFlash 2s ease-out;
+}
+
+@keyframes editTargetFlash {
+  0% {
+    background: rgba(250, 204, 21, 0.8);
+  }
+  35% {
+    background: rgba(250, 204, 21, 0.55);
+  }
+  100% {
+    background: rgba(56, 189, 248, 0.22);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .edit-target-flash {
+    animation: none;
+  }
+}

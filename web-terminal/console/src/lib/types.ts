@@ -71,5 +71,27 @@ export interface RunAppInput {
   kind: string;
 }
 
+// --- Code view + visual edit (see web-terminal/server/src/files.js) ---
+
+export interface FileNode {
+  name: string;
+  path: string;
+  type: "file" | "dir";
+  children?: FileNode[];
+}
+
+export interface SearchHit {
+  path: string;
+  line: number;
+  preview: string;
+}
+
+export interface SourceTarget {
+  path: string;
+  line: number;
+  column?: number;
+  name?: string | null;
+}
+
 export const isWebDevice = (device: DeviceInfo): boolean =>
   device.kind === "web";
