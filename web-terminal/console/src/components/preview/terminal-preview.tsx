@@ -14,8 +14,10 @@ import { useDevices } from "@/hooks/use-devices";
 import { useSelectionStore } from "@/stores/selection-store";
 import { useUiStore } from "@/stores/ui-store";
 
-// Edit mode must read the iframe's DOM, which the browser only allows
-// same-origin — so local preview URLs are rerouted through /preview-proxy/.
+// The dev server binds loopback on the machine running the bridge, so a remote
+// browser can't reach it directly — and edit mode must read the iframe's DOM,
+// which the browser only allows same-origin. Both are solved by rerouting local
+// preview URLs through /preview-proxy/ (the console server fetches loopback).
 // Non-local URLs pass through untouched (the overlay just can't inspect them).
 function toSameOrigin(previewUrl: string): string {
   try {
@@ -97,7 +99,7 @@ export function TerminalPreview() {
   const appLive = app?.status === "running" || app?.status === "starting";
   const showPlaceholder = previewUrl === DEFAULT_PREVIEW_URL && !appLive;
 
-  const src = editMode ? toSameOrigin(previewUrl) : previewUrl;
+  const src = toSameOrigin(previewUrl);
 
   let content: React.ReactNode;
   if (showPlaceholder) {

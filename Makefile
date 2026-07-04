@@ -15,7 +15,7 @@ GEN_PACKAGES = packages/core apps/jokes apps/doc_scanner apps/ai_chat
 # declared phony or make treats them as up-to-date files.
 .PHONY: setup run-jokes run-doc-scanner run-ai-chat web-jokes web-doc-scanner \
         web-ai-chat console terminal-bridge dev-web-terminal analyze test \
-        gen clean
+        gen clean docker-build docker-up ws-image ws-create ws-delete
 
 setup:
 	git config core.hooksPath .githooks
@@ -56,6 +56,30 @@ console:
 
 # Backwards-compatible alias for the console dev server.
 dev-web-terminal: console
+
+# --- cloud workspace: the whole stack (console + bridge + Flutter + agents) in
+# one Docker image, deployable as a per-user GCE spot VM.
+# Full flow: docs/how-to/deploy-workspace-gcp.md
+
+# Build the workspace image locally.
+docker-build:
+	docker compose build
+
+# Run the workspace locally: http://localhost:8080, basic auth dev/devtoken.
+docker-up:
+	docker compose up --build
+
+# Build + push the image to Artifact Registry via Cloud Build (amd64).
+ws-image:
+	./infra/workspace/build-image.sh
+
+# Spin up / tear down one user's workspace VM: make ws-create WS_USER=alice
+# (WS_USER, not USER — the shell already owns $USER.)
+ws-create:
+	./infra/workspace/create-workspace.sh $(WS_USER)
+
+ws-delete:
+	./infra/workspace/delete-workspace.sh $(WS_USER)
 
 # --- workspace-wide ---
 analyze:

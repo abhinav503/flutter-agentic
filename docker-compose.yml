@@ -1,0 +1,31 @@
+# Local parity run of the cloud workspace image.
+#
+#   docker compose up --build
+#   open http://localhost:8080   (basic auth: dev / devtoken)
+#
+# Named volumes mirror the GCE host-path mounts: user code and agent logins
+# survive container restarts.
+services:
+  workspace:
+    build: .
+    # amd64 always: the Flutter Linux SDK ships x86-64 binaries only, so an
+    # arm64 build dies under Rosetta ("failed to open elf …ld-linux-x86-64").
+    # On Apple silicon the whole image runs via Docker's Rosetta emulation —
+    # slower, but identical to what the e2 VMs run.
+    platform: linux/amd64
+    ports:
+      - "8080:80"
+    environment:
+      TERMINAL_TOKEN: ${TERMINAL_TOKEN:-devtoken}
+    volumes:
+      - workspace:/workspace
+      - claude-config:/home/node/.claude
+      - codex-config:/home/node/.codex
+      - caddy-data:/data
+    restart: unless-stopped
+
+volumes:
+  workspace:
+  claude-config:
+  codex-config:
+  caddy-data:

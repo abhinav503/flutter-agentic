@@ -1,0 +1,41 @@
+# The workspace's only public listener.
+#
+# WORKSPACE_HOST set (cloud)  → site = that hostname, Caddy auto-provisions TLS
+#                               (sslip.io names resolve to the VM's IP).
+# WORKSPACE_HOST unset (local) → plain HTTP on :80 for docker-compose parity.
+#
+# /bridge/ws skips basic auth: browsers can't attach Basic credentials to a
+# WebSocket upgrade, and the bridge already requires its own per-workspace
+# token on that path. Everything else is behind basic auth (user `dev`,
+# password = TERMINAL_TOKEN; hash injected by start.sh).
+#
+# `header_up Host` keeps the bridge's stock loopback Host-allowlist passing.
+
+{$WORKSPACE_HOST::80} {
+	encode gzip
+
+	@ws path /bridge/ws
+	handle @ws {
+		uri strip_prefix /bridge
+		reverse_proxy 127.0.0.1:3000 {
+			header_up Host 127.0.0.1:3000
+		}
+	}
+
+	handle /bridge/* {
+		basic_auth {
+			dev {$BASIC_AUTH_HASH}
+		}
+		uri strip_prefix /bridge
+		reverse_proxy 127.0.0.1:3000 {
+			header_up Host 127.0.0.1:3000
+		}
+	}
+
+	handle {
+		basic_auth {
+			dev {$BASIC_AUTH_HASH}
+		}
+		reverse_proxy 127.0.0.1:4000
+	}
+}

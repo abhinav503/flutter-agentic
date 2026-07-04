@@ -140,7 +140,12 @@ function spawnRun(name, app, { deviceId, isWeb, entry }) {
   const runArgs = isWeb
     ? ['run', '-d', 'web-server', '--web-hostname', 'localhost',
        '--web-port', String(app.previewPort),
-       '--vm-service-port', String(vmPort)]
+       '--vm-service-port', String(vmPort),
+       // SSE, not WebSocket, for the injected debug client: the app only runs
+       // main() after this connection, and behind the preview proxy
+       // (Docker/cloud) only plain HTTP can be forwarded — the console's
+       // /$dwdsSseHandler route relays it to this dev server.
+       '--web-server-debug-injected-client-protocol', 'sse']
     : ['run', '-d', deviceId];
   const child = spawn(cmd, [...baseArgs, ...runArgs], {
     cwd: app.path,

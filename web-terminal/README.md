@@ -55,6 +55,25 @@ console fetches it automatically from `/config.json`. In dev the console runs
 cross-origin (`:4000` → `:3000`); the bridge echoes CORS **only** for localhost
 origins.
 
+## Run it in the cloud
+
+The whole stack also ships as **one Docker image** — console + bridge + Flutter
+SDK + `claude`/`codex` CLIs behind a Caddy reverse proxy (TLS + basic auth) —
+so a remote user gets their own isolated workspace on a per-user GCE spot VM
+and needs nothing but a browser.
+
+```bash
+make docker-up                    # local parity: http://localhost:8080 (dev/devtoken)
+make ws-image                     # build + push to Artifact Registry
+make ws-create WS_USER=alice      # boot a workspace VM → prints URL + token
+```
+
+Inside the container the bridge and console still bind loopback; Caddy is the
+only public listener, routing `/` → console, `/bridge/*` → bridge, and the
+preview through the console's same-origin `/preview-proxy`. Full flow:
+[`docs/how-to/deploy-workspace-gcp.md`](../docs/how-to/deploy-workspace-gcp.md);
+architecture: [`docs/explanation/cloud-workspace-plan.md`](../docs/explanation/cloud-workspace-plan.md).
+
 ## Security
 
 This is effectively a remote shell to your machine, so the bridge is
@@ -67,7 +86,13 @@ deliberately locked down:
    the token) sends CORS headers to localhost origins only, so a public page
    can't read it.
 
-Override the shell or token with env vars: `SHELL`, `TERMINAL_TOKEN`, `PORT`.
+In the cloud image these loopback guarantees hold *inside* the container:
+Caddy is the only public listener, adding TLS and basic auth in front, and the
+bridge refuses a non-loopback `BIND_HOST` without an explicit `TERMINAL_TOKEN`.
+
+Override with env vars: `SHELL`, `TERMINAL_TOKEN`, `PORT`, `BIND_HOST`,
+`ALLOWED_HOSTS`, `ALLOWED_ORIGINS` (the last three are cloud/proxy escape
+hatches — local dev needs none of them).
 
 ## Scope
 

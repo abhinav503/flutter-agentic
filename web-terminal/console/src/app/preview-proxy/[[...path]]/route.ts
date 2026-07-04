@@ -1,14 +1,13 @@
 import type { NextRequest } from "next/server";
+import { getPreviewPort, setPreviewPort } from "@/lib/preview-port";
 
 // Same-origin proxy for the preview iframe. The visual-edit overlay needs
 // `iframe.contentDocument`, which the browser only allows same-origin — so in
 // edit mode the iframe loads /preview-proxy/?port=<p> from the console origin
 // and this route forwards to the Flutter dev server on 127.0.0.1:<p>.
 //
-// The port arrives once on the document request; the asset requests that
-// follow can't carry it, so it's remembered module-side (dev-only, single
-// user, one preview at a time — same assumption as the bridge).
-let currentPort = 8080;
+// The port is remembered in @/lib/preview-port, shared with the
+// /$dwdsSseHandler route that proxies the debug-client connection.
 
 export async function GET(
   request: NextRequest,
@@ -18,13 +17,13 @@ export async function GET(
   const url = new URL(request.url);
 
   const portParam = Number(url.searchParams.get("port"));
-  if (Number.isInteger(portParam) && portParam > 0) currentPort = portParam;
+  setPreviewPort(portParam);
 
   const qs = new URLSearchParams(url.searchParams);
   qs.delete("port");
   // "localhost", not 127.0.0.1 — `flutter run --web-hostname localhost` can
   // bind IPv6-only (::1), and Node's fetch resolves localhost to either family.
-  const target = `http://localhost:${currentPort}/${path?.join("/") ?? ""}${
+  const target = `http://localhost:${getPreviewPort()}/${path?.join("/") ?? ""}${
     qs.size ? `?${qs}` : ""
   }`;
 
@@ -51,6 +50,27 @@ export async function GET(
     return new Response(rewritten, {
       status: upstream.status,
       headers: { "content-type": contentType, "cache-control": "no-store" },
+    });
+  }
+
+  // The DDC bootstrap hardcodes the DWDS debug-client URL as an absolute
+  // http://localhost:<flutter-port>/$dwdsSseHandler — unreachable from the
+  // browser when the dev server sits behind this proxy (Docker/cloud). The
+  // injected client must connect before it runs main(), so a dead URL leaves
+  // the app stuck on the loading bar. Rebase it to the page origin, where the
+  // /$dwdsSseHandler route forwards it.
+  if (target.endsWith("main_module.bootstrap.js")) {
+    const js = await upstream.text();
+    const rewritten = js.replace(
+      /(["'])(?:ws|http)s?:\/\/[^"']*\/(\$dwdsSseHandler)\1/,
+      "$1/$2$1",
+    );
+    return new Response(rewritten, {
+      status: upstream.status,
+      headers: {
+        "content-type": contentType || "application/javascript",
+        "cache-control": "no-store",
+      },
     });
   }
 

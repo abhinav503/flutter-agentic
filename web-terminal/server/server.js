@@ -22,7 +22,7 @@ const { WebSocketServer } = require('ws');
 
 const config = require('./src/config');
 const logger = require('./src/logger');
-const { isHostAllowed, isLocalhostOrigin } = require('./src/security');
+const { isHostAllowed, isAllowedOrigin } = require('./src/security');
 const { serveStatic, MIME } = require('./src/static-server');
 const { createTerminalSession } = require('./src/terminal-session');
 const {
@@ -42,14 +42,15 @@ const { listDevices } = require('./src/devices');
 
 // The Flutter app fetches this to learn the WS url + token. Same-origin in
 // production; in dev (flutter run on another port) it's cross-origin, so we
-// echo CORS ONLY for localhost origins. A public page (Origin https://evil.com)
-// gets no allow-origin header and the browser blocks it from reading the token.
-// Write a JSON body, echoing CORS only for localhost origins (same token-safety
+// echo CORS ONLY for localhost origins (plus any ALLOWED_ORIGINS entries). A
+// public page (Origin https://evil.com) gets no allow-origin header and the
+// browser blocks it from reading the token.
+// Write a JSON body, echoing CORS only for allowed origins (same token-safety
 // rule as /config.json): a public page can't read these responses cross-origin.
 function sendJson(req, res, payload) {
   const origin = req.headers.origin || '';
   const headers = { 'content-type': MIME['.json'], 'cache-control': 'no-store' };
-  if (isLocalhostOrigin(origin)) {
+  if (isAllowedOrigin(origin)) {
     headers['access-control-allow-origin'] = origin;
     headers['vary'] = 'Origin';
   }
@@ -58,11 +59,11 @@ function sendJson(req, res, payload) {
 }
 
 // CORS preflight for the app-management POSTs from a cross-origin dev page
-// (flutter run on :4000 → bridge on :3000). Localhost origins only.
+// (flutter run on :4000 → bridge on :3000). Allowed origins only.
 function handlePreflight(req, res) {
   const origin = req.headers.origin || '';
   const headers = {};
-  if (isLocalhostOrigin(origin)) {
+  if (isAllowedOrigin(origin)) {
     headers['access-control-allow-origin'] = origin;
     headers['access-control-allow-methods'] = 'GET, POST, OPTIONS';
     headers['access-control-allow-headers'] = 'content-type';

@@ -1,8 +1,12 @@
 // HTTP + WebSocket client for the Node PTY bridge. Port of
 // network/bridge_client.dart + the *_remote_data_source_impl.dart files.
 //
-// The bridge listens on 127.0.0.1:3000 and echoes CORS for localhost origins,
-// so the console (served on :4000) talks to it cross-origin without a proxy.
+// Two deployment shapes, selected by NEXT_PUBLIC_BRIDGE_ORIGIN:
+// - absolute origin (local dev default http://localhost:3000): the bridge is a
+//   separate port and echoes CORS for localhost origins — cross-origin, no proxy.
+// - path prefix (cloud image bakes "/bridge"): a reverse proxy in front of the
+//   console forwards the prefix to the bridge — same-origin, host-agnostic, so
+//   one built image works on any hostname.
 
 import { DEFAULT_BRIDGE_ORIGIN, ENDPOINTS } from "@/lib/config";
 import type {
@@ -16,13 +20,15 @@ import type {
   SetupItem,
 } from "@/lib/types";
 
-export function bridgeOrigin(): string {
+// Absolute origin or a path prefix like "/bridge" (see header note). Fetches
+// resolve either form against the page origin, so callers just prepend it.
+export function bridgeBase(): string {
   const fromEnv = process.env.NEXT_PUBLIC_BRIDGE_ORIGIN?.trim();
   return fromEnv && fromEnv.length > 0 ? fromEnv : DEFAULT_BRIDGE_ORIGIN;
 }
 
 async function getJson<T>(path: string): Promise<T> {
-  const res = await fetch(`${bridgeOrigin()}${path}`, {
+  const res = await fetch(`${bridgeBase()}${path}`, {
     headers: { accept: "application/json" },
     cache: "no-store",
   });
@@ -31,7 +37,7 @@ async function getJson<T>(path: string): Promise<T> {
 }
 
 async function postJson<T>(path: string, body?: unknown): Promise<T> {
-  const res = await fetch(`${bridgeOrigin()}${path}`, {
+  const res = await fetch(`${bridgeBase()}${path}`, {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: body ? JSON.stringify(body) : undefined,
@@ -43,13 +49,21 @@ async function postJson<T>(path: string, body?: unknown): Promise<T> {
   return (await res.json()) as T;
 }
 
-// Builds the authenticated WebSocket URL from /config.json. The bridge returns
-// { wsPort, token }; the scheme follows the origin (ws/wss).
+// Builds the authenticated WebSocket URL from /config.json (which returns
+// { wsPort, token }). With a path-prefix base the proxy owns the public port,
+// so the URL derives from the page location (ws/wss follows http/https) and
+// wsPort is ignored; with an absolute base the scheme/host/wsPort come from it.
 export async function resolveWsUrl(): Promise<string> {
   const config = await getJson<BridgeConfig>(ENDPOINTS.config);
-  const base = new URL(bridgeOrigin());
-  const scheme = base.protocol === "https:" ? "wss" : "ws";
-  return `${scheme}://${base.hostname}:${config.wsPort}${ENDPOINTS.ws}?token=${config.token}`;
+  const base = bridgeBase();
+  if (base.startsWith("/")) {
+    const { protocol, host } = window.location;
+    const scheme = protocol === "https:" ? "wss" : "ws";
+    return `${scheme}://${host}${base}${ENDPOINTS.ws}?token=${config.token}`;
+  }
+  const origin = new URL(base);
+  const scheme = origin.protocol === "https:" ? "wss" : "ws";
+  return `${scheme}://${origin.hostname}:${config.wsPort}${ENDPOINTS.ws}?token=${config.token}`;
 }
 
 export async function getApps(): Promise<AppState[]> {

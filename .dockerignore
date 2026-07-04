@@ -1,0 +1,26 @@
+# Secrets — the root .env holds a real GitHub PAT; it must never enter an image.
+.env
+**/.env
+**/.env.*
+
+# VCS + local tooling state (the image gets a fresh `git init` instead)
+.git
+.githooks
+.idea
+.vscode
+.dart_tool
+.fvm
+cordelia_base.iml
+
+# Dependency + build output (reinstalled/rebuilt inside the image)
+**/node_modules
+**/build
+**/.dart_tool
+**/.next
+**/coverage
+**/ios/Pods
+**/.gradle
+
+# Not needed in a workspace
+blog-assets
+scratchpad

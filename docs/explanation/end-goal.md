@@ -189,7 +189,7 @@ Modules every real app eventually needs, as abstract interfaces with swappable i
 - [ ] `AppRadioGroup` and `AppSnackbar` atoms (success / error / info variants)
 - [ ] Pagination mixin for list features
 - [ ] Secure storage — `flutter_secure_storage` backed interface in `core/storage/`
-- [ ] Push notifications — FCM-backed `NotificationService` abstraction in `core/notifications/`
+- [ ] Push notifications — FCM-backed `NotificationService` abstraction in `core/notifications/` *(capability shipped app-side in `doc_scanner` + as the repeatable `add-notification-feature` skill; the `core` abstraction itself is still open)*
 - [ ] Deep linking — `app_links` backed `DeepLinkService` in `core/deep_link/` (GoRouter wired)
 - [ ] Connectivity awareness — `OfflineBanner` molecule + `ConnectivityService`
 - [ ] Analytics abstraction — `AnalyticsService` + `NoOpAnalyticsService` default
@@ -218,7 +218,7 @@ Match the table-stakes input methods the category (Rocket.new, Lovable, etc.) ha
 - [ ] **Idea → app** from a single plain-language prompt (Phase 5 engine behind a UI).
 - [ ] **Figma → app** — import a design and map frames to screens/atoms in the design system.
 - [ ] **URL → app** — recreate/reimagine a referenced site's layout into Flutter web.
-- [ ] **Live preview** — running app preview that updates per prompt (web target first; mobile via emulator/device).
+- [x] **Live preview** — shipped for the web target: `flutter run -d web-server` rendered in an iframe with selectable phone device frames and a visual-edit overlay (click a widget → jump to source or edit text inline → hot restart), in `web-terminal/console` (React) + `web-terminal/server` (bridge). Native emulator/device preview remains local-macOS only.
 - [ ] **Conversational refine loop** — describe → build → refine → ship, with full context retained between turns.
 - [ ] **Template gallery** — curated starting points generated *into our conventions* (vs. a flat template dump).
 
@@ -228,6 +228,7 @@ Match the table-stakes input methods the category (Rocket.new, Lovable, etc.) ha
 
 Close the loop from generated code to a thing users can actually ship.
 
+- [x] **Cloud workspace (the Rocket-model infrastructure)** — console + bridge + Flutter SDK + `claude`/`codex` packaged as one Docker image, deployed as one isolated GCE spot VM per user (URL + token, TLS via Caddy, persistent `/workspace` and agent login). Scripted create/delete flow; see `docs/how-to/deploy-workspace-gcp.md` and `docs/explanation/cloud-workspace-plan.md`. Follow-ups: idle reaping, auto-restart after spot preemption, self-serve provisioning.
 - [ ] **Backend automation** — Firebase/Supabase wiring (auth, database, storage) generated from the spec, behind the existing `core` service abstractions.
 - [ ] **LLM integration panel** — connect Anthropic / OpenAI / Gemini in plain language, reusing the BYOK + dispatcher pattern proven in `ai_chat` and `doc_scanner`.
 - [ ] **One-click web deploy** — generated Flutter web hosted at a URL.
