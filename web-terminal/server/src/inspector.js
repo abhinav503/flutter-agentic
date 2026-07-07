@@ -13,6 +13,7 @@ const path = require('path');
 const WebSocket = require('ws');
 const { listApps } = require('./apps');
 const { vmServiceUrlFor } = require('./app-runner');
+const { PROJECT_DIR } = require('./config');
 
 const GROUP = 'console-edit';
 const CLIENTS = new Map();
@@ -22,6 +23,10 @@ function appRoot(name) {
   return app ? app.path : null;
 }
 
+// Repo-relative POSIX path (e.g. `apps/jokes/lib/…` or `packages/core/lib/…`),
+// matching the code view's tree/read scheme so jump-to-code lands on the same
+// node. A selected widget may be created in the app or in a shared core widget,
+// so accept either; anything else in the repo is out of scope → null.
 function sourcePathToRel(appName, file) {
   const root = appRoot(appName);
   if (!root || !file) return null;
@@ -31,8 +36,12 @@ function sourcePathToRel(appName, file) {
     abs = new URL(file).pathname;
   }
   abs = path.resolve(abs);
-  return abs === root || abs.startsWith(root + path.sep)
-    ? path.relative(root, abs).split(path.sep).join('/')
+
+  const inApp = abs === root || abs.startsWith(root + path.sep);
+  const coreRoot = path.join(PROJECT_DIR, 'packages', 'core');
+  const inCore = abs === coreRoot || abs.startsWith(coreRoot + path.sep);
+  return inApp || inCore
+    ? path.relative(PROJECT_DIR, abs).split(path.sep).join('/')
     : null;
 }
 
