@@ -329,6 +329,81 @@ const Map<String, Map<String, dynamic>> kThemePresets = {
     },
   },
 
+  // Deep emerald + mint tint on white; warm near-black dark mode with cool-grey
+  // elevated surfaces. Pill buttons, 16px inputs, large card radius. Values
+  // are the real design tokens of the UI8 "Gravia — Grocery Shop App UI Kit"
+  // (RL Studio) pulled via the Figma variables — the ecommerce style pack's
+  // palette (see docs/ai-rules/design.md). Roles map to the kit's ramps:
+  // primary = Primary, secondary = Secondary (teal), tertiary = Tertiary
+  // (indigo), error = Error, neutrals = Gray/Light/Dark. Radii are sampled
+  // from real screens, not the kit's (stale) foundation library page: buttons
+  // are pill (999, confirmed on the Signup CTA); inputs are 16 (confirmed on
+  // the Signup form fields), not pill despite the kit's fullCorner=999 token.
+  'gravia': {
+    'fontFamily': 'Plus Jakarta Sans',
+    'shape': {
+      'button': 999,
+      'chip': 999,
+      'card': 20,
+      'input': 16, // confirmed on real screens (Signup form fields) — not a pill
+      'sheet': 28,
+    },
+    'light': {
+      'seed': '#027A60',
+      'primary': '#027A60', // Primary/500
+      'onPrimary': '#FFFFFF',
+      'primaryContainer': '#D0FBE8', // Primary/100
+      'onPrimaryContainer': '#012D25', // Primary/950
+      'secondary': '#0D9488', // Secondary/600
+      'onSecondary': '#FFFFFF',
+      'secondaryContainer': '#CCFBF1', // Secondary/100
+      'onSecondaryContainer': '#042F2E', // Secondary/950
+      'tertiary': '#4F46E5', // Tertiary/600
+      'onTertiary': '#FFFFFF',
+      'tertiaryContainer': '#E0E7FF', // Tertiary/100
+      'onTertiaryContainer': '#312E81', // Tertiary/900
+      'error': '#DC2626', // Error/600
+      'onError': '#FFFFFF',
+      'errorContainer': '#FEE2E2', // Error/100
+      'onErrorContainer': '#7F1D1D', // Error/900
+      'surface': '#FFFFFF',
+      'onSurface': '#0C0503', // Dark/500 — the kit's warm text black
+      'surfaceContainerLow': '#F7F7F7', // Gray/50
+      'surfaceContainer': '#EDEDED', // Gray/100
+      'surfaceContainerHighest': '#DFDFDF', // Gray/200
+      'onSurfaceVariant': '#7B7B7B', // Gray/700
+      'outline': '#ADADAD', // Gray/400
+      'outlineVariant': '#DFDFDF', // Gray/200
+    },
+    'dark': {
+      'seed': '#027A60',
+      'primary': '#0DBC8E', // Primary/400
+      'onPrimary': '#012D25', // Primary/950
+      'primaryContainer': '#04614D', // Primary/800
+      'onPrimaryContainer': '#D0FBE8', // Primary/100
+      'secondary': '#5EEAD4', // Secondary/300
+      'onSecondary': '#042F2E', // Secondary/950
+      'secondaryContainer': '#115E59', // Secondary/800
+      'onSecondaryContainer': '#CCFBF1', // Secondary/100
+      'tertiary': '#A5B4FC', // Tertiary/300
+      'onTertiary': '#312E81', // Tertiary/900
+      'tertiaryContainer': '#3730A3', // Tertiary/800
+      'onTertiaryContainer': '#E0E7FF', // Tertiary/100
+      'error': '#FCA5A5', // Error/300
+      'onError': '#7F1D1D', // Error/900
+      'errorContainer': '#991B1B', // Error/800
+      'onErrorContainer': '#FEE2E2', // Error/100
+      'surface': '#0C0503', // Dark/500 — warm near-black
+      'onSurface': '#F5F5F6', // Light/50
+      'surfaceContainerLow': '#242528', // Light/950 — cool-grey elevation
+      'surfaceContainer': '#3A3B3F', // Light/900
+      'surfaceContainerHighest': '#424448', // Light/800
+      'onSurfaceVariant': '#ADADAD', // Gray/400
+      'outline': '#545454', // Gray/900
+      'outlineVariant': '#363636', // Gray/950
+    },
+  },
+
   // Near-black ink + amber accent on warm paper. Pill buttons. Mirrors a
   // RocketAI-generated theme — used to prove raw Material widgets and our atoms
   // come out identical under a config-driven theme (see core test).

@@ -96,6 +96,7 @@ core/
 │   │   ├── checkbox.dart        AppCheckbox
 │   │   ├── chip.dart            AppChip
 │   │   ├── dropdown_menu.dart   AppDropdownMenu (themed PopupMenuButton + AppDropdownItem)
+│   │   ├── icon_button.dart     AppIconButton (icon-only circular action; filled / translucent)
 │   │   ├── loading_dots.dart    LoadingDots (pulsing "working…" dots)
 │   │   ├── loading_indicator.dart
 │   │   ├── text_field.dart      AppTextField (`dense` for compact rows)

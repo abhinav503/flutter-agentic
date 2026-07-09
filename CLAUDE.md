@@ -20,6 +20,7 @@ apps/ai_chat/    streaming app
 @docs/reference/architecture.md
 @docs/explanation/end-goal.md
 
+Read `docs/ai-rules/design.md` BEFORE writing any screen, scaffolding an app's UI, or restyling — it decides which style pack / theme preset an app uses (e.g. `gravia` for ecommerce) and sets the screen design rules and the blocks (`core/ui/blocks/`) to compose from.
 Read `docs/how-to/contributing.md` for contributor workflow and git hooks.
 Run `/release` to guide a full release — branch comparison, version bump, release notes, and GitHub Release creation.
 Read `docs/how-to/add-feature-template.md` when scaffolding a new feature — it has the full folder tree, empty class skeletons, DI registration order, and a forbidden-pattern checklist.

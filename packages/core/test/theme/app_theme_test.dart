@@ -13,6 +13,12 @@ double _buttonThemeRadius(ButtonStyle? style) {
 }
 
 void main() {
+  // flutter_test blocks HTTP, so google_fonts' runtime fetch would fail the
+  // test with an async error; these tests only assert shape wiring.
+  setUpAll(() {
+    AppTheme.fontResolver = (family, scale) => scale.apply(fontFamily: family);
+  });
+
   group('AppTheme shape wiring', () {
     test('rocketWarm preset gives pill (999) radius to atoms AND raw Material',
         () {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import 'app_colors_extension.dart';
 import 'app_shapes_extension.dart';
@@ -55,6 +56,27 @@ class AppTheme {
         ColorScheme.fromSeed(seedColor: seed, brightness: Brightness.dark),
         fontFamily: fontFamily,
       );
+
+  /// Resolves a config's font family into the type scale.
+  ///
+  /// Defaults to google_fonts, which fetches/caches font files at runtime so
+  /// presets need no per-app bundling. flutter_test blocks HTTP and fails the
+  /// test on the resulting async error, so tests that build a preset with a
+  /// fontFamily replace this:
+  /// `AppTheme.fontResolver = (family, scale) => scale.apply(fontFamily: family);`
+  @visibleForTesting
+  static TextTheme Function(String fontFamily, TextTheme scale) fontResolver =
+      _googleFontsTextTheme;
+
+  static TextTheme _googleFontsTextTheme(String fontFamily, TextTheme scale) {
+    // A family google_fonts doesn't know (a custom bundled font) falls back
+    // to a plain reference, resolved against the app's `fonts:` assets.
+    try {
+      return GoogleFonts.getTextTheme(fontFamily, scale);
+    } on Exception {
+      return scale.apply(fontFamily: fontFamily);
+    }
+  }
 
   // ── Internals ──────────────────────────────────────────────────────────────
 
@@ -151,7 +173,7 @@ class AppTheme {
       labelSmall:  TextStyle(fontSize: 11, fontWeight: FontWeight.w500, letterSpacing: 0.5,  height: 1.45),
     );
 
-    return fontFamily != null ? scale.apply(fontFamily: fontFamily) : scale;
+    return fontFamily != null ? fontResolver(fontFamily, scale) : scale;
   }
 
   static ThemeData _build(
