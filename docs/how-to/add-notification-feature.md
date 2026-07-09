@@ -10,8 +10,8 @@ topic subscriptions, and **tap-to-open-a-page** routing.
 > are **never** added to `core` (not every app needs push, and `core` stays
 > dependency-lean — see `docs/ai-rules/conventions.md`).
 
-> **Scope:** this adds **FCM only**. The reference (`atwork-mobile-app`) ships
-> CleverTap alongside FCM; none of the CleverTap pieces are ported here.
+> **Scope:** this adds **FCM only** — no third-party engagement SDKs
+> (CleverTap and similar) are covered here.
 
 ---
 

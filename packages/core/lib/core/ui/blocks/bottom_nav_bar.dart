@@ -37,7 +37,7 @@ class BottomNavBar extends StatelessWidget {
       child: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.xl4,
+            horizontal: AppSpacing.lg,
             vertical: AppSpacing.xs,
           ),
           child: Row(
@@ -77,12 +77,19 @@ class _NavTab extends StatelessWidget {
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.lg,
-          vertical: AppSpacing.xs,
-        ),
+        // Inactive = a true 48×48 circle; active = a 48-tall pill. Equal
+        // heights keep the row stable as the highlight moves, and 48 clears
+        // the 44px touch-target floor.
+        padding: isActive
+            ? const EdgeInsets.symmetric(
+                horizontal: AppSpacing.lg,
+                vertical: AppSpacing.base,
+              )
+            : const EdgeInsets.all(AppSpacing.base),
         decoration: BoxDecoration(
-          color: isActive ? cs.primary : cs.surfaceContainerHighest,
+          // Inactive circles sit barely off the surface (Gray/50 in light,
+          // the elevated cool-grey in dark) — Low, not Highest.
+          color: isActive ? cs.primary : cs.surfaceContainerLow,
           borderRadius: AppRadius.full,
         ),
         child: Row(

@@ -15,11 +15,11 @@ void main() {
   testWidgets('switches tabs from the bottom nav', (tester) async {
     await tester.pumpWidget(buildSubject());
 
-    await tester.tap(find.byIcon(Icons.shopping_cart_rounded));
+    await tester.tap(find.byIcon(Icons.shopping_bag_outlined));
     await tester.pumpAndSettle();
-    expect(find.text(ValueConst.cartEmptyTitle), findsOneWidget);
+    expect(find.text(ValueConst.ordersEmptyTitle), findsOneWidget);
 
-    await tester.tap(find.byIcon(Icons.person_rounded));
+    await tester.tap(find.byIcon(Icons.person_outline));
     await tester.pumpAndSettle();
     expect(find.text(ValueConst.profileComingTitle), findsOneWidget);
   });

@@ -74,6 +74,30 @@
             "flutterMode": "release"
         },
         {
+            "name": "ecommerce (debug)",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "cwd": "apps/ecommerce",
+            "flutterMode": "debug"
+        },
+        {
+            "name": "ecommerce (profile)",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "cwd": "apps/ecommerce",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "ecommerce (release)",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "cwd": "apps/ecommerce",
+            "flutterMode": "release"
+        },
+        {
             // React/Next.js console. preLaunchTask (console-dev) starts the
             // Node PTY bridge on :3000, then the Next dev server on :4000, and
             // waits until both are ready before Chrome opens the console.

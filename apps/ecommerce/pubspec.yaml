@@ -17,13 +17,53 @@ dependencies:
   # Navigation
   go_router: ^17.2.3
 
+  # Brand SVG rendering (splash wordmark glyph)
+  flutter_svg: ^2.3.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.3
+  flutter_native_splash: ^2.4.3
 
 flutter:
   uses-material-design: true
 
   assets:
     - assets/theme/theme_config.json
+    - assets/icons/
+
+# One source mark → every launcher-icon size. The PNGs are rasterised from
+# assets/icons/gravia_brand_icon.svg (the brand glyph). branding/ holds these
+# build-time generator sources and lives OUTSIDE assets/ on purpose — it must
+# never be registered as a flutter asset (assets/icons/ = runtime SVGs;
+# assets/images/ = future runtime raster images).
+# Regenerate: dart run flutter_launcher_icons
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: branding/app_icon.png
+  adaptive_icon_background: "#FFFFFF"
+  adaptive_icon_foreground: branding/app_icon_foreground.png
+  web:
+    generate: true
+    image_path: branding/app_icon.png
+
+# Native boot splash (kills the white flash before Flutter's first frame),
+# matching the kit splash surfaces: white light / warm near-black dark.
+# Android 12+ centers the launcher icon by default.
+# Regenerate: dart run flutter_native_splash:create
+# image is the brand glyph at 4x density (512px ≈ 128pt on device), centered;
+# the tool downscales it for iOS @2x/@3x, Android densities, and web.
+# Android 12+ needs its own 1152×1152 asset with the glyph inside the 768px
+# safe circle (the OS masks the rest).
+flutter_native_splash:
+  color: "#FFFFFF"
+  color_dark: "#0C0503"
+  image: branding/splash_logo.png
+  web: true
+  android_12:
+    color: "#FFFFFF"
+    color_dark: "#0C0503"
+    image: branding/splash_logo_android12.png

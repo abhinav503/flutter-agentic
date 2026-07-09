@@ -84,7 +84,13 @@ a radius/color into a preset.
 - **Docked bottom CTA.** Checkout-style primary actions dock at the bottom as
   one full-width large pill above the safe area.
 - **Pill-highlight bottom nav.** Active tab = pill with icon + label on
-  primary; inactive tabs = icon-only circles. → `BottomNavBar`.
+  primary; inactive tabs = icon-only circles on Gray/50
+  (`surfaceContainerLow` — barely off the surface, not `Highest`). The kit's
+  tab set is **Home, Categories, Favourite, Orders (bag), Profile** — the cart
+  is not a nav tab. → `BottomNavBar`.
+- **Plain splash.** Pure surface (white/near-black), only the centered
+  wordmark: black type with the middle glyph in primary green. No coloured
+  canvas, no tagline.
 
 **Blocks:** `package:core/core/ui/blocks/` is split by scope:
 - **Root** — cross-domain compositions any style pack can use as-is:
