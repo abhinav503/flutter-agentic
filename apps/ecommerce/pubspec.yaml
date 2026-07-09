@@ -1,0 +1,29 @@
+name: gravia
+description: Gravia — ecommerce (grocery) reference app for the FlutterAgentic template.
+publish_to: 'none'
+version: 1.0.0
+resolution: workspace
+
+environment:
+  sdk: ^3.12.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  core:
+    path: ../../packages/core
+
+  # Navigation
+  go_router: ^17.2.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/theme/theme_config.json

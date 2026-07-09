@@ -14,3 +14,4 @@ workspace:
   - apps/doc_scanner
   - apps/ai_chat
   - apps/design_gallery
+  - apps/ecommerce

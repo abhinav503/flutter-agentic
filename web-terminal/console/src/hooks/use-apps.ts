@@ -5,7 +5,7 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import { getApps, runApp, stopApp } from "@/lib/bridge";
+import { getApps, reloadApp, runApp, stopApp } from "@/lib/bridge";
 import type { AppState, RunAppInput } from "@/lib/types";
 
 const APPS_KEY = ["apps"] as const;
@@ -36,6 +36,14 @@ export function useRunApp() {
       );
       qc.invalidateQueries({ queryKey: APPS_KEY });
     },
+  });
+}
+
+// Hot-restarts a running app; resolves once flutter reports the rebuild done
+// (or `ok: false` with a reason), so the caller can reload the preview iframe.
+export function useReloadApp() {
+  return useMutation({
+    mutationFn: (name: string) => reloadApp(name),
   });
 }
 

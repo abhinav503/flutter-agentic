@@ -29,6 +29,7 @@ const {
   runApp,
   stopApp,
   hotRestart,
+  appLogs,
   listAppsWithState,
   disposeAllApps,
   freeStaleAppPorts,
@@ -115,6 +116,7 @@ async function handleAppAction(req, res, name, action) {
 // GET  /apps/:name/file?path=rel    → { path, content }
 // POST /apps/:name/file             → { ok }        body: { path, content }
 // GET  /apps/:name/search?q=text[&prefer=usage]  → { hits }
+// GET  /apps/:name/logs             → { seq, text }     (buffered run output)
 // POST /apps/:name/reload           → { ok, message? }  (hot restart)
 // POST /apps/:name/inspect          → { ok, message? }  body: { enabled }
 // GET  /apps/:name/inspect/selected → { source }        (widget under selection)
@@ -146,6 +148,9 @@ async function handleFilesRoute(req, res, name, kind) {
       url.searchParams.get('prefer') || undefined,
     );
     return hits ? sendJson(req, res, { hits }) : fail(404, 'unknown app');
+  }
+  if (kind === 'logs' && req.method === 'GET') {
+    return sendJson(req, res, appLogs(name));
   }
   if (kind === 'reload' && req.method === 'POST') {
     const result = await hotRestart(name);
@@ -205,7 +210,7 @@ const server = http.createServer((req, res) => {
   }
   // Source-file access for the code view + visual edit (rooted at the app dir).
   const filesRoute = route.match(
-    /^\/apps\/([A-Za-z0-9_]+)\/(files|file|search|reload|inspect|inspect\/selected)$/,
+    /^\/apps\/([A-Za-z0-9_]+)\/(files|file|search|logs|reload|inspect|inspect\/selected)$/,
   );
   if (filesRoute) {
     handleFilesRoute(req, res, filesRoute[1], filesRoute[2]);

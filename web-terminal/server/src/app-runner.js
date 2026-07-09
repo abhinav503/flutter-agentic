@@ -22,6 +22,36 @@ const logger = require('./logger');
 // name -> { child, port, status, deviceId, platform, target }
 const running = new Map();
 
+// Buffered `flutter run` output per app for the console's log panel. Kept in a
+// separate map so the log survives the `running` entry being cleared on exit —
+// the panel can still show why a run died. Cleared on the next fresh Run.
+// name -> { seq, chunks: [{ seq, text }], bytes }
+const runLogs = new Map();
+const LOG_MAX_BYTES = 64 * 1024;
+
+function appendLog(name, text) {
+  let buf = runLogs.get(name);
+  if (!buf) {
+    buf = { seq: 0, chunks: [], bytes: 0 };
+    runLogs.set(name, buf);
+  }
+  buf.seq += 1;
+  buf.chunks.push({ seq: buf.seq, text });
+  buf.bytes += text.length;
+  while (buf.bytes > LOG_MAX_BYTES && buf.chunks.length > 1) {
+    buf.bytes -= buf.chunks.shift().text.length;
+  }
+}
+
+/** The app's buffered run output (joined) + a cursor for cheap change checks. */
+function appLogs(name) {
+  const buf = runLogs.get(name);
+  return {
+    seq: buf ? buf.seq : 0,
+    text: buf ? buf.chunks.map((c) => c.text).join('') : '',
+  };
+}
+
 // flutter prints this once the web dev server is actually serving.
 const READY_RE = /is being served at|Serving at/i;
 
@@ -96,6 +126,9 @@ function runApp(name, { deviceId = 'web-server', platform = 'web', kind = 'web' 
   if (existing && existing.status !== 'failed') return describe(name);
   if (existing) running.delete(name);
 
+  // A fresh run starts a fresh log.
+  runLogs.delete(name);
+
   const isWeb = kind === 'web' || platform === 'web' || deviceId === 'web-server';
 
   // Offline emulator: hold `starting` while it boots (no flutter child yet), then
@@ -112,6 +145,7 @@ function runApp(name, { deviceId = 'web-server', platform = 'web', kind = 'web' 
     };
     running.set(name, entry);
     logger.info('run', `${name} booting emulator ${deviceId}`);
+    appendLog(name, `[bridge] booting emulator ${deviceId}…\n`);
     startEmulatorRun(name, app, deviceId, platform, entry);
     return describe(name);
   }
@@ -157,10 +191,12 @@ function spawnRun(name, app, { deviceId, isWeb, entry }) {
 
   const where = isWeb ? `:${app.previewPort}` : deviceId;
   logger.info('run', `${name} starting on ${where} (pid ${child.pid})`);
+  appendLog(name, `[bridge] flutter run starting on ${where}\n`);
 
   const readyRe = isWeb ? READY_RE : NATIVE_READY_RE;
   child.stdout.on('data', (buf) => {
     const text = buf.toString();
+    appendLog(name, text);
     // The VM-service URL appears after the browser connects (independent of the
     // ready line), so scan every chunk until we've captured it.
     if (isWeb && !entry.vmServiceUrl) {
@@ -176,16 +212,20 @@ function spawnRun(name, app, { deviceId, isWeb, entry }) {
       if (!isWeb) tileForNativeRun();
     }
   });
-  child.stderr.on('data', (buf) =>
-    logger.warn('run', `${name}: ${buf.toString().trim()}`),
-  );
+  child.stderr.on('data', (buf) => {
+    const text = buf.toString();
+    appendLog(name, text);
+    logger.warn('run', `${name}: ${text.trim()}`);
+  });
   child.on('error', (err) => {
     logger.error('run', `${name} failed to spawn: ${err.message}`);
+    appendLog(name, `[bridge] failed to spawn: ${err.message}\n`);
     entry.status = 'failed';
     entry.message = `Failed to start: ${err.message}`;
   });
   child.on('exit', (code) => {
     logger.info('run', `${name} exited (code ${code})`);
+    appendLog(name, `[bridge] flutter run exited (code ${code})\n`);
     // Exiting before it ever became ready is a launch failure worth surfacing;
     // a clean exit after running (or a Stop) just clears the entry.
     if (entry.status === 'starting') {
@@ -206,6 +246,7 @@ async function startEmulatorRun(name, app, emulatorId, platform, entry) {
     if (isCancelled()) return;
     if (!deviceId) {
       logger.warn('run', `${name}: emulator ${emulatorId} did not come online`);
+      appendLog(name, `[bridge] emulator ${emulatorId} did not come online in time\n`);
       entry.status = 'failed';
       entry.message = 'The emulator did not come online in time. Try starting it first.';
       return;
@@ -214,6 +255,7 @@ async function startEmulatorRun(name, app, emulatorId, platform, entry) {
     spawnRun(name, app, { deviceId, isWeb: false, entry });
   } catch (e) {
     logger.error('run', `${name}: emulator boot failed: ${e.message}`);
+    appendLog(name, `[bridge] emulator boot failed: ${e.message}\n`);
     if (!isCancelled()) {
       entry.status = 'failed';
       entry.message = `Couldn't boot the emulator: ${e.message}`;
@@ -286,6 +328,7 @@ function stopApp(name) {
     if (entry.child) killGroup(entry.child);
     running.delete(name);
     logger.info('run', `${name} stopped`);
+    appendLog(name, '[bridge] stopped\n');
   }
   return describe(name);
 }
@@ -367,6 +410,7 @@ module.exports = {
   runApp,
   stopApp,
   hotRestart,
+  appLogs,
   vmServiceUrlFor,
   freeStaleAppPorts,
   describe,

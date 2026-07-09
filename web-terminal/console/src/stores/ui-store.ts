@@ -20,7 +20,9 @@ interface UiStore {
   rightView: RightView;
   editMode: boolean;
   codeTarget: CodeTarget | null;
+  logsOpen: boolean;
 
+  toggleLogs: () => void;
   toggleSetup: () => void;
   setSetupOpen: (open: boolean) => void;
   setPreviewMode: (mode: PreviewMode) => void;
@@ -39,7 +41,9 @@ export const useUiStore = create<UiStore>((set) => ({
   rightView: "preview",
   editMode: false,
   codeTarget: null,
+  logsOpen: false,
 
+  toggleLogs: () => set((s) => ({ logsOpen: !s.logsOpen })),
   toggleSetup: () => set((s) => ({ setupOpen: !s.setupOpen })),
   setSetupOpen: (open) => set({ setupOpen: open }),
   setPreviewMode: (mode) => set({ previewMode: mode }),

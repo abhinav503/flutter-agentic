@@ -137,6 +137,14 @@ export async function searchApp(
   return hits;
 }
 
+// Buffered output of the app's `flutter run` process (capped server-side).
+// `seq` bumps on every appended chunk, so equal seqs mean nothing new.
+export async function getAppLogs(
+  app: string,
+): Promise<{ seq: number; text: string }> {
+  return getJson(appPath(app, "logs"));
+}
+
 // Hot-restarts the running `flutter run` process; resolves when the new build
 // is being served (so the caller can reload the iframe).
 export async function reloadApp(

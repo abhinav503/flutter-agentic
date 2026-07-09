@@ -3,6 +3,7 @@
 import { TerminalPreview } from "@/components/preview/terminal-preview";
 import { PreviewToolbar } from "@/components/preview/preview-toolbar";
 import { DeviceStatus } from "@/components/preview/device-status";
+import { LogPanel } from "@/components/preview/log-panel";
 import { SetupPanel } from "@/components/setup/setup-panel";
 import { CodeView } from "@/components/code/code-view";
 import { useDevices } from "@/hooks/use-devices";
@@ -34,6 +35,7 @@ export function RightPane() {
       ) : (
         <DeviceStatus />
       )}
+      <LogPanel />
     </div>
   );
 }
