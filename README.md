@@ -17,6 +17,66 @@ Most Flutter starters give you folders. FlutterAgentic gives you a rulebook plus
 
 The documentation is organised with the [Diataxis](https://diataxis.fr/) framework, so both humans and AI agents can quickly separate task guides, exact architecture reference, project reasoning, and operational coding rules.
 
+## How to Start the App
+
+**Prerequisites**
+
+- [Homebrew](https://brew.sh/) (macOS package manager)
+- [Node.js](https://nodejs.org/) + npm
+
+**Commands**
+
+```bash
+# Prerequisites (skip any already installed)
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+brew install node
+
+# Clone the repo
+git clone https://github.com/abhinav503/flutter-agentic.git
+cd flutter-agentic
+
+# Shell 1 — Node PTY bridge on :3000
+make terminal-bridge
+
+# Shell 2 — React console on :4000 (run from repo root, in a second terminal tab)
+make console
+```
+
+Open `http://localhost:4000`.
+
+## Local Web Console — Build & Preview Mobile Apps Without Xcode or Android Studio
+
+FlutterAgentic ships a local, browser-based console (`web-terminal/`) that runs entirely on your own machine: a React/Next.js UI talking to a small Node bridge that spawns a real shell with your own permissions. It bundles a chat panel for Claude Code / Codex, a live preview pane, a visual editor, and a code viewer — all in one browser tab, so you can go from prompt to a running mobile app UI **before** you've installed a single native mobile toolchain.
+
+That's the big win: the preview pane renders the generated Flutter app as **Flutter Web inside a phone-shaped device frame**, so you get a realistic mobile preview without Xcode's ~15GB download or the Android Studio + SDK + emulator setup — those stay fully optional, only needed later for an actual on-device/native build.
+
+<p>
+  <img src="docs/images/console/01-agent-and-logs.png" width="49%" alt="Claude Code running in the browser terminal, with the flutter run logs panel open" />
+  <img src="docs/images/console/02-setup-checklist.png" width="49%" alt="Setup panel auto-detecting Node.js, Flutter, and Claude Code, with Android Studio/emulator listed as optional" />
+</p>
+<p>
+  <img src="docs/images/console/03-live-preview.png" width="49%" alt="Live web preview of a generated ecommerce app rendered inside an iPhone device frame" />
+  <img src="docs/images/console/04-visual-edit.png" width="49%" alt="Visual edit mode — clicking a widget in the live preview opens an inline text editor" />
+</p>
+<p>
+  <img src="docs/images/console/05-code-view.png" width="49%" alt="Read-only code view with a file tree browsing the generated Clean Architecture feature folders" />
+</p>
+
+- **Chat with an agent, in-browser** — a top-bar switcher launches `claude` or `codex` in a real terminal; you prompt, it generates code straight into the workspace.
+- **Setup panel does the toolchain detection for you** — it probes for Node, Flutter (via `fvm`), and the Claude Code CLI, and only asks for Xcode/Android Studio if you actually want native on-device preview. It never runs installs silently (those are interactive/sudo steps); it just hands you the exact copy-paste command for whatever's missing.
+- **Live preview + device frame** — runs the generated app as `flutter run -d web-server`, embeds it in an iframe sized to a real phone viewport (iPhone 16 Pro shown above), with Run/Stop and a build-log panel.
+- **Visual edit** — click any rendered widget to jump straight to its source, or edit copy inline and hot-reload without touching the code view.
+- **Read-only code view** — browse the generated `feature/{name}/data|domain|presentation` folders directly in the browser, no IDE required.
+
+Run it locally straight from the repo root:
+
+```bash
+make terminal-bridge   # shell 1 — Node PTY bridge on :3000
+make console           # shell 2 — React console on :4000
+```
+
+Then open `http://localhost:4000`. See [`web-terminal/README.md`](web-terminal/README.md) for the full architecture (why it's two processes, security model, and the Docker/cloud-workspace path for a zero-local-setup option).
+
 ## Why AI Agents Need Rules, Skills & Architecture
 
 Think of an AI agent like a talented contractor joining your team. Without a handbook, every contractor codes differently — different file names, different patterns, different assumptions. After five features the codebase is a mess no one wants to touch.
@@ -86,6 +146,7 @@ FlutterAgentic is built for developers who want:
 - Design tokens and reusable UI atoms instead of hardcoded styling
 - Agent instructions for Claude, Codex, Copilot, Cursor, Gemini, Android Studio, and Amazon Q
 - A repeatable path for adding features without asking the AI to invent structure
+- A local web console (`web-terminal/`) that lets you prompt, preview, visually edit, and browse generated code from one browser tab — **without installing Xcode or Android Studio first**
 
 The core project is Flutter-first. Backend, React, Node.js, Python, or other folders may become optional community examples later, but the main product is a high-quality Flutter frontend starter.
 
@@ -96,6 +157,7 @@ The core project is Flutter-first. Backend, React, Node.js, Python, or other fol
 | App shape | Flutter frontend starter with two real reference apps — request/response (`doc_scanner`) and streaming (`ai_chat`) — plus a demo (`jokes`) |
 | Architecture | Feature-first Clean Architecture with strict layer boundaries |
 | AI support | Repo-native instructions for seven AI coding surfaces |
+| Local console | Browser-based chat + live preview + visual edit + code view (`web-terminal/`) — no Xcode/Android Studio required to preview |
 | State | BLoC events/states generated with Freezed |
 | Quality gates | Git hooks, analysis, tests, CI, and generated-code workflow |
 | Extension path | Add features through documented scaffolding rules |
@@ -491,4 +553,6 @@ Two or three iterations with a shared rulebook produces far better results than 
 |---|---|---|
 | [Use as a template](#using-this-as-a-template) | [Architecture](docs/reference/architecture.md) | [`make setup`](#using-this-as-a-template) |
 | [AI agent support](#ai-agent-support) | [AI agents](docs/explanation/ai-agents.md) | [`make test`](#ci) |
-| [Feature guide](docs/how-to/add-feature-template.md) | [Docs system](#documentation-system) | [`make analyze`](#ci) |
+| [How to start the app](#how-to-start-the-app) | [Docs system](#documentation-system) | [`make terminal-bridge` + `make console`](#how-to-start-the-app) |
+| [Local web console](#local-web-console--build--preview-mobile-apps-without-xcode-or-android-studio) | | |
+| [Feature guide](docs/how-to/add-feature-template.md) | | [`make analyze`](#ci) |
