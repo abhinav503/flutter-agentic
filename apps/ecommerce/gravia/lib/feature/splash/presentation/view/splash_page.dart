@@ -1,4 +1,5 @@
 import 'package:core/core/base/base_page.dart';
+import 'package:core/core/services/shared_pref_service/shared_preference_service.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/loading_dots.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +9,7 @@ import 'package:go_router/go_router.dart';
 import 'package:gravia/constants/app_routes.dart';
 import 'package:gravia/constants/image_const.dart';
 import 'package:gravia/constants/value_const.dart';
+import 'package:gravia/feature/onboarding/presentation/view/onboarding_page.dart';
 
 class SplashPage extends BasePage {
   const SplashPage({super.key});
@@ -23,7 +25,11 @@ class _SplashPageState extends BasePageState<SplashPage> {
   void initState() {
     super.initState();
     Future.delayed(_holdDuration, () {
-      if (mounted) context.go(AppRoutes.home);
+      if (!mounted) return;
+      final hasSeenOnboarding =
+          SharedPreferenceService.instance.getBool(kHasSeenOnboardingPrefKey) ??
+              false;
+      context.go(hasSeenOnboarding ? AppRoutes.home : AppRoutes.onboarding);
     });
   }
 

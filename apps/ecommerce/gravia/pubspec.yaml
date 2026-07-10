@@ -27,6 +27,10 @@ dev_dependencies:
   flutter_launcher_icons: ^0.14.3
   flutter_native_splash: ^2.4.3
 
+  # Onboarding widget test seeds SharedPreferences.setMockInitialValues
+  # directly — the same version core pins.
+  shared_preferences: ^2.3.3
+
 flutter:
   uses-material-design: true
 

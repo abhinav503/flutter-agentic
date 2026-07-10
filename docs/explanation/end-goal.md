@@ -182,6 +182,19 @@ Two themes: complete the monorepo migration (done, shipped in v1.2.0), and add t
 
 ---
 
+### Phase 3.5 — Style-pack system + ecommerce exemplar (`gravia`) 🚧 In progress *(now: a generation exemplar)*
+
+`doc_scanner`/`ai_chat` proved the architecture is reusable; `gravia` proves the **visual identity** is too — a style-pack selection system (`docs/ai-rules/design.md`) plus a real ecommerce app generated from it, and the first app to exercise the "free pack" (logo, splash, onboarding) as reusable skills rather than one-off code.
+
+- [x] Style-pack catalog + selection procedure (`docs/ai-rules/design.md`) — category/mood matching; `gravia` (ecommerce) profile with palette/shape/typography sampled from a real UI8 kit, not invented
+- [x] `core/ui/blocks/` — cross-domain compositions (`section_header`, `quantity_stepper`, `bottom_nav_bar`) and ecommerce-domain compositions (`product_card`, `category_tile`)
+- [x] `gravia` app logo, native splash screen, and onboarding flow — the "free pack" skills (`/add-app-logo`, `/add-splash-screen`, onboarding pattern) proven end-to-end on a real generated app, not just in isolation
+- [x] Nav shell pattern (`feature/shell/`) for bottom-nav tabbed apps, documented in `docs/reference/architecture.md`
+- [ ] Product/ecommerce feature screens (home/product grid, categories, cart, checkout) — `product_card`/`category_tile` blocks exist in `core` but aren't wired into a `gravia` screen yet
+- [ ] A second style pack proven end-to-end — today only `gravia` has a real app behind it; `rocketWarm`/`oceanBreeze`/`forestWalk`/`dadJokes` are presets in the catalog without an exemplar app
+
+---
+
 ### Phase 4 — Core Infrastructure Modules *(the generator's parts bin)*
 
 Modules every real app eventually needs, as abstract interfaces with swappable implementations. These are not just dev conveniences anymore — they're the **building blocks the generator composes** when a prompt implies them ("users log in" → auth scaffold; "send a reminder" → notifications). Each one shipped is one more capability the engine can emit correctly.

@@ -10,6 +10,8 @@ This is a **Dart pub-workspace monorepo**: one shared `core` package consumed by
 packages/core/   shared toolbelt → import 'package:core/core/…'   (no app-specific code)
 apps/jokes/      demo app          apps/doc_scanner/  request/response app
 apps/ai_chat/    streaming app
+apps/ecommerce/gravia/  style-pack exemplar (`gravia` theme, ecommerce blocks, free-pack
+                         screens: splash, onboarding, app logo)
 ```
 
 - One `flutter pub get` at the repo root resolves all packages; editing `core` is live in any running app.

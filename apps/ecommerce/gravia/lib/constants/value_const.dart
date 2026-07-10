@@ -12,6 +12,20 @@ abstract final class ValueConst {
   static const navOrders = 'Orders';
   static const navProfile = 'Profile';
 
+  // ── Onboarding (3-slide first-launch carousel) ────────────────────────────
+  static const onboardingTitle1 =
+      'Fresh Groceries Delivered Right to Your Doorstep';
+  static const onboardingSubtitle1 =
+      'Shop fresh fruits, vegetables, and daily essentials anytime.';
+  static const onboardingTitle2 = 'Everything You Need in Just a Few Taps';
+  static const onboardingSubtitle2 =
+      'Browse categories, add to cart, and order in seconds.';
+  static const onboardingTitle3 = 'Fast and Reliable Grocery Delivery';
+  static const onboardingSubtitle3 =
+      'Get your groceries delivered quickly and safely.';
+  static const onboardingNext = 'Next';
+  static const onboardingGetStarted = 'Get Started';
+
   // ── Placeholder tabs (removed as real screens land) ───────────────────────
   static const storefrontComingTitle = 'Storefront on its way';
   static const storefrontComingSubtitle =

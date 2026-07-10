@@ -13,7 +13,11 @@ flutter_agentic/
 └── apps/
     ├── jokes/                   demo app
     ├── doc_scanner/             real app — request/response reference (image → JSON)
-    └── ai_chat/                 real app — streaming reference (SSE token streaming)
+    ├── ai_chat/                 real app — streaming reference (SSE token streaming)
+    └── ecommerce/
+        └── gravia/              real app — style-pack exemplar (`gravia` theme, ecommerce
+                                  blocks, generated free-pack screens: splash, onboarding,
+                                  app logo)
 ```
 
 - **`packages/core`** — the shared mobile toolbelt: base classes, design system, networking, DI seed, generic device services. Zero app-specific copy, feature logic, or product API URLs. Imported everywhere as `package:core/core/…`.
@@ -95,18 +99,30 @@ core/
 │   │   ├── button.dart          AppButton
 │   │   ├── checkbox.dart        AppCheckbox
 │   │   ├── chip.dart            AppChip
+│   │   ├── device_frame.dart    DeviceFrame (decorative phone bezel — notch + side
+│   │   │                        buttons — for framing a screenshot/image)
 │   │   ├── dropdown_menu.dart   AppDropdownMenu (themed PopupMenuButton + AppDropdownItem)
+│   │   ├── file_thumbnail.dart  AppFileThumbnail (local image file thumbnail, rounded)
 │   │   ├── icon_button.dart     AppIconButton (icon-only circular action; filled / translucent)
 │   │   ├── loading_dots.dart    LoadingDots (pulsing "working…" dots)
 │   │   ├── loading_indicator.dart
+│   │   ├── network_image.dart   AppNetworkImage (built-in loading/error states;
+│   │   │                        `.placeholder()` factory for seeded stock photos)
+│   │   ├── page_indicator.dart  PageIndicator (dot row for paged flows — onboarding,
+│   │   │                        carousels)
 │   │   ├── text_field.dart      AppTextField (`dense` for compact rows)
 │   │   ├── theme_mode_toggle.dart ThemeModeToggle (System/Light/Dark AppBar action)
 │   │   └── top_bar.dart         AppTopBar (primary / secondary named constructors)
-│   └── molecules/               composed atoms
-│       ├── bottom_sheet.dart    AppBottomSheet (static show())
-│       ├── dialog.dart          AppDialog (static show())
-│       ├── empty_state.dart     EmptyState (icon + title + subtitle + actions)
-│       └── error_view.dart      ErrorView
+│   ├── molecules/               composed atoms
+│   │   ├── bottom_sheet.dart    AppBottomSheet (static show())
+│   │   ├── dialog.dart          AppDialog (static show())
+│   │   ├── empty_state.dart     EmptyState (icon + title + subtitle + actions)
+│   │   └── error_view.dart      ErrorView
+│   └── blocks/                  larger domain compositions (root = cross-domain,
+│                                 `blocks/<category>/` = domain-specific data, e.g.
+│                                 `ecommerce/`); indexed in `docs/ai-rules/design.md`
+│                                 §1, not duplicated here — check that doc, not just
+│                                 this tree, before hand-rolling a screen composition
 └── usecase/
     └── usecase.dart             UseCase (Future) + StreamUseCase (Stream); NoParams
 ```

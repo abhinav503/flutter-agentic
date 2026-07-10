@@ -7,6 +7,7 @@ import 'package:core/core/theme/theme_mode_scope.dart';
 
 import 'constants/app_routes.dart';
 import 'constants/value_const.dart';
+import 'feature/onboarding/presentation/view/onboarding_page.dart';
 import 'feature/shell/presentation/view/shell_page.dart';
 import 'feature/splash/presentation/view/splash_page.dart';
 
@@ -15,6 +16,10 @@ final _router = GoRouter(
     GoRoute(
       path: AppRoutes.splash,
       builder: (context, _) => const SplashPage(),
+    ),
+    GoRoute(
+      path: AppRoutes.onboarding,
+      builder: (context, _) => const OnboardingPage(),
     ),
     GoRoute(
       path: AppRoutes.home,
