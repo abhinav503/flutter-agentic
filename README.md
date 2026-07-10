@@ -51,15 +51,19 @@ FlutterAgentic ships a local, browser-based console (`web-terminal/`) that runs 
 That's the big win: the preview pane renders the generated Flutter app as **Flutter Web inside a phone-shaped device frame**, so you get a realistic mobile preview without Xcode's ~15GB download or the Android Studio + SDK + emulator setup — those stay fully optional, only needed later for an actual on-device/native build.
 
 <p>
-  <img src="docs/images/console/01-agent-and-logs.png" width="49%" alt="Claude Code running in the browser terminal, with the flutter run logs panel open" />
-  <img src="docs/images/console/02-setup-checklist.png" width="49%" alt="Setup panel auto-detecting Node.js, Flutter, and Claude Code, with Android Studio/emulator listed as optional" />
+  <img src="docs/images/console/01-agent-and-logs.png" width="100%" alt="Claude Code running in the browser terminal, with the flutter run logs panel open" />
 </p>
 <p>
-  <img src="docs/images/console/03-live-preview.png" width="49%" alt="Live web preview of a generated ecommerce app rendered inside an iPhone device frame" />
-  <img src="docs/images/console/04-visual-edit.png" width="49%" alt="Visual edit mode — clicking a widget in the live preview opens an inline text editor" />
+  <img src="docs/images/console/02-setup-checklist.png" width="100%" alt="Setup panel auto-detecting Node.js, Flutter, and Claude Code, with Android Studio/emulator listed as optional" />
 </p>
 <p>
-  <img src="docs/images/console/05-code-view.png" width="49%" alt="Read-only code view with a file tree browsing the generated Clean Architecture feature folders" />
+  <img src="docs/images/console/03-live-preview.png" width="100%" alt="Live web preview of a generated ecommerce app rendered inside an iPhone device frame" />
+</p>
+<p>
+  <img src="docs/images/console/04-visual-edit.png" width="100%" alt="Visual edit mode — clicking a widget in the live preview opens an inline text editor" />
+</p>
+<p>
+  <img src="docs/images/console/05-code-view.png" width="100%" alt="Read-only code view with a file tree browsing the generated Clean Architecture feature folders" />
 </p>
 
 - **Chat with an agent, in-browser** — a top-bar switcher launches `claude` or `codex` in a real terminal; you prompt, it generates code straight into the workspace.
