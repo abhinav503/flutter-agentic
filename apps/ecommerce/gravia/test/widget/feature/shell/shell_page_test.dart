@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gravia/constants/value_const.dart';
-import 'package:gravia/feature/home/presentation/view/home_page.dart';
+import 'package:gravia/feature/shell/presentation/view/shell_page.dart';
 
 void main() {
-  Widget buildSubject() => const MaterialApp(home: HomePage());
+  Widget buildSubject() => const MaterialApp(home: ShellPage());
 
   testWidgets('shows the storefront tab first', (tester) async {
     await tester.pumpWidget(buildSubject());

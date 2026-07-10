@@ -182,6 +182,8 @@ lib/
 
 > The feature **folder** and its **entry page/screen** are always `home` / `HomePage` / `HomeScreen`. Domain and data symbols keep their real concept names (`JokeEntity`, `ScannedReceiptEntity`, `JokesRepository`, `DocScannerBloc`) — they are not renamed to "home".
 
+> **Case that can arise — bottom-nav tabbed apps.** For a single-feature app the entry point and the primary feature are the same thing, so `HomePage`/`HomeScreen` covers both. A tabbed app (bottom nav across several tabs) splits them: the route target is a **nav shell** (owns AppBar + BottomNavBar + tab switching, no domain/data layers of its own) and `feature/home/` is just the first tab's real feature. `apps/ecommerce/gravia` hit this and resolved it — per user instruction, not a pre-baked rule — as `feature/shell/` (`ShellPage`/`ShellScreen`) for the nav host, keeping `feature/home/` for the actual home-tab feature. Treat this as a case to recognize and confirm with the user when a spec implies tabs, not as a rule to auto-apply.
+
 ---
 
 ## Dart Conventions
@@ -408,6 +410,8 @@ class KeptJokesCubit extends Cubit<List<JokeEntity>> {
 **BLoC scoping rule:**
 - `buildBlocProviders` — only for state shared across multiple screens or read by the AppBar. Typically a `Cubit`.
 - `buildBody` — wrap each screen in its own `BlocProvider`. The BLoC lifetime is tied to that screen's subtree.
+
+> This is also why a nav shell (see the tabbed-apps case above) doesn't get its own BLoC by default — which tab is selected is UI-local state (`setState`), not shared info. Only add a `Cubit` in the shell's `buildBlocProviders` once a real piece of info needs to be shared/read across multiple tabs/pages (e.g. a cart-count badge read by both the AppBar and the Orders tab), and name it for that concern (`CartBadgeCubit`) — never a catch-all shell state container.
 
 ```dart
 // home_page.dart — shared cubit in buildBlocProviders; screen-specific BLoC in buildBody

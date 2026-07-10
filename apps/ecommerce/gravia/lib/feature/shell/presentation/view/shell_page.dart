@@ -7,16 +7,15 @@ import 'package:core/core/ui/molecules/empty_state.dart';
 import 'package:flutter/material.dart';
 
 import 'package:gravia/constants/value_const.dart';
-import 'home_screen.dart';
 
-class HomePage extends BasePage {
-  const HomePage({super.key});
+class ShellPage extends BasePage {
+  const ShellPage({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<ShellPage> createState() => _ShellPageState();
 }
 
-class _HomePageState extends BasePageState<HomePage> {
+class _ShellPageState extends BasePageState<ShellPage> {
   int _currentTab = 0;
 
   // Kit tab set: Home, Categories, Favourite, Orders (bag), Profile — the
@@ -59,7 +58,11 @@ class _HomePageState extends BasePageState<HomePage> {
 
   @override
   Widget buildBody(BuildContext context) => switch (_currentTab) {
-        0 => const HomeScreen(),
+        0 => const EmptyState(
+            iconData: Icons.storefront_rounded,
+            title: ValueConst.storefrontComingTitle,
+            subtitle: ValueConst.storefrontComingSubtitle,
+          ),
         1 => const EmptyState(
             iconData: Icons.grid_view_rounded,
             title: ValueConst.categoriesComingTitle,

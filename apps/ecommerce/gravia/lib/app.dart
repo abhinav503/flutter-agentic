@@ -7,7 +7,7 @@ import 'package:core/core/theme/theme_mode_scope.dart';
 
 import 'constants/app_routes.dart';
 import 'constants/value_const.dart';
-import 'feature/home/presentation/view/home_page.dart';
+import 'feature/shell/presentation/view/shell_page.dart';
 import 'feature/splash/presentation/view/splash_page.dart';
 
 final _router = GoRouter(
@@ -18,7 +18,7 @@ final _router = GoRouter(
     ),
     GoRoute(
       path: AppRoutes.home,
-      builder: (context, _) => const HomePage(),
+      builder: (context, _) => const ShellPage(),
     ),
   ],
 );
