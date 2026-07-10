@@ -12,7 +12,7 @@ dependencies:
     sdk: flutter
 
   core:
-    path: ../../packages/core
+    path: ../../../packages/core
 
   # Navigation
   go_router: ^17.2.3

@@ -182,7 +182,15 @@ const server = http.createServer((req, res) => {
     handlePreflight(req, res);
     return;
   }
-  const route = (req.url || '').split('?')[0];
+  // Decode first: the console percent-encodes app names with `encodeURIComponent`,
+  // which turns a nested name's `/` (e.g. `ecommerce/gravia`) into `%2F` — decode
+  // so the route regexes below see a real path separator.
+  let route = (req.url || '').split('?')[0];
+  try {
+    route = decodeURIComponent(route);
+  } catch {
+    /* malformed escape — match against the raw route, which will just 404 */
+  }
   if (route === '/config.json') {
     sendJson(req, res, { wsPort: config.PORT, token: config.TOKEN });
     return;
@@ -203,14 +211,16 @@ const server = http.createServer((req, res) => {
     getSetupStatus().then((status) => sendJson(req, res, status));
     return;
   }
-  const action = route.match(/^\/apps\/([A-Za-z0-9_]+)\/(run|stop)$/);
+  // App name is 1-2 path segments — apps/<name> or apps/<category>/<name>
+  // (e.g. `ecommerce/gravia`), so more apps can nest under a category dir.
+  const action = route.match(/^\/apps\/([A-Za-z0-9_]+(?:\/[A-Za-z0-9_]+)?)\/(run|stop)$/);
   if (action && req.method === 'POST') {
     handleAppAction(req, res, action[1], action[2]);
     return;
   }
   // Source-file access for the code view + visual edit (rooted at the app dir).
   const filesRoute = route.match(
-    /^\/apps\/([A-Za-z0-9_]+)\/(files|file|search|logs|reload|inspect|inspect\/selected)$/,
+    /^\/apps\/([A-Za-z0-9_]+(?:\/[A-Za-z0-9_]+)?)\/(files|file|search|logs|reload|inspect|inspect\/selected)$/,
   );
   if (filesRoute) {
     handleFilesRoute(req, res, filesRoute[1], filesRoute[2]);

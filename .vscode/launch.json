@@ -74,27 +74,27 @@
             "flutterMode": "release"
         },
         {
-            "name": "ecommerce (debug)",
+            "name": "gravia (debug)",
             "request": "launch",
             "type": "dart",
             "program": "lib/main.dart",
-            "cwd": "apps/ecommerce",
+            "cwd": "apps/ecommerce/gravia",
             "flutterMode": "debug"
         },
         {
-            "name": "ecommerce (profile)",
+            "name": "gravia (profile)",
             "request": "launch",
             "type": "dart",
             "program": "lib/main.dart",
-            "cwd": "apps/ecommerce",
+            "cwd": "apps/ecommerce/gravia",
             "flutterMode": "profile"
         },
         {
-            "name": "ecommerce (release)",
+            "name": "gravia (release)",
             "request": "launch",
             "type": "dart",
             "program": "lib/main.dart",
-            "cwd": "apps/ecommerce",
+            "cwd": "apps/ecommerce/gravia",
             "flutterMode": "release"
         },
         {

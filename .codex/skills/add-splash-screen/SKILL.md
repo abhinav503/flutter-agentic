@@ -4,11 +4,14 @@ description: >
   Give one app under apps/{app}/ a native boot splash on Android, iOS, and web
   using flutter_native_splash: themed light/dark background colours with the
   brand logo centered. Asks the user for their logo if not provided, derives
-  colours from the app's theme preset, prepares the 4x-density and Android-12
-  splash PNGs, adds the per-app dev dependency and config, generates, then
-  walks a per-platform verification checklist (iOS LaunchImage must be real
-  images, not 1x1 placeholders). Invoke with $add-splash-screen or ask to add
-  a splash/launch screen to an app.
+  colours from the app's theme preset, asks the user to choose between
+  matching the device's system theme or a fixed single look (the splash
+  paints before Dart runs, so it can never follow the app's own in-app theme
+  toggle), prepares the 4x-density and Android-12 splash PNGs, adds the
+  per-app dev dependency and config, generates, then walks a per-platform
+  verification checklist (iOS LaunchImage must be real images, not 1x1
+  placeholders). Invoke with $add-splash-screen or ask to add a splash/launch
+  screen to an app.
 ---
 
 Gives one app under `apps/{app}/` a **native boot splash** (the frame before
@@ -41,13 +44,29 @@ light/dark `surface` — resolve the preset named in
 Rasterise from SVG with headless Chrome (transparent:
 `--default-background-color=00000000`), or `sips` for PNG resizes.
 
-## Step 3 — Dev dependency + config in `apps/{app}/pubspec.yaml`
+## Step 3 — Ask which theme strategy, then add the dev dependency + config
+
+The native splash paints **before the Flutter engine and Dart VM start**, so
+it can only follow the **device/browser's** system dark/light setting — it
+can never read the app's in-app `ThemeModeController` toggle (that lives in
+`SharedPreferences`, only readable once Dart runs). Ask the user to choose
+one before writing config:
+
+1. **Match device theme (recommended)** — splash follows the device/browser's
+   system dark/light setting. Set `color_dark` / `image_dark` /
+   `android_12.color_dark`.
+2. **Fixed single look** — splash renders identically regardless of the
+   device's theme. Omit `color_dark` (and `image_dark`, and
+   `android_12.color_dark`) entirely — the generator then skips all
+   night/dark resources. Trade-off: a device in system Dark mode sees the
+   fixed (light) splash flash before the Flutter UI takes over.
 
 ```yaml
 dev_dependencies:
   flutter_native_splash: ^2.4.3
 ```
 
+Option 1 (match device theme):
 ```yaml
 flutter_native_splash:
   color: "#FFFFFF"          # light surface from the theme preset
@@ -57,6 +76,17 @@ flutter_native_splash:
   android_12:
     color: "#FFFFFF"
     color_dark: "#0C0503"
+    image: branding/splash_logo_android12.png
+```
+
+Option 2 (fixed single look — no `color_dark`/`image_dark` anywhere):
+```yaml
+flutter_native_splash:
+  color: "#FFFFFF"          # the one look, regardless of device theme
+  image: branding/splash_logo.png
+  web: true
+  android_12:
+    color: "#FFFFFF"
     image: branding/splash_logo_android12.png
 ```
 
@@ -76,7 +106,8 @@ dart run flutter_native_splash:create
 **Android** (`android/app/src/main/res/`):
 - [ ] `drawable/launch_background.xml` + `drawable-v21/` — colour + centered
       `@drawable/splash` bitmap
-- [ ] `drawable-{mdpi..xxxhdpi}/splash.png` + `drawable-night-*` variants
+- [ ] `drawable-{mdpi..xxxhdpi}/splash.png` + `drawable-night-*` variants (if
+      matching device theme)
 - [ ] `values/styles.xml` + `values-night/styles.xml` — LaunchTheme wired
 - [ ] `values-v31/styles.xml` + `values-night-v31/styles.xml` —
       `windowSplashScreenBackground` = configured colours,
@@ -100,8 +131,9 @@ dart run flutter_native_splash:create
 ## Step 6 — Test (cold launch)
 
 Kill the app fully first — warm resume skips the splash. Android: logo in the
-centre (Android 12+ puts it in the system circle); toggle dark mode and
-relaunch. iOS: simulator or device; splash → first frame should be seamless
+centre (Android 12+ puts it in the system circle); toggle the **device's**
+system dark mode (not any in-app toggle) and relaunch if matching device
+theme. iOS: simulator or device; splash → first frame should be seamless
 when the Flutter splash route shares the surface colour. Web:
 `flutter run -d chrome`.
 
@@ -112,3 +144,8 @@ when the Flutter splash route shares the surface colour. Web:
   never hand-edit the generated files.
 - Upgrading colour-only → logo: re-check the iOS LaunchImage PNGs for stale
   1×1 placeholders.
+- The splash follows the **device/browser's** system dark/light setting, not
+  the app's in-app theme toggle — it paints before Dart runs, so it can't see
+  that preference. Ask the user upfront (Step 3) whether they want that, or a
+  fixed single look via omitting `color_dark`/`image_dark`/
+  `android_12.color_dark`.

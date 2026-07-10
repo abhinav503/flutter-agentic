@@ -22,12 +22,32 @@ const PREVIEW_PORT_BASE = 8080;
 // The terminal host itself is not a preview target.
 const EXCLUDED = new Set(['web_terminal']);
 
-/** A directory is an app when it holds a pubspec.yaml. */
-function isApp(name) {
-  return (
-    !EXCLUDED.has(name) &&
-    fs.existsSync(path.join(APPS_DIR, name, 'pubspec.yaml'))
-  );
+/** A directory (relative to APPS_DIR) is an app when it holds a pubspec.yaml. */
+function isApp(relName) {
+  return fs.existsSync(path.join(APPS_DIR, relName, 'pubspec.yaml'));
+}
+
+/**
+ * App names one level under `apps/`, e.g. `jokes`. A directory that is
+ * itself not an app (e.g. `ecommerce`, a category grouping several style
+ * packs) is expanded one level deeper into `category/app` names — this is
+ * how `apps/ecommerce/gravia` is discovered.
+ */
+function collectNames() {
+  const names = [];
+  for (const d of fs.readdirSync(APPS_DIR, { withFileTypes: true })) {
+    if (!d.isDirectory() || EXCLUDED.has(d.name)) continue;
+    if (isApp(d.name)) {
+      names.push(d.name);
+      continue;
+    }
+    const subDir = path.join(APPS_DIR, d.name);
+    for (const sub of fs.readdirSync(subDir, { withFileTypes: true })) {
+      const relName = `${d.name}/${sub.name}`;
+      if (sub.isDirectory() && isApp(relName)) names.push(relName);
+    }
+  }
+  return names.sort();
 }
 
 /**
@@ -36,11 +56,7 @@ function isApp(name) {
  */
 function listApps() {
   if (!fs.existsSync(APPS_DIR)) return [];
-  const names = fs
-    .readdirSync(APPS_DIR, { withFileTypes: true })
-    .filter((d) => d.isDirectory() && isApp(d.name))
-    .map((d) => d.name)
-    .sort();
+  const names = collectNames();
 
   return names.map((name, index) => ({
     name,

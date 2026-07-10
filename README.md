@@ -67,6 +67,8 @@ Available skills:
 - `review-code` — audits generated or modified code against the project's architecture contracts, forbidden-pattern checklist, naming conventions, DI rules, and test coverage expectations. Run this after any code generation for best results.
 - `connect-firebase` — connects an app to a Firebase project: Firebase + FlutterFire CLI checks, `flutterfire configure`, per-app `firebase_core`, `main.dart` init, Android Gradle plugin, and the Xcode `GoogleService-Info.plist` step.
 - `add-notification-feature` — adds Firebase Cloud Messaging push notifications (token, foreground/background/terminated handling, tap-to-open-a-page routing, image notifications) split into shared Flutter code plus separate iOS and Android tracks. Builds on `connect-firebase`.
+- `add-app-logo` — sets an app's launcher icon on Android, iOS, and web from a single brand image via `flutter_launcher_icons`, with adaptive-icon safe-zone handling.
+- `add-splash-screen` — adds a native boot splash (theme-derived light/dark background + centered logo) via `flutter_native_splash`, with an optional Flutter splash route to continue branding after engine boot.
 - `release` — guides a full release from any branch: branch comparison, version bump, release notes, merge to main, GitHub Release creation, and branch cleanup.
 
 ## Why Fork This?

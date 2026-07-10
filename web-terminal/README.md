@@ -74,6 +74,22 @@ preview through the console's same-origin `/preview-proxy`. Full flow:
 [`docs/how-to/deploy-workspace-gcp.md`](../docs/how-to/deploy-workspace-gcp.md);
 architecture: [`docs/explanation/cloud-workspace-plan.md`](../docs/explanation/cloud-workspace-plan.md).
 
+> **The `workspace` volume only seeds once.** `start.sh` copies the image's
+> baked `/opt/workspace-template` into the `workspace` named volume **only
+> when that volume is empty** (first boot). After that, `docker compose up
+> --build` rebuilds the *image* but an existing volume keeps mounting its old
+> contents on top — so new apps, moved folders, or other repo changes won't
+> show up in the running container even though the image has them. If the
+> app list (or anything else under `/workspace`) looks stale after a rebuild,
+> reset the volume so it reseeds from the fresh image:
+> ```bash
+> docker compose down
+> docker volume rm <project>_workspace   # find the exact name: docker volume ls
+> make docker-up
+> ```
+> This only wipes `/workspace`; the `claude-config` / `codex-config` volumes
+> (agent CLI logins) are untouched.
+
 ## Security
 
 This is effectively a remote shell to your machine, so the bridge is
