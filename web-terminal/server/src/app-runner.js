@@ -12,7 +12,7 @@
  * `dart` → web-server tree, not just the wrapper.
  */
 
-const { spawn } = require('child_process');
+const { spawn, execFileSync } = require('child_process');
 const { listApps } = require('./apps');
 const { FLUTTER_BIN } = require('./config');
 const { tileForNativeRun } = require('./window-tiler');
@@ -22,8 +22,48 @@ const logger = require('./logger');
 // name -> { child, port, status, deviceId, platform, target }
 const running = new Map();
 
+// Buffered `flutter run` output per app for the console's log panel. Kept in a
+// separate map so the log survives the `running` entry being cleared on exit —
+// the panel can still show why a run died. Cleared on the next fresh Run.
+// name -> { seq, chunks: [{ seq, text }], bytes }
+const runLogs = new Map();
+const LOG_MAX_BYTES = 64 * 1024;
+
+function appendLog(name, text) {
+  let buf = runLogs.get(name);
+  if (!buf) {
+    buf = { seq: 0, chunks: [], bytes: 0 };
+    runLogs.set(name, buf);
+  }
+  buf.seq += 1;
+  buf.chunks.push({ seq: buf.seq, text });
+  buf.bytes += text.length;
+  while (buf.bytes > LOG_MAX_BYTES && buf.chunks.length > 1) {
+    buf.bytes -= buf.chunks.shift().text.length;
+  }
+}
+
+/** The app's buffered run output (joined) + a cursor for cheap change checks. */
+function appLogs(name) {
+  const buf = runLogs.get(name);
+  return {
+    seq: buf ? buf.seq : 0,
+    text: buf ? buf.chunks.map((c) => c.text).join('') : '',
+  };
+}
+
 // flutter prints this once the web dev server is actually serving.
 const READY_RE = /is being served at|Serving at/i;
+
+// The Dart VM Service URL for a web run. flutter prints it only AFTER a browser
+// (our preview iframe) loads the app and the injected DWDS client connects —
+// so this is scanned continuously, not at the ready line. The "Debug service
+// listening on ws://…/ws" form is already the ws URL the inspector wants; the
+// "A Dart VM Service … is available at: http://…" form is the http fallback.
+// The auth-code token in the path is required (‑‑disable-service-auth-codes is
+// ignored on web), so we keep the whole URL verbatim.
+const VM_SERVICE_RE =
+  /(?:Debug service listening on|Dart VM Service.*is available at:)\s+((?:ws|http)s?:\/\/\S+)/i;
 
 // flutter prints one of these once a native run is installed and live on the
 // device (the point at which the device window exists, so we can tile it).
@@ -86,6 +126,9 @@ function runApp(name, { deviceId = 'web-server', platform = 'web', kind = 'web' 
   if (existing && existing.status !== 'failed') return describe(name);
   if (existing) running.delete(name);
 
+  // A fresh run starts a fresh log.
+  runLogs.delete(name);
+
   const isWeb = kind === 'web' || platform === 'web' || deviceId === 'web-server';
 
   // Offline emulator: hold `starting` while it boots (no flutter child yet), then
@@ -102,6 +145,7 @@ function runApp(name, { deviceId = 'web-server', platform = 'web', kind = 'web' 
     };
     running.set(name, entry);
     logger.info('run', `${name} booting emulator ${deviceId}`);
+    appendLog(name, `[bridge] booting emulator ${deviceId}…\n`);
     startEmulatorRun(name, app, deviceId, platform, entry);
     return describe(name);
   }
@@ -123,9 +167,19 @@ function runApp(name, { deviceId = 'web-server', platform = 'web', kind = 'web' 
 // Native runs tile the windows once the device is live.
 function spawnRun(name, app, { deviceId, isWeb, entry }) {
   const [cmd, ...baseArgs] = FLUTTER_BIN.split(' ').filter(Boolean);
+  // Deterministic VM-service port (previewPort + 10000) so the inspector has a
+  // predictable target; the real URL is still parsed from stdout in case
+  // flutter falls back to a random port when this one is busy.
+  const vmPort = isWeb ? app.previewPort + 10000 : null;
   const runArgs = isWeb
     ? ['run', '-d', 'web-server', '--web-hostname', 'localhost',
-       '--web-port', String(app.previewPort)]
+       '--web-port', String(app.previewPort),
+       '--vm-service-port', String(vmPort),
+       // SSE, not WebSocket, for the injected debug client: the app only runs
+       // main() after this connection, and behind the preview proxy
+       // (Docker/cloud) only plain HTTP can be forwarded — the console's
+       // /$dwdsSseHandler route relays it to this dev server.
+       '--web-server-debug-injected-client-protocol', 'sse']
     : ['run', '-d', deviceId];
   const child = spawn(cmd, [...baseArgs, ...runArgs], {
     cwd: app.path,
@@ -137,25 +191,41 @@ function spawnRun(name, app, { deviceId, isWeb, entry }) {
 
   const where = isWeb ? `:${app.previewPort}` : deviceId;
   logger.info('run', `${name} starting on ${where} (pid ${child.pid})`);
+  appendLog(name, `[bridge] flutter run starting on ${where}\n`);
 
   const readyRe = isWeb ? READY_RE : NATIVE_READY_RE;
   child.stdout.on('data', (buf) => {
-    if (entry.status === 'starting' && readyRe.test(buf.toString())) {
+    const text = buf.toString();
+    appendLog(name, text);
+    // The VM-service URL appears after the browser connects (independent of the
+    // ready line), so scan every chunk until we've captured it.
+    if (isWeb && !entry.vmServiceUrl) {
+      const m = text.match(VM_SERVICE_RE);
+      if (m) {
+        entry.vmServiceUrl = m[1];
+        logger.info('run', `${name} vm-service at ${entry.vmServiceUrl}`);
+      }
+    }
+    if (entry.status === 'starting' && readyRe.test(text)) {
       entry.status = 'running';
       logger.info('run', `${name} ready on ${where}`);
       if (!isWeb) tileForNativeRun();
     }
   });
-  child.stderr.on('data', (buf) =>
-    logger.warn('run', `${name}: ${buf.toString().trim()}`),
-  );
+  child.stderr.on('data', (buf) => {
+    const text = buf.toString();
+    appendLog(name, text);
+    logger.warn('run', `${name}: ${text.trim()}`);
+  });
   child.on('error', (err) => {
     logger.error('run', `${name} failed to spawn: ${err.message}`);
+    appendLog(name, `[bridge] failed to spawn: ${err.message}\n`);
     entry.status = 'failed';
     entry.message = `Failed to start: ${err.message}`;
   });
   child.on('exit', (code) => {
     logger.info('run', `${name} exited (code ${code})`);
+    appendLog(name, `[bridge] flutter run exited (code ${code})\n`);
     // Exiting before it ever became ready is a launch failure worth surfacing;
     // a clean exit after running (or a Stop) just clears the entry.
     if (entry.status === 'starting') {
@@ -176,6 +246,7 @@ async function startEmulatorRun(name, app, emulatorId, platform, entry) {
     if (isCancelled()) return;
     if (!deviceId) {
       logger.warn('run', `${name}: emulator ${emulatorId} did not come online`);
+      appendLog(name, `[bridge] emulator ${emulatorId} did not come online in time\n`);
       entry.status = 'failed';
       entry.message = 'The emulator did not come online in time. Try starting it first.';
       return;
@@ -184,11 +255,70 @@ async function startEmulatorRun(name, app, emulatorId, platform, entry) {
     spawnRun(name, app, { deviceId, isWeb: false, entry });
   } catch (e) {
     logger.error('run', `${name}: emulator boot failed: ${e.message}`);
+    appendLog(name, `[bridge] emulator boot failed: ${e.message}\n`);
     if (!isCancelled()) {
       entry.status = 'failed';
       entry.message = `Couldn't boot the emulator: ${e.message}`;
     }
   }
+}
+
+/**
+ * Hot-restart a running app by writing `R` to the `flutter run` key-command
+ * stdin, resolving once flutter reports the restart finished (so the caller
+ * can reload the preview iframe and see the new build). Times out rather than
+ * hanging if flutter never answers.
+ */
+function hotRestart(name, timeoutMs = 60000) {
+  const entry = running.get(name);
+  if (!entry || !entry.child || entry.status !== 'running') {
+    return Promise.resolve({ ok: false, message: 'app is not running' });
+  }
+  const { child } = entry;
+  return new Promise((resolve) => {
+    const done = (result) => {
+      child.stdout.removeListener('data', onData);
+      clearTimeout(timer);
+      resolve(result);
+    };
+    // Rolling buffer so a completion phrase split across stdout chunks still
+    // matches.
+    let tail = '';
+    const onData = (buf) => {
+      tail = (tail + buf.toString()).slice(-4096);
+      if (/Restarted application|Recompile complete|Hot restart performed/i.test(tail)) {
+        done({ ok: true });
+      }
+    };
+    const timer = setTimeout(
+      () => done({ ok: false, message: 'restart timed out' }),
+      timeoutMs,
+    );
+    child.stdout.on('data', onData);
+    try {
+      // Newline matters: stdin is a pipe (not a TTY), so flutter reads key
+      // commands line-buffered.
+      child.stdin.write('R\n');
+      logger.info('run', `${name} hot restart requested`);
+    } catch (e) {
+      done({ ok: false, message: `couldn't reach the process: ${e.message}` });
+    }
+  });
+}
+
+/**
+ * The running app's VM-service WebSocket URL (`ws://…/ws`) for the inspector,
+ * or null if not captured yet (build still in progress, or the preview iframe
+ * hasn't loaded the app so DWDS hasn't printed it). Normalizes the parsed URL:
+ * http→ws / https→wss, strips a trailing slash, ensures the `/ws` suffix.
+ */
+function vmServiceUrlFor(name) {
+  const entry = running.get(name);
+  const raw = entry && entry.vmServiceUrl;
+  if (!raw) return null;
+  let url = raw.trim().replace(/\/+$/, '').replace(/^http/, 'ws');
+  if (!url.endsWith('/ws')) url += '/ws';
+  return url;
 }
 
 /** Stop an app's run (idempotent). Leaves a booted emulator running. */
@@ -198,6 +328,7 @@ function stopApp(name) {
     if (entry.child) killGroup(entry.child);
     running.delete(name);
     logger.info('run', `${name} stopped`);
+    appendLog(name, '[bridge] stopped\n');
   }
   return describe(name);
 }
@@ -214,10 +345,75 @@ function killGroup(child) {
   }
 }
 
+/**
+ * Kill anything squatting an app's preview or VM-service port. Run once at
+ * bridge startup: a fresh bridge manages nothing yet, so any listener on these
+ * ports is an orphan — typically a `flutter run` dev server left behind by a
+ * previous bridge that died ungracefully (SIGKILL/crash), which would otherwise
+ * make a fresh run fail to bind its fixed port. Ports come from apps.js, so the
+ * list is always accurate. Best-effort: lsof/ps/kill failures are ignored.
+ */
+function freeStaleAppPorts() {
+  const ports = listApps().flatMap((a) => [
+    a.previewPort,
+    a.previewPort + 10000, // VM-service port (see spawnRun)
+  ]);
+  for (const port of ports) {
+    let pids;
+    try {
+      pids = execFileSync('lsof', ['-ti', `tcp:${port}`, '-sTCP:LISTEN'], {
+        stdio: ['ignore', 'pipe', 'ignore'],
+      })
+        .toString()
+        .trim()
+        .split('\n')
+        .filter(Boolean)
+        .map(Number);
+    } catch {
+      continue; // nothing listening (or lsof unavailable)
+    }
+    for (const pid of pids) {
+      let pgid = pid;
+      try {
+        pgid =
+          Number(
+            execFileSync('ps', ['-o', 'pgid=', '-p', String(pid)])
+              .toString()
+              .trim(),
+          ) || pid;
+      } catch {
+        /* fall back to the pid itself */
+      }
+      try {
+        process.kill(-pgid, 'SIGKILL'); // whole flutter → dart tree
+      } catch {
+        try {
+          process.kill(pid, 'SIGKILL');
+        } catch {
+          /* already gone */
+        }
+      }
+    }
+    if (pids.length) {
+      logger.info('run', `freed stale port ${port} (killed ${pids.join(', ')})`);
+    }
+  }
+}
+
 /** Tear every managed app down (called on server shutdown). */
 function disposeAllApps() {
   for (const entry of running.values()) if (entry.child) killGroup(entry.child);
   running.clear();
 }
 
-module.exports = { runApp, stopApp, describe, listAppsWithState, disposeAllApps };
+module.exports = {
+  runApp,
+  stopApp,
+  hotRestart,
+  appLogs,
+  vmServiceUrlFor,
+  freeStaleAppPorts,
+  describe,
+  listAppsWithState,
+  disposeAllApps,
+};

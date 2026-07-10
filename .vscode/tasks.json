@@ -2,16 +2,20 @@
   "version": "2.0.0",
   "tasks": [
     {
-      // Starts the local PTY bridge on :3000 before the web_terminal app
-      // launches. Idempotent: if something is already listening on :3000 it
-      // just reports ready instead of failing with EADDRINUSE. Installs node
-      // deps on first run.
+      // Starts the local PTY bridge on :3000 before the console launches.
+      // Restarts it FRESH each launch: kills any process already on :3000, waits
+      // for the port to free, then runs `npm run dev` (= `node --watch
+      // server.js`). So a relaunch always loads the latest server code, AND
+      // mid-session edits to server files hot-restart the bridge automatically.
+      // A restart stops running previews — the server's SIGTERM handler disposes
+      // them cleanly (no orphaned ports); re-run them from the console.
+      // Installs node deps on first run.
       "label": "terminal-bridge",
       "type": "shell",
       // PATH fallback first: VS Code tasks run in a non-login shell that sources
       // ~/.zshrc only, which here does NOT add homebrew's bin (that lives in
       // ~/.zprofile), so npm/node would otherwise be 'command not found'.
-      "command": "command -v npm >/dev/null 2>&1 || export PATH=\"/opt/homebrew/bin:/usr/local/bin:$PATH\"; if lsof -ti tcp:3000 -sTCP:LISTEN >/dev/null 2>&1; then echo 'bridge already running on :3000 — Bound to 127.0.0.1'; else [ -d node_modules ] || npm install; npm start; fi",
+      "command": "command -v npm >/dev/null 2>&1 || export PATH=\"/opt/homebrew/bin:/usr/local/bin:$PATH\"; lsof -ti tcp:3000 -sTCP:LISTEN | xargs kill -TERM 2>/dev/null; for i in 1 2 3 4 5; do lsof -ti tcp:3000 -sTCP:LISTEN >/dev/null 2>&1 || break; sleep 1; done; [ -d node_modules ] || npm install; npm run dev",
       "options": {
         "cwd": "${workspaceFolder}/web-terminal/server"
       },
@@ -25,6 +29,38 @@
           "activeOnStart": true,
           "beginsPattern": ".*",
           "endsPattern": "Bound to 127\\.0\\.0\\.1"
+        }
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "web_terminal"
+      }
+    },
+    {
+      // Runs the Next.js dev server on :4000 for the React console. dependsOn
+      // (sequence) starts terminal-bridge first, so the PTY bridge on :3000 is
+      // up before the console loads and fetches its token. Installs node deps
+      // on first run. Same PATH fallback as terminal-bridge — VS Code tasks run
+      // in a non-login shell that doesn't pick up homebrew's bin.
+      "label": "console-dev",
+      "type": "shell",
+      "command": "command -v npm >/dev/null 2>&1 || export PATH=\"/opt/homebrew/bin:/usr/local/bin:$PATH\"; [ -d node_modules ] || npm install; npm run dev",
+      "options": {
+        "cwd": "${workspaceFolder}/web-terminal/console"
+      },
+      "dependsOn": ["terminal-bridge"],
+      "dependsOrder": "sequence",
+      "isBackground": true,
+      "problemMatcher": {
+        "pattern": {
+          "regexp": "^(.*)$",
+          "file": 1
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".*",
+          "endsPattern": "(Ready in|- Local:|Local:\\s+http)"
         }
       },
       "presentation": {

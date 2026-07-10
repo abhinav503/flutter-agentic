@@ -43,6 +43,7 @@ Read the **Forbidden Patterns** list in `docs/ai-rules/conventions.md`. Check th
 - Inline `CircularProgressIndicator` — must use `LoadingIndicator`
 - `*Error` states that omit the data needed to retry
 - New entity that duplicates an existing one
+- Unguarded native-only init/actions that crash Flutter Web (`Firebase.initializeApp`, FCM, `flutter_local_notifications`, camera/gallery) — see section 8
 
 ---
 
@@ -111,6 +112,17 @@ Tests must use manual fakes only — no `mockito` or `mocktail` imports.
 
 ---
 
+### 8. Web-safe native guards
+
+Generated apps are previewed as **Flutter Web**, so the boot path and every tap handler must be safe on web. Read the native-only entry in the **Forbidden Patterns** list of `docs/ai-rules/conventions.md`, then check:
+
+- **Startup boots on web.** Native init that throws on web — `Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform)`, `FirebaseMessaging.onBackgroundMessage`, `flutter_local_notifications`, and any native-only plugin init — is inside `if (!kIsWeb) { … }` (or a `try/catch` that continues).
+- **Native-only actions degrade gracefully.** Camera/gallery capture, native share/save, etc. `kIsWeb`-guard the handler to no-op **with user feedback** (a snackbar), never a silent dead button and never a thrown exception.
+- **Web-incompatible packages use conditional imports, not just `kIsWeb`.** If a changed file or a new dependency pulls in a package that can't compile for web (`dart:io` / `dart:ffi` / `dart:mirrors`-based), a runtime `kIsWeb` guard won't help — the import fails to compile. Flag ❌ unless the platform code is isolated behind a conditional import (`export '…_stub.dart' if (dart.library.io) '…_io.dart' if (dart.library.js_interop) '…_web.dart';`) with a web stub. (`compiles but throws` → `kIsWeb`; `won't compile` → conditional import. Dart deferred loading is not a fix.)
+- Flag ❌ any native init or action reachable on web without a guard.
+
+---
+
 ## Output format
 
 Report a checklist:
@@ -125,6 +137,7 @@ Report a checklist:
 ### DI registration         ✅ / ❌
 ### Error state retry ctx   ✅ / ❌
 ### Test coverage           ✅ / ⚠️ / ❌
+### Web-safe native guards  ✅ / ❌
 
 ## What to fix
 - [file:line] description of violation

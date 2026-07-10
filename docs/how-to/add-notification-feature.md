@@ -10,8 +10,8 @@ topic subscriptions, and **tap-to-open-a-page** routing.
 > are **never** added to `core` (not every app needs push, and `core` stays
 > dependency-lean — see `docs/ai-rules/conventions.md`).
 
-> **Scope:** this adds **FCM only**. The reference (`atwork-mobile-app`) ships
-> CleverTap alongside FCM; none of the CleverTap pieces are ported here.
+> **Scope:** this adds **FCM only** — no third-party engagement SDKs
+> (CleverTap and similar) are covered here.
 
 ---
 
@@ -363,6 +363,7 @@ including `Firebase.initializeApp`, is already there from `/connect-firebase`):
 
 ```dart
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -372,8 +373,12 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  // Web-safe: FCM/Firebase are mobile-only; guard so the Flutter Web preview
+  // boots (the Firebase.initializeApp guard also comes from /connect-firebase).
+  if (!kIsWeb) {
+    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  }
   // ...existing initDependencies() + runApp(...)
 }
 ```
@@ -383,11 +388,14 @@ In the app's `home_screen.dart`, override `initState` on the `BaseScreenState`
 subclass and kick off messaging after the first frame:
 
 ```dart
+// needs: import 'package:flutter/foundation.dart' show kIsWeb;
 @override
 void initState() {
   super.initState();
+  // FCM is the sole entry to the Firebase/local-notification stack, so this one
+  // guard keeps the web preview off every native-only plugin.
   WidgetsBinding.instance.addPostFrameCallback((_) {
-    FirebaseMessagingService.instance.init();
+    if (!kIsWeb) FirebaseMessagingService.instance.init();
   });
 }
 ```

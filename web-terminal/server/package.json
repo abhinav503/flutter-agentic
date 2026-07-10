@@ -8,7 +8,8 @@
   "scripts": {
     "fix-perms": "chmod +x node_modules/node-pty/prebuilds/*/spawn-helper 2>/dev/null || true",
     "postinstall": "npm run fix-perms",
-    "start": "npm run fix-perms && node server.js"
+    "start": "npm run fix-perms && node server.js",
+    "dev": "npm run fix-perms && node --watch server.js"
   },
   "dependencies": {
     "node-pty": "^1.0.0",

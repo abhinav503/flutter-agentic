@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../theme/app_radius.dart';
+import '../../theme/app_shapes_extension.dart';
 import '../../theme/app_spacing.dart';
 
 /// Selectable chip for filters, tags, and multi-select UI.
@@ -29,6 +29,7 @@ class AppChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final shapes = Theme.of(context).extension<AppShapes>() ?? AppShapes.standard;
     final bg = selected ? cs.primaryContainer : cs.surfaceContainerHighest;
     final fg = selected ? cs.onPrimaryContainer : cs.onSurfaceVariant;
     final border = selected
@@ -45,7 +46,7 @@ class AppChip extends StatelessWidget {
         ),
         decoration: BoxDecoration(
           color: bg,
-          borderRadius: AppRadius.full,
+          borderRadius: BorderRadius.circular(shapes.chipRadius),
           border: Border.fromBorderSide(border),
         ),
         child: Row(

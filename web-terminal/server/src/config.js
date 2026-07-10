@@ -12,12 +12,26 @@ const os = require('os');
 const path = require('path');
 const crypto = require('crypto');
 
-const HOST = '127.0.0.1'; // localhost only — never bind to a public interface
+// Loopback by default — never bind a public interface on a dev machine. In the
+// cloud container a reverse proxy (Caddy) is the only public listener and the
+// bridge stays on loopback inside the container's network namespace, so
+// BIND_HOST is only for setups that genuinely need a different interface.
+const HOST = process.env.BIND_HOST || '127.0.0.1';
 const PORT = Number(process.env.PORT || 3000);
 
 // Per-startup secret required on the WebSocket. A fresh random token each boot
 // means a leaked token from a previous run can't be replayed.
 const TOKEN = process.env.TERMINAL_TOKEN || crypto.randomBytes(16).toString('hex');
+
+// A random token is only safe when it can't be reached: it is printed to the
+// local console. On a non-loopback bind that log line is not a secret channel,
+// so an explicit TERMINAL_TOKEN is mandatory there.
+if (HOST !== '127.0.0.1' && HOST !== 'localhost' && !process.env.TERMINAL_TOKEN) {
+  console.error(
+    `Refusing to bind ${HOST} without TERMINAL_TOKEN — set an explicit token to expose the bridge beyond loopback.`,
+  );
+  process.exit(1);
+}
 
 // Prefer the user's login shell ($SHELL is set on both macOS and Linux). Fall
 // back to the platform default: zsh is the macOS default; bash is present on
@@ -51,8 +65,26 @@ const WEB_DIR = path.resolve(
 const PROJECT_DIR =
   process.env.PROJECT_DIR || path.resolve(__dirname, '..', '..', '..');
 
+// Comma-separated env lists → trimmed, empty entries dropped.
+const envList = (name) =>
+  (process.env[name] || '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+
 // The only Host header values accepted — the core DNS-rebinding defense.
-const ALLOWED_HOSTS = new Set([`127.0.0.1:${PORT}`, `localhost:${PORT}`]);
+// ALLOWED_HOSTS extends the set with extra `host[:port]` values for deployments
+// where the bridge is addressed by something other than loopback.
+const ALLOWED_HOSTS = new Set([
+  `127.0.0.1:${PORT}`,
+  `localhost:${PORT}`,
+  ...envList('ALLOWED_HOSTS'),
+]);
+
+// Extra origins (beyond localhost) allowed to read CORS responses — escape
+// hatch for a console served from a different origin than the bridge. Empty by
+// default; the cloud image doesn't need it (same-origin behind the proxy).
+const ALLOWED_ORIGINS = new Set(envList('ALLOWED_ORIGINS'));
 
 // Initial PTY geometry; the client sends a `resize` as soon as it knows its grid.
 const PTY = Object.freeze({ name: 'xterm-256color', cols: 80, rows: 24 });
@@ -66,5 +98,6 @@ module.exports = Object.freeze({
   WEB_DIR,
   PROJECT_DIR,
   ALLOWED_HOSTS,
+  ALLOWED_ORIGINS,
   PTY,
 });

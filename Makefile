@@ -8,14 +8,15 @@
 FLUTTER ?= fvm flutter
 DART ?= fvm dart
 
-APPS = apps/jokes apps/doc_scanner apps/ai_chat apps/web_terminal
-GEN_PACKAGES = packages/core apps/jokes apps/doc_scanner apps/ai_chat apps/web_terminal
+APPS = apps/jokes apps/doc_scanner apps/ai_chat apps/ecommerce/gravia
+GEN_PACKAGES = packages/core apps/jokes apps/doc_scanner apps/ai_chat
 
 # web-terminal collides with the web-terminal/ directory, so targets must be
 # declared phony or make treats them as up-to-date files.
-.PHONY: setup run-jokes run-doc-scanner run-ai-chat web-jokes web-doc-scanner \
-        web-ai-chat web-terminal terminal-bridge dev-web-terminal analyze test \
-        gen clean
+.PHONY: setup run-jokes run-doc-scanner run-ai-chat run-design-gallery \
+        run-gravia web-jokes web-doc-scanner web-ai-chat web-design-gallery \
+        web-gravia console terminal-bridge dev-web-terminal analyze test gen \
+        clean docker-build docker-up ws-image ws-create ws-delete
 
 setup:
 	git config core.hooksPath .githooks
@@ -31,6 +32,15 @@ run-doc-scanner:
 run-ai-chat:
 	cd apps/ai_chat && $(FLUTTER) run
 
+# design_gallery is a dev tool (Widgetbook), not a shipping app — runs best on
+# Chrome so the theme/viewport toolbar is easy to reach.
+run-design-gallery:
+	cd apps/design_gallery && $(FLUTTER) run
+
+# gravia is the ecommerce style-pack exemplar; more apps/ecommerce/* apps land here over time.
+run-gravia:
+	cd apps/ecommerce/gravia && $(FLUTTER) run
+
 web-jokes:
 	cd apps/jokes && $(FLUTTER) run -d chrome
 
@@ -40,24 +50,52 @@ web-doc-scanner:
 web-ai-chat:
 	cd apps/ai_chat && $(FLUTTER) run -d chrome
 
-# --- web_terminal: Flutter web UI + local Node PTY bridge ---
-# The Flutter app (apps/web_terminal) renders a real shell streamed from the
-# Node bridge (web-terminal/server). The bridge holds your local permissions.
+web-design-gallery:
+	cd apps/design_gallery && $(FLUTTER) run -d chrome
 
-# One-port experience: build the web app, then the bridge serves it on :3000.
-# Open http://localhost:3000 and run `claude` in the terminal.
-web-terminal:
-	cd apps/web_terminal && $(FLUTTER) build web
-	cd web-terminal/server && npm install && npm start
+web-gravia:
+	cd apps/ecommerce/gravia && $(FLUTTER) run -d chrome
 
-# Just the PTY bridge on :3000 (run alongside `make dev-web-terminal`).
+# --- web-terminal console: React/Next.js UI + local Node PTY bridge ---
+# The console (web-terminal/console) is a Next.js app that streams a real shell
+# from the Node bridge (web-terminal/server). The bridge holds your local
+# permissions. Two servers, two shells: bridge on :3000, console on :4000.
+
+# Shell 1 — the PTY bridge on :3000.
 terminal-bridge:
 	cd web-terminal/server && npm install && npm start
 
-# Hot-reload dev: Flutter on :4000, talking to the bridge on :3000.
+# Shell 2 — the React console on :4000, talking to the bridge on :3000.
 # Run `make terminal-bridge` in another shell first.
-dev-web-terminal:
-	cd apps/web_terminal && $(FLUTTER) run -d chrome --web-port 4000
+console:
+	cd web-terminal/console && npm install && npm run dev
+
+# Backwards-compatible alias for the console dev server.
+dev-web-terminal: console
+
+# --- cloud workspace: the whole stack (console + bridge + Flutter + agents) in
+# one Docker image, deployable as a per-user GCE spot VM.
+# Full flow: docs/how-to/deploy-workspace-gcp.md
+
+# Build the workspace image locally.
+docker-build:
+	docker compose build
+
+# Run the workspace locally: http://localhost:8080, basic auth dev/devtoken.
+docker-up:
+	docker compose up --build
+
+# Build + push the image to Artifact Registry via Cloud Build (amd64).
+ws-image:
+	./infra/workspace/build-image.sh
+
+# Spin up / tear down one user's workspace VM: make ws-create WS_USER=alice
+# (WS_USER, not USER — the shell already owns $USER.)
+ws-create:
+	./infra/workspace/create-workspace.sh $(WS_USER)
+
+ws-delete:
+	./infra/workspace/delete-workspace.sh $(WS_USER)
 
 # --- workspace-wide ---
 analyze:

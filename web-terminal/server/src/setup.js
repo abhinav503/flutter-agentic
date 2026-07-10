@@ -16,9 +16,13 @@
 
 const { execFile } = require('child_process');
 const os = require('os');
-const { SHELL, PROJECT_DIR } = require('./config');
+const { SHELL, PROJECT_DIR, FLUTTER_BIN } = require('./config');
 
 const isMac = os.platform() === 'darwin';
+// When FLUTTER_BIN is a bare `flutter` (e.g. the cloud image, where the SDK is
+// preinstalled), fvm isn't part of the toolchain and its checklist row would
+// sit permanently red.
+const usesFvm = FLUTTER_BIN.startsWith('fvm');
 
 // Run a shell snippet in a login shell; resolve { ok, out } (never rejects).
 function run(snippet) {
@@ -81,6 +85,7 @@ const ITEMS = [
     id: 'fvm',
     name: 'fvm',
     description: 'Flutter version manager — pins the exact SDK this repo uses.',
+    fvm: true,
     detect: () => probe('command -v fvm >/dev/null && fvm --version'),
     steps: [cmd('Install fvm', 'brew install fvm')],
   },
@@ -202,7 +207,7 @@ const ITEMS = [
 
 /** `{ platform, items: [{ id, name, description, installed, detail, steps }] }`. */
 async function getSetupStatus() {
-  const items = ITEMS.filter((i) => !i.mac || isMac);
+  const items = ITEMS.filter((i) => (!i.mac || isMac) && (!i.fvm || usesFvm));
   const results = await Promise.all(
     items.map(async (i) => {
       let installed = false;

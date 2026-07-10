@@ -39,6 +39,24 @@ migrate_working_dir/
 **/pubspec_overrides.yaml
 .melos_tool/
 
+# Node / JS (web-terminal console + server) — repo-wide so any JS project is
+# covered even without its own .gitignore. Nested .gitignores also apply.
+**/node_modules/
+**/.next/
+**/out/
+**/.pnp
+**/.pnp.*
+**/.vercel
+*.tsbuildinfo
+next-env.d.ts
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Local env — .local overrides at any depth (bare .env is covered below)
+**/.env*.local
+
 # fvm — pinned SDK is a local symlink; keep .fvmrc / fvm_config.json, ignore the SDK
 .fvm/flutter_sdk
 .fvm/versions/
@@ -60,7 +78,6 @@ app.*.map.json
 
 # API keys and secrets — local only, never commit
 .env
-.vscode/launch.json
 
 # Android signing — never commit
 **/android/key.properties
@@ -70,3 +87,4 @@ app.*.map.json
 # Firebase config — never commit to public repo
 **/ios/Runner/GoogleService-Info.plist
 **/android/app/google-services.json
+code-export/

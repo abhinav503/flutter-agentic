@@ -151,14 +151,20 @@ Initialize Firebase before DI and `runApp`:
 
 ```dart
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  // Web-safe by default: firebase_options.dart throws on web unless web is
+  // configured, and apps are previewed as Flutter Web. Guard so the preview
+  // boots; on device this runs exactly as before.
+  if (!kIsWeb) {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  }
 
   final config = await _loadThemeConfig();
   await initDependencies();
@@ -166,6 +172,8 @@ void main() async {
   runApp(App(themeConfig: config));
 }
 ```
+
+> **Web-safe rule:** never let native init throw on web (see Forbidden Patterns in `docs/ai-rules/conventions.md`). If you later run `flutterfire configure` and add the **web** platform, the guard still holds — remove it only when web Firebase is intentionally supported.
 
 ---
 

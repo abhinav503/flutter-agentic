@@ -22,15 +22,20 @@ const { WebSocketServer } = require('ws');
 
 const config = require('./src/config');
 const logger = require('./src/logger');
-const { isHostAllowed, isLocalhostOrigin } = require('./src/security');
+const { isHostAllowed, isAllowedOrigin } = require('./src/security');
 const { serveStatic, MIME } = require('./src/static-server');
 const { createTerminalSession } = require('./src/terminal-session');
 const {
   runApp,
   stopApp,
+  hotRestart,
+  appLogs,
   listAppsWithState,
   disposeAllApps,
+  freeStaleAppPorts,
 } = require('./src/app-runner');
+const { fileTree, readFile, writeFile, searchFiles } = require('./src/files');
+const { setInspectorEnabled, selectedWidgetSource } = require('./src/inspector');
 const { getSetupStatus } = require('./src/setup');
 const { listDevices } = require('./src/devices');
 
@@ -38,14 +43,15 @@ const { listDevices } = require('./src/devices');
 
 // The Flutter app fetches this to learn the WS url + token. Same-origin in
 // production; in dev (flutter run on another port) it's cross-origin, so we
-// echo CORS ONLY for localhost origins. A public page (Origin https://evil.com)
-// gets no allow-origin header and the browser blocks it from reading the token.
-// Write a JSON body, echoing CORS only for localhost origins (same token-safety
+// echo CORS ONLY for localhost origins (plus any ALLOWED_ORIGINS entries). A
+// public page (Origin https://evil.com) gets no allow-origin header and the
+// browser blocks it from reading the token.
+// Write a JSON body, echoing CORS only for allowed origins (same token-safety
 // rule as /config.json): a public page can't read these responses cross-origin.
 function sendJson(req, res, payload) {
   const origin = req.headers.origin || '';
   const headers = { 'content-type': MIME['.json'], 'cache-control': 'no-store' };
-  if (isLocalhostOrigin(origin)) {
+  if (isAllowedOrigin(origin)) {
     headers['access-control-allow-origin'] = origin;
     headers['vary'] = 'Origin';
   }
@@ -54,11 +60,11 @@ function sendJson(req, res, payload) {
 }
 
 // CORS preflight for the app-management POSTs from a cross-origin dev page
-// (flutter run on :4000 → bridge on :3000). Localhost origins only.
+// (flutter run on :4000 → bridge on :3000). Allowed origins only.
 function handlePreflight(req, res) {
   const origin = req.headers.origin || '';
   const headers = {};
-  if (isLocalhostOrigin(origin)) {
+  if (isAllowedOrigin(origin)) {
     headers['access-control-allow-origin'] = origin;
     headers['access-control-allow-methods'] = 'GET, POST, OPTIONS';
     headers['access-control-allow-headers'] = 'content-type';
@@ -69,12 +75,12 @@ function handlePreflight(req, res) {
 
 // Collect a small JSON request body; resolve {} on empty/invalid (the run
 // target is optional — no body means the default web-server target).
-function readJsonBody(req) {
+function readJsonBody(req, limit = 4096) {
   return new Promise((resolve) => {
     let raw = '';
     req.on('data', (chunk) => {
       raw += chunk;
-      if (raw.length > 4096) req.destroy(); // tiny payload; reject anything large
+      if (raw.length > limit) req.destroy(); // reject anything over the cap
     });
     req.on('end', () => {
       try {
@@ -106,6 +112,67 @@ async function handleAppAction(req, res, name, action) {
   }
 }
 
+// GET  /apps/:name/files            → { tree }
+// GET  /apps/:name/file?path=rel    → { path, content }
+// POST /apps/:name/file             → { ok }        body: { path, content }
+// GET  /apps/:name/search?q=text[&prefer=usage]  → { hits }
+// GET  /apps/:name/logs             → { seq, text }     (buffered run output)
+// POST /apps/:name/reload           → { ok, message? }  (hot restart)
+// POST /apps/:name/inspect          → { ok, message? }  body: { enabled }
+// GET  /apps/:name/inspect/selected → { source }        (widget under selection)
+async function handleFilesRoute(req, res, name, kind) {
+  const url = new URL(req.url, `http://${req.headers.host}`);
+  const fail = (code, msg) =>
+    res.writeHead(code, { 'content-type': 'text/plain' }).end(msg);
+
+  if (kind === 'files' && req.method === 'GET') {
+    const tree = fileTree(name);
+    return tree ? sendJson(req, res, { tree }) : fail(404, 'unknown app');
+  }
+  if (kind === 'file' && req.method === 'GET') {
+    const file = readFile(name, url.searchParams.get('path') || '');
+    return file ? sendJson(req, res, file) : fail(404, 'file not found');
+  }
+  if (kind === 'file' && req.method === 'POST') {
+    const { path: relPath, content } = await readJsonBody(req, 2 * 1024 * 1024);
+    const ok =
+      typeof relPath === 'string' && typeof content === 'string'
+        ? writeFile(name, relPath, content)
+        : false;
+    return ok ? sendJson(req, res, { ok: true }) : fail(400, 'write failed');
+  }
+  if (kind === 'search' && req.method === 'GET') {
+    const hits = searchFiles(
+      name,
+      url.searchParams.get('q') || '',
+      url.searchParams.get('prefer') || undefined,
+    );
+    return hits ? sendJson(req, res, { hits }) : fail(404, 'unknown app');
+  }
+  if (kind === 'logs' && req.method === 'GET') {
+    return sendJson(req, res, appLogs(name));
+  }
+  if (kind === 'reload' && req.method === 'POST') {
+    const result = await hotRestart(name);
+    return sendJson(req, res, result);
+  }
+  // Inspector calls can throw/time out (VM service not up yet); always resolve
+  // to JSON so the overlay's fallback path — not a 500 — handles unavailability.
+  if (kind === 'inspect' && req.method === 'POST') {
+    const { enabled } = await readJsonBody(req);
+    const result = await setInspectorEnabled(name, !!enabled).catch((e) => ({
+      ok: false,
+      message: e.message,
+    }));
+    return sendJson(req, res, result);
+  }
+  if (kind === 'inspect/selected' && req.method === 'GET') {
+    const source = await selectedWidgetSource(name).catch(() => null);
+    return sendJson(req, res, { source });
+  }
+  fail(405, 'method not allowed');
+}
+
 const server = http.createServer((req, res) => {
   if (!isHostAllowed(req)) {
     res.writeHead(403, { 'content-type': 'text/plain' }).end('host not allowed');
@@ -115,7 +182,15 @@ const server = http.createServer((req, res) => {
     handlePreflight(req, res);
     return;
   }
-  const route = (req.url || '').split('?')[0];
+  // Decode first: the console percent-encodes app names with `encodeURIComponent`,
+  // which turns a nested name's `/` (e.g. `ecommerce/gravia`) into `%2F` — decode
+  // so the route regexes below see a real path separator.
+  let route = (req.url || '').split('?')[0];
+  try {
+    route = decodeURIComponent(route);
+  } catch {
+    /* malformed escape — match against the raw route, which will just 404 */
+  }
   if (route === '/config.json') {
     sendJson(req, res, { wsPort: config.PORT, token: config.TOKEN });
     return;
@@ -136,9 +211,19 @@ const server = http.createServer((req, res) => {
     getSetupStatus().then((status) => sendJson(req, res, status));
     return;
   }
-  const action = route.match(/^\/apps\/([A-Za-z0-9_]+)\/(run|stop)$/);
+  // App name is 1-2 path segments — apps/<name> or apps/<category>/<name>
+  // (e.g. `ecommerce/gravia`), so more apps can nest under a category dir.
+  const action = route.match(/^\/apps\/([A-Za-z0-9_]+(?:\/[A-Za-z0-9_]+)?)\/(run|stop)$/);
   if (action && req.method === 'POST') {
     handleAppAction(req, res, action[1], action[2]);
+    return;
+  }
+  // Source-file access for the code view + visual edit (rooted at the app dir).
+  const filesRoute = route.match(
+    /^\/apps\/([A-Za-z0-9_]+(?:\/[A-Za-z0-9_]+)?)\/(files|file|search|logs|reload|inspect|inspect\/selected)$/,
+  );
+  if (filesRoute) {
+    handleFilesRoute(req, res, filesRoute[1], filesRoute[2]);
     return;
   }
   serveStatic(req, res);
@@ -208,4 +293,7 @@ server.on('error', (err) => {
 process.on('SIGINT', () => shutdown('SIGINT'));
 process.on('SIGTERM', () => shutdown('SIGTERM'));
 
+// Clear any flutter dev servers orphaned on app preview/VM-service ports by a
+// previous bridge, so a fresh run can bind its fixed port.
+freeStaleAppPorts();
 server.listen(config.PORT, config.HOST, printBanner);

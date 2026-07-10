@@ -6,10 +6,11 @@ abstract final class ValueConst {
   static const docScannerGeneratePdf   = 'Generate PDF';
   static const docScannerTotalLabel    = 'Total';
   static const docScannerEmptyTitle    = 'No receipts yet';
-  static const docScannerEmptySubtitle = 'Add images from camera or gallery to get started.';
+  static const docScannerEmptySubtitle = 'Add images from camera or gallery to get startedff.';
   static const docScannerExtracting    = 'Extracting…';
   static const docScannerPdfSuccess    = 'PDF ready — opening share sheet';
   static const docScannerPdfError      = 'Failed to generate PDF';
+  static const docScannerMobileOnly    = 'Camera and gallery are only available on mobile';
   static const docScannerExtractFailed   = 'Could not read receipt';
   static const docScannerDateIncomplete  = 'Date on receipt is incomplete — year, month and day must all be visible';
   static const docScannerExtractButton  = 'Extract Data';

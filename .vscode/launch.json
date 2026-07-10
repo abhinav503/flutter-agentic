@@ -1,0 +1,112 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "jokes (debug)",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "cwd": "apps/jokes",
+            "flutterMode": "debug"
+        },
+        {
+            "name": "jokes (profile)",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "cwd": "apps/jokes",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "jokes (release)",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "cwd": "apps/jokes",
+            "flutterMode": "release"
+        },
+        {
+            "name": "doc_scanner (debug)",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "cwd": "apps/doc_scanner",
+            "flutterMode": "debug"
+        },
+        {
+            "name": "doc_scanner (profile)",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "cwd": "apps/doc_scanner",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "doc_scanner (release)",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "cwd": "apps/doc_scanner",
+            "flutterMode": "release"
+        },
+        {
+            "name": "ai_chat (debug)",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "cwd": "apps/ai_chat",
+            "flutterMode": "debug"
+        },
+        {
+            "name": "ai_chat (profile)",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "cwd": "apps/ai_chat",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "ai_chat (release)",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "cwd": "apps/ai_chat",
+            "flutterMode": "release"
+        },
+        {
+            "name": "gravia (debug)",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "cwd": "apps/ecommerce/gravia",
+            "flutterMode": "debug"
+        },
+        {
+            "name": "gravia (profile)",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "cwd": "apps/ecommerce/gravia",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "gravia (release)",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "cwd": "apps/ecommerce/gravia",
+            "flutterMode": "release"
+        },
+        {
+            // React/Next.js console. preLaunchTask (console-dev) starts the
+            // Node PTY bridge on :3000, then the Next dev server on :4000, and
+            // waits until both are ready before Chrome opens the console.
+            "name": "console (dev, Chrome :4000)",
+            "request": "launch",
+            "type": "chrome",
+            "url": "http://localhost:4000",
+            "webRoot": "${workspaceFolder}/web-terminal/console",
+            "preLaunchTask": "console-dev"
+        }
+    ]
+}

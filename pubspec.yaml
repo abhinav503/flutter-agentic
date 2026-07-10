@@ -1,7 +1,7 @@
 name: flutter_agentic
 description: FlutterAgentic monorepo — one shared core package consumed by multiple Flutter apps.
 publish_to: 'none'
-version: 1.5.0
+version: 1.6.0
 
 environment:
   sdk: ^3.12.0
@@ -13,4 +13,5 @@ workspace:
   - apps/jokes
   - apps/doc_scanner
   - apps/ai_chat
-  - apps/web_terminal
+  - apps/design_gallery
+  - apps/ecommerce/gravia

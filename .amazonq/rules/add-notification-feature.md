@@ -54,6 +54,11 @@ Any missing → stop; connect the app to Firebase first. Ask which platform(s) i
    with `FirebaseMessaging.onBackgroundMessage(...)` **before** `runApp`.
 6. `home_screen.dart` `initState` — `addPostFrameCallback((_) => FirebaseMessagingService.instance.init())`.
 
+**Web-safe (required):** FCM/Firebase are mobile-only, and apps are previewed as Flutter Web,
+so guard both native entry points behind `kIsWeb` (`import 'package:flutter/foundation.dart' show kIsWeb;`):
+wrap the `main()` `Firebase.initializeApp` + `onBackgroundMessage` in `if (!kIsWeb) { … }`, and the
+`initState` call as `if (!kIsWeb) FirebaseMessagingService.instance.init();`. Never let native init throw on web.
+
 **Why home-screen init, not `main()`:** on iOS, querying the launch notification too
 early drops the terminated-state tap and the router isn't mounted. `addPostFrameCallback`
 fixes both. Only the background-handler registration stays in `main()`.

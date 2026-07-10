@@ -5,7 +5,7 @@
  * unit test and reuse across both the HTTP and WebSocket-upgrade paths.
  */
 
-const { ALLOWED_HOSTS } = require('./config');
+const { ALLOWED_HOSTS, ALLOWED_ORIGINS } = require('./config');
 
 // Matches only localhost origins (any scheme/port). Used to scope CORS on
 // /config.json so a public page can't read the token cross-origin.
@@ -16,9 +16,9 @@ function isHostAllowed(req) {
   return ALLOWED_HOSTS.has(req.headers.host || '');
 }
 
-/** True when an Origin header points at localhost. */
-function isLocalhostOrigin(origin) {
-  return LOCALHOST_ORIGIN.test(origin || '');
+/** True when an Origin header is localhost or explicitly allowed via env. */
+function isAllowedOrigin(origin) {
+  return LOCALHOST_ORIGIN.test(origin || '') || ALLOWED_ORIGINS.has(origin || '');
 }
 
-module.exports = { isHostAllowed, isLocalhostOrigin };
+module.exports = { isHostAllowed, isAllowedOrigin };

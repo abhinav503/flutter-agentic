@@ -5,7 +5,9 @@ import 'package:core/core/base/base_page.dart';
 import 'package:jokes/constants/value_const.dart';
 import 'package:core/core/di/core_injection.dart';
 import 'package:core/core/theme/app_spacing.dart';
+import 'package:core/core/theme/theme_mode_scope.dart';
 import 'package:core/core/ui/atoms/badge.dart';
+import 'package:core/core/ui/atoms/theme_mode_toggle.dart';
 import 'package:core/core/ui/atoms/top_bar.dart';
 import '../../domain/entities/joke_entity.dart';
 import '../bloc/for_you_bloc.dart';
@@ -32,8 +34,15 @@ class _HomePageState extends BasePageState<HomePage> {
 
   @override
   PreferredSizeWidget buildAppBar(BuildContext context) {
+    final themeMode = ThemeModeScope.maybeOf(context);
+    final themeToggle = themeMode == null
+        ? null
+        : ThemeModeToggle(mode: themeMode.value, onTap: themeMode.cycle);
     if (_currentTab == 1) {
-      return AppTopBar.primary(title: ValueConst.jokeSearchTabTitle);
+      return AppTopBar.primary(
+        title: ValueConst.jokeSearchTabTitle,
+        actions: [?themeToggle],
+      );
     }
     return AppTopBar.primary(
       title: ValueConst.jokeForYouTabTitle,
@@ -53,6 +62,7 @@ class _HomePageState extends BasePageState<HomePage> {
             );
           },
         ),
+        ?themeToggle,
       ],
     );
   }
