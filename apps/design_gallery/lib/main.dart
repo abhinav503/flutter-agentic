@@ -5,10 +5,13 @@ import 'package:core/core/ui/atoms/badge.dart';
 import 'package:core/core/ui/atoms/button.dart';
 import 'package:core/core/ui/atoms/checkbox.dart';
 import 'package:core/core/ui/atoms/chip.dart';
+import 'package:core/core/ui/atoms/device_frame.dart';
 import 'package:core/core/ui/atoms/dropdown_menu.dart';
 import 'package:core/core/ui/atoms/icon_button.dart';
 import 'package:core/core/ui/atoms/loading_dots.dart';
 import 'package:core/core/ui/atoms/loading_indicator.dart';
+import 'package:core/core/ui/atoms/network_image.dart';
+import 'package:core/core/ui/atoms/page_indicator.dart';
 import 'package:core/core/ui/atoms/text_field.dart';
 import 'package:core/core/ui/atoms/top_bar.dart';
 import 'package:core/core/ui/blocks/bottom_nav_bar.dart';
@@ -31,6 +34,13 @@ void main() => runApp(const DesignGalleryApp());
 ///
 /// Each component has a single "All variants" use case that lays out every
 /// state on one page — no clicking through the tree per variant.
+///
+/// Not every atom is showcased here — `atoms/file_thumbnail.dart`
+/// (`AppFileThumbnail`) imports `dart:io` to read a local file, which this
+/// app can't have unconditionally: it also builds for web (`make
+/// web-design-gallery`), and `dart:io` doesn't compile there. Per
+/// docs/ai-rules/design.md §1, any other addition should get a showcase
+/// entry — this is a documented exception, not an oversight.
 class DesignGalleryApp extends StatelessWidget {
   const DesignGalleryApp({super.key});
 
@@ -241,6 +251,19 @@ final _directories = <WidgetbookNode>[
         ]),
       ),
       _allVariants(
+        'DeviceFrame',
+        (context) => _showcase(context, [
+          _Variant(
+            'Default',
+            SizedBox(
+              width: 200,
+              height: 420,
+              child: DeviceFrame(child: _placeholderImage(context)),
+            ),
+          ),
+        ]),
+      ),
+      _allVariants(
         'AppIconButton',
         (context) => _showcase(context, [
           _Variant(
@@ -261,6 +284,27 @@ final _directories = <WidgetbookNode>[
               ),
             ),
           ),
+        ]),
+      ),
+      _allVariants(
+        'AppNetworkImage',
+        (context) => _showcase(context, [
+          _Variant(
+            'Default',
+            AppNetworkImage.placeholder(
+              seed: 'widgetbook-network-image',
+              width: 160,
+              height: 160,
+            ),
+          ),
+        ]),
+      ),
+      _allVariants(
+        'PageIndicator',
+        (context) => _showcase(context, [
+          _Variant('Page 1 of 3', const PageIndicator(count: 3, currentIndex: 0)),
+          _Variant('Page 2 of 3', const PageIndicator(count: 3, currentIndex: 1)),
+          _Variant('Page 3 of 3', const PageIndicator(count: 3, currentIndex: 2)),
         ]),
       ),
       _allVariants(

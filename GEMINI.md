@@ -20,6 +20,7 @@ One `flutter pub get` at the repo root resolves all packages. Run `make` targets
 @docs/reference/architecture.md
 @docs/explanation/end-goal.md
 
+Read `docs/ai-rules/design.md` before writing any screen, scaffolding an app's UI, or restyling — it decides which style pack / theme preset an app uses (e.g. `gravia` for ecommerce) and sets the screen design rules and the blocks (`core/ui/blocks/`) to compose from.
 Read `docs/how-to/contributing.md` for contributor workflow and git hooks.
 Read `docs/how-to/add-feature-template.md` when scaffolding a new feature — it has the full folder tree, empty class skeletons, DI registration order, and a forbidden-pattern checklist.
 Read `docs/how-to/add-usecase.md` when adding a use case — create the class and register it in `injection_container.dart`.

@@ -10,6 +10,7 @@ import { useDevices } from "@/hooks/use-devices";
 import { useSelectionStore } from "@/stores/selection-store";
 import { useUiStore } from "@/stores/ui-store";
 import { isWebDevice } from "@/lib/types";
+import { cn } from "@/lib/utils";
 
 // Right pane: the setup panel wins when open; otherwise the Rocket-style
 // toolbar stays on top of whichever view is active — the code browser, the
@@ -28,13 +29,23 @@ export function RightPane() {
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <PreviewToolbar />
-      {rightView === "code" ? (
-        <CodeView />
-      ) : web ? (
-        <TerminalPreview />
-      ) : (
-        <DeviceStatus />
+      {/* Stays mounted across the Code <-> Preview toggle and is only
+          CSS-hidden — unmounting would destroy the iframe, forcing the
+          running web app to reboot from scratch on every switch back, which
+          looks like a fresh launch even though nothing on the backend
+          restarted. */}
+      {web && (
+        <div
+          className={cn(
+            "flex min-h-0 flex-1 flex-col",
+            rightView === "code" && "hidden",
+          )}
+        >
+          <TerminalPreview />
+        </div>
       )}
+      {!web && rightView !== "code" && <DeviceStatus />}
+      {rightView === "code" && <CodeView />}
       <LogPanel />
     </div>
   );

@@ -110,6 +110,17 @@ missing, build it as a new block (theme-driven, no literals) in the root if
 it's cross-domain, or in a `blocks/<category>/` subfolder if it encodes
 domain-specific data — never inline in the app.
 
+**Whenever you add a new atom, molecule, or block to `core/ui/`, add a
+matching showcase entry to `apps/design_gallery`** (Widgetbook — see
+`apps/design_gallery/lib/main.dart`) in the same commit. That app is the
+living, executable version of this catalog and of the "Verify" step in §3 —
+it renders every component against every theme preset, which a hand-written
+list can't check itself. Nothing else notices when it falls behind, so
+treat a missing showcase entry as equivalent to a missing entry in this doc.
+Skip only a component that structurally can't run there (e.g. it imports
+`dart:io` and `design_gallery` also builds for web — note the exception
+inline in `main.dart` rather than silently omitting it).
+
 ---
 
 ## 2. Screen design rules (always apply)

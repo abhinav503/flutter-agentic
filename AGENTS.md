@@ -9,6 +9,7 @@ Read before writing or modifying any code:
 - `docs/explanation/end-goal.md` — project vision and guiding principles
 
 Read on demand:
+- `docs/ai-rules/design.md` — read before writing any screen, scaffolding an app's UI, or restyling; decides the style pack/theme preset and screen design rules, and which blocks (`core/ui/blocks/`) to compose from
 - `docs/how-to/contributing.md` — contributor workflow and git hooks
 - `docs/how-to/add-feature-template.md` — full folder tree, empty class skeletons, DI wiring, and forbidden-pattern checklist for scaffolding a new feature
 - `docs/how-to/add-usecase.md` — create a use case class and register it in `injection_container.dart`

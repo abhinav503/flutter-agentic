@@ -93,7 +93,9 @@ core/
 │   ├── app_theme_presets.dart     named palettes (dadJokes, oceanBreeze, forestWalk, rocketWarm)
 │   ├── theme_mode_controller.dart ThemeModeController — persisted ValueNotifier<ThemeMode>
 │   └── theme_mode_scope.dart      InheritedWidget exposing the controller to the AppBar toggle
-├── ui/
+├── ui/                          new atom/molecule/block → add a matching
+│                                 apps/design_gallery (Widgetbook) showcase entry
+│                                 in the same commit, per docs/ai-rules/design.md §1
 │   ├── atoms/                   single-responsibility widgets, no BLoC reads
 │   │   ├── badge.dart           AppBadge
 │   │   ├── button.dart          AppButton
