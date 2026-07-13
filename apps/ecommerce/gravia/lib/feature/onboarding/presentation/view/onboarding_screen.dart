@@ -186,7 +186,12 @@ class _OnboardingScreenState extends BaseScreenState<OnboardingScreen> {
             child: SafeArea(
               bottom: false,
               child: Padding(
-                padding: const EdgeInsets.only(left: 20.0, right: 20.0, top: 20.0, bottom: 100.0),
+                padding: const EdgeInsets.only(
+                  left: AppSpacing.xl2,
+                  right: AppSpacing.xl2,
+                  top: AppSpacing.xl2,
+                  bottom: AppSpacing.xl14,
+                ),
                 child: PageView(
                   controller: _imageController,
                   onPageChanged: (i) => setState(() => _currentPage = i),

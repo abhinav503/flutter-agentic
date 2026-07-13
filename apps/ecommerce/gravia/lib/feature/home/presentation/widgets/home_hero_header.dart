@@ -76,7 +76,7 @@ class _HomeHeroHeaderState extends State<HomeHeroHeader> {
               const SizedBox(width: AppSpacing.xs2),
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
@@ -138,8 +138,8 @@ class _HomeHeroHeaderState extends State<HomeHeroHeader> {
               showBorder: false,
               prefix: Padding(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 16.0,
-                  vertical: 12.0,
+                  horizontal: AppSpacing.lg,
+                  vertical: AppSpacing.base,
                 ),
                 child: AppSvgImage.asset(
                   ImageConst.search,
@@ -151,8 +151,8 @@ class _HomeHeroHeaderState extends State<HomeHeroHeader> {
               ),
               suffix: Padding(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 16.0,
-                  vertical: 12.0,
+                  horizontal: AppSpacing.lg,
+                  vertical: AppSpacing.base,
                 ),
                 child: AppSvgImage.asset(
                   ImageConst.mic,
