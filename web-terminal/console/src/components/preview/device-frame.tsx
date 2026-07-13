@@ -67,8 +67,13 @@ export function DeviceFrame({
         style={{
           width: device.width,
           height: device.height,
-          transform: `scale(${scale})`,
-          transformOrigin: "center",
+          // `zoom` (not `transform: scale`) — transform only affects paint,
+          // not layout/input coordinate space, so wheel-delta and touch-drag
+          // scroll gestures dispatched into the nested iframe get mis-mapped
+          // and silently fail to scroll. zoom keeps the iframe's effective
+          // CSS pixel size in sync with its visual size, so scroll input
+          // reaches it correctly.
+          zoom: scale,
         }}
       >
         {/* Native-style status bar, sized to topInset. Time on the left,

@@ -38,7 +38,13 @@
   
   <style id="splash-screen-style">
     html {
-      height: 100%
+      height: 100%;
+      /* Otherwise an unconsumed horizontal drag inside the Flutter canvas
+         (e.g. over vertical content, not one of the horizontal scroll rails)
+         bubbles out and the browser's native swipe-back gesture fires,
+         popping to the previous GoRouter history entry (splash/onboarding)
+         mid-drag. */
+      overscroll-behavior-x: none;
     }
 
     body {
@@ -46,6 +52,7 @@
       min-height: 100%;
       background-color: #FFFFFF;
           background-size: 100% 100%;
+      overscroll-behavior-x: none;
     }
 
     .center {
