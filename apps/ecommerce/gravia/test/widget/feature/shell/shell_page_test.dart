@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:core/core/theme/app_theme.dart';
 import 'package:core/core/theme/app_theme_config.dart';
+import 'package:core/core/ui/blocks/bottom_nav_bar.dart';
 import 'package:gravia/constants/value_const.dart';
 import 'package:gravia/di/injection_container.dart';
 import 'package:gravia/feature/shell/presentation/view/shell_page.dart';
@@ -18,9 +19,9 @@ void main() {
   // extensions the app always provides in production (see app.dart) — a
   // bare MaterialApp with no theme crashes on the extension's force-unwrap.
   Widget buildSubject() => MaterialApp(
-        theme: AppTheme.fromConfig(AppThemeConfig.defaults),
-        home: const ShellPage(),
-      );
+    theme: AppTheme.fromConfig(AppThemeConfig.defaults),
+    home: const ShellPage(),
+  );
 
   // The Home tab renders real AppNetworkImage/Image.network calls plus a
   // LoadingIndicator with an indeterminate (never-settling) animation, so
@@ -32,8 +33,9 @@ void main() {
     await tester.pump(const Duration(milliseconds: 500));
   }
 
-  testWidgets('shows the home tab first, loaded with storefront data',
-      (tester) async {
+  testWidgets('shows the home tab first, loaded with storefront data', (
+    tester,
+  ) async {
     await tester.pumpWidget(buildSubject());
     await settleHome(tester);
 
@@ -45,11 +47,19 @@ void main() {
     await tester.pumpWidget(buildSubject());
     await settleHome(tester);
 
-    await tester.tap(find.byIcon(Icons.shopping_bag_outlined));
+    // Tabs render an SVG icon via iconBuilder, not a findable Icons.* value,
+    // and inactive tabs show no label text — tap by position (Orders = 3,
+    // Profile = 4 in the fixed tab order) instead.
+    final tabs = find.descendant(
+      of: find.byType(BottomNavBar),
+      matching: find.byType(GestureDetector),
+    );
+
+    await tester.tap(tabs.at(3));
     await tester.pumpAndSettle();
     expect(find.text(ValueConst.ordersEmptyTitle), findsOneWidget);
 
-    await tester.tap(find.byIcon(Icons.person_outline));
+    await tester.tap(tabs.at(4));
     await tester.pumpAndSettle();
     expect(find.text(ValueConst.profileComingTitle), findsOneWidget);
   });

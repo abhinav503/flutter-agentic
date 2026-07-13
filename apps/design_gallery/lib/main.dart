@@ -335,8 +335,10 @@ final _directories = <WidgetbookNode>[
                 child: AppGlassSurface(
                   size: 48,
                   tintColor: Theme.of(context).colorScheme.onPrimary,
-                  child: Icon(Icons.star_border,
-                      color: Theme.of(context).colorScheme.onPrimary),
+                  child: Icon(
+                    Icons.star_border,
+                    color: Theme.of(context).colorScheme.onPrimary,
+                  ),
                 ),
               ),
             ),
@@ -374,7 +376,9 @@ final _directories = <WidgetbookNode>[
                 padding: const EdgeInsets.all(12),
                 child: CommonGlassSurface(
                   borderRadius: BorderRadius.circular(999),
-                  tintColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                  tintColor: Theme.of(
+                    context,
+                  ).colorScheme.surfaceContainerHighest,
                   child: AppTextField(
                     controller: TextEditingController(),
                     hint: 'Search',
@@ -383,8 +387,11 @@ final _directories = <WidgetbookNode>[
                     showBorder: false,
                     prefix: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Icon(Icons.search,
-                          size: 18, color: Theme.of(context).colorScheme.onPrimary),
+                      child: Icon(
+                        Icons.search,
+                        size: 18,
+                        color: Theme.of(context).colorScheme.onPrimary,
+                      ),
                     ),
                   ),
                 ),
@@ -405,7 +412,10 @@ final _directories = <WidgetbookNode>[
                       borderRadius: BorderRadius.circular(12),
                       tintColor: Colors.white,
                       child: const Center(
-                        child: Text('Glass', style: TextStyle(color: Colors.white)),
+                        child: Text(
+                          'Glass',
+                          style: TextStyle(color: Colors.white),
+                        ),
                       ),
                     ),
                   ),
@@ -467,9 +477,18 @@ final _directories = <WidgetbookNode>[
       _allVariants(
         'PageIndicator',
         (context) => _showcase(context, [
-          _Variant('Page 1 of 3', const PageIndicator(count: 3, currentIndex: 0)),
-          _Variant('Page 2 of 3', const PageIndicator(count: 3, currentIndex: 1)),
-          _Variant('Page 3 of 3', const PageIndicator(count: 3, currentIndex: 2)),
+          _Variant(
+            'Page 1 of 3',
+            const PageIndicator(count: 3, currentIndex: 0),
+          ),
+          _Variant(
+            'Page 2 of 3',
+            const PageIndicator(count: 3, currentIndex: 1),
+          ),
+          _Variant(
+            'Page 3 of 3',
+            const PageIndicator(count: 3, currentIndex: 2),
+          ),
         ]),
       ),
       _allVariants(
@@ -532,9 +551,8 @@ final _directories = <WidgetbookNode>[
       ),
       _allVariants(
         'LoadingDots',
-        (context) => _showcase(context, const [
-          _Variant('Default', LoadingDots()),
-        ]),
+        (context) =>
+            _showcase(context, const [_Variant('Default', LoadingDots())]),
       ),
     ],
   ),
@@ -589,6 +607,31 @@ final _directories = <WidgetbookNode>[
                 ),
                 width: 320,
               ),
+              _Variant(
+                'Custom titleStyle/actionStyle',
+                Builder(
+                  builder: (context) => SectionHeader(
+                    title: 'Fresh Vegetables',
+                    actionLabel: 'See All',
+                    onAction: () {},
+                    titleStyle: Theme.of(context).textTheme.titleLarge!
+                        .copyWith(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                          height: 1.55,
+                          letterSpacing: -0.36,
+                        ),
+                    actionStyle: Theme.of(context).textTheme.labelLarge!
+                        .copyWith(
+                          color: Theme.of(context).colorScheme.primary,
+                          fontSize: 14,
+                          height: 1.4,
+                          letterSpacing: -0.28,
+                        ),
+                  ),
+                ),
+                width: 320,
+              ),
             ]),
           ),
           _allVariants(
@@ -596,7 +639,11 @@ final _directories = <WidgetbookNode>[
             (context) => _showcase(context, [
               _Variant(
                 'Default',
-                QuantityStepper(value: 2, onIncrement: () {}, onDecrement: () {}),
+                QuantityStepper(
+                  value: 2,
+                  onIncrement: () {},
+                  onDecrement: () {},
+                ),
               ),
               _Variant(
                 'At minimum',
@@ -623,7 +670,10 @@ final _directories = <WidgetbookNode>[
                       icon: Icons.shopping_bag_outlined,
                       label: 'Cart',
                     ),
-                    BottomNavBarItem(icon: Icons.person_outline, label: 'Profile'),
+                    BottomNavBarItem(
+                      icon: Icons.person_outline,
+                      label: 'Profile',
+                    ),
                   ],
                 ),
               ),
@@ -643,7 +693,10 @@ final _directories = <WidgetbookNode>[
                       icon: Icons.shopping_bag_outlined,
                       label: 'Cart',
                     ),
-                    BottomNavBarItem(icon: Icons.person_outline, label: 'Profile'),
+                    BottomNavBarItem(
+                      icon: Icons.person_outline,
+                      label: 'Profile',
+                    ),
                   ],
                 ),
               ),

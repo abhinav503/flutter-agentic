@@ -5,6 +5,7 @@ import 'package:core/core/ui/atoms/network_image.dart';
 import 'package:core/core/ui/blocks/ecommerce/category_tile.dart';
 import 'package:core/core/ui/blocks/section_header.dart';
 
+import 'package:gravia/constants/text_style_const.dart';
 import 'package:gravia/constants/value_const.dart';
 
 import '../../domain/entities/category_entity.dart';
@@ -21,6 +22,9 @@ class HomeCategorySection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -28,6 +32,10 @@ class HomeCategorySection extends StatelessWidget {
           title: ValueConst.allCategoriesTitle,
           actionLabel: ValueConst.seeAll,
           onAction: onComingSoon,
+          titleStyle: TextStyleConst.textLgBold(tt),
+          actionStyle: TextStyleConst.textSmRegular(
+            tt,
+          ).copyWith(color: cs.primary),
         ),
         const SizedBox(height: AppSpacing.base),
         SingleChildScrollView(
@@ -42,6 +50,7 @@ class HomeCategorySection extends StatelessWidget {
                     fit: BoxFit.contain,
                   ),
                   label: categories[i].name,
+                  labelStyle: TextStyleConst.textSmRegular(tt),
                   onTap: onComingSoon,
                 ),
               ],

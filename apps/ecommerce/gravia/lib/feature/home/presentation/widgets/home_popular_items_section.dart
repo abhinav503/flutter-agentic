@@ -5,6 +5,7 @@ import 'package:core/core/ui/atoms/network_image.dart';
 import 'package:core/core/ui/blocks/ecommerce/product_card.dart';
 import 'package:core/core/ui/blocks/section_header.dart';
 
+import 'package:gravia/constants/text_style_const.dart';
 import 'package:gravia/constants/value_const.dart';
 
 import '../../domain/entities/product_entity.dart';
@@ -26,6 +27,7 @@ class HomePopularItemsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -34,6 +36,10 @@ class HomePopularItemsSection extends StatelessWidget {
           title: ValueConst.popularItemsTitle,
           actionLabel: ValueConst.seeAll,
           onAction: onComingSoon,
+          titleStyle: TextStyleConst.textLgBold(tt),
+          actionStyle: TextStyleConst.textSmRegular(
+            tt,
+          ).copyWith(color: cs.primary),
         ),
         const SizedBox(height: AppSpacing.base),
         SingleChildScrollView(
@@ -56,7 +62,9 @@ class HomePopularItemsSection extends StatelessWidget {
                         badgeLabel: products[i].weight,
                         meta: [
                           ProductCardMeta(
-                              icon: Icons.bolt, label: products[i].prepTime),
+                            icon: Icons.bolt,
+                            label: products[i].prepTime,
+                          ),
                           ProductCardMeta(
                             icon: Icons.local_offer_outlined,
                             label:

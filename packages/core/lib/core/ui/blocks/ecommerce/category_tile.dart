@@ -4,10 +4,14 @@ import '../../../theme/app_spacing.dart';
 
 /// Circular category entry: image on an elevated circle, label underneath.
 /// Used in horizontal category rails and category grids.
+///
+/// Defaults to the theme's `bodyMedium` role; pass [labelStyle] when a style
+/// pack's real screens use different metrics for category labels.
 class CategoryTile extends StatelessWidget {
   final Widget image;
   final String label;
   final VoidCallback? onTap;
+  final TextStyle? labelStyle;
 
   /// Diameter of the circle behind the image.
   final double size;
@@ -17,7 +21,8 @@ class CategoryTile extends StatelessWidget {
     required this.image,
     required this.label,
     this.onTap,
-    this.size = 72,
+    this.labelStyle,
+    this.size = 64,
   });
 
   @override
@@ -43,7 +48,7 @@ class CategoryTile extends StatelessWidget {
           const SizedBox(height: AppSpacing.xs),
           Text(
             label,
-            style: tt.bodyMedium,
+            style: labelStyle ?? tt.bodyMedium,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),

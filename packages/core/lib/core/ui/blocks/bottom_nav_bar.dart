@@ -4,11 +4,20 @@ import '../../theme/app_radius.dart';
 import '../../theme/app_spacing.dart';
 
 /// Single tab definition for [BottomNavBar].
+///
+/// Pass either [icon] (Material icon) or [iconBuilder] (custom icon widget,
+/// e.g. an SVG asset) — [iconBuilder] receives the resolved foreground colour
+/// and icon size, matching [AppIconButton]'s `iconBuilder` convention.
 class BottomNavBarItem {
-  final IconData icon;
+  final IconData? icon;
+  final Widget Function(Color color, double size)? iconBuilder;
   final String label;
 
-  const BottomNavBarItem({required this.icon, required this.label});
+  const BottomNavBarItem({this.icon, this.iconBuilder, required this.label})
+    : assert(
+        icon != null || iconBuilder != null,
+        'BottomNavBarItem requires either icon or iconBuilder',
+      );
 }
 
 /// Pill-highlight bottom nav: the active tab is a filled pill with icon +
@@ -72,6 +81,7 @@ class _NavTab extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
+    final iconColor = isActive ? cs.onPrimary : cs.onSurfaceVariant;
 
     return GestureDetector(
       onTap: onTap,
@@ -95,11 +105,14 @@ class _NavTab extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              item.icon,
-              size: 24,
-              color: isActive ? cs.onPrimary : cs.onSurfaceVariant,
-            ),
+            if (item.iconBuilder != null)
+              SizedBox(
+                width: 24,
+                height: 24,
+                child: item.iconBuilder!(iconColor, 24),
+              )
+            else
+              Icon(item.icon, size: 24, color: iconColor),
             if (isActive) ...[
               const SizedBox(width: AppSpacing.xs3),
               Text(
