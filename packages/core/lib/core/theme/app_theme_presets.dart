@@ -345,7 +345,7 @@ const Map<String, Map<String, dynamic>> kThemePresets = {
       'button': 999,
       'chip': 999,
       'card': 20,
-      'input': 16, // confirmed on real screens (Signup form fields) — not a pill
+      'input': 999, // confirmed on real screens (Signup form fields) — not a pill
       'sheet': 28,
     },
     'light': {

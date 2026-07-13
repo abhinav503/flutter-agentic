@@ -42,8 +42,16 @@ export function useRunApp() {
 // Hot-restarts a running app; resolves once flutter reports the rebuild done
 // (or `ok: false` with a reason), so the caller can reload the preview iframe.
 export function useReloadApp() {
+  const qc = useQueryClient();
   return useMutation({
     mutationFn: (name: string) => reloadApp(name),
+    onSuccess: (result) => {
+      // A failed hot restart usually means the flutter process already died
+      // (crash, port conflict, …) after the cache last saw it `running` —
+      // polling stops once an app looks `running`, so nothing would otherwise
+      // refresh the stale state. Refetch so the UI drops back to Run.
+      if (!result.ok) qc.invalidateQueries({ queryKey: APPS_KEY });
+    },
   });
 }
 

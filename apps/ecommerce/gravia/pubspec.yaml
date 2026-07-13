@@ -14,8 +14,18 @@ dependencies:
   core:
     path: ../../../packages/core
 
+  # State management
+  flutter_bloc: ^9.1.1
+
   # Navigation
   go_router: ^17.2.3
+
+  # Functional error handling
+  fpdart: ^1.1.0
+
+  # Models
+  freezed_annotation: ^3.1.0
+  json_annotation: ^4.9.0
 
   # Brand SVG rendering (splash wordmark glyph)
   flutter_svg: ^2.3.0
@@ -23,9 +33,14 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  build_runner: ^2.4.15
+  freezed: ^3.2.5
+  json_serializable: ^6.9.5
+  bloc_test: ^10.0.0
   flutter_lints: ^6.0.0
   flutter_launcher_icons: ^0.14.3
   flutter_native_splash: ^2.4.3
+  get_it: ^8.0.1
 
   # Onboarding widget test seeds SharedPreferences.setMockInitialValues
   # directly — the same version core pins.
@@ -37,6 +52,7 @@ flutter:
   assets:
     - assets/theme/theme_config.json
     - assets/icons/
+    - assets/data/home_page.json
 
 # One source mark → every launcher-icon size. The PNGs are rasterised from
 # assets/icons/gravia_brand_icon.svg (the brand glyph). branding/ holds these

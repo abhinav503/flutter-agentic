@@ -1,0 +1,64 @@
+{
+  "categories": [
+    {
+      "id": "1",
+      "name": "Fresh",
+      "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/images%2Fcategories_cat%2Freal_cat_type%2Fvegetable_fruits.png?alt=media&token=92f990e4-1ea5-4e6d-85bb-b15a969e509e"
+    },
+    {
+      "id": "2",
+      "name": "Fruits",
+      "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/images%2Ffruits_category_cat%2Fanimated_cat_type%2Ffruit_category_01.png?alt=media&token=6a5c2347-c3e5-4051-ba03-89bc0ea25a17"
+    },
+    {
+      "id": "3",
+      "name": "Masala",
+      "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/images%2Fcategories_cat%2Freal_cat_type%2Fmasala_oil_frozen_food.png?alt=media&token=80f22fe0-2aa5-488f-bf66-4ce3f10a0e8e"
+    },
+    {
+      "id": "4",
+      "name": "Snacks",
+      "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/images%2Fcategories_cat%2Freal_cat_type%2Fsnacks.png?alt=media&token=03f79f30-1767-4702-b6b0-6ad2dc113caf"
+    },
+    {
+      "id": "5",
+      "name": "Grain",
+      "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/images%2Fcategories_cat%2Freal_cat_type%2Frice_atta_dal.png?alt=media&token=302d13ce-e4a5-41e1-adb9-c88a6e951e84"
+    }
+  ],
+  "popular_products": [
+    {
+      "id": "1",
+      "name": "Washington Red Apple",
+      "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/food%2Ffruits%2Fapple_cat%2Freal_cat_type%2Fapple_image_02.png?alt=media&token=ab7c918b-d144-4fe0-9da4-0f9404103eb0",
+      "price": 6.30,
+      "original_price": 8.00,
+      "discount_percentage": 20,
+      "weight": "300 g",
+      "prep_time": "10 Min",
+      "is_favourite": false
+    },
+    {
+      "id": "2",
+      "name": "Green Grapes",
+      "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/food_grocery_delivery%2Ffood_grocery_delivery_grapes.jpg?alt=media&token=2ab73600-5222-4d23-9b42-65161871c041",
+      "price": 4.00,
+      "original_price": 5.00,
+      "discount_percentage": 20,
+      "weight": "500 g",
+      "prep_time": "10 Min",
+      "is_favourite": false
+    },
+    {
+      "id": "3",
+      "name": "Hybrid Fresh Tomato",
+      "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/food_grocery_delivery%2Ffood_grocery_delivery_tomatoes.jpg?alt=media&token=792bfa43-7de4-49e9-8522-963d208b9699",
+      "price": 3.20,
+      "original_price": 5.00,
+      "discount_percentage": 20,
+      "weight": "500 g",
+      "prep_time": "10 Min",
+      "is_favourite": true
+    }
+  ]
+}

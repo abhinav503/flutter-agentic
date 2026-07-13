@@ -34,6 +34,12 @@ class AppTextField extends StatefulWidget {
   final int? minLines;
   final Widget? prefix;
   final Widget? suffix;
+
+  /// Overrides the theme's default hint colour (`InputDecorationTheme.hintStyle`)
+  /// — for a field sitting on a coloured/glass surface instead of the
+  /// standard surface background, e.g. `colorScheme.onPrimary`.
+  final Color? hintColor;
+
   final FocusNode? focusNode;
   final ValueChanged<String>? onChanged;
   final ValueChanged<String>? onSubmitted;
@@ -43,6 +49,13 @@ class AppTextField extends StatefulWidget {
   /// Compact variant: tighter vertical padding + `isDense`, for tight spots
   /// like a chat input bar. Default keeps the standard comfortable height.
   final bool dense;
+
+  /// Set false when this field sits inside something that already paints its
+  /// own edge (e.g. [CommonGlassSurface]) — the default idle border would
+  /// otherwise stack on top of that edge into one over-thick outline. Focus
+  /// and error borders stay on regardless, since those are meaningful state
+  /// changes, not a redundant idle-state outline.
+  final bool showBorder;
 
   const AppTextField({
     super.key,
@@ -58,12 +71,14 @@ class AppTextField extends StatefulWidget {
     this.minLines,
     this.prefix,
     this.suffix,
+    this.hintColor,
     this.focusNode,
     this.onChanged,
     this.onSubmitted,
     this.onTap,
     this.inputFormatters,
     this.dense = false,
+    this.showBorder = true,
   });
 
   @override
@@ -124,6 +139,10 @@ class _AppTextFieldState extends State<AppTextField> {
           controller: widget.controller,
           focusNode: _focusNode,
           enabled: !isDisabled,
+          // Flutter's default onTapOutside cancels the outside tap without
+          // unfocusing — every field in the app should dismiss the keyboard
+          // on an outside tap, so this is the default here, not per-caller.
+          onTapOutside: (_) => _focusNode.unfocus(),
           obscureText: widget.obscureText,
           keyboardType: widget.keyboardType,
           textInputAction: widget.textInputAction,
@@ -140,8 +159,17 @@ class _AppTextFieldState extends State<AppTextField> {
           ),
           decoration: InputDecoration(
             hintText: widget.hint,
+            hintStyle:
+                widget.hintColor != null ? TextStyle(color: widget.hintColor) : null,
             prefixIcon: widget.prefix,
             suffixIcon: widget.suffix,
+            // Default prefix/suffix slots are tight at kMinInteractiveDimension
+            // (48x48), which clamps a smaller prefix/suffix widget back up to
+            // 48x48 regardless of its own declared size. Loosening removes the
+            // forced minimum so prefix/suffix render at their natural size,
+            // centered by InputDecorator as usual.
+            prefixIconConstraints: const BoxConstraints(),
+            suffixIconConstraints: const BoxConstraints(),
             isDense: widget.dense,
             contentPadding: EdgeInsets.symmetric(
               horizontal: AppSpacing.base,
@@ -149,7 +177,8 @@ class _AppTextFieldState extends State<AppTextField> {
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: radius,
-              borderSide: BorderSide(color: borderColor),
+              borderSide:
+                  widget.showBorder ? BorderSide(color: borderColor) : BorderSide.none,
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: radius,

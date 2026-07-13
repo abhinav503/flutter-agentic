@@ -5,13 +5,16 @@ import 'package:core/core/ui/atoms/badge.dart';
 import 'package:core/core/ui/atoms/button.dart';
 import 'package:core/core/ui/atoms/checkbox.dart';
 import 'package:core/core/ui/atoms/chip.dart';
+import 'package:core/core/ui/atoms/common_glass_surface.dart';
 import 'package:core/core/ui/atoms/device_frame.dart';
 import 'package:core/core/ui/atoms/dropdown_menu.dart';
+import 'package:core/core/ui/atoms/glass_surface.dart';
 import 'package:core/core/ui/atoms/icon_button.dart';
 import 'package:core/core/ui/atoms/loading_dots.dart';
 import 'package:core/core/ui/atoms/loading_indicator.dart';
 import 'package:core/core/ui/atoms/network_image.dart';
 import 'package:core/core/ui/atoms/page_indicator.dart';
+import 'package:core/core/ui/atoms/svg_image.dart';
 import 'package:core/core/ui/atoms/text_field.dart';
 import 'package:core/core/ui/atoms/top_bar.dart';
 import 'package:core/core/ui/blocks/bottom_nav_bar.dart';
@@ -284,6 +287,132 @@ final _directories = <WidgetbookNode>[
               ),
             ),
           ),
+          _Variant(
+            'Glass (on image)',
+            SizedBox(
+              width: 120,
+              height: 120,
+              child: Stack(
+                children: [
+                  Positioned.fill(child: _placeholderImage(context)),
+                  Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: AppIconButton(
+                      icon: Icons.favorite_border,
+                      variant: AppIconButtonVariant.glass,
+                      onTap: () {},
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          _Variant(
+            'Glass (on primary)',
+            ColoredBox(
+              color: Theme.of(context).colorScheme.primary,
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: AppIconButton(
+                  icon: Icons.notifications_outlined,
+                  variant: AppIconButtonVariant.glass,
+                  onTap: () {},
+                ),
+              ),
+            ),
+          ),
+        ]),
+      ),
+      _allVariants(
+        'AppGlassSurface',
+        (context) => _showcase(context, [
+          _Variant(
+            'On primary',
+            ColoredBox(
+              color: Theme.of(context).colorScheme.primary,
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: AppGlassSurface(
+                  size: 48,
+                  tintColor: Theme.of(context).colorScheme.onPrimary,
+                  child: Icon(Icons.star_border,
+                      color: Theme.of(context).colorScheme.onPrimary),
+                ),
+              ),
+            ),
+          ),
+          _Variant(
+            'On image',
+            SizedBox(
+              width: 120,
+              height: 120,
+              child: Stack(
+                children: [
+                  Positioned.fill(child: _placeholderImage(context)),
+                  Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: AppGlassSurface(
+                      size: 48,
+                      tintColor: Colors.white,
+                      child: const Icon(Icons.star_border, color: Colors.white),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ]),
+      ),
+      _allVariants(
+        'CommonGlassSurface',
+        (context) => _showcase(context, [
+          _Variant(
+            'On primary (search field)',
+            ColoredBox(
+              color: Theme.of(context).colorScheme.primary,
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: CommonGlassSurface(
+                  borderRadius: BorderRadius.circular(999),
+                  tintColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                  child: AppTextField(
+                    controller: TextEditingController(),
+                    hint: 'Search',
+                    hintColor: Theme.of(context).colorScheme.onPrimary,
+                    dense: true,
+                    showBorder: false,
+                    prefix: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Icon(Icons.search,
+                          size: 18, color: Theme.of(context).colorScheme.onPrimary),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          _Variant(
+            'On image',
+            SizedBox(
+              width: 160,
+              height: 60,
+              child: Stack(
+                children: [
+                  Positioned.fill(child: _placeholderImage(context)),
+                  Padding(
+                    padding: const EdgeInsets.all(8),
+                    child: CommonGlassSurface(
+                      borderRadius: BorderRadius.circular(12),
+                      tintColor: Colors.white,
+                      child: const Center(
+                        child: Text('Glass', style: TextStyle(color: Colors.white)),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ]),
       ),
       _allVariants(
@@ -295,6 +424,42 @@ final _directories = <WidgetbookNode>[
               seed: 'widgetbook-network-image',
               width: 160,
               height: 160,
+            ),
+          ),
+        ]),
+      ),
+      _allVariants(
+        'AppSvgImage',
+        (context) => _showcase(context, [
+          _Variant(
+            'Default',
+            const AppSvgImage.asset(
+              'assets/icons/check_circle.svg',
+              width: 32,
+              height: 32,
+            ),
+          ),
+          _Variant(
+            'Tinted (on primary)',
+            ColoredBox(
+              color: Theme.of(context).colorScheme.primary,
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: AppSvgImage.asset(
+                  'assets/icons/check_circle.svg',
+                  width: 32,
+                  height: 32,
+                  color: Theme.of(context).colorScheme.onPrimary,
+                ),
+              ),
+            ),
+          ),
+          _Variant(
+            'Error (missing asset)',
+            const AppSvgImage.asset(
+              'assets/icons/does_not_exist.svg',
+              width: 32,
+              height: 32,
             ),
           ),
         ]),

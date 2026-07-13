@@ -5,8 +5,12 @@ import 'package:core/core/ui/atoms/top_bar.dart';
 import 'package:core/core/ui/blocks/bottom_nav_bar.dart';
 import 'package:core/core/ui/molecules/empty_state.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:gravia/constants/value_const.dart';
+import 'package:gravia/di/injection_container.dart';
+import 'package:gravia/feature/home/presentation/bloc/home_bloc.dart';
+import 'package:gravia/feature/home/presentation/view/home_screen.dart';
 
 class ShellPage extends BasePage {
   const ShellPage({super.key});
@@ -38,7 +42,12 @@ class _ShellPageState extends BasePageState<ShellPage> {
   ];
 
   @override
-  PreferredSizeWidget buildAppBar(BuildContext context) {
+  PreferredSizeWidget? buildAppBar(BuildContext context) {
+    // The Home tab renders its own coloured hero header (location, search)
+    // as part of the screen body, per the pack's "coloured header canvas"
+    // composition — a generic top bar on top of it would double up.
+    if (_currentTab == 0) return null;
+
     final themeMode = ThemeModeScope.maybeOf(context);
     return AppTopBar.primary(
       title: ValueConst.appTitle,
@@ -58,10 +67,10 @@ class _ShellPageState extends BasePageState<ShellPage> {
 
   @override
   Widget buildBody(BuildContext context) => switch (_currentTab) {
-        0 => const EmptyState(
-            iconData: Icons.storefront_rounded,
-            title: ValueConst.storefrontComingTitle,
-            subtitle: ValueConst.storefrontComingSubtitle,
+        0 => BlocProvider(
+            create: (_) => HomeBloc(getHomeUseCase: sl())
+              ..add(const HomeEvent.started()),
+            child: const HomeScreen(),
           ),
         1 => const EmptyState(
             iconData: Icons.grid_view_rounded,

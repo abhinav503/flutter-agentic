@@ -26,10 +26,22 @@ abstract final class ValueConst {
   static const onboardingNext = 'Next';
   static const onboardingGetStarted = 'Get Started';
 
+  // ── Home (storefront) ──────────────────────────────────────────────────────
+  static const deliveryLocationLabel = 'Delivery Location';
+  static const deliveryLocationAddress =
+      'Ranchview Dr. Richardson, California 62639';
+  static const searchHint = 'Search';
+  static const allCategoriesTitle = 'All Categories';
+  static const popularItemsTitle = 'Popular Items';
+  static const seeAll = 'See All';
+  static const addToCart = 'Add To Cart';
+  static const comingSoonMessage = 'Coming soon';
+  static const homeLoadErrorMessage =
+      'Something went wrong loading the storefront.';
+  static String addedToCartMessage(String productName) =>
+      '$productName added to cart';
+
   // ── Placeholder tabs (removed as real screens land) ───────────────────────
-  static const storefrontComingTitle = 'Storefront on its way';
-  static const storefrontComingSubtitle =
-      'The product grid and category rail land here next.';
   static const categoriesComingTitle = 'Categories coming soon';
   static const categoriesComingSubtitle =
       'Browse every aisle from one place.';
