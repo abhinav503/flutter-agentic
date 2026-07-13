@@ -64,6 +64,35 @@ screen instance — foundation components can carry stale/default values
 screens override per-instance. Always sample 1-2 real screens before writing
 a radius/color into a preset.
 
+The foundation page also exposes a full 50–950 tonal ramp per family
+(Primary, Secondary, Tertiary, Dark, Gray, Light) plus absolute Black/White —
+confirmed hex-for-hex against the values already in the preset above. M3's
+`ColorScheme` only has ~4-6 role slots per family, so the preset promotes
+just those stops (base, 100→`*Container`, 900/950→`on*Container`, plus the
+dark-mode swap); the rest of each ramp is intentionally unused until a screen
+needs an in-between shade. When that happens, sample it from a real screen
+and add it to `AppColorsExtension` (as already done for success/warning) with
+its ramp position noted — never an inline hex.
+
+**Typography scale.** The kit's Design System page defines two token groups,
+each in Regular/Medium/Bold, all with **-2% letter-spacing**:
+- **Display** — 2xl 72px/125%, xl 60px/125%, lg 48px/126%, md 36px/129%,
+  sm 30px/120%, xs 24px/132%
+- **Text** — xl 20px/150%, lg 18px/155%, md 16px/150%, sm 14px/140%,
+  xs 12px/150%
+
+This doesn't map 1:1 onto `core`'s fixed 13-role M3 scale
+(`AppTheme._textTheme`, shared by every preset) — don't edit that scale for
+one pack. Instead extend
+`apps/ecommerce/gravia/lib/constants/text_style_const.dart` **on demand**:
+one `copyWith`-based static method per token+weight an actual screen uses,
+named after the Figma token (`textLgBold`, `textSmRegular`), based off the
+nearest M3 role so font family/default color still come from the theme.
+Consuming blocks accept an optional style-override param the same way
+`SectionHeader` already does (`titleStyle`/`actionStyle`; `CategoryTile`
+follows the same shape with `labelStyle`) — `core` stays generic, the app
+supplies the pack-specific metrics.
+
 **Signature compositions (the look, in order of importance):**
 
 - **Coloured header canvas + white sheet.** The screen's top region (title
