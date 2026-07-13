@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -85,6 +86,7 @@ class _HomeContent extends StatefulWidget {
 
 class _HomeContentState extends State<_HomeContent> {
   final _headerKey = GlobalKey();
+  final _scrollController = ScrollController();
 
   // Corrected post-frame once the real header is laid out (size depends on
   // status bar height / text scale) — this estimate just avoids a first-frame
@@ -97,12 +99,26 @@ class _HomeContentState extends State<_HomeContent> {
     WidgetsBinding.instance.addPostFrameCallback((_) => _measureHeader());
   }
 
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
   void _measureHeader() {
     final height = _headerKey.currentContext?.size?.height;
     if (height != null && height != _headerHeight) {
       setState(() => _headerHeight = height);
     }
   }
+
+  // How much of the header is still uncovered by the scrolling sheet right
+  // now — shrinks as the user scrolls, reaching 0 once the sheet has fully
+  // covered it. Read live at hit-test time, not cached in state, since it
+  // must reflect the scroll position at the exact moment of the tap.
+  double get _uncoveredHeaderHeight => _scrollController.hasClients
+      ? (_headerHeight - _scrollController.offset).clamp(0, _headerHeight)
+      : _headerHeight;
 
   @override
   Widget build(BuildContext context) {
@@ -134,57 +150,105 @@ class _HomeContentState extends State<_HomeContent> {
             // and scrolls away with the rest of the content, letting the
             // rounded sheet slide up over the header instead of stopping at
             // its bottom edge the way a plain Column/Expanded split would.
+            //
+            // A Scrollable claims hit-tests across its whole bounds (it has
+            // to, to support dragging from anywhere), so without
+            // _PassThroughAboveOffset this layer would swallow every tap over
+            // the header's screen region — including the transparent spacer
+            // where there's nothing to actually tap — before it ever reaches
+            // HomeHeroHeader's buttons/search field underneath.
             Positioned.fill(
-              child: CustomScrollView(
-                slivers: [
-                  SliverToBoxAdapter(child: SizedBox(height: _headerHeight)),
-                  SliverToBoxAdapter(
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: cs.surface,
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(shapes.sheetRadius),
-                          topRight: Radius.circular(shapes.sheetRadius),
+              child: _PassThroughAboveOffset(
+                thresholdGetter: () => _uncoveredHeaderHeight,
+                child: CustomScrollView(
+                  controller: _scrollController,
+                  slivers: [
+                    SliverToBoxAdapter(child: SizedBox(height: _headerHeight)),
+                    SliverToBoxAdapter(
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: cs.surface,
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(shapes.sheetRadius),
+                            topRight: Radius.circular(shapes.sheetRadius),
+                          ),
                         ),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: AppSpacing.xl4,
-                        ),
-                        child: Column(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: AppSpacing.lg,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: AppSpacing.xl4,
+                          ),
+                          child: Column(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: AppSpacing.lg,
+                                ),
+                                child: HomeCategorySection(
+                                  categories: widget.home.categories,
+                                  onComingSoon: widget.onComingSoon,
+                                ),
                               ),
-                              child: HomeCategorySection(
-                                categories: widget.home.categories,
-                                onComingSoon: widget.onComingSoon,
+                              const SizedBox(height: AppSpacing.xl4),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: AppSpacing.lg,
+                                ),
+                                child: HomePopularItemsSection(
+                                  products: widget.home.popularProducts,
+                                  onAddToCart: widget.onAddToCart,
+                                  onFavouriteToggle: widget.onFavouriteToggle,
+                                  onComingSoon: widget.onComingSoon,
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: AppSpacing.xl4),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: AppSpacing.lg,
-                              ),
-                              child: HomePopularItemsSection(
-                                products: widget.home.popularProducts,
-                                onAddToCart: widget.onAddToCart,
-                                onFavouriteToggle: widget.onFavouriteToggle,
-                                onComingSoon: widget.onComingSoon,
-                              ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ],
         ),
       ),
     );
+  }
+}
+
+/// Forwards hit-testing on [child] down to whatever sits behind it in an
+/// enclosing [Stack] for any tap above [thresholdGetter]'s current value —
+/// e.g. a [Scrollable] that otherwise claims every tap in its bounds
+/// regardless of whether there's real content there.
+class _PassThroughAboveOffset extends SingleChildRenderObjectWidget {
+  const _PassThroughAboveOffset({
+    required this.thresholdGetter,
+    required Widget super.child,
+  });
+
+  final double Function() thresholdGetter;
+
+  @override
+  _RenderPassThroughAboveOffset createRenderObject(BuildContext context) =>
+      _RenderPassThroughAboveOffset(thresholdGetter);
+
+  @override
+  void updateRenderObject(
+    BuildContext context,
+    _RenderPassThroughAboveOffset renderObject,
+  ) {
+    renderObject.thresholdGetter = thresholdGetter;
+  }
+}
+
+class _RenderPassThroughAboveOffset extends RenderProxyBox {
+  _RenderPassThroughAboveOffset(this.thresholdGetter);
+
+  double Function() thresholdGetter;
+
+  @override
+  bool hitTest(BoxHitTestResult result, {required Offset position}) {
+    if (position.dy < thresholdGetter()) return false;
+    return super.hitTest(result, position: position);
   }
 }
