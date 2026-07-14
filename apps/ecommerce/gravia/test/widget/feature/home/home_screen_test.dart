@@ -9,6 +9,7 @@ import 'package:core/core/theme/app_theme_config.dart';
 import 'package:gravia/constants/value_const.dart';
 import 'package:gravia/feature/home/domain/entities/category_entity.dart';
 import 'package:gravia/feature/home/domain/entities/home_entity.dart';
+import 'package:gravia/enums/product_unit_type.dart';
 import 'package:gravia/feature/home/domain/entities/product_entity.dart';
 import 'package:gravia/feature/home/presentation/bloc/home_bloc.dart';
 import 'package:gravia/feature/home/presentation/view/home_screen.dart';
@@ -41,7 +42,8 @@ void main() {
         price: 6.30,
         originalPrice: 8.00,
         discountPercentage: 20,
-        weight: '300 g',
+        unitValue: 300,
+        unitType: ProductUnitType.grams,
         prepTime: '10 Min',
         isFavourite: false,
       ),

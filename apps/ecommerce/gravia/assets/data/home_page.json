@@ -49,7 +49,8 @@
       "price": 6.30,
       "original_price": 8.00,
       "discount_percentage": 20,
-      "weight": "300 g",
+      "unit_value": 300,
+      "unit_type": "g",
       "prep_time": "10 Min",
       "is_favourite": false
     },
@@ -60,7 +61,8 @@
       "price": 4.00,
       "original_price": 5.00,
       "discount_percentage": 20,
-      "weight": "500 g",
+      "unit_value": 500,
+      "unit_type": "g",
       "prep_time": "10 Min",
       "is_favourite": false
     },
@@ -71,7 +73,8 @@
       "price": 3.20,
       "original_price": 5.00,
       "discount_percentage": 20,
-      "weight": "500 g",
+      "unit_value": 500,
+      "unit_type": "g",
       "prep_time": "10 Min",
       "is_favourite": true
     },
@@ -82,7 +85,8 @@
       "price": 2.40,
       "original_price": 3.00,
       "discount_percentage": 20,
-      "weight": "500 g",
+      "unit_value": 500,
+      "unit_type": "g",
       "prep_time": "10 Min",
       "is_favourite": false
     },
@@ -93,7 +97,8 @@
       "price": 2.00,
       "original_price": 2.50,
       "discount_percentage": 20,
-      "weight": "1 kg",
+      "unit_value": 1000,
+      "unit_type": "g",
       "prep_time": "10 Min",
       "is_favourite": false
     },
@@ -104,7 +109,8 @@
       "price": 3.20,
       "original_price": 4.00,
       "discount_percentage": 20,
-      "weight": "250 g",
+      "unit_value": 250,
+      "unit_type": "g",
       "prep_time": "10 Min",
       "is_favourite": false
     },
@@ -115,7 +121,8 @@
       "price": 2.80,
       "original_price": 3.50,
       "discount_percentage": 20,
-      "weight": "250 g",
+      "unit_value": 250,
+      "unit_type": "g",
       "prep_time": "10 Min",
       "is_favourite": false
     }

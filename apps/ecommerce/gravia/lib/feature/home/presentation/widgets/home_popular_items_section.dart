@@ -12,12 +12,14 @@ import 'package:gravia/constants/color_const.dart';
 import 'package:gravia/constants/image_const.dart';
 import 'package:gravia/constants/text_style_const.dart';
 import 'package:gravia/constants/value_const.dart';
+import 'package:gravia/enums/product_unit_type.dart';
 
 import '../../domain/entities/product_entity.dart';
 
 class HomePopularItemsSection extends StatelessWidget {
   final List<ProductEntity> products;
-  final ValueChanged<ProductEntity> onAddToCart;
+  final void Function(ProductEntity product, int quantity) onAddToCart;
+  final ValueChanged<ProductEntity> onQuickAdd;
   final ValueChanged<String> onFavouriteToggle;
   final VoidCallback onComingSoon;
 
@@ -25,6 +27,7 @@ class HomePopularItemsSection extends StatelessWidget {
     super.key,
     required this.products,
     required this.onAddToCart,
+    required this.onQuickAdd,
     required this.onFavouriteToggle,
     required this.onComingSoon,
   });
@@ -76,7 +79,7 @@ class HomePopularItemsSection extends StatelessWidget {
                     ),
                     title: products[i].name,
                     titleStyle: TextStyleConst.textMdBold(tt),
-                    badgeLabel: products[i].weight,
+                    badgeLabel: products[i].unitType.format(products[i].unitValue),
                     badgeLabelStyle: TextStyleConst.badgeLabel(
                       tt,
                     ).copyWith(color: cs.primary),
@@ -112,8 +115,7 @@ class HomePopularItemsSection extends StatelessWidget {
                     actionLabelStyle: TextStyleConst.textSmMedium(
                       tt,
                     ).copyWith(color: onOverlay),
-                    onAction: () => onAddToCart(products[i]),
-                    
+                    onAction: () => onAddToCart(products[i], 1),
                     trailingAction: AppIconButton(
                       variant: AppIconButtonVariant.glass,
                       containerSize: AppSpacing.xl6,
@@ -126,7 +128,7 @@ class HomePopularItemsSection extends StatelessWidget {
                         width: size,
                         height: size,
                       ),
-                      onTap: () => onAddToCart(products[i]),
+                      onTap: () => onQuickAdd(products[i]),
                     ),
                     onTap: onComingSoon,
                   ),

@@ -9,11 +9,14 @@ import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/loading_indicator.dart';
 import 'package:core/core/ui/molecules/error_view.dart';
 
+import 'package:gravia/constants/color_const.dart';
+import 'package:gravia/constants/text_style_const.dart';
 import 'package:gravia/constants/value_const.dart';
 
 import '../../domain/entities/home_entity.dart';
 import '../../domain/entities/product_entity.dart';
 import '../bloc/home_bloc.dart';
+import '../widgets/add_to_cart_sheet_content.dart';
 import '../widgets/home_category_section.dart';
 import '../widgets/home_hero_header.dart';
 import '../widgets/home_popular_items_section.dart';
@@ -26,6 +29,33 @@ class HomeScreen extends BaseScreen {
 }
 
 class _HomeScreenState extends BaseScreenState<HomeScreen> {
+  void _addToCart(ProductEntity product, int quantity) =>
+      showSnackBar(ValueConst.addedToCartMessage(product.name, quantity));
+
+  void _showAddToCartSheet(ProductEntity product) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+    // Neither outlineVariant nor onSurfaceVariant lands on the kit's exact
+    // hairline/handle shade in both modes, so it's an explicit override —
+    // Gray/200 light, Light/900 dark.
+    final hairlineColor = Theme.of(context).brightness == Brightness.dark
+        ? ColorConst.light900
+        : ColorConst.gray200;
+
+    showAppBottomSheet(
+      title: ValueConst.addToCartSheetTitle,
+      titleStyle: TextStyleConst.textLgBold(tt),
+      closeLabel: ValueConst.cancel,
+      closeLabelStyle: TextStyleConst.textSmRegular(tt).copyWith(color: cs.primary),
+      dividerColor: hairlineColor,
+      handleColor: hairlineColor,
+      child: AddToCartSheetContent(
+        product: product,
+        onAddToCart: (quantity) => _addToCart(product, quantity),
+      ),
+    );
+  }
+
   @override
   Widget body(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
@@ -54,8 +84,8 @@ class _HomeScreenState extends BaseScreenState<HomeScreen> {
           ),
           HomeLoaded(:final home) => _HomeContent(
             home: home,
-            onAddToCart: (product) =>
-                showSnackBar(ValueConst.addedToCartMessage(product.name)),
+            onAddToCart: _addToCart,
+            onQuickAdd: _showAddToCartSheet,
             onFavouriteToggle: (id) => context.read<HomeBloc>().add(
               HomeEvent.favouriteToggled(productId: id),
             ),
@@ -69,13 +99,15 @@ class _HomeScreenState extends BaseScreenState<HomeScreen> {
 
 class _HomeContent extends StatefulWidget {
   final HomeEntity home;
-  final ValueChanged<ProductEntity> onAddToCart;
+  final void Function(ProductEntity product, int quantity) onAddToCart;
+  final ValueChanged<ProductEntity> onQuickAdd;
   final ValueChanged<String> onFavouriteToggle;
   final VoidCallback onComingSoon;
 
   const _HomeContent({
     required this.home,
     required this.onAddToCart,
+    required this.onQuickAdd,
     required this.onFavouriteToggle,
     required this.onComingSoon,
   });
@@ -157,6 +189,7 @@ class _HomeContentState extends State<_HomeContent> {
                               HomePopularItemsSection(
                                 products: widget.home.popularProducts,
                                 onAddToCart: widget.onAddToCart,
+                                onQuickAdd: widget.onQuickAdd,
                                 onFavouriteToggle: widget.onFavouriteToggle,
                                 onComingSoon: widget.onComingSoon,
                               ),

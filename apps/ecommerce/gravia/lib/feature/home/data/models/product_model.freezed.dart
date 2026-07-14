@@ -15,7 +15,9 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$ProductModel {
 
- String get id; String get name; String get image; double get price;@JsonKey(name: 'original_price') double get originalPrice;@JsonKey(name: 'discount_percentage') double get discountPercentage; String get weight;@JsonKey(name: 'prep_time') String get prepTime;@JsonKey(name: 'is_favourite') bool get isFavourite;
+ String get id; String get name; String get image; double get price;@JsonKey(name: 'original_price') double get originalPrice;@JsonKey(name: 'discount_percentage') double get discountPercentage;@JsonKey(name: 'unit_value') double get unitValue;// Raw wire string ('g' / 'ml' / 'pcs') — parsed to ProductUnitType only
+// in toEntity(), per the data-layer-parses-wire-strings convention.
+@JsonKey(name: 'unit_type') String get unitType;@JsonKey(name: 'prep_time') String get prepTime;@JsonKey(name: 'is_favourite') bool get isFavourite;
 /// Create a copy of ProductModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +30,16 @@ $ProductModelCopyWith<ProductModel> get copyWith => _$ProductModelCopyWithImpl<P
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProductModel&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.image, image) || other.image == image)&&(identical(other.price, price) || other.price == price)&&(identical(other.originalPrice, originalPrice) || other.originalPrice == originalPrice)&&(identical(other.discountPercentage, discountPercentage) || other.discountPercentage == discountPercentage)&&(identical(other.weight, weight) || other.weight == weight)&&(identical(other.prepTime, prepTime) || other.prepTime == prepTime)&&(identical(other.isFavourite, isFavourite) || other.isFavourite == isFavourite));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProductModel&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.image, image) || other.image == image)&&(identical(other.price, price) || other.price == price)&&(identical(other.originalPrice, originalPrice) || other.originalPrice == originalPrice)&&(identical(other.discountPercentage, discountPercentage) || other.discountPercentage == discountPercentage)&&(identical(other.unitValue, unitValue) || other.unitValue == unitValue)&&(identical(other.unitType, unitType) || other.unitType == unitType)&&(identical(other.prepTime, prepTime) || other.prepTime == prepTime)&&(identical(other.isFavourite, isFavourite) || other.isFavourite == isFavourite));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,image,price,originalPrice,discountPercentage,weight,prepTime,isFavourite);
+int get hashCode => Object.hash(runtimeType,id,name,image,price,originalPrice,discountPercentage,unitValue,unitType,prepTime,isFavourite);
 
 @override
 String toString() {
-  return 'ProductModel(id: $id, name: $name, image: $image, price: $price, originalPrice: $originalPrice, discountPercentage: $discountPercentage, weight: $weight, prepTime: $prepTime, isFavourite: $isFavourite)';
+  return 'ProductModel(id: $id, name: $name, image: $image, price: $price, originalPrice: $originalPrice, discountPercentage: $discountPercentage, unitValue: $unitValue, unitType: $unitType, prepTime: $prepTime, isFavourite: $isFavourite)';
 }
 
 
@@ -48,7 +50,7 @@ abstract mixin class $ProductModelCopyWith<$Res>  {
   factory $ProductModelCopyWith(ProductModel value, $Res Function(ProductModel) _then) = _$ProductModelCopyWithImpl;
 @useResult
 $Res call({
- String id, String name, String image, double price,@JsonKey(name: 'original_price') double originalPrice,@JsonKey(name: 'discount_percentage') double discountPercentage, String weight,@JsonKey(name: 'prep_time') String prepTime,@JsonKey(name: 'is_favourite') bool isFavourite
+ String id, String name, String image, double price,@JsonKey(name: 'original_price') double originalPrice,@JsonKey(name: 'discount_percentage') double discountPercentage,@JsonKey(name: 'unit_value') double unitValue,@JsonKey(name: 'unit_type') String unitType,@JsonKey(name: 'prep_time') String prepTime,@JsonKey(name: 'is_favourite') bool isFavourite
 });
 
 
@@ -65,7 +67,7 @@ class _$ProductModelCopyWithImpl<$Res>
 
 /// Create a copy of ProductModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? image = null,Object? price = null,Object? originalPrice = null,Object? discountPercentage = null,Object? weight = null,Object? prepTime = null,Object? isFavourite = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? image = null,Object? price = null,Object? originalPrice = null,Object? discountPercentage = null,Object? unitValue = null,Object? unitType = null,Object? prepTime = null,Object? isFavourite = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
@@ -73,7 +75,8 @@ as String,image: null == image ? _self.image : image // ignore: cast_nullable_to
 as String,price: null == price ? _self.price : price // ignore: cast_nullable_to_non_nullable
 as double,originalPrice: null == originalPrice ? _self.originalPrice : originalPrice // ignore: cast_nullable_to_non_nullable
 as double,discountPercentage: null == discountPercentage ? _self.discountPercentage : discountPercentage // ignore: cast_nullable_to_non_nullable
-as double,weight: null == weight ? _self.weight : weight // ignore: cast_nullable_to_non_nullable
+as double,unitValue: null == unitValue ? _self.unitValue : unitValue // ignore: cast_nullable_to_non_nullable
+as double,unitType: null == unitType ? _self.unitType : unitType // ignore: cast_nullable_to_non_nullable
 as String,prepTime: null == prepTime ? _self.prepTime : prepTime // ignore: cast_nullable_to_non_nullable
 as String,isFavourite: null == isFavourite ? _self.isFavourite : isFavourite // ignore: cast_nullable_to_non_nullable
 as bool,
@@ -161,10 +164,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  String image,  double price, @JsonKey(name: 'original_price')  double originalPrice, @JsonKey(name: 'discount_percentage')  double discountPercentage,  String weight, @JsonKey(name: 'prep_time')  String prepTime, @JsonKey(name: 'is_favourite')  bool isFavourite)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  String image,  double price, @JsonKey(name: 'original_price')  double originalPrice, @JsonKey(name: 'discount_percentage')  double discountPercentage, @JsonKey(name: 'unit_value')  double unitValue, @JsonKey(name: 'unit_type')  String unitType, @JsonKey(name: 'prep_time')  String prepTime, @JsonKey(name: 'is_favourite')  bool isFavourite)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ProductModel() when $default != null:
-return $default(_that.id,_that.name,_that.image,_that.price,_that.originalPrice,_that.discountPercentage,_that.weight,_that.prepTime,_that.isFavourite);case _:
+return $default(_that.id,_that.name,_that.image,_that.price,_that.originalPrice,_that.discountPercentage,_that.unitValue,_that.unitType,_that.prepTime,_that.isFavourite);case _:
   return orElse();
 
 }
@@ -182,10 +185,10 @@ return $default(_that.id,_that.name,_that.image,_that.price,_that.originalPrice,
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  String image,  double price, @JsonKey(name: 'original_price')  double originalPrice, @JsonKey(name: 'discount_percentage')  double discountPercentage,  String weight, @JsonKey(name: 'prep_time')  String prepTime, @JsonKey(name: 'is_favourite')  bool isFavourite)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  String image,  double price, @JsonKey(name: 'original_price')  double originalPrice, @JsonKey(name: 'discount_percentage')  double discountPercentage, @JsonKey(name: 'unit_value')  double unitValue, @JsonKey(name: 'unit_type')  String unitType, @JsonKey(name: 'prep_time')  String prepTime, @JsonKey(name: 'is_favourite')  bool isFavourite)  $default,) {final _that = this;
 switch (_that) {
 case _ProductModel():
-return $default(_that.id,_that.name,_that.image,_that.price,_that.originalPrice,_that.discountPercentage,_that.weight,_that.prepTime,_that.isFavourite);case _:
+return $default(_that.id,_that.name,_that.image,_that.price,_that.originalPrice,_that.discountPercentage,_that.unitValue,_that.unitType,_that.prepTime,_that.isFavourite);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -202,10 +205,10 @@ return $default(_that.id,_that.name,_that.image,_that.price,_that.originalPrice,
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  String image,  double price, @JsonKey(name: 'original_price')  double originalPrice, @JsonKey(name: 'discount_percentage')  double discountPercentage,  String weight, @JsonKey(name: 'prep_time')  String prepTime, @JsonKey(name: 'is_favourite')  bool isFavourite)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  String image,  double price, @JsonKey(name: 'original_price')  double originalPrice, @JsonKey(name: 'discount_percentage')  double discountPercentage, @JsonKey(name: 'unit_value')  double unitValue, @JsonKey(name: 'unit_type')  String unitType, @JsonKey(name: 'prep_time')  String prepTime, @JsonKey(name: 'is_favourite')  bool isFavourite)?  $default,) {final _that = this;
 switch (_that) {
 case _ProductModel() when $default != null:
-return $default(_that.id,_that.name,_that.image,_that.price,_that.originalPrice,_that.discountPercentage,_that.weight,_that.prepTime,_that.isFavourite);case _:
+return $default(_that.id,_that.name,_that.image,_that.price,_that.originalPrice,_that.discountPercentage,_that.unitValue,_that.unitType,_that.prepTime,_that.isFavourite);case _:
   return null;
 
 }
@@ -217,7 +220,7 @@ return $default(_that.id,_that.name,_that.image,_that.price,_that.originalPrice,
 @JsonSerializable()
 
 class _ProductModel extends ProductModel {
-  const _ProductModel({required this.id, required this.name, required this.image, required this.price, @JsonKey(name: 'original_price') required this.originalPrice, @JsonKey(name: 'discount_percentage') required this.discountPercentage, required this.weight, @JsonKey(name: 'prep_time') required this.prepTime, @JsonKey(name: 'is_favourite') this.isFavourite = false}): super._();
+  const _ProductModel({required this.id, required this.name, required this.image, required this.price, @JsonKey(name: 'original_price') required this.originalPrice, @JsonKey(name: 'discount_percentage') required this.discountPercentage, @JsonKey(name: 'unit_value') required this.unitValue, @JsonKey(name: 'unit_type') required this.unitType, @JsonKey(name: 'prep_time') required this.prepTime, @JsonKey(name: 'is_favourite') this.isFavourite = false}): super._();
   factory _ProductModel.fromJson(Map<String, dynamic> json) => _$ProductModelFromJson(json);
 
 @override final  String id;
@@ -226,7 +229,10 @@ class _ProductModel extends ProductModel {
 @override final  double price;
 @override@JsonKey(name: 'original_price') final  double originalPrice;
 @override@JsonKey(name: 'discount_percentage') final  double discountPercentage;
-@override final  String weight;
+@override@JsonKey(name: 'unit_value') final  double unitValue;
+// Raw wire string ('g' / 'ml' / 'pcs') — parsed to ProductUnitType only
+// in toEntity(), per the data-layer-parses-wire-strings convention.
+@override@JsonKey(name: 'unit_type') final  String unitType;
 @override@JsonKey(name: 'prep_time') final  String prepTime;
 @override@JsonKey(name: 'is_favourite') final  bool isFavourite;
 
@@ -243,16 +249,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProductModel&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.image, image) || other.image == image)&&(identical(other.price, price) || other.price == price)&&(identical(other.originalPrice, originalPrice) || other.originalPrice == originalPrice)&&(identical(other.discountPercentage, discountPercentage) || other.discountPercentage == discountPercentage)&&(identical(other.weight, weight) || other.weight == weight)&&(identical(other.prepTime, prepTime) || other.prepTime == prepTime)&&(identical(other.isFavourite, isFavourite) || other.isFavourite == isFavourite));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProductModel&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.image, image) || other.image == image)&&(identical(other.price, price) || other.price == price)&&(identical(other.originalPrice, originalPrice) || other.originalPrice == originalPrice)&&(identical(other.discountPercentage, discountPercentage) || other.discountPercentage == discountPercentage)&&(identical(other.unitValue, unitValue) || other.unitValue == unitValue)&&(identical(other.unitType, unitType) || other.unitType == unitType)&&(identical(other.prepTime, prepTime) || other.prepTime == prepTime)&&(identical(other.isFavourite, isFavourite) || other.isFavourite == isFavourite));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,image,price,originalPrice,discountPercentage,weight,prepTime,isFavourite);
+int get hashCode => Object.hash(runtimeType,id,name,image,price,originalPrice,discountPercentage,unitValue,unitType,prepTime,isFavourite);
 
 @override
 String toString() {
-  return 'ProductModel(id: $id, name: $name, image: $image, price: $price, originalPrice: $originalPrice, discountPercentage: $discountPercentage, weight: $weight, prepTime: $prepTime, isFavourite: $isFavourite)';
+  return 'ProductModel(id: $id, name: $name, image: $image, price: $price, originalPrice: $originalPrice, discountPercentage: $discountPercentage, unitValue: $unitValue, unitType: $unitType, prepTime: $prepTime, isFavourite: $isFavourite)';
 }
 
 
@@ -263,7 +269,7 @@ abstract mixin class _$ProductModelCopyWith<$Res> implements $ProductModelCopyWi
   factory _$ProductModelCopyWith(_ProductModel value, $Res Function(_ProductModel) _then) = __$ProductModelCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String name, String image, double price,@JsonKey(name: 'original_price') double originalPrice,@JsonKey(name: 'discount_percentage') double discountPercentage, String weight,@JsonKey(name: 'prep_time') String prepTime,@JsonKey(name: 'is_favourite') bool isFavourite
+ String id, String name, String image, double price,@JsonKey(name: 'original_price') double originalPrice,@JsonKey(name: 'discount_percentage') double discountPercentage,@JsonKey(name: 'unit_value') double unitValue,@JsonKey(name: 'unit_type') String unitType,@JsonKey(name: 'prep_time') String prepTime,@JsonKey(name: 'is_favourite') bool isFavourite
 });
 
 
@@ -280,7 +286,7 @@ class __$ProductModelCopyWithImpl<$Res>
 
 /// Create a copy of ProductModel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? image = null,Object? price = null,Object? originalPrice = null,Object? discountPercentage = null,Object? weight = null,Object? prepTime = null,Object? isFavourite = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? image = null,Object? price = null,Object? originalPrice = null,Object? discountPercentage = null,Object? unitValue = null,Object? unitType = null,Object? prepTime = null,Object? isFavourite = null,}) {
   return _then(_ProductModel(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
@@ -288,7 +294,8 @@ as String,image: null == image ? _self.image : image // ignore: cast_nullable_to
 as String,price: null == price ? _self.price : price // ignore: cast_nullable_to_non_nullable
 as double,originalPrice: null == originalPrice ? _self.originalPrice : originalPrice // ignore: cast_nullable_to_non_nullable
 as double,discountPercentage: null == discountPercentage ? _self.discountPercentage : discountPercentage // ignore: cast_nullable_to_non_nullable
-as double,weight: null == weight ? _self.weight : weight // ignore: cast_nullable_to_non_nullable
+as double,unitValue: null == unitValue ? _self.unitValue : unitValue // ignore: cast_nullable_to_non_nullable
+as double,unitType: null == unitType ? _self.unitType : unitType // ignore: cast_nullable_to_non_nullable
 as String,prepTime: null == prepTime ? _self.prepTime : prepTime // ignore: cast_nullable_to_non_nullable
 as String,isFavourite: null == isFavourite ? _self.isFavourite : isFavourite // ignore: cast_nullable_to_non_nullable
 as bool,

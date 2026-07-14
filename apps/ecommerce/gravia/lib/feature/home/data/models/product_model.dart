@@ -1,5 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import 'package:gravia/enums/product_unit_type.dart';
+
 import '../../domain/entities/product_entity.dart';
 
 part 'product_model.freezed.dart';
@@ -16,7 +18,10 @@ abstract class ProductModel with _$ProductModel {
     required double price,
     @JsonKey(name: 'original_price') required double originalPrice,
     @JsonKey(name: 'discount_percentage') required double discountPercentage,
-    required String weight,
+    @JsonKey(name: 'unit_value') required double unitValue,
+    // Raw wire string ('g' / 'ml' / 'pcs') — parsed to ProductUnitType only
+    // in toEntity(), per the data-layer-parses-wire-strings convention.
+    @JsonKey(name: 'unit_type') required String unitType,
     @JsonKey(name: 'prep_time') required String prepTime,
     @JsonKey(name: 'is_favourite') @Default(false) bool isFavourite,
   }) = _ProductModel;
@@ -31,7 +36,8 @@ abstract class ProductModel with _$ProductModel {
         price: e.price,
         originalPrice: e.originalPrice,
         discountPercentage: e.discountPercentage,
-        weight: e.weight,
+        unitValue: e.unitValue,
+        unitType: e.unitType.wireValue,
         prepTime: e.prepTime,
         isFavourite: e.isFavourite,
       );
@@ -43,7 +49,8 @@ abstract class ProductModel with _$ProductModel {
         price: price,
         originalPrice: originalPrice,
         discountPercentage: discountPercentage,
-        weight: weight,
+        unitValue: unitValue,
+        unitType: unitType.toProductUnitType(),
         prepTime: prepTime,
         isFavourite: isFavourite,
       );

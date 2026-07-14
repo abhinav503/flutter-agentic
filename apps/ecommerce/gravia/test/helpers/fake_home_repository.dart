@@ -3,6 +3,7 @@ import 'package:fpdart/fpdart.dart';
 import 'package:core/core/error/failure.dart';
 import 'package:gravia/feature/home/domain/entities/category_entity.dart';
 import 'package:gravia/feature/home/domain/entities/home_entity.dart';
+import 'package:gravia/enums/product_unit_type.dart';
 import 'package:gravia/feature/home/domain/entities/product_entity.dart';
 import 'package:gravia/feature/home/domain/repository/home_repository.dart';
 
@@ -21,7 +22,8 @@ class FakeHomeRepository implements HomeRepository {
           price: 6.30,
           originalPrice: 8.00,
           discountPercentage: 20,
-          weight: '300 g',
+          unitValue: 300,
+          unitType: ProductUnitType.grams,
           prepTime: '10 Min',
           isFavourite: false,
         ),

@@ -35,11 +35,15 @@ abstract final class ValueConst {
   static const popularItemsTitle = 'Popular Items';
   static const seeAll = 'See All';
   static const addToCart = 'Add To Cart';
+  static const addToCartSheetTitle = 'Add to Cart';
+  static const cancel = 'Cancel';
   static const comingSoonMessage = 'Coming soon';
   static const homeLoadErrorMessage =
       'Something went wrong loading the storefront.';
-  static String addedToCartMessage(String productName) =>
-      '$productName added to cart';
+  static String addedToCartMessage(String productName, int quantity) =>
+      quantity > 1
+          ? '$quantity × $productName added to cart'
+          : '$productName added to cart';
 
   // ── Placeholder tabs (removed as real screens land) ───────────────────────
   static const categoriesComingTitle = 'Categories coming soon';

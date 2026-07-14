@@ -14,7 +14,8 @@ _ProductModel _$ProductModelFromJson(Map<String, dynamic> json) =>
       price: (json['price'] as num).toDouble(),
       originalPrice: (json['original_price'] as num).toDouble(),
       discountPercentage: (json['discount_percentage'] as num).toDouble(),
-      weight: json['weight'] as String,
+      unitValue: (json['unit_value'] as num).toDouble(),
+      unitType: json['unit_type'] as String,
       prepTime: json['prep_time'] as String,
       isFavourite: json['is_favourite'] as bool? ?? false,
     );
@@ -27,7 +28,8 @@ Map<String, dynamic> _$ProductModelToJson(_ProductModel instance) =>
       'price': instance.price,
       'original_price': instance.originalPrice,
       'discount_percentage': instance.discountPercentage,
-      'weight': instance.weight,
+      'unit_value': instance.unitValue,
+      'unit_type': instance.unitType,
       'prep_time': instance.prepTime,
       'is_favourite': instance.isFavourite,
     };

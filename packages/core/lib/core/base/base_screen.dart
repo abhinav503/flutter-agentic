@@ -29,7 +29,12 @@ abstract class BaseScreenState<T extends BaseScreen> extends State<T> {
   /// ```
   Future<R?> showAppBottomSheet<R>({
     String? title,
+    TextStyle? titleStyle,
     Widget? child,
+    String? closeLabel,
+    TextStyle? closeLabelStyle,
+    Color? dividerColor,
+    Color? handleColor,
     List<Widget>? actions,
     bool isDismissible = true,
     bool enableDrag = true,
@@ -38,7 +43,12 @@ abstract class BaseScreenState<T extends BaseScreen> extends State<T> {
       AppBottomSheet.show<R>(
         context,
         title: title,
+        titleStyle: titleStyle,
         child: child ?? buildBottomSheetContent(),
+        closeLabel: closeLabel,
+        closeLabelStyle: closeLabelStyle,
+        dividerColor: dividerColor,
+        handleColor: handleColor,
         actions: actions,
         isDismissible: isDismissible,
         enableDrag: enableDrag,
