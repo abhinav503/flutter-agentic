@@ -23,6 +23,7 @@ import 'package:core/core/ui/blocks/ecommerce/category_tile.dart';
 import 'package:core/core/ui/blocks/ecommerce/product_card.dart';
 import 'package:core/core/ui/blocks/quantity_stepper.dart';
 import 'package:core/core/ui/blocks/section_header.dart';
+import 'package:core/core/ui/molecules/bottom_sheet.dart';
 import 'package:core/core/ui/molecules/empty_state.dart';
 import 'package:core/core/ui/molecules/error_view.dart';
 import 'package:flutter/material.dart';
@@ -690,6 +691,74 @@ final _directories = <WidgetbookNode>[
           ),
         ]),
       ),
+      _allVariants(
+        'AppBottomSheet',
+        (context) => _showcaseStacked(context, [
+          _Variant(
+            'Default (icon close)',
+            SizedBox(
+              height: 260,
+              child: AppBottomSheet(
+                title: 'Filter',
+                onClose: () {},
+                actions: [
+                  AppButton(
+                    label: 'Cancel',
+                    variant: AppButtonVariant.secondary,
+                    fullWidth: true,
+                    onTap: () {},
+                  ),
+                  AppButton(label: 'Apply', fullWidth: true, onTap: () {}),
+                ],
+                child: const Padding(
+                  padding: EdgeInsets.all(16),
+                  child: Text('Body content goes here.'),
+                ),
+              ),
+            ),
+          ),
+          _Variant(
+            // Every override a style pack can plug in — matches gravia's
+            // Add to Cart sheet (docs/ai-rules/design.md's per-pack chrome).
+            'Text close label + custom typography/colours (e.g. gravia)',
+            Builder(
+              builder: (context) {
+                final cs = Theme.of(context).colorScheme;
+                return SizedBox(
+                  height: 260,
+                  child: AppBottomSheet(
+                    title: 'Add to Cart',
+                    titleStyle: Theme.of(context).textTheme.titleLarge!.copyWith(
+                          fontWeight: FontWeight.w700,
+                          height: 1.55,
+                          letterSpacing: -0.36,
+                        ),
+                    onClose: () {},
+                    closeLabel: 'Cancel',
+                    closeLabelStyle: Theme.of(context).textTheme.bodyMedium!
+                        .copyWith(color: cs.primary, height: 1.4, letterSpacing: -0.28),
+                    dividerColor: cs.outlineVariant,
+                    handleColor: cs.outlineVariant,
+                    actions: [
+                      AppButton(
+                        label: 'Cancel',
+                        variant: AppButtonVariant.secondary,
+                        fullWidth: true,
+                        onTap: () {},
+                      ),
+                      AppButton(label: 'Add to Cart', fullWidth: true, onTap: () {}),
+                    ],
+                    child: const Padding(
+                      padding: EdgeInsets.all(16),
+                      child: Text('Body content goes here.'),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ]),
+      ),
     ],
   ),
   WidgetbookCategory(
@@ -751,6 +820,28 @@ final _directories = <WidgetbookNode>[
               _Variant(
                 'At minimum',
                 QuantityStepper(value: 1, onIncrement: () {}),
+              ),
+              _Variant(
+                'Custom icons + colour + value style (e.g. gravia)',
+                Builder(
+                  builder: (context) {
+                    final cs = Theme.of(context).colorScheme;
+                    return QuantityStepper(
+                      value: 2,
+                      onIncrement: () {},
+                      onDecrement: () {},
+                      // A style pack's own icon asset would replace these
+                      // Icon() calls (see AppIconButton.iconBuilder).
+                      decrementIconBuilder: (color, size) =>
+                          Icon(Icons.remove, color: color, size: size),
+                      incrementIconBuilder: (color, size) =>
+                          Icon(Icons.add, color: color, size: size),
+                      iconColor: cs.onSurfaceVariant,
+                      valueTextStyle: Theme.of(context).textTheme.titleMedium!
+                          .copyWith(fontWeight: FontWeight.w700, letterSpacing: -0.32),
+                    );
+                  },
+                ),
               ),
             ]),
           ),
@@ -870,6 +961,15 @@ final _directories = <WidgetbookNode>[
               _Variant(
                 'Default',
                 CategoryTile(
+                  image: _placeholderImage(context, icon: Icons.eco_outlined),
+                  label: 'Vegetables',
+                  onTap: () {},
+                ),
+              ),
+              _Variant(
+                'Tighter imagePadding (e.g. gravia)',
+                CategoryTile(
+                  imagePadding: const EdgeInsets.all(8),
                   image: _placeholderImage(context, icon: Icons.eco_outlined),
                   label: 'Vegetables',
                   onTap: () {},

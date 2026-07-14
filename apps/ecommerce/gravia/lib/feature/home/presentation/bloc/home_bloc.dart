@@ -32,14 +32,17 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     HomeFavouriteToggled event,
     Emitter<HomeState> emit,
   ) {
-    final current = state;
-    if (current is! HomeLoaded) return;
-    final updatedProducts = current.home.popularProducts
-        .map((p) =>
-            p.id == event.productId ? p.copyWith(isFavourite: !p.isFavourite) : p)
-        .toList();
-    emit(HomeState.loaded(
-      home: current.home.copyWith(popularProducts: updatedProducts),
-    ));
+    switch (state) {
+      case HomeLoaded(:final home):
+        final updatedProducts = home.popularProducts
+            .map((p) => p.id == event.productId
+                ? p.copyWith(isFavourite: !p.isFavourite)
+                : p)
+            .toList();
+        emit(HomeState.loaded(home: home.copyWith(popularProducts: updatedProducts)));
+      case HomeLoading():
+      case HomeError():
+        break;
+    }
   }
 }
