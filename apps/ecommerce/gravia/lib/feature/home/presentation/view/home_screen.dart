@@ -179,26 +179,21 @@ class _HomeContentState extends State<_HomeContent> {
                           ),
                           child: Column(
                             children: [
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: AppSpacing.lg,
-                                ),
-                                child: HomeCategorySection(
-                                  categories: widget.home.categories,
-                                  onComingSoon: widget.onComingSoon,
-                                ),
+                              // Each section pads its own header but leaves
+                              // its horizontal scroll row unpadded on the
+                              // right, so cards can bleed to the true screen
+                              // edge instead of stopping short — padding here
+                              // would bound that scroll content on both sides.
+                              HomeCategorySection(
+                                categories: widget.home.categories,
+                                onComingSoon: widget.onComingSoon,
                               ),
                               const SizedBox(height: AppSpacing.xl4),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: AppSpacing.lg,
-                                ),
-                                child: HomePopularItemsSection(
-                                  products: widget.home.popularProducts,
-                                  onAddToCart: widget.onAddToCart,
-                                  onFavouriteToggle: widget.onFavouriteToggle,
-                                  onComingSoon: widget.onComingSoon,
-                                ),
+                              HomePopularItemsSection(
+                                products: widget.home.popularProducts,
+                                onAddToCart: widget.onAddToCart,
+                                onFavouriteToggle: widget.onFavouriteToggle,
+                                onComingSoon: widget.onComingSoon,
                               ),
                             ],
                           ),

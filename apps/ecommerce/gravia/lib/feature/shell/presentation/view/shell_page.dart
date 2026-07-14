@@ -8,6 +8,7 @@ import 'package:core/core/ui/molecules/empty_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'package:gravia/constants/color_const.dart';
 import 'package:gravia/constants/image_const.dart';
 import 'package:gravia/constants/value_const.dart';
 import 'package:gravia/di/injection_container.dart';
@@ -53,6 +54,15 @@ class _ShellPageState extends BasePageState<ShellPage> {
       (color, size) =>
           AppSvgImage.asset(asset, color: color, width: size, height: size);
 
+  // Gray/500 in light mode; the kit's dark-mode spec calls for white instead
+  // of a darker gray here, so the divider still reads against the dark
+  // surface (matches the same reasoning as AppColorsExtension.onOverlay,
+  // just for a value that isn't otherwise theme-driven).
+  Color _dividerColor(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark
+          ? Colors.white
+          : ColorConst.gray500;
+
   @override
   PreferredSizeWidget? buildAppBar(BuildContext context) {
     // The Home tab renders its own coloured hero header (location, search)
@@ -67,6 +77,8 @@ class _ShellPageState extends BasePageState<ShellPage> {
         if (themeMode != null)
           ThemeModeToggle(mode: themeMode.value, onTap: themeMode.cycle),
       ],
+      bottomBorderColor: _dividerColor(context),
+      bottomBorderWidth: 0.5,
     );
   }
 
@@ -75,6 +87,8 @@ class _ShellPageState extends BasePageState<ShellPage> {
     items: _tabs,
     currentIndex: _currentTab,
     onTap: (index) => setState(() => _currentTab = index),
+    topBorderColor: _dividerColor(context),
+    topBorderWidth: 0.5,
   );
 
   @override

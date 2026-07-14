@@ -31,19 +31,33 @@ class BottomNavBar extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int> onTap;
 
+  /// Hairline divider on the bar's top edge, separating it from the screen
+  /// content above — omit (default) for no divider. Colour is a caller
+  /// concern (e.g. an app's raw kit swatch), not something `core` should
+  /// assume.
+  final Color? topBorderColor;
+  final double topBorderWidth;
+
   const BottomNavBar({
     super.key,
     required this.items,
     required this.currentIndex,
     required this.onTap,
+    this.topBorderColor,
+    this.topBorderWidth = 0.5,
   });
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
 
-    return ColoredBox(
-      color: cs.surface,
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: cs.surface,
+        border: topBorderColor != null
+            ? Border(top: BorderSide(color: topBorderColor!, width: topBorderWidth))
+            : null,
+      ),
       child: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(

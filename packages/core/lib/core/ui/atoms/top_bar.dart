@@ -36,6 +36,13 @@ class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
   final bool centerTitle;
   final double toolbarHeight;
 
+  /// Hairline divider on the toolbar's bottom edge, separating it from the
+  /// screen content below — omit (default) for no divider. Colour is a
+  /// caller concern (e.g. an app's raw kit swatch), not something `core`
+  /// should assume.
+  final Color? bottomBorderColor;
+  final double bottomBorderWidth;
+
   /// Fully configurable constructor — use named constructors for common cases.
   const AppTopBar({
     super.key,
@@ -49,6 +56,8 @@ class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
     this.backgroundColor,
     this.centerTitle = false,
     this.toolbarHeight = kToolbarHeight,
+    this.bottomBorderColor,
+    this.bottomBorderWidth = 0.5,
   });
 
   /// Home / section screens — no back button.
@@ -61,6 +70,8 @@ class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
     this.backgroundColor,
     this.centerTitle = false,
     this.toolbarHeight = kToolbarHeight,
+    this.bottomBorderColor,
+    this.bottomBorderWidth = 0.5,
   })  : showBackButton = false,
         onBackTap = null,
         leading = null;
@@ -76,6 +87,8 @@ class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
     this.backgroundColor,
     this.centerTitle = false,
     this.toolbarHeight = kToolbarHeight,
+    this.bottomBorderColor,
+    this.bottomBorderWidth = 0.5,
   })  : showBackButton = true,
         leading = null;
 
@@ -107,6 +120,9 @@ class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
       title: _buildTitle(tt, cs, bg),
       actions: actions,
       bottom: bottom,
+      shape: bottomBorderColor != null
+          ? Border(bottom: BorderSide(color: bottomBorderColor!, width: bottomBorderWidth))
+          : null,
     );
   }
 

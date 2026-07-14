@@ -28,18 +28,25 @@ class HomeCategorySection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SectionHeader(
-          title: ValueConst.allCategoriesTitle,
-          actionLabel: ValueConst.seeAll,
-          onAction: onComingSoon,
-          titleStyle: TextStyleConst.textLgBold(tt).copyWith(color: cs.onSurface),
-          actionStyle: TextStyleConst.textSmRegular(
-            tt,
-          ).copyWith(color: cs.primary),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+          child: SectionHeader(
+            title: ValueConst.allCategoriesTitle,
+            actionLabel: ValueConst.seeAll,
+            onAction: onComingSoon,
+            titleStyle: TextStyleConst.textLgBold(tt).copyWith(color: cs.onSurface),
+            actionStyle: TextStyleConst.textSmRegular(
+              tt,
+            ).copyWith(color: cs.primary),
+          ),
         ),
         const SizedBox(height: AppSpacing.base),
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
+          // Left inset only, matching the header above — no right inset, so
+          // the row can scroll all the way to the true screen edge instead
+          // of stopping AppSpacing.lg short of it.
+          padding: const EdgeInsets.only(left: AppSpacing.lg),
           child: Row(
             children: [
               for (var i = 0; i < categories.length; i++) ...[

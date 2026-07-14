@@ -1,44 +1,44 @@
 {
   "categories": [
-    {
+     {
       "id": "1",
-      "name": "Bread",
-      "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fcategories%2Fbread.jpg?alt=media&token=9a74a0c8-791e-43bc-b82e-2477f48f7a15"
+      "name": "Fresh",
+      "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fcategories%2Ffresh.png?alt=media&token=7f54342b-3899-4d48-a835-c7d22234a421"
     },
     {
       "id": "2",
       "name": "Chicken",
-      "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fcategories%2Fchicken.jpg?alt=media&token=fa6ba976-5f66-4329-8194-41869dc0275f"
+      "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fcategories%2Fchicken.png?alt=media&token=140b0c92-e8ef-4045-b699-c45e4e1b5581"
     },
     {
       "id": "3",
       "name": "Dairy",
-      "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fcategories%2Fdiary.jpg?alt=media&token=d1906eba-ca26-4637-b918-1a3447d7fee4"
+      "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fcategories%2Fdiary.png?alt=media&token=8d52a414-a023-43f3-9530-b4d43775059a"
     },
-    {
+   {
       "id": "4",
-      "name": "Fresh",
-      "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fcategories%2Ffresh.jpg?alt=media&token=55fe9d51-ced1-4dae-b83f-4ee5b3579c42"
+      "name": "Bread",
+      "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fcategories%2Fbreads.png?alt=media&token=aef0fa9d-09a6-450f-91d9-7f3a2762aa61"
     },
     {
       "id": "5",
-      "name": "Fruits",
-      "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fcategories%2Ffruits.jpg?alt=media&token=d23817c1-4595-48b5-9b22-8228269608b1"
+      "name": "Oil",
+      "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fcategories%2Foil.png?alt=media&token=43ccd471-abba-4307-8315-82fa952967b3"
     },
     {
       "id": "6",
       "name": "Grains",
-      "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fcategories%2Fgrains.jpg?alt=media&token=4042d4f6-2a0c-4127-9948-393a410e0103"
+      "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fcategories%2Fgrains.png?alt=media&token=8e8ff813-42a9-4f76-bf62-784d074f07b1"
     },
     {
       "id": "7",
       "name": "Masala",
-      "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fcategories%2Fmasla.jpg?alt=media&token=dc5f826a-eea7-4b0b-9ee2-9a48dd24639f"
+      "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fcategories%2Fmasala.png?alt=media&token=827da78a-889f-413b-9d99-0de429080bd1"
     },
     {
       "id": "8",
-      "name": "Oil",
-      "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fcategories%2Foil.jpg?alt=media&token=85a8e2a3-25e7-41b8-aa3e-eb56b26aa22d"
+      "name": "Fruits",
+      "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fcategories%2Ffruits.png?alt=media&token=28278867-f61b-4489-a168-a318a75fadaf"
     }
   ],
   "popular_products": [
