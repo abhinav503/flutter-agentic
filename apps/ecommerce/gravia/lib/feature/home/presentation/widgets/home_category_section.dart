@@ -52,6 +52,9 @@ class HomeCategorySection extends StatelessWidget {
               for (var i = 0; i < categories.length; i++) ...[
                 if (i > 0) const SizedBox(width: AppSpacing.lg),
                 CategoryTile(
+                  // Tighter than the default AppSpacing.base padding so the
+                  // PNG fills more of the circle without growing the tile.
+                  imagePadding: const EdgeInsets.all(AppSpacing.xs),
                   image: AppNetworkImage(
                     url: categories[i].imageUrl,
                     fit: BoxFit.contain,

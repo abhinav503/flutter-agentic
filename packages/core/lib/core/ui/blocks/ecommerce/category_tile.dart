@@ -16,6 +16,11 @@ class CategoryTile extends StatelessWidget {
   /// Diameter of the circle behind the image.
   final double size;
 
+  /// Padding between the circle's edge and [image] — shrink this (keeping
+  /// [size] fixed) to make the image itself render larger within the same
+  /// circle, rather than growing the whole tile.
+  final EdgeInsetsGeometry imagePadding;
+
   const CategoryTile({
     super.key,
     required this.image,
@@ -23,6 +28,7 @@ class CategoryTile extends StatelessWidget {
     this.onTap,
     this.labelStyle,
     this.size = 64,
+    this.imagePadding = const EdgeInsets.all(AppSpacing.base),
   });
 
   @override
@@ -38,7 +44,7 @@ class CategoryTile extends StatelessWidget {
           Container(
             width: size,
             height: size,
-            padding: const EdgeInsets.all(AppSpacing.base),
+            padding: imagePadding,
             decoration: BoxDecoration(
               color: cs.surfaceContainerHighest,
               shape: BoxShape.circle,
