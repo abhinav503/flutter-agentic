@@ -1,25 +1,29 @@
 import 'package:flutter/material.dart';
 
-import 'package:core/core/theme/app_colors_extension.dart';
-import 'package:core/core/theme/app_shapes_extension.dart';
 import 'package:core/core/theme/app_spacing.dart';
-import 'package:core/core/ui/atoms/common_glass_surface.dart';
 import 'package:core/core/ui/atoms/icon_button.dart';
 import 'package:core/core/ui/atoms/svg_image.dart';
-import 'package:core/core/ui/atoms/text_field.dart';
 
 import 'package:gravia/constants/color_const.dart';
 import 'package:gravia/constants/image_const.dart';
 import 'package:gravia/constants/text_style_const.dart';
 import 'package:gravia/constants/value_const.dart';
+import 'package:gravia/widgets/search_field_bar.dart';
 
 /// The coloured header canvas: delivery location + notification bell sitting
 /// directly on primary, plus a white search field — the pack's signature
-/// "coloured header canvas" composition (docs/ai-rules/design.md).
+/// "coloured header canvas" composition (docs/ai-rules/design.md). The
+/// search field is a tap-to-navigate trigger here (see [SearchFieldBar]) —
+/// real typing happens on the pushed Search screen it Hero-morphs into.
 class HomeHeroHeader extends StatefulWidget {
   final VoidCallback onNotificationTap;
+  final VoidCallback onSearchTap;
 
-  const HomeHeroHeader({super.key, required this.onNotificationTap});
+  const HomeHeroHeader({
+    super.key,
+    required this.onNotificationTap,
+    required this.onSearchTap,
+  });
 
   @override
   State<HomeHeroHeader> createState() => _HomeHeroHeaderState();
@@ -38,9 +42,6 @@ class _HomeHeroHeaderState extends State<HomeHeroHeader> {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
-    final onOverlay = Theme.of(context).extension<AppColorsExtension>()!.onOverlay;
-    final shapes =
-        Theme.of(context).extension<AppShapes>() ?? AppShapes.standard;
     final topInset = MediaQuery.paddingOf(context).top;
 
     return Container(
@@ -125,44 +126,9 @@ class _HomeHeroHeaderState extends State<HomeHeroHeader> {
             ],
           ),
           const SizedBox(height: AppSpacing.lg),
-          CommonGlassSurface(
-            borderRadius: BorderRadius.circular(shapes.inputRadius),
-            tintColor: cs.surfaceContainerHighest,
-            child: AppTextField(
-              controller: _searchController,
-              hint: ValueConst.searchHint,
-              hintColor: onOverlay,
-              textColor: onOverlay,
-              cursorColor: onOverlay,
-              dense: true,
-              showBorder: false,
-              prefix: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.lg,
-                  vertical: AppSpacing.base,
-                ),
-                child: AppSvgImage.asset(
-                  ImageConst.search,
-                  color: onOverlay,
-                  width: 25,
-                  height: 25,
-                  fit: BoxFit.contain,
-                ),
-              ),
-              suffix: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.lg,
-                  vertical: AppSpacing.base,
-                ),
-                child: AppSvgImage.asset(
-                  ImageConst.mic,
-                  color: onOverlay,
-                  width: 25,
-                  height: 25,
-                  fit: BoxFit.contain,
-                ),
-              ),
-            ),
+          SearchFieldBar(
+            controller: _searchController,
+            onTap: widget.onSearchTap,
           ),
         ],
       ),

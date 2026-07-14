@@ -45,6 +45,11 @@ abstract final class ValueConst {
           ? '$quantity × $productName added to cart'
           : '$productName added to cart';
 
+  // ── Search ─────────────────────────────────────────────────────────────────
+  static const recentSearchTitle = 'Recent Search';
+  static const searchLoadErrorMessage =
+      'Something went wrong loading search.';
+
   // ── Placeholder tabs (removed as real screens land) ───────────────────────
   static const categoriesComingTitle = 'Categories coming soon';
   static const categoriesComingSubtitle =

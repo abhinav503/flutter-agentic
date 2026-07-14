@@ -19,6 +19,7 @@ import 'package:core/core/ui/atoms/svg_image.dart';
 import 'package:core/core/ui/atoms/text_field.dart';
 import 'package:core/core/ui/atoms/top_bar.dart';
 import 'package:core/core/ui/blocks/bottom_nav_bar.dart';
+import 'package:core/core/ui/blocks/collapsing_header_sheet.dart';
 import 'package:core/core/ui/blocks/ecommerce/category_tile.dart';
 import 'package:core/core/ui/blocks/ecommerce/product_card.dart';
 import 'package:core/core/ui/blocks/quantity_stepper.dart';
@@ -803,6 +804,42 @@ final _directories = <WidgetbookNode>[
                   ),
                 ),
                 width: 320,
+              ),
+            ]),
+          ),
+          _allVariants(
+            'CollapsingHeaderSheet',
+            (context) => _showcaseStacked(context, [
+              _Variant(
+                'Default',
+                SizedBox(
+                  height: 420,
+                  child: CollapsingHeaderSheet(
+                    initialHeaderHeight: 140,
+                    header: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Text(
+                        'Header content\n(e.g. HomeHeroHeader)',
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onPrimary,
+                        ),
+                      ),
+                    ),
+                    body: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          for (var i = 0; i < 8; i++)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              child: Text('Sheet content row $i'),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
               ),
             ]),
           ),

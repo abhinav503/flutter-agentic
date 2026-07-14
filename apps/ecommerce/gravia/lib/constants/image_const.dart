@@ -14,4 +14,6 @@ abstract final class ImageConst {
   static const bagAdd = 'assets/icons/bag-add.svg';
   static const plus = 'assets/icons/plus.svg';
   static const minus = 'assets/icons/minus.svg';
+  static const undo = 'assets/icons/undo.svg';
+  static const remove = 'assets/icons/remove.svg';
 }

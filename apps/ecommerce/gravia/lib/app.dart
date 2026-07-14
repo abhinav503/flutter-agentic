@@ -8,6 +8,7 @@ import 'package:core/core/theme/theme_mode_scope.dart';
 import 'constants/app_routes.dart';
 import 'constants/value_const.dart';
 import 'feature/onboarding/presentation/view/onboarding_page.dart';
+import 'feature/search/presentation/view/search_page.dart';
 import 'feature/shell/presentation/view/shell_page.dart';
 import 'feature/splash/presentation/view/splash_page.dart';
 
@@ -25,6 +26,20 @@ final _router = GoRouter(
       path: AppRoutes.home,
       builder: (context, _) => const ShellPage(),
     ),
+    GoRoute(
+      path: AppRoutes.search,
+      pageBuilder: (context, state) => CustomTransitionPage<void>(
+        key: state.pageKey,
+        transitionDuration: const Duration(milliseconds: 350),
+        reverseTransitionDuration: const Duration(milliseconds: 300),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+            FadeTransition(
+              opacity: CurveTween(curve: Curves.easeInOut).animate(animation),
+              child: child,
+            ),
+        child: const SearchPage(),
+      ),
+    ),
   ],
 );
 
@@ -38,8 +53,6 @@ class App extends StatefulWidget {
 }
 
 class _AppState extends State<App> {
-  // Owns the app-wide, persisted theme mode; the AppBar toggle reaches it via
-  // ThemeModeScope and advances it with cycle().
   final ThemeModeController _themeMode = ThemeModeController()..load();
 
   @override

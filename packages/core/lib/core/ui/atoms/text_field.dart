@@ -30,6 +30,7 @@ class AppTextField extends StatefulWidget {
   final TextInputType keyboardType;
   final TextInputAction textInputAction;
   final bool obscureText;
+  final bool autofocus;
   final int? maxLines;
   final int? minLines;
   final Widget? prefix;
@@ -60,9 +61,11 @@ class AppTextField extends StatefulWidget {
 
   /// Set false when this field sits inside something that already paints its
   /// own edge (e.g. [CommonGlassSurface]) — the default idle border would
-  /// otherwise stack on top of that edge into one over-thick outline. Focus
-  /// and error borders stay on regardless, since those are meaningful state
-  /// changes, not a redundant idle-state outline.
+  /// otherwise stack on top of that edge into one over-thick outline. This
+  /// also suppresses the focused border (the host surface's edge is the
+  /// field's outline in every state; a border appearing only on focus reads
+  /// as a glitch there). Error borders stay on regardless — an error is a
+  /// meaningful state change, not a redundant outline.
   final bool showBorder;
 
   const AppTextField({
@@ -75,6 +78,7 @@ class AppTextField extends StatefulWidget {
     this.keyboardType = TextInputType.text,
     this.textInputAction = TextInputAction.done,
     this.obscureText = false,
+    this.autofocus = false,
     this.maxLines = 1,
     this.minLines,
     this.prefix,
@@ -149,6 +153,7 @@ class _AppTextFieldState extends State<AppTextField> {
           controller: widget.controller,
           focusNode: _focusNode,
           enabled: !isDisabled,
+          autofocus: widget.autofocus,
           // Flutter's default onTapOutside cancels the outside tap without
           // unfocusing — every field in the app should dismiss the keyboard
           // on an outside tap, so this is the default here, not per-caller.
@@ -193,7 +198,9 @@ class _AppTextFieldState extends State<AppTextField> {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: radius,
-              borderSide: BorderSide(color: borderColor, width: 2),
+              borderSide: widget.showBorder
+                  ? BorderSide(color: borderColor, width: 2)
+                  : BorderSide.none,
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: radius,

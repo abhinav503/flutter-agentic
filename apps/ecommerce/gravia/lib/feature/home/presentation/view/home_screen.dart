@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:core/core/base/base_screen.dart';
-import 'package:core/core/theme/app_shapes_extension.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/loading_indicator.dart';
+import 'package:core/core/ui/blocks/collapsing_header_sheet.dart';
 import 'package:core/core/ui/molecules/error_view.dart';
 
+import 'package:gravia/constants/app_routes.dart';
 import 'package:gravia/constants/color_const.dart';
 import 'package:gravia/constants/text_style_const.dart';
 import 'package:gravia/constants/value_const.dart';
@@ -90,6 +91,7 @@ class _HomeScreenState extends BaseScreenState<HomeScreen> {
               HomeEvent.favouriteToggled(productId: id),
             ),
             onComingSoon: () => showSnackBar(ValueConst.comingSoonMessage),
+            onSearchTap: () => context.push(AppRoutes.search),
           ),
         },
       ),
@@ -97,12 +99,13 @@ class _HomeScreenState extends BaseScreenState<HomeScreen> {
   }
 }
 
-class _HomeContent extends StatefulWidget {
+class _HomeContent extends StatelessWidget {
   final HomeEntity home;
   final void Function(ProductEntity product, int quantity) onAddToCart;
   final ValueChanged<ProductEntity> onQuickAdd;
   final ValueChanged<String> onFavouriteToggle;
   final VoidCallback onComingSoon;
+  final VoidCallback onSearchTap;
 
   const _HomeContent({
     required this.home,
@@ -110,134 +113,33 @@ class _HomeContent extends StatefulWidget {
     required this.onQuickAdd,
     required this.onFavouriteToggle,
     required this.onComingSoon,
+    required this.onSearchTap,
   });
 
   @override
-  State<_HomeContent> createState() => _HomeContentState();
-}
-
-class _HomeContentState extends State<_HomeContent> {
-  final _headerKey = GlobalKey();
-  final _scrollController = ScrollController();
-  double _headerHeight = 220;
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _measureHeader());
-  }
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
-  }
-
-  void _measureHeader() {
-    final height = _headerKey.currentContext?.size?.height;
-    if (height != null && height != _headerHeight) {
-      setState(() => _headerHeight = height);
-    }
-  }
-
-  double get _uncoveredHeaderHeight => _scrollController.hasClients
-      ? (_headerHeight - _scrollController.offset).clamp(0, _headerHeight)
-      : _headerHeight;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final shapes =
-        Theme.of(context).extension<AppShapes>() ?? AppShapes.standard;
-
-    return SizedBox.expand(
-      child: ColoredBox(
-        color: cs.primary,
-        child: Stack(
-          children: [
-            HomeHeroHeader(
-              key: _headerKey,
-              onNotificationTap: widget.onComingSoon,
-            ),
-            Positioned.fill(
-              child: _PassThroughAboveOffset(
-                thresholdGetter: () => _uncoveredHeaderHeight,
-                child: CustomScrollView(
-                  controller: _scrollController,
-                  slivers: [
-                    SliverToBoxAdapter(child: SizedBox(height: _headerHeight)),
-                    SliverToBoxAdapter(
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          color: cs.surface,
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(shapes.sheetRadius),
-                            topRight: Radius.circular(shapes.sheetRadius),
-                          ),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: AppSpacing.xl4,
-                          ),
-                          child: Column(
-                            children: [
-                              HomeCategorySection(
-                                categories: widget.home.categories,
-                                onComingSoon: widget.onComingSoon,
-                              ),
-                              const SizedBox(height: AppSpacing.xl4),
-                              HomePopularItemsSection(
-                                products: widget.home.popularProducts,
-                                onAddToCart: widget.onAddToCart,
-                                onQuickAdd: widget.onQuickAdd,
-                                onFavouriteToggle: widget.onFavouriteToggle,
-                                onComingSoon: widget.onComingSoon,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
+  Widget build(BuildContext context) => CollapsingHeaderSheet(
+    header: HomeHeroHeader(
+      onNotificationTap: onComingSoon,
+      onSearchTap: onSearchTap,
+    ),
+    body: Padding(
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.xl4),
+      child: Column(
+        children: [
+          HomeCategorySection(
+            categories: home.categories,
+            onComingSoon: onComingSoon,
+          ),
+          const SizedBox(height: AppSpacing.xl4),
+          HomePopularItemsSection(
+            products: home.popularProducts,
+            onAddToCart: onAddToCart,
+            onQuickAdd: onQuickAdd,
+            onFavouriteToggle: onFavouriteToggle,
+            onComingSoon: onComingSoon,
+          ),
+        ],
       ),
-    );
-  }
-}
-
-class _PassThroughAboveOffset extends SingleChildRenderObjectWidget {
-  const _PassThroughAboveOffset({
-    required this.thresholdGetter,
-    required Widget super.child,
-  });
-
-  final double Function() thresholdGetter;
-
-  @override
-  _RenderPassThroughAboveOffset createRenderObject(BuildContext context) =>
-      _RenderPassThroughAboveOffset(thresholdGetter);
-
-  @override
-  void updateRenderObject(
-    BuildContext context,
-    _RenderPassThroughAboveOffset renderObject,
-  ) {
-    renderObject.thresholdGetter = thresholdGetter;
-  }
-}
-
-class _RenderPassThroughAboveOffset extends RenderProxyBox {
-  _RenderPassThroughAboveOffset(this.thresholdGetter);
-
-  double Function() thresholdGetter;
-
-  @override
-  bool hitTest(BoxHitTestResult result, {required Offset position}) {
-    if (position.dy < thresholdGetter()) return false;
-    return super.hitTest(result, position: position);
-  }
+    ),
+  );
 }

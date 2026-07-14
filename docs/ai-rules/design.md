@@ -70,9 +70,17 @@ confirmed hex-for-hex against the values already in the preset above. M3's
 `ColorScheme` only has ~4-6 role slots per family, so the preset promotes
 just those stops (base, 100→`*Container`, 900/950→`on*Container`, plus the
 dark-mode swap); the rest of each ramp is intentionally unused until a screen
-needs an in-between shade. When that happens, sample it from a real screen
-and add it to `AppColorsExtension` (as already done for success/warning) with
-its ramp position noted — never an inline hex.
+needs an in-between shade. When that happens — never an inline hex; two homes
+depending on scope:
+- **Generic role any pack could need** (success/warning-like semantics, one
+  light + one dark value) → `AppColorsExtension` in core, ramp position noted.
+- **Pack-specific exact swatch** the kit calls out on a screen (e.g. gravia's
+  Gray/500 nav icons, Gray/200-light/Light/900-dark sheet hairlines, Gray/700
+  stepper icons that stay fixed across modes) → that app's
+  `constants/color_const.dart`, named by ramp stop (`gray500`, `light900`);
+  when the kit's light/dark picks sit asymmetrically on the ramp (so no
+  single role fits), select per-mode at the call site via
+  `Theme.of(context).brightness`.
 
 **Typography scale.** The kit's Design System page defines two token groups,
 each in Regular/Medium/Bold, all with **-2% letter-spacing**:
@@ -97,35 +105,105 @@ supplies the pack-specific metrics.
 
 - **Coloured header canvas + white sheet.** The screen's top region (title
   row, search, filters) sits directly on the primary green; content below
-  lives on a surface "sheet" whose large top radius overlaps the header.
-  On-header controls are translucent white circles/pills (`onPrimary` at low
-  alpha), never default AppBar icons.
+  lives on a surface "sheet" whose large top radius overlaps the header and
+  scrolls up underneath it as the sheet is dragged, rather than the header
+  and sheet scrolling as one unit. On-header controls are translucent white
+  circles/pills (`onPrimary` at low alpha), never default AppBar icons. →
+  `CollapsingHeaderSheet` — caller supplies `header`/`body`; used by both the
+  Home screen (`HomeHeroHeader`) and the Search screen (`SearchHeroHeader`).
 - **Photo-forward product grid.** Two columns; square photos with the card
   radius; the photo *is* the card — no border, no elevation box around it.
   Under it: mint quantity badge (`AppBadge` info intent), bold title, muted
   meta row (delivery time, discount), bold price + struck original, and a
   full-width small pill CTA. → `ProductCard` block.
 - **Circle category rail/grid.** Product cutout on an elevated circle, label
-  below. → `CategoryTile` block.
+  below. → `CategoryTile` block; gravia tightens `imagePadding` so the PNG
+  fills more of the same-size circle.
 - **Section rhythm.** Every content section opens `SectionHeader` (bold title
   + primary "See All").
-- **Pill quantity stepper** on cart rows and detail. → `QuantityStepper`.
+- **Pill quantity stepper** on cart rows and detail. → `QuantityStepper`; in
+  gravia the +/− are the kit's own SVGs (`decrementIconBuilder`/
+  `incrementIconBuilder`) in fixed Gray/700 (`iconColor`), count in
+  Text/md/bold (`valueTextStyle`).
+- **Search takeover.** Home's header search field is a non-editable trigger —
+  tapping it opens a dedicated Search screen whose reduced header is a glass
+  back button + the same field, now editable; the field itself visibly
+  glides from Home's header up into Search's (see the Hero flight recipe
+  below the compositions list). Below the header: "Recent Search" rows
+  exactly 20px tall — kit `undo`/`remove` SVGs in `onSurface`, term in
+  Text/sm/regular Gray/700 light / Gray/100 dark — then the same Popular
+  Items rail as Home.
+- **Quick-add bottom sheet.** A product card's quick-add icon opens a sheet
+  with product photo/name/weight/price and a live quantity stepper that
+  scales price and weight together; Cancel + primary `Add to Cart` pills
+  footer it. The header itself deviates from `AppBottomSheet`'s default: a
+  "Cancel" text link (not the default `X` icon) sits opposite the title. →
+  `AppBottomSheet`'s `titleStyle`/`closeLabel`/`closeLabelStyle`/
+  `dividerColor`/`handleColor` overrides + `QuantityStepper`.
 - **Docked bottom CTA.** Checkout-style primary actions dock at the bottom as
   one full-width large pill above the safe area.
 - **Pill-highlight bottom nav.** Active tab = pill with icon + label on
   primary; inactive tabs = icon-only circles on Gray/50
-  (`surfaceContainerLow` — barely off the surface, not `Highest`). The kit's
-  tab set is **Home, Categories, Favourite, Orders (bag), Profile** — the cart
-  is not a nav tab. → `BottomNavBar`.
+  (`surfaceContainerLow` — barely off the surface, not `Highest`), icons in
+  fixed Gray/500 both modes (`inactiveIconColor`). The kit's tab set is
+  **Home, Categories, Favourite, Orders (bag), Profile** — the cart is not a
+  nav tab. → `BottomNavBar`.
 - **Plain splash.** Pure surface (white/near-black), only the centered
   wordmark: black type with the middle glyph in primary green. No coloured
   canvas, no tagline.
 
+**Hero flight recipe** — how the "same widget glides between screens" effect
+(the Search takeover's field) is actually built; reuse this for any
+shared-element transition. Reference implementation:
+`apps/ecommerce/gravia/lib/widgets/search_field_bar.dart` +
+the `/search` route in `apps/ecommerce/gravia/lib/app.dart`.
+
+1. **One shared widget, one shared tag.** Both screens render the *same*
+   widget class wrapped in `Hero`; the tag is a single `static const` on
+   that widget (namespaced, e.g. `'gravia-search-field-hero'`) that both
+   ends inherit by default — two hand-typed literals will eventually drift
+   and silently kill the flight.
+2. **Trigger mode vs input mode.** The origin screen's copy is display-only:
+   `GestureDetector` (navigates) around `AbsorbPointer` (so the real text
+   field inside never grabs focus/keyboard). The destination's copy is live.
+3. **The route must not slide.** Use an in-place fade
+   (`CustomTransitionPage` + `FadeTransition` in the `GoRoute.pageBuilder`,
+   ~350ms). When both screens share the same canvas colour the fade is
+   invisible up top, so the Hero's glide is the only perceived motion; the
+   default horizontal push drags both pages (and the field with them)
+   sideways and destroys the "same widget moving" read.
+4. **Non-interactive `flightShuttleBuilder`.** Mid-flight the widget is
+   rebuilt inside the navigator's Overlay, so the shuttle needs: a
+   `Material(type: transparency)` ancestor (text fields require one); a
+   backdrop matching the origin surface (a `ColoredBox` in the canvas
+   colour) if the widget uses a `BackdropFilter` glass effect — the Overlay
+   has nothing behind it to blur; and **no live state**: build the copy
+   without the `FocusNode`/`autofocus`/callbacks, wrapped in
+   `ExcludeFocus` + `AbsorbPointer` — a `FocusNode` attached to two widgets
+   at once throws and aborts the flight.
+5. **Linear `createRectTween`.** The navigator default
+   (`MaterialRectArcTween`) sweeps rect corners along arcs, so when the two
+   ends differ diagonally (position *and* width) the in-flight rect dips a
+   few px shorter than either end → `RenderFlex` overflow stripes on the
+   shuttle. `RectTween` holds the height constant and gives the straight
+   vertical glide anyway.
+6. **Focus after the flight.** Don't `autofocus` the destination field; the
+   keyboard resizing the screen mid-flight reads as jank. Give it a
+   `FocusNode` and `requestFocus()` from a `ModalRoute.of(context).animation`
+   status listener once the transition completes. On the way back, `unfocus()`
+   before popping so the keyboard's exit runs alongside the return flight.
+7. **Pin it with a test** that pumps a mid-flight frame and asserts exactly
+   one copy of the widget exists (the shuttle), positioned strictly between
+   the endpoints, and sweeps the return flight for exceptions — see
+   `test/widget/widgets/search_field_bar_hero_test.dart`; a broken flight
+   degrades silently into a crossfade otherwise.
+
 **Blocks:** `package:core/core/ui/blocks/` is split by scope:
 - **Root** — cross-domain compositions any style pack can use as-is:
-  `section_header.dart`, `quantity_stepper.dart`, `bottom_nav_bar.dart`. These
-  only read `Theme.of(context)` (colour/shape/spacing tokens), so a new preset
-  re-skins them for free — no new block needed just because a new pack shows
+  `section_header.dart`, `quantity_stepper.dart`, `bottom_nav_bar.dart`,
+  `collapsing_header_sheet.dart`. These only read `Theme.of(context)`
+  (colour/shape/spacing tokens), so a new preset re-skins them for free — no
+  new block needed just because a new pack shows
   up.
 - **`ecommerce/`** — compositions that encode ecommerce-specific data (price,
   discount, delivery time, product photo): `product_card.dart`,
