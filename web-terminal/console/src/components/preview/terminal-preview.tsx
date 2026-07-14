@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { Play, Smartphone } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,7 @@ import { deviceFrameById } from "@/lib/device-frames";
 import { DEFAULT_PREVIEW_URL } from "@/lib/config";
 import { useApps, useRunApp } from "@/hooks/use-apps";
 import { useDevices } from "@/hooks/use-devices";
+import { attachTouchEmulation } from "@/hooks/use-touch-emulation";
 import { useSelectionStore } from "@/stores/selection-store";
 import { useUiStore } from "@/stores/ui-store";
 
@@ -92,14 +93,34 @@ export function TerminalPreview() {
   const editMode = useUiStore((s) => s.editMode);
   const device = deviceFrameById(selectedDeviceFrameId);
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
+  const touchCleanupRef = useRef<(() => void) | undefined>(undefined);
+  const src = toSameOrigin(previewUrl);
+
+  // Only in the phone-frame ("mobile") view — "fill" represents how the app
+  // looks on a real desktop browser, where native mouse-wheel scrolling (not
+  // drag) is the correct, unmodified behaviour.
+  const setupTouchEmulation = () => {
+    touchCleanupRef.current?.();
+    touchCleanupRef.current = undefined;
+    if (previewMode === "fill") return;
+    const iframe = iframeRef.current;
+    if (iframe) touchCleanupRef.current = attachTouchEmulation(iframe);
+  };
+
+  // Re-attach on reload (new document) and on switching into/out of "fill"
+  // (same document, no reload) — onLoad below covers the case where this
+  // effect runs before the iframe has actually finished navigating.
+  useEffect(() => {
+    setupTouchEmulation();
+    return () => touchCleanupRef.current?.();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [previewMode, reloadToken, src]);
 
   const app = apps.find((a) => a.name === selectedAppName);
   // Only guess "nothing to show" while the address bar is untouched; a manual
   // URL always wins over the placeholder.
   const appLive = app?.status === "running" || app?.status === "starting";
   const showPlaceholder = previewUrl === DEFAULT_PREVIEW_URL && !appLive;
-
-  const src = toSameOrigin(previewUrl);
 
   let content: React.ReactNode;
   if (showPlaceholder) {
@@ -122,6 +143,7 @@ export function TerminalPreview() {
           src={src}
           className="h-full w-full border-0"
           title="App preview"
+          onLoad={setupTouchEmulation}
         />
         {editMode && <EditOverlay iframeRef={iframeRef} />}
       </div>
