@@ -18,14 +18,6 @@
             "flutterMode": "profile"
         },
         {
-            "name": "jokes (release)",
-            "request": "launch",
-            "type": "dart",
-            "program": "lib/main.dart",
-            "cwd": "apps/jokes",
-            "flutterMode": "release"
-        },
-        {
             "name": "doc_scanner (debug)",
             "request": "launch",
             "type": "dart",
@@ -40,14 +32,6 @@
             "program": "lib/main.dart",
             "cwd": "apps/doc_scanner",
             "flutterMode": "profile"
-        },
-        {
-            "name": "doc_scanner (release)",
-            "request": "launch",
-            "type": "dart",
-            "program": "lib/main.dart",
-            "cwd": "apps/doc_scanner",
-            "flutterMode": "release"
         },
         {
             "name": "ai_chat (debug)",
@@ -66,14 +50,6 @@
             "flutterMode": "profile"
         },
         {
-            "name": "ai_chat (release)",
-            "request": "launch",
-            "type": "dart",
-            "program": "lib/main.dart",
-            "cwd": "apps/ai_chat",
-            "flutterMode": "release"
-        },
-        {
             "name": "gravia (debug)",
             "request": "launch",
             "type": "dart",
@@ -90,12 +66,22 @@
             "flutterMode": "profile"
         },
         {
-            "name": "gravia (release)",
+            "name": "design_gallery (debug)",
             "request": "launch",
             "type": "dart",
             "program": "lib/main.dart",
-            "cwd": "apps/ecommerce/gravia",
-            "flutterMode": "release"
+            "cwd": "apps/design_gallery",
+            "flutterMode": "debug",
+            "deviceId": "chrome"
+        },
+        {
+            "name": "design_gallery (profile)",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "cwd": "apps/design_gallery",
+            "flutterMode": "profile",
+            "deviceId": "chrome"
         },
         {
             // React/Next.js console. preLaunchTask (console-dev) starts the

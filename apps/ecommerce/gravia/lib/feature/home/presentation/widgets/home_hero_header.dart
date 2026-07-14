@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:core/core/theme/app_colors_extension.dart';
 import 'package:core/core/theme/app_shapes_extension.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/common_glass_surface.dart';
@@ -35,6 +36,7 @@ class _HomeHeroHeaderState extends State<HomeHeroHeader> {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
+    final onOverlay = Theme.of(context).extension<AppColorsExtension>()!.onOverlay;
     final shapes =
         Theme.of(context).extension<AppShapes>() ?? AppShapes.standard;
     final topInset = MediaQuery.paddingOf(context).top;
@@ -133,7 +135,9 @@ class _HomeHeroHeaderState extends State<HomeHeroHeader> {
             child: AppTextField(
               controller: _searchController,
               hint: ValueConst.searchHint,
-              hintColor: cs.onPrimary,
+              hintColor: onOverlay,
+              textColor: onOverlay,
+              cursorColor: onOverlay,
               dense: true,
               showBorder: false,
               prefix: Padding(
@@ -143,7 +147,7 @@ class _HomeHeroHeaderState extends State<HomeHeroHeader> {
                 ),
                 child: AppSvgImage.asset(
                   ImageConst.search,
-                  color: cs.onPrimary,
+                  color: onOverlay,
                   width: 25,
                   height: 25,
                   fit: BoxFit.contain,
@@ -156,7 +160,7 @@ class _HomeHeroHeaderState extends State<HomeHeroHeader> {
                 ),
                 child: AppSvgImage.asset(
                   ImageConst.mic,
-                  color: cs.onPrimary,
+                  color: onOverlay,
                   width: 25,
                   height: 25,
                   fit: BoxFit.contain,

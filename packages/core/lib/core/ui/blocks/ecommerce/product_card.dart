@@ -6,8 +6,10 @@ import '../../atoms/badge.dart';
 import '../../atoms/button.dart';
 
 /// One icon + label pair on the meta row (e.g. delivery time, discount).
+/// [icon] is a caller-provided widget (e.g. `Icon`, `SvgPicture`) so core
+/// doesn't need to depend on an SVG package just for this block.
 class ProductCardMeta {
-  final IconData icon;
+  final Widget icon;
   final String label;
   const ProductCardMeta({required this.icon, required this.label});
 }
@@ -23,7 +25,7 @@ class ProductCardMeta {
 ///   image: Image.network(url, fit: BoxFit.cover),
 ///   title: 'Washington Red Apple',
 ///   badgeLabel: '300 g',
-///   meta: const [ProductCardMeta(icon: Icons.bolt, label: '10 Min')],
+///   meta: const [ProductCardMeta(icon: Icon(Icons.bolt), label: '10 Min')],
 ///   price: '\$6.30',
 ///   originalPrice: '\$8.00',
 ///   actionLabel: 'Add To Cart',
@@ -33,25 +35,41 @@ class ProductCardMeta {
 class ProductCard extends StatelessWidget {
   final Widget image;
   final String title;
+  final TextStyle? titleStyle;
   final String price;
   final String? originalPrice;
   final String? badgeLabel;
+  final TextStyle? badgeLabelStyle;
+  final Color? badgeBackgroundColor;
   final List<ProductCardMeta> meta;
+  final TextStyle? metaLabelStyle;
   final String? actionLabel;
+  final TextStyle? actionLabelStyle;
   final VoidCallback? onAction;
   final VoidCallback? onTap;
+
+  /// Optional widget shown to the right of the CTA button (e.g. a glass
+  /// icon-only quick action) — caller-built so core stays SVG/icon-package
+  /// agnostic, same reasoning as [ProductCardMeta.icon].
+  final Widget? trailingAction;
 
   const ProductCard({
     super.key,
     required this.image,
     required this.title,
+    this.titleStyle,
     required this.price,
     this.originalPrice,
     this.badgeLabel,
+    this.badgeLabelStyle,
+    this.badgeBackgroundColor,
     this.meta = const [],
+    this.metaLabelStyle,
     this.actionLabel,
+    this.actionLabelStyle,
     this.onAction,
     this.onTap,
+    this.trailingAction,
   });
 
   @override
@@ -72,12 +90,17 @@ class ProductCard extends StatelessWidget {
           ),
           if (badgeLabel != null) ...[
             const SizedBox(height: AppSpacing.xs),
-            AppBadge(text: badgeLabel!, intent: AppBadgeIntent.info),
+            AppBadge(
+              text: badgeLabel!,
+              intent: AppBadgeIntent.info,
+              textStyle: badgeLabelStyle,
+              backgroundColor: badgeBackgroundColor,
+            ),
           ],
           const SizedBox(height: AppSpacing.xs2),
           Text(
             title,
-            style: tt.titleMedium!.copyWith(fontWeight: FontWeight.w700),
+            style: titleStyle ?? tt.titleMedium!.copyWith(fontWeight: FontWeight.w700),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
@@ -86,11 +109,23 @@ class ProductCard extends StatelessWidget {
             Row(
               children: [
                 for (final m in meta) ...[
-                  Icon(m.icon, size: 14, color: cs.onSurfaceVariant),
+                  SizedBox(
+                    width: 14,
+                    height: 14,
+                    // FittedBox rather than a bare SizedBox: an `Icon`
+                    // renders its glyph at a fixed font size (24 by default)
+                    // regardless of the box it's laid out in and paints with
+                    // TextOverflow.visible, so it bleeds into the label next
+                    // to it instead of scaling down. FittedBox scales
+                    // whatever `m.icon` is (Icon, SvgPicture, …) to fit.
+                    child: FittedBox(fit: BoxFit.contain, child: m.icon),
+                  ),
                   const SizedBox(width: AppSpacing.xs4),
-                  Text(m.label,
-                      style:
-                          tt.labelSmall!.copyWith(color: cs.onSurfaceVariant)),
+                  Text(
+                    m.label,
+                    style: (metaLabelStyle ?? tt.labelSmall)!
+                        .copyWith(color: metaLabelStyle?.color ?? cs.onSurfaceVariant),
+                  ),
                   const SizedBox(width: AppSpacing.xs),
                 ],
               ],
@@ -102,7 +137,8 @@ class ProductCard extends StatelessWidget {
             textBaseline: TextBaseline.alphabetic,
             children: [
               Text(price,
-                  style: tt.titleMedium!.copyWith(fontWeight: FontWeight.w700)),
+                  style: tt.titleMedium!
+                      .copyWith(fontWeight: FontWeight.w700, color: cs.onSurface)),
               if (originalPrice != null) ...[
                 const SizedBox(width: AppSpacing.xs2),
                 Text(
@@ -122,6 +158,12 @@ class ProductCard extends StatelessWidget {
               onTap: onAction,
               size: AppButtonSize.small,
               fullWidth: true,
+              height: AppSpacing.xl9,
+              // Ecommerce CTA is always a full pill, regardless of the
+              // active style pack's own button radius.
+              borderRadius: BorderRadius.circular(999),
+              labelStyle: actionLabelStyle,
+              trailingAction: trailingAction,
             ),
           ],
         ],

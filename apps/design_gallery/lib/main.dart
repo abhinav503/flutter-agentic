@@ -1,3 +1,4 @@
+import 'package:core/core/theme/app_colors_extension.dart';
 import 'package:core/core/theme/app_theme.dart';
 import 'package:core/core/theme/app_theme_config.dart';
 import 'package:core/core/theme/app_theme_presets.dart';
@@ -160,6 +161,46 @@ Widget _showcaseStacked(BuildContext context, List<_Variant> variants) {
   );
 }
 
+/// Like [_showcase], but lays variants out in a grid instead of a wrapping
+/// row — for components (like [ProductCard]) that are themselves meant to
+/// sit in a product grid in the real app, so the gallery preview matches
+/// that context rather than a loose horizontal flow.
+Widget _showcaseGrid(BuildContext context, List<_Variant> variants) {
+  return SingleChildScrollView(
+    padding: const EdgeInsets.all(24),
+    child: GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: variants.length,
+      gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+        maxCrossAxisExtent: 200,
+        mainAxisSpacing: 24,
+        crossAxisSpacing: 24,
+        // Product image (square, ~207px at this cell width) + badge + title
+        // + meta row + price row + 44px CTA button + inter-item gaps + the
+        // variant label below ≈ 400-410px depending on variant; padded up
+        // for headroom across other style-pack fonts/metrics.
+        mainAxisExtent: 440,
+      ),
+      itemBuilder: (context, i) {
+        final variant = variants[i];
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            variant.child,
+            const SizedBox(height: 8),
+            Text(
+              variant.label,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.labelMedium,
+            ),
+          ],
+        );
+      },
+    ),
+  );
+}
+
 WidgetbookComponent _allVariants(
   String name,
   Widget Function(BuildContext) builder,
@@ -206,6 +247,28 @@ final _directories = <WidgetbookNode>[
             'Disabled',
             AppButton(label: 'Disabled', state: AppButtonState.disabled),
           ),
+          _Variant(
+            'With trailing action',
+            SizedBox(
+              width: 200,
+              child: AppButton(
+                label: 'Add To Cart',
+                onTap: () {},
+                size: AppButtonSize.small,
+                fullWidth: true,
+                height: 40,
+                trailingAction: AppIconButton(
+                  icon: Icons.shopping_bag_outlined,
+                  variant: AppIconButtonVariant.glass,
+                  containerSize: 32,
+                  iconSize: 16,
+                  glassHighlightThickness: 2,
+                  glassBlurSigma: 4,
+                  onTap: () {},
+                ),
+              ),
+            ),
+          ),
         ]),
       ),
       _allVariants(
@@ -213,6 +276,19 @@ final _directories = <WidgetbookNode>[
         (context) => _showcase(context, [
           for (final intent in AppBadgeIntent.values)
             _Variant(intent.name, AppBadge(text: intent.name, intent: intent)),
+          _Variant(
+            'Custom colors',
+            Builder(
+              builder: (context) {
+                final cs = Theme.of(context).colorScheme;
+                return AppBadge(
+                  text: '300 g',
+                  backgroundColor: cs.primary.withValues(alpha: 0.1),
+                  textStyle: TextStyle(color: cs.primary),
+                );
+              },
+            ),
+          ),
         ]),
       ),
       _allVariants(
@@ -321,6 +397,26 @@ final _directories = <WidgetbookNode>[
               ),
             ),
           ),
+          _Variant(
+            'Glass (small, on primary)',
+            // Smaller containerSize needs proportionally thinner highlight
+            // + blur — the 40px defaults would overpower/wash out a 32px disc.
+            ColoredBox(
+              color: Theme.of(context).colorScheme.primary,
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: AppIconButton(
+                  icon: Icons.shopping_bag_outlined,
+                  variant: AppIconButtonVariant.glass,
+                  containerSize: 32,
+                  iconSize: 16,
+                  glassHighlightThickness: 2,
+                  glassBlurSigma: 4,
+                  onTap: () {},
+                ),
+              ),
+            ),
+          ),
         ]),
       ),
       _allVariants(
@@ -370,32 +466,39 @@ final _directories = <WidgetbookNode>[
         (context) => _showcase(context, [
           _Variant(
             'On primary (search field)',
-            ColoredBox(
-              color: Theme.of(context).colorScheme.primary,
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: CommonGlassSurface(
-                  borderRadius: BorderRadius.circular(999),
-                  tintColor: Theme.of(
-                    context,
-                  ).colorScheme.surfaceContainerHighest,
-                  child: AppTextField(
-                    controller: TextEditingController(),
-                    hint: 'Search',
-                    hintColor: Theme.of(context).colorScheme.onPrimary,
-                    dense: true,
-                    showBorder: false,
-                    prefix: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Icon(
-                        Icons.search,
-                        size: 18,
-                        color: Theme.of(context).colorScheme.onPrimary,
+            Builder(
+              builder: (context) {
+                final cs = Theme.of(context).colorScheme;
+                // `onOverlay` (not `cs.onPrimary`): this field sits on a
+                // glass tint over the primary header, which stays visually
+                // consistent across themes — `onPrimary` would flip dark in
+                // dark mode and wash the icon/text/cursor out.
+                final onOverlay =
+                    Theme.of(context).extension<AppColorsExtension>()!.onOverlay;
+                return ColoredBox(
+                  color: cs.primary,
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: CommonGlassSurface(
+                      borderRadius: BorderRadius.circular(999),
+                      tintColor: cs.surfaceContainerHighest,
+                      child: AppTextField(
+                        controller: TextEditingController(),
+                        hint: 'Search',
+                        hintColor: onOverlay,
+                        textColor: onOverlay,
+                        cursorColor: onOverlay,
+                        dense: true,
+                        showBorder: false,
+                        prefix: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Icon(Icons.search, size: 18, color: onOverlay),
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ),
+                );
+              },
             ),
           ),
           _Variant(
@@ -709,7 +812,7 @@ final _directories = <WidgetbookNode>[
         children: [
           _allVariants(
             'ProductCard',
-            (context) => _showcase(context, [
+            (context) => _showcaseGrid(context, [
               _Variant(
                 'Default',
                 ProductCard(
@@ -717,14 +820,47 @@ final _directories = <WidgetbookNode>[
                   title: 'Washington Red Apple',
                   badgeLabel: '300 g',
                   meta: const [
-                    ProductCardMeta(icon: Icons.bolt, label: '10 Min'),
+                    ProductCardMeta(icon: Icon(Icons.bolt), label: '10 Min'),
                   ],
                   price: '\$6.30',
                   originalPrice: '\$8.00',
                   actionLabel: 'Add To Cart',
                   onAction: () {},
                 ),
-                width: 180,
+              ),
+              _Variant(
+                'With trailing action',
+                Builder(
+                  builder: (context) {
+                    final cs = Theme.of(context).colorScheme;
+                    return ProductCard(
+                      image: _placeholderImage(context),
+                      title: 'Washington Red Apple',
+                      badgeLabel: '300 g',
+                      badgeLabelStyle: TextStyle(color: cs.primary),
+                      badgeBackgroundColor: cs.primary.withValues(alpha: 0.1),
+                      meta: const [
+                        ProductCardMeta(icon: Icon(Icons.bolt), label: '10 Min'),
+                      ],
+                      metaLabelStyle: TextStyle(color: cs.onSurface),
+                      price: '\$6.30',
+                      originalPrice: '\$8.00',
+                      actionLabel: 'Add To Cart',
+                      onAction: () {},
+                      // Docks a fully separate tappable widget on the CTA's
+                      // trailing edge — see AppButton's `trailingAction`.
+                      trailingAction: AppIconButton(
+                        icon: Icons.shopping_bag_outlined,
+                        variant: AppIconButtonVariant.glass,
+                        containerSize: 32,
+                        iconSize: 16,
+                        glassHighlightThickness: 2,
+                        glassBlurSigma: 4,
+                        onTap: () {},
+                      ),
+                    );
+                  },
+                ),
               ),
             ]),
           ),

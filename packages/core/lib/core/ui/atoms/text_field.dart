@@ -40,6 +40,14 @@ class AppTextField extends StatefulWidget {
   /// standard surface background, e.g. `colorScheme.onPrimary`.
   final Color? hintColor;
 
+  /// Overrides the default typed-text colour (`cs.onSurface`) — for the same
+  /// coloured/glass-surface case as [hintColor].
+  final Color? textColor;
+
+  /// Overrides the text cursor's colour. Defaults to `cs.primary` (Flutter's
+  /// usual `TextFormField` default) when omitted.
+  final Color? cursorColor;
+
   final FocusNode? focusNode;
   final ValueChanged<String>? onChanged;
   final ValueChanged<String>? onSubmitted;
@@ -72,6 +80,8 @@ class AppTextField extends StatefulWidget {
     this.prefix,
     this.suffix,
     this.hintColor,
+    this.textColor,
+    this.cursorColor,
     this.focusNode,
     this.onChanged,
     this.onSubmitted,
@@ -152,10 +162,11 @@ class _AppTextFieldState extends State<AppTextField> {
           onChanged: widget.onChanged,
           onFieldSubmitted: widget.onSubmitted,
           onTap: widget.onTap,
+          cursorColor: widget.cursorColor,
           style: tt.bodyMedium!.copyWith(
             color: isDisabled
                 ? cs.onSurface.withValues(alpha: 0.38)
-                : cs.onSurface,
+                : widget.textColor ?? cs.onSurface,
           ),
           decoration: InputDecoration(
             hintText: widget.hint,

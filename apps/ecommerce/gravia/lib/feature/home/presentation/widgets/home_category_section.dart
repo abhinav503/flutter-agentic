@@ -32,7 +32,7 @@ class HomeCategorySection extends StatelessWidget {
           title: ValueConst.allCategoriesTitle,
           actionLabel: ValueConst.seeAll,
           onAction: onComingSoon,
-          titleStyle: TextStyleConst.textLgBold(tt),
+          titleStyle: TextStyleConst.textLgBold(tt).copyWith(color: cs.onSurface),
           actionStyle: TextStyleConst.textSmRegular(
             tt,
           ).copyWith(color: cs.primary),

@@ -16,12 +16,19 @@ class AppGlassSurface extends StatelessWidget {
     this.size = 40,
     this.tintColor = Colors.white,
     this.blurSigma = 12,
+    this.highlightThickness = 4,
   });
 
   final Widget child;
   final double size;
   final Color tintColor;
   final double blurSigma;
+
+  /// Stroke width of the top glow / bottom shadow highlight arcs. The
+  /// default (4) is tuned for the 40px reference size — scale it down for
+  /// smaller discs (e.g. ~2 at 32px) so the highlight doesn't read as
+  /// thicker than the disc's own radius.
+  final double highlightThickness;
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +39,10 @@ class AppGlassSurface extends StatelessWidget {
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: blurSigma, sigmaY: blurSigma),
           child: CustomPaint(
-            painter: _GlassCirclePainter(tintColor: tintColor),
+            painter: _GlassCirclePainter(
+              tintColor: tintColor,
+              highlightThickness: highlightThickness,
+            ),
             child: Center(child: child),
           ),
         ),
@@ -42,9 +52,13 @@ class AppGlassSurface extends StatelessWidget {
 }
 
 class _GlassCirclePainter extends CustomPainter {
-  const _GlassCirclePainter({required this.tintColor});
+  const _GlassCirclePainter({
+    required this.tintColor,
+    required this.highlightThickness,
+  });
 
   final Color tintColor;
+  final double highlightThickness;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -64,7 +78,7 @@ class _GlassCirclePainter extends CustomPainter {
       ..color = Colors.white.withValues(alpha: 0.4)
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3)
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 4;
+      ..strokeWidth = highlightThickness;
     canvas.drawArc(
       Rect.fromCircle(
           center: Offset(center.dx, center.dy - 1), radius: radius - 2),
@@ -79,7 +93,7 @@ class _GlassCirclePainter extends CustomPainter {
       ..color = Colors.black.withValues(alpha: 0.2)
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3)
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 4;
+      ..strokeWidth = highlightThickness;
     canvas.drawArc(
       Rect.fromCircle(
           center: Offset(center.dx, center.dy + 1), radius: radius - 2),
@@ -108,5 +122,6 @@ class _GlassCirclePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _GlassCirclePainter old) =>
-      old.tintColor != tintColor;
+      old.tintColor != tintColor ||
+      old.highlightThickness != highlightThickness;
 }

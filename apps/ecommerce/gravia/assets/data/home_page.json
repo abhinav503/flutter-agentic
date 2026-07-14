@@ -2,35 +2,50 @@
   "categories": [
     {
       "id": "1",
-      "name": "Fresh",
-      "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/images%2Fcategories_cat%2Freal_cat_type%2Fvegetable_fruits.png?alt=media&token=92f990e4-1ea5-4e6d-85bb-b15a969e509e"
+      "name": "Bread",
+      "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fcategories%2Fbread.jpg?alt=media&token=9a74a0c8-791e-43bc-b82e-2477f48f7a15"
     },
     {
       "id": "2",
-      "name": "Fruits",
-      "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/images%2Ffruits_category_cat%2Fanimated_cat_type%2Ffruit_category_01.png?alt=media&token=6a5c2347-c3e5-4051-ba03-89bc0ea25a17"
+      "name": "Chicken",
+      "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fcategories%2Fchicken.jpg?alt=media&token=fa6ba976-5f66-4329-8194-41869dc0275f"
     },
     {
       "id": "3",
-      "name": "Masala",
-      "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/images%2Fcategories_cat%2Freal_cat_type%2Fmasala_oil_frozen_food.png?alt=media&token=80f22fe0-2aa5-488f-bf66-4ce3f10a0e8e"
+      "name": "Dairy",
+      "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fcategories%2Fdiary.jpg?alt=media&token=d1906eba-ca26-4637-b918-1a3447d7fee4"
     },
     {
       "id": "4",
-      "name": "Snacks",
-      "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/images%2Fcategories_cat%2Freal_cat_type%2Fsnacks.png?alt=media&token=03f79f30-1767-4702-b6b0-6ad2dc113caf"
+      "name": "Fresh",
+      "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fcategories%2Ffresh.jpg?alt=media&token=55fe9d51-ced1-4dae-b83f-4ee5b3579c42"
     },
     {
       "id": "5",
-      "name": "Grain",
-      "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/images%2Fcategories_cat%2Freal_cat_type%2Frice_atta_dal.png?alt=media&token=302d13ce-e4a5-41e1-adb9-c88a6e951e84"
+      "name": "Fruits",
+      "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fcategories%2Ffruits.jpg?alt=media&token=d23817c1-4595-48b5-9b22-8228269608b1"
+    },
+    {
+      "id": "6",
+      "name": "Grains",
+      "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fcategories%2Fgrains.jpg?alt=media&token=4042d4f6-2a0c-4127-9948-393a410e0103"
+    },
+    {
+      "id": "7",
+      "name": "Masala",
+      "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fcategories%2Fmasla.jpg?alt=media&token=dc5f826a-eea7-4b0b-9ee2-9a48dd24639f"
+    },
+    {
+      "id": "8",
+      "name": "Oil",
+      "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fcategories%2Foil.jpg?alt=media&token=85a8e2a3-25e7-41b8-aa3e-eb56b26aa22d"
     }
   ],
   "popular_products": [
     {
       "id": "1",
       "name": "Washington Red Apple",
-      "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/food%2Ffruits%2Fapple_cat%2Freal_cat_type%2Fapple_image_02.png?alt=media&token=ab7c918b-d144-4fe0-9da4-0f9404103eb0",
+      "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fproducts%2Fwashington_red_apple.jpg?alt=media&token=4a389232-157b-43d1-adb9-0d7e30c644c2",
       "price": 6.30,
       "original_price": 8.00,
       "discount_percentage": 20,
@@ -41,7 +56,7 @@
     {
       "id": "2",
       "name": "Green Grapes",
-      "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/food_grocery_delivery%2Ffood_grocery_delivery_grapes.jpg?alt=media&token=2ab73600-5222-4d23-9b42-65161871c041",
+      "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fproducts%2Fgreen_grapes.jpg?alt=media&token=f48b76e8-0f6e-425f-98de-b556bf3c8ce3",
       "price": 4.00,
       "original_price": 5.00,
       "discount_percentage": 20,
@@ -52,13 +67,57 @@
     {
       "id": "3",
       "name": "Hybrid Fresh Tomato",
-      "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/food_grocery_delivery%2Ffood_grocery_delivery_tomatoes.jpg?alt=media&token=792bfa43-7de4-49e9-8522-963d208b9699",
+      "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fproducts%2Fhybrid_fresh_tomato.jpg?alt=media&token=0ee62b6a-1376-4231-94a4-41da0996aaac",
       "price": 3.20,
       "original_price": 5.00,
       "discount_percentage": 20,
       "weight": "500 g",
       "prep_time": "10 Min",
       "is_favourite": true
+    },
+    {
+      "id": "4",
+      "name": "Cabbage",
+      "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fproducts%2Fcabbage.jpg?alt=media&token=b0021e51-933e-406e-bfae-03ca767bce88",
+      "price": 2.40,
+      "original_price": 3.00,
+      "discount_percentage": 20,
+      "weight": "500 g",
+      "prep_time": "10 Min",
+      "is_favourite": false
+    },
+    {
+      "id": "5",
+      "name": "Fresh Potato",
+      "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fproducts%2Ffresh_potato.jpg?alt=media&token=d5a30b8d-bd82-497e-85ca-7f4c65efd760",
+      "price": 2.00,
+      "original_price": 2.50,
+      "discount_percentage": 20,
+      "weight": "1 kg",
+      "prep_time": "10 Min",
+      "is_favourite": false
+    },
+    {
+      "id": "6",
+      "name": "Green Capsicum",
+      "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fproducts%2Fgreen_capsicum.jpg?alt=media&token=9c604ec6-066a-4eb9-8882-c1635cab2a9d",
+      "price": 3.20,
+      "original_price": 4.00,
+      "discount_percentage": 20,
+      "weight": "250 g",
+      "prep_time": "10 Min",
+      "is_favourite": false
+    },
+    {
+      "id": "7",
+      "name": "Lady Finger",
+      "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fproducts%2Flady_finger.jpg?alt=media&token=25f529ab-667d-4ea7-946d-880732a1ad4f",
+      "price": 2.80,
+      "original_price": 3.50,
+      "discount_percentage": 20,
+      "weight": "250 g",
+      "prep_time": "10 Min",
+      "is_favourite": false
     }
   ]
 }

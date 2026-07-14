@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../theme/app_colors_extension.dart';
 import '../../theme/app_radius.dart';
 import '../../theme/app_spacing.dart';
 
@@ -81,7 +82,11 @@ class _NavTab extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
-    final iconColor = isActive ? cs.onPrimary : cs.onSurfaceVariant;
+    final onOverlay = Theme.of(context).extension<AppColorsExtension>()!.onOverlay;
+    // Active pill sits on `cs.primary` — a colour block, not contrast-paired
+    // text, so it uses the fixed `onOverlay` role rather than `cs.onPrimary`
+    // (which would invert dark in dark theme).
+    final iconColor = isActive ? onOverlay : cs.onSurfaceVariant;
 
     return GestureDetector(
       onTap: onTap,
@@ -118,7 +123,7 @@ class _NavTab extends StatelessWidget {
               Text(
                 item.label,
                 style: tt.labelLarge!.copyWith(
-                  color: cs.onPrimary,
+                  color: onOverlay,
                   fontWeight: FontWeight.w700,
                 ),
               ),

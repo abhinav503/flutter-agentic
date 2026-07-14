@@ -33,6 +33,27 @@ class AppButton extends StatelessWidget {
   final bool fullWidth;
   final Widget? leadingIcon;
   final Widget? trailingIcon;
+  final TextStyle? labelStyle;
+
+  /// A fully separate tappable widget (e.g. a glass [AppIconButton]) docked
+  /// to the pill's trailing edge, with its own tap region — unlike
+  /// [trailingIcon], which is a decorative glyph inside the label's own tap
+  /// zone. Kept distinct so nesting an interactive widget here never competes
+  /// with the button's own [GestureDetector] for the same pointer.
+  /// Requires [fullWidth] (the label side needs a bounded width to expand
+  /// into) — pass both together.
+  final Widget? trailingAction;
+
+  /// Pins the pill to an exact height instead of letting padding + content
+  /// determine it — for matching an exact design spec (e.g. docking next to
+  /// a fixed-size [trailingAction]). Omit to keep the default content-driven
+  /// height.
+  final double? height;
+
+  /// Overrides the theme's `AppShapes.buttonRadius` — for a caller whose
+  /// design spec always wants a specific radius (e.g. a full pill CTA)
+  /// regardless of the active style pack's button shape.
+  final BorderRadius? borderRadius;
 
   const AppButton({
     super.key,
@@ -44,6 +65,10 @@ class AppButton extends StatelessWidget {
     this.fullWidth = false,
     this.leadingIcon,
     this.trailingIcon,
+    this.labelStyle,
+    this.trailingAction,
+    this.height,
+    this.borderRadius,
   });
 
   @override
@@ -85,21 +110,58 @@ class AppButton extends StatelessWidget {
             ),
           );
 
-    final button = GestureDetector(
-      onTap: (isDisabled || isLoading) ? null : onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
-        padding: padding,
-        decoration: BoxDecoration(
-          color: bg,
-          borderRadius: BorderRadius.circular(shapes.buttonRadius),
-          border: border != null ? Border.fromBorderSide(border) : null,
-        ),
-        child: Center(child: content),
-      ),
+    final decoration = BoxDecoration(
+      color: bg,
+      borderRadius: borderRadius ?? BorderRadius.circular(shapes.buttonRadius),
+      border: border != null ? Border.fromBorderSide(border) : null,
     );
 
-    return fullWidth ? SizedBox(width: double.infinity, child: button) : button;
+    final button = trailingAction == null
+        ? GestureDetector(
+            onTap: (isDisabled || isLoading) ? null : onTap,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 150),
+              padding: padding,
+              decoration: decoration,
+              child: Center(child: content),
+            ),
+          )
+        : AnimatedContainer(
+            duration: const Duration(milliseconds: 150),
+            // Left padding keeps the label's usual inset. Right padding is
+            // halved so trailingAction docks close to the pill's trailing
+            // edge instead of sitting inset by a full padding step. Vertical
+            // padding is dropped when `height` is fixed — it would otherwise
+            // eat into that fixed height, leaving trailingAction less room
+            // than its own intrinsic size and squashing it (e.g. a circular
+            // icon button rendering as an oval).
+            padding: EdgeInsets.only(
+              left: padding.left,
+              right: padding.right / 2,
+              top: height != null ? 0 : padding.top,
+              bottom: height != null ? 0 : padding.bottom,
+            ),
+            decoration: decoration,
+            child: Row(
+              children: [
+                Expanded(
+                  child: GestureDetector(
+                    onTap: (isDisabled || isLoading) ? null : onTap,
+                    behavior: HitTestBehavior.opaque,
+                    child: Center(child: content),
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.xs2),
+                trailingAction!,
+              ],
+            ),
+          );
+
+    return SizedBox(
+      width: fullWidth ? double.infinity : null,
+      height: height,
+      child: button,
+    );
   }
 
   Color _backgroundColor(ColorScheme cs, bool disabled) {
@@ -148,10 +210,12 @@ class AppButton extends StatelessWidget {
 
   TextStyle _textStyle(BuildContext context, Color color) {
     final tt = Theme.of(context).textTheme;
-    return switch (size) {
-      AppButtonSize.small  => tt.labelSmall!.copyWith(color: color),
-      AppButtonSize.medium => tt.labelMedium!.copyWith(color: color),
-      AppButtonSize.large  => tt.labelLarge!.copyWith(color: color),
-    };
+    final base = labelStyle ??
+        switch (size) {
+          AppButtonSize.small  => tt.labelSmall!,
+          AppButtonSize.medium => tt.labelMedium!,
+          AppButtonSize.large  => tt.labelLarge!,
+        };
+    return base.copyWith(color: labelStyle?.color ?? color);
   }
 }

@@ -377,8 +377,8 @@ const Map<String, Map<String, dynamic>> kThemePresets = {
     },
     'dark': {
       'seed': '#027A60',
-      'primary': '#0DBC8E', // Primary/400
-      'onPrimary': '#012D25', // Primary/950
+      'primary': '#027A60', // Primary/500 — kept identical to light mode by design
+      'onPrimary': '#FFFFFF', // matches light mode's pairing for this tone
       'primaryContainer': '#04614D', // Primary/800
       'onPrimaryContainer': '#D0FBE8', // Primary/100
       'secondary': '#5EEAD4', // Secondary/300

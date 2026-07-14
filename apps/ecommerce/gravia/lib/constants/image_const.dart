@@ -9,4 +9,7 @@ abstract final class ImageConst {
   static const navFavourite = 'assets/icons/heart.svg';
   static const navOrders = 'assets/icons/bag.svg';
   static const navProfile = 'assets/icons/user-circle.svg';
+  static const flash = 'assets/icons/flash.svg';
+  static const badgePercent = 'assets/icons/badge-percent.svg';
+  static const bagAdd = 'assets/icons/bag-add.svg';
 }

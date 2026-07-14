@@ -19,6 +19,8 @@ class AppBadge extends StatelessWidget {
   final AppBadgeIntent intent;
   final AppBadgeSize size;
   final Widget? icon;
+  final TextStyle? textStyle;
+  final Color? backgroundColor;
 
   const AppBadge({
     super.key,
@@ -26,14 +28,18 @@ class AppBadge extends StatelessWidget {
     this.intent = AppBadgeIntent.neutral,
     this.size = AppBadgeSize.medium,
     this.icon,
+    this.textStyle,
+    this.backgroundColor,
   });
 
   @override
   Widget build(BuildContext context) {
-    final (bg, fg) = _colors(context);
+    final (intentBg, fg) = _colors(context);
+    final bg = backgroundColor ?? intentBg;
     final tt = Theme.of(context).textTheme;
-    final textStyle = (size == AppBadgeSize.small ? tt.labelSmall : tt.labelMedium)
-        !.copyWith(color: fg);
+    final baseStyle =
+        textStyle ?? (size == AppBadgeSize.small ? tt.labelSmall : tt.labelMedium);
+    final resolvedStyle = baseStyle!.copyWith(color: textStyle?.color ?? fg);
 
     return Container(
       padding: size == AppBadgeSize.small
@@ -53,7 +59,7 @@ class AppBadge extends StatelessWidget {
             ),
             const SizedBox(width: AppSpacing.xs4),
           ],
-          Text(text, style: textStyle),
+          Text(text, style: resolvedStyle),
         ],
       ),
     );

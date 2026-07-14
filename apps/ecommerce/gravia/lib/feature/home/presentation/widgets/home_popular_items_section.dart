@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 
+import 'package:core/core/theme/app_colors_extension.dart';
 import 'package:core/core/theme/app_spacing.dart';
+import 'package:core/core/ui/atoms/icon_button.dart';
 import 'package:core/core/ui/atoms/network_image.dart';
+import 'package:core/core/ui/atoms/svg_image.dart';
 import 'package:core/core/ui/blocks/ecommerce/product_card.dart';
 import 'package:core/core/ui/blocks/section_header.dart';
 
+import 'package:gravia/constants/color_const.dart';
+import 'package:gravia/constants/image_const.dart';
 import 'package:gravia/constants/text_style_const.dart';
 import 'package:gravia/constants/value_const.dart';
 
@@ -28,6 +33,12 @@ class HomePopularItemsSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
+    final onOverlay = Theme.of(context).extension<AppColorsExtension>()!.onOverlay;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    // Light mode uses the pre-baked pastel swatch (Primary/50); dark mode's
+    // Figma spec calls this "Primary 20%" — the actual brand colour at 20%
+    // opacity over the dark surface, not a separate baked swatch.
+    final badgeBg = isDark ? cs.primary.withValues(alpha: 0.2) : ColorConst.primary50;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -36,7 +47,7 @@ class HomePopularItemsSection extends StatelessWidget {
           title: ValueConst.popularItemsTitle,
           actionLabel: ValueConst.seeAll,
           onAction: onComingSoon,
-          titleStyle: TextStyleConst.textLgBold(tt),
+          titleStyle: TextStyleConst.textLgBold(tt).copyWith(color: cs.onSurface),
           actionStyle: TextStyleConst.textSmRegular(
             tt,
           ).copyWith(color: cs.primary),
@@ -51,57 +62,66 @@ class HomePopularItemsSection extends StatelessWidget {
                 if (i > 0) const SizedBox(width: AppSpacing.base),
                 SizedBox(
                   width: 184,
-                  child: Stack(
-                    children: [
-                      ProductCard(
-                        image: AppNetworkImage(
-                          url: products[i].imageUrl,
-                          fit: BoxFit.cover,
+                  child: ProductCard(
+                    image: AppNetworkImage(
+                      url: products[i].imageUrl,
+                      fit: BoxFit.cover,
+                    ),
+                    title: products[i].name,
+                    titleStyle: TextStyleConst.textMdBold(tt),
+                    badgeLabel: products[i].weight,
+                    badgeLabelStyle: TextStyleConst.badgeLabel(
+                      tt,
+                    ).copyWith(color: cs.primary),
+                    badgeBackgroundColor: badgeBg,
+                    meta: [
+                      ProductCardMeta(
+                        icon: AppSvgImage.asset(
+                          ImageConst.flash,
+                          width: 14,
+                          height: 14,
+                          color: ColorConst.gray500,
                         ),
-                        title: products[i].name,
-                        badgeLabel: products[i].weight,
-                        meta: [
-                          ProductCardMeta(
-                            icon: Icons.bolt,
-                            label: products[i].prepTime,
-                          ),
-                          ProductCardMeta(
-                            icon: Icons.local_offer_outlined,
-                            label:
-                                '${products[i].discountPercentage.toStringAsFixed(0)}%',
-                          ),
-                        ],
-                        price: '\$${products[i].price.toStringAsFixed(2)}',
-                        originalPrice:
-                            '\$${products[i].originalPrice.toStringAsFixed(2)}',
-                        actionLabel: ValueConst.addToCart,
-                        onAction: () => onAddToCart(products[i]),
-                        onTap: onComingSoon,
+                        label: products[i].prepTime,
                       ),
-                      Positioned(
-                        top: 0,
-                        right: 0,
-                        child: GestureDetector(
-                          onTap: () => onFavouriteToggle(products[i].id),
-                          child: Container(
-                            padding: const EdgeInsets.all(AppSpacing.xs2),
-                            decoration: BoxDecoration(
-                              color: cs.surface.withValues(alpha: 0.9),
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              products[i].isFavourite
-                                  ? Icons.favorite
-                                  : Icons.favorite_border,
-                              size: 16,
-                              color: products[i].isFavourite
-                                  ? cs.error
-                                  : cs.onSurfaceVariant,
-                            ),
-                          ),
+                      ProductCardMeta(
+                        icon: AppSvgImage.asset(
+                          ImageConst.badgePercent,
+                          width: 14,
+                          height: 14,
+                          color: ColorConst.gray500,
                         ),
+                        label:
+                            '${products[i].discountPercentage.toStringAsFixed(0)}%',
                       ),
                     ],
+                    metaLabelStyle: TextStyleConst.textXsRegular(
+                      tt,
+                    ).copyWith(color: cs.onSurface),
+                    price: '\$${products[i].price.toStringAsFixed(2)}',
+                    originalPrice:
+                        '\$${products[i].originalPrice.toStringAsFixed(2)}',
+                    actionLabel: ValueConst.addToCart,
+                    actionLabelStyle: TextStyleConst.textSmMedium(
+                      tt,
+                    ).copyWith(color: onOverlay),
+                    onAction: () => onAddToCart(products[i]),
+                    
+                    trailingAction: AppIconButton(
+                      variant: AppIconButtonVariant.glass,
+                      containerSize: AppSpacing.xl6,
+                      iconSize: AppSpacing.lg,
+                      glassHighlightThickness: AppSpacing.xs3,
+                      glassBlurSigma: AppSpacing.xs4,
+                      iconBuilder: (color, size) => AppSvgImage.asset(
+                        ImageConst.bagAdd,
+                        color: color,
+                        width: size,
+                        height: size,
+                      ),
+                      onTap: () => onAddToCart(products[i]),
+                    ),
+                    onTap: onComingSoon,
                   ),
                 ),
               ],
