@@ -87,10 +87,6 @@ class _HomeContent extends StatefulWidget {
 class _HomeContentState extends State<_HomeContent> {
   final _headerKey = GlobalKey();
   final _scrollController = ScrollController();
-
-  // Corrected post-frame once the real header is laid out (size depends on
-  // status bar height / text scale) — this estimate just avoids a first-frame
-  // jump before that measurement lands.
   double _headerHeight = 220;
 
   @override
@@ -112,10 +108,6 @@ class _HomeContentState extends State<_HomeContent> {
     }
   }
 
-  // How much of the header is still uncovered by the scrolling sheet right
-  // now — shrinks as the user scrolls, reaching 0 once the sheet has fully
-  // covered it. Read live at hit-test time, not cached in state, since it
-  // must reflect the scroll position at the exact moment of the tap.
   double get _uncoveredHeaderHeight => _scrollController.hasClients
       ? (_headerHeight - _scrollController.offset).clamp(0, _headerHeight)
       : _headerHeight;
@@ -127,17 +119,7 @@ class _HomeContentState extends State<_HomeContent> {
         Theme.of(context).extension<AppShapes>() ?? AppShapes.standard;
 
     return SizedBox.expand(
-      // Stack's own size defaults to its non-positioned child (the header)
-      // when the incoming constraints are loose, which is all the Scaffold
-      // body gives it — without forcing full size here, the Stack (and the
-      // Positioned.fill scroll layer inside it) shrink-wraps to just the
-      // header's height, leaving the rest of the screen blank until scrolled.
       child: ColoredBox(
-        // Matches the header so the rounded sheet's corner cutouts (the small
-        // areas outside the arc but inside its bounding box, left unpainted by
-        // BoxDecoration) always reveal this colour — whether that point is
-        // still over the header or has scrolled past it — instead of the
-        // scaffold's default background flashing through as a mismatched notch.
         color: cs.primary,
         child: Stack(
           children: [
@@ -145,18 +127,6 @@ class _HomeContentState extends State<_HomeContent> {
               key: _headerKey,
               onNotificationTap: widget.onComingSoon,
             ),
-            // Full-bleed scroll layer sitting ON TOP of the header in the stack
-            // — a leading spacer sliver sized to the header covers it at rest,
-            // and scrolls away with the rest of the content, letting the
-            // rounded sheet slide up over the header instead of stopping at
-            // its bottom edge the way a plain Column/Expanded split would.
-            //
-            // A Scrollable claims hit-tests across its whole bounds (it has
-            // to, to support dragging from anywhere), so without
-            // _PassThroughAboveOffset this layer would swallow every tap over
-            // the header's screen region — including the transparent spacer
-            // where there's nothing to actually tap — before it ever reaches
-            // HomeHeroHeader's buttons/search field underneath.
             Positioned.fill(
               child: _PassThroughAboveOffset(
                 thresholdGetter: () => _uncoveredHeaderHeight,
@@ -179,11 +149,6 @@ class _HomeContentState extends State<_HomeContent> {
                           ),
                           child: Column(
                             children: [
-                              // Each section pads its own header but leaves
-                              // its horizontal scroll row unpadded on the
-                              // right, so cards can bleed to the true screen
-                              // edge instead of stopping short — padding here
-                              // would bound that scroll content on both sides.
                               HomeCategorySection(
                                 categories: widget.home.categories,
                                 onComingSoon: widget.onComingSoon,
@@ -211,10 +176,6 @@ class _HomeContentState extends State<_HomeContent> {
   }
 }
 
-/// Forwards hit-testing on [child] down to whatever sits behind it in an
-/// enclosing [Stack] for any tap above [thresholdGetter]'s current value —
-/// e.g. a [Scrollable] that otherwise claims every tap in its bounds
-/// regardless of whether there's real content there.
 class _PassThroughAboveOffset extends SingleChildRenderObjectWidget {
   const _PassThroughAboveOffset({
     required this.thresholdGetter,

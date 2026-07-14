@@ -25,6 +25,12 @@ abstract final class TextStyleConst {
     letterSpacing: -0.32,
   );
 
+  static TextStyle textMdMedium(TextTheme tt) => tt.titleMedium!.copyWith(
+    fontWeight: FontWeight.w500,
+    height: 1.5,
+    letterSpacing: -0.32,
+  );
+
   static TextStyle textXsRegular(TextTheme tt) => tt.bodySmall!.copyWith(
     height: 1.3,
     letterSpacing: -0.24,

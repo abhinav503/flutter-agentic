@@ -89,6 +89,10 @@ class _ShellPageState extends BasePageState<ShellPage> {
     onTap: (index) => setState(() => _currentTab = index),
     topBorderColor: _dividerColor(context),
     topBorderWidth: 0.5,
+    // Gray/500 in both modes per kit spec — same value doesn't come from
+    // the (mode-differing) onSurfaceVariant role, so it's an explicit
+    // override rather than a theme edit.
+    inactiveIconColor: ColorConst.gray500,
   );
 
   @override

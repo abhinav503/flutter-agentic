@@ -8,7 +8,9 @@ import 'package:core/core/ui/atoms/icon_button.dart';
 import 'package:core/core/ui/atoms/svg_image.dart';
 import 'package:core/core/ui/atoms/text_field.dart';
 
+import 'package:gravia/constants/color_const.dart';
 import 'package:gravia/constants/image_const.dart';
+import 'package:gravia/constants/text_style_const.dart';
 import 'package:gravia/constants/value_const.dart';
 
 /// The coloured header canvas: delivery location + notification bell sitting
@@ -52,11 +54,6 @@ class _HomeHeroHeaderState extends State<HomeHeroHeader> {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        // Without this, Column defaults to MainAxisSize.max — harmless when
-        // this header's parent always bounded it to its own content height,
-        // but inside the home screen's Stack (which gives it loose
-        // constraints up to the full screen height) it greedily expands to
-        // fill all of that instead of hugging its own content.
         mainAxisSize: MainAxisSize.min,
         children: [
           Row(
@@ -85,9 +82,9 @@ class _HomeHeroHeaderState extends State<HomeHeroHeader> {
                     children: [
                       Text(
                         ValueConst.deliveryLocationLabel,
-                        style: tt.labelSmall!.copyWith(
-                          color: cs.onPrimary.withValues(alpha: 0.7),
-                        ),
+                        style: TextStyleConst.textXsRegular(
+                          tt,
+                        ).copyWith(color: ColorConst.gray100),
                       ),
                       SizedBox(height: AppSpacing.xs2),
                       Row(
@@ -95,10 +92,9 @@ class _HomeHeroHeaderState extends State<HomeHeroHeader> {
                           Flexible(
                             child: Text(
                               ValueConst.deliveryLocationAddress,
-                              style: tt.labelLarge!.copyWith(
-                                color: cs.onPrimary,
-                                fontWeight: FontWeight.w700,
-                              ),
+                              style: TextStyleConst.textMdMedium(
+                                tt,
+                              ).copyWith(color: cs.onPrimary),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),

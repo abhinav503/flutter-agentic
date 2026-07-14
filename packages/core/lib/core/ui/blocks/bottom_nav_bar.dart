@@ -38,6 +38,11 @@ class BottomNavBar extends StatelessWidget {
   final Color? topBorderColor;
   final double topBorderWidth;
 
+  /// Inactive-tab icon colour override — a caller concern for style packs
+  /// whose spec calls out an exact shade rather than the `onSurfaceVariant`
+  /// role. Omit (default) to use the theme role.
+  final Color? inactiveIconColor;
+
   const BottomNavBar({
     super.key,
     required this.items,
@@ -45,6 +50,7 @@ class BottomNavBar extends StatelessWidget {
     required this.onTap,
     this.topBorderColor,
     this.topBorderWidth = 0.5,
+    this.inactiveIconColor,
   });
 
   @override
@@ -72,6 +78,7 @@ class BottomNavBar extends StatelessWidget {
                   item: item,
                   isActive: index == currentIndex,
                   onTap: () => onTap(index),
+                  inactiveIconColor: inactiveIconColor,
                 ),
             ],
           ),
@@ -85,11 +92,13 @@ class _NavTab extends StatelessWidget {
   final BottomNavBarItem item;
   final bool isActive;
   final VoidCallback onTap;
+  final Color? inactiveIconColor;
 
   const _NavTab({
     required this.item,
     required this.isActive,
     required this.onTap,
+    this.inactiveIconColor,
   });
 
   @override
@@ -100,7 +109,7 @@ class _NavTab extends StatelessWidget {
     // Active pill sits on `cs.primary` — a colour block, not contrast-paired
     // text, so it uses the fixed `onOverlay` role rather than `cs.onPrimary`
     // (which would invert dark in dark theme).
-    final iconColor = isActive ? onOverlay : cs.onSurfaceVariant;
+    final iconColor = isActive ? onOverlay : (inactiveIconColor ?? cs.onSurfaceVariant);
 
     return GestureDetector(
       onTap: onTap,
