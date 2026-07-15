@@ -115,7 +115,12 @@ supplies the pack-specific metrics.
   search field, Hero-morphed from Home's), `ProductDetailHeroHeader` (back +
   centered title + favourite), `CategoriesHeroHeader` (title + search icon),
   `CategoryDetailsHeroHeader` (back + centered title + search icon, *plus* a
-  second row — see the filter chip row bullet below).
+  second row — see the filter chip row bullet below), `ProfileHeroHeader`
+  (title + avatar/name/email identity row + glass edit trigger; the avatar
+  uses `AppNetworkImage`'s `assetPlaceholder` param — a bundled default photo
+  shown whenever `url` is empty or fails to load, not just a spinner/broken-
+  image icon — so a profile screen ships with a real default look before a
+  user-provided photo URL exists).
 - **Photo-forward product grid.** Two columns; square photos with the card
   radius; the photo *is* the card — no border, no elevation box around it.
   Under it: mint quantity badge (`AppBadge` info intent), bold title, muted
@@ -181,6 +186,18 @@ supplies the pack-specific metrics.
   fixed Gray/500 both modes (`inactiveIconColor`). The kit's tab set is
   **Home, Categories, Favourite, Orders (bag), Profile** — the cart is not a
   nav tab. → `BottomNavBar`.
+- **Settings/menu list.** A vertical stack of icon-circle + label + chevron
+  rows below a coloured header (Profile is the reference screen). Each row:
+  a fixed-size tinted circle (Gray/50 light / Gray/950 dark — the same
+  swatch pair as the category rail's circles) holding a themed-colour SVG
+  icon, then the label in Text/md/medium, then a trailing element — by
+  default a `direction-right.svg` chevron whenever the row has an `onTap`
+  and no explicit override. Two row variants deviate from that default
+  trailing: an interactive row swaps the chevron for a real control (Dark
+  Mode uses `AppSwitch` — see below); a destructive row (`danger: true`,
+  e.g. Logout) tints its icon circle with `error` at 12% alpha, colours the
+  icon + label `error`, and drops the trailing chevron entirely (nothing to
+  navigate into). → `ProfileMenuTile`.
 - **Plain splash.** Pure surface (white/near-black), only the centered
   wordmark: black type with the middle glyph in primary green. No coloured
   canvas, no tagline.
@@ -276,6 +293,19 @@ the app's `lib/widgets/` that bakes those overrides in as defaults —
 is the reference example. `core` stays generic and themeable by any pack;
 the pack-specific look lives in exactly one place in the app, not
 copy-pasted at every screen that needs it.
+
+**When the built-in widget has no override point for the spec at all,** stop
+trying to theme it and build a dedicated `core` atom instead. Reference case:
+Material's `Switch` grows its thumb radius (8→12) on selection with no public
+way to pin both states to one size — `thumbIcon` only forces *both* to the
+larger radius, not the smaller one the kit's spec calls for. `AppSwitch`
+(`core/ui/atoms/switch.dart`) is a plain custom-painted pill+circle instead:
+thumb size is one constant computed from `height`, never branched on `value`,
+so both states are the same size by construction, not by a themed
+coincidence. Gravia's Dark Mode row feeds it the kit's exact track swatches —
+`ColorConst.gray100` (`#EDEDED`) off, `ColorConst.success500` (`#22C55E`) on
+— a distinct green from `primary`, so it's a named raw swatch in
+`color_const.dart`, not a `ColorScheme` role.
 
 **Whenever you add a new atom, molecule, or block to `core/ui/`, add a
 matching showcase entry to `apps/design_gallery`** (Widgetbook — see
