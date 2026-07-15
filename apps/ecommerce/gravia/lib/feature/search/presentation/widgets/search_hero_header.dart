@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/icon_button.dart';
+import 'package:core/core/ui/atoms/svg_image.dart';
 
+import 'package:gravia/constants/image_const.dart';
 import 'package:gravia/widgets/search_field_bar.dart';
 
 /// Reduced coloured header canvas for the Search screen — a glass back
@@ -48,7 +50,12 @@ class SearchHeroHeader extends StatelessWidget {
           // route has no iOS swipe-back edge gesture, so this is the only
           // on-screen way back on iOS.
           AppIconButton(
-            icon: Icons.arrow_back_ios_new_rounded,
+            iconBuilder: (color, size) => AppSvgImage.asset(
+              ImageConst.arrowLeft,
+              color: color,
+              width: size,
+              height: size,
+            ),
             containerSize: 45,
             iconSize: 20,
             variant: AppIconButtonVariant.glass,

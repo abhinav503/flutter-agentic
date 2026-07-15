@@ -8,6 +8,7 @@ import 'package:core/core/ui/atoms/loading_indicator.dart';
 import 'package:core/core/ui/blocks/collapsing_header_sheet.dart';
 import 'package:core/core/ui/molecules/error_view.dart';
 
+import 'package:gravia/constants/app_routes.dart';
 import 'package:gravia/constants/color_const.dart';
 import 'package:gravia/constants/text_style_const.dart';
 import 'package:gravia/constants/value_const.dart';
@@ -70,11 +71,14 @@ class _SearchScreenState extends BaseScreenState<SearchScreen> {
   void _addToCart(ProductEntity product, int quantity) =>
       showSnackBar(ValueConst.addedToCartMessage(product.name, quantity));
 
+  void _openProductDetails(ProductEntity product) =>
+      context.push(AppRoutes.productDetailsPath(product.id));
+
   void _showAddToCartSheet(ProductEntity product) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
     final hairlineColor = Theme.of(context).brightness == Brightness.dark
-        ? ColorConst.light900
+        ? ColorConst.gray900
         : ColorConst.gray200;
 
     showAppBottomSheet(
@@ -126,18 +130,20 @@ class _SearchScreenState extends BaseScreenState<SearchScreen> {
             child: Column(
               children: [
                 RecentSearchSection(
-                  terms: search.recentSearches,
-                  onTermTap: (term) => _searchController.text = term,
-                  onRemove: (term) => context.read<SearchBloc>().add(
-                    SearchEvent.recentSearchRemoved(term: term),
+                  products: search.recentSearches,
+                  onProductTap: _openProductDetails,
+                  onRemove: (productId) => context.read<SearchBloc>().add(
+                    SearchEvent.recentSearchRemoved(productId: productId),
                   ),
                 ),
                 const SizedBox(height: AppSpacing.xl4),
                 HomePopularItemsSection(
                   products: search.popularProducts,
+               
                   onAddToCart: _addToCart,
                   onQuickAdd: _showAddToCartSheet,
                   onFavouriteToggle: (_) {},
+                  onProductTap: _openProductDetails,
                   onComingSoon: () =>
                       showSnackBar(ValueConst.comingSoonMessage),
                 ),

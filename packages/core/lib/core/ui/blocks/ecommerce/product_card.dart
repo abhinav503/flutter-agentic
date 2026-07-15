@@ -4,15 +4,9 @@ import '../../../theme/app_shapes_extension.dart';
 import '../../../theme/app_spacing.dart';
 import '../../atoms/badge.dart';
 import '../../atoms/button.dart';
+import 'product_meta_row.dart';
 
-/// One icon + label pair on the meta row (e.g. delivery time, discount).
-/// [icon] is a caller-provided widget (e.g. `Icon`, `SvgPicture`) so core
-/// doesn't need to depend on an SVG package just for this block.
-class ProductCardMeta {
-  final Widget icon;
-  final String label;
-  const ProductCardMeta({required this.icon, required this.label});
-}
+export 'product_meta_row.dart' show ProductCardMeta, ProductMetaRow;
 
 /// Photo-forward commerce card: square image, optional quantity badge, title,
 /// meta row, price with optional strike-through original, and a full-width
@@ -106,30 +100,7 @@ class ProductCard extends StatelessWidget {
           ),
           if (meta.isNotEmpty) ...[
             const SizedBox(height: AppSpacing.xs3),
-            Row(
-              children: [
-                for (final m in meta) ...[
-                  SizedBox(
-                    width: 14,
-                    height: 14,
-                    // FittedBox rather than a bare SizedBox: an `Icon`
-                    // renders its glyph at a fixed font size (24 by default)
-                    // regardless of the box it's laid out in and paints with
-                    // TextOverflow.visible, so it bleeds into the label next
-                    // to it instead of scaling down. FittedBox scales
-                    // whatever `m.icon` is (Icon, SvgPicture, …) to fit.
-                    child: FittedBox(fit: BoxFit.contain, child: m.icon),
-                  ),
-                  const SizedBox(width: AppSpacing.xs4),
-                  Text(
-                    m.label,
-                    style: (metaLabelStyle ?? tt.labelSmall)!
-                        .copyWith(color: metaLabelStyle?.color ?? cs.onSurfaceVariant),
-                  ),
-                  const SizedBox(width: AppSpacing.xs),
-                ],
-              ],
-            ),
+            ProductMetaRow(meta: meta, labelStyle: metaLabelStyle),
           ],
           const SizedBox(height: AppSpacing.xs3),
           Row(

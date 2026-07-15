@@ -108,6 +108,18 @@ WidgetbookCategory atomsCategory() {
             'Selected',
             AppChip(label: 'Flutter', selected: true, onTap: () {}),
           ),
+          Variant(
+            'Selector (no check icon)',
+            AppChip(
+              label: 'M',
+              selected: true,
+              onTap: () {},
+              showCheckIcon: false,
+              borderColor: const Color(0xFFDFDFDF),
+              selectedBorderColor: Colors.transparent,
+              backgroundColor: Colors.transparent,
+            ),
+          ),
         ]),
       ),
       allVariants(
@@ -401,6 +413,10 @@ WidgetbookCategory atomsCategory() {
           Variant(
             'Page 3 of 3',
             const PageIndicator(count: 3, currentIndex: 2),
+          ),
+          Variant(
+            'Vertical',
+            const PageIndicator(count: 3, currentIndex: 1, axis: Axis.vertical),
           ),
         ]),
       ),

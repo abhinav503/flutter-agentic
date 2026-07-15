@@ -34,8 +34,9 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
   ) {
     switch (state) {
       case SearchLoaded(:final search):
-        final updated =
-            search.recentSearches.where((t) => t != event.term).toList();
+        final updated = search.recentSearches
+            .where((p) => p.id != event.productId)
+            .toList();
         emit(SearchState.loaded(search: search.copyWith(recentSearches: updated)));
       case SearchLoading():
       case SearchError():

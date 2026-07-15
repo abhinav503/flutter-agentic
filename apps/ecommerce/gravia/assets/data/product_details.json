@@ -1,0 +1,371 @@
+{
+  "1": {
+    "product": {
+      "id": "1",
+      "name": "Washington Red Apple",
+      "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fproducts%2Fwashington_red_apple.jpg?alt=media&token=4a389232-157b-43d1-adb9-0d7e30c644c2",
+      "price": 6.30,
+      "original_price": 8.00,
+      "discount_percentage": 20,
+      "unit_value": 300,
+      "unit_type": "g",
+      "prep_time": "10 Min",
+      "is_favourite": false
+    },
+    "images": [
+      "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fproducts%2Fwashington_red_apple.jpg?alt=media&token=4a389232-157b-43d1-adb9-0d7e30c644c2",
+      "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fproducts%2Fwashington_red_apple.jpg?alt=media&token=4a389232-157b-43d1-adb9-0d7e30c644c2",
+      "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fproducts%2Fwashington_red_apple.jpg?alt=media&token=4a389232-157b-43d1-adb9-0d7e30c644c2"
+    ],
+    "description": "Washington Red Apple is a popular apple variety grown in the U.S. state of Washington. It is known for its deep red color, crisp texture, and sweet-tart flavor that makes it a favorite for snacking, baking, and salads. Rich in fiber and vitamin C, it's a wholesome addition to any diet. Store in a cool, dry place or refrigerate to keep it fresh for longer.",
+    "size_options": [300, 500, 1000],
+    "similar_products": [
+      {
+        "id": "2",
+        "name": "Green Grapes",
+        "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fproducts%2Fgreen_grapes.jpg?alt=media&token=f48b76e8-0f6e-425f-98de-b556bf3c8ce3",
+        "price": 4.00,
+        "original_price": 5.00,
+        "discount_percentage": 20,
+        "unit_value": 500,
+        "unit_type": "g",
+        "prep_time": "10 Min",
+        "is_favourite": false
+      },
+      {
+        "id": "3",
+        "name": "Hybrid Fresh Tomato",
+        "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fproducts%2Fhybrid_fresh_tomato.jpg?alt=media&token=0ee62b6a-1376-4231-94a4-41da0996aaac",
+        "price": 3.20,
+        "original_price": 5.00,
+        "discount_percentage": 20,
+        "unit_value": 500,
+        "unit_type": "g",
+        "prep_time": "10 Min",
+        "is_favourite": true
+      }
+    ]
+  },
+  "2": {
+    "product": {
+      "id": "2",
+      "name": "Green Grapes",
+      "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fproducts%2Fgreen_grapes.jpg?alt=media&token=f48b76e8-0f6e-425f-98de-b556bf3c8ce3",
+      "price": 4.00,
+      "original_price": 5.00,
+      "discount_percentage": 20,
+      "unit_value": 500,
+      "unit_type": "g",
+      "prep_time": "10 Min",
+      "is_favourite": false
+    },
+    "images": [
+      "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fproducts%2Fgreen_grapes.jpg?alt=media&token=f48b76e8-0f6e-425f-98de-b556bf3c8ce3",
+      "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fproducts%2Fgreen_grapes.jpg?alt=media&token=f48b76e8-0f6e-425f-98de-b556bf3c8ce3"
+    ],
+    "description": "Green Grapes are seedless, sweet, and juicy — a refreshing snack straight from the fridge or a bright addition to fruit salads and cheese boards. They're a good source of vitamin K and antioxidants. Rinse well before eating and store chilled in a perforated bag to keep them firm.",
+    "size_options": [250, 500, 1000],
+    "similar_products": [
+      {
+        "id": "1",
+        "name": "Washington Red Apple",
+        "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fproducts%2Fwashington_red_apple.jpg?alt=media&token=4a389232-157b-43d1-adb9-0d7e30c644c2",
+        "price": 6.30,
+        "original_price": 8.00,
+        "discount_percentage": 20,
+        "unit_value": 300,
+        "unit_type": "g",
+        "prep_time": "10 Min",
+        "is_favourite": false
+      },
+      {
+        "id": "5",
+        "name": "Fresh Potato",
+        "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fproducts%2Ffresh_potato.jpg?alt=media&token=d5a30b8d-bd82-497e-85ca-7f4c65efd760",
+        "price": 2.00,
+        "original_price": 2.50,
+        "discount_percentage": 20,
+        "unit_value": 1000,
+        "unit_type": "g",
+        "prep_time": "10 Min",
+        "is_favourite": false
+      }
+    ]
+  },
+  "3": {
+    "product": {
+      "id": "3",
+      "name": "Hybrid Fresh Tomato",
+      "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fproducts%2Fhybrid_fresh_tomato.jpg?alt=media&token=0ee62b6a-1376-4231-94a4-41da0996aaac",
+      "price": 3.20,
+      "original_price": 5.00,
+      "discount_percentage": 20,
+      "unit_value": 500,
+      "unit_type": "g",
+      "prep_time": "10 Min",
+      "is_favourite": true
+    },
+    "images": [
+      "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fproducts%2Fhybrid_fresh_tomato.jpg?alt=media&token=0ee62b6a-1376-4231-94a4-41da0996aaac",
+      "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fproducts%2Fhybrid_fresh_tomato.jpg?alt=media&token=0ee62b6a-1376-4231-94a4-41da0996aaac",
+      "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fproducts%2Fhybrid_fresh_tomato.jpg?alt=media&token=0ee62b6a-1376-4231-94a4-41da0996aaac"
+    ],
+    "description": "Hybrid Fresh Tomatoes are vine-ripened for a balanced sweet-tangy flavor and firm texture that holds up well in cooking. Packed with lycopene and vitamin C, they're a kitchen staple for curries, salads, and sauces alike. Keep at room temperature for the best flavor, away from direct sunlight.",
+    "size_options": [250, 500, 1000],
+    "similar_products": [
+      {
+        "id": "6",
+        "name": "Green Capsicum",
+        "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fproducts%2Fgreen_capsicum.jpg?alt=media&token=9c604ec6-066a-4eb9-8882-c1635cab2a9d",
+        "price": 3.20,
+        "original_price": 4.00,
+        "discount_percentage": 20,
+        "unit_value": 250,
+        "unit_type": "g",
+        "prep_time": "10 Min",
+        "is_favourite": false
+      },
+      {
+        "id": "7",
+        "name": "Lady Finger",
+        "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fproducts%2Flady_finger.jpg?alt=media&token=25f529ab-667d-4ea7-946d-880732a1ad4f",
+        "price": 2.80,
+        "original_price": 3.50,
+        "discount_percentage": 20,
+        "unit_value": 250,
+        "unit_type": "g",
+        "prep_time": "10 Min",
+        "is_favourite": false
+      }
+    ]
+  },
+  "4": {
+    "product": {
+      "id": "4",
+      "name": "Cabbage",
+      "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fproducts%2Fcabbage.jpg?alt=media&token=b0021e51-933e-406e-bfae-03ca767bce88",
+      "price": 2.40,
+      "original_price": 3.00,
+      "discount_percentage": 20,
+      "unit_value": 500,
+      "unit_type": "g",
+      "prep_time": "10 Min",
+      "is_favourite": false
+    },
+    "images": [
+      "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fproducts%2Fcabbage.jpg?alt=media&token=b0021e51-933e-406e-bfae-03ca767bce88",
+      "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fproducts%2Fcabbage.jpg?alt=media&token=b0021e51-933e-406e-bfae-03ca767bce88"
+    ],
+    "description": "Cabbage is a crunchy, versatile leafy vegetable great for slaws, stir-fries, and soups. It's low in calories and a solid source of vitamin K and vitamin C. Keep it whole and refrigerated, and it'll stay fresh for weeks — peel outer leaves as needed rather than cutting into it early.",
+    "size_options": [250, 500, 1000],
+    "similar_products": [
+      {
+        "id": "1",
+        "name": "Washington Red Apple",
+        "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fproducts%2Fwashington_red_apple.jpg?alt=media&token=4a389232-157b-43d1-adb9-0d7e30c644c2",
+        "price": 6.30,
+        "original_price": 8.00,
+        "discount_percentage": 20,
+        "unit_value": 300,
+        "unit_type": "g",
+        "prep_time": "10 Min",
+        "is_favourite": false
+      },
+      {
+        "id": "6",
+        "name": "Green Capsicum",
+        "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fproducts%2Fgreen_capsicum.jpg?alt=media&token=9c604ec6-066a-4eb9-8882-c1635cab2a9d",
+        "price": 3.20,
+        "original_price": 4.00,
+        "discount_percentage": 20,
+        "unit_value": 250,
+        "unit_type": "g",
+        "prep_time": "10 Min",
+        "is_favourite": false
+      }
+    ]
+  },
+  "5": {
+    "product": {
+      "id": "5",
+      "name": "Fresh Potato",
+      "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fproducts%2Ffresh_potato.jpg?alt=media&token=d5a30b8d-bd82-497e-85ca-7f4c65efd760",
+      "price": 2.00,
+      "original_price": 2.50,
+      "discount_percentage": 20,
+      "unit_value": 1000,
+      "unit_type": "g",
+      "prep_time": "10 Min",
+      "is_favourite": false
+    },
+    "images": [
+      "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fproducts%2Ffresh_potato.jpg?alt=media&token=d5a30b8d-bd82-497e-85ca-7f4c65efd760",
+      "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fproducts%2Ffresh_potato.jpg?alt=media&token=d5a30b8d-bd82-497e-85ca-7f4c65efd760"
+    ],
+    "description": "Fresh Potatoes are a kitchen essential — starchy, filling, and endlessly versatile, from roasting and mashing to frying. A great source of potassium and vitamin B6. Store in a cool, dark, well-ventilated place rather than the fridge, which can turn their starch into sugar too quickly.",
+    "size_options": [500, 1000, 2000],
+    "similar_products": [
+      {
+        "id": "4",
+        "name": "Cabbage",
+        "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fproducts%2Fcabbage.jpg?alt=media&token=b0021e51-933e-406e-bfae-03ca767bce88",
+        "price": 2.40,
+        "original_price": 3.00,
+        "discount_percentage": 20,
+        "unit_value": 500,
+        "unit_type": "g",
+        "prep_time": "10 Min",
+        "is_favourite": false
+      },
+      {
+        "id": "7",
+        "name": "Lady Finger",
+        "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fproducts%2Flady_finger.jpg?alt=media&token=25f529ab-667d-4ea7-946d-880732a1ad4f",
+        "price": 2.80,
+        "original_price": 3.50,
+        "discount_percentage": 20,
+        "unit_value": 250,
+        "unit_type": "g",
+        "prep_time": "10 Min",
+        "is_favourite": false
+      }
+    ]
+  },
+  "6": {
+    "product": {
+      "id": "6",
+      "name": "Green Capsicum",
+      "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fproducts%2Fgreen_capsicum.jpg?alt=media&token=9c604ec6-066a-4eb9-8882-c1635cab2a9d",
+      "price": 3.20,
+      "original_price": 4.00,
+      "discount_percentage": 20,
+      "unit_value": 250,
+      "unit_type": "g",
+      "prep_time": "10 Min",
+      "is_favourite": false
+    },
+    "images": [
+      "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fproducts%2Fgreen_capsicum.jpg?alt=media&token=9c604ec6-066a-4eb9-8882-c1635cab2a9d",
+      "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fproducts%2Fgreen_capsicum.jpg?alt=media&token=9c604ec6-066a-4eb9-8882-c1635cab2a9d"
+    ],
+    "description": "Green Capsicum brings a crisp bite and mildly sweet, slightly bitter flavor to stir-fries, stuffed dishes, and salads. It's an excellent source of vitamin C — more per gram than citrus. Choose firm, glossy peppers and refrigerate unwashed until ready to use.",
+    "size_options": [100, 250, 500],
+    "similar_products": [
+      {
+        "id": "3",
+        "name": "Hybrid Fresh Tomato",
+        "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fproducts%2Fhybrid_fresh_tomato.jpg?alt=media&token=0ee62b6a-1376-4231-94a4-41da0996aaac",
+        "price": 3.20,
+        "original_price": 5.00,
+        "discount_percentage": 20,
+        "unit_value": 500,
+        "unit_type": "g",
+        "prep_time": "10 Min",
+        "is_favourite": true
+      },
+      {
+        "id": "7",
+        "name": "Lady Finger",
+        "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fproducts%2Flady_finger.jpg?alt=media&token=25f529ab-667d-4ea7-946d-880732a1ad4f",
+        "price": 2.80,
+        "original_price": 3.50,
+        "discount_percentage": 20,
+        "unit_value": 250,
+        "unit_type": "g",
+        "prep_time": "10 Min",
+        "is_favourite": false
+      }
+    ]
+  },
+  "7": {
+    "product": {
+      "id": "7",
+      "name": "Lady Finger",
+      "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fproducts%2Flady_finger.jpg?alt=media&token=25f529ab-667d-4ea7-946d-880732a1ad4f",
+      "price": 2.80,
+      "original_price": 3.50,
+      "discount_percentage": 20,
+      "unit_value": 250,
+      "unit_type": "g",
+      "prep_time": "10 Min",
+      "is_favourite": false
+    },
+    "images": [
+      "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fproducts%2Flady_finger.jpg?alt=media&token=25f529ab-667d-4ea7-946d-880732a1ad4f",
+      "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fproducts%2Flady_finger.jpg?alt=media&token=25f529ab-667d-4ea7-946d-880732a1ad4f"
+    ],
+    "description": "Lady Finger (okra) is tender when fresh, with a mild flavor that takes on curries, stir-fries, and pickles well. It's a good source of fiber and vitamin C. Pick pods that snap easily and avoid ones that are limp or overly large, which tend to be woody.",
+    "size_options": [100, 250, 500],
+    "similar_products": [
+      {
+        "id": "6",
+        "name": "Green Capsicum",
+        "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fproducts%2Fgreen_capsicum.jpg?alt=media&token=9c604ec6-066a-4eb9-8882-c1635cab2a9d",
+        "price": 3.20,
+        "original_price": 4.00,
+        "discount_percentage": 20,
+        "unit_value": 250,
+        "unit_type": "g",
+        "prep_time": "10 Min",
+        "is_favourite": false
+      },
+      {
+        "id": "4",
+        "name": "Cabbage",
+        "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fproducts%2Fcabbage.jpg?alt=media&token=b0021e51-933e-406e-bfae-03ca767bce88",
+        "price": 2.40,
+        "original_price": 3.00,
+        "discount_percentage": 20,
+        "unit_value": 500,
+        "unit_type": "g",
+        "prep_time": "10 Min",
+        "is_favourite": false
+      }
+    ]
+  },
+  "default": {
+    "product": {
+      "id": "default",
+      "name": "Washington Red Apple",
+      "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fproducts%2Fwashington_red_apple.jpg?alt=media&token=4a389232-157b-43d1-adb9-0d7e30c644c2",
+      "price": 6.30,
+      "original_price": 8.00,
+      "discount_percentage": 20,
+      "unit_value": 300,
+      "unit_type": "g",
+      "prep_time": "10 Min",
+      "is_favourite": false
+    },
+    "images": [
+      "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fproducts%2Fwashington_red_apple.jpg?alt=media&token=4a389232-157b-43d1-adb9-0d7e30c644c2"
+    ],
+    "description": "Washington Red Apple is a popular apple variety grown in the U.S. state of Washington. It is known for its deep red color, crisp texture, and sweet-tart flavor.",
+    "size_options": [300, 500, 1000],
+    "similar_products": [
+      {
+        "id": "2",
+        "name": "Green Grapes",
+        "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fproducts%2Fgreen_grapes.jpg?alt=media&token=f48b76e8-0f6e-425f-98de-b556bf3c8ce3",
+        "price": 4.00,
+        "original_price": 5.00,
+        "discount_percentage": 20,
+        "unit_value": 500,
+        "unit_type": "g",
+        "prep_time": "10 Min",
+        "is_favourite": false
+      },
+      {
+        "id": "3",
+        "name": "Hybrid Fresh Tomato",
+        "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fproducts%2Fhybrid_fresh_tomato.jpg?alt=media&token=0ee62b6a-1376-4231-94a4-41da0996aaac",
+        "price": 3.20,
+        "original_price": 5.00,
+        "discount_percentage": 20,
+        "unit_value": 500,
+        "unit_type": "g",
+        "prep_time": "10 Min",
+        "is_favourite": true
+      }
+    ]
+  }
+}

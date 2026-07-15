@@ -10,7 +10,32 @@ class FakeSearchRepository implements SearchRepository {
   /// Set per test to control what [getSearch] resolves to.
   Either<Failure, SearchEntity> result = right(
     const SearchEntity(
-      recentSearches: ['Washington Red Apple', 'Cabbage (Patta Gobhi)'],
+      recentSearches: [
+        ProductEntity(
+          id: '1',
+          name: 'Washington Red Apple',
+          imageUrl: 'https://example.com/apple.png',
+          price: 6.30,
+          originalPrice: 8.00,
+          discountPercentage: 20,
+          unitValue: 300,
+          unitType: ProductUnitType.grams,
+          prepTime: '10 Min',
+          isFavourite: false,
+        ),
+        ProductEntity(
+          id: '4',
+          name: 'Cabbage',
+          imageUrl: 'https://example.com/cabbage.png',
+          price: 2.40,
+          originalPrice: 3.00,
+          discountPercentage: 20,
+          unitValue: 500,
+          unitType: ProductUnitType.grams,
+          prepTime: '10 Min',
+          isFavourite: false,
+        ),
+      ],
       popularProducts: [
         ProductEntity(
           id: '2',

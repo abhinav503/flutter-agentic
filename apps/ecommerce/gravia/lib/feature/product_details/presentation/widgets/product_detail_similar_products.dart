@@ -14,28 +14,26 @@ import 'package:gravia/constants/text_style_const.dart';
 import 'package:gravia/constants/value_const.dart';
 import 'package:gravia/enums/product_unit_type.dart';
 
-import '../../domain/entities/product_entity.dart';
+import '../../../home/domain/entities/product_entity.dart';
 
-class HomePopularItemsSection extends StatelessWidget {
+class ProductDetailSimilarProducts extends StatelessWidget {
   final List<ProductEntity> products;
   final void Function(ProductEntity product, int quantity) onAddToCart;
   final ValueChanged<ProductEntity> onQuickAdd;
-  final ValueChanged<String> onFavouriteToggle;
   final ValueChanged<ProductEntity> onProductTap;
-  final VoidCallback onComingSoon;
 
-  const HomePopularItemsSection({
+  const ProductDetailSimilarProducts({
     super.key,
     required this.products,
     required this.onAddToCart,
     required this.onQuickAdd,
-    required this.onFavouriteToggle,
     required this.onProductTap,
-    required this.onComingSoon,
   });
 
   @override
   Widget build(BuildContext context) {
+    if (products.isEmpty) return const SizedBox.shrink();
+
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
     final onOverlay = Theme.of(context).extension<AppColorsExtension>()!.onOverlay;
@@ -44,25 +42,16 @@ class HomePopularItemsSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-          child: SectionHeader(
-            title: ValueConst.popularItemsTitle,
-            actionLabel: ValueConst.seeAll,
-            onAction: onComingSoon,
-            titleStyle: TextStyleConst.textLgBold(tt).copyWith(color: cs.onSurface),
-            actionStyle: TextStyleConst.textSmRegular(
-              tt,
-            ).copyWith(color: cs.primary),
-          ),
+        SectionHeader(
+          title: ValueConst.similarProductsTitle,
+          titleStyle: TextStyleConst.textLgBold(tt).copyWith(color: cs.onSurface),
         ),
+        // Matches the gap used before Home's horizontal product scroller
+        // (HomePopularItemsSection) — the grid's mainAxisExtent previously
+        // made this look larger than intended.
         const SizedBox(height: AppSpacing.base),
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
-          // Left inset only, matching the header above — no right inset, so
-          // the row can scroll all the way to the true screen edge instead
-          // of stopping AppSpacing.lg short of it.
-          padding: const EdgeInsets.only(left: AppSpacing.lg),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -71,16 +60,11 @@ class HomePopularItemsSection extends StatelessWidget {
                 SizedBox(
                   width: 184,
                   child: ProductCard(
-                    image: AppNetworkImage(
-                      url: products[i].imageUrl,
-                      fit: BoxFit.cover,
-                    ),
+                    image: AppNetworkImage(url: products[i].imageUrl, fit: BoxFit.cover),
                     title: products[i].name,
                     titleStyle: TextStyleConst.textMdBold(tt),
                     badgeLabel: products[i].unitType.format(products[i].unitValue),
-                    badgeLabelStyle: TextStyleConst.badgeLabel(
-                      tt,
-                    ).copyWith(color: cs.primary),
+                    badgeLabelStyle: TextStyleConst.badgeLabel(tt).copyWith(color: cs.primary),
                     badgeBackgroundColor: badgeBg,
                     meta: [
                       ProductCardMeta(
@@ -92,27 +76,12 @@ class HomePopularItemsSection extends StatelessWidget {
                         ),
                         label: products[i].prepTime,
                       ),
-                      ProductCardMeta(
-                        icon: AppSvgImage.asset(
-                          ImageConst.badgePercent,
-                          width: 14,
-                          height: 14,
-                          color: ColorConst.gray500,
-                        ),
-                        label:
-                            '${products[i].discountPercentage.toStringAsFixed(0)}%',
-                      ),
                     ],
-                    metaLabelStyle: TextStyleConst.textXsRegular(
-                      tt,
-                    ).copyWith(color: cs.onSurface),
+                    metaLabelStyle: TextStyleConst.textXsRegular(tt).copyWith(color: cs.onSurface),
                     price: '\$${products[i].price.toStringAsFixed(2)}',
-                    originalPrice:
-                        '\$${products[i].originalPrice.toStringAsFixed(2)}',
+                    originalPrice: '\$${products[i].originalPrice.toStringAsFixed(2)}',
                     actionLabel: ValueConst.addToCart,
-                    actionLabelStyle: TextStyleConst.textSmMedium(
-                      tt,
-                    ).copyWith(color: onOverlay),
+                    actionLabelStyle: TextStyleConst.textSmMedium(tt).copyWith(color: onOverlay),
                     onAction: () => onAddToCart(products[i], 1),
                     trailingAction: AppIconButton(
                       variant: AppIconButtonVariant.glass,

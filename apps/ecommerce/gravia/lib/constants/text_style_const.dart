@@ -41,4 +41,9 @@ abstract final class TextStyleConst {
     height: 1.4,
     letterSpacing: -0.28,
   );
+
+  static TextStyle textMdRegular(TextTheme tt) => tt.bodyLarge!.copyWith(
+    height: 1.5,
+    letterSpacing: -0.32,
+  );
 }

@@ -8,26 +8,28 @@ import 'package:gravia/constants/image_const.dart';
 import 'package:gravia/constants/text_style_const.dart';
 import 'package:gravia/constants/value_const.dart';
 
+import '../../../home/domain/entities/product_entity.dart';
+
 class RecentSearchSection extends StatelessWidget {
-  final List<String> terms;
-  final ValueChanged<String> onTermTap;
+  final List<ProductEntity> products;
+  final ValueChanged<ProductEntity> onProductTap;
   final ValueChanged<String> onRemove;
   static const double _rowHeight = 20;
 
   const RecentSearchSection({
     super.key,
-    required this.terms,
-    required this.onTermTap,
+    required this.products,
+    required this.onProductTap,
     required this.onRemove,
   });
 
   @override
   Widget build(BuildContext context) {
-    if (terms.isEmpty) return const SizedBox.shrink();
+    if (products.isEmpty) return const SizedBox.shrink();
 
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
-    final termColor = Theme.of(context).brightness == Brightness.dark
+    final nameColor = Theme.of(context).brightness == Brightness.dark
         ? ColorConst.gray100
         : ColorConst.gray700;
 
@@ -41,7 +43,7 @@ class RecentSearchSection extends StatelessWidget {
             style: TextStyleConst.textLgBold(tt).copyWith(color: cs.onSurface),
           ),
           const SizedBox(height: AppSpacing.xs),
-          for (final term in terms)
+          for (final product in products)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
               child: SizedBox(
@@ -50,7 +52,7 @@ class RecentSearchSection extends StatelessWidget {
                   children: [
                     Expanded(
                       child: GestureDetector(
-                        onTap: () => onTermTap(term),
+                        onTap: () => onProductTap(product),
                         behavior: HitTestBehavior.opaque,
                         child: Row(
                           children: [
@@ -63,9 +65,9 @@ class RecentSearchSection extends StatelessWidget {
                             const SizedBox(width: AppSpacing.base),
                             Expanded(
                               child: Text(
-                                term,
+                                product.name,
                                 style: TextStyleConst.textSmRegular(tt)
-                                    .copyWith(color: termColor),
+                                    .copyWith(color: nameColor),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -76,7 +78,7 @@ class RecentSearchSection extends StatelessWidget {
                     ),
                     const SizedBox(width: AppSpacing.base),
                     GestureDetector(
-                      onTap: () => onRemove(term),
+                      onTap: () => onRemove(product.id),
                       behavior: HitTestBehavior.opaque,
                       child: AppSvgImage.asset(
                         ImageConst.remove,

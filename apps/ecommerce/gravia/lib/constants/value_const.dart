@@ -50,6 +50,18 @@ abstract final class ValueConst {
   static const searchLoadErrorMessage =
       'Something went wrong loading search.';
 
+  // ── Product Details ────────────────────────────────────────────────────────
+  static const productDetailsTitle = 'Product Details';
+  static const selectQtyLabel = 'Select QTY';
+  static const keyInformationTitle = 'Key Information';
+  static const readMore = 'Read More';
+  static const readLess = 'Read Less';
+  static const similarProductsTitle = 'Similar Products';
+  static const productDetailsLoadErrorMessage =
+      'Something went wrong loading this product.';
+  static String addToCartWithPrice(double price) =>
+      'Add to Cart (\$${price.toStringAsFixed(2)})';
+
   // ── Placeholder tabs (removed as real screens land) ───────────────────────
   static const categoriesComingTitle = 'Categories coming soon';
   static const categoriesComingSubtitle =

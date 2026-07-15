@@ -119,11 +119,11 @@ return recentSearchRemoved(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  started,TResult Function( String term)?  recentSearchRemoved,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  started,TResult Function( String productId)?  recentSearchRemoved,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case SearchStarted() when started != null:
 return started();case SearchRecentSearchRemoved() when recentSearchRemoved != null:
-return recentSearchRemoved(_that.term);case _:
+return recentSearchRemoved(_that.productId);case _:
   return orElse();
 
 }
@@ -141,11 +141,11 @@ return recentSearchRemoved(_that.term);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  started,required TResult Function( String term)  recentSearchRemoved,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  started,required TResult Function( String productId)  recentSearchRemoved,}) {final _that = this;
 switch (_that) {
 case SearchStarted():
 return started();case SearchRecentSearchRemoved():
-return recentSearchRemoved(_that.term);}
+return recentSearchRemoved(_that.productId);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -159,11 +159,11 @@ return recentSearchRemoved(_that.term);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  started,TResult? Function( String term)?  recentSearchRemoved,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  started,TResult? Function( String productId)?  recentSearchRemoved,}) {final _that = this;
 switch (_that) {
 case SearchStarted() when started != null:
 return started();case SearchRecentSearchRemoved() when recentSearchRemoved != null:
-return recentSearchRemoved(_that.term);case _:
+return recentSearchRemoved(_that.productId);case _:
   return null;
 
 }
@@ -207,10 +207,10 @@ String toString() {
 
 
 class SearchRecentSearchRemoved implements SearchEvent {
-  const SearchRecentSearchRemoved({required this.term});
+  const SearchRecentSearchRemoved({required this.productId});
   
 
- final  String term;
+ final  String productId;
 
 /// Create a copy of SearchEvent
 /// with the given fields replaced by the non-null parameter values.
@@ -222,16 +222,16 @@ $SearchRecentSearchRemovedCopyWith<SearchRecentSearchRemoved> get copyWith => _$
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is SearchRecentSearchRemoved&&(identical(other.term, term) || other.term == term));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SearchRecentSearchRemoved&&(identical(other.productId, productId) || other.productId == productId));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,term);
+int get hashCode => Object.hash(runtimeType,productId);
 
 @override
 String toString() {
-  return 'SearchEvent.recentSearchRemoved(term: $term)';
+  return 'SearchEvent.recentSearchRemoved(productId: $productId)';
 }
 
 
@@ -242,7 +242,7 @@ abstract mixin class $SearchRecentSearchRemovedCopyWith<$Res> implements $Search
   factory $SearchRecentSearchRemovedCopyWith(SearchRecentSearchRemoved value, $Res Function(SearchRecentSearchRemoved) _then) = _$SearchRecentSearchRemovedCopyWithImpl;
 @useResult
 $Res call({
- String term
+ String productId
 });
 
 
@@ -259,9 +259,9 @@ class _$SearchRecentSearchRemovedCopyWithImpl<$Res>
 
 /// Create a copy of SearchEvent
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? term = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? productId = null,}) {
   return _then(SearchRecentSearchRemoved(
-term: null == term ? _self.term : term // ignore: cast_nullable_to_non_nullable
+productId: null == productId ? _self.productId : productId // ignore: cast_nullable_to_non_nullable
 as String,
   ));
 }

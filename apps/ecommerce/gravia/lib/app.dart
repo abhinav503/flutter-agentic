@@ -8,6 +8,7 @@ import 'package:core/core/theme/theme_mode_scope.dart';
 import 'constants/app_routes.dart';
 import 'constants/value_const.dart';
 import 'feature/onboarding/presentation/view/onboarding_page.dart';
+import 'feature/product_details/presentation/view/product_details_page.dart';
 import 'feature/search/presentation/view/search_page.dart';
 import 'feature/shell/presentation/view/shell_page.dart';
 import 'feature/splash/presentation/view/splash_page.dart';
@@ -38,6 +39,24 @@ final _router = GoRouter(
               child: child,
             ),
         child: const SearchPage(),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.productDetails,
+      // Fade, not the default slide — every "coloured header canvas" screen
+      // (design.md) places its back button in roughly the same spot, so a
+      // horizontal push visibly overlaps the outgoing and incoming back
+      // buttons mid-flight. Same fix as the Search route.
+      pageBuilder: (context, state) => CustomTransitionPage<void>(
+        key: state.pageKey,
+        transitionDuration: const Duration(milliseconds: 350),
+        reverseTransitionDuration: const Duration(milliseconds: 300),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+            FadeTransition(
+              opacity: CurveTween(curve: Curves.easeInOut).animate(animation),
+              child: child,
+            ),
+        child: ProductDetailsPage(productId: state.pathParameters['id']!),
       ),
     ),
   ],

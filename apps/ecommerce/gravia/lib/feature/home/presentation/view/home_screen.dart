@@ -33,6 +33,9 @@ class _HomeScreenState extends BaseScreenState<HomeScreen> {
   void _addToCart(ProductEntity product, int quantity) =>
       showSnackBar(ValueConst.addedToCartMessage(product.name, quantity));
 
+  void _openProductDetails(ProductEntity product) =>
+      context.push(AppRoutes.productDetailsPath(product.id));
+
   void _showAddToCartSheet(ProductEntity product) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
@@ -40,7 +43,7 @@ class _HomeScreenState extends BaseScreenState<HomeScreen> {
     // hairline/handle shade in both modes, so it's an explicit override —
     // Gray/200 light, Light/900 dark.
     final hairlineColor = Theme.of(context).brightness == Brightness.dark
-        ? ColorConst.light900
+        ? ColorConst.gray900
         : ColorConst.gray200;
 
     showAppBottomSheet(
@@ -90,6 +93,7 @@ class _HomeScreenState extends BaseScreenState<HomeScreen> {
             onFavouriteToggle: (id) => context.read<HomeBloc>().add(
               HomeEvent.favouriteToggled(productId: id),
             ),
+            onProductTap: _openProductDetails,
             onComingSoon: () => showSnackBar(ValueConst.comingSoonMessage),
             onSearchTap: () => context.push(AppRoutes.search),
           ),
@@ -104,6 +108,7 @@ class _HomeContent extends StatelessWidget {
   final void Function(ProductEntity product, int quantity) onAddToCart;
   final ValueChanged<ProductEntity> onQuickAdd;
   final ValueChanged<String> onFavouriteToggle;
+  final ValueChanged<ProductEntity> onProductTap;
   final VoidCallback onComingSoon;
   final VoidCallback onSearchTap;
 
@@ -112,6 +117,7 @@ class _HomeContent extends StatelessWidget {
     required this.onAddToCart,
     required this.onQuickAdd,
     required this.onFavouriteToggle,
+    required this.onProductTap,
     required this.onComingSoon,
     required this.onSearchTap,
   });
@@ -136,6 +142,7 @@ class _HomeContent extends StatelessWidget {
             onAddToCart: onAddToCart,
             onQuickAdd: onQuickAdd,
             onFavouriteToggle: onFavouriteToggle,
+            onProductTap: onProductTap,
             onComingSoon: onComingSoon,
           ),
         ],

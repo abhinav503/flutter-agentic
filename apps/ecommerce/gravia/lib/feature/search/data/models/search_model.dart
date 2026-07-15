@@ -11,7 +11,7 @@ abstract class SearchModel with _$SearchModel {
   const SearchModel._();
 
   const factory SearchModel({
-    @JsonKey(name: 'recent_searches') required List<String> recentSearches,
+    @JsonKey(name: 'recent_searches') required List<ProductModel> recentSearches,
     @JsonKey(name: 'popular_products') required List<ProductModel> popularProducts,
   }) = _SearchModel;
 
@@ -19,12 +19,12 @@ abstract class SearchModel with _$SearchModel {
       _$SearchModelFromJson(json);
 
   factory SearchModel.fromEntity(SearchEntity e) => SearchModel(
-        recentSearches: e.recentSearches,
+        recentSearches: e.recentSearches.map(ProductModel.fromEntity).toList(),
         popularProducts: e.popularProducts.map(ProductModel.fromEntity).toList(),
       );
 
   SearchEntity toEntity() => SearchEntity(
-        recentSearches: recentSearches,
+        recentSearches: recentSearches.map((p) => p.toEntity()).toList(),
         popularProducts: popularProducts.map((p) => p.toEntity()).toList(),
       );
 }

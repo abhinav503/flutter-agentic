@@ -1,9 +1,53 @@
 {
   "recent_searches": [
-    "Washington Red Apple",
-    "Everest Kashmirilal Red Chilli Powder",
-    "Cluster Beans (Gawar Phali)",
-    "Cabbage (Patta Gobhi)"
+    {
+      "id": "1",
+      "name": "Washington Red Apple",
+      "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fproducts%2Fwashington_red_apple.jpg?alt=media&token=4a389232-157b-43d1-adb9-0d7e30c644c2",
+      "price": 6.30,
+      "original_price": 8.00,
+      "discount_percentage": 20,
+      "unit_value": 300,
+      "unit_type": "g",
+      "prep_time": "10 Min",
+      "is_favourite": false
+    },
+    {
+      "id": "6",
+      "name": "Green Capsicum",
+      "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fproducts%2Fgreen_capsicum.jpg?alt=media&token=9c604ec6-066a-4eb9-8882-c1635cab2a9d",
+      "price": 3.20,
+      "original_price": 4.00,
+      "discount_percentage": 20,
+      "unit_value": 250,
+      "unit_type": "g",
+      "prep_time": "10 Min",
+      "is_favourite": false
+    },
+    {
+      "id": "7",
+      "name": "Lady Finger",
+      "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fproducts%2Flady_finger.jpg?alt=media&token=25f529ab-667d-4ea7-946d-880732a1ad4f",
+      "price": 2.80,
+      "original_price": 3.50,
+      "discount_percentage": 20,
+      "unit_value": 250,
+      "unit_type": "g",
+      "prep_time": "10 Min",
+      "is_favourite": false
+    },
+    {
+      "id": "4",
+      "name": "Cabbage",
+      "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fproducts%2Fcabbage.jpg?alt=media&token=b0021e51-933e-406e-bfae-03ca767bce88",
+      "price": 2.40,
+      "original_price": 3.00,
+      "discount_percentage": 20,
+      "unit_value": 500,
+      "unit_type": "g",
+      "prep_time": "10 Min",
+      "is_favourite": false
+    }
   ],
   "popular_products": [
     {

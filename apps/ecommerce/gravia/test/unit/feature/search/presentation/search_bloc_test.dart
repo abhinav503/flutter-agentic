@@ -26,8 +26,32 @@ void main() {
     prepTime: '10 Min',
     isFavourite: false,
   );
+  const recentApple = ProductEntity(
+    id: '1',
+    name: 'Washington Red Apple',
+    imageUrl: 'https://example.com/apple.png',
+    price: 6.30,
+    originalPrice: 8.00,
+    discountPercentage: 20,
+    unitValue: 300,
+    unitType: ProductUnitType.grams,
+    prepTime: '10 Min',
+    isFavourite: false,
+  );
+  const recentCabbage = ProductEntity(
+    id: '4',
+    name: 'Cabbage',
+    imageUrl: 'https://example.com/cabbage.png',
+    price: 2.40,
+    originalPrice: 3.00,
+    discountPercentage: 20,
+    unitValue: 500,
+    unitType: ProductUnitType.grams,
+    prepTime: '10 Min',
+    isFavourite: false,
+  );
   const search = SearchEntity(
-    recentSearches: ['Washington Red Apple', 'Cabbage (Patta Gobhi)'],
+    recentSearches: [recentApple, recentCabbage],
     popularProducts: [product],
   );
 
@@ -56,16 +80,16 @@ void main() {
   );
 
   blocTest<SearchBloc, SearchState>(
-    'recentSearchRemoved drops only the matching term',
+    'recentSearchRemoved drops only the matching product',
     build: () => SearchBloc(getSearchUseCase: GetSearchUseCase(repository)),
     act: (bloc) async {
       bloc.add(const SearchEvent.started());
       await Future<void>.delayed(Duration.zero);
-      bloc.add(const SearchEvent.recentSearchRemoved(term: 'Washington Red Apple'));
+      bloc.add(const SearchEvent.recentSearchRemoved(productId: '1'));
     },
     verify: (bloc) {
       final state = bloc.state as SearchLoaded;
-      expect(state.search.recentSearches, ['Cabbage (Patta Gobhi)']);
+      expect(state.search.recentSearches, [recentCabbage]);
     },
   );
 }

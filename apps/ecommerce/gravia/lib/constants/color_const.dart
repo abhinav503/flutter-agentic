@@ -7,6 +7,7 @@ abstract final class ColorConst {
   static const gray100 = Color(0xFFEDEDED);
   static const gray200 = Color(0xFFDFDFDF);
   static const gray500 = Color(0xFFA1A1A1);
+  static const gray900 = Color(0xFF3A3B3F);
 
   /// Same shade in both light and dark — unlike `onSurfaceVariant`, which
   /// resolves to Gray/700 in light but Gray/400 in dark.
@@ -17,5 +18,19 @@ abstract final class ColorConst {
   /// elements — the kit's dark-mode neutral scale ("Light/900"), not a
   /// `ColorScheme` role (neither `outlineVariant` nor `surfaceContainer`
   /// lands on this exact shade in dark mode).
-  static const light900 = Color(0xFF3A3B3F);
+
+}
+
+/// [ColorScheme] role that isn't itself a `ColorScheme`/`AppColorsExtension`
+/// member — computed once here instead of re-deriving the same ternary at
+/// every call site.
+extension GraviaColorSchemeX on ColorScheme {
+  /// Tinted-primary fill for selected/emphasis pill surfaces (product
+  /// badges, selector chips). Light mode uses the kit's pre-baked pastel
+  /// swatch (Primary/50); dark mode's spec calls this "Primary 20%" — the
+  /// actual brand colour at 20% opacity over the dark surface, not a
+  /// separate baked swatch — so it can't be expressed as a single static
+  /// `Color` the way [ColorConst.primary50] is.
+  Color get tintedPrimaryFill =>
+      brightness == Brightness.dark ? primary.withValues(alpha: 0.2) : ColorConst.primary50;
 }

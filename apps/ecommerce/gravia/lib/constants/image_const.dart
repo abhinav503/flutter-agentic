@@ -16,4 +16,5 @@ abstract final class ImageConst {
   static const minus = 'assets/icons/minus.svg';
   static const undo = 'assets/icons/undo.svg';
   static const remove = 'assets/icons/remove.svg';
+  static const arrowLeft = 'assets/icons/arrow-left.svg';
 }
