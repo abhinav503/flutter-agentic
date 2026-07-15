@@ -46,4 +46,11 @@ abstract final class TextStyleConst {
     height: 1.5,
     letterSpacing: -0.32,
   );
+
+  static TextStyle textXlBold(TextTheme tt) => tt.titleLarge!.copyWith(
+    fontSize: 20,
+    fontWeight: FontWeight.w700,
+    height: 1.5,
+    letterSpacing: -0.4,
+  );
 }

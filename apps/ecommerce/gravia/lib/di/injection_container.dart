@@ -1,5 +1,10 @@
 import 'package:core/core/di/core_injection.dart';
 
+import '../feature/categories/data/data_source/categories_remote_data_source.dart';
+import '../feature/categories/data/data_source/categories_remote_data_source_impl.dart';
+import '../feature/categories/data/repository_impl/categories_repository_impl.dart';
+import '../feature/categories/domain/repository/categories_repository.dart';
+import '../feature/categories/domain/usecase/get_categories_usecase.dart';
 import '../feature/home/data/data_source/home_remote_data_source.dart';
 import '../feature/home/data/data_source/home_remote_data_source_impl.dart';
 import '../feature/home/data/repository_impl/home_repository_impl.dart';
@@ -42,6 +47,15 @@ Future<void> initDependencies() async {
     () => SearchRepositoryImpl(sl()),
   );
   sl.registerLazySingleton(() => GetSearchUseCase(sl()));
+
+  // ── Categories ───────────────────────────────────────────────────────────
+  sl.registerLazySingleton<CategoriesRemoteDataSource>(
+    () => const CategoriesRemoteDataSourceImpl(),
+  );
+  sl.registerLazySingleton<CategoriesRepository>(
+    () => CategoriesRepositoryImpl(sl()),
+  );
+  sl.registerLazySingleton(() => GetCategoriesUseCase(sl()));
 
   // ── Product Details ─────────────────────────────────────────────────────
   sl.registerLazySingleton<ProductDetailsRemoteDataSource>(

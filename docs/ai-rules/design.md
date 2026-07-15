@@ -232,6 +232,61 @@ inline in `main.dart` rather than silently omitting it).
 
 ## 2. Screen design rules (always apply)
 
+### Laying out a screen's initial structure (before any polish)
+
+Get the shape right before touching a `TextStyle` or a colour.
+
+1. **Chrome: `AppBar` or the pack's header treatment?** Check the style
+   pack's "Signature compositions" list (§1) first — gravia's screens never
+   use a default `AppBar`; they use `CollapsingHeaderSheet` with a
+   pack-specific header widget (`HomeHeroHeader`, `SearchHeroHeader`,
+   `ProductDetailHeroHeader`). Reach for a plain `AppBar` only when the
+   pack's own catalog doesn't define a header pattern for this kind of
+   screen.
+2. **Order the body top-to-bottom by information priority, not by
+   convenience.** For a PDP-shaped screen, see
+   `ProductDetailsScreen._buildLoaded` as a worked example: hero media →
+   primary identity (name) → supporting meta (delivery time, discount —
+   `ProductMetaRow`) → price row → divider → user choices (size/variant
+   selectors — `SelectorChip`) → divider → informational copy
+   (`ProductDetailKeyInfo`) → discovery (`ProductDetailSimilarProducts`).
+   The same top-to-bottom logic (identity → meta → primary choices →
+   supporting detail → discovery) applies to any detail-style screen in
+   any category, not just ecommerce.
+3. **One persistent action → a docked bottom bar, never an inline button.**
+   If the screen has a single primary action that should stay reachable
+   while scrolling (Add to Cart, Checkout, Submit), give it its own
+   `SafeArea`-wrapped bar pinned outside the scroll view (see
+   `ProductDetailBottomBar`) — never a button living at the bottom of the
+   scrollable content, where it disappears as soon as there's enough
+   content to scroll past it.
+4. **One divider colour per app, computed once and reused everywhere.**
+   Don't invent a hairline shade per screen. Compute it the same way the
+   app's persistent chrome does (e.g. gravia's
+   `isDark ? Colors.white : ColorConst.gray500`, matching `BottomNavBar`'s
+   `topBorderColor`) and reuse that exact value for every hairline in the
+   app: the docked bottom bar's top border, the bottom nav bar's top
+   border, and any in-content `Divider`. A screen with its own one-off
+   divider shade is a smell (see "Screen smells" below).
+5. **Reuse a block before hand-building a row.** Before writing a `Row` of
+   icon+label pairs, a badge, or a chip, check whether an existing
+   `core/ui/blocks/` piece or an app-level `lib/widgets/` preset already
+   renders it (e.g. `ProductMetaRow`, `SelectorChip`, `ProductCard`'s
+   badge). If the same visual shows up in two places — twice in the new
+   screen, or once here and once in an existing screen — that's the signal
+   to extract a shared widget rather than copy the `Row`. A style-pack
+   preset that wraps a `core` atom with the pack's fixed defaults (e.g.
+   `SelectorChip` wrapping `AppChip`) belongs in the app's `lib/widgets/`,
+   not hand-repeated at every call site.
+6. **Verify both themes and every interactive state before calling the
+   layout done.** Not finished until: light *and* dark render correctly,
+   every selector/chip's selected *and* unselected state resolves to the
+   right token (not just whichever state you happened to screenshot), and
+   `flutter analyze` is clean.
+
+Then apply the rules below for the actual polish — spacing, type, colour,
+motion.
+
 - **One focal element per screen.** Decide what the screen is *for* and make
   that the largest/boldest thing. Everything else steps down in size, weight,
   or colour. If two things compete, demote one.
@@ -268,6 +323,10 @@ inline in `main.dart` rather than silently omitting it).
 - `Colors.*`, raw hex, `TextStyle(fontSize:)`, `EdgeInsets.all(13)` — token
   and theme violations (see `conventions.md` forbidden patterns)
 - A hand-rolled composition that an existing block already provides
+- A screen with its own one-off divider/hairline shade instead of the one
+  value the app's persistent chrome (bottom nav, docked bottom bar) uses
+- A primary action button living at the bottom of scrollable content
+  instead of docked outside the scroll view
 
 ---
 

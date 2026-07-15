@@ -62,10 +62,12 @@ abstract final class ValueConst {
   static String addToCartWithPrice(double price) =>
       'Add to Cart (\$${price.toStringAsFixed(2)})';
 
+  // ── Categories ─────────────────────────────────────────────────────────────
+  static const categoriesPageTitle = 'Categories';
+  static const categoriesLoadErrorMessage =
+      'Something went wrong loading categories.';
+
   // ── Placeholder tabs (removed as real screens land) ───────────────────────
-  static const categoriesComingTitle = 'Categories coming soon';
-  static const categoriesComingSubtitle =
-      'Browse every aisle from one place.';
   static const favouriteEmptyTitle = 'No favourites yet';
   static const favouriteEmptySubtitle =
       'Tap the heart on a product to keep it here.';

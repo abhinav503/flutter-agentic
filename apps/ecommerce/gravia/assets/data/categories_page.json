@@ -1,0 +1,94 @@
+{
+  "groups": [
+    {
+      "name": "Snacks & Drinks",
+      "categories": [
+        {
+          "id": "sd-1",
+          "name": "Snacks",
+          "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fcategories%2Fsnacks_and_drinks%2Fsnacks.png?alt=media&token=6c7d3b65-faa3-4326-bea5-1fff95f130f2"
+        },
+        {
+          "id": "sd-2",
+          "name": "Sweets",
+          "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fcategories%2Fsnacks_and_drinks%2Fsweets.png?alt=media&token=f79df179-c514-4a55-a969-8fbc5ad73145"
+        },
+        {
+          "id": "sd-3",
+          "name": "Chocolate",
+          "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fcategories%2Fsnacks_and_drinks%2Fchocolate.png?alt=media&token=410b9a98-9f0e-4d71-a4f5-8aebb7d69cf5"
+        },
+        {
+          "id": "sd-4",
+          "name": "Drinks",
+          "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fcategories%2Fsnacks_and_drinks%2Fdrinks.png?alt=media&token=882b6082-11d2-489e-9291-8bf0dad98f26"
+        },
+        {
+          "id": "sd-5",
+          "name": "Tea",
+          "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fcategories%2Fsnacks_and_drinks%2Ftea.png?alt=media&token=d6f87414-06ad-47c9-a0aa-c13ffa110c2b"
+        },
+        {
+          "id": "sd-6",
+          "name": "Coffee",
+          "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fcategories%2Fsnacks_and_drinks%2Fcoffee.png?alt=media&token=7dd5ddc7-2e56-48f1-86fd-d526a7fc2488"
+        },
+        {
+          "id": "sd-7",
+          "name": "Sauces",
+          "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fcategories%2Fsnacks_and_drinks%2Fsauces.png?alt=media&token=6a2e8344-c3d3-45e1-816f-0f0c43679676"
+        },
+        {
+          "id": "sd-8",
+          "name": "Ice Cream",
+          "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fcategories%2Fsnacks_and_drinks%2Fice_cream.png?alt=media&token=e8294018-1f26-4ebf-a2be-1f478206a389"
+        }
+      ]
+    },
+    {
+      "name": "Grocery & Kitchen",
+      "categories": [
+        {
+          "id": "gk-1",
+          "name": "Fresh",
+          "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fcategories%2Ffresh.png?alt=media&token=7f54342b-3899-4d48-a835-c7d22234a421"
+        },
+        {
+          "id": "gk-2",
+          "name": "Fruits",
+          "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fcategories%2Ffruits.png?alt=media&token=28278867-f61b-4489-a168-a318a75fadaf"
+        },
+        {
+          "id": "gk-3",
+          "name": "Masala",
+          "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fcategories%2Fmasala.png?alt=media&token=827da78a-889f-413b-9d99-0de429080bd1"
+        },
+        {
+          "id": "gk-4",
+          "name": "Dairy",
+          "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fcategories%2Fdiary.png?alt=media&token=8d52a414-a023-43f3-9530-b4d43775059a"
+        },
+        {
+          "id": "gk-5",
+          "name": "Grains",
+          "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fcategories%2Fgrains.png?alt=media&token=8e8ff813-42a9-4f76-bf62-784d074f07b1"
+        },
+        {
+          "id": "gk-6",
+          "name": "Oil",
+          "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fcategories%2Foil.png?alt=media&token=43ccd471-abba-4307-8315-82fa952967b3"
+        },
+        {
+          "id": "gk-7",
+          "name": "Bread",
+          "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fcategories%2Fbreads.png?alt=media&token=aef0fa9d-09a6-450f-91d9-7f3a2762aa61"
+        },
+        {
+          "id": "gk-8",
+          "name": "Chicken",
+          "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fcategories%2Fchicken.png?alt=media&token=140b0c92-e8ef-4045-b699-c45e4e1b5581"
+        }
+      ]
+    }
+  ]
+}

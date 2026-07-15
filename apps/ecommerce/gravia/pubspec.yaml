@@ -55,6 +55,7 @@ flutter:
     - assets/data/home_page.json
     - assets/data/search_page.json
     - assets/data/product_details.json
+    - assets/data/categories_page.json
 
 # One source mark → every launcher-icon size. The PNGs are rasterised from
 # assets/icons/gravia_brand_icon.svg (the brand glyph). branding/ holds these

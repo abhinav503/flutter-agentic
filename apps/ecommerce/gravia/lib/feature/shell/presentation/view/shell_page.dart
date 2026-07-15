@@ -12,6 +12,8 @@ import 'package:gravia/constants/color_const.dart';
 import 'package:gravia/constants/image_const.dart';
 import 'package:gravia/constants/value_const.dart';
 import 'package:gravia/di/injection_container.dart';
+import 'package:gravia/feature/categories/presentation/bloc/categories_bloc.dart';
+import 'package:gravia/feature/categories/presentation/view/categories_screen.dart';
 import 'package:gravia/feature/home/presentation/bloc/home_bloc.dart';
 import 'package:gravia/feature/home/presentation/view/home_screen.dart';
 
@@ -65,10 +67,10 @@ class _ShellPageState extends BasePageState<ShellPage> {
 
   @override
   PreferredSizeWidget? buildAppBar(BuildContext context) {
-    // The Home tab renders its own coloured hero header (location, search)
-    // as part of the screen body, per the pack's "coloured header canvas"
-    // composition — a generic top bar on top of it would double up.
-    if (_currentTab == 0) return null;
+    // Home and Categories render their own coloured hero header as part of
+    // the screen body, per the pack's "coloured header canvas" composition —
+    // a generic top bar on top of either would double up.
+    if (_currentTab == 0 || _currentTab == 1) return null;
 
     final themeMode = ThemeModeScope.maybeOf(context);
     return AppTopBar.primary(
@@ -102,10 +104,10 @@ class _ShellPageState extends BasePageState<ShellPage> {
           HomeBloc(getHomeUseCase: sl())..add(const HomeEvent.started()),
       child: const HomeScreen(),
     ),
-    1 => const EmptyState(
-      iconData: Icons.grid_view_rounded,
-      title: ValueConst.categoriesComingTitle,
-      subtitle: ValueConst.categoriesComingSubtitle,
+    1 => BlocProvider(
+      create: (_) => CategoriesBloc(getCategoriesUseCase: sl())
+        ..add(const CategoriesEvent.started()),
+      child: const CategoriesScreen(),
     ),
     2 => const EmptyState(
       iconData: Icons.favorite_outline,
