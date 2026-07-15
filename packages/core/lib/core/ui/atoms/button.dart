@@ -55,6 +55,12 @@ class AppButton extends StatelessWidget {
   /// regardless of the active style pack's button shape.
   final BorderRadius? borderRadius;
 
+  /// [AppButtonVariant.secondary] only — overrides the default `cs.outline`
+  /// border colour. Some outline pills are spec'd as a brand-coloured
+  /// outline (e.g. an "Add" CTA whose border matches its green icon/label)
+  /// rather than the neutral outline every other secondary button uses.
+  final Color? borderColor;
+
   const AppButton({
     super.key,
     required this.label,
@@ -69,6 +75,7 @@ class AppButton extends StatelessWidget {
     this.trailingAction,
     this.height,
     this.borderRadius,
+    this.borderColor,
   });
 
   @override
@@ -189,7 +196,7 @@ class AppButton extends StatelessWidget {
     if (variant != AppButtonVariant.secondary) return null;
     final color = disabled
         ? cs.onSurface.withValues(alpha: 0.12)
-        : cs.outline;
+        : (borderColor ?? cs.outline);
     return BorderSide(color: color);
   }
 

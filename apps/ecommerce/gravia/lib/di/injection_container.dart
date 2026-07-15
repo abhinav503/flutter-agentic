@@ -1,5 +1,10 @@
 import 'package:core/core/di/core_injection.dart';
 
+import '../feature/address/data/data_source/address_remote_data_source.dart';
+import '../feature/address/data/data_source/address_remote_data_source_impl.dart';
+import '../feature/address/data/repository_impl/address_repository_impl.dart';
+import '../feature/address/domain/repository/address_repository.dart';
+import '../feature/address/domain/usecase/get_addresses_usecase.dart';
 import '../feature/categories/data/data_source/categories_remote_data_source.dart';
 import '../feature/categories/data/data_source/categories_remote_data_source_impl.dart';
 import '../feature/categories/data/repository_impl/categories_repository_impl.dart';
@@ -93,4 +98,13 @@ Future<void> initDependencies() async {
     () => ProfileRepositoryImpl(sl()),
   );
   sl.registerLazySingleton(() => GetProfileUseCase(sl()));
+
+  // ── Address ──────────────────────────────────────────────────────────────
+  sl.registerLazySingleton<AddressRemoteDataSource>(
+    () => const AddressRemoteDataSourceImpl(),
+  );
+  sl.registerLazySingleton<AddressRepository>(
+    () => AddressRepositoryImpl(sl()),
+  );
+  sl.registerLazySingleton(() => GetAddressesUseCase(sl()));
 }

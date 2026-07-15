@@ -22,6 +22,12 @@ abstract final class ColorConst {
   /// same green as [primary]; the kit calls out this specific swatch).
   static const success500 = Color(0xFF22C55E);
 
+  /// Error/50 and Error/500 — the Select Address screen's Delete pill spec
+  /// (not the theme's `errorContainer`/`onErrorContainer` roles, which are a
+  /// different, darker-tinted pair on this preset).
+  static const error50 = Color(0xFFFEF2F2);
+  static const error500 = Color(0xFFEF4444);
+
   /// Dark-mode counterpart to [gray200] for the same hairline/handle
   /// elements — the kit's dark-mode neutral scale ("Light/900"), not a
   /// `ColorScheme` role (neither `outlineVariant` nor `surfaceContainer`
@@ -41,4 +47,13 @@ extension GraviaColorSchemeX on ColorScheme {
   /// `Color` the way [ColorConst.primary50] is.
   Color get tintedPrimaryFill =>
       brightness == Brightness.dark ? primary.withValues(alpha: 0.2) : ColorConst.primary50;
+
+  /// Same light-baked-swatch / dark-20%-alpha split as [tintedPrimaryFill],
+  /// for the Select Address screen's Delete pill: light mode uses the kit's
+  /// pre-baked pastel swatch (Error/50); dark mode's spec calls this
+  /// "Error/500 20%" — the actual error colour at 20% opacity, not a
+  /// separate baked swatch.
+  Color get tintedErrorFill => brightness == Brightness.dark
+      ? ColorConst.error500.withValues(alpha: 0.2)
+      : ColorConst.error50;
 }

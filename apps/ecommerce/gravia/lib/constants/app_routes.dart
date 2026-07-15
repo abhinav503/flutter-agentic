@@ -3,6 +3,7 @@ abstract final class AppRoutes {
   static const onboarding = '/onboarding';
   static const home = '/home';
   static const search = '/search';
+  static const selectAddress = '/select-address';
 
   /// Route pattern registered with GoRouter (`:id` path param).
   static const productDetails = '/product-details/:id';

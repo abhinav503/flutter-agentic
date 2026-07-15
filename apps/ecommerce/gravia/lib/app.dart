@@ -7,6 +7,7 @@ import 'package:core/core/theme/theme_mode_scope.dart';
 
 import 'constants/app_routes.dart';
 import 'constants/value_const.dart';
+import 'feature/address/presentation/view/address_page.dart';
 import 'feature/category_details/presentation/view/category_details_page.dart';
 import 'feature/onboarding/presentation/view/onboarding_page.dart';
 import 'feature/product_details/presentation/view/product_details_page.dart';
@@ -58,6 +59,23 @@ final _router = GoRouter(
               child: child,
             ),
         child: ProductDetailsPage(productId: state.pathParameters['id']!),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.selectAddress,
+      // Fade, same reasoning as the Search route — Home and this screen
+      // share the same primary canvas colour, so a horizontal push would
+      // visibly overlap the two headers' back/location controls mid-flight.
+      pageBuilder: (context, state) => CustomTransitionPage<void>(
+        key: state.pageKey,
+        transitionDuration: const Duration(milliseconds: 350),
+        reverseTransitionDuration: const Duration(milliseconds: 300),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+            FadeTransition(
+              opacity: CurveTween(curve: Curves.easeInOut).animate(animation),
+              child: child,
+            ),
+        child: const AddressPage(),
       ),
     ),
     GoRoute(

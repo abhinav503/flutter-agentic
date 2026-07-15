@@ -28,8 +28,7 @@ abstract final class ValueConst {
 
   // ── Home (storefront) ──────────────────────────────────────────────────────
   static const deliveryLocationLabel = 'Delivery Location';
-  static const deliveryLocationAddress =
-      'Ranchview Dr. Richardson, California 62639';
+  static const noLocationSelectedLabel = 'No Location selected';
   static const searchHint = 'Search';
   static const allCategoriesTitle = 'All Categories';
   static const popularItemsTitle = 'Popular Items';
@@ -73,6 +72,16 @@ abstract final class ValueConst {
   static const sortBySheetTitle = 'Sort by';
   static const priceSheetTitle = 'Price';
   static const categoryDetailsEmptyMessage = 'No products match these filters.';
+
+  // ── Select Address ─────────────────────────────────────────────────────────
+  static const selectAddressTitle = 'Select Address';
+  static const addNewAddressLabel = 'Add New Address';
+  static const defaultAddressSectionTitle = 'Default Address';
+  static const otherAddressSectionTitle = 'Other Address';
+  static const editLabel = 'Edit';
+  static const deleteLabel = 'Delete';
+  static const addressLoadErrorMessage =
+      'Something went wrong loading your addresses.';
 
   // ── Profile ────────────────────────────────────────────────────────────────
   static const profilePageTitle = 'Profile';

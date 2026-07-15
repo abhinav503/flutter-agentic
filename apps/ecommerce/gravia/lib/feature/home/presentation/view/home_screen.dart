@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:core/core/base/base_screen.dart';
+import 'package:core/core/services/shared_pref_service/shared_preference_service.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/loading_indicator.dart';
 import 'package:core/core/ui/blocks/collapsing_header_sheet.dart';
@@ -13,6 +14,7 @@ import 'package:gravia/constants/app_routes.dart';
 import 'package:gravia/constants/color_const.dart';
 import 'package:gravia/constants/text_style_const.dart';
 import 'package:gravia/constants/value_const.dart';
+import 'package:gravia/feature/address/presentation/view/address_page.dart';
 
 import '../../domain/entities/category_entity.dart';
 import '../../domain/entities/home_entity.dart';
@@ -31,6 +33,28 @@ class HomeScreen extends BaseScreen {
 }
 
 class _HomeScreenState extends BaseScreenState<HomeScreen> {
+  // Not BLoC-derived — a direct local-storage read, same "screen-local via
+  // setState" carve-out architecture.md documents for ShellPage's tab index.
+  // No addresses ever saved -> the key is missing -> the null fallback below.
+  String? _selectedAddressLabel;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSelectedAddress();
+  }
+
+  void _loadSelectedAddress() {
+    _selectedAddressLabel =
+        SharedPreferenceService.instance.getString(kSelectedAddressLabelPrefKey);
+  }
+
+  Future<void> _openSelectAddress() async {
+    await context.push(AppRoutes.selectAddress);
+    if (!mounted) return;
+    setState(_loadSelectedAddress);
+  }
+
   void _addToCart(ProductEntity product, int quantity) =>
       showSnackBar(ValueConst.addedToCartMessage(product.name, quantity));
 
@@ -93,6 +117,8 @@ class _HomeScreenState extends BaseScreenState<HomeScreen> {
           ),
           HomeLoaded(:final home) => _HomeContent(
             home: home,
+            addressLabel: _selectedAddressLabel ?? ValueConst.noLocationSelectedLabel,
+            onLocationTap: _openSelectAddress,
             onAddToCart: _addToCart,
             onQuickAdd: _showAddToCartSheet,
             onFavouriteToggle: (id) => context.read<HomeBloc>().add(
@@ -111,6 +137,8 @@ class _HomeScreenState extends BaseScreenState<HomeScreen> {
 
 class _HomeContent extends StatelessWidget {
   final HomeEntity home;
+  final String addressLabel;
+  final VoidCallback onLocationTap;
   final void Function(ProductEntity product, int quantity) onAddToCart;
   final ValueChanged<ProductEntity> onQuickAdd;
   final ValueChanged<String> onFavouriteToggle;
@@ -121,6 +149,8 @@ class _HomeContent extends StatelessWidget {
 
   const _HomeContent({
     required this.home,
+    required this.addressLabel,
+    required this.onLocationTap,
     required this.onAddToCart,
     required this.onQuickAdd,
     required this.onFavouriteToggle,
@@ -133,6 +163,8 @@ class _HomeContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) => CollapsingHeaderSheet(
     header: HomeHeroHeader(
+      addressLabel: addressLabel,
+      onLocationTap: onLocationTap,
       onNotificationTap: onComingSoon,
       onSearchTap: onSearchTap,
     ),

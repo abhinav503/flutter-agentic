@@ -16,11 +16,15 @@ import 'package:gravia/widgets/search_field_bar.dart';
 /// search field is a tap-to-navigate trigger here (see [SearchFieldBar]) —
 /// real typing happens on the pushed Search screen it Hero-morphs into.
 class HomeHeroHeader extends StatefulWidget {
+  final String addressLabel;
+  final VoidCallback onLocationTap;
   final VoidCallback onNotificationTap;
   final VoidCallback onSearchTap;
 
   const HomeHeroHeader({
     super.key,
+    required this.addressLabel,
+    required this.onLocationTap,
     required this.onNotificationTap,
     required this.onSearchTap,
   });
@@ -70,7 +74,7 @@ class _HomeHeroHeaderState extends State<HomeHeroHeader> {
                 containerSize: 45,
                 iconSize: 25,
                 variant: AppIconButtonVariant.glass,
-                onTap: widget.onNotificationTap,
+                onTap: widget.onLocationTap,
               ),
 
               const SizedBox(width: AppSpacing.xs2),
@@ -92,7 +96,7 @@ class _HomeHeroHeaderState extends State<HomeHeroHeader> {
                         children: [
                           Flexible(
                             child: Text(
-                              ValueConst.deliveryLocationAddress,
+                              widget.addressLabel,
                               style: TextStyleConst.textMdMedium(
                                 tt,
                               ).copyWith(color: cs.onPrimary),
