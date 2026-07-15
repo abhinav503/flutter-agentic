@@ -10,4 +10,16 @@ abstract final class AppRoutes {
   /// Concrete path for navigating to a specific product — use this with
   /// `context.push`/`context.go`, not [productDetails] (that's the pattern).
   static String productDetailsPath(String id) => '/product-details/$id';
+
+  /// Route pattern registered with GoRouter (`:id` path param). The
+  /// category's display name travels as a query param — GoRouter path
+  /// params can't carry a value with spaces/punctuation cleanly, and the
+  /// name is display-only (the mock data source ignores it, keying only on
+  /// id) so a query param is the right fit, not the route pattern itself.
+  static const categoryDetails = '/category-details/:id';
+
+  /// Concrete path for navigating to a specific category — use this with
+  /// `context.push`/`context.go`, not [categoryDetails] (that's the pattern).
+  static String categoryDetailsPath(String id, String name) =>
+      '/category-details/$id?name=${Uri.encodeQueryComponent(name)}';
 }

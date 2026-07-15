@@ -109,16 +109,47 @@ supplies the pack-specific metrics.
   scrolls up underneath it as the sheet is dragged, rather than the header
   and sheet scrolling as one unit. On-header controls are translucent white
   circles/pills (`onPrimary` at low alpha), never default AppBar icons. →
-  `CollapsingHeaderSheet` — caller supplies `header`/`body`; used by both the
-  Home screen (`HomeHeroHeader`) and the Search screen (`SearchHeroHeader`).
+  `CollapsingHeaderSheet` — caller supplies `header`/`body`. Every gravia
+  screen has its own header widget built on this canvas: `HomeHeroHeader`
+  (location + notification + search field), `SearchHeroHeader` (back + live
+  search field, Hero-morphed from Home's), `ProductDetailHeroHeader` (back +
+  centered title + favourite), `CategoriesHeroHeader` (title + search icon),
+  `CategoryDetailsHeroHeader` (back + centered title + search icon, *plus* a
+  second row — see the filter chip row bullet below).
 - **Photo-forward product grid.** Two columns; square photos with the card
   radius; the photo *is* the card — no border, no elevation box around it.
   Under it: mint quantity badge (`AppBadge` info intent), bold title, muted
-  meta row (delivery time, discount), bold price + struck original, and a
-  full-width small pill CTA. → `ProductCard` block.
+  meta row (delivery time, discount — `ProductMetaRow`), bold price + struck
+  original, and a full-width small pill CTA. → `ProductCard` block. Used
+  both as a horizontal rail (Home's Popular Items, Search, a product's
+  Similar Products) and as the main content of a full listing screen
+  (`CategoryDetailsScreen`, 2-column) — same block either way, laid out with
+  manual `Row`/`Expanded` chunking, not `GridView` (see the Blocks note
+  below).
 - **Circle category rail/grid.** Product cutout on an elevated circle, label
   below. → `CategoryTile` block; gravia tightens `imagePadding` so the PNG
-  fills more of the same-size circle.
+  fills more of the same-size circle, and fixes the circle's own fill to a
+  raw Gray/50-light / Gray/950-dark swatch (`backgroundColor` override —
+  neither shade is a `ColorScheme` role) rather than the themed
+  `surfaceContainerHighest` default. Two instances: Home's single horizontal
+  rail (`HomeCategorySection`, one `SingleChildScrollView`+`Row`), and the
+  Categories tab's full browse view (`CategoryGroupSection`) — categories
+  grouped under bold section headings, each group a 4-column grid (manual
+  `Row`/`Expanded` chunking, same reasoning as the product grid). Tapping
+  either navigates to `CategoryDetailsScreen`.
+- **Filter chip row + single-select filter sheet.** A second row on the
+  coloured canvas, below the title row: horizontally-scrolling "liquid
+  glass" pill chips (`AppGlassChip` — real frosted-glass treatment via
+  `CommonGlassSurface`, not a flat tinted box), each opening a bottom sheet
+  filter. Sheet body is a single-select list, `AppBottomSheet`'s
+  title+"Cancel"-link header (same override pattern as the quick-add sheet
+  below). Two list styles depending on what's being chosen: a plain option
+  (Sort, Price) uses `AppRadioDot` — a classic outer-ring + inner-dot radio,
+  *not* a checkmark — via the generic `RadioOptionsSheetContent<T>`; a
+  count-labelled option (`"Apple (4)"`-style) uses square `AppCheckbox`
+  with its checkmark, single-select enforced by the BLoC (only one stays
+  checked) rather than by the widget itself, which is a plain multi-capable
+  checkbox. → `CategoryDetailsHeroHeader` + `RadioOptionsSheetContent`.
 - **Section rhythm.** Every content section opens `SectionHeader` (bold title
   + primary "See All").
 - **Pill quantity stepper** on cart rows and detail. → `QuantityStepper`; in
@@ -141,7 +172,9 @@ supplies the pack-specific metrics.
   `AppBottomSheet`'s `titleStyle`/`closeLabel`/`closeLabelStyle`/
   `dividerColor`/`handleColor` overrides + `QuantityStepper`.
 - **Docked bottom CTA.** Checkout-style primary actions dock at the bottom as
-  one full-width large pill above the safe area.
+  one full-width large pill above the safe area — often paired with a
+  `QuantityStepper` beside it (`ProductDetailBottomBar`). Same top-hairline
+  treatment as the bottom nav bar (see rule 4 in §2), not a one-off shade.
 - **Pill-highlight bottom nav.** Active tab = pill with icon + label on
   primary; inactive tabs = icon-only circles on Gray/50
   (`surfaceContainerLow` — barely off the surface, not `Highest`), icons in
@@ -203,19 +236,46 @@ the `/search` route in `apps/ecommerce/gravia/lib/app.dart`.
   `section_header.dart`, `quantity_stepper.dart`, `bottom_nav_bar.dart`,
   `collapsing_header_sheet.dart`. These only read `Theme.of(context)`
   (colour/shape/spacing tokens), so a new preset re-skins them for free — no
-  new block needed just because a new pack shows
-  up.
+  new block needed just because a new pack shows up. A fixed-column grid
+  nested inside `CollapsingHeaderSheet`'s body (or any scrollable that isn't
+  itself sliver-composed) should be laid out with manual `Row`/`Expanded`
+  chunking (see `CategoryGroupSection`, `CategoryDetailsScreen`'s product
+  grid), not `GridView` — a `shrinkWrap` `GridView` there forces every item
+  to lay out up front anyway (no real laziness win), and a guessed
+  `mainAxisExtent` either clips content or leaves dead space. An off-layout
+  "measure one item first" approach was tried and reverted — it introduced a
+  new class of layout bug (a stray gap between rows from a since-unexplained
+  bad remeasurement) worse than the one it fixed; don't reach for it again
+  without a much stronger reason.
 - **`ecommerce/`** — compositions that encode ecommerce-specific data (price,
   discount, delivery time, product photo): `product_card.dart`,
-  `category_tile.dart`. A future pack in the *same* category (another
-  ecommerce/grocery/retail preset) reuses these unchanged; a pack in a
-  *different* category (finance, health, social, …) gets its own sibling
-  subfolder — see §3.
+  `category_tile.dart`, `product_meta_row.dart` (the icon+label meta row —
+  delivery time, discount — extracted out of `product_card.dart` once a
+  second surface, `ProductDetailsScreen`, needed the exact same row outside
+  a full card; `ProductCard` now builds its own meta row on top of it too,
+  so the two surfaces can't drift apart into hand-copied `Row`s again). A
+  future pack in the *same* category (another ecommerce/grocery/retail
+  preset) reuses these unchanged; a pack in a *different* category (finance,
+  health, social, …) gets its own sibling subfolder — see §3.
 
 Compose these before hand-rolling a new layout; if a needed composition is
 missing, build it as a new block (theme-driven, no literals) in the root if
 it's cross-domain, or in a `blocks/<category>/` subfolder if it encodes
 domain-specific data — never inline in the app.
+
+**App-level presets on top of a `core` atom:** when a style pack's spec for
+some interactive control is a fixed, opinionated look that differs from
+`core`'s themed default (no check icon, a border colour that doesn't flip
+with the theme, a tinted fill, …), don't fork the atom or hand-repeat the
+override params at every call site — add the override params to the `core`
+atom itself (e.g. `AppChip.showCheckIcon`, `AppCheckbox.showCheckIcon`,
+`AppGlassChip.height`; all default to the prior themed behaviour, so
+existing callers are unaffected), then wrap it in a small preset widget in
+the app's `lib/widgets/` that bakes those overrides in as defaults —
+`SelectorChip` (gravia's single-select size/variant chip) wrapping `AppChip`
+is the reference example. `core` stays generic and themeable by any pack;
+the pack-specific look lives in exactly one place in the app, not
+copy-pasted at every screen that needs it.
 
 **Whenever you add a new atom, molecule, or block to `core/ui/`, add a
 matching showcase entry to `apps/design_gallery`** (Widgetbook — see

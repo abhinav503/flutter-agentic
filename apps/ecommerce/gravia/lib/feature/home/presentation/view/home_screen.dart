@@ -14,6 +14,7 @@ import 'package:gravia/constants/color_const.dart';
 import 'package:gravia/constants/text_style_const.dart';
 import 'package:gravia/constants/value_const.dart';
 
+import '../../domain/entities/category_entity.dart';
 import '../../domain/entities/home_entity.dart';
 import '../../domain/entities/product_entity.dart';
 import '../bloc/home_bloc.dart';
@@ -35,6 +36,10 @@ class _HomeScreenState extends BaseScreenState<HomeScreen> {
 
   void _openProductDetails(ProductEntity product) =>
       context.push(AppRoutes.productDetailsPath(product.id));
+
+  void _openCategoryDetails(CategoryEntity category) => context.push(
+    AppRoutes.categoryDetailsPath(category.id, category.name),
+  );
 
   void _showAddToCartSheet(ProductEntity product) {
     final cs = Theme.of(context).colorScheme;
@@ -94,6 +99,7 @@ class _HomeScreenState extends BaseScreenState<HomeScreen> {
               HomeEvent.favouriteToggled(productId: id),
             ),
             onProductTap: _openProductDetails,
+            onCategoryTap: _openCategoryDetails,
             onComingSoon: () => showSnackBar(ValueConst.comingSoonMessage),
             onSearchTap: () => context.push(AppRoutes.search),
           ),
@@ -111,6 +117,7 @@ class _HomeContent extends StatelessWidget {
   final ValueChanged<ProductEntity> onProductTap;
   final VoidCallback onComingSoon;
   final VoidCallback onSearchTap;
+  final ValueChanged<CategoryEntity> onCategoryTap;
 
   const _HomeContent({
     required this.home,
@@ -120,6 +127,7 @@ class _HomeContent extends StatelessWidget {
     required this.onProductTap,
     required this.onComingSoon,
     required this.onSearchTap,
+    required this.onCategoryTap,
   });
 
   @override
@@ -135,6 +143,7 @@ class _HomeContent extends StatelessWidget {
           HomeCategorySection(
             categories: home.categories,
             onComingSoon: onComingSoon,
+            onCategoryTap: onCategoryTap,
           ),
           const SizedBox(height: AppSpacing.xl4),
           HomePopularItemsSection(

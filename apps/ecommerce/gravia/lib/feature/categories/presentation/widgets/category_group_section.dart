@@ -23,7 +23,7 @@ const _kColumns = 4;
 /// hit and fixed the same way on `ProductDetailSimilarProducts`).
 class CategoryGroupSection extends StatelessWidget {
   final CategoryGroupEntity group;
-  final ValueChanged<String> onCategoryTap;
+  final ValueChanged<CategoryEntity> onCategoryTap;
 
   const CategoryGroupSection({
     super.key,
@@ -75,7 +75,7 @@ class CategoryGroupSection extends StatelessWidget {
                             label: rows[r][c].name,
                             labelStyle: TextStyleConst.textSmRegular(tt),
                             backgroundColor: tileBackgroundColor,
-                            onTap: () => onCategoryTap(rows[r][c].id),
+                            onTap: () => onCategoryTap(rows[r][c]),
                           )
                         // Last row may be short of a full 4 — an empty
                         // Expanded keeps the real tiles left-aligned instead

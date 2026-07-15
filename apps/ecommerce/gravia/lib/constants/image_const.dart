@@ -18,4 +18,6 @@ abstract final class ImageConst {
   static const undo = 'assets/icons/undo.svg';
   static const remove = 'assets/icons/remove.svg';
   static const arrowLeft = 'assets/icons/arrow-left.svg';
+  static const arrowSort = 'assets/icons/arrow-sort.svg';
+  static const directionRight = 'assets/icons/direction-right.svg';
 }

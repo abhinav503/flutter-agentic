@@ -12,6 +12,7 @@ import 'package:core/core/ui/molecules/error_view.dart';
 import 'package:gravia/constants/app_routes.dart';
 import 'package:gravia/constants/value_const.dart';
 
+import '../../../home/domain/entities/category_entity.dart';
 import '../bloc/categories_bloc.dart';
 import '../widgets/categories_hero_header.dart';
 import '../widgets/category_group_section.dart';
@@ -24,6 +25,10 @@ class CategoriesScreen extends BaseScreen {
 }
 
 class _CategoriesScreenState extends BaseScreenState<CategoriesScreen> {
+  void _openCategoryDetails(CategoryEntity category) => context.push(
+    AppRoutes.categoryDetailsPath(category.id, category.name),
+  );
+
   @override
   Widget body(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
@@ -63,8 +68,7 @@ class _CategoriesScreenState extends BaseScreenState<CategoriesScreen> {
                     if (i > 0) const SizedBox(height: AppSpacing.xl4),
                     CategoryGroupSection(
                       group: categories.groups[i],
-                      onCategoryTap: (_) =>
-                          showSnackBar(ValueConst.comingSoonMessage),
+                      onCategoryTap: _openCategoryDetails,
                     ),
                   ],
                 ],

@@ -14,11 +14,13 @@ import '../../domain/entities/category_entity.dart';
 class HomeCategorySection extends StatelessWidget {
   final List<CategoryEntity> categories;
   final VoidCallback onComingSoon;
+  final ValueChanged<CategoryEntity> onCategoryTap;
 
   const HomeCategorySection({
     super.key,
     required this.categories,
     required this.onComingSoon,
+    required this.onCategoryTap,
   });
 
   @override
@@ -65,7 +67,7 @@ class HomeCategorySection extends StatelessWidget {
                   label: categories[i].name,
                   labelStyle: TextStyleConst.textSmRegular(tt),
                   backgroundColor: tileBackgroundColor,
-                  onTap: onComingSoon,
+                  onTap: () => onCategoryTap(categories[i]),
                 ),
               ],
             ],

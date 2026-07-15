@@ -7,11 +7,17 @@ class AppCheckbox extends StatelessWidget {
   final double size;
   final AppCheckboxShape shape;
 
+  /// Checked state shows a check glyph by default. Set false for a plain
+  /// filled dot — e.g. a radio row, where the fill alone communicates
+  /// selection (same reasoning as `AppChip.showCheckIcon`).
+  final bool showCheckIcon;
+
   const AppCheckbox({
     super.key,
     required this.value,
     this.size = 22,
     this.shape = AppCheckboxShape.circle,
+    this.showCheckIcon = true,
   });
 
   @override
@@ -34,7 +40,7 @@ class AppCheckbox extends StatelessWidget {
           width: 2,
         ),
       ),
-      child: value
+      child: value && showCheckIcon
           ? Icon(Icons.check, size: size * 0.64, color: cs.onPrimary)
           : null,
     );

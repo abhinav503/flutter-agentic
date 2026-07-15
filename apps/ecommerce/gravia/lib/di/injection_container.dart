@@ -5,6 +5,11 @@ import '../feature/categories/data/data_source/categories_remote_data_source_imp
 import '../feature/categories/data/repository_impl/categories_repository_impl.dart';
 import '../feature/categories/domain/repository/categories_repository.dart';
 import '../feature/categories/domain/usecase/get_categories_usecase.dart';
+import '../feature/category_details/data/data_source/category_details_remote_data_source.dart';
+import '../feature/category_details/data/data_source/category_details_remote_data_source_impl.dart';
+import '../feature/category_details/data/repository_impl/category_details_repository_impl.dart';
+import '../feature/category_details/domain/repository/category_details_repository.dart';
+import '../feature/category_details/domain/usecase/get_category_details_usecase.dart';
 import '../feature/home/data/data_source/home_remote_data_source.dart';
 import '../feature/home/data/data_source/home_remote_data_source_impl.dart';
 import '../feature/home/data/repository_impl/home_repository_impl.dart';
@@ -56,6 +61,15 @@ Future<void> initDependencies() async {
     () => CategoriesRepositoryImpl(sl()),
   );
   sl.registerLazySingleton(() => GetCategoriesUseCase(sl()));
+
+  // ── Category Details ────────────────────────────────────────────────────
+  sl.registerLazySingleton<CategoryDetailsRemoteDataSource>(
+    () => const CategoryDetailsRemoteDataSourceImpl(),
+  );
+  sl.registerLazySingleton<CategoryDetailsRepository>(
+    () => CategoryDetailsRepositoryImpl(sl()),
+  );
+  sl.registerLazySingleton(() => GetCategoryDetailsUseCase(sl()));
 
   // ── Product Details ─────────────────────────────────────────────────────
   sl.registerLazySingleton<ProductDetailsRemoteDataSource>(

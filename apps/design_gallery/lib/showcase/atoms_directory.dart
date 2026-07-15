@@ -5,12 +5,14 @@ import 'package:core/core/ui/atoms/chip.dart';
 import 'package:core/core/ui/atoms/common_glass_surface.dart';
 import 'package:core/core/ui/atoms/device_frame.dart';
 import 'package:core/core/ui/atoms/dropdown_menu.dart';
+import 'package:core/core/ui/atoms/glass_chip.dart';
 import 'package:core/core/ui/atoms/glass_surface.dart';
 import 'package:core/core/ui/atoms/icon_button.dart';
 import 'package:core/core/ui/atoms/loading_dots.dart';
 import 'package:core/core/ui/atoms/loading_indicator.dart';
 import 'package:core/core/ui/atoms/network_image.dart';
 import 'package:core/core/ui/atoms/page_indicator.dart';
+import 'package:core/core/ui/atoms/radio_dot.dart';
 import 'package:core/core/ui/atoms/svg_image.dart';
 import 'package:core/core/ui/atoms/text_field.dart';
 import 'package:core/core/ui/atoms/top_bar.dart';
@@ -131,6 +133,17 @@ WidgetbookCategory atomsCategory() {
             'Square',
             AppCheckbox(value: true, shape: AppCheckboxShape.square),
           ),
+          Variant(
+            'Radio (no check icon)',
+            AppCheckbox(value: true, showCheckIcon: false),
+          ),
+        ]),
+      ),
+      allVariants(
+        'AppRadioDot',
+        (context) => showcase(context, const [
+          Variant('Unselected', AppRadioDot(selected: false)),
+          Variant('Selected', AppRadioDot(selected: true)),
         ]),
       ),
       allVariants(
@@ -234,6 +247,42 @@ WidgetbookCategory atomsCategory() {
                   glassHighlightThickness: 2,
                   glassBlurSigma: 4,
                   onTap: () {},
+                ),
+              ),
+            ),
+          ),
+        ]),
+      ),
+      allVariants(
+        'AppGlassChip',
+        (context) => showcase(context, [
+          Variant(
+            'On primary',
+            ColoredBox(
+              color: Theme.of(context).colorScheme.primary,
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: AppGlassChip(
+                  leading: const Icon(Icons.swap_vert),
+                  label: 'Sort',
+                  trailing: const Icon(Icons.keyboard_arrow_down),
+                  onTap: () {},
+                ),
+              ),
+            ),
+          ),
+          Variant(
+            'Fixed height (e.g. matching a nearby text field)',
+            ColoredBox(
+              color: Theme.of(context).colorScheme.primary,
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: AppGlassChip(
+                  leading: const Icon(Icons.swap_vert),
+                  label: 'Sort',
+                  trailing: const Icon(Icons.keyboard_arrow_down),
+                  onTap: () {},
+                  height: 45,
                 ),
               ),
             ),

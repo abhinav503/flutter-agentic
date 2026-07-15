@@ -67,6 +67,13 @@ abstract final class ValueConst {
   static const categoriesLoadErrorMessage =
       'Something went wrong loading categories.';
 
+  // ── Category Details ───────────────────────────────────────────────────────
+  static const sortLabel = 'Sort';
+  static const priceLabel = 'Price';
+  static const sortBySheetTitle = 'Sort by';
+  static const priceSheetTitle = 'Price';
+  static const categoryDetailsEmptyMessage = 'No products match these filters.';
+
   // ── Placeholder tabs (removed as real screens land) ───────────────────────
   static const favouriteEmptyTitle = 'No favourites yet';
   static const favouriteEmptySubtitle =
