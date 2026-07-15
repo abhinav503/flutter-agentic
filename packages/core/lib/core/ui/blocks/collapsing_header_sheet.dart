@@ -80,33 +80,59 @@ class _CollapsingHeaderSheetState extends State<CollapsingHeaderSheet> {
     return SizedBox.expand(
       child: ColoredBox(
         color: widget.headerColor ?? cs.primary,
-        child: Stack(
-          children: [
-            KeyedSubtree(key: _headerKey, child: widget.header),
-            Positioned.fill(
-              child: _PassThroughAboveOffset(
-                thresholdGetter: () => _uncoveredHeaderHeight,
-                child: CustomScrollView(
-                  controller: _scrollController,
-                  slivers: [
-                    SliverToBoxAdapter(child: SizedBox(height: _headerHeight)),
-                    SliverToBoxAdapter(
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          color: widget.sheetColor ?? cs.surface,
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(shapes.sheetRadius),
-                            topRight: Radius.circular(shapes.sheetRadius),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            // Below-viewport minimum for the sheet sliver — otherwise a
+            // body shorter than (viewport - header) leaves a gap in the
+            // scroll view where the canvas colour behind it shows through.
+            final minBodyHeight =
+                (constraints.maxHeight - _headerHeight).clamp(0.0, double.infinity);
+
+            return Stack(
+              children: [
+                KeyedSubtree(key: _headerKey, child: widget.header),
+                Positioned.fill(
+                  child: _PassThroughAboveOffset(
+                    thresholdGetter: () => _uncoveredHeaderHeight,
+                    child: CustomScrollView(
+                      controller: _scrollController,
+                      // Clamped, not bouncing: with `BouncingScrollPhysics`
+                      // (iOS default), dragging past either end — trivial
+                      // when body content is shorter than the viewport —
+                      // slides the whole sliver stack past its own layout
+                      // bounds, momentarily exposing the canvas colour
+                      // behind it. No minimum-height sizing can prevent
+                      // that, since it's an overscroll paint effect, not a
+                      // layout gap.
+                      physics: const ClampingScrollPhysics(),
+                      slivers: [
+                        SliverToBoxAdapter(
+                          child: SizedBox(height: _headerHeight),
+                        ),
+                        SliverToBoxAdapter(
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(
+                              minHeight: minBodyHeight,
+                            ),
+                            child: DecoratedBox(
+                              decoration: BoxDecoration(
+                                color: widget.sheetColor ?? cs.surface,
+                                borderRadius: BorderRadius.only(
+                                  topLeft: Radius.circular(shapes.sheetRadius),
+                                  topRight: Radius.circular(shapes.sheetRadius),
+                                ),
+                              ),
+                              child: widget.body,
+                            ),
                           ),
                         ),
-                        child: widget.body,
-                      ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
-              ),
-            ),
-          ],
+              ],
+            );
+          },
         ),
       ),
     );
