@@ -4,10 +4,14 @@ import 'package:flutter/material.dart';
 /// role — used when a design spec calls out an exact shade (e.g. "Gray/500")
 /// rather than a semantic role like `onSurfaceVariant`.
 abstract final class ColorConst {
+  static const gray50 = Color(0xFFF7F7F7);
   static const gray100 = Color(0xFFEDEDED);
   static const gray200 = Color(0xFFDFDFDF);
   static const gray500 = Color(0xFFA1A1A1);
   static const gray900 = Color(0xFF3A3B3F);
+
+  /// Dark-mode counterpart to [gray50] — category tile circle background.
+  static const gray950 = Color(0xFF242528);
 
   /// Same shade in both light and dark — unlike `onSurfaceVariant`, which
   /// resolves to Gray/700 in light but Gray/400 in dark.

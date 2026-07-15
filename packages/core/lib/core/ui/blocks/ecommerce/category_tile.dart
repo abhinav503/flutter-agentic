@@ -21,6 +21,11 @@ class CategoryTile extends StatelessWidget {
   /// circle, rather than growing the whole tile.
   final EdgeInsetsGeometry imagePadding;
 
+  /// Circle fill — omit to keep the themed default (`surfaceContainerHighest`).
+  /// Callers pass this for a brand-specific fixed shade (e.g. a kit's
+  /// Gray/50-in-light, Gray/950-in-dark pair) rather than the theme role.
+  final Color? backgroundColor;
+
   const CategoryTile({
     super.key,
     required this.image,
@@ -29,6 +34,7 @@ class CategoryTile extends StatelessWidget {
     this.labelStyle,
     this.size = 64,
     this.imagePadding = const EdgeInsets.all(AppSpacing.base),
+    this.backgroundColor,
   });
 
   @override
@@ -46,7 +52,7 @@ class CategoryTile extends StatelessWidget {
             height: size,
             padding: imagePadding,
             decoration: BoxDecoration(
-              color: cs.surfaceContainerHighest,
+              color: backgroundColor ?? cs.surfaceContainerHighest,
               shape: BoxShape.circle,
             ),
             child: image,

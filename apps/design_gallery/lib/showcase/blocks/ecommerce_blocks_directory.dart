@@ -84,6 +84,18 @@ WidgetbookFolder ecommerceBlocksFolder() {
               onTap: () {},
             ),
           ),
+          Variant(
+            'Fixed backgroundColor (e.g. gravia Gray/50-950)',
+            CategoryTile(
+              imagePadding: const EdgeInsets.all(8),
+              image: placeholderImage(context, icon: Icons.eco_outlined),
+              label: 'Vegetables',
+              backgroundColor: Theme.of(context).brightness == Brightness.dark
+                  ? const Color(0xFF242528)
+                  : const Color(0xFFF7F7F7),
+              onTap: () {},
+            ),
+          ),
         ]),
       ),
     ],

@@ -80,7 +80,12 @@ class ProductDetailHeroHeader extends StatelessWidget {
             ),
           ),
           AppIconButton(
-            icon: isFavourite ? Icons.favorite : Icons.favorite_border,
+            iconBuilder: (color, size) => AppSvgImage.asset(
+              isFavourite ? ImageConst.favouriteFilled : ImageConst.navFavourite,
+              color: color,
+              width: size,
+              height: size,
+            ),
             containerSize: _iconContainerSize,
             iconSize: _iconSize,
             variant: AppIconButtonVariant.glass,

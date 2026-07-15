@@ -7,6 +7,7 @@ abstract final class ImageConst {
   static const navHome = 'assets/icons/home-minus.svg';
   static const navCategories = 'assets/icons/apps-circle.svg';
   static const navFavourite = 'assets/icons/heart.svg';
+  static const favouriteFilled = 'assets/icons/heart-filled.svg';
   static const navOrders = 'assets/icons/bag.svg';
   static const navProfile = 'assets/icons/user-circle.svg';
   static const flash = 'assets/icons/flash.svg';

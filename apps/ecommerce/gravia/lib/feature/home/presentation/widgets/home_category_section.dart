@@ -5,6 +5,7 @@ import 'package:core/core/ui/atoms/network_image.dart';
 import 'package:core/core/ui/blocks/ecommerce/category_tile.dart';
 import 'package:core/core/ui/blocks/section_header.dart';
 
+import 'package:gravia/constants/color_const.dart';
 import 'package:gravia/constants/text_style_const.dart';
 import 'package:gravia/constants/value_const.dart';
 
@@ -24,6 +25,8 @@ class HomeCategorySection extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final tileBackgroundColor = isDark ? ColorConst.gray950 : ColorConst.gray50;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -61,6 +64,7 @@ class HomeCategorySection extends StatelessWidget {
                   ),
                   label: categories[i].name,
                   labelStyle: TextStyleConst.textSmRegular(tt),
+                  backgroundColor: tileBackgroundColor,
                   onTap: onComingSoon,
                 ),
               ],
