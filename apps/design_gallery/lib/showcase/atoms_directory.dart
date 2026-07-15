@@ -14,6 +14,7 @@ import 'package:core/core/ui/atoms/network_image.dart';
 import 'package:core/core/ui/atoms/page_indicator.dart';
 import 'package:core/core/ui/atoms/radio_dot.dart';
 import 'package:core/core/ui/atoms/svg_image.dart';
+import 'package:core/core/ui/atoms/switch.dart';
 import 'package:core/core/ui/atoms/text_field.dart';
 import 'package:core/core/ui/atoms/top_bar.dart';
 import 'package:core/core/theme/app_colors_extension.dart';
@@ -136,6 +137,21 @@ WidgetbookCategory atomsCategory() {
           Variant(
             'Radio (no check icon)',
             AppCheckbox(value: true, showCheckIcon: false),
+          ),
+        ]),
+      ),
+      allVariants(
+        'AppSwitch',
+        (context) => showcase(context, [
+          Variant('Off', AppSwitch(value: false, onChanged: (_) {})),
+          Variant('On', AppSwitch(value: true, onChanged: (_) {})),
+          Variant(
+            'Custom inactive track (e.g. gravia)',
+            AppSwitch(
+              value: false,
+              onChanged: (_) {},
+              inactiveTrackColor: const Color(0xFFDFDFDF),
+            ),
           ),
         ]),
       ),

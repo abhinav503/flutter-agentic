@@ -16,6 +16,8 @@ import 'package:gravia/feature/categories/presentation/bloc/categories_bloc.dart
 import 'package:gravia/feature/categories/presentation/view/categories_screen.dart';
 import 'package:gravia/feature/home/presentation/bloc/home_bloc.dart';
 import 'package:gravia/feature/home/presentation/view/home_screen.dart';
+import 'package:gravia/feature/profile/presentation/bloc/profile_bloc.dart';
+import 'package:gravia/feature/profile/presentation/view/profile_screen.dart';
 
 class ShellPage extends BasePage {
   const ShellPage({super.key});
@@ -67,10 +69,10 @@ class _ShellPageState extends BasePageState<ShellPage> {
 
   @override
   PreferredSizeWidget? buildAppBar(BuildContext context) {
-    // Home and Categories render their own coloured hero header as part of
-    // the screen body, per the pack's "coloured header canvas" composition —
-    // a generic top bar on top of either would double up.
-    if (_currentTab == 0 || _currentTab == 1) return null;
+    // Home, Categories, and Profile render their own coloured hero header as
+    // part of the screen body, per the pack's "coloured header canvas"
+    // composition — a generic top bar on top of any of them would double up.
+    if (_currentTab == 0 || _currentTab == 1 || _currentTab == 4) return null;
 
     final themeMode = ThemeModeScope.maybeOf(context);
     return AppTopBar.primary(
@@ -119,10 +121,10 @@ class _ShellPageState extends BasePageState<ShellPage> {
       title: ValueConst.ordersEmptyTitle,
       subtitle: ValueConst.ordersEmptySubtitle,
     ),
-    _ => const EmptyState(
-      iconData: Icons.person_outline,
-      title: ValueConst.profileComingTitle,
-      subtitle: ValueConst.profileComingSubtitle,
+    _ => BlocProvider(
+      create: (_) =>
+          ProfileBloc(getProfileUseCase: sl())..add(const ProfileEvent.started()),
+      child: const ProfileScreen(),
     ),
   };
 }

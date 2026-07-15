@@ -59,8 +59,10 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text(ValueConst.ordersEmptyTitle), findsOneWidget);
 
+    // Profile renders a real AppNetworkImage (the avatar) too — same
+    // never-settles reasoning as Home, so a bounded pump again.
     await tester.tap(tabs.at(4));
-    await tester.pumpAndSettle();
-    expect(find.text(ValueConst.profileComingTitle), findsOneWidget);
+    await settleHome(tester);
+    expect(find.text(ValueConst.changePasswordLabel), findsOneWidget);
   });
 }

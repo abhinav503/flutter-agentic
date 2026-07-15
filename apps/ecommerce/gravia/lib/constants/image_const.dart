@@ -20,4 +20,14 @@ abstract final class ImageConst {
   static const arrowLeft = 'assets/icons/arrow-left.svg';
   static const arrowSort = 'assets/icons/arrow-sort.svg';
   static const directionRight = 'assets/icons/direction-right.svg';
+  static const lock = 'assets/icons/lock.svg';
+  static const shoppingBag = 'assets/icons/shopping-bag.svg';
+  static const eye = 'assets/icons/eye.svg';
+  static const shieldCheck = 'assets/icons/shield-check.svg';
+  static const notes = 'assets/icons/notes.svg';
+  static const logout = 'assets/icons/logout.svg';
+  static const editRectangle = 'assets/icons/edit-rectangle.svg';
+  static const card = 'assets/icons/card.svg';
+
+  static const profileDefault = 'assets/images/profile_default.png';
 }

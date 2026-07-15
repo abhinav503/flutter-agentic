@@ -20,6 +20,11 @@ import '../feature/product_details/data/data_source/product_details_remote_data_
 import '../feature/product_details/data/repository_impl/product_details_repository_impl.dart';
 import '../feature/product_details/domain/repository/product_details_repository.dart';
 import '../feature/product_details/domain/usecase/get_product_details_usecase.dart';
+import '../feature/profile/data/data_source/profile_remote_data_source.dart';
+import '../feature/profile/data/data_source/profile_remote_data_source_impl.dart';
+import '../feature/profile/data/repository_impl/profile_repository_impl.dart';
+import '../feature/profile/domain/repository/profile_repository.dart';
+import '../feature/profile/domain/usecase/get_profile_usecase.dart';
 import '../feature/search/data/data_source/search_remote_data_source.dart';
 import '../feature/search/data/data_source/search_remote_data_source_impl.dart';
 import '../feature/search/data/repository_impl/search_repository_impl.dart';
@@ -79,4 +84,13 @@ Future<void> initDependencies() async {
     () => ProductDetailsRepositoryImpl(sl()),
   );
   sl.registerLazySingleton(() => GetProductDetailsUseCase(sl()));
+
+  // ── Profile ──────────────────────────────────────────────────────────────
+  sl.registerLazySingleton<ProfileRemoteDataSource>(
+    () => const ProfileRemoteDataSourceImpl(),
+  );
+  sl.registerLazySingleton<ProfileRepository>(
+    () => ProfileRepositoryImpl(sl()),
+  );
+  sl.registerLazySingleton(() => GetProfileUseCase(sl()));
 }

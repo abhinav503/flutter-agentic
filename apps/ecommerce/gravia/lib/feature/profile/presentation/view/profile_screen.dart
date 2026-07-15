@@ -1,0 +1,170 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import 'package:core/core/base/base_screen.dart';
+import 'package:core/core/theme/app_spacing.dart';
+import 'package:core/core/theme/theme_mode_scope.dart';
+import 'package:core/core/ui/atoms/loading_indicator.dart';
+import 'package:core/core/ui/atoms/svg_image.dart';
+import 'package:core/core/ui/atoms/switch.dart';
+import 'package:core/core/ui/blocks/collapsing_header_sheet.dart';
+import 'package:core/core/ui/molecules/error_view.dart';
+
+import 'package:gravia/constants/color_const.dart';
+import 'package:gravia/constants/image_const.dart';
+import 'package:gravia/constants/value_const.dart';
+
+import '../bloc/profile_bloc.dart';
+import '../widgets/profile_hero_header.dart';
+import '../widgets/profile_menu_tile.dart';
+
+class ProfileScreen extends BaseScreen {
+  const ProfileScreen({super.key});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends BaseScreenState<ProfileScreen> {
+  @override
+  Widget body(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.light,
+        statusBarBrightness: Brightness.dark,
+      ),
+      child: BlocConsumer<ProfileBloc, ProfileState>(
+        listener: (context, state) {
+          if (state case ProfileError(:final message)) showSnackBar(message);
+        },
+        builder: (context, state) => switch (state) {
+          ProfileLoading() => Container(
+            color: cs.primary,
+            child: const SafeArea(child: Center(child: LoadingIndicator())),
+          ),
+          ProfileError() => SafeArea(
+            child: ErrorView(
+              message: ValueConst.profileLoadErrorMessage,
+              onRetry: () =>
+                  context.read<ProfileBloc>().add(const ProfileEvent.started()),
+            ),
+          ),
+          ProfileLoaded(:final profile) => CollapsingHeaderSheet(
+            initialHeaderHeight: 195,
+            header: ProfileHeroHeader(
+              profile: profile,
+              onEditTap: () => showSnackBar(ValueConst.comingSoonMessage),
+            ),
+            body: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.lg,
+                vertical: AppSpacing.xl2,
+              ),
+              child: Column(
+                children: [
+                  ProfileMenuTile(
+                    iconBuilder: (color, size) => AppSvgImage.asset(
+                      ImageConst.lock,
+                      color: color,
+                      width: size,
+                      height: size,
+                    ),
+                    label: ValueConst.changePasswordLabel,
+                    onTap: () => showSnackBar(ValueConst.comingSoonMessage),
+                  ),
+                  ProfileMenuTile(
+                    iconBuilder: (color, size) => AppSvgImage.asset(
+                      ImageConst.shoppingBag,
+                      color: color,
+                      width: size,
+                      height: size,
+                    ),
+                    label: ValueConst.myOrdersLabel,
+                    onTap: () => showSnackBar(ValueConst.comingSoonMessage),
+                  ),
+                  ProfileMenuTile(
+                    iconBuilder: (color, size) => AppSvgImage.asset(
+                      ImageConst.card,
+                      color: color,
+                      width: size,
+                      height: size,
+                    ),
+                    label: ValueConst.myCardsLabel,
+                    onTap: () => showSnackBar(ValueConst.comingSoonMessage),
+                  ),
+                  ProfileMenuTile(
+                    iconBuilder: (color, size) => AppSvgImage.asset(
+                      ImageConst.locationIcon,
+                      color: color,
+                      width: size,
+                      height: size,
+                    ),
+                    label: ValueConst.myAddressLabel,
+                    onTap: () => showSnackBar(ValueConst.comingSoonMessage),
+                  ),
+                  ProfileMenuTile(
+                    iconBuilder: (color, size) => AppSvgImage.asset(
+                      ImageConst.eye,
+                      color: color,
+                      width: size,
+                      height: size,
+                    ),
+                    label: ValueConst.darkModeLabel,
+                    // Material's own Switch grows the thumb when selected
+                    // (M3 spec: active radius 12, inactive 8) with no public
+                    // way to equalize them — AppSwitch keeps one fixed thumb
+                    // size in both states instead, plus the exact kit-spec
+                    // track colours (Gray/100 off, Success/500 on).
+                    trailing: AppSwitch(
+                      value: Theme.of(context).brightness == Brightness.dark,
+                      onChanged: (isDark) => ThemeModeScope.of(context)
+                          .setMode(isDark ? ThemeMode.dark : ThemeMode.light),
+                      activeTrackColor: ColorConst.success500,
+                      inactiveTrackColor: ColorConst.gray100,
+                    ),
+                  ),
+                  ProfileMenuTile(
+                    iconBuilder: (color, size) => AppSvgImage.asset(
+                      ImageConst.shieldCheck,
+                      color: color,
+                      width: size,
+                      height: size,
+                    ),
+                    label: ValueConst.privacyPolicyLabel,
+                    onTap: () => showSnackBar(ValueConst.comingSoonMessage),
+                  ),
+                  ProfileMenuTile(
+                    iconBuilder: (color, size) => AppSvgImage.asset(
+                      ImageConst.notes,
+                      color: color,
+                      width: size,
+                      height: size,
+                    ),
+                    label: ValueConst.termsAndConditionsLabel,
+                    onTap: () => showSnackBar(ValueConst.comingSoonMessage),
+                  ),
+                  ProfileMenuTile(
+                    iconBuilder: (color, size) => AppSvgImage.asset(
+                      ImageConst.logout,
+                      color: color,
+                      width: size,
+                      height: size,
+                    ),
+                    label: ValueConst.logoutLabel,
+                    danger: true,
+                    trailing: const SizedBox.shrink(),
+                    onTap: () => showSnackBar(ValueConst.comingSoonMessage),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        },
+      ),
+    );
+  }
+}

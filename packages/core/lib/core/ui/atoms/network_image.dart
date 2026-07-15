@@ -14,12 +14,19 @@ class AppNetworkImage extends StatelessWidget {
   final double? width;
   final double? height;
 
+  /// Bundled asset shown instead of the loading/error state — and, when
+  /// [url] is empty, instead of ever hitting the network at all. Lets a
+  /// screen ship with a real default photo (e.g. a generic avatar) before
+  /// a user-provided URL exists.
+  final String? assetPlaceholder;
+
   const AppNetworkImage({
     super.key,
     required this.url,
     this.fit = BoxFit.cover,
     this.width,
     this.height,
+    this.assetPlaceholder,
   });
 
   /// A stable, licence-free placeholder for screens that don't have real
@@ -45,6 +52,11 @@ class AppNetworkImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final placeholder = assetPlaceholder;
+
+    if (url.isEmpty && placeholder != null) {
+      return Image.asset(placeholder, width: width, height: height, fit: fit);
+    }
 
     return Image.network(
       url,
@@ -60,14 +72,16 @@ class AppNetworkImage extends StatelessWidget {
               alignment: Alignment.center,
               child: const LoadingIndicator(size: 24, strokeWidth: 2),
             ),
-      errorBuilder: (context, error, stackTrace) => Container(
-        width: width,
-        height: height,
-        color: cs.surfaceContainerHighest,
-        alignment: Alignment.center,
-        child: Icon(Icons.image_not_supported_outlined,
-            color: cs.onSurfaceVariant),
-      ),
+      errorBuilder: (context, error, stackTrace) => placeholder != null
+          ? Image.asset(placeholder, width: width, height: height, fit: fit)
+          : Container(
+              width: width,
+              height: height,
+              color: cs.surfaceContainerHighest,
+              alignment: Alignment.center,
+              child: Icon(Icons.image_not_supported_outlined,
+                  color: cs.onSurfaceVariant),
+            ),
     );
   }
 }

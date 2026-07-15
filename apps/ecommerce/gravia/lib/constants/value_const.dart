@@ -74,6 +74,19 @@ abstract final class ValueConst {
   static const priceSheetTitle = 'Price';
   static const categoryDetailsEmptyMessage = 'No products match these filters.';
 
+  // ── Profile ────────────────────────────────────────────────────────────────
+  static const profilePageTitle = 'Profile';
+  static const changePasswordLabel = 'Change Password';
+  static const myOrdersLabel = 'My Orders';
+  static const myCardsLabel = 'My Cards';
+  static const myAddressLabel = 'My Address';
+  static const darkModeLabel = 'Dark Mode';
+  static const privacyPolicyLabel = 'Privacy Policy';
+  static const termsAndConditionsLabel = 'Terms & Conditions';
+  static const logoutLabel = 'Logout';
+  static const profileLoadErrorMessage =
+      'Something went wrong loading your profile.';
+
   // ── Placeholder tabs (removed as real screens land) ───────────────────────
   static const favouriteEmptyTitle = 'No favourites yet';
   static const favouriteEmptySubtitle =
@@ -81,7 +94,4 @@ abstract final class ValueConst {
   static const ordersEmptyTitle = 'No orders yet';
   static const ordersEmptySubtitle =
       'Your past and active orders will show up here.';
-  static const profileComingTitle = 'Profile coming soon';
-  static const profileComingSubtitle =
-      'Addresses, payment, and settings will live here.';
 }

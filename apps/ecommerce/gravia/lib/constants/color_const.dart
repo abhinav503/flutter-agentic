@@ -18,6 +18,10 @@ abstract final class ColorConst {
   static const gray700 = Color(0xFF7B7B7B);
   static const primary50 = Color(0xFFECFDF6);
 
+  /// Success/500 — the Dark Mode switch's active-track colour (not the
+  /// same green as [primary]; the kit calls out this specific swatch).
+  static const success500 = Color(0xFF22C55E);
+
   /// Dark-mode counterpart to [gray200] for the same hairline/handle
   /// elements — the kit's dark-mode neutral scale ("Light/900"), not a
   /// `ColorScheme` role (neither `outlineVariant` nor `surfaceContainer`

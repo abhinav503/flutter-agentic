@@ -57,12 +57,14 @@ flutter:
     - assets/data/product_details.json
     - assets/data/categories_page.json
     - assets/data/category_details.json
+    - assets/data/profile_page.json
+    - assets/images/
 
 # One source mark → every launcher-icon size. The PNGs are rasterised from
 # assets/icons/gravia_brand_icon.svg (the brand glyph). branding/ holds these
 # build-time generator sources and lives OUTSIDE assets/ on purpose — it must
 # never be registered as a flutter asset (assets/icons/ = runtime SVGs;
-# assets/images/ = future runtime raster images).
+# assets/images/ = runtime raster images, e.g. bundled placeholder photos).
 # Regenerate: dart run flutter_launcher_icons
 flutter_launcher_icons:
   android: true
