@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:core/core/theme/app_radius.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/svg_image.dart';
+import 'package:gravia/constants/color_const.dart';
 
 import 'package:gravia/constants/image_const.dart';
 import 'package:gravia/constants/text_style_const.dart';
@@ -28,6 +29,7 @@ class CartSummarySection extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -47,7 +49,7 @@ class CartSummarySection extends StatelessWidget {
               children: [
                 AppSvgImage.asset(
                   ImageConst.gift,
-                  color: cs.onSurfaceVariant,
+                  color: isDark ? cs.onPrimary : ColorConst.gray900,
                   width: 20,
                   height: 20,
                 ),
