@@ -149,7 +149,10 @@ class _HomeContent extends StatelessWidget {
       onSearchTap: onSearchTap,
     ),
     body: Padding(
-      padding: const EdgeInsets.only(top: AppSpacing.xl4, bottom: AppSpacing.xl10),
+      padding: const EdgeInsets.only(
+        top: AppSpacing.xl4,
+        bottom: AppSpacing.xl10,
+      ),
       child: Column(
         children: [
           HomeCategorySection(

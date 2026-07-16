@@ -103,7 +103,7 @@ class AddressCard extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(left: _identityInset),
                 child: Text(
-                  address.addressLine,
+                  address.displayLine,
                   style: TextStyleConst.textSmRegular(
                     tt,
                   ).copyWith(color: ColorConst.gray500),

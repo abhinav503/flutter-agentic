@@ -4,6 +4,12 @@ abstract final class AppRoutes {
   static const home = '/home';
   static const search = '/search';
   static const selectAddress = '/select-address';
+
+  /// The address being edited travels via GoRouter's `extra` (a full
+  /// address entity, not just an id) — Select Address already holds the
+  /// whole list in memory, so re-fetching by id would be redundant, and
+  /// `null` (Add New Address) has no id to encode in the path anyway.
+  static const addressForm = '/address-form';
   static const cart = '/cart';
 
   /// Route pattern registered with GoRouter (`:id` path param).

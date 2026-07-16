@@ -20,11 +20,11 @@ import 'package:gravia/feature/cart/presentation/widgets/cart_status_bar.dart';
 import 'package:gravia/widgets/gravia_docked_bar.dart';
 import 'package:gravia/widgets/gravia_product_card.dart';
 import 'package:gravia/widgets/gravia_sheet.dart';
+import 'package:gravia/widgets/radio_options_sheet_content.dart';
 
 import '../../../home/domain/entities/product_entity.dart';
 import '../bloc/category_details_bloc.dart';
 import '../widgets/category_details_hero_header.dart';
-import '../widgets/radio_options_sheet_content.dart';
 
 class CategoryDetailsScreen extends BaseScreen {
   const CategoryDetailsScreen({super.key});

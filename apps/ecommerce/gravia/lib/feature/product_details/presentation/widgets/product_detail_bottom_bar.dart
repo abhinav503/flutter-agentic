@@ -43,15 +43,15 @@ class ProductDetailBottomBar extends StatelessWidget {
     return Column(
       children: [
         BlocBuilder<CartCubit, List<CartItemEntity>>(
-            builder: (context, items) => items.isEmpty
-                ? const SizedBox.shrink()
-                : CartStatusBar(
-                    itemCount: items.itemCount,
-                    grandTotal: items.grandTotal,
-                    onTap: () => context.push(AppRoutes.cart),
-                    onClear: () => context.read<CartCubit>().clear(),
-                  ),
-          ),
+          builder: (context, items) => items.isEmpty
+              ? const SizedBox.shrink()
+              : CartStatusBar(
+                  itemCount: items.itemCount,
+                  grandTotal: items.grandTotal,
+                  onTap: () => context.push(AppRoutes.cart),
+                  onClear: () => context.read<CartCubit>().clear(),
+                ),
+        ),
         GraviaDockedBar(
           child: Row(
             children: [

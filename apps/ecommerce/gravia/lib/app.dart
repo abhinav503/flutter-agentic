@@ -8,6 +8,8 @@ import 'package:core/core/theme/theme_mode_scope.dart';
 
 import 'constants/app_routes.dart';
 import 'constants/value_const.dart';
+import 'feature/address/domain/entities/address_entity.dart';
+import 'feature/address/presentation/view/address_form_page.dart';
 import 'feature/address/presentation/view/address_page.dart';
 import 'feature/cart/presentation/cubit/cart_cubit.dart';
 import 'feature/cart/presentation/view/cart_page.dart';
@@ -76,6 +78,22 @@ final _router = GoRouter(
               child: child,
             ),
         child: const AddressPage(),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.addressForm,
+      // Fade, same reasoning as Select Address — they share the same
+      // primary canvas colour and back-button position.
+      pageBuilder: (context, state) => CustomTransitionPage<void>(
+        key: state.pageKey,
+        transitionDuration: const Duration(milliseconds: 350),
+        reverseTransitionDuration: const Duration(milliseconds: 300),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+            FadeTransition(
+              opacity: CurveTween(curve: Curves.easeInOut).animate(animation),
+              child: child,
+            ),
+        child: AddressFormPage(address: state.extra as AddressEntity?),
       ),
     ),
     GoRoute(

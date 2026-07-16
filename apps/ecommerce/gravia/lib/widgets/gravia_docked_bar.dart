@@ -28,10 +28,12 @@ class GraviaDockedBar extends StatelessWidget {
       child: SafeArea(
         top: false,
         child: Padding(
-          padding: padding ?? const EdgeInsets.symmetric(
-            horizontal: AppSpacing.lg,
-            vertical: AppSpacing.base,
-          ),
+          padding:
+              padding ??
+              const EdgeInsets.symmetric(
+                horizontal: AppSpacing.lg,
+                vertical: AppSpacing.base,
+              ),
           child: child,
         ),
       ),

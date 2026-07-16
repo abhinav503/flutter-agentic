@@ -5,9 +5,11 @@ import 'package:core/core/ui/atoms/radio_dot.dart';
 
 import 'package:gravia/constants/text_style_const.dart';
 
-/// Single-select radio list shared by the "Sort by" and "Price" filter
-/// sheets — same row layout, different option type, so this is generic over
-/// [T] rather than copy-pasted per sheet.
+/// Single-select radio list for a bottom sheet — same row layout, generic
+/// over [T] so it fits any bounded picklist. Started as Category Details'
+/// "Sort by"/"Price" filter content; the Add/Edit Address form's City/Country
+/// pickers are its second caller, which is what moved it here out of that
+/// feature's own `widgets/` folder.
 class RadioOptionsSheetContent<T> extends StatelessWidget {
   final List<T> options;
   final String Function(T) labelOf;

@@ -13,6 +13,7 @@ import 'package:core/core/ui/blocks/collapsing_header_sheet.dart';
 import 'package:core/core/ui/blocks/section_header.dart';
 import 'package:core/core/ui/molecules/error_view.dart';
 
+import 'package:gravia/constants/app_routes.dart';
 import 'package:gravia/constants/image_const.dart';
 import 'package:gravia/constants/text_style_const.dart';
 import 'package:gravia/constants/value_const.dart';
@@ -44,10 +45,23 @@ class _AddressScreenState extends BaseScreenState<AddressScreen> {
     );
     await SharedPreferenceService.instance.setString(
       kSelectedAddressLabelPrefKey,
-      selected.addressLine,
+      selected.displayLine,
     );
     if (!mounted) return;
     context.pop();
+  }
+
+  /// Pushes the Add/Edit Address form — [address] null opens it in Add mode,
+  /// non-null in Edit mode prefilled from it — then, if the form returned a
+  /// result (Cancel/back pops with none), dispatches it into this screen's
+  /// own `AddressBloc` so the list updates without a re-fetch.
+  Future<void> _openAddressForm(AddressEntity? address) async {
+    final result = await context.push<AddressEntity>(
+      AppRoutes.addressForm,
+      extra: address,
+    );
+    if (result == null || !mounted) return;
+    context.read<AddressBloc>().add(AddressEvent.saved(address: result));
   }
 
   @override
@@ -141,7 +155,7 @@ class _AddressScreenState extends BaseScreenState<AddressScreen> {
                       width: 24,
                       height: 24,
                     ),
-                    onTap: showComingSoon,
+                    onTap: () => _openAddressForm(null),
                   ),
                   const SizedBox(height: AppSpacing.xl4),
                   SectionHeader(
@@ -153,7 +167,7 @@ class _AddressScreenState extends BaseScreenState<AddressScreen> {
                     address: defaultAddress,
                     selected: defaultAddress.id == selectedAddressId,
                     onSelect: () => selectAddress(defaultAddress.id),
-                    onEdit: showComingSoon,
+                    onEdit: () => _openAddressForm(defaultAddress),
                     onDelete: showComingSoon,
                   ),
                   if (otherAddresses.isNotEmpty) ...[
@@ -169,7 +183,7 @@ class _AddressScreenState extends BaseScreenState<AddressScreen> {
                         address: otherAddresses[i],
                         selected: otherAddresses[i].id == selectedAddressId,
                         onSelect: () => selectAddress(otherAddresses[i].id),
-                        onEdit: showComingSoon,
+                        onEdit: () => _openAddressForm(otherAddresses[i]),
                         onDelete: showComingSoon,
                       ),
                     ],

@@ -89,6 +89,47 @@ abstract final class ValueConst {
   static const addressLoadErrorMessage =
       'Something went wrong loading your addresses.';
 
+  // ── Add/Edit Address ───────────────────────────────────────────────────────
+  static const editAddressTitle = 'Edit Address';
+  static const nameLabel = 'Name';
+  static const nameHint = 'e.g. Mark Shelby';
+  static const phoneNumberLabel = 'Phone Number';
+  static const phoneNumberHint = 'e.g. (303) 555-0105';
+  static const addressLine1Label = 'Address Line 1';
+  static const addressLine1Hint = 'House no., street name';
+  static const addressLine2Label = 'Address Line 2';
+  static const addressLine2Hint = 'Apartment, suite, etc. (optional)';
+  static const landmarkLabel = 'Landmark';
+  static const landmarkHint = 'Nearby landmark (optional)';
+  static const cityLabel = 'City';
+  static const selectCityTitle = 'Select City';
+  static const countryLabel = 'Country';
+  static const selectCountryTitle = 'Select Country';
+  static const postalCodeLabel = 'Postal Code';
+  static const postalCodeHint = 'e.g. 62639';
+  static const addressTagLabel = 'Tag';
+  static const addressTagHint = 'e.g. Home, Office';
+  static const addAddressButtonLabel = 'Add Address';
+  static const updateAddressButtonLabel = 'Update Address';
+  static const requiredFieldErrorMessage = 'This field is required';
+
+  static const addressFormCities = <String>[
+    'Richardson',
+    'Allentown',
+    'San Jose',
+    'New York',
+    'Los Angeles',
+    'Chicago',
+    'Houston',
+  ];
+  static const addressFormCountries = <String>[
+    'United States',
+    'Canada',
+    'United Kingdom',
+    'Australia',
+    'India',
+  ];
+
   // ── Profile ────────────────────────────────────────────────────────────────
   static const profilePageTitle = 'Profile';
   static const changePasswordLabel = 'Change Password';

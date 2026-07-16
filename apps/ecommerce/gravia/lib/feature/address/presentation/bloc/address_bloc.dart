@@ -20,6 +20,7 @@ class AddressBloc extends Bloc<AddressEvent, AddressState> {
       super(const AddressState.loading()) {
     on<AddressStarted>(_onStarted);
     on<AddressSelected>(_onSelected);
+    on<AddressSaved>(_onSaved);
   }
 
   Future<void> _onStarted(
@@ -60,6 +61,29 @@ class AddressBloc extends Bloc<AddressEvent, AddressState> {
           AddressState.loaded(
             addresses: addresses,
             selectedAddressId: event.addressId,
+          ),
+        );
+      case AddressLoading():
+      case AddressError():
+        break;
+    }
+  }
+
+  void _onSaved(AddressSaved event, Emitter<AddressState> emit) {
+    switch (state) {
+      case AddressLoaded(:final addresses, :final selectedAddressId):
+        final index = addresses.indexWhere((a) => a.id == event.address.id);
+        final isNew = index == -1;
+        final updated = [...addresses];
+        if (isNew) {
+          updated.add(event.address);
+        } else {
+          updated[index] = event.address;
+        }
+        emit(
+          AddressState.loaded(
+            addresses: updated,
+            selectedAddressId: isNew ? event.address.id : selectedAddressId,
           ),
         );
       case AddressLoading():
