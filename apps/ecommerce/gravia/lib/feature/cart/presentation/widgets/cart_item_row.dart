@@ -58,47 +58,44 @@ class CartItemRow extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
-              const SizedBox(height: AppSpacing.xs3),
               Text(
                 product.unitType.format(product.unitValue),
                 style: TextStyleConst.textSmRegular(
                   tt,
                 ).copyWith(color: cs.onSurfaceVariant),
               ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    '\$${(product.price * item.quantity).toStringAsFixed(2)}',
+                    style: TextStyleConst.textMdBold(
+                      tt,
+                    ).copyWith(color: cs.onSurface),
+                  ),
+                  QuantityStepper(
+                    value: item.quantity,
+                    iconColor: ColorConst.gray700,
+                    valueTextStyle: TextStyleConst.textMdBold(tt),
+                    decrementIconBuilder: (color, size) => AppSvgImage.asset(
+                      ImageConst.minus,
+                      color: color,
+                      width: size,
+                      height: size,
+                    ),
+                    incrementIconBuilder: (color, size) => AppSvgImage.asset(
+                      ImageConst.plus,
+                      color: color,
+                      width: size,
+                      height: size,
+                    ),
+                    onDecrement: onDecrement,
+                    onIncrement: onIncrement,
+                  ),
+                ],
+              ),
             ],
           ),
-        ),
-        const SizedBox(width: AppSpacing.base),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Text(
-              '\$${(product.price * item.quantity).toStringAsFixed(2)}',
-              style: TextStyleConst.textMdBold(
-                tt,
-              ).copyWith(color: cs.onSurface),
-            ),
-            const SizedBox(height: AppSpacing.xs2),
-            QuantityStepper(
-              value: item.quantity,
-              iconColor: ColorConst.gray700,
-              valueTextStyle: TextStyleConst.textMdBold(tt),
-              decrementIconBuilder: (color, size) => AppSvgImage.asset(
-                ImageConst.minus,
-                color: color,
-                width: size,
-                height: size,
-              ),
-              incrementIconBuilder: (color, size) => AppSvgImage.asset(
-                ImageConst.plus,
-                color: color,
-                width: size,
-                height: size,
-              ),
-              onDecrement: onDecrement,
-              onIncrement: onIncrement,
-            ),
-          ],
         ),
       ],
     );
