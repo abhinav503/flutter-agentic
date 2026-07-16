@@ -17,6 +17,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     : _getProfile = getProfileUseCase,
       super(const ProfileState.loading()) {
     on<ProfileStarted>(_onStarted);
+    on<ProfileSaved>(_onSaved);
   }
 
   Future<void> _onStarted(
@@ -28,5 +29,9 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       (failure) => emit(ProfileState.error(message: failure.message)),
       (profile) => emit(ProfileState.loaded(profile: profile)),
     );
+  }
+
+  void _onSaved(ProfileSaved event, Emitter<ProfileState> emit) {
+    emit(ProfileState.loaded(profile: event.profile));
   }
 }

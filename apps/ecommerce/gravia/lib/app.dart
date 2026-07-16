@@ -16,6 +16,8 @@ import 'feature/cart/presentation/view/cart_page.dart';
 import 'feature/category_details/presentation/view/category_details_page.dart';
 import 'feature/onboarding/presentation/view/onboarding_page.dart';
 import 'feature/product_details/presentation/view/product_details_page.dart';
+import 'feature/profile/domain/entities/profile_entity.dart';
+import 'feature/profile/presentation/view/edit_profile_page.dart';
 import 'feature/search/presentation/view/search_page.dart';
 import 'feature/shell/presentation/view/shell_page.dart';
 import 'feature/splash/presentation/view/splash_page.dart';
@@ -94,6 +96,21 @@ final _router = GoRouter(
               child: child,
             ),
         child: AddressFormPage(address: state.extra as AddressEntity?),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.editProfile,
+      // Fade, same reasoning as Select Address/Address form.
+      pageBuilder: (context, state) => CustomTransitionPage<void>(
+        key: state.pageKey,
+        transitionDuration: const Duration(milliseconds: 350),
+        reverseTransitionDuration: const Duration(milliseconds: 300),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+            FadeTransition(
+              opacity: CurveTween(curve: Curves.easeInOut).animate(animation),
+              child: child,
+            ),
+        child: EditProfilePage(profile: state.extra as ProfileEntity),
       ),
     ),
     GoRoute(

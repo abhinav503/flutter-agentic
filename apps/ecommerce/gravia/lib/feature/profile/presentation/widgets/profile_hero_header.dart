@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 
 import 'package:core/core/theme/app_colors_extension.dart';
 import 'package:core/core/theme/app_spacing.dart';
-import 'package:core/core/ui/atoms/network_image.dart';
 
 import 'package:gravia/constants/image_const.dart';
 import 'package:gravia/constants/text_style_const.dart';
 import 'package:gravia/constants/value_const.dart';
+import 'package:gravia/widgets/gravia_avatar_image.dart';
 import 'package:gravia/widgets/gravia_glass_icon_button.dart';
 import 'package:gravia/widgets/gravia_hero_header.dart';
 
@@ -38,17 +38,7 @@ class ProfileHeroHeader extends StatelessWidget {
       bottomGap: AppSpacing.lg,
       bottom: Row(
         children: [
-          ClipOval(
-            child: SizedBox(
-              width: _avatarSize,
-              height: _avatarSize,
-              child: AppNetworkImage(
-                url: profile.avatarUrl,
-                fit: BoxFit.cover,
-                assetPlaceholder: ImageConst.profileDefault,
-              ),
-            ),
-          ),
+          GraviaAvatarImage(profile: profile, size: _avatarSize),
           const SizedBox(width: AppSpacing.base),
           Expanded(
             child: Column(

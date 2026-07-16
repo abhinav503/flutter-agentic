@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:core/core/base/base_screen.dart';
 import 'package:core/core/theme/app_spacing.dart';
@@ -11,10 +12,12 @@ import 'package:core/core/ui/atoms/switch.dart';
 import 'package:core/core/ui/blocks/collapsing_header_sheet.dart';
 import 'package:core/core/ui/molecules/error_view.dart';
 
+import 'package:gravia/constants/app_routes.dart';
 import 'package:gravia/constants/color_const.dart';
 import 'package:gravia/constants/image_const.dart';
 import 'package:gravia/constants/value_const.dart';
 
+import '../../domain/entities/profile_entity.dart';
 import '../bloc/profile_bloc.dart';
 import '../widgets/profile_hero_header.dart';
 import '../widgets/profile_menu_tile.dart';
@@ -27,6 +30,18 @@ class ProfileScreen extends BaseScreen {
 }
 
 class _ProfileScreenState extends BaseScreenState<ProfileScreen> {
+  /// Pushes the Edit Profile form prefilled from [profile]; if it returned a
+  /// result (Cancel/back pops with none), dispatches it into this screen's
+  /// own `ProfileBloc` so the header updates without a re-fetch.
+  Future<void> _openEditProfile(ProfileEntity profile) async {
+    final result = await context.push<ProfileEntity>(
+      AppRoutes.editProfile,
+      extra: profile,
+    );
+    if (result == null || !mounted) return;
+    context.read<ProfileBloc>().add(ProfileEvent.saved(profile: result));
+  }
+
   @override
   Widget body(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
@@ -57,7 +72,7 @@ class _ProfileScreenState extends BaseScreenState<ProfileScreen> {
             initialHeaderHeight: 195,
             header: ProfileHeroHeader(
               profile: profile,
-              onEditTap: () => showSnackBar(ValueConst.comingSoonMessage),
+              onEditTap: () => _openEditProfile(profile),
             ),
             body: Padding(
               padding: const EdgeInsets.symmetric(

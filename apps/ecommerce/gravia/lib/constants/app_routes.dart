@@ -10,6 +10,11 @@ abstract final class AppRoutes {
   /// whole list in memory, so re-fetching by id would be redundant, and
   /// `null` (Add New Address) has no id to encode in the path anyway.
   static const addressForm = '/address-form';
+
+  /// The current profile travels via GoRouter's `extra` — same reasoning as
+  /// [addressForm]. Unlike Address, there's no "add" case: a profile always
+  /// exists, so `extra` is never null here.
+  static const editProfile = '/edit-profile';
   static const cart = '/cart';
 
   /// Route pattern registered with GoRouter (`:id` path param).

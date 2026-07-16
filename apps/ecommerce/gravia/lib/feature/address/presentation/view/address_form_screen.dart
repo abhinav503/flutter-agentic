@@ -3,15 +3,12 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:core/core/base/base_screen.dart';
-import 'package:core/core/theme/app_radius.dart';
 import 'package:core/core/theme/app_spacing.dart';
-import 'package:core/core/ui/atoms/text_field.dart';
 import 'package:core/core/ui/blocks/collapsing_header_sheet.dart';
 
-import 'package:gravia/constants/color_const.dart';
-import 'package:gravia/constants/text_style_const.dart';
 import 'package:gravia/constants/value_const.dart';
 import 'package:gravia/widgets/gravia_docked_bar.dart';
+import 'package:gravia/widgets/gravia_form_field.dart';
 import 'package:gravia/widgets/gravia_hero_header.dart';
 import 'package:gravia/widgets/gravia_primary_button.dart';
 import 'package:gravia/widgets/gravia_sheet.dart';
@@ -286,28 +283,14 @@ class _AddressFormScreenState extends BaseScreenState<AddressFormScreen> {
     TextInputType keyboardType = TextInputType.text,
     String? hint,
   }) {
-    final tt = Theme.of(context).textTheme;
     final error = field == null ? null : _errors[field];
-    return AppTextField(
-      controller: controller,
+    return GraviaFormField(
       label: label,
+      controller: controller,
       hint: hint,
       keyboardType: keyboardType,
-      state: error != null ? AppTextFieldState.error : AppTextFieldState.idle,
       errorText: error,
       onChanged: field == null ? null : (_) => _clearError(field),
-      // This form's own spec, not the pack's shared input look (pill, per
-      // app_theme_presets.dart's gravia preset) — square-rounded fields,
-      // per design, more breathing room under the label than the atom's
-      // compact default, and a fixed 45px height matching the other
-      // controls on this screen (GraviaPrimaryButton, the header's glass
-      // icon discs).
-      borderRadius: AppRadius.xl,
-      labelStyle: TextStyleConst.textSmRegular(
-        tt,
-      ).copyWith(color: ColorConst.gray500),
-      labelSpacing: AppSpacing.xs,
-      height: 45,
     );
   }
 }

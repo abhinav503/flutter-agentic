@@ -143,6 +143,18 @@ abstract final class ValueConst {
   static const profileLoadErrorMessage =
       'Something went wrong loading your profile.';
 
+  // ── Edit Profile ───────────────────────────────────────────────────────────
+  static const editProfileTitle = 'Edit Profile';
+  static const emailAddressLabel = 'Email Address';
+  static const emailAddressHint = 'e.g. mark.shelby@example.com';
+  static const mobileNumberLabel = 'Mobile Number';
+  static const updateProfileButtonLabel = 'Update';
+  static const changePhotoTitle = 'Change Photo';
+  static const takePhotoLabel = 'Take Photo';
+  static const chooseFromGalleryLabel = 'Choose from Gallery';
+  static const avatarPickerMobileOnlyMessage =
+      'Changing your photo is only available on mobile';
+
   // ── Cart ───────────────────────────────────────────────────────────────────
   static const myCartTitle = 'My Cart';
   static const beforeYouCheckoutTitle = 'Before you Checkout';

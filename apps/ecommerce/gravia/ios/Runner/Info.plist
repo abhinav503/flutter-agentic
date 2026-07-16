@@ -26,6 +26,10 @@
 		<string>$(FLUTTER_BUILD_NUMBER)</string>
 		<key>LSRequiresIPhoneOS</key>
 		<true/>
+		<key>NSCameraUsageDescription</key>
+		<string>Used to take a new profile photo.</string>
+		<key>NSPhotoLibraryUsageDescription</key>
+		<string>Used to choose a profile photo from your library.</string>
 		<key>UIApplicationSceneManifest</key>
 		<dict>
 			<key>UIApplicationSupportsMultipleScenes</key>

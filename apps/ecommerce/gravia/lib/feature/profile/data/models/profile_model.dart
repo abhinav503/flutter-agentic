@@ -12,15 +12,25 @@ abstract class ProfileModel with _$ProfileModel {
   const factory ProfileModel({
     required String name,
     required String email,
+    required String phone,
     @JsonKey(name: 'avatar_url') required String avatarUrl,
   }) = _ProfileModel;
 
   factory ProfileModel.fromJson(Map<String, dynamic> json) =>
       _$ProfileModelFromJson(json);
 
-  factory ProfileModel.fromEntity(ProfileEntity e) =>
-      ProfileModel(name: e.name, email: e.email, avatarUrl: e.avatarUrl);
+  factory ProfileModel.fromEntity(ProfileEntity e) => ProfileModel(
+    name: e.name,
+    email: e.email,
+    phone: e.phone,
+    avatarUrl: e.avatarUrl,
+    // avatarBytes never round-trips through the data layer — see its doc.
+  );
 
-  ProfileEntity toEntity() =>
-      ProfileEntity(name: name, email: email, avatarUrl: avatarUrl);
+  ProfileEntity toEntity() => ProfileEntity(
+    name: name,
+    email: email,
+    phone: phone,
+    avatarUrl: avatarUrl,
+  );
 }

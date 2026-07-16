@@ -55,11 +55,12 @@ extension ProfileEventPatterns on ProfileEvent {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( ProfileStarted value)?  started,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( ProfileStarted value)?  started,TResult Function( ProfileSaved value)?  saved,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case ProfileStarted() when started != null:
-return started(_that);case _:
+return started(_that);case ProfileSaved() when saved != null:
+return saved(_that);case _:
   return orElse();
 
 }
@@ -77,11 +78,12 @@ return started(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( ProfileStarted value)  started,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( ProfileStarted value)  started,required TResult Function( ProfileSaved value)  saved,}){
 final _that = this;
 switch (_that) {
 case ProfileStarted():
-return started(_that);}
+return started(_that);case ProfileSaved():
+return saved(_that);}
 }
 /// A variant of `map` that fallback to returning `null`.
 ///
@@ -95,11 +97,12 @@ return started(_that);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( ProfileStarted value)?  started,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( ProfileStarted value)?  started,TResult? Function( ProfileSaved value)?  saved,}){
 final _that = this;
 switch (_that) {
 case ProfileStarted() when started != null:
-return started(_that);case _:
+return started(_that);case ProfileSaved() when saved != null:
+return saved(_that);case _:
   return null;
 
 }
@@ -116,10 +119,11 @@ return started(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  started,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  started,TResult Function( ProfileEntity profile)?  saved,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case ProfileStarted() when started != null:
-return started();case _:
+return started();case ProfileSaved() when saved != null:
+return saved(_that.profile);case _:
   return orElse();
 
 }
@@ -137,10 +141,11 @@ return started();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  started,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  started,required TResult Function( ProfileEntity profile)  saved,}) {final _that = this;
 switch (_that) {
 case ProfileStarted():
-return started();}
+return started();case ProfileSaved():
+return saved(_that.profile);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -154,10 +159,11 @@ return started();}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  started,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  started,TResult? Function( ProfileEntity profile)?  saved,}) {final _that = this;
 switch (_that) {
 case ProfileStarted() when started != null:
-return started();case _:
+return started();case ProfileSaved() when saved != null:
+return saved(_that.profile);case _:
   return null;
 
 }
@@ -196,6 +202,72 @@ String toString() {
 
 
 
+
+/// @nodoc
+
+
+class ProfileSaved implements ProfileEvent {
+  const ProfileSaved({required this.profile});
+  
+
+ final  ProfileEntity profile;
+
+/// Create a copy of ProfileEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$ProfileSavedCopyWith<ProfileSaved> get copyWith => _$ProfileSavedCopyWithImpl<ProfileSaved>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProfileSaved&&(identical(other.profile, profile) || other.profile == profile));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,profile);
+
+@override
+String toString() {
+  return 'ProfileEvent.saved(profile: $profile)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $ProfileSavedCopyWith<$Res> implements $ProfileEventCopyWith<$Res> {
+  factory $ProfileSavedCopyWith(ProfileSaved value, $Res Function(ProfileSaved) _then) = _$ProfileSavedCopyWithImpl;
+@useResult
+$Res call({
+ ProfileEntity profile
+});
+
+
+
+
+}
+/// @nodoc
+class _$ProfileSavedCopyWithImpl<$Res>
+    implements $ProfileSavedCopyWith<$Res> {
+  _$ProfileSavedCopyWithImpl(this._self, this._then);
+
+  final ProfileSaved _self;
+  final $Res Function(ProfileSaved) _then;
+
+/// Create a copy of ProfileEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? profile = null,}) {
+  return _then(ProfileSaved(
+profile: null == profile ? _self.profile : profile // ignore: cast_nullable_to_non_nullable
+as ProfileEntity,
+  ));
+}
+
+
+}
 
 /// @nodoc
 mixin _$ProfileState {

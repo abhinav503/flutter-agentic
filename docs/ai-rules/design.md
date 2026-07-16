@@ -200,21 +200,42 @@ supplies the pack-specific metrics.
   button calls both inline (Cart, Select Address); `ProductDetailBottomBar`
   keeps its own widget only because it also owns the `QuantityStepper` and
   the live quantity-scaled price label.
-- **Form fields (Add/Edit Address).** The only real data-entry form in the
-  app so far, and it deliberately breaks from the pack's shared input token:
-  gravia's `input` shape is a pill (999, `app_theme_presets.dart`) for
-  `SearchFieldBar`'s glass field, but this form's `AppTextField`s are
-  square-rounded (16) and pinned to a 45px height — a *screen-local*
-  override (`AppTextField.borderRadius`/`.height`, passed from
-  `AddressFormScreen._field`), not a change to the shared preset. Don't
-  "fix" these back to the pack's pill radius — it's intentional, matches the
-  screenshot spec, and other screens (search, quick-add) keep the pill
-  input look untouched. Labels are Text/sm/regular in the fixed
-  `ColorConst.gray500` (identical in both themes, unlike `onSurfaceVariant`)
-  via `AppTextField.labelStyle`, with extra label-to-field breathing room
-  via `.labelSpacing`. City/Country are bounded picklists, not free text —
-  `AddressDropdownField` (a field-styled trigger, not `AppDropdownMenu`)
-  opens the same `RadioOptionsSheetContent` sheet as the filter chips above.
+- **Form fields (Add/Edit Address, Edit Profile).** Every gravia form field
+  renders `GraviaFormField` (gravia's `lib/widgets/`, wrapping
+  `AppTextField`) — it deliberately breaks from the pack's shared input
+  token: gravia's `input` shape is a pill (999, `app_theme_presets.dart`)
+  for `SearchFieldBar`'s glass field, but form fields are square-rounded
+  (16, `AppTextField.borderRadius`) and pinned to a 45px height
+  (`.height`) — a *screen-local* override baked into the preset, not a
+  change to the shared preset. Don't "fix" these back to the pack's pill
+  radius — it's intentional, matches the screenshot spec, and other screens
+  (search, quick-add) keep the pill input look untouched. Labels are
+  Text/sm/regular in the fixed `ColorConst.gray500` (identical in both
+  themes, unlike `onSurfaceVariant`) via `.labelStyle`, with extra
+  label-to-field breathing room via `.labelSpacing`. Started in the Add/Edit
+  Address form (`AddressFormScreen._field`); Edit Profile's Name/Email/
+  Mobile fields are its second caller, which is what moved it out of that
+  screen's private helper. City/Country are bounded picklists, not free
+  text — `AddressDropdownField` (a field-styled trigger, not
+  `AppDropdownMenu`) opens the same `RadioOptionsSheetContent` sheet as the
+  filter chips above.
+- **Avatar photo picker (Edit Profile).** A large centered avatar circle
+  with a small dark translucent camera badge on top (`camera.svg`, white,
+  centered — not a corner badge); tapping anywhere on it opens a two-row
+  action sheet (Take Photo / Choose from Gallery, `showGraviaSheet` — a
+  plain action list, not `RadioOptionsSheetContent`, since there's no
+  currently-`selected` value to show) which calls `ImagePickerService`
+  (`core`), `kIsWeb`-guarded with a "mobile only" snackbar exactly like
+  `doc_scanner`'s own camera/gallery calls. The picked photo is read via
+  `XFile.readAsBytes()` into a `Uint8List` — never `dart:io`'s `File` /
+  `Image.file`, which doesn't compile for web — previewed immediately and
+  carried in `ProfileEntity.avatarBytes` (session-only; there's no upload
+  backend for this mocked app, so it never round-trips through
+  `ProfileModel`/JSON). → `GraviaAvatarImage` (gravia's `lib/widgets/`) is
+  every avatar render site's one true composition — `avatarBytes` wins over
+  `avatarUrl` when both are set, else the usual `AppNetworkImage`
+  `assetPlaceholder` fallback. Used by both `ProfileHeroHeader` (56px) and
+  Edit Profile's picker (96px) — never re-branch this logic per call site.
 - **Pill-highlight bottom nav.** Active tab = pill with icon + label on
   primary; inactive tabs = icon-only circles on Gray/50
   (`surfaceContainerLow` — barely off the surface, not `Highest`), icons in
@@ -363,6 +384,8 @@ re-style the underlying atom/block inline:
 | Full-width primary CTA (in a docked bar) | `GraviaPrimaryButton` — never a re-typed `AppButton` recipe |
 | Styled bottom sheet | `showGraviaSheet` / `showGraviaAddToCartSheet` (extension on `BaseScreenState` in `gravia_sheet.dart`) — never raw `showAppBottomSheet` styling |
 | Bounded-picklist selection sheet (radio list) | `RadioOptionsSheetContent<T>` — opened via `showGraviaSheet`, never `AppDropdownMenu`/`PopupMenuButton` for an in-app picklist |
+| Form text field (any form) | `GraviaFormField` — never a re-typed `AppTextField` override recipe |
+| Profile avatar (any size) | `GraviaAvatarImage` — never re-branch `avatarBytes`/`avatarUrl` per call site |
 | Single-select option chip | `SelectorChip` |
 | Hairline colours | `ColorScheme.dockedHairline` / `ColorScheme.sheetHairline` (extensions in `color_const.dart`, like `tintedPrimaryFill`) — never re-derive the brightness ternary |
 
