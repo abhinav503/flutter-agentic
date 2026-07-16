@@ -28,6 +28,11 @@ abstract final class TextStyleConst {
 
   static TextStyle textXsRegular(TextTheme tt) =>
       tt.bodySmall!.copyWith(height: 1.3, letterSpacing: -0.24);
+  static TextStyle textXsBold(TextTheme tt) => tt.bodySmall!.copyWith(
+    height: 1.3,
+    letterSpacing: -0.24,
+    fontWeight: FontWeight.w700,
+  );
 
   static TextStyle textSmMedium(TextTheme tt) => tt.bodyMedium!.copyWith(
     fontWeight: FontWeight.w500,

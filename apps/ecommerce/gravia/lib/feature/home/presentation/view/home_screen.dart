@@ -57,7 +57,6 @@ class _HomeScreenState extends BaseScreenState<HomeScreen> {
 
   void _addToCart(ProductEntity product, int quantity) {
     context.read<CartCubit>().addToCart(product, quantity);
-    showSnackBar(ValueConst.addedToCartMessage(product.name, quantity));
   }
 
   void _openProductDetails(ProductEntity product) =>
@@ -150,7 +149,7 @@ class _HomeContent extends StatelessWidget {
       onSearchTap: onSearchTap,
     ),
     body: Padding(
-      padding: const EdgeInsets.symmetric(vertical: AppSpacing.xl4),
+      padding: const EdgeInsets.only(top: AppSpacing.xl4, bottom: AppSpacing.xl10),
       child: Column(
         children: [
           HomeCategorySection(

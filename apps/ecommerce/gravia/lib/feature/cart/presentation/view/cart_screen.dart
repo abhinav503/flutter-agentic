@@ -36,7 +36,6 @@ class _CartScreenState extends BaseScreenState<CartScreen> {
 
   void _addToCart(ProductEntity product, int quantity) {
     context.read<CartCubit>().addToCart(product, quantity);
-    showSnackBar(ValueConst.addedToCartMessage(product.name, quantity));
   }
 
   void _openProductDetails(ProductEntity product) =>

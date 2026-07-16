@@ -12,8 +12,9 @@ import 'package:gravia/constants/color_const.dart';
 /// [GraviaPrimaryButton], optionally in a Row with other controls).
 class GraviaDockedBar extends StatelessWidget {
   final Widget child;
+  final EdgeInsets? padding;
 
-  const GraviaDockedBar({super.key, required this.child});
+  const GraviaDockedBar({super.key, required this.child, this.padding});
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +28,7 @@ class GraviaDockedBar extends StatelessWidget {
       child: SafeArea(
         top: false,
         child: Padding(
-          padding: const EdgeInsets.symmetric(
+          padding: padding ?? const EdgeInsets.symmetric(
             horizontal: AppSpacing.lg,
             vertical: AppSpacing.base,
           ),

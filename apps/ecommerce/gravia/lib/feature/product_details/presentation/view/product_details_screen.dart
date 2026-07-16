@@ -44,7 +44,6 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen> {
 
   void _addToCart(ProductEntity product, int quantity) {
     context.read<CartCubit>().addToCart(product, quantity);
-    showSnackBar(ValueConst.addedToCartMessage(product.name, quantity));
   }
 
   // Pushes a new copy of this same route for the tapped similar product —

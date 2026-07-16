@@ -14,6 +14,10 @@ import 'package:gravia/constants/text_style_const.dart';
 import 'package:gravia/constants/value_const.dart';
 import 'package:gravia/enums/product_price_filter.dart';
 import 'package:gravia/enums/product_sort_option.dart';
+import 'package:gravia/feature/cart/domain/entities/cart_item_entity.dart';
+import 'package:gravia/feature/cart/presentation/cubit/cart_cubit.dart';
+import 'package:gravia/feature/cart/presentation/widgets/cart_status_bar.dart';
+import 'package:gravia/widgets/gravia_docked_bar.dart';
 import 'package:gravia/widgets/gravia_product_card.dart';
 import 'package:gravia/widgets/gravia_sheet.dart';
 
@@ -31,8 +35,9 @@ class CategoryDetailsScreen extends BaseScreen {
 
 class _CategoryDetailsScreenState
     extends BaseScreenState<CategoryDetailsScreen> {
-  void _addToCart(ProductEntity product, int quantity) =>
-      showSnackBar(ValueConst.addedToCartMessage(product.name, quantity));
+  Future<void> _addToCart(ProductEntity product, int quantity) async {
+    context.read<CartCubit>().addToCart(product, quantity);
+  }
 
   void _openProductDetails(ProductEntity product) =>
       context.push(AppRoutes.productDetailsPath(product.id));
@@ -92,82 +97,105 @@ class _CategoryDetailsScreenState
     final bloc = context.read<CategoryDetailsBloc>();
     final products = state.visibleProducts;
 
-    return CollapsingHeaderSheet(
-      initialHeaderHeight: 165,
-      header: CategoryDetailsHeroHeader(
-        categoryName: state.categoryName,
-        sort: state.sort,
-        priceFilter: state.priceFilter,
-        onBack: () => context.pop(),
-        onSearchTap: () => context.push(AppRoutes.search),
-        onSortTap: () => _showFilterSheet(
-          ValueConst.sortBySheetTitle,
-          RadioOptionsSheetContent<ProductSortOption>(
-            options: ProductSortOption.values,
-            labelOf: (o) => o.label,
-            selected: state.sort,
-            onSelected: (sort) {
-              bloc.add(CategoryDetailsEvent.sortChanged(sort: sort));
-              context.pop();
-            },
-          ),
-        ),
-        onPriceTap: () => _showFilterSheet(
-          ValueConst.priceSheetTitle,
-          RadioOptionsSheetContent<ProductPriceFilter>(
-            options: ProductPriceFilter.values,
-            labelOf: (o) => o.label,
-            selected: state.priceFilter,
-            onSelected: (priceFilter) {
-              bloc.add(
-                CategoryDetailsEvent.priceFilterChanged(
-                  priceFilter: priceFilter,
+    return Column(
+      children: [
+        Expanded(
+          child: CollapsingHeaderSheet(
+            initialHeaderHeight: 165,
+            header: CategoryDetailsHeroHeader(
+              categoryName: state.categoryName,
+              sort: state.sort,
+              priceFilter: state.priceFilter,
+              onBack: () => context.pop(),
+              onSearchTap: () => context.push(AppRoutes.search),
+              onSortTap: () => _showFilterSheet(
+                ValueConst.sortBySheetTitle,
+                RadioOptionsSheetContent<ProductSortOption>(
+                  options: ProductSortOption.values,
+                  labelOf: (o) => o.label,
+                  selected: state.sort,
+                  onSelected: (sort) {
+                    bloc.add(CategoryDetailsEvent.sortChanged(sort: sort));
+                    context.pop();
+                  },
                 ),
-              );
-              context.pop();
-            },
-          ),
-        ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.only(
-          left: AppSpacing.lg,
-          right: AppSpacing.lg,
-          top: AppSpacing.xl4,
-          bottom: AppSpacing.xl14,
-        ),
-        child: products.isEmpty
-            ? Center(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: AppSpacing.xl6),
-                  child: Text(
-                    ValueConst.categoryDetailsEmptyMessage,
-                    style: TextStyleConst.textMdRegular(
-                      tt,
-                    ).copyWith(color: cs.onSurfaceVariant),
-                  ),
+              ),
+              onPriceTap: () => _showFilterSheet(
+                ValueConst.priceSheetTitle,
+                RadioOptionsSheetContent<ProductPriceFilter>(
+                  options: ProductPriceFilter.values,
+                  labelOf: (o) => o.label,
+                  selected: state.priceFilter,
+                  onSelected: (priceFilter) {
+                    bloc.add(
+                      CategoryDetailsEvent.priceFilterChanged(
+                        priceFilter: priceFilter,
+                      ),
+                    );
+                    context.pop();
+                  },
                 ),
-              )
-            : Column(
-                children: [
-                  for (var r = 0; r < products.length; r += 2) ...[
-                    if (r > 0) const SizedBox(height: AppSpacing.lg),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(child: _productCard(context, products[r])),
-                        const SizedBox(width: AppSpacing.lg),
-                        Expanded(
-                          child: r + 1 < products.length
-                              ? _productCard(context, products[r + 1])
-                              : const SizedBox.shrink(),
+              ),
+            ),
+            body: Padding(
+              padding: const EdgeInsets.only(
+                left: AppSpacing.lg,
+                right: AppSpacing.lg,
+                top: AppSpacing.xl4,
+                bottom: AppSpacing.xl14,
+              ),
+              child: products.isEmpty
+                  ? Center(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: AppSpacing.xl6,
                         ),
+                        child: Text(
+                          ValueConst.categoryDetailsEmptyMessage,
+                          style: TextStyleConst.textMdRegular(
+                            tt,
+                          ).copyWith(color: cs.onSurfaceVariant),
+                        ),
+                      ),
+                    )
+                  : Column(
+                      children: [
+                        for (var r = 0; r < products.length; r += 2) ...[
+                          if (r > 0) const SizedBox(height: AppSpacing.lg),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: _productCard(context, products[r]),
+                              ),
+                              const SizedBox(width: AppSpacing.lg),
+                              Expanded(
+                                child: r + 1 < products.length
+                                    ? _productCard(context, products[r + 1])
+                                    : const SizedBox.shrink(),
+                              ),
+                            ],
+                          ),
+                        ],
                       ],
                     ),
-                  ],
-                ],
-              ),
-      ),
+            ),
+          ),
+        ),
+        GraviaDockedBar(
+          padding: EdgeInsets.only(top: 8),
+          child: BlocBuilder<CartCubit, List<CartItemEntity>>(
+            builder: (context, items) => items.isEmpty
+                ? const SizedBox.shrink()
+                : CartStatusBar(
+                    itemCount: items.itemCount,
+                    grandTotal: items.grandTotal,
+                    onTap: () => context.push(AppRoutes.cart),
+                    onClear: () => context.read<CartCubit>().clear(),
+                  ),
+          ),
+        ),
+      ],
     );
   }
 

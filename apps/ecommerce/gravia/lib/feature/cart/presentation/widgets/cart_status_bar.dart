@@ -113,6 +113,7 @@ class CartStatusBar extends StatelessWidget {
                       style: TextStyleConst.textXsRegular(tt).copyWith(
                         color: cs.primary,
                         decoration: TextDecoration.underline,
+                        decorationColor: cs.primary,
                       ),
                     ),
                   ],
@@ -124,13 +125,14 @@ class CartStatusBar extends StatelessWidget {
               onTap: onTap,
               child: Container(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.base,
-                  vertical: AppSpacing.xs,
+                  horizontal: AppSpacing.xl6,
+                  vertical: AppSpacing.xs2,
                 ),
                 decoration: BoxDecoration(
                   color: cs.primary,
                   borderRadius: BorderRadius.circular(shapes.buttonRadius),
                 ),
+                height: 45,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -142,7 +144,7 @@ class CartStatusBar extends StatelessWidget {
                     ),
                     Text(
                       ValueConst.checkoutLabel,
-                      style: TextStyleConst.textSmMedium(
+                      style: TextStyleConst.textXsBold(
                         tt,
                       ).copyWith(color: onOverlay),
                     ),
@@ -167,12 +169,11 @@ class _ClearCartButton extends StatelessWidget {
 
   const _ClearCartButton({required this.onTap});
 
-  static const _size = 44.0;
+  static const _size = 45.0;
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-
     return SizedBox(
       width: _size,
       height: _size,
