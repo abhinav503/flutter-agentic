@@ -130,6 +130,8 @@ class _AddToCartSheetContentState extends State<AddToCartSheetContent> {
                   label: ValueConst.cancel,
                   variant: AppButtonVariant.secondary,
                   fullWidth: true,
+                  size: AppButtonSize.large,
+                  height: 45,
                   // Kit spec: a neutral black/white Cancel outline, not
                   // core's default primary-coloured secondary text.
                   labelStyle: TextStyle(color: cs.onSurface),
@@ -141,6 +143,8 @@ class _AddToCartSheetContentState extends State<AddToCartSheetContent> {
                 child: AppButton(
                   label: ValueConst.addToCart,
                   fullWidth: true,
+                  size: AppButtonSize.large,
+                  height: 45,
                   onTap: () {
                     widget.onAddToCart(_quantity);
                     Navigator.of(context).pop();

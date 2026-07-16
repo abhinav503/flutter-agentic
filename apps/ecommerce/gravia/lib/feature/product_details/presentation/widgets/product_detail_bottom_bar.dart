@@ -57,6 +57,7 @@ class ProductDetailBottomBar extends StatelessWidget {
             children: [
               QuantityStepper(
                 value: quantity,
+                height: 45,
                 iconColor: ColorConst.gray700,
                 valueTextStyle: TextStyleConst.textMdBold(tt),
                 decrementIconBuilder: (color, size) =>
@@ -71,6 +72,8 @@ class ProductDetailBottomBar extends StatelessWidget {
                 child: AppButton(
                   label: ValueConst.addToCartWithPrice(unitPrice * quantity),
                   fullWidth: true,
+                  size: AppButtonSize.large,
+                  height: 45,
                   labelStyle: TextStyleConst.textMdMedium(tt).copyWith(color: cs.onPrimary),
                   onTap: onAddToCart,
                 ),

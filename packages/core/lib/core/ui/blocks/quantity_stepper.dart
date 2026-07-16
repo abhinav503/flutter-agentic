@@ -40,6 +40,12 @@ class QuantityStepper extends StatelessWidget {
   /// theme's `titleMedium` role. Omit (default) to use the role.
   final TextStyle? valueTextStyle;
 
+  /// Pins the pill to an exact height instead of letting icon padding +
+  /// content determine it — for docking next to a fixed-height sibling
+  /// (e.g. an [AppButton] with its own `height` override). Omit to keep the
+  /// default content-driven height.
+  final double? height;
+
   const QuantityStepper({
     super.key,
     required this.value,
@@ -49,6 +55,7 @@ class QuantityStepper extends StatelessWidget {
     this.decrementIconBuilder,
     this.incrementIconBuilder,
     this.valueTextStyle,
+    this.height,
   });
 
   @override
@@ -57,6 +64,7 @@ class QuantityStepper extends StatelessWidget {
     final tt = Theme.of(context).textTheme;
 
     return Container(
+      height: height,
       decoration: BoxDecoration(
         color: cs.primaryContainer.withValues(alpha: 0.35),
         borderRadius: AppRadius.full,
