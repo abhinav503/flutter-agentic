@@ -107,20 +107,28 @@ supplies the pack-specific metrics.
   row, search, filters) sits directly on the primary green; content below
   lives on a surface "sheet" whose large top radius overlaps the header and
   scrolls up underneath it as the sheet is dragged, rather than the header
-  and sheet scrolling as one unit. On-header controls are translucent white
-  circles/pills (`onPrimary` at low alpha), never default AppBar icons. →
-  `CollapsingHeaderSheet` — caller supplies `header`/`body`. Every gravia
-  screen has its own header widget built on this canvas: `HomeHeroHeader`
-  (location + notification + search field), `SearchHeroHeader` (back + live
-  search field, Hero-morphed from Home's), `ProductDetailHeroHeader` (back +
-  centered title + favourite), `CategoriesHeroHeader` (title + search icon),
-  `CategoryDetailsHeroHeader` (back + centered title + search icon, *plus* a
-  second row — see the filter chip row bullet below), `ProfileHeroHeader`
-  (title + avatar/name/email identity row + glass edit trigger; the avatar
-  uses `AppNetworkImage`'s `assetPlaceholder` param — a bundled default photo
-  shown whenever `url` is empty or fails to load, not just a spinner/broken-
-  image icon — so a profile screen ships with a real default look before a
-  user-provided photo URL exists).
+  and sheet scrolling as one unit. On-header controls are glass circles
+  (`GraviaGlassIconButton` — real backdrop blur, not a flat translucent
+  fill), never default AppBar icons. → `CollapsingHeaderSheet` — caller
+  supplies `header`/`body`; the header itself is built on `GraviaHeaderCanvas`
+  (the primary-coloured, status-bar-inset surface — keep `Center`/`Align` out
+  of what you put on it, see its doc). Most screens don't need their own
+  header *widget* at all — they call `GraviaHeroHeader` (back + centered
+  title, optional `trailing` glass action, optional second `bottom` row) or
+  `GraviaHeroHeader.page` (left-aligned XL title, no back — tab roots)
+  directly inline: Select Address, Cart, Product Details, Categories, and the
+  Add/Edit Address form all do this. A screen only gets its own dedicated
+  header widget when it composes real extra content onto the canvas beyond
+  a title row: `HomeHeroHeader` (location + notification + search field),
+  `SearchHeroHeader` (back + live search field, Hero-morphed from Home's,
+  built directly on `GraviaHeaderCanvas` since it has no title row),
+  `CategoryDetailsHeroHeader` (`GraviaHeroHeader` *plus* a second row — see
+  the filter chip row bullet below), `ProfileHeroHeader`
+  (`GraviaHeroHeader.page` *plus* an avatar/name/email identity row; the
+  avatar uses `AppNetworkImage`'s `assetPlaceholder` param — a bundled
+  default photo shown whenever `url` is empty or fails to load, not just a
+  spinner/broken-image icon — so a profile screen ships with a real default
+  look before a user-provided photo URL exists).
 - **Photo-forward product grid.** Two columns; square photos with the card
   radius; the photo *is* the card — no border, no elevation box around it.
   Under it: mint quantity badge (`AppBadge` info intent), bold title, muted
@@ -150,11 +158,18 @@ supplies the pack-specific metrics.
   title+"Cancel"-link header (same override pattern as the quick-add sheet
   below). Two list styles depending on what's being chosen: a plain option
   (Sort, Price) uses `AppRadioDot` — a classic outer-ring + inner-dot radio,
-  *not* a checkmark — via the generic `RadioOptionsSheetContent<T>`; a
+  *not* a checkmark — via the generic `RadioOptionsSheetContent<T>` (gravia's
+  `lib/widgets/` — shared since a second caller showed up: the Add/Edit
+  Address form's City/Country pickers open the same sheet from a
+  field-styled trigger, `AddressDropdownField`, instead of a chip); a
   count-labelled option (`"Apple (4)"`-style) uses square `AppCheckbox`
   with its checkmark, single-select enforced by the BLoC (only one stays
   checked) rather than by the widget itself, which is a plain multi-capable
-  checkbox. → `CategoryDetailsHeroHeader` + `RadioOptionsSheetContent`.
+  checkbox. → `CategoryDetailsHeroHeader` + `RadioOptionsSheetContent`. The
+  general rule: a bounded picklist opens a `RadioOptionsSheetContent` sheet
+  via `showGraviaSheet`, never a `PopupMenuButton`/`AppDropdownMenu` popup —
+  keeps every picklist in the app (chip-triggered or field-triggered) behind
+  one selection UI.
 - **Section rhythm.** Every content section opens `SectionHeader` (bold title
   + primary "See All").
 - **Pill quantity stepper** on cart rows and detail. → `QuantityStepper`; in
@@ -178,8 +193,28 @@ supplies the pack-specific metrics.
   `dividerColor`/`handleColor` overrides + `QuantityStepper`.
 - **Docked bottom CTA.** Checkout-style primary actions dock at the bottom as
   one full-width large pill above the safe area — often paired with a
-  `QuantityStepper` beside it (`ProductDetailBottomBar`). Same top-hairline
-  treatment as the bottom nav bar (see rule 4 in §2), not a one-off shade.
+  `QuantityStepper` beside it (`ProductDetailBottomBar`). → `GraviaDockedBar`
+  (the surface + top-hairline + safe-area shell — same hairline treatment as
+  the bottom nav bar, see rule 4 in §2, not a one-off shade) wrapping
+  `GraviaPrimaryButton` (the pill CTA itself). A screen with nothing but the
+  button calls both inline (Cart, Select Address); `ProductDetailBottomBar`
+  keeps its own widget only because it also owns the `QuantityStepper` and
+  the live quantity-scaled price label.
+- **Form fields (Add/Edit Address).** The only real data-entry form in the
+  app so far, and it deliberately breaks from the pack's shared input token:
+  gravia's `input` shape is a pill (999, `app_theme_presets.dart`) for
+  `SearchFieldBar`'s glass field, but this form's `AppTextField`s are
+  square-rounded (16) and pinned to a 45px height — a *screen-local*
+  override (`AppTextField.borderRadius`/`.height`, passed from
+  `AddressFormScreen._field`), not a change to the shared preset. Don't
+  "fix" these back to the pack's pill radius — it's intentional, matches the
+  screenshot spec, and other screens (search, quick-add) keep the pill
+  input look untouched. Labels are Text/sm/regular in the fixed
+  `ColorConst.gray500` (identical in both themes, unlike `onSurfaceVariant`)
+  via `AppTextField.labelStyle`, with extra label-to-field breathing room
+  via `.labelSpacing`. City/Country are bounded picklists, not free text —
+  `AddressDropdownField` (a field-styled trigger, not `AppDropdownMenu`)
+  opens the same `RadioOptionsSheetContent` sheet as the filter chips above.
 - **Pill-highlight bottom nav.** Active tab = pill with icon + label on
   primary; inactive tabs = icon-only circles on Gray/50
   (`surfaceContainerLow` — barely off the surface, not `Highest`), icons in
@@ -290,7 +325,8 @@ some interactive control is a fixed, opinionated look that differs from
 with the theme, a tinted fill, …), don't fork the atom or hand-repeat the
 override params at every call site — add the override params to the `core`
 atom itself (e.g. `AppChip.showCheckIcon`, `AppCheckbox.showCheckIcon`,
-`AppGlassChip.height`; all default to the prior themed behaviour, so
+`AppGlassChip.height`, `AppTextField.borderRadius`/`.labelStyle`/
+`.labelSpacing`/`.height`; all default to the prior themed behaviour, so
 existing callers are unaffected), then wrap it in a small preset widget in
 the app's `lib/widgets/` that bakes those overrides in as defaults —
 `SelectorChip` (gravia's single-select size/variant chip) wrapping `AppChip`
@@ -326,6 +362,7 @@ re-style the underlying atom/block inline:
 | Docked bottom CTA bar shell | `GraviaDockedBar` (top hairline + safe area + bar padding) |
 | Full-width primary CTA (in a docked bar) | `GraviaPrimaryButton` — never a re-typed `AppButton` recipe |
 | Styled bottom sheet | `showGraviaSheet` / `showGraviaAddToCartSheet` (extension on `BaseScreenState` in `gravia_sheet.dart`) — never raw `showAppBottomSheet` styling |
+| Bounded-picklist selection sheet (radio list) | `RadioOptionsSheetContent<T>` — opened via `showGraviaSheet`, never `AppDropdownMenu`/`PopupMenuButton` for an in-app picklist |
 | Single-select option chip | `SelectorChip` |
 | Hairline colours | `ColorScheme.dockedHairline` / `ColorScheme.sheetHairline` (extensions in `color_const.dart`, like `tintedPrimaryFill`) — never re-derive the brightness ternary |
 
@@ -363,11 +400,12 @@ Get the shape right before touching a `TextStyle` or a colour.
 
 1. **Chrome: `AppBar` or the pack's header treatment?** Check the style
    pack's "Signature compositions" list (§1) first — gravia's screens never
-   use a default `AppBar`; they use `CollapsingHeaderSheet` with a
-   pack-specific header widget (`HomeHeroHeader`, `SearchHeroHeader`,
-   `ProductDetailHeroHeader`). Reach for a plain `AppBar` only when the
-   pack's own catalog doesn't define a header pattern for this kind of
-   screen.
+   use a default `AppBar`; they use `CollapsingHeaderSheet` with either
+   `GraviaHeroHeader`/`GraviaHeroHeader.page` called inline or a
+   pack-specific header widget built on `GraviaHeaderCanvas` for a screen
+   that composes extra content onto it (`HomeHeroHeader`,
+   `SearchHeroHeader`). Reach for a plain `AppBar` only when the pack's own
+   catalog doesn't define a header pattern for this kind of screen.
 2. **Order the body top-to-bottom by information priority, not by
    convenience.** For a PDP-shaped screen, see
    `ProductDetailsScreen._buildLoaded` as a worked example: hero media →
