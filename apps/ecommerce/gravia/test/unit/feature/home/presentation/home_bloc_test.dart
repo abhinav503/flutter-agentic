@@ -29,7 +29,11 @@ void main() {
   );
   const home = HomeEntity(
     categories: [
-      CategoryEntity(id: '1', name: 'Fresh', imageUrl: 'https://example.com/fresh.png'),
+      CategoryEntity(
+        id: '1',
+        name: 'Fresh',
+        imageUrl: 'https://example.com/fresh.png',
+      ),
     ],
     popularProducts: [product],
   );
@@ -42,20 +46,16 @@ void main() {
     'emits [loading, loaded] when started succeeds',
     build: () => HomeBloc(getHomeUseCase: GetHomeUseCase(repository)),
     act: (bloc) => bloc.add(const HomeEvent.started()),
-    expect: () => [
-      const HomeState.loaded(home: home),
-    ],
+    expect: () => [const HomeState.loaded(home: home)],
   );
 
   blocTest<HomeBloc, HomeState>(
     'emits [loading, error] when started fails',
-    setUp: () => repository.result =
-        left(const Failure.unexpected(message: 'boom')),
+    setUp: () =>
+        repository.result = left(const Failure.unexpected(message: 'boom')),
     build: () => HomeBloc(getHomeUseCase: GetHomeUseCase(repository)),
     act: (bloc) => bloc.add(const HomeEvent.started()),
-    expect: () => [
-      const HomeState.error(message: 'boom'),
-    ],
+    expect: () => [const HomeState.error(message: 'boom')],
   );
 
   blocTest<HomeBloc, HomeState>(

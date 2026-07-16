@@ -8,12 +8,14 @@ part 'product_details_bloc.freezed.dart';
 part 'product_details_event.dart';
 part 'product_details_state.dart';
 
-class ProductDetailsBloc extends Bloc<ProductDetailsEvent, ProductDetailsState> {
+class ProductDetailsBloc
+    extends Bloc<ProductDetailsEvent, ProductDetailsState> {
   final GetProductDetailsUseCase _getProductDetails;
 
-  ProductDetailsBloc({required GetProductDetailsUseCase getProductDetailsUseCase})
-      : _getProductDetails = getProductDetailsUseCase,
-        super(const ProductDetailsState.loading()) {
+  ProductDetailsBloc({
+    required GetProductDetailsUseCase getProductDetailsUseCase,
+  }) : _getProductDetails = getProductDetailsUseCase,
+       super(const ProductDetailsState.loading()) {
     on<ProductDetailsStarted>(_onStarted);
     on<ProductDetailsFavouriteToggled>(_onFavouriteToggled);
   }
@@ -27,7 +29,10 @@ class ProductDetailsBloc extends Bloc<ProductDetailsEvent, ProductDetailsState> 
     );
     result.fold(
       (failure) => emit(
-        ProductDetailsState.error(message: failure.message, productId: event.productId),
+        ProductDetailsState.error(
+          message: failure.message,
+          productId: event.productId,
+        ),
       ),
       (detail) => emit(ProductDetailsState.loaded(detail: detail)),
     );
@@ -40,7 +45,11 @@ class ProductDetailsBloc extends Bloc<ProductDetailsEvent, ProductDetailsState> 
     switch (state) {
       case ProductDetailsLoaded(:final detail):
         final isFavourite = !detail.product.isFavourite;
-        emit(ProductDetailsState.loaded(detail: detail.copyWith(isFavourite: isFavourite)));
+        emit(
+          ProductDetailsState.loaded(
+            detail: detail.copyWith(isFavourite: isFavourite),
+          ),
+        );
       case ProductDetailsLoading():
       case ProductDetailsError():
         break;

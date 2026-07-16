@@ -22,20 +22,20 @@ abstract class AddressModel with _$AddressModel {
       _$AddressModelFromJson(json);
 
   factory AddressModel.fromEntity(AddressEntity e) => AddressModel(
-        id: e.id,
-        name: e.name,
-        phone: e.phone,
-        addressLine: e.addressLine,
-        tag: e.tag,
-        isDefault: e.isDefault,
-      );
+    id: e.id,
+    name: e.name,
+    phone: e.phone,
+    addressLine: e.addressLine,
+    tag: e.tag,
+    isDefault: e.isDefault,
+  );
 
   AddressEntity toEntity() => AddressEntity(
-        id: id,
-        name: name,
-        phone: phone,
-        addressLine: addressLine,
-        tag: tag,
-        isDefault: isDefault,
-      );
+    id: id,
+    name: name,
+    phone: phone,
+    addressLine: addressLine,
+    tag: tag,
+    isDefault: isDefault,
+  );
 }

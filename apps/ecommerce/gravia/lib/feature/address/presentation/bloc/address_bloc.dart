@@ -16,13 +16,16 @@ class AddressBloc extends Bloc<AddressEvent, AddressState> {
   final GetAddressesUseCase _getAddresses;
 
   AddressBloc({required GetAddressesUseCase getAddressesUseCase})
-      : _getAddresses = getAddressesUseCase,
-        super(const AddressState.loading()) {
+    : _getAddresses = getAddressesUseCase,
+      super(const AddressState.loading()) {
     on<AddressStarted>(_onStarted);
     on<AddressSelected>(_onSelected);
   }
 
-  Future<void> _onStarted(AddressStarted event, Emitter<AddressState> emit) async {
+  Future<void> _onStarted(
+    AddressStarted event,
+    Emitter<AddressState> emit,
+  ) async {
     final result = await _getAddresses(const NoParams());
     result.fold(
       (failure) => emit(AddressState.error(message: failure.message)),
@@ -31,14 +34,21 @@ class AddressBloc extends Bloc<AddressEvent, AddressState> {
           emit(const AddressState.loaded(addresses: [], selectedAddressId: ''));
           return;
         }
-        final savedId =
-            SharedPreferenceService.instance.getString(kSelectedAddressIdPrefKey);
+        final savedId = SharedPreferenceService.instance.getString(
+          kSelectedAddressIdPrefKey,
+        );
         final defaultId = addresses
             .firstWhere((a) => a.isDefault, orElse: () => addresses.first)
             .id;
-        final selectedId =
-            addresses.any((a) => a.id == savedId) ? savedId! : defaultId;
-        emit(AddressState.loaded(addresses: addresses, selectedAddressId: selectedId));
+        final selectedId = addresses.any((a) => a.id == savedId)
+            ? savedId!
+            : defaultId;
+        emit(
+          AddressState.loaded(
+            addresses: addresses,
+            selectedAddressId: selectedId,
+          ),
+        );
       },
     );
   }
@@ -46,10 +56,12 @@ class AddressBloc extends Bloc<AddressEvent, AddressState> {
   void _onSelected(AddressSelected event, Emitter<AddressState> emit) {
     switch (state) {
       case AddressLoaded(:final addresses):
-        emit(AddressState.loaded(
-          addresses: addresses,
-          selectedAddressId: event.addressId,
-        ));
+        emit(
+          AddressState.loaded(
+            addresses: addresses,
+            selectedAddressId: event.addressId,
+          ),
+        );
       case AddressLoading():
       case AddressError():
         break;

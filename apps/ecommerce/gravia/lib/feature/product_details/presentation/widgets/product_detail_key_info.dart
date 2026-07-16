@@ -34,8 +34,12 @@ class _ProductDetailKeyInfoState extends State<ProductDetailKeyInfo> {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
-    final bodyStyle = TextStyleConst.textMdRegular(tt).copyWith(color: cs.onSurface);
-    final toggleStyle = TextStyleConst.textMdRegular(tt).copyWith(color: cs.primary);
+    final bodyStyle = TextStyleConst.textMdRegular(
+      tt,
+    ).copyWith(color: cs.onSurface);
+    final toggleStyle = TextStyleConst.textMdRegular(
+      tt,
+    ).copyWith(color: cs.primary);
     final toggleRecognizer = TapGestureRecognizer()
       ..onTap = () => setState(() => _expanded = !_expanded);
 
@@ -95,7 +99,10 @@ class _ProductDetailKeyInfoState extends State<ProductDetailKeyInfo> {
     bool fits(String text) {
       final painter = TextPainter(
         text: TextSpan(
-          children: [TextSpan(text: text, style: bodyStyle), toggleSpan],
+          children: [
+            TextSpan(text: text, style: bodyStyle),
+            toggleSpan,
+          ],
         ),
         maxLines: widget.maxLines,
         textDirection: TextDirection.ltr,

@@ -18,11 +18,8 @@ abstract class ProfileModel with _$ProfileModel {
   factory ProfileModel.fromJson(Map<String, dynamic> json) =>
       _$ProfileModelFromJson(json);
 
-  factory ProfileModel.fromEntity(ProfileEntity e) => ProfileModel(
-        name: e.name,
-        email: e.email,
-        avatarUrl: e.avatarUrl,
-      );
+  factory ProfileModel.fromEntity(ProfileEntity e) =>
+      ProfileModel(name: e.name, email: e.email, avatarUrl: e.avatarUrl);
 
   ProfileEntity toEntity() =>
       ProfileEntity(name: name, email: email, avatarUrl: avatarUrl);

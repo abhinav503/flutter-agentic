@@ -5,7 +5,8 @@ import 'package:fpdart/fpdart.dart';
 import '../entities/profile_entity.dart';
 import '../repository/profile_repository.dart';
 
-class GetProfileUseCase extends UseCase<Either<Failure, ProfileEntity>, NoParams> {
+class GetProfileUseCase
+    extends UseCase<Either<Failure, ProfileEntity>, NoParams> {
   final ProfileRepository _repository;
 
   const GetProfileUseCase(this._repository);

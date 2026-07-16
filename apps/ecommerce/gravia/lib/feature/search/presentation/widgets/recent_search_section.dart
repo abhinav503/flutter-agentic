@@ -66,8 +66,9 @@ class RecentSearchSection extends StatelessWidget {
                             Expanded(
                               child: Text(
                                 product.name,
-                                style: TextStyleConst.textSmRegular(tt)
-                                    .copyWith(color: nameColor),
+                                style: TextStyleConst.textSmRegular(
+                                  tt,
+                                ).copyWith(color: nameColor),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),

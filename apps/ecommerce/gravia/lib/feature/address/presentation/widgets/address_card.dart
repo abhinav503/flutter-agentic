@@ -47,8 +47,9 @@ class AddressCard extends StatelessWidget {
     // Kit spec calls for pure white/black here, not the warm near-black/
     // near-white `onSurface` pair the rest of the app reads — shared by the
     // phone row and the Edit button's icon+label.
-    final blackOrWhite =
-        Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black;
+    final blackOrWhite = Theme.of(context).brightness == Brightness.dark
+        ? Colors.white
+        : Colors.black;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -73,8 +74,9 @@ class AddressCard extends StatelessWidget {
                         Flexible(
                           child: Text(
                             address.name,
-                            style: TextStyleConst.textMdBold(tt)
-                                .copyWith(color: cs.onSurface),
+                            style: TextStyleConst.textMdBold(
+                              tt,
+                            ).copyWith(color: cs.onSurface),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -87,7 +89,9 @@ class AddressCard extends StatelessWidget {
                         AppBadge(
                           text: address.tag,
                           intent: AppBadgeIntent.info,
-                          textStyle: TextStyleConst.badgeLabel(tt).copyWith(color: cs.primary),
+                          textStyle: TextStyleConst.badgeLabel(
+                            tt,
+                          ).copyWith(color: cs.primary),
                           backgroundColor: cs.tintedPrimaryFill,
                         ),
                       ],
@@ -100,8 +104,9 @@ class AddressCard extends StatelessWidget {
                 padding: const EdgeInsets.only(left: _identityInset),
                 child: Text(
                   address.addressLine,
-                  style: TextStyleConst.textSmRegular(tt)
-                      .copyWith(color: ColorConst.gray500),
+                  style: TextStyleConst.textSmRegular(
+                    tt,
+                  ).copyWith(color: ColorConst.gray500),
                 ),
               ),
               const SizedBox(height: AppSpacing.xs2),
@@ -118,7 +123,9 @@ class AddressCard extends StatelessWidget {
                     const SizedBox(width: AppSpacing.xs3),
                     Text(
                       address.phone,
-                      style: TextStyleConst.textSmRegular(tt).copyWith(color: blackOrWhite),
+                      style: TextStyleConst.textSmRegular(
+                        tt,
+                      ).copyWith(color: blackOrWhite),
                     ),
                   ],
                 ),
@@ -140,7 +147,9 @@ class AddressCard extends StatelessWidget {
                   // Matches the 45px action-control height used by the glass
                   // icon buttons in every header and the docked bottom CTAs.
                   height: 45,
-                  labelStyle: TextStyleConst.textSmMedium(tt).copyWith(color: blackOrWhite),
+                  labelStyle: TextStyleConst.textSmMedium(
+                    tt,
+                  ).copyWith(color: blackOrWhite),
                   leadingIcon: AppSvgImage.asset(
                     ImageConst.editRectangle,
                     color: blackOrWhite,
@@ -151,9 +160,7 @@ class AddressCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: AppSpacing.base),
-              Expanded(
-                child: _DeleteButton(onTap: onDelete),
-              ),
+              Expanded(child: _DeleteButton(onTap: onDelete)),
             ],
           ),
         ),
@@ -175,7 +182,8 @@ class _DeleteButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
-    final shapes = Theme.of(context).extension<AppShapes>() ?? AppShapes.standard;
+    final shapes =
+        Theme.of(context).extension<AppShapes>() ?? AppShapes.standard;
 
     return SizedBox(
       // Matches the 45px action-control height used by the glass icon
@@ -202,8 +210,9 @@ class _DeleteButton extends StatelessWidget {
                 const SizedBox(width: AppSpacing.xs),
                 Text(
                   ValueConst.deleteLabel,
-                  style: TextStyleConst.textSmMedium(tt)
-                      .copyWith(color: ColorConst.error500),
+                  style: TextStyleConst.textSmMedium(
+                    tt,
+                  ).copyWith(color: ColorConst.error500),
                 ),
               ],
             ),

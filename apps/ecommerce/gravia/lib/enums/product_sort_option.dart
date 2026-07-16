@@ -11,10 +11,10 @@ enum ProductSortOption {
 
 extension ProductSortOptionX on ProductSortOption {
   String get label => switch (this) {
-        ProductSortOption.relevance => 'Relevance',
-        ProductSortOption.priceLowToHigh => 'Price (Low to High)',
-        ProductSortOption.priceHighToLow => 'Price (High to Low)',
-        ProductSortOption.ratingHighToLow => 'Rating (High to Low)',
-        ProductSortOption.discountHighToLow => 'Discount (High to Low)',
-      };
+    ProductSortOption.relevance => 'Relevance',
+    ProductSortOption.priceLowToHigh => 'Price (Low to High)',
+    ProductSortOption.priceHighToLow => 'Price (High to Low)',
+    ProductSortOption.ratingHighToLow => 'Rating (High to Low)',
+    ProductSortOption.discountHighToLow => 'Discount (High to Low)',
+  };
 }

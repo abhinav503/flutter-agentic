@@ -11,16 +11,15 @@ import 'package:core/core/ui/blocks/collapsing_header_sheet.dart';
 import 'package:core/core/ui/molecules/error_view.dart';
 
 import 'package:gravia/constants/app_routes.dart';
-import 'package:gravia/constants/color_const.dart';
-import 'package:gravia/constants/text_style_const.dart';
 import 'package:gravia/constants/value_const.dart';
 import 'package:gravia/feature/address/presentation/view/address_page.dart';
+import 'package:gravia/feature/cart/presentation/cubit/cart_cubit.dart';
+import 'package:gravia/widgets/gravia_sheet.dart';
 
 import '../../domain/entities/category_entity.dart';
 import '../../domain/entities/home_entity.dart';
 import '../../domain/entities/product_entity.dart';
 import '../bloc/home_bloc.dart';
-import '../widgets/add_to_cart_sheet_content.dart';
 import '../widgets/home_category_section.dart';
 import '../widgets/home_hero_header.dart';
 import '../widgets/home_popular_items_section.dart';
@@ -45,8 +44,9 @@ class _HomeScreenState extends BaseScreenState<HomeScreen> {
   }
 
   void _loadSelectedAddress() {
-    _selectedAddressLabel =
-        SharedPreferenceService.instance.getString(kSelectedAddressLabelPrefKey);
+    _selectedAddressLabel = SharedPreferenceService.instance.getString(
+      kSelectedAddressLabelPrefKey,
+    );
   }
 
   Future<void> _openSelectAddress() async {
@@ -55,39 +55,19 @@ class _HomeScreenState extends BaseScreenState<HomeScreen> {
     setState(_loadSelectedAddress);
   }
 
-  void _addToCart(ProductEntity product, int quantity) =>
-      showSnackBar(ValueConst.addedToCartMessage(product.name, quantity));
+  void _addToCart(ProductEntity product, int quantity) {
+    context.read<CartCubit>().addToCart(product, quantity);
+    showSnackBar(ValueConst.addedToCartMessage(product.name, quantity));
+  }
 
   void _openProductDetails(ProductEntity product) =>
       context.push(AppRoutes.productDetailsPath(product.id));
 
-  void _openCategoryDetails(CategoryEntity category) => context.push(
-    AppRoutes.categoryDetailsPath(category.id, category.name),
-  );
+  void _openCategoryDetails(CategoryEntity category) =>
+      context.push(AppRoutes.categoryDetailsPath(category.id, category.name));
 
-  void _showAddToCartSheet(ProductEntity product) {
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
-    // Neither outlineVariant nor onSurfaceVariant lands on the kit's exact
-    // hairline/handle shade in both modes, so it's an explicit override —
-    // Gray/200 light, Light/900 dark.
-    final hairlineColor = Theme.of(context).brightness == Brightness.dark
-        ? ColorConst.gray900
-        : ColorConst.gray200;
-
-    showAppBottomSheet(
-      title: ValueConst.addToCartSheetTitle,
-      titleStyle: TextStyleConst.textLgBold(tt),
-      closeLabel: ValueConst.cancel,
-      closeLabelStyle: TextStyleConst.textSmRegular(tt).copyWith(color: cs.primary),
-      dividerColor: hairlineColor,
-      handleColor: hairlineColor,
-      child: AddToCartSheetContent(
-        product: product,
-        onAddToCart: (quantity) => _addToCart(product, quantity),
-      ),
-    );
-  }
+  void _showAddToCartSheet(ProductEntity product) =>
+      showGraviaAddToCartSheet(product: product, onAddToCart: _addToCart);
 
   @override
   Widget body(BuildContext context) {
@@ -117,7 +97,8 @@ class _HomeScreenState extends BaseScreenState<HomeScreen> {
           ),
           HomeLoaded(:final home) => _HomeContent(
             home: home,
-            addressLabel: _selectedAddressLabel ?? ValueConst.noLocationSelectedLabel,
+            addressLabel:
+                _selectedAddressLabel ?? ValueConst.noLocationSelectedLabel,
             onLocationTap: _openSelectAddress,
             onAddToCart: _addToCart,
             onQuickAdd: _showAddToCartSheet,

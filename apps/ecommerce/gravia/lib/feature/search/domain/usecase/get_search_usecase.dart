@@ -5,7 +5,8 @@ import 'package:fpdart/fpdart.dart';
 import '../entities/search_entity.dart';
 import '../repository/search_repository.dart';
 
-class GetSearchUseCase extends UseCase<Either<Failure, SearchEntity>, NoParams> {
+class GetSearchUseCase
+    extends UseCase<Either<Failure, SearchEntity>, NoParams> {
   final SearchRepository _repository;
 
   const GetSearchUseCase(this._repository);

@@ -13,7 +13,7 @@ import 'package:gravia/constants/text_style_const.dart';
 import 'package:gravia/constants/value_const.dart';
 import 'package:gravia/enums/product_unit_type.dart';
 
-import '../../domain/entities/product_entity.dart';
+import 'package:gravia/feature/home/domain/entities/product_entity.dart';
 
 /// Body of the "Add to Cart" sheet opened from [ProductCard]'s quick-add
 /// icon — lets the shopper pick a quantity before confirming. Owns the
@@ -79,10 +79,12 @@ class _AddToCartSheetContentState extends State<AddToCartSheetContent> {
                     ),
                     const SizedBox(height: AppSpacing.xs3),
                     Text(
-                      widget.product.unitType
-                          .format(widget.product.unitValue * _quantity),
-                      style: TextStyleConst.textSmRegular(tt)
-                          .copyWith(color: cs.onSurfaceVariant),
+                      widget.product.unitType.format(
+                        widget.product.unitValue * _quantity,
+                      ),
+                      style: TextStyleConst.textSmRegular(
+                        tt,
+                      ).copyWith(color: cs.onSurfaceVariant),
                     ),
                     const SizedBox(height: AppSpacing.base),
                     Row(
@@ -92,24 +94,28 @@ class _AddToCartSheetContentState extends State<AddToCartSheetContent> {
                           // Line total for the chosen quantity, not the flat
                           // unit price — updates live as the stepper changes.
                           '\$${(widget.product.price * _quantity).toStringAsFixed(2)}',
-                          style: TextStyleConst.textMdBold(tt).copyWith(color: cs.onSurface),
+                          style: TextStyleConst.textMdBold(
+                            tt,
+                          ).copyWith(color: cs.onSurface),
                         ),
                         QuantityStepper(
                           value: _quantity,
                           iconColor: ColorConst.gray700,
                           valueTextStyle: TextStyleConst.textMdBold(tt),
-                          decrementIconBuilder: (color, size) => AppSvgImage.asset(
-                            ImageConst.minus,
-                            color: color,
-                            width: size,
-                            height: size,
-                          ),
-                          incrementIconBuilder: (color, size) => AppSvgImage.asset(
-                            ImageConst.plus,
-                            color: color,
-                            width: size,
-                            height: size,
-                          ),
+                          decrementIconBuilder: (color, size) =>
+                              AppSvgImage.asset(
+                                ImageConst.minus,
+                                color: color,
+                                width: size,
+                                height: size,
+                              ),
+                          incrementIconBuilder: (color, size) =>
+                              AppSvgImage.asset(
+                                ImageConst.plus,
+                                color: color,
+                                width: size,
+                                height: size,
+                              ),
                           onDecrement: _quantity > 1
                               ? () => setState(() => _quantity--)
                               : null,

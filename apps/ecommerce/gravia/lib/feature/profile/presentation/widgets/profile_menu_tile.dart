@@ -38,8 +38,9 @@ class ProfileMenuTile extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final iconCircleColor =
-        danger ? cs.error.withValues(alpha: 0.12) : (isDark ? ColorConst.gray950 : ColorConst.gray50);
+    final iconCircleColor = danger
+        ? cs.error.withValues(alpha: 0.12)
+        : (isDark ? ColorConst.gray950 : ColorConst.gray50);
     final foregroundColor = danger ? cs.error : cs.onSurface;
 
     return GestureDetector(
@@ -52,7 +53,10 @@ class ProfileMenuTile extends StatelessWidget {
             Container(
               width: _iconCircleSize,
               height: _iconCircleSize,
-              decoration: BoxDecoration(color: iconCircleColor, shape: BoxShape.circle),
+              decoration: BoxDecoration(
+                color: iconCircleColor,
+                shape: BoxShape.circle,
+              ),
               alignment: Alignment.center,
               child: iconBuilder(foregroundColor, 20),
             ),
@@ -60,7 +64,9 @@ class ProfileMenuTile extends StatelessWidget {
             Expanded(
               child: Text(
                 label,
-                style: TextStyleConst.textMdMedium(tt).copyWith(color: foregroundColor),
+                style: TextStyleConst.textMdMedium(
+                  tt,
+                ).copyWith(color: foregroundColor),
               ),
             ),
             trailing ??

@@ -18,13 +18,14 @@ abstract class CategoryGroupModel with _$CategoryGroupModel {
   factory CategoryGroupModel.fromJson(Map<String, dynamic> json) =>
       _$CategoryGroupModelFromJson(json);
 
-  factory CategoryGroupModel.fromEntity(CategoryGroupEntity e) => CategoryGroupModel(
+  factory CategoryGroupModel.fromEntity(CategoryGroupEntity e) =>
+      CategoryGroupModel(
         name: e.name,
         categories: e.categories.map(CategoryModel.fromEntity).toList(),
       );
 
   CategoryGroupEntity toEntity() => CategoryGroupEntity(
-        name: name,
-        categories: categories.map((c) => c.toEntity()).toList(),
-      );
+    name: name,
+    categories: categories.map((c) => c.toEntity()).toList(),
+  );
 }

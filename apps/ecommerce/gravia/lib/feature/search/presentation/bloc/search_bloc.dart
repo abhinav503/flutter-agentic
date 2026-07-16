@@ -14,13 +14,16 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
   final GetSearchUseCase _getSearch;
 
   SearchBloc({required GetSearchUseCase getSearchUseCase})
-      : _getSearch = getSearchUseCase,
-        super(const SearchState.loading()) {
+    : _getSearch = getSearchUseCase,
+      super(const SearchState.loading()) {
     on<SearchStarted>(_onStarted);
     on<SearchRecentSearchRemoved>(_onRecentSearchRemoved);
   }
 
-  Future<void> _onStarted(SearchStarted event, Emitter<SearchState> emit) async {
+  Future<void> _onStarted(
+    SearchStarted event,
+    Emitter<SearchState> emit,
+  ) async {
     final result = await _getSearch(const NoParams());
     result.fold(
       (failure) => emit(SearchState.error(message: failure.message)),
@@ -37,7 +40,9 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
         final updated = search.recentSearches
             .where((p) => p.id != event.productId)
             .toList();
-        emit(SearchState.loaded(search: search.copyWith(recentSearches: updated)));
+        emit(
+          SearchState.loaded(search: search.copyWith(recentSearches: updated)),
+        );
       case SearchLoading():
       case SearchError():
         break;

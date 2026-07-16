@@ -63,20 +63,16 @@ void main() {
     'emits [loading, loaded] when started succeeds',
     build: () => SearchBloc(getSearchUseCase: GetSearchUseCase(repository)),
     act: (bloc) => bloc.add(const SearchEvent.started()),
-    expect: () => [
-      const SearchState.loaded(search: search),
-    ],
+    expect: () => [const SearchState.loaded(search: search)],
   );
 
   blocTest<SearchBloc, SearchState>(
     'emits [loading, error] when started fails',
-    setUp: () => repository.result =
-        left(const Failure.unexpected(message: 'boom')),
+    setUp: () =>
+        repository.result = left(const Failure.unexpected(message: 'boom')),
     build: () => SearchBloc(getSearchUseCase: GetSearchUseCase(repository)),
     act: (bloc) => bloc.add(const SearchEvent.started()),
-    expect: () => [
-      const SearchState.error(message: 'boom'),
-    ],
+    expect: () => [const SearchState.error(message: 'boom')],
   );
 
   blocTest<SearchBloc, SearchState>(

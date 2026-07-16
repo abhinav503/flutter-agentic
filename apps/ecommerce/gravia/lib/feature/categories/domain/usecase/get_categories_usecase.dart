@@ -5,7 +5,8 @@ import 'package:fpdart/fpdart.dart';
 import '../entities/categories_entity.dart';
 import '../repository/categories_repository.dart';
 
-class GetCategoriesUseCase extends UseCase<Either<Failure, CategoriesEntity>, NoParams> {
+class GetCategoriesUseCase
+    extends UseCase<Either<Failure, CategoriesEntity>, NoParams> {
   final CategoriesRepository _repository;
 
   const GetCategoriesUseCase(this._repository);

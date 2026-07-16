@@ -11,10 +11,12 @@ class ProductDetailImageCarousel extends StatefulWidget {
   const ProductDetailImageCarousel({super.key, required this.images});
 
   @override
-  State<ProductDetailImageCarousel> createState() => _ProductDetailImageCarouselState();
+  State<ProductDetailImageCarousel> createState() =>
+      _ProductDetailImageCarouselState();
 }
 
-class _ProductDetailImageCarouselState extends State<ProductDetailImageCarousel> {
+class _ProductDetailImageCarouselState
+    extends State<ProductDetailImageCarousel> {
   final _pageController = PageController();
   int _page = 0;
 
@@ -26,7 +28,8 @@ class _ProductDetailImageCarouselState extends State<ProductDetailImageCarousel>
 
   @override
   Widget build(BuildContext context) {
-    final shapes = Theme.of(context).extension<AppShapes>() ?? AppShapes.standard;
+    final shapes =
+        Theme.of(context).extension<AppShapes>() ?? AppShapes.standard;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -47,10 +50,7 @@ class _ProductDetailImageCarouselState extends State<ProductDetailImageCarousel>
         ),
         if (widget.images.length > 1) ...[
           const SizedBox(height: AppSpacing.base),
-          PageIndicator(
-            count: widget.images.length,
-            currentIndex: _page,
-          ),
+          PageIndicator(count: widget.images.length, currentIndex: _page),
         ],
       ],
     );

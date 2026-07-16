@@ -24,8 +24,9 @@ class _ProductDetailsPageState extends BasePageState<ProductDetailsPage> {
   // on top of it would double up, same reasoning as Home/Search.
   @override
   Widget buildBody(BuildContext context) => BlocProvider(
-    create: (_) => ProductDetailsBloc(getProductDetailsUseCase: sl())
-      ..add(ProductDetailsEvent.started(productId: widget.productId)),
+    create: (_) =>
+        ProductDetailsBloc(getProductDetailsUseCase: sl())
+          ..add(ProductDetailsEvent.started(productId: widget.productId)),
     child: const ProductDetailsScreen(),
   );
 }

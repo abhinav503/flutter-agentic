@@ -14,12 +14,15 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   final GetProfileUseCase _getProfile;
 
   ProfileBloc({required GetProfileUseCase getProfileUseCase})
-      : _getProfile = getProfileUseCase,
-        super(const ProfileState.loading()) {
+    : _getProfile = getProfileUseCase,
+      super(const ProfileState.loading()) {
     on<ProfileStarted>(_onStarted);
   }
 
-  Future<void> _onStarted(ProfileStarted event, Emitter<ProfileState> emit) async {
+  Future<void> _onStarted(
+    ProfileStarted event,
+    Emitter<ProfileState> emit,
+  ) async {
     final result = await _getProfile(const NoParams());
     result.fold(
       (failure) => emit(ProfileState.error(message: failure.message)),

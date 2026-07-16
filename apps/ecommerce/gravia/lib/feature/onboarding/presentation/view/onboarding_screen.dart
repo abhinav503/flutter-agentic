@@ -83,8 +83,10 @@ class _OnboardingScreenState extends BaseScreenState<OnboardingScreen> {
 
   void _onSheetDragUpdate(DragUpdateDetails details) {
     setState(() {
-      _sheetDragOffset = (_sheetDragOffset + details.delta.dy)
-          .clamp(0.0, _maxSheetDragOffset());
+      _sheetDragOffset = (_sheetDragOffset + details.delta.dy).clamp(
+        0.0,
+        _maxSheetDragOffset(),
+      );
     });
   }
 
@@ -110,8 +112,10 @@ class _OnboardingScreenState extends BaseScreenState<OnboardingScreen> {
   }
 
   Future<void> _onFinish() async {
-    await SharedPreferenceService.instance
-        .setBool(kHasSeenOnboardingPrefKey, true);
+    await SharedPreferenceService.instance.setBool(
+      kHasSeenOnboardingPrefKey,
+      true,
+    );
     if (mounted) context.go(AppRoutes.home);
   }
 
@@ -176,7 +180,8 @@ class _OnboardingScreenState extends BaseScreenState<OnboardingScreen> {
   @override
   Widget body(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final shapes = Theme.of(context).extension<AppShapes>() ?? AppShapes.standard;
+    final shapes =
+        Theme.of(context).extension<AppShapes>() ?? AppShapes.standard;
 
     return ColoredBox(
       color: cs.primary,
@@ -230,10 +235,7 @@ class _OnboardingScreenState extends BaseScreenState<OnboardingScreen> {
                   top: Radius.circular(shapes.sheetRadius),
                 ),
               ),
-              child: SafeArea(
-                top: false,
-                child: buildBottomSheetContent(),
-              ),
+              child: SafeArea(top: false, child: buildBottomSheetContent()),
             ),
           ),
         ],

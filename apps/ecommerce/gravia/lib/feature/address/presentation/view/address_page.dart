@@ -32,8 +32,9 @@ class _AddressPageState extends BasePageState<AddressPage> {
   // same reasoning as Product Details/Category Details.
   @override
   Widget buildBody(BuildContext context) => BlocProvider(
-        create: (_) => AddressBloc(getAddressesUseCase: sl())
+    create: (_) =>
+        AddressBloc(getAddressesUseCase: sl())
           ..add(const AddressEvent.started()),
-        child: const AddressScreen(),
-      );
+    child: const AddressScreen(),
+  );
 }

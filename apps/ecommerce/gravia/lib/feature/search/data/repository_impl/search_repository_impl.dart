@@ -13,7 +13,7 @@ class SearchRepositoryImpl with BaseRepository implements SearchRepository {
 
   @override
   Future<Either<Failure, SearchEntity>> getSearch() => handleRequest(() async {
-        final model = await _dataSource.getSearch();
-        return right(model.toEntity());
-      });
+    final model = await _dataSource.getSearch();
+    return right(model.toEntity());
+  });
 }

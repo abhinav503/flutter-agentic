@@ -12,7 +12,11 @@ class FakeHomeRepository implements HomeRepository {
   Either<Failure, HomeEntity> result = right(
     const HomeEntity(
       categories: [
-        CategoryEntity(id: '1', name: 'Fresh', imageUrl: 'https://example.com/fresh.png'),
+        CategoryEntity(
+          id: '1',
+          name: 'Fresh',
+          imageUrl: 'https://example.com/fresh.png',
+        ),
       ],
       popularProducts: [
         ProductEntity(

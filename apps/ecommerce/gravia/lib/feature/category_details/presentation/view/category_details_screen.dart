@@ -5,25 +5,19 @@ import 'package:go_router/go_router.dart';
 
 import 'package:core/core/base/base_screen.dart';
 import 'package:core/core/theme/app_spacing.dart';
-import 'package:core/core/ui/atoms/icon_button.dart';
 import 'package:core/core/ui/atoms/loading_indicator.dart';
-import 'package:core/core/ui/atoms/network_image.dart';
-import 'package:core/core/ui/atoms/svg_image.dart';
 import 'package:core/core/ui/blocks/collapsing_header_sheet.dart';
-import 'package:core/core/ui/blocks/ecommerce/product_card.dart';
 import 'package:core/core/ui/molecules/error_view.dart';
 
 import 'package:gravia/constants/app_routes.dart';
-import 'package:gravia/constants/color_const.dart';
-import 'package:gravia/constants/image_const.dart';
 import 'package:gravia/constants/text_style_const.dart';
 import 'package:gravia/constants/value_const.dart';
 import 'package:gravia/enums/product_price_filter.dart';
 import 'package:gravia/enums/product_sort_option.dart';
-import 'package:gravia/enums/product_unit_type.dart';
+import 'package:gravia/widgets/gravia_product_card.dart';
+import 'package:gravia/widgets/gravia_sheet.dart';
 
 import '../../../home/domain/entities/product_entity.dart';
-import '../../../home/presentation/widgets/add_to_cart_sheet_content.dart';
 import '../bloc/category_details_bloc.dart';
 import '../widgets/category_details_hero_header.dart';
 import '../widgets/radio_options_sheet_content.dart';
@@ -43,49 +37,11 @@ class _CategoryDetailsScreenState
   void _openProductDetails(ProductEntity product) =>
       context.push(AppRoutes.productDetailsPath(product.id));
 
-  Color _hairlineColor(BuildContext context) =>
-      Theme.of(context).brightness == Brightness.dark
-      ? ColorConst.gray900
-      : ColorConst.gray200;
+  void _showFilterSheet(String title, Widget content) =>
+      showGraviaSheet(title: title, child: content);
 
-  void _showFilterSheet(String title, Widget content) {
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
-    final hairlineColor = _hairlineColor(context);
-
-    showAppBottomSheet(
-      title: title,
-      titleStyle: TextStyleConst.textLgBold(tt),
-      closeLabel: ValueConst.cancel,
-      closeLabelStyle: TextStyleConst.textSmRegular(
-        tt,
-      ).copyWith(color: cs.primary),
-      dividerColor: hairlineColor,
-      handleColor: hairlineColor,
-      child: content,
-    );
-  }
-
-  void _showAddToCartSheet(ProductEntity product) {
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
-    final hairlineColor = _hairlineColor(context);
-
-    showAppBottomSheet(
-      title: ValueConst.addToCartSheetTitle,
-      titleStyle: TextStyleConst.textLgBold(tt),
-      closeLabel: ValueConst.cancel,
-      closeLabelStyle: TextStyleConst.textSmRegular(
-        tt,
-      ).copyWith(color: cs.primary),
-      dividerColor: hairlineColor,
-      handleColor: hairlineColor,
-      child: AddToCartSheetContent(
-        product: product,
-        onAddToCart: (quantity) => _addToCart(product, quantity),
-      ),
-    );
-  }
+  void _showAddToCartSheet(ProductEntity product) =>
+      showGraviaAddToCartSheet(product: product, onAddToCart: _addToCart);
 
   @override
   Widget body(BuildContext context) {
@@ -215,64 +171,15 @@ class _CategoryDetailsScreenState
     );
   }
 
-  Widget _productCard(BuildContext context, ProductEntity product) {
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
-
-    return ProductCard(
-      image: AppNetworkImage(url: product.imageUrl, fit: BoxFit.cover),
-      title: product.name,
-      titleStyle: TextStyleConst.textMdBold(tt),
-      badgeLabel: product.unitType.format(product.unitValue),
-      badgeLabelStyle: TextStyleConst.badgeLabel(
-        tt,
-      ).copyWith(color: cs.primary),
-      badgeBackgroundColor: cs.tintedPrimaryFill,
-      meta: [
-        ProductCardMeta(
-          icon: AppSvgImage.asset(
-            ImageConst.flash,
-            width: 14,
-            height: 14,
-            color: ColorConst.gray500,
-          ),
-          label: product.prepTime,
+  Widget _productCard(BuildContext context, ProductEntity product) =>
+      GraviaProductCard(
+        product: product,
+        // '% OFF' per this screen's denser grid spec (rails use plain '%').
+        discountLabel: ValueConst.discountPercentOffLabel(
+          product.discountPercentage,
         ),
-        ProductCardMeta(
-          icon: AppSvgImage.asset(
-            ImageConst.badgePercent,
-            width: 14,
-            height: 14,
-            color: ColorConst.gray500,
-          ),
-          label: '${product.discountPercentage.toStringAsFixed(0)}% OFF',
-        ),
-      ],
-      metaLabelStyle: TextStyleConst.textXsRegular(
-        tt,
-      ).copyWith(color: cs.onSurface),
-      price: '\$${product.price.toStringAsFixed(2)}',
-      originalPrice: '\$${product.originalPrice.toStringAsFixed(2)}',
-      actionLabel: ValueConst.addToCart,
-      actionLabelStyle: TextStyleConst.textSmMedium(
-        tt,
-      ).copyWith(color: cs.onPrimary),
-      onAction: () => _addToCart(product, 1),
-      trailingAction: AppIconButton(
-        variant: AppIconButtonVariant.glass,
-        containerSize: AppSpacing.xl6,
-        iconSize: AppSpacing.lg,
-        glassHighlightThickness: AppSpacing.xs3,
-        glassBlurSigma: AppSpacing.xs4,
-        iconBuilder: (color, size) => AppSvgImage.asset(
-          ImageConst.bagAdd,
-          color: color,
-          width: size,
-          height: size,
-        ),
-        onTap: () => _showAddToCartSheet(product),
-      ),
-      onTap: () => _openProductDetails(product),
-    );
-  }
+        onAddToCart: () => _addToCart(product, 1),
+        onQuickAdd: () => _showAddToCartSheet(product),
+        onTap: () => _openProductDetails(product),
+      );
 }

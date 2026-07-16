@@ -11,11 +11,13 @@ class GetProductDetailsParams {
 }
 
 class GetProductDetailsUseCase
-    extends UseCase<Either<Failure, ProductDetailEntity>, GetProductDetailsParams> {
+    extends
+        UseCase<Either<Failure, ProductDetailEntity>, GetProductDetailsParams> {
   final ProductDetailsRepository _repository;
   const GetProductDetailsUseCase(this._repository);
 
   @override
-  Future<Either<Failure, ProductDetailEntity>> call(GetProductDetailsParams params) =>
-      _repository.getProductDetails(params.productId);
+  Future<Either<Failure, ProductDetailEntity>> call(
+    GetProductDetailsParams params,
+  ) => _repository.getProductDetails(params.productId);
 }

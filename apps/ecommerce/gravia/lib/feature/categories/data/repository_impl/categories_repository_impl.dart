@@ -6,7 +6,9 @@ import '../../domain/entities/categories_entity.dart';
 import '../../domain/repository/categories_repository.dart';
 import '../data_source/categories_remote_data_source.dart';
 
-class CategoriesRepositoryImpl with BaseRepository implements CategoriesRepository {
+class CategoriesRepositoryImpl
+    with BaseRepository
+    implements CategoriesRepository {
   final CategoriesRemoteDataSource _dataSource;
 
   const CategoriesRepositoryImpl(this._dataSource);

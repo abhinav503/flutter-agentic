@@ -14,20 +14,20 @@ void main() {
   });
 
   Widget buildSubject() => MaterialApp.router(
-        routerConfig: GoRouter(
-          initialLocation: AppRoutes.onboarding,
-          routes: [
-            GoRoute(
-              path: AppRoutes.onboarding,
-              builder: (context, _) => const OnboardingPage(),
-            ),
-            GoRoute(
-              path: AppRoutes.home,
-              builder: (context, _) => const Scaffold(body: Text('home')),
-            ),
-          ],
+    routerConfig: GoRouter(
+      initialLocation: AppRoutes.onboarding,
+      routes: [
+        GoRoute(
+          path: AppRoutes.onboarding,
+          builder: (context, _) => const OnboardingPage(),
         ),
-      );
+        GoRoute(
+          path: AppRoutes.home,
+          builder: (context, _) => const Scaffold(body: Text('home')),
+        ),
+      ],
+    ),
+  );
 
   testWidgets('shows the first slide first', (tester) async {
     await tester.pumpWidget(buildSubject());
@@ -36,8 +36,9 @@ void main() {
     expect(find.text(ValueConst.onboardingNext), findsOneWidget);
   });
 
-  testWidgets('Next advances through all 3 slides to Get Started',
-      (tester) async {
+  testWidgets('Next advances through all 3 slides to Get Started', (
+    tester,
+  ) async {
     await tester.pumpWidget(buildSubject());
 
     await tester.tap(find.text(ValueConst.onboardingNext));
@@ -50,8 +51,9 @@ void main() {
     expect(find.text(ValueConst.onboardingGetStarted), findsOneWidget);
   });
 
-  testWidgets('Get Started persists the flag and navigates home',
-      (tester) async {
+  testWidgets('Get Started persists the flag and navigates home', (
+    tester,
+  ) async {
     await tester.pumpWidget(buildSubject());
 
     await tester.tap(find.text(ValueConst.onboardingNext));

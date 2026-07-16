@@ -12,12 +12,14 @@ part 'category_details_bloc.freezed.dart';
 part 'category_details_event.dart';
 part 'category_details_state.dart';
 
-class CategoryDetailsBloc extends Bloc<CategoryDetailsEvent, CategoryDetailsState> {
+class CategoryDetailsBloc
+    extends Bloc<CategoryDetailsEvent, CategoryDetailsState> {
   final GetCategoryDetailsUseCase _getCategoryDetails;
 
-  CategoryDetailsBloc({required GetCategoryDetailsUseCase getCategoryDetailsUseCase})
-      : _getCategoryDetails = getCategoryDetailsUseCase,
-        super(const CategoryDetailsState.loading()) {
+  CategoryDetailsBloc({
+    required GetCategoryDetailsUseCase getCategoryDetailsUseCase,
+  }) : _getCategoryDetails = getCategoryDetailsUseCase,
+       super(const CategoryDetailsState.loading()) {
     on<CategoryDetailsStarted>(_onStarted);
     on<CategoryDetailsSortChanged>(_onSortChanged);
     on<CategoryDetailsPriceFilterChanged>(_onPriceFilterChanged);

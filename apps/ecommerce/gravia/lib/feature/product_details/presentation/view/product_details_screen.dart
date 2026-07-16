@@ -17,14 +17,16 @@ import 'package:gravia/constants/image_const.dart';
 import 'package:gravia/constants/text_style_const.dart';
 import 'package:gravia/constants/value_const.dart';
 import 'package:gravia/enums/product_unit_type.dart';
+import 'package:gravia/feature/cart/presentation/cubit/cart_cubit.dart';
+import 'package:gravia/widgets/gravia_glass_icon_button.dart';
+import 'package:gravia/widgets/gravia_hero_header.dart';
+import 'package:gravia/widgets/gravia_sheet.dart';
 import 'package:gravia/widgets/selector_chip.dart';
 
 import '../../../home/domain/entities/product_entity.dart';
-import '../../../home/presentation/widgets/add_to_cart_sheet_content.dart';
 import '../../domain/entities/product_detail_entity.dart';
 import '../bloc/product_details_bloc.dart';
 import '../widgets/product_detail_bottom_bar.dart';
-import '../widgets/product_detail_hero_header.dart';
 import '../widgets/product_detail_image_carousel.dart';
 import '../widgets/product_detail_key_info.dart';
 import '../widgets/product_detail_similar_products.dart';
@@ -40,8 +42,10 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen> {
   int _quantity = 1;
   int _selectedSizeIndex = 0;
 
-  void _addToCart(ProductEntity product, int quantity) =>
-      showSnackBar(ValueConst.addedToCartMessage(product.name, quantity));
+  void _addToCart(ProductEntity product, int quantity) {
+    context.read<CartCubit>().addToCart(product, quantity);
+    showSnackBar(ValueConst.addedToCartMessage(product.name, quantity));
+  }
 
   // Pushes a new copy of this same route for the tapped similar product —
   // each detail screen owns its own quantity/size selection, so a fresh
@@ -50,26 +54,8 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen> {
   void _openProductDetails(ProductEntity product) =>
       context.push(AppRoutes.productDetailsPath(product.id));
 
-  void _showAddToCartSheet(ProductEntity product) {
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
-    final hairlineColor = Theme.of(context).brightness == Brightness.dark
-        ? ColorConst.gray900
-        : ColorConst.gray200;
-
-    showAppBottomSheet(
-      title: ValueConst.addToCartSheetTitle,
-      titleStyle: TextStyleConst.textLgBold(tt),
-      closeLabel: ValueConst.cancel,
-      closeLabelStyle: TextStyleConst.textSmRegular(tt).copyWith(color: cs.primary),
-      dividerColor: hairlineColor,
-      handleColor: hairlineColor,
-      child: AddToCartSheetContent(
-        product: product,
-        onAddToCart: (quantity) => _addToCart(product, quantity),
-      ),
-    );
-  }
+  void _showAddToCartSheet(ProductEntity product) =>
+      showGraviaAddToCartSheet(product: product, onAddToCart: _addToCart);
 
   @override
   Widget body(BuildContext context) {
@@ -85,7 +71,9 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen> {
       ),
       child: BlocConsumer<ProductDetailsBloc, ProductDetailsState>(
         listener: (context, state) {
-          if (state case ProductDetailsError(:final message)) showSnackBar(message);
+          if (state case ProductDetailsError(:final message)) {
+            showSnackBar(message);
+          }
         },
         builder: (context, state) => switch (state) {
           ProductDetailsLoading() => Container(
@@ -121,11 +109,21 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen> {
         Expanded(
           child: CollapsingHeaderSheet(
             initialHeaderHeight: 130,
-            header: ProductDetailHeroHeader(
-              isFavourite: product.isFavourite,
+            // Header controls match SearchHeroHeader's back button exactly
+            // (same GraviaGlassIconButton size + canvas padding) so the glass
+            // circle sits in the identical spot on both screens — the
+            // productDetails route fades rather than slides in (app.dart),
+            // and a size/position mismatch would make that crossfade "jump."
+            header: GraviaHeroHeader(
+              title: ValueConst.productDetailsTitle,
               onBack: () => context.pop(),
-              onFavouriteTap: () => context.read<ProductDetailsBloc>().add(
-                const ProductDetailsEvent.favouriteToggled(),
+              trailing: GraviaGlassIconButton(
+                asset: product.isFavourite
+                    ? ImageConst.favouriteFilled
+                    : ImageConst.navFavourite,
+                onTap: () => context.read<ProductDetailsBloc>().add(
+                  const ProductDetailsEvent.favouriteToggled(),
+                ),
               ),
             ),
             body: Padding(
@@ -137,7 +135,9 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen> {
                   const SizedBox(height: AppSpacing.base),
                   Text(
                     product.name,
-                    style: TextStyleConst.textLgBold(tt).copyWith(color: cs.onSurface),
+                    style: TextStyleConst.textLgBold(
+                      tt,
+                    ).copyWith(color: cs.onSurface),
                   ),
                   const SizedBox(height: AppSpacing.xs2),
                   ProductMetaRow(
@@ -158,10 +158,13 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen> {
                           height: 14,
                           color: ColorConst.gray500,
                         ),
-                        label: '${product.discountPercentage.toStringAsFixed(0)}% OFF',
+                        label:
+                            '${product.discountPercentage.toStringAsFixed(0)}% OFF',
                       ),
                     ],
-                    labelStyle: TextStyleConst.textXsRegular(tt).copyWith(color: cs.onSurface),
+                    labelStyle: TextStyleConst.textXsRegular(
+                      tt,
+                    ).copyWith(color: cs.onSurface),
                   ),
                   const SizedBox(height: AppSpacing.xs2),
                   Row(
@@ -170,7 +173,9 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen> {
                     children: [
                       Text(
                         '\$${product.price.toStringAsFixed(2)}',
-                        style: TextStyleConst.textLgBold(tt).copyWith(color: cs.onSurface),
+                        style: TextStyleConst.textLgBold(
+                          tt,
+                        ).copyWith(color: cs.onSurface),
                       ),
                       const SizedBox(width: AppSpacing.xs2),
                       Text(
@@ -187,7 +192,9 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen> {
                   const SizedBox(height: AppSpacing.xl2),
                   Text(
                     ValueConst.selectQtyLabel,
-                    style: TextStyleConst.textLgBold(tt).copyWith(color: cs.onSurface),
+                    style: TextStyleConst.textLgBold(
+                      tt,
+                    ).copyWith(color: cs.onSurface),
                   ),
                   const SizedBox(height: AppSpacing.base),
                   Row(

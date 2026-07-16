@@ -49,18 +49,14 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton<HomeRemoteDataSource>(
     () => const HomeRemoteDataSourceImpl(),
   );
-  sl.registerLazySingleton<HomeRepository>(
-    () => HomeRepositoryImpl(sl()),
-  );
+  sl.registerLazySingleton<HomeRepository>(() => HomeRepositoryImpl(sl()));
   sl.registerLazySingleton(() => GetHomeUseCase(sl()));
 
   // ── Search ───────────────────────────────────────────────────────────────
   sl.registerLazySingleton<SearchRemoteDataSource>(
     () => const SearchRemoteDataSourceImpl(),
   );
-  sl.registerLazySingleton<SearchRepository>(
-    () => SearchRepositoryImpl(sl()),
-  );
+  sl.registerLazySingleton<SearchRepository>(() => SearchRepositoryImpl(sl()));
   sl.registerLazySingleton(() => GetSearchUseCase(sl()));
 
   // ── Categories ───────────────────────────────────────────────────────────

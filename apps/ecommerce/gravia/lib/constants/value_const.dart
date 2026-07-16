@@ -41,13 +41,19 @@ abstract final class ValueConst {
       'Something went wrong loading the storefront.';
   static String addedToCartMessage(String productName, int quantity) =>
       quantity > 1
-          ? '$quantity × $productName added to cart'
-          : '$productName added to cart';
+      ? '$quantity × $productName added to cart'
+      : '$productName added to cart';
+
+  // ── Product card (GraviaProductCard, shared across screens) ───────────────
+  static String formattedPrice(double price) => '\$${price.toStringAsFixed(2)}';
+  static String discountPercentLabel(double percentage) =>
+      '${percentage.toStringAsFixed(0)}%';
+  static String discountPercentOffLabel(double percentage) =>
+      '${percentage.toStringAsFixed(0)}% OFF';
 
   // ── Search ─────────────────────────────────────────────────────────────────
   static const recentSearchTitle = 'Recent Search';
-  static const searchLoadErrorMessage =
-      'Something went wrong loading search.';
+  static const searchLoadErrorMessage = 'Something went wrong loading search.';
 
   // ── Product Details ────────────────────────────────────────────────────────
   static const productDetailsTitle = 'Product Details';
@@ -95,6 +101,25 @@ abstract final class ValueConst {
   static const logoutLabel = 'Logout';
   static const profileLoadErrorMessage =
       'Something went wrong loading your profile.';
+
+  // ── Cart ───────────────────────────────────────────────────────────────────
+  static const myCartTitle = 'My Cart';
+  static const beforeYouCheckoutTitle = 'Before you Checkout';
+  static const couponCodeLabel = 'Coupon Code';
+  static const applyLabel = 'Apply';
+  static const itemTotalLabel = 'Item Total';
+  static const discountLabel = 'Discount';
+  static const deliveryLabel = 'Delivery';
+  static const deliveryFreeLabel = 'FREE';
+  static const grandTotalLabel = 'Grand Total';
+  static const proceedToCheckoutLabel = 'Proceed to Checkout';
+  static const cartEmptyTitle = 'Your cart is empty';
+  static const cartEmptySubtitle = 'Add items to get started.';
+  static const cartBarTitle = 'See more products';
+  static const exploreLabel = 'Explore';
+  static const checkoutLabel = 'Checkout';
+  static String cartSummaryLabel(int itemCount, double total) =>
+      '$itemCount item${itemCount > 1 ? 's' : ''} | \$${total.toStringAsFixed(2)}';
 
   // ── Placeholder tabs (removed as real screens land) ───────────────────────
   static const favouriteEmptyTitle = 'No favourites yet';

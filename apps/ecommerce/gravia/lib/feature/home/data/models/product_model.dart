@@ -30,28 +30,28 @@ abstract class ProductModel with _$ProductModel {
       _$ProductModelFromJson(json);
 
   factory ProductModel.fromEntity(ProductEntity e) => ProductModel(
-        id: e.id,
-        name: e.name,
-        image: e.imageUrl,
-        price: e.price,
-        originalPrice: e.originalPrice,
-        discountPercentage: e.discountPercentage,
-        unitValue: e.unitValue,
-        unitType: e.unitType.wireValue,
-        prepTime: e.prepTime,
-        isFavourite: e.isFavourite,
-      );
+    id: e.id,
+    name: e.name,
+    image: e.imageUrl,
+    price: e.price,
+    originalPrice: e.originalPrice,
+    discountPercentage: e.discountPercentage,
+    unitValue: e.unitValue,
+    unitType: e.unitType.wireValue,
+    prepTime: e.prepTime,
+    isFavourite: e.isFavourite,
+  );
 
   ProductEntity toEntity() => ProductEntity(
-        id: id,
-        name: name,
-        imageUrl: image,
-        price: price,
-        originalPrice: originalPrice,
-        discountPercentage: discountPercentage,
-        unitValue: unitValue,
-        unitType: unitType.toProductUnitType(),
-        prepTime: prepTime,
-        isFavourite: isFavourite,
-      );
+    id: id,
+    name: name,
+    imageUrl: image,
+    price: price,
+    originalPrice: originalPrice,
+    discountPercentage: discountPercentage,
+    unitValue: unitValue,
+    unitType: unitType.toProductUnitType(),
+    prepTime: prepTime,
+    isFavourite: isFavourite,
+  );
 }

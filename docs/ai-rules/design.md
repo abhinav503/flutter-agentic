@@ -251,7 +251,11 @@ the `/search` route in `apps/ecommerce/gravia/lib/app.dart`.
 **Blocks:** `package:core/core/ui/blocks/` is split by scope:
 - **Root** — cross-domain compositions any style pack can use as-is:
   `section_header.dart`, `quantity_stepper.dart`, `bottom_nav_bar.dart`,
-  `collapsing_header_sheet.dart`. These only read `Theme.of(context)`
+  `collapsing_header_sheet.dart`, `docked_bar_overlap.dart` (bottom-docked
+  bar whose rounded top corners float over content extending `overlap` px
+  underneath — a plain `Column` would show the scaffold background through
+  the corner cut-outs; see gravia's `CartStatusBar` in `ShellPage`). These
+  only read `Theme.of(context)`
   (colour/shape/spacing tokens), so a new preset re-skins them for free — no
   new block needed just because a new pack shows up. A fixed-column grid
   nested inside `CollapsingHeaderSheet`'s body (or any scrollable that isn't
@@ -293,6 +297,37 @@ the app's `lib/widgets/` that bakes those overrides in as defaults —
 is the reference example. `core` stays generic and themeable by any pack;
 the pack-specific look lives in exactly one place in the app, not
 copy-pasted at every screen that needs it.
+
+The same rule applies one level up, to **blocks**: when a pack's spec for a
+block is a fixed recipe of many styling params (styles, icons, badge fill,
+trailing widgets), wrap it once in an app preset and make every screen
+render the preset. `GraviaProductCard` (gravia's `lib/widgets/`) wrapping
+core's `ProductCard` is the reference example — it bakes in the weight
+badge, flash/percent meta row, price formatting, and the signature CTA rail
+(pill "Add To Cart" + glass bag-add quick-add `AppIconButton` on its right),
+exposing only `product` + callbacks and small flags (`showDiscount`,
+`discountLabel`, `width`). Before it existed, four screens hand-styled
+`ProductCard` inline and the copies drifted (Cart's rail shipped with a lock
+icon where the glass quick-add belongs). When generating a new surface that
+repeats an already-styled block a second time, extract the preset then, not
+after the third copy.
+
+**Gravia's preset roster (`apps/ecommerce/gravia/lib/widgets/`)** — when a
+gravia screen needs one of these compositions, render the preset; never
+re-style the underlying atom/block inline:
+
+| Need | Preset |
+|---|---|
+| Product card (any rail or grid) | `GraviaProductCard` — never raw `ProductCard` |
+| Coloured header canvas | `GraviaHeaderCanvas` (rich headers compose onto it; no `Center`/`Align` inside — see its doc) |
+| Back + centered-title header (± trailing action, ± second row) | `GraviaHeroHeader` |
+| Tab-root page-title header (left XL title, no back) | `GraviaHeroHeader.page` |
+| Glass header control (back/search/favourite/bell) | `GraviaGlassIconButton` — never raw glass `AppIconButton` |
+| Docked bottom CTA bar shell | `GraviaDockedBar` (top hairline + safe area + bar padding) |
+| Full-width primary CTA (in a docked bar) | `GraviaPrimaryButton` — never a re-typed `AppButton` recipe |
+| Styled bottom sheet | `showGraviaSheet` / `showGraviaAddToCartSheet` (extension on `BaseScreenState` in `gravia_sheet.dart`) — never raw `showAppBottomSheet` styling |
+| Single-select option chip | `SelectorChip` |
+| Hairline colours | `ColorScheme.dockedHairline` / `ColorScheme.sheetHairline` (extensions in `color_const.dart`, like `tintedPrimaryFill`) — never re-derive the brightness ternary |
 
 **When the built-in widget has no override point for the spec at all,** stop
 trying to theme it and build a dedicated `core` atom instead. Reference case:

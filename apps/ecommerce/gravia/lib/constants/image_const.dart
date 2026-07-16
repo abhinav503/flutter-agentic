@@ -13,6 +13,8 @@ abstract final class ImageConst {
   static const flash = 'assets/icons/flash.svg';
   static const badgePercent = 'assets/icons/badge-percent.svg';
   static const bagAdd = 'assets/icons/bag-add.svg';
+  static const cart = 'assets/icons/cart.svg';
+  static const gift = 'assets/icons/gift.svg';
   static const plus = 'assets/icons/plus.svg';
   static const minus = 'assets/icons/minus.svg';
   static const undo = 'assets/icons/undo.svg';

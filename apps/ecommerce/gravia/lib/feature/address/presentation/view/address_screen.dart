@@ -16,12 +16,13 @@ import 'package:core/core/ui/molecules/error_view.dart';
 import 'package:gravia/constants/image_const.dart';
 import 'package:gravia/constants/text_style_const.dart';
 import 'package:gravia/constants/value_const.dart';
+import 'package:gravia/widgets/gravia_docked_bar.dart';
+import 'package:gravia/widgets/gravia_hero_header.dart';
+import 'package:gravia/widgets/gravia_primary_button.dart';
 
 import '../../domain/entities/address_entity.dart';
 import '../bloc/address_bloc.dart';
-import '../widgets/address_bottom_bar.dart';
 import '../widgets/address_card.dart';
-import '../widgets/address_hero_header.dart';
 import 'address_page.dart';
 
 class AddressScreen extends BaseScreen {
@@ -37,10 +38,14 @@ class _AddressScreenState extends BaseScreenState<AddressScreen> {
     String selectedAddressId,
   ) async {
     final selected = addresses.firstWhere((a) => a.id == selectedAddressId);
-    await SharedPreferenceService.instance
-        .setString(kSelectedAddressIdPrefKey, selected.id);
-    await SharedPreferenceService.instance
-        .setString(kSelectedAddressLabelPrefKey, selected.addressLine);
+    await SharedPreferenceService.instance.setString(
+      kSelectedAddressIdPrefKey,
+      selected.id,
+    );
+    await SharedPreferenceService.instance.setString(
+      kSelectedAddressLabelPrefKey,
+      selected.addressLine,
+    );
     if (!mounted) return;
     context.pop();
   }
@@ -61,16 +66,16 @@ class _AddressScreenState extends BaseScreenState<AddressScreen> {
         },
         builder: (context, state) => switch (state) {
           AddressLoading() => Container(
-              color: cs.primary,
-              child: const SafeArea(child: Center(child: LoadingIndicator())),
-            ),
+            color: cs.primary,
+            child: const SafeArea(child: Center(child: LoadingIndicator())),
+          ),
           AddressError() => SafeArea(
-              child: ErrorView(
-                message: ValueConst.addressLoadErrorMessage,
-                onRetry: () =>
-                    context.read<AddressBloc>().add(const AddressEvent.started()),
-              ),
+            child: ErrorView(
+              message: ValueConst.addressLoadErrorMessage,
+              onRetry: () =>
+                  context.read<AddressBloc>().add(const AddressEvent.started()),
             ),
+          ),
           AddressLoaded(:final addresses, :final selectedAddressId) =>
             _buildLoaded(context, addresses, selectedAddressId),
         },
@@ -91,10 +96,13 @@ class _AddressScreenState extends BaseScreenState<AddressScreen> {
       );
     }
 
-    final defaultAddress =
-        addresses.firstWhere((a) => a.isDefault, orElse: () => addresses.first);
-    final otherAddresses =
-        addresses.where((a) => a.id != defaultAddress.id).toList();
+    final defaultAddress = addresses.firstWhere(
+      (a) => a.isDefault,
+      orElse: () => addresses.first,
+    );
+    final otherAddresses = addresses
+        .where((a) => a.id != defaultAddress.id)
+        .toList();
 
     void selectAddress(String id) =>
         context.read<AddressBloc>().add(AddressEvent.selected(addressId: id));
@@ -106,7 +114,10 @@ class _AddressScreenState extends BaseScreenState<AddressScreen> {
         Expanded(
           child: CollapsingHeaderSheet(
             initialHeaderHeight: 110,
-            header: AddressHeroHeader(onBack: () => context.pop()),
+            header: GraviaHeroHeader(
+              title: ValueConst.selectAddressTitle,
+              onBack: () => context.pop(),
+            ),
             body: Padding(
               padding: const EdgeInsets.symmetric(
                 horizontal: AppSpacing.lg,
@@ -121,7 +132,9 @@ class _AddressScreenState extends BaseScreenState<AddressScreen> {
                     fullWidth: true,
                     borderColor: cs.primary,
                     height: 45,
-                    labelStyle: TextStyleConst.textSmMedium(tt).copyWith(color: cs.primary),
+                    labelStyle: TextStyleConst.textSmMedium(
+                      tt,
+                    ).copyWith(color: cs.primary),
                     leadingIcon: AppSvgImage.asset(
                       ImageConst.plus,
                       color: cs.primary,
@@ -166,8 +179,11 @@ class _AddressScreenState extends BaseScreenState<AddressScreen> {
             ),
           ),
         ),
-        AddressBottomBar(
-          onConfirm: () => _confirmSelection(addresses, selectedAddressId),
+        GraviaDockedBar(
+          child: GraviaPrimaryButton(
+            label: ValueConst.selectAddressTitle,
+            onTap: () => _confirmSelection(addresses, selectedAddressId),
+          ),
         ),
       ],
     );

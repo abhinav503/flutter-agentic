@@ -13,19 +13,20 @@ abstract class HomeModel with _$HomeModel {
 
   const factory HomeModel({
     required List<CategoryModel> categories,
-    @JsonKey(name: 'popular_products') required List<ProductModel> popularProducts,
+    @JsonKey(name: 'popular_products')
+    required List<ProductModel> popularProducts,
   }) = _HomeModel;
 
   factory HomeModel.fromJson(Map<String, dynamic> json) =>
       _$HomeModelFromJson(json);
 
   factory HomeModel.fromEntity(HomeEntity e) => HomeModel(
-        categories: e.categories.map(CategoryModel.fromEntity).toList(),
-        popularProducts: e.popularProducts.map(ProductModel.fromEntity).toList(),
-      );
+    categories: e.categories.map(CategoryModel.fromEntity).toList(),
+    popularProducts: e.popularProducts.map(ProductModel.fromEntity).toList(),
+  );
 
   HomeEntity toEntity() => HomeEntity(
-        categories: categories.map((c) => c.toEntity()).toList(),
-        popularProducts: popularProducts.map((p) => p.toEntity()).toList(),
-      );
+    categories: categories.map((c) => c.toEntity()).toList(),
+    popularProducts: popularProducts.map((p) => p.toEntity()).toList(),
+  );
 }

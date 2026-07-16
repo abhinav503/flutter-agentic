@@ -49,7 +49,9 @@ class RadioOptionsSheetContent<T> extends StatelessWidget {
                     const SizedBox(width: AppSpacing.base),
                     Text(
                       labelOf(option),
-                      style: TextStyleConst.textMdRegular(tt).copyWith(color: cs.onSurface),
+                      style: TextStyleConst.textMdRegular(
+                        tt,
+                      ).copyWith(color: cs.onSurface),
                     ),
                   ],
                 ),

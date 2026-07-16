@@ -14,8 +14,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   final GetHomeUseCase _getHome;
 
   HomeBloc({required GetHomeUseCase getHomeUseCase})
-      : _getHome = getHomeUseCase,
-        super(const HomeState.loading()) {
+    : _getHome = getHomeUseCase,
+      super(const HomeState.loading()) {
     on<HomeStarted>(_onStarted);
     on<HomeFavouriteToggled>(_onFavouriteToggled);
   }
@@ -35,11 +35,17 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     switch (state) {
       case HomeLoaded(:final home):
         final updatedProducts = home.popularProducts
-            .map((p) => p.id == event.productId
-                ? p.copyWith(isFavourite: !p.isFavourite)
-                : p)
+            .map(
+              (p) => p.id == event.productId
+                  ? p.copyWith(isFavourite: !p.isFavourite)
+                  : p,
+            )
             .toList();
-        emit(HomeState.loaded(home: home.copyWith(popularProducts: updatedProducts)));
+        emit(
+          HomeState.loaded(
+            home: home.copyWith(popularProducts: updatedProducts),
+          ),
+        );
       case HomeLoading():
       case HomeError():
         break;

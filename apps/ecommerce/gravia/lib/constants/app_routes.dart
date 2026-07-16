@@ -4,6 +4,7 @@ abstract final class AppRoutes {
   static const home = '/home';
   static const search = '/search';
   static const selectAddress = '/select-address';
+  static const cart = '/cart';
 
   /// Route pattern registered with GoRouter (`:id` path param).
   static const productDetails = '/product-details/:id';

@@ -13,7 +13,7 @@ class SearchEntity {
   });
 
   SearchEntity copyWith({List<ProductEntity>? recentSearches}) => SearchEntity(
-        recentSearches: recentSearches ?? this.recentSearches,
-        popularProducts: popularProducts,
-      );
+    recentSearches: recentSearches ?? this.recentSearches,
+    popularProducts: popularProducts,
+  );
 }

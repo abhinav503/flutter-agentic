@@ -17,8 +17,7 @@ import 'package:gravia/widgets/search_field_bar.dart';
 void main() {
   const flightDuration = Duration(milliseconds: 350);
 
-  testWidgets('search field Hero flies cleanly there and back',
-      (tester) async {
+  testWidgets('search field Hero flies cleanly there and back', (tester) async {
     tester.view.physicalSize = const Size(393, 852);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
@@ -50,11 +49,13 @@ void main() {
                           // Like Search's header: pinned at the top, offset
                           // right past the 45px glass back button + gap.
                           padding: const EdgeInsets.only(
-                              top: 70, left: 73, right: 16),
+                            top: 70,
+                            left: 73,
+                            right: 16,
+                          ),
                           child: Align(
                             alignment: Alignment.topCenter,
-                            child:
-                                SearchFieldBar(controller: searchController),
+                            child: SearchFieldBar(controller: searchController),
                           ),
                         ),
                       ),
@@ -81,13 +82,20 @@ void main() {
     // is the only field on screen — sitting strictly BETWEEN the two
     // positions. If the flight silently failed, there would instead be two
     // static fields at the endpoints (or one that hasn't moved).
-    expect(find.byType(AppTextField), findsOneWidget,
-        reason: 'exactly one field (the flight shuttle) should be visible '
-            'mid-flight');
+    expect(
+      find.byType(AppTextField),
+      findsOneWidget,
+      reason:
+          'exactly one field (the flight shuttle) should be visible '
+          'mid-flight',
+    );
     final midY = tester.getTopLeft(find.byType(AppTextField)).dy;
     expect(midY, lessThan(startY), reason: 'shuttle should have moved up');
-    expect(tester.takeException(), isNull,
-        reason: 'no overflow mid-flight on push');
+    expect(
+      tester.takeException(),
+      isNull,
+      reason: 'no overflow mid-flight on push',
+    );
 
     await tester.pumpAndSettle();
     final endY = tester.getTopLeft(find.byType(AppTextField)).dy;
@@ -99,12 +107,18 @@ void main() {
     await tester.pump();
     for (var elapsed = 0; elapsed < 350; elapsed += 25) {
       await tester.pump(const Duration(milliseconds: 25));
-      expect(tester.takeException(), isNull,
-          reason: 'no overflow at ~${elapsed + 25}ms into the return flight');
+      expect(
+        tester.takeException(),
+        isNull,
+        reason: 'no overflow at ~${elapsed + 25}ms into the return flight',
+      );
     }
     await tester.pumpAndSettle();
 
-    expect(tester.getTopLeft(find.byType(AppTextField)).dy, startY,
-        reason: 'field should land back at its home position');
+    expect(
+      tester.getTopLeft(find.byType(AppTextField)).dy,
+      startY,
+      reason: 'field should land back at its home position',
+    );
   });
 }

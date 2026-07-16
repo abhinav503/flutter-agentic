@@ -15,25 +15,29 @@ abstract class ProductDetailModel with _$ProductDetailModel {
     required List<String> images,
     required String description,
     @JsonKey(name: 'size_options') required List<double> sizeOptions,
-    @JsonKey(name: 'similar_products') required List<ProductModel> similarProducts,
+    @JsonKey(name: 'similar_products')
+    required List<ProductModel> similarProducts,
   }) = _ProductDetailModel;
 
   factory ProductDetailModel.fromJson(Map<String, dynamic> json) =>
       _$ProductDetailModelFromJson(json);
 
-  factory ProductDetailModel.fromEntity(ProductDetailEntity e) => ProductDetailModel(
+  factory ProductDetailModel.fromEntity(ProductDetailEntity e) =>
+      ProductDetailModel(
         product: ProductModel.fromEntity(e.product),
         images: e.images,
         description: e.description,
         sizeOptions: e.sizeOptions,
-        similarProducts: e.similarProducts.map(ProductModel.fromEntity).toList(),
+        similarProducts: e.similarProducts
+            .map(ProductModel.fromEntity)
+            .toList(),
       );
 
   ProductDetailEntity toEntity() => ProductDetailEntity(
-        product: product.toEntity(),
-        images: images,
-        description: description,
-        sizeOptions: sizeOptions,
-        similarProducts: similarProducts.map((p) => p.toEntity()).toList(),
-      );
+    product: product.toEntity(),
+    images: images,
+    description: description,
+    sizeOptions: sizeOptions,
+    similarProducts: similarProducts.map((p) => p.toEntity()).toList(),
+  );
 }

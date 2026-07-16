@@ -11,11 +11,16 @@ class GetCategoryDetailsParams {
 }
 
 class GetCategoryDetailsUseCase
-    extends UseCase<Either<Failure, CategoryDetailsEntity>, GetCategoryDetailsParams> {
+    extends
+        UseCase<
+          Either<Failure, CategoryDetailsEntity>,
+          GetCategoryDetailsParams
+        > {
   final CategoryDetailsRepository _repository;
   const GetCategoryDetailsUseCase(this._repository);
 
   @override
-  Future<Either<Failure, CategoryDetailsEntity>> call(GetCategoryDetailsParams params) =>
-      _repository.getCategoryDetails(params.categoryId);
+  Future<Either<Failure, CategoryDetailsEntity>> call(
+    GetCategoryDetailsParams params,
+  ) => _repository.getCategoryDetails(params.categoryId);
 }

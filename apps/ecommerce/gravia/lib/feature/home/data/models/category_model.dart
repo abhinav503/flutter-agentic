@@ -18,15 +18,9 @@ abstract class CategoryModel with _$CategoryModel {
   factory CategoryModel.fromJson(Map<String, dynamic> json) =>
       _$CategoryModelFromJson(json);
 
-  factory CategoryModel.fromEntity(CategoryEntity e) => CategoryModel(
-        id: e.id,
-        name: e.name,
-        image: e.imageUrl,
-      );
+  factory CategoryModel.fromEntity(CategoryEntity e) =>
+      CategoryModel(id: e.id, name: e.name, image: e.imageUrl);
 
-  CategoryEntity toEntity() => CategoryEntity(
-        id: id,
-        name: name,
-        imageUrl: image,
-      );
+  CategoryEntity toEntity() =>
+      CategoryEntity(id: id, name: name, imageUrl: image);
 }

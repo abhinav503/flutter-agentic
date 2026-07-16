@@ -9,14 +9,12 @@ import 'package:core/core/ui/blocks/collapsing_header_sheet.dart';
 import 'package:core/core/ui/molecules/error_view.dart';
 
 import 'package:gravia/constants/app_routes.dart';
-import 'package:gravia/constants/color_const.dart';
-import 'package:gravia/constants/text_style_const.dart';
 import 'package:gravia/constants/value_const.dart';
+import 'package:gravia/widgets/gravia_sheet.dart';
 
 // Cross-feature reuse, not duplication — Search's "Popular Items" is the
 // same composition and product data shape as Home's.
 import '../../../home/domain/entities/product_entity.dart';
-import '../../../home/presentation/widgets/add_to_cart_sheet_content.dart';
 import '../../../home/presentation/widgets/home_popular_items_section.dart';
 import '../bloc/search_bloc.dart';
 import '../widgets/recent_search_section.dart';
@@ -74,28 +72,8 @@ class _SearchScreenState extends BaseScreenState<SearchScreen> {
   void _openProductDetails(ProductEntity product) =>
       context.push(AppRoutes.productDetailsPath(product.id));
 
-  void _showAddToCartSheet(ProductEntity product) {
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
-    final hairlineColor = Theme.of(context).brightness == Brightness.dark
-        ? ColorConst.gray900
-        : ColorConst.gray200;
-
-    showAppBottomSheet(
-      title: ValueConst.addToCartSheetTitle,
-      titleStyle: TextStyleConst.textLgBold(tt),
-      closeLabel: ValueConst.cancel,
-      closeLabelStyle: TextStyleConst.textSmRegular(
-        tt,
-      ).copyWith(color: cs.primary),
-      dividerColor: hairlineColor,
-      handleColor: hairlineColor,
-      child: AddToCartSheetContent(
-        product: product,
-        onAddToCart: (quantity) => _addToCart(product, quantity),
-      ),
-    );
-  }
+  void _showAddToCartSheet(ProductEntity product) =>
+      showGraviaAddToCartSheet(product: product, onAddToCart: _addToCart);
 
   @override
   Widget body(BuildContext context) {
@@ -139,7 +117,7 @@ class _SearchScreenState extends BaseScreenState<SearchScreen> {
                 const SizedBox(height: AppSpacing.xl4),
                 HomePopularItemsSection(
                   products: search.popularProducts,
-               
+
                   onAddToCart: _addToCart,
                   onQuickAdd: _showAddToCartSheet,
                   onFavouriteToggle: (_) {},

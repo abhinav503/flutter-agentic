@@ -7,8 +7,9 @@ sealed class CategoryDetailsEvent with _$CategoryDetailsEvent {
     required String categoryName,
   }) = CategoryDetailsStarted;
 
-  const factory CategoryDetailsEvent.sortChanged({required ProductSortOption sort}) =
-      CategoryDetailsSortChanged;
+  const factory CategoryDetailsEvent.sortChanged({
+    required ProductSortOption sort,
+  }) = CategoryDetailsSortChanged;
 
   const factory CategoryDetailsEvent.priceFilterChanged({
     required ProductPriceFilter priceFilter,

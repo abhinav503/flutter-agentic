@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:core/core/theme/app_theme.dart';
 import 'package:core/core/theme/app_theme_config.dart';
@@ -8,6 +9,8 @@ import 'package:core/core/theme/theme_mode_scope.dart';
 import 'constants/app_routes.dart';
 import 'constants/value_const.dart';
 import 'feature/address/presentation/view/address_page.dart';
+import 'feature/cart/presentation/cubit/cart_cubit.dart';
+import 'feature/cart/presentation/view/cart_page.dart';
 import 'feature/category_details/presentation/view/category_details_page.dart';
 import 'feature/onboarding/presentation/view/onboarding_page.dart';
 import 'feature/product_details/presentation/view/product_details_page.dart';
@@ -25,10 +28,7 @@ final _router = GoRouter(
       path: AppRoutes.onboarding,
       builder: (context, _) => const OnboardingPage(),
     ),
-    GoRoute(
-      path: AppRoutes.home,
-      builder: (context, _) => const ShellPage(),
-    ),
+    GoRoute(path: AppRoutes.home, builder: (context, _) => const ShellPage()),
     GoRoute(
       path: AppRoutes.search,
       pageBuilder: (context, state) => CustomTransitionPage<void>(
@@ -96,6 +96,23 @@ final _router = GoRouter(
         ),
       ),
     ),
+    GoRoute(
+      path: AppRoutes.cart,
+      // Fade, same reasoning as the Select Address route — Home/Categories
+      // and Cart share the same primary canvas colour, so a horizontal push
+      // would visibly overlap the headers' back buttons mid-flight.
+      pageBuilder: (context, state) => CustomTransitionPage<void>(
+        key: state.pageKey,
+        transitionDuration: const Duration(milliseconds: 350),
+        reverseTransitionDuration: const Duration(milliseconds: 300),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+            FadeTransition(
+              opacity: CurveTween(curve: Curves.easeInOut).animate(animation),
+              child: child,
+            ),
+        child: const CartPage(),
+      ),
+    ),
   ],
 );
 
@@ -119,16 +136,23 @@ class _AppState extends State<App> {
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder<ThemeMode>(
-      valueListenable: _themeMode,
-      builder: (context, mode, _) => ThemeModeScope(
-        controller: _themeMode,
-        child: MaterialApp.router(
-          title: ValueConst.appTitle,
-          routerConfig: _router,
-          theme: AppTheme.fromConfig(widget.themeConfig),
-          darkTheme: AppTheme.fromConfig(widget.themeConfig, dark: true),
-          themeMode: mode,
+    // CartCubit lives here, above the router, rather than in ShellPage's
+    // buildBlocProviders — Product Details, Search, and Cart itself are
+    // separate GoRouter pages (siblings of ShellPage in the root Navigator),
+    // so a shell-scoped provider wouldn't reach them.
+    return BlocProvider(
+      create: (_) => CartCubit(),
+      child: ValueListenableBuilder<ThemeMode>(
+        valueListenable: _themeMode,
+        builder: (context, mode, _) => ThemeModeScope(
+          controller: _themeMode,
+          child: MaterialApp.router(
+            title: ValueConst.appTitle,
+            routerConfig: _router,
+            theme: AppTheme.fromConfig(widget.themeConfig),
+            darkTheme: AppTheme.fromConfig(widget.themeConfig, dark: true),
+            themeMode: mode,
+          ),
         ),
       ),
     );

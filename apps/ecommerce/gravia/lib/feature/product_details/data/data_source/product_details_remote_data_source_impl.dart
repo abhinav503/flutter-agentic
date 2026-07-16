@@ -9,7 +9,8 @@ import 'product_details_remote_data_source.dart';
 /// [HomeRemoteDataSourceImpl]/[SearchRemoteDataSourceImpl], with a
 /// `"default"` fallback entry for ids the mock doesn't have a dedicated
 /// entry for.
-class ProductDetailsRemoteDataSourceImpl implements ProductDetailsRemoteDataSource {
+class ProductDetailsRemoteDataSourceImpl
+    implements ProductDetailsRemoteDataSource {
   const ProductDetailsRemoteDataSourceImpl();
 
   @override

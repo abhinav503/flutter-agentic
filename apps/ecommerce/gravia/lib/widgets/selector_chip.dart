@@ -49,9 +49,9 @@ class SelectorChip extends StatelessWidget {
       selectedBackgroundColor: cs.tintedPrimaryFill,
       // Same base style for both states — only the colour differs — so the
       // chip's footprint doesn't change size when selection toggles.
-      labelStyle: TextStyleConst.badgeLabel(tt).copyWith(
-        color: selected ? cs.primary : cs.onSurface,
-      ),
+      labelStyle: TextStyleConst.badgeLabel(
+        tt,
+      ).copyWith(color: selected ? cs.primary : cs.onSurface),
     );
   }
 }

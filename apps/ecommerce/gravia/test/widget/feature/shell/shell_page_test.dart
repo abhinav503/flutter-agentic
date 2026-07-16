@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:core/core/theme/app_theme.dart';
 import 'package:core/core/theme/app_theme_config.dart';
 import 'package:core/core/ui/blocks/bottom_nav_bar.dart';
 import 'package:gravia/constants/value_const.dart';
 import 'package:gravia/di/injection_container.dart';
+import 'package:gravia/feature/cart/presentation/cubit/cart_cubit.dart';
 import 'package:gravia/feature/shell/presentation/view/shell_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -18,9 +20,11 @@ void main() {
   // ShellPage renders blocks (AppBadge, ProductCard) that read theme
   // extensions the app always provides in production (see app.dart) — a
   // bare MaterialApp with no theme crashes on the extension's force-unwrap.
+  // CartCubit is likewise provided above the router in production; the
+  // shell's cart status bar reads it unconditionally.
   Widget buildSubject() => MaterialApp(
     theme: AppTheme.fromConfig(AppThemeConfig.defaults),
-    home: const ShellPage(),
+    home: BlocProvider(create: (_) => CartCubit(), child: const ShellPage()),
   );
 
   // The Home tab renders real AppNetworkImage/Image.network calls plus a

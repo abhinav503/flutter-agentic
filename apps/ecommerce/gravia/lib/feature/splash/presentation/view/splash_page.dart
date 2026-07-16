@@ -28,7 +28,7 @@ class _SplashPageState extends BasePageState<SplashPage> {
       if (!mounted) return;
       final hasSeenOnboarding =
           SharedPreferenceService.instance.getBool(kHasSeenOnboardingPrefKey) ??
-              false;
+          false;
       context.go(hasSeenOnboarding ? AppRoutes.home : AppRoutes.onboarding);
     });
   }
@@ -37,10 +37,10 @@ class _SplashPageState extends BasePageState<SplashPage> {
   Widget buildBody(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final wordmarkStyle = Theme.of(context).textTheme.displaySmall!.copyWith(
-          color: cs.onSurface,
-          fontWeight: FontWeight.w800,
-          letterSpacing: 1,
-        );
+      color: cs.onSurface,
+      fontWeight: FontWeight.w800,
+      letterSpacing: 1,
+    );
 
     return SafeArea(
       child: Column(

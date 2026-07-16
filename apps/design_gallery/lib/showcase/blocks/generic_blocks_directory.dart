@@ -1,5 +1,7 @@
+import 'package:core/core/theme/app_shapes_extension.dart';
 import 'package:core/core/ui/blocks/bottom_nav_bar.dart';
 import 'package:core/core/ui/blocks/collapsing_header_sheet.dart';
+import 'package:core/core/ui/blocks/docked_bar_overlap.dart';
 import 'package:core/core/ui/blocks/quantity_stepper.dart';
 import 'package:core/core/ui/blocks/section_header.dart';
 import 'package:flutter/material.dart';
@@ -77,6 +79,77 @@ WidgetbookFolder genericBlocksFolder() {
                   ],
                 ),
               ),
+            ),
+          ),
+        ]),
+      ),
+      allVariants(
+        'DockedBarOverlap',
+        (context) => showcaseDevice(context, [
+          Variant(
+            'Content shows through the bar\'s corner cut-outs',
+            Builder(
+              builder: (context) {
+                final cs = Theme.of(context).colorScheme;
+                final shapes =
+                    Theme.of(context).extension<AppShapes>() ??
+                    AppShapes.standard;
+                return DockedBarOverlap(
+                  overlap: shapes.sheetRadius,
+                  bar: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: cs.surface,
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(shapes.sheetRadius),
+                        topRight: Radius.circular(shapes.sheetRadius),
+                      ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
+                        children: [
+                          const Expanded(
+                            child: Text('Docked bar (e.g. a cart status bar)'),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              color: cs.primary,
+                              borderRadius: BorderRadius.circular(
+                                shapes.buttonRadius,
+                              ),
+                            ),
+                            child: Text(
+                              'Action',
+                              style: TextStyle(color: cs.onPrimary),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  // Edge-to-edge tinted rows so the strip revealed by the
+                  // bar's transparent corner cut-outs is visible.
+                  child: ListView(
+                    padding: EdgeInsets.zero,
+                    children: [
+                      for (var i = 0; i < 14; i++)
+                        Container(
+                          height: 72,
+                          alignment: Alignment.centerLeft,
+                          padding: const EdgeInsets.symmetric(horizontal: 24),
+                          color: i.isEven
+                              ? cs.primaryContainer
+                              : cs.secondaryContainer,
+                          child: Text('Scrolling content row $i'),
+                        ),
+                    ],
+                  ),
+                );
+              },
             ),
           ),
         ]),

@@ -21,14 +21,18 @@ sealed class CategoryDetailsState with _$CategoryDetailsState {
 extension CategoryDetailsLoadedX on CategoryDetailsLoaded {
   /// Products after applying [priceFilter] and [sort].
   List<ProductEntity> get visibleProducts {
-    final filtered = details.products.where((p) => priceFilter.matches(p.price)).toList();
+    final filtered = details.products
+        .where((p) => priceFilter.matches(p.price))
+        .toList();
     switch (sort) {
       case ProductSortOption.priceLowToHigh:
         filtered.sort((a, b) => a.price.compareTo(b.price));
       case ProductSortOption.priceHighToLow:
         filtered.sort((a, b) => b.price.compareTo(a.price));
       case ProductSortOption.discountHighToLow:
-        filtered.sort((a, b) => b.discountPercentage.compareTo(a.discountPercentage));
+        filtered.sort(
+          (a, b) => b.discountPercentage.compareTo(a.discountPercentage),
+        );
       case ProductSortOption.relevance:
       case ProductSortOption.ratingHighToLow:
         break;

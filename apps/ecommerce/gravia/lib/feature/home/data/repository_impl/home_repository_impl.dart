@@ -13,7 +13,7 @@ class HomeRepositoryImpl with BaseRepository implements HomeRepository {
 
   @override
   Future<Either<Failure, HomeEntity>> getHome() => handleRequest(() async {
-        final model = await _dataSource.getHome();
-        return right(model.toEntity());
-      });
+    final model = await _dataSource.getHome();
+    return right(model.toEntity());
+  });
 }

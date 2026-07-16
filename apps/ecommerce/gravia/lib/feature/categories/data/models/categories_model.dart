@@ -10,16 +10,15 @@ part 'categories_model.g.dart';
 abstract class CategoriesModel with _$CategoriesModel {
   const CategoriesModel._();
 
-  const factory CategoriesModel({
-    required List<CategoryGroupModel> groups,
-  }) = _CategoriesModel;
+  const factory CategoriesModel({required List<CategoryGroupModel> groups}) =
+      _CategoriesModel;
 
   factory CategoriesModel.fromJson(Map<String, dynamic> json) =>
       _$CategoriesModelFromJson(json);
 
   factory CategoriesModel.fromEntity(CategoriesEntity e) => CategoriesModel(
-        groups: e.groups.map(CategoryGroupModel.fromEntity).toList(),
-      );
+    groups: e.groups.map(CategoryGroupModel.fromEntity).toList(),
+  );
 
   CategoriesEntity toEntity() =>
       CategoriesEntity(groups: groups.map((g) => g.toEntity()).toList());

@@ -12,7 +12,8 @@ class ProfileRepositoryImpl with BaseRepository implements ProfileRepository {
   const ProfileRepositoryImpl(this._dataSource);
 
   @override
-  Future<Either<Failure, ProfileEntity>> getProfile() => handleRequest(() async {
+  Future<Either<Failure, ProfileEntity>> getProfile() =>
+      handleRequest(() async {
         final model = await _dataSource.getProfile();
         return right(model.toEntity());
       });

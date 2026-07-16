@@ -1,20 +1,19 @@
 import 'package:flutter/material.dart';
 
 import 'package:core/core/theme/app_spacing.dart';
-import 'package:core/core/ui/atoms/icon_button.dart';
-import 'package:core/core/ui/atoms/svg_image.dart';
 
 import 'package:gravia/constants/color_const.dart';
 import 'package:gravia/constants/image_const.dart';
 import 'package:gravia/constants/text_style_const.dart';
 import 'package:gravia/constants/value_const.dart';
+import 'package:gravia/widgets/gravia_glass_icon_button.dart';
+import 'package:gravia/widgets/gravia_header_canvas.dart';
 import 'package:gravia/widgets/search_field_bar.dart';
 
-/// The coloured header canvas: delivery location + notification bell sitting
-/// directly on primary, plus a white search field — the pack's signature
-/// "coloured header canvas" composition (docs/ai-rules/design.md). The
-/// search field is a tap-to-navigate trigger here (see [SearchFieldBar]) —
-/// real typing happens on the pushed Search screen it Hero-morphs into.
+/// [GraviaHeaderCanvas] for Home: delivery location + notification bell,
+/// plus a white search field. The search field is a tap-to-navigate trigger
+/// here (see [SearchFieldBar]) — real typing happens on the pushed Search
+/// screen it Hero-morphs into.
 class HomeHeroHeader extends StatefulWidget {
   final String addressLabel;
   final VoidCallback onLocationTap;
@@ -36,6 +35,10 @@ class HomeHeroHeader extends StatefulWidget {
 class _HomeHeroHeaderState extends State<HomeHeroHeader> {
   final _searchController = TextEditingController();
 
+  // Home's header controls use a larger icon than the standard 20px header
+  // discs — the kit's location/bell glyphs are drawn to this size.
+  static const _iconSize = 25.0;
+
   @override
   void dispose() {
     _searchController.dispose();
@@ -46,17 +49,8 @@ class _HomeHeroHeaderState extends State<HomeHeroHeader> {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
-    final topInset = MediaQuery.paddingOf(context).top;
 
-    return Container(
-      width: double.infinity,
-      color: cs.primary,
-      padding: EdgeInsets.fromLTRB(
-        AppSpacing.lg,
-        topInset + AppSpacing.xs,
-        AppSpacing.lg,
-        AppSpacing.xl2,
-      ),
+    return GraviaHeaderCanvas(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -64,23 +58,17 @@ class _HomeHeroHeaderState extends State<HomeHeroHeader> {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              AppIconButton(
-                iconBuilder: (color, size) => AppSvgImage.asset(
-                  ImageConst.locationIcon,
-                  color: color,
-                  width: size,
-                  height: size,
-                ),
-                containerSize: 45,
-                iconSize: 25,
-                variant: AppIconButtonVariant.glass,
+              GraviaGlassIconButton(
+                asset: ImageConst.locationIcon,
+                iconSize: _iconSize,
                 onTap: widget.onLocationTap,
               ),
-
               const SizedBox(width: AppSpacing.xs2),
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.xs,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
@@ -115,16 +103,9 @@ class _HomeHeroHeaderState extends State<HomeHeroHeader> {
                   ),
                 ),
               ),
-              AppIconButton(
-                iconBuilder: (color, size) => AppSvgImage.asset(
-                  ImageConst.notification,
-                  color: color,
-                  width: size,
-                  height: size,
-                ),
-                containerSize: 45,
-                iconSize: 25,
-                variant: AppIconButtonVariant.glass,
+              GraviaGlassIconButton(
+                asset: ImageConst.notification,
+                iconSize: _iconSize,
                 onTap: widget.onNotificationTap,
               ),
             ],

@@ -121,8 +121,9 @@ class _ProfileScreenState extends BaseScreenState<ProfileScreen> {
                     // track colours (Gray/100 off, Success/500 on).
                     trailing: AppSwitch(
                       value: Theme.of(context).brightness == Brightness.dark,
-                      onChanged: (isDark) => ThemeModeScope.of(context)
-                          .setMode(isDark ? ThemeMode.dark : ThemeMode.light),
+                      onChanged: (isDark) => ThemeModeScope.of(
+                        context,
+                      ).setMode(isDark ? ThemeMode.dark : ThemeMode.light),
                       activeTrackColor: ColorConst.success500,
                       inactiveTrackColor: ColorConst.gray100,
                     ),

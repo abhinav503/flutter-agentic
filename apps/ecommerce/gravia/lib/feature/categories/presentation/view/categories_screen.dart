@@ -10,11 +10,13 @@ import 'package:core/core/ui/blocks/collapsing_header_sheet.dart';
 import 'package:core/core/ui/molecules/error_view.dart';
 
 import 'package:gravia/constants/app_routes.dart';
+import 'package:gravia/constants/image_const.dart';
 import 'package:gravia/constants/value_const.dart';
+import 'package:gravia/widgets/gravia_glass_icon_button.dart';
+import 'package:gravia/widgets/gravia_hero_header.dart';
 
 import '../../../home/domain/entities/category_entity.dart';
 import '../bloc/categories_bloc.dart';
-import '../widgets/categories_hero_header.dart';
 import '../widgets/category_group_section.dart';
 
 class CategoriesScreen extends BaseScreen {
@@ -25,9 +27,8 @@ class CategoriesScreen extends BaseScreen {
 }
 
 class _CategoriesScreenState extends BaseScreenState<CategoriesScreen> {
-  void _openCategoryDetails(CategoryEntity category) => context.push(
-    AppRoutes.categoryDetailsPath(category.id, category.name),
-  );
+  void _openCategoryDetails(CategoryEntity category) =>
+      context.push(AppRoutes.categoryDetailsPath(category.id, category.name));
 
   @override
   Widget body(BuildContext context) {
@@ -51,14 +52,19 @@ class _CategoriesScreenState extends BaseScreenState<CategoriesScreen> {
           CategoriesError() => SafeArea(
             child: ErrorView(
               message: ValueConst.categoriesLoadErrorMessage,
-              onRetry: () =>
-                  context.read<CategoriesBloc>().add(const CategoriesEvent.started()),
+              onRetry: () => context.read<CategoriesBloc>().add(
+                const CategoriesEvent.started(),
+              ),
             ),
           ),
           CategoriesLoaded(:final categories) => CollapsingHeaderSheet(
             initialHeaderHeight: 130,
-            header: CategoriesHeroHeader(
-              onSearchTap: () => context.push(AppRoutes.search),
+            header: GraviaHeroHeader.page(
+              title: ValueConst.categoriesPageTitle,
+              trailing: GraviaGlassIconButton(
+                asset: ImageConst.search,
+                onTap: () => context.push(AppRoutes.search),
+              ),
             ),
             body: Padding(
               padding: const EdgeInsets.symmetric(vertical: AppSpacing.xl4),
