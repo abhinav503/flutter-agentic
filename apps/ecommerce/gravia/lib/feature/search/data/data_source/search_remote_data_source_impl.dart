@@ -1,18 +1,18 @@
-import 'dart:convert';
+import 'package:core/core/network/http_service.dart';
 
-import 'package:flutter/services.dart' show rootBundle;
+import 'package:gravia/constants/api_constants.dart';
 
 import '../models/search_model.dart';
 import 'search_remote_data_source.dart';
 
-/// Backed by a bundled JSON asset today, shaped exactly like the real search
-/// API response this stands in for — same pattern as HomeRemoteDataSourceImpl.
 class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
   const SearchRemoteDataSourceImpl();
 
   @override
   Future<SearchModel> getSearch() async {
-    final raw = await rootBundle.loadString('assets/data/search_page.json');
-    return SearchModel.fromJson(jsonDecode(raw) as Map<String, dynamic>);
+    final response = await HttpService.instance.get<Map<String, dynamic>>(
+      ApiConstants.searchPath,
+    );
+    return SearchModel.fromJson(response.data!);
   }
 }

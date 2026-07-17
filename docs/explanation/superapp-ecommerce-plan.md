@@ -410,5 +410,55 @@ this pass. Routes under `admin/src/app/api/stores/[storeId]/`:
 - **Not yet built**: no store-discovery/multi-store routing in these APIs (storeId is
   a path param the caller must already know — matches the single-store MVP scope
   elsewhere in this doc); no write endpoints (all read-only, writes still go through
-  the admin dashboard's Firestore calls); Flutter integration itself (M2's original
-  scope) is intentionally not started.
+  the admin dashboard's Firestore calls).
+
+## Gravia wired to the deployed API (M2 catalog swap) — DONE (2026-07-18)
+
+gravia's 5 catalog data sources now call the deployed Vercel API instead of bundled
+JSON assets — `HomeRemoteDataSourceImpl`, `CategoriesRemoteDataSourceImpl`,
+`CategoryDetailsRemoteDataSourceImpl`, `ProductDetailsRemoteDataSourceImpl`,
+`SearchRemoteDataSourceImpl` all swapped from `rootBundle.loadString` +
+`jsonDecode` to `HttpService.instance.get<Map>(...)` + `Model.fromJson(...)`. Orders,
+profile, address, notifications intentionally untouched (out of scope).
+
+- **New `lib/constants/api_constants.dart`** — `baseUrl` (the Vercel URL) + a
+  **hardcoded `storeId`** constant (the one seeded "Gravia" store) with a comment
+  pointing at this doc's store-discovery gap. This is the multi-tenant seam: M3
+  replaces the constant with real store selection, nothing else in the data layer
+  needs to change.
+- **4 of 5 data sources are 1:1 swaps** — `getCategories()`, `getCategoryDetails(id)`,
+  `getProductDetails(id)`, `getSearch()` each call exactly one endpoint and
+  `Model.fromJson(response.data!)` directly, because the API's response shapes were
+  deliberately built to match these models' existing wire format (see the "Read API"
+  section above) — confirmed by reading every model's `fromJson` field mapping before
+  writing a line of Flutter code, not assumed.
+- **Home is the one real exception, per explicit user direction** — no dedicated
+  `/home` endpoint. `HomeRemoteDataSourceImpl` calls `/categories` and
+  `/products/popular` in parallel (`Future.wait`), flattens the grouped categories
+  response into one list client-side, and constructs `HomeModel` directly (not via
+  `fromJson`, since no single response matches its combined shape).
+- **Two real platform gaps caught and fixed, not assumed fine:**
+  - gravia's Android manifest had no `INTERNET` permission — never needed it before
+    (100% local JSON until now). Added to `android/app/src/main/AndroidManifest.xml`.
+    iOS needs no equivalent entry (plain HTTPS is allowed under App Transport
+    Security by default).
+  - The deployed API had no CORS headers — fine for curl/native mobile (not
+    CORS-restricted) but would silently fail from Flutter Web's browser-based fetch.
+    Learned Next.js 16 **renamed `middleware.ts` to `proxy.ts`** (confirmed by reading
+    the bundled docs, not assumed from training data) — added `admin/src/proxy.ts`
+    with a wildcard `Access-Control-Allow-Origin` (safe here: every route is an
+    unauthenticated, world-readable catalog read, not a cookie-authenticated one),
+    verified locally, then redeployed to production and reverified.
+- **Verified live in a real browser, not just `flutter analyze`** — no browser
+  automation was available this session, so verification used `flutter run -d chrome`
+  (Flutter's own tooling drives a real Chrome instance directly; `-d web-server`
+  alone doesn't execute the app without something loading the page) and watched the
+  console. Home's BLoC auto-dispatched on load and the log showed real
+  `[REQ] GET .../categories`, `[REQ] GET .../products/popular`, both
+  `[RES] 200`, with no exception afterward — confirming the CORS fix works from an
+  actual browser and the JSON parsed cleanly into `HomeModel`.
+- **Not yet built**: the other 4 screens (Categories, Category Details, Product
+  Details, Search) weren't individually click-verified in-browser this pass (no UI
+  interaction available) — confidence there comes from `flutter analyze` passing
+  clean, the identical verified `HttpService`/`fromJson` pattern, and each endpoint
+  already being independently curl-verified against real data earlier.
