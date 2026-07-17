@@ -1,0 +1,74 @@
+rules_version = '2';
+
+// Multi-tenant rules for the FlutterAgenticEcommerce platform.
+// Schema: docs/explanation/superapp-ecommerce-plan.md
+//
+// Store-write authority is ownerUid-based for now (no custom claim yet —
+// the Cloud Function that stamps `role: storeAdmin` on `admins/{uid}` ships
+// in a later milestone). Tighten to `request.auth.token.role == 'storeAdmin'`
+// once that claim exists.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    function isStoreOwner(storeId) {
+      return isSignedIn() &&
+        get(/databases/$(database)/documents/stores/$(storeId)).data.ownerUid == request.auth.uid;
+    }
+
+    // Shopper profile — created on gravia sign-up.
+    match /users/{uid} {
+      allow read, write: if isOwner(uid);
+
+      match /carts/{storeId} {
+        allow read, write: if isOwner(uid);
+      }
+    }
+
+    // Store-owner record — created on admin-console sign-up. The owner may
+    // update ONLY storeIds (append a new store they created) — role/email
+    // stay immutable client-side until the claim-stamping Cloud Function
+    // ships and takes over storeIds maintenance too.
+    match /admins/{uid} {
+      allow read, create: if isOwner(uid);
+      allow update: if isOwner(uid) &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['storeIds']);
+      allow delete: if false;
+    }
+
+    // Store catalog — world-readable for shopper discovery/browsing;
+    // writes restricted to the store's own owner.
+    match /stores/{storeId} {
+      allow read: if true;
+      allow create: if isSignedIn() && request.resource.data.ownerUid == request.auth.uid;
+      allow update, delete: if isStoreOwner(storeId);
+
+      match /categories/{categoryId} {
+        allow read: if true;
+        allow write: if isStoreOwner(storeId);
+      }
+
+      match /products/{productId} {
+        allow read: if true;
+        allow write: if isStoreOwner(storeId);
+      }
+    }
+
+    // Orders — a shopper creates/reads their own; the owning store can read
+    // (and later advance status). No client-side price trust beyond create.
+    match /orders/{orderId} {
+      allow create: if isSignedIn() && request.resource.data.uid == request.auth.uid;
+      allow read: if isSignedIn() &&
+        (resource.data.uid == request.auth.uid || isStoreOwner(resource.data.storeId));
+      allow update: if isStoreOwner(resource.data.storeId);
+      allow delete: if false;
+    }
+  }
+}

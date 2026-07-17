@@ -1,0 +1,37 @@
+rules_version = '2';
+
+// Multi-tenant rules for the FlutterAgenticEcommerce platform's default
+// bucket. Mirrors firestore.rules' ownerUid model — a store's category and
+// product images live under {storeId}/categories/** and {storeId}/products/**,
+// writable only by that store's owner (cross-checked against the
+// stores/{storeId} Firestore doc), world-readable so shopper clients can
+// display them.
+//
+// Cross-service Storage->Firestore reads (firestore.get()) require the
+// Storage service account to hold roles/firebaserules.firestoreServiceAgent
+// on the project — `firebase deploy` normally prompts to grant this on first
+// deploy, but that prompt is skipped in a non-interactive shell, so it was
+// granted manually here via `gcloud projects add-iam-policy-binding`.
+//
+// Pre-staged demo images already in this bucket (e.g. gravia/categories/*)
+// are served via Firebase's download-token URLs (?alt=media&token=...),
+// which bypass Security Rules entirely — this file does not affect them.
+service firebase.storage {
+  match /b/{bucket}/o {
+    function isStoreOwner(storeId) {
+      return request.auth != null &&
+        firestore.get(/databases/(default)/documents/stores/$(storeId)).data.ownerUid
+          == request.auth.uid;
+    }
+
+    match /{storeId}/categories/{allPaths=**} {
+      allow read: if true;
+      allow write: if isStoreOwner(storeId);
+    }
+
+    match /{storeId}/products/{allPaths=**} {
+      allow read: if true;
+      allow write: if isStoreOwner(storeId);
+    }
+  }
+}

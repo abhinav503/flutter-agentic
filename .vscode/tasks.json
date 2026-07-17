@@ -68,6 +68,35 @@
         "panel": "dedicated",
         "group": "web_terminal"
       }
+    },
+    {
+      // Runs the Next.js dev server on :4100 for the store-admin console
+      // (top-level admin/ app — standalone, no PTY bridge dependency).
+      // Kills any stale process on :4100 first so relaunch never hits
+      // "port already in use". Installs node deps on first run.
+      "label": "admin-dev",
+      "type": "shell",
+      "command": "command -v npm >/dev/null 2>&1 || export PATH=\"/opt/homebrew/bin:/usr/local/bin:$PATH\"; lsof -ti tcp:4100 -sTCP:LISTEN | xargs kill -TERM 2>/dev/null; for i in 1 2 3 4 5; do lsof -ti tcp:4100 -sTCP:LISTEN >/dev/null 2>&1 || break; sleep 1; done; [ -d node_modules ] || npm install; npm run dev",
+      "options": {
+        "cwd": "${workspaceFolder}/admin"
+      },
+      "isBackground": true,
+      "problemMatcher": {
+        "pattern": {
+          "regexp": "^(.*)$",
+          "file": 1
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".*",
+          "endsPattern": "(Ready in|- Local:|Local:\\s+http)"
+        }
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "admin"
+      }
     }
   ]
 }

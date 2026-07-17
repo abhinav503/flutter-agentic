@@ -93,6 +93,18 @@
             "url": "http://localhost:4000",
             "webRoot": "${workspaceFolder}/web-terminal/console",
             "preLaunchTask": "console-dev"
+        },
+        {
+            // React/Next.js store-admin app (top-level admin/ — standalone,
+            // not the per-user web-terminal workspace). preLaunchTask
+            // (admin-dev) starts the Next dev server on :4100 and waits
+            // until it's ready before Chrome opens the admin console.
+            "name": "admin (dev, Chrome :4100)",
+            "request": "launch",
+            "type": "chrome",
+            "url": "http://localhost:4100",
+            "webRoot": "${workspaceFolder}/admin",
+            "preLaunchTask": "admin-dev"
         }
     ]
 }
