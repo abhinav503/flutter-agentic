@@ -59,9 +59,13 @@ void main() {
       matching: find.byType(GestureDetector),
     );
 
+    // Orders renders each order's photo via a real AppNetworkImage too —
+    // same never-settles reasoning as Home/Profile, so a bounded pump again.
+    // Asserting on the tab bar's own label, not `ordersPageTitle` — that
+    // text ('Orders') also matches the bottom nav's own Orders tab label.
     await tester.tap(tabs.at(3));
-    await tester.pumpAndSettle();
-    expect(find.text(ValueConst.ordersEmptyTitle), findsOneWidget);
+    await settleHome(tester);
+    expect(find.text(ValueConst.upcomingTabLabel), findsOneWidget);
 
     // Profile renders a real AppNetworkImage (the avatar) too — same
     // never-settles reasoning as Home, so a bounded pump again.

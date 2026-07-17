@@ -242,6 +242,49 @@ supplies the pack-specific metrics.
   fixed Gray/500 both modes (`inactiveIconColor`). The kit's tab set is
   **Home, Categories, Favourite, Orders (bag), Profile** — the cart is not a
   nav tab. → `BottomNavBar`.
+- **Glass segmented tab bar + order cards (Orders tab).** A real
+  frosted-glass pill track (`CommonGlassSurface` — the same backdrop-blur
+  treatment `SearchFieldBar` uses for its glass field, not a flat
+  translucent `Container`) sits on the canvas below the "Orders" title, with
+  a single solid `cs.surface` pill that *slides* left/right between the two
+  segments (`AnimatedAlign`, 250ms `easeInOut`) rather than each segment
+  independently crossfading its own background colour. The active label
+  reads Text/sm/bold (`TextStyleConst.textSmBold`); the inactive one stays
+  Text/sm/medium — both animate together via `AnimatedDefaultTextStyle` on
+  the same duration as the slide. The whole bar is pinned to a fixed 45px
+  height (`OrdersSegmentedTabBar._barHeight`, matching the app's other fixed
+  control heights) rather than left to intrinsic sizing — the `Stack` this
+  needs for the sliding pill only sizes itself from its one non-positioned
+  child (the label `Row`; the pill sits in `Positioned.fill` so it never
+  participates in that sizing pass), and that intrinsic path visibly shrank
+  the bar when the slide animation first landed, so don't revert to
+  intrinsic sizing without re-checking that regression doesn't come back. →
+  `OrdersSegmentedTabBar` (feature-local — single caller today, promote it
+  if a second segmented control shows up).
+
+  An order is one delivery of possibly several products, each with its own
+  quantity and line price — never a single product by itself (an earlier
+  version of this screen modelled "order" as one product row, which
+  silently merged two same-timestamp products into two separate orders;
+  don't repeat that shape). Each card: a photo + name + "weight × qty" +
+  line-price row per product (`OrderLineItemRow` — `CartItemRow`'s shape
+  minus the quantity stepper, since a placed order is read-only), a
+  hairline, then a full-width date + order-total row (the sum of every
+  line, not one product's price) — with the status badge (same
+  mint-on-tinted-primary look as `ProductCard`'s weight badge) sitting
+  beside the total for a delivered/cancelled order — then a final row that
+  depends on status: while in-process, a "Delivery OTP" row (status badge +
+  four circular outlined digit boxes, `cs.primary` ring + text; one OTP per
+  *order*, not per product) followed by Cancel/Track Order; once
+  delivered/cancelled, View Details/Write A Review instead — nothing left
+  to track or hand an OTP to. Every button in these paired rows
+  (`GraviaTintedButton` for Cancel, raw `AppButton` for the other three)
+  must share the exact same `labelStyle`
+  (`TextStyleConst.textSmMedium`/`cs.onPrimary`-or-`cs.primary`) — `AppButton`
+  without an explicit override falls back to its own default
+  (`tt.labelMedium`, a different Material role), which visibly mismatches
+  `GraviaTintedButton`'s hardcoded style when they sit side by side; this
+  bit us once already, don't drop the override again. → `OrderCard`.
 - **Settings/menu list.** A vertical stack of icon-circle + label + chevron
   rows below a coloured header (Profile is the reference screen). Each row:
   a fixed-size tinted circle (Gray/50 light / Gray/950 dark — the same
@@ -379,9 +422,10 @@ re-style the underlying atom/block inline:
 | Coloured header canvas | `GraviaHeaderCanvas` (rich headers compose onto it; no `Center`/`Align` inside — see its doc) |
 | Back + centered-title header (± trailing action, ± second row) | `GraviaHeroHeader` |
 | Tab-root page-title header (left XL title, no back) | `GraviaHeroHeader.page` |
-| Glass header control (back/search/favourite/bell) | `GraviaGlassIconButton` — never raw glass `AppIconButton` |
+| Glass header control (back/search/favourite/bell/filter) | `GraviaGlassIconButton` — never raw glass `AppIconButton`; pass `asset` for a kit SVG or `icon` for a Material fallback when no SVG exists yet (exactly one, never both) |
 | Docked bottom CTA bar shell | `GraviaDockedBar` (top hairline + safe area + bar padding) |
 | Full-width primary CTA (in a docked bar) | `GraviaPrimaryButton` — never a re-typed `AppButton` recipe |
+| Tinted-error pill (destructive inline action, e.g. Delete/Cancel) | `GraviaTintedButton` — no `AppButton` variant renders a filled error-tinted pill; never fork the atom for this look |
 | Styled bottom sheet | `showGraviaSheet` / `showGraviaAddToCartSheet` (extension on `BaseScreenState` in `gravia_sheet.dart`) — never raw `showAppBottomSheet` styling |
 | Bounded-picklist selection sheet (radio list) | `RadioOptionsSheetContent<T>` — opened via `showGraviaSheet`, never `AppDropdownMenu`/`PopupMenuButton` for an in-app picklist |
 | Form text field (any form) | `GraviaFormField` — never a re-typed `AppTextField` override recipe |

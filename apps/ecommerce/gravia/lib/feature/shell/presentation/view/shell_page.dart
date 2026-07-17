@@ -23,6 +23,8 @@ import 'package:gravia/feature/categories/presentation/bloc/categories_bloc.dart
 import 'package:gravia/feature/categories/presentation/view/categories_screen.dart';
 import 'package:gravia/feature/home/presentation/bloc/home_bloc.dart';
 import 'package:gravia/feature/home/presentation/view/home_screen.dart';
+import 'package:gravia/feature/orders/presentation/bloc/orders_bloc.dart';
+import 'package:gravia/feature/orders/presentation/view/orders_screen.dart';
 import 'package:gravia/feature/profile/presentation/bloc/profile_bloc.dart';
 import 'package:gravia/feature/profile/presentation/view/profile_screen.dart';
 
@@ -75,10 +77,16 @@ class _ShellPageState extends BasePageState<ShellPage> {
 
   @override
   PreferredSizeWidget? buildAppBar(BuildContext context) {
-    // Home, Categories, and Profile render their own coloured hero header as
-    // part of the screen body, per the pack's "coloured header canvas"
-    // composition — a generic top bar on top of any of them would double up.
-    if (_currentTab == 0 || _currentTab == 1 || _currentTab == 4) return null;
+    // Home, Categories, Orders, and Profile render their own coloured hero
+    // header as part of the screen body, per the pack's "coloured header
+    // canvas" composition — a generic top bar on top of any of them would
+    // double up.
+    if (_currentTab == 0 ||
+        _currentTab == 1 ||
+        _currentTab == 3 ||
+        _currentTab == 4) {
+      return null;
+    }
 
     final themeMode = ThemeModeScope.maybeOf(context);
     return AppTopBar.primary(
@@ -124,10 +132,11 @@ class _ShellPageState extends BasePageState<ShellPage> {
         title: ValueConst.favouriteEmptyTitle,
         subtitle: ValueConst.favouriteEmptySubtitle,
       ),
-      3 => const EmptyState(
-        iconData: Icons.shopping_bag_outlined,
-        title: ValueConst.ordersEmptyTitle,
-        subtitle: ValueConst.ordersEmptySubtitle,
+      3 => BlocProvider(
+        create: (_) =>
+            OrdersBloc(getOrdersUseCase: sl())
+              ..add(const OrdersEvent.started()),
+        child: const OrdersScreen(),
       ),
       _ => BlocProvider(
         create: (_) =>

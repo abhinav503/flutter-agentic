@@ -40,6 +40,12 @@ abstract final class TextStyleConst {
     letterSpacing: -0.28,
   );
 
+  static TextStyle textSmBold(TextTheme tt) => tt.bodyMedium!.copyWith(
+    fontWeight: FontWeight.w700,
+    height: 1.4,
+    letterSpacing: -0.28,
+  );
+
   static TextStyle textMdRegular(TextTheme tt) =>
       tt.bodyLarge!.copyWith(height: 1.5, letterSpacing: -0.32);
 

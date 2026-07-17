@@ -174,11 +174,28 @@ abstract final class ValueConst {
   static String cartSummaryLabel(int itemCount, double total) =>
       '$itemCount item${itemCount > 1 ? 's' : ''} | \$${total.toStringAsFixed(2)}';
 
+  // ── Orders ─────────────────────────────────────────────────────────────────
+  static const ordersPageTitle = 'Orders';
+  static const upcomingTabLabel = 'Upcoming';
+  static const pastTabLabel = 'Past';
+  static const inProcessStatusLabel = 'In Process';
+  static const deliveredStatusLabel = 'Delivered';
+  static const cancelledStatusLabel = 'Cancelled';
+  static const deliveryOtpLabel = 'Delivery OTP';
+  static const cancelOrderLabel = 'Cancel';
+  static const trackOrderLabel = 'Track Order';
+  static const viewDetailsLabel = 'View Details';
+  static const writeReviewLabel = 'Write A Review';
+  static String weightQuantityLabel(String weight, int quantity) =>
+      '$weight × $quantity';
+  static const ordersLoadErrorMessage =
+      'Something went wrong loading your orders.';
+  static const ordersEmptyTitle = 'No orders yet';
+  static const ordersEmptySubtitle =
+      'Your past and active orders will show up here.';
+
   // ── Placeholder tabs (removed as real screens land) ───────────────────────
   static const favouriteEmptyTitle = 'No favourites yet';
   static const favouriteEmptySubtitle =
       'Tap the heart on a product to keep it here.';
-  static const ordersEmptyTitle = 'No orders yet';
-  static const ordersEmptySubtitle =
-      'Your past and active orders will show up here.';
 }

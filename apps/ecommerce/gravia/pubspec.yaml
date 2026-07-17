@@ -59,6 +59,7 @@ flutter:
     - assets/data/category_details.json
     - assets/data/profile_page.json
     - assets/data/addresses.json
+    - assets/data/orders.json
     - assets/images/
 
 # One source mark → every launcher-icon size. The PNGs are rasterised from

@@ -1,0 +1,106 @@
+[
+  {
+    "id": "order_1",
+    "status": "IN_PROCESS",
+    "placed_at": "2026-03-09T10:15:00",
+    "delivery_otp": "2530",
+    "items": [
+      {
+        "product_name": "Washington Red Apple",
+        "weight": "300 g",
+        "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fproducts%2Fwashington_red_apple.jpg?alt=media&token=4a389232-157b-43d1-adb9-0d7e30c644c2",
+        "price": 6.30,
+        "quantity": 1
+      },
+      {
+        "product_name": "Cabbage",
+        "weight": "500 g",
+        "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fproducts%2Fcabbage.jpg?alt=media&token=b0021e51-933e-406e-bfae-03ca767bce88",
+        "price": 4.00,
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "id": "order_2",
+    "status": "IN_PROCESS",
+    "placed_at": "2026-03-10T14:40:00",
+    "delivery_otp": "7391",
+    "items": [
+      {
+        "product_name": "Green Capsicum",
+        "weight": "250 g",
+        "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fproducts%2Fgreen_capsicum.jpg?alt=media&token=9c604ec6-066a-4eb9-8882-c1635cab2a9d",
+        "price": 3.20,
+        "quantity": 2
+      }
+    ]
+  },
+  {
+    "id": "order_2",
+    "status": "IN_PROCESS",
+    "placed_at": "2026-03-10T14:40:00",
+    "delivery_otp": "7391",
+    "items": [
+       {
+        "product_name": "Green Grapes",
+        "weight": "500 g",
+        "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fproducts%2Fgreen_grapes.jpg?alt=media&token=f48b76e8-0f6e-425f-98de-b556bf3c8ce3",
+        "price": 4.00,
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "id": "order_3",
+    "status": "DELIVERED",
+    "placed_at": "2026-02-24T16:05:00",
+    "delivery_otp": "",
+    "items": [
+      {
+        "product_name": "Green Grapes",
+        "weight": "500 g",
+        "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fproducts%2Fgreen_grapes.jpg?alt=media&token=f48b76e8-0f6e-425f-98de-b556bf3c8ce3",
+        "price": 4.00,
+        "quantity": 1
+      },
+      {
+        "product_name": "Hybrid Fresh Tomato",
+        "weight": "500 g",
+        "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fproducts%2Fhybrid_fresh_tomato.jpg?alt=media&token=0ee62b6a-1376-4231-94a4-41da0996aaac",
+        "price": 3.20,
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "id": "order_4",
+    "status": "CANCELLED",
+    "placed_at": "2026-02-10T09:20:00",
+    "delivery_otp": "",
+    "items": [
+      {
+        "product_name": "Fresh Potato",
+        "weight": "1000 g",
+        "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fproducts%2Ffresh_potato.jpg?alt=media&token=d5a30b8d-bd82-497e-85ca-7f4c65efd760",
+        "price": 2.00,
+        "quantity": 1
+      }
+    ]
+  },
+  {
+    "id": "order_5",
+    "status": "DELIVERED",
+    "placed_at": "2026-01-29T18:50:00",
+    "delivery_otp": "",
+    "items": [
+      {
+        "product_name": "Lady Finger",
+        "weight": "250 g",
+        "image": "https://firebasestorage.googleapis.com/v0/b/corderlia-ecom.appspot.com/o/gravia%2Fproducts%2Flady_finger.jpg?alt=media&token=25f529ab-667d-4ea7-946d-880732a1ad4f",
+        "price": 2.80,
+        "quantity": 3
+      }
+    ]
+  }
+]

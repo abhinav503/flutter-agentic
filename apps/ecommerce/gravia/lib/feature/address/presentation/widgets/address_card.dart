@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'package:core/core/theme/app_shapes_extension.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/badge.dart';
 import 'package:core/core/ui/atoms/button.dart';
@@ -11,6 +10,7 @@ import 'package:gravia/constants/color_const.dart';
 import 'package:gravia/constants/image_const.dart';
 import 'package:gravia/constants/text_style_const.dart';
 import 'package:gravia/constants/value_const.dart';
+import 'package:gravia/widgets/gravia_tinted_button.dart';
 
 import '../../domain/entities/address_entity.dart';
 
@@ -160,65 +160,22 @@ class AddressCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: AppSpacing.base),
-              Expanded(child: _DeleteButton(onTap: onDelete)),
+              Expanded(
+                child: GraviaTintedButton(
+                  label: ValueConst.deleteLabel,
+                  leadingIcon: AppSvgImage.asset(
+                    ImageConst.trash,
+                    color: ColorConst.error500,
+                    width: 20,
+                    height: 20,
+                  ),
+                  onTap: onDelete,
+                ),
+              ),
             ],
           ),
         ),
       ],
-    );
-  }
-}
-
-/// No `AppButton` variant renders a filled error-tinted pill (its Fill/
-/// Outline/Text set is deliberately generic, per `AppButton`'s own doc
-/// comment) — a one-off local widget instead of forking the shared atom for
-/// a look only this screen's Delete action uses.
-class _DeleteButton extends StatelessWidget {
-  final VoidCallback onTap;
-
-  const _DeleteButton({required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
-    final shapes =
-        Theme.of(context).extension<AppShapes>() ?? AppShapes.standard;
-
-    return SizedBox(
-      // Matches the 45px action-control height used by the glass icon
-      // buttons in every header and the docked bottom CTAs — same reasoning
-      // as the Edit button's `height: 45` beside it.
-      height: 45,
-      child: Material(
-        // Error/50 light, Error/500-20%-alpha dark — see tintedErrorFill.
-        color: cs.tintedErrorFill,
-        borderRadius: BorderRadius.circular(shapes.buttonRadius),
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(shapes.buttonRadius),
-          child: Center(
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                AppSvgImage.asset(
-                  ImageConst.trash,
-                  color: ColorConst.error500,
-                  width: 20,
-                  height: 20,
-                ),
-                const SizedBox(width: AppSpacing.xs),
-                Text(
-                  ValueConst.deleteLabel,
-                  style: TextStyleConst.textSmMedium(
-                    tt,
-                  ).copyWith(color: ColorConst.error500),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
     );
   }
 }
