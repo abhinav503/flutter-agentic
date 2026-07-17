@@ -6,7 +6,6 @@ import 'package:go_router/go_router.dart';
 import 'package:core/core/base/base_screen.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/loading_indicator.dart';
-import 'package:core/core/ui/atoms/svg_image.dart';
 import 'package:core/core/ui/blocks/collapsing_header_sheet.dart';
 import 'package:core/core/ui/blocks/ecommerce/product_meta_row.dart';
 import 'package:core/core/ui/molecules/error_view.dart';
@@ -20,6 +19,7 @@ import 'package:gravia/enums/product_unit_type.dart';
 import 'package:gravia/feature/cart/presentation/cubit/cart_cubit.dart';
 import 'package:gravia/widgets/gravia_glass_icon_button.dart';
 import 'package:gravia/widgets/gravia_hero_header.dart';
+import 'package:gravia/widgets/gravia_product_card.dart';
 import 'package:gravia/widgets/gravia_sheet.dart';
 import 'package:gravia/widgets/selector_chip.dart';
 
@@ -97,11 +97,11 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen> {
     final product = detail.product;
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    // Same divider colour as the bottom nav bar's top border (ShellPage's
-    // _dividerColor) — Gray/500 in light, white in dark — so the hairlines
-    // in this screen match the bar rather than the generic Gray/200 hairline.
-    final hairlineColor = isDark ? ColorConst.gray900 : ColorConst.gray500;
+    // Same divider colour as the bottom nav bar's top border (ShellPage uses
+    // cs.dockedHairline for both its top and bottom borders) — so the
+    // hairlines in this screen match the bar rather than the generic
+    // Gray/200 hairline.
+    final hairlineColor = cs.dockedHairline;
 
     return Column(
       children: [
@@ -142,23 +142,16 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen> {
                   ProductMetaRow(
                     meta: [
                       ProductCardMeta(
-                        icon: AppSvgImage.asset(
-                          ImageConst.flash,
-                          width: 14,
-                          height: 14,
-                          color: ColorConst.gray500,
-                        ),
+                        icon: GraviaProductCard.metaIcon(ImageConst.flash),
                         label: product.prepTime,
                       ),
                       ProductCardMeta(
-                        icon: AppSvgImage.asset(
+                        icon: GraviaProductCard.metaIcon(
                           ImageConst.badgePercent,
-                          width: 14,
-                          height: 14,
-                          color: ColorConst.gray500,
                         ),
-                        label:
-                            '${product.discountPercentage.toStringAsFixed(0)}% OFF',
+                        label: ValueConst.discountPercentOffLabel(
+                          product.discountPercentage,
+                        ),
                       ),
                     ],
                     labelStyle: TextStyleConst.textXsRegular(
@@ -171,14 +164,14 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen> {
                     textBaseline: TextBaseline.alphabetic,
                     children: [
                       Text(
-                        '\$${product.price.toStringAsFixed(2)}',
+                        ValueConst.formattedPrice(product.price),
                         style: TextStyleConst.textLgBold(
                           tt,
                         ).copyWith(color: cs.onSurface),
                       ),
                       const SizedBox(width: AppSpacing.xs2),
                       Text(
-                        '\$${product.originalPrice.toStringAsFixed(2)}',
+                        ValueConst.formattedPrice(product.originalPrice),
                         style: TextStyleConst.textSmRegular(tt).copyWith(
                           color: cs.onSurfaceVariant,
                           decoration: TextDecoration.lineThrough,

@@ -1,5 +1,6 @@
 import 'package:core/core/ui/atoms/button.dart';
 import 'package:core/core/ui/molecules/bottom_sheet.dart';
+import 'package:core/core/ui/molecules/dialog.dart';
 import 'package:core/core/ui/molecules/empty_state.dart';
 import 'package:core/core/ui/molecules/error_view.dart';
 import 'package:flutter/material.dart';
@@ -113,6 +114,30 @@ WidgetbookCategory moleculesCategory() {
                 );
               },
             ),
+          ),
+        ]),
+      ),
+      allVariants(
+        'AppDialog',
+        // AlertDialog paints its own scrim/positioning via showDialog, so
+        // preview the static widget directly rather than opening it — a
+        // showcase page isn't a Navigator push a real showDialog needs.
+        (context) => showcase(context, [
+          Variant(
+            'Default',
+            AppDialog(
+              title: 'Delete address?',
+              actions: [
+                AppButton(
+                  label: 'Cancel',
+                  variant: AppButtonVariant.secondary,
+                  onTap: () {},
+                ),
+                AppButton(label: 'Delete', onTap: () {}),
+              ],
+              child: const Text('This action can\'t be undone.'),
+            ),
+            width: 320,
           ),
         ]),
       ),

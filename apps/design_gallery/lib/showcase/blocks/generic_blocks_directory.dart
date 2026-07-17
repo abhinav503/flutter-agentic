@@ -1,5 +1,6 @@
 import 'package:core/core/theme/app_shapes_extension.dart';
 import 'package:core/core/ui/blocks/bottom_nav_bar.dart';
+import 'package:core/core/ui/blocks/chunked_grid.dart';
 import 'package:core/core/ui/blocks/collapsing_header_sheet.dart';
 import 'package:core/core/ui/blocks/docked_bar_overlap.dart';
 import 'package:core/core/ui/blocks/quantity_stepper.dart';
@@ -186,6 +187,54 @@ WidgetbookFolder genericBlocksFolder() {
                 );
               },
             ),
+          ),
+        ]),
+      ),
+      allVariants(
+        'ChunkedGrid',
+        (context) => showcase(context, [
+          Variant(
+            '4 columns, even count',
+            Builder(
+              builder: (context) {
+                final cs = Theme.of(context).colorScheme;
+                return ChunkedGrid(
+                  itemCount: 8,
+                  columns: 4,
+                  spacing: 8,
+                  runSpacing: 16,
+                  itemBuilder: (context, i) => Container(
+                    height: 48,
+                    alignment: Alignment.center,
+                    color: cs.primaryContainer,
+                    child: Text('${i + 1}'),
+                  ),
+                );
+              },
+            ),
+            width: 320,
+          ),
+          Variant(
+            '2 columns, odd count (last row gets an empty filler)',
+            Builder(
+              builder: (context) {
+                final cs = Theme.of(context).colorScheme;
+                return ChunkedGrid(
+                  itemCount: 5,
+                  columns: 2,
+                  spacing: 16,
+                  runSpacing: 16,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  itemBuilder: (context, i) => Container(
+                    height: i.isEven ? 80 : 56,
+                    alignment: Alignment.center,
+                    color: cs.secondaryContainer,
+                    child: Text('${i + 1}'),
+                  ),
+                );
+              },
+            ),
+            width: 320,
           ),
         ]),
       ),

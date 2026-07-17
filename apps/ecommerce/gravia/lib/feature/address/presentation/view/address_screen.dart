@@ -14,6 +14,7 @@ import 'package:core/core/ui/blocks/section_header.dart';
 import 'package:core/core/ui/molecules/error_view.dart';
 
 import 'package:gravia/constants/app_routes.dart';
+import 'package:gravia/constants/dimen_const.dart';
 import 'package:gravia/constants/image_const.dart';
 import 'package:gravia/constants/text_style_const.dart';
 import 'package:gravia/constants/value_const.dart';
@@ -145,7 +146,7 @@ class _AddressScreenState extends BaseScreenState<AddressScreen> {
                     variant: AppButtonVariant.secondary,
                     fullWidth: true,
                     borderColor: cs.primary,
-                    height: 45,
+                    height: DimenConst.controlHeight,
                     labelStyle: TextStyleConst.textSmMedium(
                       tt,
                     ).copyWith(color: cs.primary),

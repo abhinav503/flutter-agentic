@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 
 import 'package:core/core/theme/app_spacing.dart';
-import 'package:core/core/ui/atoms/badge.dart';
-import 'package:core/core/ui/atoms/button.dart';
 import 'package:core/core/ui/atoms/radio_dot.dart';
 import 'package:core/core/ui/atoms/svg_image.dart';
 
@@ -10,7 +8,8 @@ import 'package:gravia/constants/color_const.dart';
 import 'package:gravia/constants/image_const.dart';
 import 'package:gravia/constants/text_style_const.dart';
 import 'package:gravia/constants/value_const.dart';
-import 'package:gravia/widgets/gravia_tinted_button.dart';
+import 'package:gravia/widgets/gravia_action_pair.dart';
+import 'package:gravia/widgets/gravia_tint_badge.dart';
 
 import '../../domain/entities/address_entity.dart';
 
@@ -82,18 +81,7 @@ class AddressCard extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: AppSpacing.xs2),
-                        // Same AppBadge call as ProductCard's quantity badge
-                        // (badgeLabelStyle/badgeBackgroundColor at every
-                        // ProductCard call site) — kept identical so the two
-                        // surfaces don't drift apart.
-                        AppBadge(
-                          text: address.tag,
-                          intent: AppBadgeIntent.info,
-                          textStyle: TextStyleConst.badgeLabel(
-                            tt,
-                          ).copyWith(color: cs.primary),
-                          backgroundColor: cs.tintedPrimaryFill,
-                        ),
+                        GraviaTintBadge(text: address.tag),
                       ],
                     ),
                   ),
@@ -136,43 +124,30 @@ class AddressCard extends StatelessWidget {
         const SizedBox(height: AppSpacing.base),
         Padding(
           padding: const EdgeInsets.only(left: _identityInset),
-          child: Row(
-            children: [
-              Expanded(
-                child: AppButton(
-                  label: ValueConst.editLabel,
-                  variant: AppButtonVariant.secondary,
-                  size: AppButtonSize.small,
-                  fullWidth: true,
-                  // Matches the 45px action-control height used by the glass
-                  // icon buttons in every header and the docked bottom CTAs.
-                  height: 45,
-                  labelStyle: TextStyleConst.textSmMedium(
-                    tt,
-                  ).copyWith(color: blackOrWhite),
-                  leadingIcon: AppSvgImage.asset(
-                    ImageConst.editRectangle,
-                    color: blackOrWhite,
-                    width: 20,
-                    height: 20,
-                  ),
-                  onTap: onEdit,
-                ),
+          child: GraviaActionPair(
+            left: GraviaAction(
+              label: ValueConst.editLabel,
+              kind: GraviaActionKind.secondary,
+              labelColor: blackOrWhite,
+              leadingIcon: AppSvgImage.asset(
+                ImageConst.editRectangle,
+                color: blackOrWhite,
+                width: 20,
+                height: 20,
               ),
-              const SizedBox(width: AppSpacing.base),
-              Expanded(
-                child: GraviaTintedButton(
-                  label: ValueConst.deleteLabel,
-                  leadingIcon: AppSvgImage.asset(
-                    ImageConst.trash,
-                    color: ColorConst.error500,
-                    width: 20,
-                    height: 20,
-                  ),
-                  onTap: onDelete,
-                ),
+              onTap: onEdit,
+            ),
+            right: GraviaAction(
+              label: ValueConst.deleteLabel,
+              kind: GraviaActionKind.tintedError,
+              leadingIcon: AppSvgImage.asset(
+                ImageConst.trash,
+                color: ColorConst.error500,
+                width: 20,
+                height: 20,
               ),
-            ],
+              onTap: onDelete,
+            ),
           ),
         ),
       ],

@@ -13,6 +13,7 @@ import 'package:gravia/constants/text_style_const.dart';
 import 'package:gravia/constants/value_const.dart';
 import 'package:gravia/enums/product_unit_type.dart';
 import 'package:gravia/feature/home/domain/entities/product_entity.dart';
+import 'package:gravia/widgets/gravia_tint_badge.dart';
 
 /// Gravia's one true product card — core's [ProductCard] with the whole pack
 /// spec baked in: weight badge on tinted-primary fill, flash/percent meta
@@ -67,7 +68,10 @@ class GraviaProductCard extends StatelessWidget {
     this.discountLabel,
   });
 
-  static Widget _metaIcon(String asset) => AppSvgImage.asset(
+  /// The pack's 14px Gray/500 meta-row glyph (flash, percent, …) — public so
+  /// [ProductDetailsScreen]'s standalone meta row (same icons, outside a
+  /// full card) doesn't re-inline the same size/colour recipe.
+  static Widget metaIcon(String asset) => AppSvgImage.asset(
     asset,
     width: 14,
     height: 14,
@@ -87,19 +91,17 @@ class GraviaProductCard extends StatelessWidget {
       title: product.name,
       titleStyle: TextStyleConst.textMdBold(tt),
       badgeLabel: product.unitType.format(product.unitValue),
-      badgeLabelStyle: TextStyleConst.badgeLabel(
-        tt,
-      ).copyWith(color: cs.primary),
-      badgeBackgroundColor: cs.tintedPrimaryFill,
+      badgeLabelStyle: GraviaTintBadge.labelStyle(context),
+      badgeBackgroundColor: GraviaTintBadge.backgroundColor(context),
       meta: [
         if (showPrepTime)
           ProductCardMeta(
-            icon: _metaIcon(ImageConst.flash),
+            icon: metaIcon(ImageConst.flash),
             label: product.prepTime,
           ),
         if (showDiscount)
           ProductCardMeta(
-            icon: _metaIcon(ImageConst.badgePercent),
+            icon: metaIcon(ImageConst.badgePercent),
             label:
                 discountLabel ??
                 ValueConst.discountPercentLabel(product.discountPercentage),

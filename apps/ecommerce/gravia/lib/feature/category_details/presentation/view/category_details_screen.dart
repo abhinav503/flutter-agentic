@@ -6,11 +6,12 @@ import 'package:go_router/go_router.dart';
 import 'package:core/core/base/base_screen.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/loading_indicator.dart';
+import 'package:core/core/ui/blocks/chunked_grid.dart';
 import 'package:core/core/ui/blocks/collapsing_header_sheet.dart';
+import 'package:core/core/ui/molecules/empty_state.dart';
 import 'package:core/core/ui/molecules/error_view.dart';
 
 import 'package:gravia/constants/app_routes.dart';
-import 'package:gravia/constants/text_style_const.dart';
 import 'package:gravia/constants/value_const.dart';
 import 'package:gravia/enums/product_price_filter.dart';
 import 'package:gravia/enums/product_sort_option.dart';
@@ -92,8 +93,6 @@ class _CategoryDetailsScreenState
   }
 
   Widget _buildLoaded(BuildContext context, CategoryDetailsLoaded state) {
-    final tt = Theme.of(context).textTheme;
-    final cs = Theme.of(context).colorScheme;
     final bloc = context.read<CategoryDetailsBloc>();
     final products = state.visibleProducts;
 
@@ -145,45 +144,24 @@ class _CategoryDetailsScreenState
                 bottom: AppSpacing.xl14,
               ),
               child: products.isEmpty
-                  ? Center(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: AppSpacing.xl6,
-                        ),
-                        child: Text(
-                          ValueConst.categoryDetailsEmptyMessage,
-                          style: TextStyleConst.textMdRegular(
-                            tt,
-                          ).copyWith(color: cs.onSurfaceVariant),
-                        ),
-                      ),
+                  ? const EmptyState(
+                      iconData: Icons.filter_alt_off_outlined,
+                      title: ValueConst.categoryDetailsEmptyMessage,
                     )
-                  : Column(
-                      children: [
-                        for (var r = 0; r < products.length; r += 2) ...[
-                          if (r > 0) const SizedBox(height: AppSpacing.lg),
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                child: _productCard(context, products[r]),
-                              ),
-                              const SizedBox(width: AppSpacing.lg),
-                              Expanded(
-                                child: r + 1 < products.length
-                                    ? _productCard(context, products[r + 1])
-                                    : const SizedBox.shrink(),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ],
+                  : ChunkedGrid(
+                      itemCount: products.length,
+                      columns: 2,
+                      spacing: AppSpacing.lg,
+                      runSpacing: AppSpacing.lg,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      itemBuilder: (context, index) =>
+                          _productCard(context, products[index]),
                     ),
             ),
           ),
         ),
         GraviaDockedBar(
-          padding: EdgeInsets.only(top: 8),
+          padding: const EdgeInsets.only(top: AppSpacing.sm),
           child: BlocBuilder<CartCubit, List<CartItemEntity>>(
             builder: (context, items) => items.isEmpty
                 ? const SizedBox.shrink()

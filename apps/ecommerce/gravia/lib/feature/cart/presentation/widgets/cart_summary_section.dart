@@ -75,7 +75,7 @@ class CartSummarySection extends StatelessWidget {
         const SizedBox(height: AppSpacing.xl2),
         _SummaryRow(
           label: ValueConst.itemTotalLabel,
-          value: '\$${items.itemTotal.toStringAsFixed(2)}',
+          value: ValueConst.formattedPrice(items.itemTotal),
           labelStyle: TextStyleConst.textSmRegular(
             tt,
           ).copyWith(color: cs.onSurfaceVariant),
@@ -86,7 +86,7 @@ class CartSummarySection extends StatelessWidget {
         const SizedBox(height: AppSpacing.base),
         _SummaryRow(
           label: ValueConst.discountLabel,
-          value: '\$${items.discountTotal.toStringAsFixed(2)}',
+          value: ValueConst.formattedPrice(items.discountTotal),
           labelStyle: TextStyleConst.textSmRegular(
             tt,
           ).copyWith(color: cs.onSurfaceVariant),
@@ -110,7 +110,7 @@ class CartSummarySection extends StatelessWidget {
         const SizedBox(height: AppSpacing.lg),
         _SummaryRow(
           label: ValueConst.grandTotalLabel,
-          value: '\$${items.grandTotal.toStringAsFixed(2)}',
+          value: ValueConst.formattedPrice(items.grandTotal),
           labelStyle: TextStyleConst.textMdBold(
             tt,
           ).copyWith(color: cs.onSurface),

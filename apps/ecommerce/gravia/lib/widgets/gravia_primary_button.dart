@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:core/core/ui/atoms/button.dart';
 
+import 'package:gravia/constants/dimen_const.dart';
 import 'package:gravia/constants/text_style_const.dart';
 
 /// Gravia's full-width primary CTA — [AppButton] with the pack's docked-bar
@@ -10,7 +11,7 @@ import 'package:gravia/constants/text_style_const.dart';
 /// [AppButton] param recipe.
 class GraviaPrimaryButton extends StatelessWidget {
   /// The kit's CTA height — shorter than [AppButtonSize.large]'s default.
-  static const double barHeight = 45;
+  static const double barHeight = DimenConst.controlHeight;
 
   final String label;
   final VoidCallback? onTap;

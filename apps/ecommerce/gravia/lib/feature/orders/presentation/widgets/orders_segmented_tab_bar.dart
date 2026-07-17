@@ -5,6 +5,7 @@ import 'package:core/core/theme/app_radius.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/common_glass_surface.dart';
 
+import 'package:gravia/constants/dimen_const.dart';
 import 'package:gravia/constants/text_style_const.dart';
 import 'package:gravia/constants/value_const.dart';
 import 'package:gravia/enums/orders_tab.dart';
@@ -32,7 +33,7 @@ class OrdersSegmentedTabBar extends StatelessWidget {
   // removes any dependency on that unbounded-constraint edge case entirely,
   // and is what actually fixed the bar visibly shrinking when the slide
   // animation was added.
-  static const _barHeight = 45.0;
+  static const _barHeight = DimenConst.controlHeight;
 
   final OrdersTab selected;
   final ValueChanged<OrdersTab> onChanged;

@@ -6,6 +6,7 @@ import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/svg_image.dart';
 
 import 'package:gravia/constants/color_const.dart';
+import 'package:gravia/constants/dimen_const.dart';
 import 'package:gravia/constants/image_const.dart';
 import 'package:gravia/constants/text_style_const.dart';
 import 'package:gravia/constants/value_const.dart';
@@ -132,7 +133,7 @@ class CartStatusBar extends StatelessWidget {
                   color: cs.primary,
                   borderRadius: BorderRadius.circular(shapes.buttonRadius),
                 ),
-                height: 45,
+                height: DimenConst.controlHeight,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -169,7 +170,7 @@ class _ClearCartButton extends StatelessWidget {
 
   const _ClearCartButton({required this.onTap});
 
-  static const _size = 45.0;
+  static const _size = DimenConst.controlHeight;
 
   @override
   Widget build(BuildContext context) {

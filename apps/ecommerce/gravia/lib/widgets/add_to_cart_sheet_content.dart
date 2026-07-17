@@ -2,16 +2,13 @@ import 'package:flutter/material.dart';
 
 import 'package:core/core/theme/app_radius.dart';
 import 'package:core/core/theme/app_spacing.dart';
-import 'package:core/core/ui/atoms/button.dart';
 import 'package:core/core/ui/atoms/network_image.dart';
-import 'package:core/core/ui/atoms/svg_image.dart';
-import 'package:core/core/ui/blocks/quantity_stepper.dart';
 
-import 'package:gravia/constants/color_const.dart';
-import 'package:gravia/constants/image_const.dart';
 import 'package:gravia/constants/text_style_const.dart';
 import 'package:gravia/constants/value_const.dart';
 import 'package:gravia/enums/product_unit_type.dart';
+import 'package:gravia/widgets/gravia_action_pair.dart';
+import 'package:gravia/widgets/gravia_quantity_stepper.dart';
 
 import 'package:gravia/feature/home/domain/entities/product_entity.dart';
 
@@ -93,29 +90,15 @@ class _AddToCartSheetContentState extends State<AddToCartSheetContent> {
                         Text(
                           // Line total for the chosen quantity, not the flat
                           // unit price — updates live as the stepper changes.
-                          '\$${(widget.product.price * _quantity).toStringAsFixed(2)}',
+                          ValueConst.formattedPrice(
+                            widget.product.price * _quantity,
+                          ),
                           style: TextStyleConst.textMdBold(
                             tt,
                           ).copyWith(color: cs.onSurface),
                         ),
-                        QuantityStepper(
+                        GraviaQuantityStepper(
                           value: _quantity,
-                          iconColor: ColorConst.gray700,
-                          valueTextStyle: TextStyleConst.textMdBold(tt),
-                          decrementIconBuilder: (color, size) =>
-                              AppSvgImage.asset(
-                                ImageConst.minus,
-                                color: color,
-                                width: size,
-                                height: size,
-                              ),
-                          incrementIconBuilder: (color, size) =>
-                              AppSvgImage.asset(
-                                ImageConst.plus,
-                                color: color,
-                                width: size,
-                                height: size,
-                              ),
                           onDecrement: _quantity > 1
                               ? () => setState(() => _quantity--)
                               : null,
@@ -129,35 +112,23 @@ class _AddToCartSheetContentState extends State<AddToCartSheetContent> {
             ],
           ),
           const SizedBox(height: AppSpacing.xl2),
-          Row(
-            children: [
-              Expanded(
-                child: AppButton(
-                  label: ValueConst.cancel,
-                  variant: AppButtonVariant.secondary,
-                  fullWidth: true,
-                  size: AppButtonSize.large,
-                  height: 45,
-                  // Kit spec: a neutral black/white Cancel outline, not
-                  // core's default primary-coloured secondary text.
-                  labelStyle: TextStyle(color: cs.onSurface),
-                  onTap: () => Navigator.of(context).pop(),
-                ),
-              ),
-              const SizedBox(width: AppSpacing.base),
-              Expanded(
-                child: AppButton(
-                  label: ValueConst.addToCart,
-                  fullWidth: true,
-                  size: AppButtonSize.large,
-                  height: 45,
-                  onTap: () {
-                    widget.onAddToCart(_quantity);
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ),
-            ],
+          GraviaActionPair(
+            left: GraviaAction(
+              label: ValueConst.cancel,
+              kind: GraviaActionKind.secondary,
+              // Kit spec: a neutral black/white Cancel outline, not
+              // core's default primary-coloured secondary text.
+              labelColor: cs.onSurface,
+              onTap: () => Navigator.of(context).pop(),
+            ),
+            right: GraviaAction(
+              label: ValueConst.addToCart,
+              kind: GraviaActionKind.primary,
+              onTap: () {
+                widget.onAddToCart(_quantity);
+                Navigator.of(context).pop();
+              },
+            ),
           ),
         ],
       ),

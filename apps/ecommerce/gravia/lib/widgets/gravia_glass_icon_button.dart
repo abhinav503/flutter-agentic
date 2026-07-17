@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:core/core/ui/atoms/icon_button.dart';
 import 'package:core/core/ui/atoms/svg_image.dart';
 
+import 'package:gravia/constants/dimen_const.dart';
+
 /// Gravia's glass header action — [AppIconButton]'s glass variant with the
 /// pack's SVG wiring and header-control sizing (45px disc, 20px icon) baked
 /// in, so every hero-header control (back, search, favourite, notification)
@@ -17,7 +19,7 @@ import 'package:core/core/ui/atoms/svg_image.dart';
 class GraviaGlassIconButton extends StatelessWidget {
   /// Header-control disc diameter — also what [GraviaHeroHeader] uses to
   /// mirror an invisible spacer opposite the back button.
-  static const double containerSize = 45;
+  static const double containerSize = DimenConst.controlHeight;
 
   /// A kit SVG asset — the usual case; every header control has one. Exactly
   /// one of [asset]/[icon] is required.

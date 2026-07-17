@@ -6,6 +6,7 @@ import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/text_field.dart';
 
 import 'package:gravia/constants/color_const.dart';
+import 'package:gravia/constants/dimen_const.dart';
 import 'package:gravia/constants/text_style_const.dart';
 
 /// Gravia's one true form-field look — [AppTextField] with this app's own
@@ -61,7 +62,7 @@ class GraviaFormField extends StatelessWidget {
         tt,
       ).copyWith(color: ColorConst.gray500),
       labelSpacing: AppSpacing.xs,
-      height: 45,
+      height: DimenConst.controlHeight,
     );
   }
 }

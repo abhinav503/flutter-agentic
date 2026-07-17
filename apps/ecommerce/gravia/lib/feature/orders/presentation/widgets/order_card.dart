@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/badge.dart';
-import 'package:core/core/ui/atoms/button.dart';
 
 import 'package:gravia/constants/color_const.dart';
 import 'package:gravia/constants/text_style_const.dart';
 import 'package:gravia/constants/value_const.dart';
 import 'package:gravia/enums/order_status.dart';
-import 'package:gravia/widgets/gravia_tinted_button.dart';
+import 'package:gravia/widgets/gravia_action_pair.dart';
+import 'package:gravia/widgets/gravia_tint_badge.dart';
 
 import '../../domain/entities/order_entity.dart';
 import 'order_line_item_row.dart';
@@ -104,60 +104,30 @@ class OrderCard extends StatelessWidget {
           const SizedBox(height: AppSpacing.base),
           Divider(color: cs.sheetHairline, height: 1),
           const SizedBox(height: AppSpacing.lg),
-          Row(
-            children: [
-              Expanded(
-                child: GraviaTintedButton(
-                  label: ValueConst.cancelOrderLabel,
-                  onTap: onCancel,
-                ),
-              ),
-              const SizedBox(width: AppSpacing.base),
-              Expanded(
-                child: AppButton(
-                  label: ValueConst.trackOrderLabel,
-                  variant: AppButtonVariant.primary,
-                  fullWidth: true,
-                  height: GraviaTintedButton.height,
-                  // Matches GraviaTintedButton's label style exactly — same
-                  // paired-half-width-button context as Cancel beside it.
-                  labelStyle: TextStyleConst.textSmMedium(
-                    tt,
-                  ).copyWith(color: cs.onPrimary),
-                  onTap: onTrackOrder,
-                ),
-              ),
-            ],
+          GraviaActionPair(
+            left: GraviaAction(
+              label: ValueConst.cancelOrderLabel,
+              kind: GraviaActionKind.tintedError,
+              onTap: onCancel,
+            ),
+            right: GraviaAction(
+              label: ValueConst.trackOrderLabel,
+              kind: GraviaActionKind.primary,
+              onTap: onTrackOrder,
+            ),
           ),
         ] else
-          Row(
-            children: [
-              Expanded(
-                child: AppButton(
-                  label: ValueConst.viewDetailsLabel,
-                  variant: AppButtonVariant.secondary,
-                  fullWidth: true,
-                  height: GraviaTintedButton.height,
-                  labelStyle: TextStyleConst.textSmMedium(
-                    tt,
-                  ).copyWith(color: cs.primary),
-                  onTap: onViewDetails,
-                ),
-              ),
-              const SizedBox(width: AppSpacing.base),
-              Expanded(
-                child: AppButton(
-                  label: ValueConst.writeReviewLabel,
-                  variant: AppButtonVariant.primary,
-                  fullWidth: true,
-                  height: GraviaTintedButton.height,
-                  labelStyle: TextStyleConst.textSmMedium(
-                    tt,
-                  ).copyWith(color: cs.onPrimary),
-                  onTap: onWriteReview,
-                ),
-              ),
-            ],
+          GraviaActionPair(
+            left: GraviaAction(
+              label: ValueConst.viewDetailsLabel,
+              kind: GraviaActionKind.secondary,
+              onTap: onViewDetails,
+            ),
+            right: GraviaAction(
+              label: ValueConst.writeReviewLabel,
+              kind: GraviaActionKind.primary,
+              onTap: onWriteReview,
+            ),
           ),
       ],
     );
@@ -171,18 +141,14 @@ class _StatusBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
 
     return switch (status) {
       // Same mint-on-tinted-primary look as ProductCard's weight badge and
       // AddressCard's tag badge — kept identical so status badges don't
       // drift into their own one-off colour.
-      OrderStatus.inProcess => AppBadge(
+      OrderStatus.inProcess => GraviaTintBadge(
         text: ValueConst.inProcessStatusLabel,
-        intent: AppBadgeIntent.info,
-        backgroundColor: cs.tintedPrimaryFill,
-        textStyle: TextStyleConst.badgeLabel(tt).copyWith(color: cs.primary),
       ),
       OrderStatus.delivered => AppBadge(
         text: ValueConst.deliveredStatusLabel,

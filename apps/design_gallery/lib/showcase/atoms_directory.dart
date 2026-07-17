@@ -16,6 +16,7 @@ import 'package:core/core/ui/atoms/radio_dot.dart';
 import 'package:core/core/ui/atoms/svg_image.dart';
 import 'package:core/core/ui/atoms/switch.dart';
 import 'package:core/core/ui/atoms/text_field.dart';
+import 'package:core/core/ui/atoms/theme_mode_toggle.dart';
 import 'package:core/core/ui/atoms/top_bar.dart';
 import 'package:core/core/theme/app_colors_extension.dart';
 import 'package:flutter/material.dart';
@@ -547,6 +548,20 @@ WidgetbookCategory atomsCategory() {
         'LoadingDots',
         (context) =>
             showcase(context, const [Variant('Default', LoadingDots())]),
+      ),
+      allVariants(
+        'ThemeModeToggle',
+        (context) => showcase(context, [
+          Variant(
+            'System',
+            ThemeModeToggle(mode: ThemeMode.system, onTap: () {}),
+          ),
+          Variant(
+            'Light',
+            ThemeModeToggle(mode: ThemeMode.light, onTap: () {}),
+          ),
+          Variant('Dark', ThemeModeToggle(mode: ThemeMode.dark, onTap: () {})),
+        ]),
       ),
     ],
   );

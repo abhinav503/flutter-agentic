@@ -3,13 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:core/core/theme/app_radius.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/network_image.dart';
-import 'package:core/core/ui/atoms/svg_image.dart';
-import 'package:core/core/ui/blocks/quantity_stepper.dart';
 
-import 'package:gravia/constants/color_const.dart';
-import 'package:gravia/constants/image_const.dart';
 import 'package:gravia/constants/text_style_const.dart';
+import 'package:gravia/constants/value_const.dart';
 import 'package:gravia/enums/product_unit_type.dart';
+import 'package:gravia/widgets/gravia_quantity_stepper.dart';
 
 import '../../domain/entities/cart_item_entity.dart';
 
@@ -68,27 +66,13 @@ class CartItemRow extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    '\$${(product.price * item.quantity).toStringAsFixed(2)}',
+                    ValueConst.formattedPrice(product.price * item.quantity),
                     style: TextStyleConst.textMdBold(
                       tt,
                     ).copyWith(color: cs.onSurface),
                   ),
-                  QuantityStepper(
+                  GraviaQuantityStepper(
                     value: item.quantity,
-                    iconColor: ColorConst.gray700,
-                    valueTextStyle: TextStyleConst.textMdBold(tt),
-                    decrementIconBuilder: (color, size) => AppSvgImage.asset(
-                      ImageConst.minus,
-                      color: color,
-                      width: size,
-                      height: size,
-                    ),
-                    incrementIconBuilder: (color, size) => AppSvgImage.asset(
-                      ImageConst.plus,
-                      color: color,
-                      width: size,
-                      height: size,
-                    ),
                     onDecrement: onDecrement,
                     onIncrement: onIncrement,
                   ),

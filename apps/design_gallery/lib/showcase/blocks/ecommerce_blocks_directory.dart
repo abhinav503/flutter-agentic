@@ -98,6 +98,40 @@ WidgetbookFolder ecommerceBlocksFolder() {
           ),
         ]),
       ),
+      allVariants(
+        'ProductMetaRow',
+        // Shared by ProductCard and any surface (e.g. a product details
+        // screen) that needs the same icon+label row outside a full card.
+        (context) => showcase(context, [
+          const Variant(
+            'Default',
+            ProductMetaRow(
+              meta: [
+                ProductCardMeta(icon: Icon(Icons.bolt), label: '10 Min'),
+                ProductCardMeta(
+                  icon: Icon(Icons.local_offer_outlined),
+                  label: '20% OFF',
+                ),
+              ],
+            ),
+          ),
+          Variant(
+            'Custom labelStyle (e.g. gravia)',
+            Builder(
+              builder: (context) => ProductMetaRow(
+                meta: const [
+                  ProductCardMeta(icon: Icon(Icons.bolt), label: '10 Min'),
+                ],
+                labelStyle: Theme.of(context).textTheme.bodySmall!.copyWith(
+                  color: Theme.of(context).colorScheme.onSurface,
+                  height: 1.3,
+                  letterSpacing: -0.24,
+                ),
+              ),
+            ),
+          ),
+        ]),
+      ),
     ],
   );
 }

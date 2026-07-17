@@ -4,6 +4,7 @@ import 'package:core/core/theme/app_shapes_extension.dart';
 import 'package:core/core/theme/app_spacing.dart';
 
 import 'package:gravia/constants/color_const.dart';
+import 'package:gravia/constants/dimen_const.dart';
 import 'package:gravia/constants/text_style_const.dart';
 
 /// Gravia's tinted-error pill — no `AppButton` variant renders a filled
@@ -17,7 +18,7 @@ import 'package:gravia/constants/text_style_const.dart';
 /// fixed-width parent) the same way both callers do, since it always sits
 /// beside another action.
 class GraviaTintedButton extends StatelessWidget {
-  static const double height = 45;
+  static const double height = DimenConst.controlHeight;
 
   final String label;
   final VoidCallback? onTap;

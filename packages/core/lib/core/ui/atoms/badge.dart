@@ -59,7 +59,22 @@ class AppBadge extends StatelessWidget {
             ),
             const SizedBox(width: AppSpacing.xs4),
           ],
-          Text(text, style: resolvedStyle),
+          Text(
+            text,
+            style: resolvedStyle,
+            // Every text theme role (and every gravia TextStyleConst
+            // override) sets an explicit `height`. Flutter distributes the
+            // leading that adds above/below the glyph using the font's own
+            // ascent:descent ratio, not a 50/50 split — for most fonts that
+            // visibly pushes single-line text off-centre inside a tightly,
+            // symmetrically padded pill. Dropping the height contribution at
+            // both ends of this (single) line falls back to the font's
+            // natural, symmetric metrics, which centres correctly.
+            textHeightBehavior: const TextHeightBehavior(
+              applyHeightToFirstAscent: false,
+              applyHeightToLastDescent: false,
+            ),
+          ),
         ],
       ),
     );
