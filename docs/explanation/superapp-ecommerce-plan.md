@@ -324,6 +324,36 @@ the console side.
 - **M4**: a test checkout writes `orders/{id}` with correct `uid`+`storeId` and decrements stock.
 - **M5**: import a sample Excel in the console → products land in Firestore → show live in the app.
 
+## Admin deployed to Vercel — DONE (2026-07-18)
+
+`admin/` is live at **https://admin-beryl-kappa-44.vercel.app** (Vercel project
+`cordelia1/admin`, linked via `admin/.vercel/project.json`, gitignored). Gravia
+(or any client) can now reach the read API over a real HTTPS URL instead of
+localhost.
+
+- All 7 `NEXT_PUBLIC_FIREBASE_*` values set in Vercel across
+  production/preview/development (`vercel env add`, one call per var per
+  environment — this CLI version doesn't accept multiple environments in one
+  call despite some docs suggesting otherwise). These are Firebase's public web
+  SDK config, not secrets — safe in a client bundle; security is enforced by
+  `firestore.rules`/`storage.rules`, not by hiding this config.
+- **Two real gaps caught and fixed post-deploy, not assumed fine:**
+  - Firebase Auth's `authorizedDomains` didn't include the new Vercel domain —
+    login/signup would have failed for real users hitting the deployed site
+    even though local `localhost` testing worked. Added
+    `admin-beryl-kappa-44.vercel.app` via the Identity Toolkit Admin API.
+  - Checked the web API key for HTTP referrer restrictions (a separate
+    mechanism from authorizedDomains that could also block a new origin) —
+    confirmed `browserKeyRestrictions: {}` (none set), so nothing else blocks
+    the new domain.
+- **Verified live against production**, not just "deployment READY": curled the
+  deployed `/login` page (200) and the categories/popular-products API routes
+  against the real Firestore data — identical results to local testing (8+8+1
+  grouped categories, 7 popular products).
+- Deployment target chosen: Vercel (not Firebase App Hosting) — zero-config for
+  a stock Next.js app with API routes; the tradeoff (a second hosting vendor
+  alongside Firebase) was surfaced to the user before choosing.
+
 ## Read API for storefront frontends — DONE (2026-07-18, pulled forward from M2)
 
 Per user direction, built as **Next.js API routes in `admin/`**, not a Flutter-side
