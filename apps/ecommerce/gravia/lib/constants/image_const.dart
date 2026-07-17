@@ -21,6 +21,7 @@ abstract final class ImageConst {
   static const remove = 'assets/icons/remove.svg';
   static const arrowLeft = 'assets/icons/arrow-left.svg';
   static const arrowSort = 'assets/icons/arrow-sort.svg';
+  static const filter = 'assets/icons/filter.svg';
   static const directionRight = 'assets/icons/direction-right.svg';
   static const lock = 'assets/icons/lock.svg';
   static const shoppingBag = 'assets/icons/shopping-bag.svg';

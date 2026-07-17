@@ -11,4 +11,7 @@ sealed class OrdersEvent with _$OrdersEvent {
   /// "mutate the bloc's own state" shape as `AddressEvent.saved`.
   const factory OrdersEvent.cancelled({required String orderId}) =
       OrdersCancelled;
+
+  const factory OrdersEvent.filterApplied({required OrdersFilter filter}) =
+      OrdersFilterApplied;
 }

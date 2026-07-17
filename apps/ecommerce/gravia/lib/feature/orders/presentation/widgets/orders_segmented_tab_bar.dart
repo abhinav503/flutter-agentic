@@ -20,7 +20,9 @@ import 'package:gravia/enums/orders_tab.dart';
 /// `lib/widgets/` preset — promote it if a second segmented control shows
 /// up.
 class OrdersSegmentedTabBar extends StatelessWidget {
-  static const _slideDuration = Duration(milliseconds: 250);
+  /// Public so tab-driven header changes (the filter button's fade) animate
+  /// in sync with the pill's slide.
+  static const slideDuration = Duration(milliseconds: 250);
 
   // Matches the app's other fixed control heights (GraviaGlassIconButton's
   // disc, GraviaTintedButton). Pinned explicitly rather than left to intrinsic
@@ -60,7 +62,7 @@ class OrdersSegmentedTabBar extends StatelessWidget {
             // then multiplies against infinity, crashing layout.
             Positioned.fill(
               child: AnimatedAlign(
-                duration: _slideDuration,
+                duration: slideDuration,
                 curve: Curves.easeInOut,
                 alignment: selected == OrdersTab.upcoming
                     ? Alignment.centerLeft
@@ -129,7 +131,7 @@ class _SegmentLabel extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
         child: Center(
           child: AnimatedDefaultTextStyle(
-            duration: OrdersSegmentedTabBar._slideDuration,
+            duration: OrdersSegmentedTabBar.slideDuration,
             curve: Curves.easeInOut,
             style: active
                 ? TextStyleConst.textSmBold(tt).copyWith(color: cs.onSurface)

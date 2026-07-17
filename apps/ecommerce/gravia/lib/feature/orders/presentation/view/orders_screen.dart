@@ -9,15 +9,18 @@ import 'package:core/core/ui/blocks/collapsing_header_sheet.dart';
 import 'package:core/core/ui/molecules/empty_state.dart';
 import 'package:core/core/ui/molecules/error_view.dart';
 
+import 'package:gravia/constants/image_const.dart';
 import 'package:gravia/constants/value_const.dart';
 import 'package:gravia/enums/order_status.dart';
 import 'package:gravia/enums/orders_tab.dart';
 import 'package:gravia/widgets/gravia_glass_icon_button.dart';
 import 'package:gravia/widgets/gravia_hero_header.dart';
+import 'package:gravia/widgets/gravia_sheet.dart';
 
 import '../../domain/entities/order_entity.dart';
 import '../bloc/orders_bloc.dart';
 import '../widgets/order_card.dart';
+import '../widgets/orders_filter_sheet_content.dart';
 import '../widgets/orders_segmented_tab_bar.dart';
 
 class OrdersScreen extends BaseScreen {
@@ -54,11 +57,8 @@ class _OrdersScreenState extends BaseScreenState<OrdersScreen> {
                   context.read<OrdersBloc>().add(const OrdersEvent.started()),
             ),
           ),
-          OrdersLoaded(:final orders, :final selectedTab) => _buildLoaded(
-            context,
-            orders,
-            selectedTab,
-          ),
+          OrdersLoaded(:final orders, :final selectedTab, :final filter) =>
+            _buildLoaded(context, orders, selectedTab, filter),
         },
       ),
     );
@@ -68,10 +68,16 @@ class _OrdersScreenState extends BaseScreenState<OrdersScreen> {
     BuildContext context,
     List<OrderEntity> orders,
     OrdersTab selectedTab,
+    OrdersFilter? filter,
   ) {
+    // The filter is a Past-tab feature — Upcoming is the handful of live
+    // orders, so it gets no filter button and ignores any applied filter.
+    final isPast = selectedTab == OrdersTab.past;
     final visible = orders
         .where(
-          (o) => o.status.isUpcoming == (selectedTab == OrdersTab.upcoming),
+          (o) =>
+              o.status.isUpcoming == !isPast &&
+              (!isPast || filter == null || filter.matches(o)),
         )
         .toList();
 
@@ -79,9 +85,20 @@ class _OrdersScreenState extends BaseScreenState<OrdersScreen> {
       initialHeaderHeight: 190,
       header: GraviaHeroHeader.page(
         title: ValueConst.ordersPageTitle,
-        trailing: GraviaGlassIconButton(
-          icon: Icons.tune_rounded,
-          onTap: () => showSnackBar(ValueConst.comingSoonMessage),
+        // Always laid out, faded on Upcoming — dropping it to null shrinks
+        // the title row by the glass disc's height and the whole header
+        // visibly jumps on every tab switch. The fade runs on the segmented
+        // bar's own duration so both read as one tab transition.
+        trailing: IgnorePointer(
+          ignoring: !isPast,
+          child: AnimatedOpacity(
+            opacity: isPast ? 1 : 0,
+            duration: OrdersSegmentedTabBar.slideDuration,
+            child: GraviaGlassIconButton(
+              asset: ImageConst.filter,
+              onTap: () => _showFilterSheet(context, orders, filter),
+            ),
+          ),
         ),
         bottomGap: AppSpacing.lg,
         bottom: OrdersSegmentedTabBar(
@@ -120,6 +137,34 @@ class _OrdersScreenState extends BaseScreenState<OrdersScreen> {
                   ],
                 ],
               ),
+      ),
+    );
+  }
+
+  void _showFilterSheet(
+    BuildContext context,
+    List<OrderEntity> orders,
+    OrdersFilter? applied,
+  ) {
+    final bloc = context.read<OrdersBloc>();
+    final now = DateTime.now();
+    final earliest = orders.fold<DateTime?>(
+      null,
+      (first, o) =>
+          first == null || o.placedAt.isBefore(first) ? o.placedAt : first,
+    );
+
+    showGraviaSheet(
+      title: ValueConst.filterSheetTitle,
+      child: OrdersFilterSheetContent(
+        initialFilter: applied ?? OrdersFilter(from: earliest ?? now, to: now),
+        anchor: now,
+        showSheet: ({required title, required child}) =>
+            showGraviaSheet<void>(title: title, child: child),
+        onApply: (filter) {
+          Navigator.pop(context);
+          bloc.add(OrdersEvent.filterApplied(filter: filter));
+        },
       ),
     );
   }

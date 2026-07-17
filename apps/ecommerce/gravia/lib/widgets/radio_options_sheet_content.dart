@@ -26,9 +26,6 @@ class RadioOptionsSheetContent<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
-
     return Padding(
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.lg,
@@ -40,26 +37,54 @@ class RadioOptionsSheetContent<T> extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           for (final option in options)
-            GestureDetector(
+            RadioOptionRow(
+              label: labelOf(option),
+              selected: option == selected,
               onTap: () => onSelected(option),
-              behavior: HitTestBehavior.opaque,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
-                child: Row(
-                  children: [
-                    AppRadioDot(selected: option == selected),
-                    const SizedBox(width: AppSpacing.base),
-                    Text(
-                      labelOf(option),
-                      style: TextStyleConst.textMdRegular(
-                        tt,
-                      ).copyWith(color: cs.onSurface),
-                    ),
-                  ],
-                ),
-              ),
             ),
         ],
+      ),
+    );
+  }
+}
+
+/// One radio row of the sheet's list — also composed directly by the Orders
+/// filter sheet, whose "Select a Reason" radios sit inline among other
+/// fields rather than as a whole-sheet list.
+class RadioOptionRow extends StatelessWidget {
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const RadioOptionRow({
+    super.key,
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
+        child: Row(
+          children: [
+            AppRadioDot(selected: selected),
+            const SizedBox(width: AppSpacing.base),
+            Text(
+              label,
+              style: TextStyleConst.textMdRegular(
+                tt,
+              ).copyWith(color: cs.onSurface),
+            ),
+          ],
+        ),
       ),
     );
   }

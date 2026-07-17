@@ -193,6 +193,15 @@ abstract final class ValueConst {
   static const ordersEmptyTitle = 'No orders yet';
   static const ordersEmptySubtitle =
       'Your past and active orders will show up here.';
+  static const filterSheetTitle = 'Filter';
+  static const filterReasonHeading = 'Select a Reason';
+  static const filterLastWeekLabel = 'Last Week';
+  static const filterLastMonthLabel = 'Last Month';
+  static const filterStatusLabel = 'Status';
+  static const filterDateLabel = 'Date';
+  static const filterAllStatusesLabel = 'All';
+  static const applyFilterLabel = 'Apply Filter';
+  static String filterDateRangeLabel(String from, String to) => '$from - $to';
 
   // ── Placeholder tabs (removed as real screens land) ───────────────────────
   static const favouriteEmptyTitle = 'No favourites yet';

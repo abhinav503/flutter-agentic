@@ -1,3 +1,5 @@
+import 'package:gravia/constants/value_const.dart';
+
 /// An order's lifecycle stage. Drives which tab it appears under
 /// (`OrderStatus.inProcess` → Upcoming; delivered/cancelled → Past) and
 /// which parts of `OrderItemCard` render (OTP + Cancel/Track Order are
@@ -7,6 +9,12 @@ enum OrderStatus { inProcess, delivered, cancelled }
 
 extension OrderStatusX on OrderStatus {
   bool get isUpcoming => this == OrderStatus.inProcess;
+
+  String get label => switch (this) {
+    OrderStatus.inProcess => ValueConst.inProcessStatusLabel,
+    OrderStatus.delivered => ValueConst.deliveredStatusLabel,
+    OrderStatus.cancelled => ValueConst.cancelledStatusLabel,
+  };
 }
 
 // String -> enum only: orders.json is read-only mock data, never written

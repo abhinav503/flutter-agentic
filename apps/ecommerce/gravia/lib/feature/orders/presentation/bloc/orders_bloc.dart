@@ -4,6 +4,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:core/core/usecase/usecase.dart';
 
 import 'package:gravia/enums/order_status.dart';
+import 'package:gravia/enums/orders_filter_period.dart';
 import 'package:gravia/enums/orders_tab.dart';
 
 import '../../domain/entities/order_entity.dart';
@@ -22,6 +23,7 @@ class OrdersBloc extends Bloc<OrdersEvent, OrdersState> {
     on<OrdersStarted>(_onStarted);
     on<OrdersTabChanged>(_onTabChanged);
     on<OrdersCancelled>(_onCancelled);
+    on<OrdersFilterApplied>(_onFilterApplied);
   }
 
   Future<void> _onStarted(
@@ -32,15 +34,15 @@ class OrdersBloc extends Bloc<OrdersEvent, OrdersState> {
     result.fold(
       (failure) => emit(OrdersState.error(message: failure.message)),
       (orders) => emit(
-        OrdersState.loaded(orders: orders, selectedTab: OrdersTab.upcoming),
+        OrdersState.loaded(orders: orders, selectedTab: OrdersTab.past),
       ),
     );
   }
 
   void _onTabChanged(OrdersTabChanged event, Emitter<OrdersState> emit) {
     switch (state) {
-      case OrdersLoaded(:final orders):
-        emit(OrdersState.loaded(orders: orders, selectedTab: event.tab));
+      case final OrdersLoaded loaded:
+        emit(loaded.copyWith(selectedTab: event.tab));
       case OrdersLoading():
       case OrdersError():
         break;
@@ -49,9 +51,9 @@ class OrdersBloc extends Bloc<OrdersEvent, OrdersState> {
 
   void _onCancelled(OrdersCancelled event, Emitter<OrdersState> emit) {
     switch (state) {
-      case OrdersLoaded(:final orders, :final selectedTab):
+      case final OrdersLoaded loaded:
         final updated = [
-          for (final order in orders)
+          for (final order in loaded.orders)
             if (order.id == event.orderId)
               OrderEntity(
                 id: order.id,
@@ -63,7 +65,17 @@ class OrdersBloc extends Bloc<OrdersEvent, OrdersState> {
             else
               order,
         ];
-        emit(OrdersState.loaded(orders: updated, selectedTab: selectedTab));
+        emit(loaded.copyWith(orders: updated));
+      case OrdersLoading():
+      case OrdersError():
+        break;
+    }
+  }
+
+  void _onFilterApplied(OrdersFilterApplied event, Emitter<OrdersState> emit) {
+    switch (state) {
+      case final OrdersLoaded loaded:
+        emit(loaded.copyWith(filter: event.filter));
       case OrdersLoading():
       case OrdersError():
         break;

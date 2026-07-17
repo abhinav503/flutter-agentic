@@ -161,7 +161,7 @@ supplies the pack-specific metrics.
   *not* a checkmark — via the generic `RadioOptionsSheetContent<T>` (gravia's
   `lib/widgets/` — shared since a second caller showed up: the Add/Edit
   Address form's City/Country pickers open the same sheet from a
-  field-styled trigger, `AddressDropdownField`, instead of a chip); a
+  field-styled trigger, `GraviaDropdownField`, instead of a chip); a
   count-labelled option (`"Apple (4)"`-style) uses square `AppCheckbox`
   with its checkmark, single-select enforced by the BLoC (only one stays
   checked) rather than by the widget itself, which is a plain multi-capable
@@ -216,9 +216,11 @@ supplies the pack-specific metrics.
   Address form (`AddressFormScreen._field`); Edit Profile's Name/Email/
   Mobile fields are its second caller, which is what moved it out of that
   screen's private helper. City/Country are bounded picklists, not free
-  text — `AddressDropdownField` (a field-styled trigger, not
-  `AppDropdownMenu`) opens the same `RadioOptionsSheetContent` sheet as the
-  filter chips above.
+  text — `GraviaDropdownField` (a field-styled trigger in gravia's
+  `lib/widgets/`, not `AppDropdownMenu`; the Orders filter sheet's
+  Status/Date fields are its second caller, which is what moved it out of
+  the address feature) opens the same `RadioOptionsSheetContent` sheet as
+  the filter chips above.
 - **Avatar photo picker (Edit Profile).** A large centered avatar circle
   with a small dark translucent camera badge on top (`camera.svg`, white,
   centered — not a corner badge); tapping anywhere on it opens a two-row
@@ -285,6 +287,31 @@ supplies the pack-specific metrics.
   (`tt.labelMedium`, a different Material role), which visibly mismatches
   `GraviaTintedButton`'s hardcoded style when they sit side by side; this
   bit us once already, don't drop the override again. → `OrderCard`.
+
+  The tab defaults to **Past** on open, and the filter is a Past-tab-only
+  feature: the header's glass filter button (`filter.svg`) fades out on
+  Upcoming (`AnimatedOpacity` + `IgnorePointer`, on the segmented bar's
+  `slideDuration` so both read as one transition — it stays *laid out*
+  because a null `trailing` shrinks the title row by the disc height and
+  the header visibly jumps), and Upcoming ignores any applied filter —
+  it's the handful of live orders, nothing worth filtering. The button
+  opens the
+  Orders filter sheet (`showGraviaSheet` + `OrdersFilterSheetContent`) — a
+  *composite*
+  filter, unlike the single-select chip sheets above: quick-period radios
+  ("Select a Reason" — inline `RadioOptionRow`s, not a whole
+  `RadioOptionsSheetContent`), a Status `GraviaDropdownField` that opens a
+  nested `RadioOptionsSheetContent` picklist (with a null "All" option), a
+  Date `GraviaDropdownField` (calendar `trailingIcon`) that opens Material's
+  `showDateRangePicker`, and a full-width `GraviaPrimaryButton` Apply. Draft
+  selections are sheet-local state; Apply dispatches one `OrdersFilter`
+  (period + status + date range) into `OrdersBloc`, which stores it on
+  `OrdersLoaded` and the screen filters the visible Past list (status +
+  date range on top of the tab split). The quick periods and the default range
+  end at `DateTime.now()` (true now-relative semantics); `orders.json`'s
+  dates are kept spread over the ~4 months leading up to the present so
+  Last Week/Last Month demo with real results — nudge them forward when
+  they drift stale.
 - **Settings/menu list.** A vertical stack of icon-circle + label + chevron
   rows below a coloured header (Profile is the reference screen). Each row:
   a fixed-size tinted circle (Gray/50 light / Gray/950 dark — the same
@@ -427,7 +454,8 @@ re-style the underlying atom/block inline:
 | Full-width primary CTA (in a docked bar) | `GraviaPrimaryButton` — never a re-typed `AppButton` recipe |
 | Tinted-error pill (destructive inline action, e.g. Delete/Cancel) | `GraviaTintedButton` — no `AppButton` variant renders a filled error-tinted pill; never fork the atom for this look |
 | Styled bottom sheet | `showGraviaSheet` / `showGraviaAddToCartSheet` (extension on `BaseScreenState` in `gravia_sheet.dart`) — never raw `showAppBottomSheet` styling |
-| Bounded-picklist selection sheet (radio list) | `RadioOptionsSheetContent<T>` — opened via `showGraviaSheet`, never `AppDropdownMenu`/`PopupMenuButton` for an in-app picklist |
+| Bounded-picklist selection sheet (radio list) | `RadioOptionsSheetContent<T>` — opened via `showGraviaSheet`, never `AppDropdownMenu`/`PopupMenuButton` for an in-app picklist; its `RadioOptionRow` is also composable inline for radios that sit among other sheet fields (Orders filter) |
+| Bounded-picklist trigger field (label + bordered box) | `GraviaDropdownField` — never a re-typed field-trigger recipe; `trailingIcon` swaps the chevron (Orders filter's Date field uses a calendar glyph) |
 | Form text field (any form) | `GraviaFormField` — never a re-typed `AppTextField` override recipe |
 | Profile avatar (any size) | `GraviaAvatarImage` — never re-branch `avatarBytes`/`avatarUrl` per call site |
 | Single-select option chip | `SelectorChip` |

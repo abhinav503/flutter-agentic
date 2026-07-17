@@ -8,6 +8,7 @@ import 'package:core/core/ui/blocks/collapsing_header_sheet.dart';
 
 import 'package:gravia/constants/value_const.dart';
 import 'package:gravia/widgets/gravia_docked_bar.dart';
+import 'package:gravia/widgets/gravia_dropdown_field.dart';
 import 'package:gravia/widgets/gravia_form_field.dart';
 import 'package:gravia/widgets/gravia_hero_header.dart';
 import 'package:gravia/widgets/gravia_primary_button.dart';
@@ -15,7 +16,6 @@ import 'package:gravia/widgets/gravia_sheet.dart';
 import 'package:gravia/widgets/radio_options_sheet_content.dart';
 
 import '../../domain/entities/address_entity.dart';
-import '../widgets/address_dropdown_field.dart';
 
 /// Only the fields with free-text validation — City/Country are bounded
 /// picklists defaulted to their first option, so they can never be empty.
@@ -221,7 +221,7 @@ class _AddressFormScreenState extends BaseScreenState<AddressFormScreen> {
                       hint: ValueConst.landmarkHint,
                     ),
                     const SizedBox(height: AppSpacing.lg),
-                    AddressDropdownField(
+                    GraviaDropdownField(
                       label: ValueConst.cityLabel,
                       value: _city,
                       onTap: () => _showOptionPicker(
@@ -232,7 +232,7 @@ class _AddressFormScreenState extends BaseScreenState<AddressFormScreen> {
                       ),
                     ),
                     const SizedBox(height: AppSpacing.lg),
-                    AddressDropdownField(
+                    GraviaDropdownField(
                       label: ValueConst.countryLabel,
                       value: _country,
                       onTap: () => _showOptionPicker(

@@ -60,4 +60,12 @@ extension OrderPlacedAtX on DateTime {
     final period = hour < 12 ? 'AM' : 'PM';
     return '$weekday, $month $day, $year at $hour12:$minute $period';
   }
+
+  /// The filter sheet's date-field format ("Mar 01, 2026") — zero-padded day,
+  /// no weekday/time, per the kit's Order Filter screen.
+  String get filterDateLabel {
+    final month = _months[this.month - 1];
+    final paddedDay = day.toString().padLeft(2, '0');
+    return '$month $paddedDay, $year';
+  }
 }
