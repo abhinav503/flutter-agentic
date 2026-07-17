@@ -190,7 +190,8 @@ Two themes: complete the monorepo migration (done, shipped in v1.2.0), and add t
 - [x] `core/ui/blocks/` — cross-domain compositions (`section_header`, `quantity_stepper`, `bottom_nav_bar`) and ecommerce-domain compositions (`product_card`, `category_tile`)
 - [x] `gravia` app logo, native splash screen, and onboarding flow — the "free pack" skills (`/add-app-logo`, `/add-splash-screen`, onboarding pattern) proven end-to-end on a real generated app, not just in isolation
 - [x] Nav shell pattern (`feature/shell/`) for bottom-nav tabbed apps, documented in `docs/reference/architecture.md`
-- [ ] Product/ecommerce feature screens (home/product grid, categories, cart, checkout) — `product_card`/`category_tile` blocks exist in `core` but aren't wired into a `gravia` screen yet
+- [x] Product/ecommerce feature screens (home/product grid, categories, cart, product details, orders, address, profile, search) — all wired end-to-end (BLoC → screen → navigation) on `product_card`/`category_tile` and the rest of the `core/ui/blocks/` catalog
+- [ ] Real checkout flow — "Proceed to Checkout" on the Cart screen is still a `comingSoon` stub (same pattern as the cart's coupon-apply); no payment/order-confirmation screens exist yet
 - [ ] A second style pack proven end-to-end — today only `gravia` has a real app behind it; `rocketWarm`/`oceanBreeze`/`forestWalk`/`dadJokes` are presets in the catalog without an exemplar app
 
 ---

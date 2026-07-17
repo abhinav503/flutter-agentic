@@ -191,6 +191,29 @@ supplies the pack-specific metrics.
   "Cancel" text link (not the default `X` icon) sits opposite the title. →
   `AppBottomSheet`'s `titleStyle`/`closeLabel`/`closeLabelStyle`/
   `dividerColor`/`handleColor` overrides + `QuantityStepper`.
+- **Chrome-free confirmation sheet.** Cart's "Proceed to Checkout" opens a
+  sheet with no title row and no close control at all — just a handle, a
+  concentric-circle status icon, headline + subtitle copy, and a single
+  full-width CTA — since there's nothing to cancel back out of once the
+  order is placed. `AppBottomSheet`'s header always reserves a fixed-height
+  row (and forces a close `X` even with no `closeLabel` — every one of its
+  other callers relies on that default), so this bypasses it and presents
+  the content directly via `showModalBottomSheet`, same reasoning as the
+  onboarding sheet (`OnboardingScreen`, permanently docked rather than
+  modal, for the same "doesn't fit `AppBottomSheet`'s shape" reason). The
+  status icon is two identical translucent `primary` circles (10% alpha)
+  stacked concentrically — overlap alone makes the inner ring read darker,
+  no third colour needed — plus a solid `primary` disc with a check glyph
+  in `onPrimary`, each ring popping in outer→inner on mount (a cascading
+  scale-from-zero, not a relayout) → `AppConcentricCircles` (core atom —
+  cross-domain, any pack's status/celebration graphic reuses it with its
+  own radii/colours/child, not just this one). → `showOrderPlacedSheet` /
+  `OrderPlacedSheetContent` (gravia's `lib/widgets/`). Tapping the CTA
+  lands on the Orders tab via
+  `ShellPage.ordersTabIndex` + `initialTab` (`context.go(AppRoutes.home,
+  extra: ShellPage.ordersTabIndex)`) — the shell's tab is otherwise
+  UI-local `setState`, so this is the one supported way to jump to a
+  specific tab from a route pushed outside the shell.
 - **Docked bottom CTA.** Checkout-style primary actions dock at the bottom as
   one full-width large pill above the safe area — often paired with a
   `QuantityStepper` beside it (`ProductDetailBottomBar`). → `GraviaDockedBar`
@@ -380,20 +403,21 @@ the `/search` route in `apps/ecommerce/gravia/lib/app.dart`.
   `collapsing_header_sheet.dart`, `docked_bar_overlap.dart` (bottom-docked
   bar whose rounded top corners float over content extending `overlap` px
   underneath — a plain `Column` would show the scaffold background through
-  the corner cut-outs; see gravia's `CartStatusBar` in `ShellPage`). These
-  only read `Theme.of(context)`
-  (colour/shape/spacing tokens), so a new preset re-skins them for free — no
-  new block needed just because a new pack shows up. A fixed-column grid
-  nested inside `CollapsingHeaderSheet`'s body (or any scrollable that isn't
-  itself sliver-composed) should be laid out with manual `Row`/`Expanded`
-  chunking (see `CategoryGroupSection`, `CategoryDetailsScreen`'s product
-  grid), not `GridView` — a `shrinkWrap` `GridView` there forces every item
-  to lay out up front anyway (no real laziness win), and a guessed
-  `mainAxisExtent` either clips content or leaves dead space. An off-layout
-  "measure one item first" approach was tried and reverted — it introduced a
-  new class of layout bug (a stray gap between rows from a since-unexplained
-  bad remeasurement) worse than the one it fixed; don't reach for it again
-  without a much stronger reason.
+  the corner cut-outs; see gravia's `CartStatusBar` in `ShellPage`),
+  `chunked_grid.dart` (`ChunkedGrid` — a fixed-column grid nested inside
+  `CollapsingHeaderSheet`'s body, or any scrollable that isn't itself
+  sliver-composed, laid out with manual `Row`/`Expanded` chunking rather than
+  `GridView`; see `CategoryGroupSection`'s 4-column category grid and
+  `CategoryDetailsScreen`'s 2-column product grid, both built on this block —
+  a `shrinkWrap` `GridView` there forces every item to lay out up front
+  anyway (no real laziness win), and a guessed `mainAxisExtent` either clips
+  content or leaves dead space. An off-layout "measure one item first"
+  approach was tried and reverted — it introduced a new class of layout bug
+  (a stray gap between rows from a since-unexplained bad remeasurement)
+  worse than the one it fixed; don't reach for it again without a much
+  stronger reason). These only read `Theme.of(context)` (colour/shape/spacing
+  tokens), so a new preset re-skins them for free — no new block needed just
+  because a new pack shows up.
 - **`ecommerce/`** — compositions that encode ecommerce-specific data (price,
   discount, delivery time, product photo): `product_card.dart`,
   `category_tile.dart`, `product_meta_row.dart` (the icon+label meta row —
@@ -453,7 +477,11 @@ re-style the underlying atom/block inline:
 | Docked bottom CTA bar shell | `GraviaDockedBar` (top hairline + safe area + bar padding) |
 | Full-width primary CTA (in a docked bar) | `GraviaPrimaryButton` — never a re-typed `AppButton` recipe |
 | Tinted-error pill (destructive inline action, e.g. Delete/Cancel) | `GraviaTintedButton` — no `AppButton` variant renders a filled error-tinted pill; never fork the atom for this look |
+| Two half-width actions side by side (e.g. Cancel/Confirm, Edit/Delete) | `GraviaActionPair` — bakes in the shared `DimenConst.controlHeight` and `textSmMedium` label style across both buttons; renders a `GraviaTintedButton` for a `tintedError` action so a paired row never mixes styling recipes by hand |
+| Quantity stepper (cart row, product detail, quick-add sheet) | `GraviaQuantityStepper` — never a re-typed `QuantityStepper` icon/colour/style recipe |
+| Mint-on-tinted-primary info badge (weight badge, tag, in-process status) | `GraviaTintBadge` — never a re-typed `AppBadge` recipe; `GraviaProductCard`'s badge can't render it directly (it passes params through to core's `ProductCard`), so use `GraviaTintBadge.labelStyle`/`.backgroundColor` there instead |
 | Styled bottom sheet | `showGraviaSheet` / `showGraviaAddToCartSheet` (extension on `BaseScreenState` in `gravia_sheet.dart`) — never raw `showAppBottomSheet` styling |
+| Chrome-free confirmation sheet (no title/close, single CTA) | `showOrderPlacedSheet` (`gravia_sheet.dart`) rendering `OrderPlacedSheetContent` — bypasses `AppBottomSheet` entirely, never force a title/close into it just to reuse the atom |
 | Bounded-picklist selection sheet (radio list) | `RadioOptionsSheetContent<T>` — opened via `showGraviaSheet`, never `AppDropdownMenu`/`PopupMenuButton` for an in-app picklist; its `RadioOptionRow` is also composable inline for radios that sit among other sheet fields (Orders filter) |
 | Bounded-picklist trigger field (label + bordered box) | `GraviaDropdownField` — never a re-typed field-trigger recipe; `trailingIcon` swaps the chevron (Orders filter's Date field uses a calendar glyph) |
 | Form text field (any form) | `GraviaFormField` — never a re-typed `AppTextField` override recipe |

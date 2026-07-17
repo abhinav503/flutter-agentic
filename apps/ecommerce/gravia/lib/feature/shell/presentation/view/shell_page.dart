@@ -29,14 +29,48 @@ import 'package:gravia/feature/profile/presentation/bloc/profile_bloc.dart';
 import 'package:gravia/feature/profile/presentation/view/profile_screen.dart';
 
 class ShellPage extends BasePage {
-  const ShellPage({super.key});
+  // Nav-tab indices — public so any route outside the shell can request a
+  // tab by name instead of a hardcoded magic number. Order matches _tabs.
+  static const homeTabIndex = 0;
+  static const categoriesTabIndex = 1;
+  static const favouriteTabIndex = 2;
+  static const ordersTabIndex = 3;
+  static const profileTabIndex = 4;
+
+  /// Which tab to select. Read from the `/home` route's `extra` in
+  /// `app.dart`, so any pushed screen can land on a specific tab with
+  /// `context.go(AppRoutes.home, extra: ShellPage.ordersTabIndex)` — `go`
+  /// (not `push`) so it also discards whatever was pushed on top of the
+  /// shell, the same way "return to the tab bar" should. Tab choice is
+  /// otherwise UI-local `setState` (see the tabbed-apps note in
+  /// `docs/reference/architecture.md`); this is the one supported door in
+  /// from outside, not a general shared-state mechanism.
+  ///
+  /// Because `ShellPage` stays mounted underneath any route pushed on top
+  /// of it (that's what lets its BLoCs/cart badge survive Cart being
+  /// pushed), `context.go('/home', ...)` back to an already-mounted shell
+  /// updates this constructor arg on the *existing* State rather than
+  /// creating a new one — `_ShellPageState.didUpdateWidget` is what
+  /// actually reacts to that; a `late` field set once in `initState` would
+  /// only catch the very first (cold-start) navigation to `/home`.
+  final int initialTab;
+
+  const ShellPage({super.key, this.initialTab = homeTabIndex});
 
   @override
   State<ShellPage> createState() => _ShellPageState();
 }
 
 class _ShellPageState extends BasePageState<ShellPage> {
-  int _currentTab = 0;
+  late int _currentTab = widget.initialTab;
+
+  @override
+  void didUpdateWidget(covariant ShellPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.initialTab != oldWidget.initialTab) {
+      setState(() => _currentTab = widget.initialTab);
+    }
+  }
 
   // Kit tab set: Home, Categories, Favourite, Orders (bag), Profile — the
   // cart is not a nav tab in this pack.
@@ -81,10 +115,10 @@ class _ShellPageState extends BasePageState<ShellPage> {
     // header as part of the screen body, per the pack's "coloured header
     // canvas" composition — a generic top bar on top of any of them would
     // double up.
-    if (_currentTab == 0 ||
-        _currentTab == 1 ||
-        _currentTab == 3 ||
-        _currentTab == 4) {
+    if (_currentTab == ShellPage.homeTabIndex ||
+        _currentTab == ShellPage.categoriesTabIndex ||
+        _currentTab == ShellPage.ordersTabIndex ||
+        _currentTab == ShellPage.profileTabIndex) {
       return null;
     }
 
@@ -116,23 +150,23 @@ class _ShellPageState extends BasePageState<ShellPage> {
   @override
   Widget buildBody(BuildContext context) {
     final content = switch (_currentTab) {
-      0 => BlocProvider(
+      ShellPage.homeTabIndex => BlocProvider(
         create: (_) =>
             HomeBloc(getHomeUseCase: sl())..add(const HomeEvent.started()),
         child: const HomeScreen(),
       ),
-      1 => BlocProvider(
+      ShellPage.categoriesTabIndex => BlocProvider(
         create: (_) =>
             CategoriesBloc(getCategoriesUseCase: sl())
               ..add(const CategoriesEvent.started()),
         child: const CategoriesScreen(),
       ),
-      2 => const EmptyState(
+      ShellPage.favouriteTabIndex => const EmptyState(
         iconData: Icons.favorite_outline,
         title: ValueConst.favouriteEmptyTitle,
         subtitle: ValueConst.favouriteEmptySubtitle,
       ),
-      3 => BlocProvider(
+      ShellPage.ordersTabIndex => BlocProvider(
         create: (_) =>
             OrdersBloc(getOrdersUseCase: sl())
               ..add(const OrdersEvent.started()),
@@ -151,7 +185,10 @@ class _ShellPageState extends BasePageState<ShellPage> {
     // is non-empty. It lives in this shell's body (not a `SnackBar`), so it's
     // automatically hidden while Cart/Product Details/Search are pushed on
     // top and reappears on pop — no manual show/hide bookkeeping needed.
-    if (_currentTab != 0 && _currentTab != 1) return content;
+    if (_currentTab != ShellPage.homeTabIndex &&
+        _currentTab != ShellPage.categoriesTabIndex) {
+      return content;
+    }
 
     final shapes =
         Theme.of(context).extension<AppShapes>() ?? AppShapes.standard;

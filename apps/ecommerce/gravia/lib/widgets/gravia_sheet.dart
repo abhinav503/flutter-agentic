@@ -8,6 +8,7 @@ import 'package:gravia/constants/value_const.dart';
 import 'package:gravia/feature/home/domain/entities/product_entity.dart';
 
 import 'add_to_cart_sheet_content.dart';
+import 'order_placed_sheet_content.dart';
 
 /// Gravia-styled wrappers around [BaseScreenState.showAppBottomSheet] — the
 /// pack's one sheet chrome (textLg/bold title, primary "Cancel" close
@@ -48,4 +49,20 @@ extension GraviaSheetX<T extends BaseScreen> on BaseScreenState<T> {
       onAddToCart: (quantity) => onAddToCart(product, quantity),
     ),
   );
+
+  /// The checkout confirmation sheet — bypasses [showGraviaSheet] since
+  /// [OrderPlacedSheetContent] has no title row or close control to render;
+  /// presented directly via `showModalBottomSheet` instead.
+  Future<void> showOrderPlacedSheet({required VoidCallback onTrackOrder}) =>
+      showModalBottomSheet<void>(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: Colors.transparent,
+        builder: (sheetContext) => OrderPlacedSheetContent(
+          onTrackOrder: () {
+            Navigator.of(sheetContext).pop();
+            onTrackOrder();
+          },
+        ),
+      );
 }

@@ -12,6 +12,7 @@ import 'package:core/core/ui/molecules/empty_state.dart';
 import 'package:gravia/constants/app_routes.dart';
 import 'package:gravia/constants/text_style_const.dart';
 import 'package:gravia/constants/value_const.dart';
+import 'package:gravia/feature/shell/presentation/view/shell_page.dart';
 import 'package:gravia/widgets/gravia_docked_bar.dart';
 import 'package:gravia/widgets/gravia_hero_header.dart';
 import 'package:gravia/widgets/gravia_primary_button.dart';
@@ -33,6 +34,17 @@ class CartScreen extends BaseScreen {
 
 class _CartScreenState extends BaseScreenState<CartScreen> {
   void _showComingSoon() => showSnackBar(ValueConst.comingSoonMessage);
+
+  // No payment step exists in this mocked app — tapping the CTA is what
+  // "places" the order, so the cart clears immediately rather than staying
+  // populated behind the confirmation sheet.
+  void _placeOrder() {
+    context.read<CartCubit>().clear();
+    showOrderPlacedSheet(
+      onTrackOrder: () =>
+          context.go(AppRoutes.home, extra: ShellPage.ordersTabIndex),
+    );
+  }
 
   void _addToCart(ProductEntity product, int quantity) {
     context.read<CartCubit>().addToCart(product, quantity);
@@ -128,7 +140,7 @@ class _CartScreenState extends BaseScreenState<CartScreen> {
                 GraviaDockedBar(
                   child: GraviaPrimaryButton(
                     label: ValueConst.proceedToCheckoutLabel,
-                    onTap: _showComingSoon,
+                    onTap: _placeOrder,
                   ),
                 ),
               ],

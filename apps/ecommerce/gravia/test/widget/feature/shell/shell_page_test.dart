@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:core/core/theme/app_theme.dart';
@@ -17,15 +18,29 @@ void main() {
     await initDependencies();
   });
 
+  // `rootBundle` caches loaded asset strings on its own global singleton,
+  // which persists across every testWidgets() in this file (unlike `sl`,
+  // it isn't something we reset ourselves). Re-requesting the SAME key
+  // (e.g. `assets/data/home_page.json`) from a later test in this file
+  // hangs forever otherwise — the cached Future is tied to the test that
+  // first resolved it and never delivers to a later test's zone. Every
+  // test here re-mounts ShellPage's Home tab, so this file needs the
+  // clear; a file with only one asset-backed testWidgets() wouldn't.
+  tearDown(() => rootBundle.clear());
+
   // ShellPage renders blocks (AppBadge, ProductCard) that read theme
   // extensions the app always provides in production (see app.dart) — a
   // bare MaterialApp with no theme crashes on the extension's force-unwrap.
   // CartCubit is likewise provided above the router in production; the
   // shell's cart status bar reads it unconditionally.
-  Widget buildSubject() => MaterialApp(
-    theme: AppTheme.fromConfig(AppThemeConfig.defaults),
-    home: BlocProvider(create: (_) => CartCubit(), child: const ShellPage()),
-  );
+  Widget buildSubject({int initialTab = ShellPage.homeTabIndex}) =>
+      MaterialApp(
+        theme: AppTheme.fromConfig(AppThemeConfig.defaults),
+        home: BlocProvider(
+          create: (_) => CartCubit(),
+          child: ShellPage(initialTab: initialTab),
+        ),
+      );
 
   // The Home tab renders real AppNetworkImage/Image.network calls plus a
   // LoadingIndicator with an indeterminate (never-settling) animation, so
@@ -73,4 +88,26 @@ void main() {
     await settleHome(tester);
     expect(find.text(ValueConst.changePasswordLabel), findsOneWidget);
   });
+
+  testWidgets(
+    'reacts to initialTab changing on an already-mounted shell '
+    '(the context.go(extra: …) "Track Your Order" path)',
+    (tester) async {
+      // Same State persists across this pumpWidget — ShellPage stays
+      // mounted underneath a route pushed on top of it in the real app
+      // (e.g. Cart), so `context.go('/home', extra: newTab)` updates this
+      // same State via didUpdateWidget rather than creating a new one. A
+      // `late` field read once in initState would miss this entirely —
+      // this test is what catches that regression.
+      await tester.pumpWidget(buildSubject());
+      await settleHome(tester);
+      expect(find.text(ValueConst.allCategoriesTitle), findsOneWidget);
+
+      await tester.pumpWidget(
+        buildSubject(initialTab: ShellPage.ordersTabIndex),
+      );
+      await settleHome(tester);
+      expect(find.text(ValueConst.upcomingTabLabel), findsOneWidget);
+    },
+  );
 }

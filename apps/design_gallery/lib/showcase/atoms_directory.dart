@@ -3,6 +3,7 @@ import 'package:core/core/ui/atoms/button.dart';
 import 'package:core/core/ui/atoms/checkbox.dart';
 import 'package:core/core/ui/atoms/chip.dart';
 import 'package:core/core/ui/atoms/common_glass_surface.dart';
+import 'package:core/core/ui/atoms/concentric_circles.dart';
 import 'package:core/core/ui/atoms/device_frame.dart';
 import 'package:core/core/ui/atoms/dropdown_menu.dart';
 import 'package:core/core/ui/atoms/glass_chip.dart';
@@ -98,6 +99,55 @@ WidgetbookCategory atomsCategory() {
                   text: '300 g',
                   backgroundColor: cs.primary.withValues(alpha: 0.1),
                   textStyle: TextStyle(color: cs.primary),
+                );
+              },
+            ),
+          ),
+        ]),
+      ),
+      allVariants(
+        'AppConcentricCircles',
+        (context) => showcase(context, [
+          Variant(
+            'Success icon (3 rings, staggered reveal — e.g. gravia\'s Order '
+            'Placed sheet)',
+            Builder(
+              builder: (context) {
+                final cs = Theme.of(context).colorScheme;
+                return AppConcentricCircles(
+                  radii: const [128, 96, 64],
+                  colors: [
+                    cs.primary.withValues(alpha: 0.1),
+                    cs.primary.withValues(alpha: 0.1),
+                    cs.primary,
+                  ],
+                  child: Icon(
+                    Icons.check,
+                    color: cs.onPrimary,
+                    size: 28,
+                  ),
+                );
+              },
+            ),
+          ),
+          Variant(
+            'Static (animate: false)',
+            Builder(
+              builder: (context) {
+                final cs = Theme.of(context).colorScheme;
+                return AppConcentricCircles(
+                  animate: false,
+                  radii: const [96, 72, 48],
+                  colors: [
+                    cs.secondary.withValues(alpha: 0.15),
+                    cs.secondary.withValues(alpha: 0.15),
+                    cs.secondary,
+                  ],
+                  child: Icon(
+                    Icons.star,
+                    color: cs.onSecondary,
+                    size: 22,
+                  ),
                 );
               },
             ),

@@ -27,6 +27,7 @@ abstract final class ImageConst {
   static const shoppingBag = 'assets/icons/shopping-bag.svg';
   static const eye = 'assets/icons/eye.svg';
   static const shieldCheck = 'assets/icons/shield-check.svg';
+  static const circleCheck = 'assets/icons/circle_check.svg';
   static const notes = 'assets/icons/notes.svg';
   static const logout = 'assets/icons/logout.svg';
   static const editRectangle = 'assets/icons/edit-rectangle.svg';

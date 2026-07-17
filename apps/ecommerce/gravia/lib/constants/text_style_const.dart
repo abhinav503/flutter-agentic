@@ -55,4 +55,14 @@ abstract final class TextStyleConst {
     height: 1.5,
     letterSpacing: -0.4,
   );
+
+  // Display/xs/Bold (24px/132%) — the kit's Display scale, not Text; used
+  // by the Order Placed confirmation sheet's headline. First Display-scale
+  // token this app has needed — base it off headlineSmall (24px, the exact
+  // fontSize match), same pattern as every Text-scale method here.
+  static TextStyle displayXsBold(TextTheme tt) => tt.headlineSmall!.copyWith(
+    fontWeight: FontWeight.w700,
+    height: 1.32,
+    letterSpacing: -0.48,
+  );
 }

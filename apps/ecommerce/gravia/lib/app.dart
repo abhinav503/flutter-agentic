@@ -32,7 +32,11 @@ final _router = GoRouter(
       path: AppRoutes.onboarding,
       builder: (context, _) => const OnboardingPage(),
     ),
-    GoRoute(path: AppRoutes.home, builder: (context, _) => const ShellPage()),
+    GoRoute(
+      path: AppRoutes.home,
+      builder: (context, state) =>
+          ShellPage(initialTab: state.extra as int? ?? 0),
+    ),
     GoRoute(
       path: AppRoutes.search,
       pageBuilder: (context, state) => CustomTransitionPage<void>(

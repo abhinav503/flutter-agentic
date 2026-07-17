@@ -174,6 +174,12 @@ abstract final class ValueConst {
   static String cartSummaryLabel(int itemCount, double total) =>
       '$itemCount item${itemCount > 1 ? 's' : ''} | \$${total.toStringAsFixed(2)}';
 
+  // ── Order Placed (checkout confirmation sheet) ────────────────────────────
+  static const orderPlacedTitle = 'Order Placed Successfully';
+  static const orderPlacedSubtitle =
+      'Thank you for your order you can track your delivery in the order section';
+  static const trackYourOrderLabel = 'Track Your Order';
+
   // ── Orders ─────────────────────────────────────────────────────────────────
   static const ordersPageTitle = 'Orders';
   static const upcomingTabLabel = 'Upcoming';
