@@ -28,10 +28,11 @@ abstract final class ImageConst {
   static const eye = 'assets/icons/eye.svg';
   static const shieldCheck = 'assets/icons/shield-check.svg';
   static const circleCheck = 'assets/icons/circle_check.svg';
+  static const openBox = 'assets/icons/open-box.svg';
+  static const packageBox = 'assets/icons/package-box.svg';
   static const notes = 'assets/icons/notes.svg';
   static const logout = 'assets/icons/logout.svg';
   static const editRectangle = 'assets/icons/edit-rectangle.svg';
-  static const card = 'assets/icons/card.svg';
   static const calling = 'assets/icons/calling.svg';
   static const trash = 'assets/icons/trash.svg';
   static const camera = 'assets/icons/camera.svg';

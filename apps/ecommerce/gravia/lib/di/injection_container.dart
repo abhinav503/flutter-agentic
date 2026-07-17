@@ -20,6 +20,11 @@ import '../feature/home/data/data_source/home_remote_data_source_impl.dart';
 import '../feature/home/data/repository_impl/home_repository_impl.dart';
 import '../feature/home/domain/repository/home_repository.dart';
 import '../feature/home/domain/usecase/get_home_usecase.dart';
+import '../feature/notifications/data/data_source/notifications_remote_data_source.dart';
+import '../feature/notifications/data/data_source/notifications_remote_data_source_impl.dart';
+import '../feature/notifications/data/repository_impl/notifications_repository_impl.dart';
+import '../feature/notifications/domain/repository/notifications_repository.dart';
+import '../feature/notifications/domain/usecase/get_notifications_usecase.dart';
 import '../feature/orders/data/data_source/orders_remote_data_source.dart';
 import '../feature/orders/data/data_source/orders_remote_data_source_impl.dart';
 import '../feature/orders/data/repository_impl/orders_repository_impl.dart';
@@ -115,4 +120,13 @@ Future<void> initDependencies() async {
   );
   sl.registerLazySingleton<OrdersRepository>(() => OrdersRepositoryImpl(sl()));
   sl.registerLazySingleton(() => GetOrdersUseCase(sl()));
+
+  // ── Notifications ────────────────────────────────────────────────────────
+  sl.registerLazySingleton<NotificationsRemoteDataSource>(
+    () => const NotificationsRemoteDataSourceImpl(),
+  );
+  sl.registerLazySingleton<NotificationsRepository>(
+    () => NotificationsRepositoryImpl(sl()),
+  );
+  sl.registerLazySingleton(() => GetNotificationsUseCase(sl()));
 }

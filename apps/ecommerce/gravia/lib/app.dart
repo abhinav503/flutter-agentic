@@ -14,6 +14,9 @@ import 'feature/address/presentation/view/address_page.dart';
 import 'feature/cart/presentation/cubit/cart_cubit.dart';
 import 'feature/cart/presentation/view/cart_page.dart';
 import 'feature/category_details/presentation/view/category_details_page.dart';
+import 'feature/legal/presentation/view/legal_document_content.dart';
+import 'feature/legal/presentation/view/legal_document_page.dart';
+import 'feature/notifications/presentation/view/notifications_page.dart';
 import 'feature/onboarding/presentation/view/onboarding_page.dart';
 import 'feature/product_details/presentation/view/product_details_page.dart';
 import 'feature/profile/domain/entities/profile_entity.dart';
@@ -150,6 +153,55 @@ final _router = GoRouter(
               child: child,
             ),
         child: const CartPage(),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.notifications,
+      // Fade, same reasoning as Cart/Select Address — this screen's coloured
+      // header canvas shares the back-button position every other "coloured
+      // header canvas" screen uses.
+      pageBuilder: (context, state) => CustomTransitionPage<void>(
+        key: state.pageKey,
+        transitionDuration: const Duration(milliseconds: 350),
+        reverseTransitionDuration: const Duration(milliseconds: 300),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+            FadeTransition(
+              opacity: CurveTween(curve: Curves.easeInOut).animate(animation),
+              child: child,
+            ),
+        child: const NotificationsPage(),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.termsAndConditions,
+      // Fade, same reasoning as the other coloured-header-canvas routes.
+      pageBuilder: (context, state) => CustomTransitionPage<void>(
+        key: state.pageKey,
+        transitionDuration: const Duration(milliseconds: 350),
+        reverseTransitionDuration: const Duration(milliseconds: 300),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+            FadeTransition(
+              opacity: CurveTween(curve: Curves.easeInOut).animate(animation),
+              child: child,
+            ),
+        child: LegalDocumentPage(
+          content: LegalDocumentContent.termsAndConditions(),
+        ),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.privacyPolicy,
+      // Fade, same reasoning as the other coloured-header-canvas routes.
+      pageBuilder: (context, state) => CustomTransitionPage<void>(
+        key: state.pageKey,
+        transitionDuration: const Duration(milliseconds: 350),
+        reverseTransitionDuration: const Duration(milliseconds: 300),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+            FadeTransition(
+              opacity: CurveTween(curve: Curves.easeInOut).animate(animation),
+              child: child,
+            ),
+        child: LegalDocumentPage(content: LegalDocumentContent.privacyPolicy()),
       ),
     ),
   ],

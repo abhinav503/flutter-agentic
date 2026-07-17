@@ -16,6 +16,9 @@ abstract final class AppRoutes {
   /// exists, so `extra` is never null here.
   static const editProfile = '/edit-profile';
   static const cart = '/cart';
+  static const notifications = '/notifications';
+  static const termsAndConditions = '/terms-and-conditions';
+  static const privacyPolicy = '/privacy-policy';
 
   /// Route pattern registered with GoRouter (`:id` path param).
   static const productDetails = '/product-details/:id';

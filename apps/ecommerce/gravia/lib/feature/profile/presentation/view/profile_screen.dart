@@ -16,6 +16,7 @@ import 'package:gravia/constants/app_routes.dart';
 import 'package:gravia/constants/color_const.dart';
 import 'package:gravia/constants/image_const.dart';
 import 'package:gravia/constants/value_const.dart';
+import 'package:gravia/feature/shell/presentation/view/shell_page.dart';
 
 import '../../domain/entities/profile_entity.dart';
 import '../bloc/profile_bloc.dart';
@@ -99,17 +100,14 @@ class _ProfileScreenState extends BaseScreenState<ProfileScreen> {
                       height: size,
                     ),
                     label: ValueConst.myOrdersLabel,
-                    onTap: () => showSnackBar(ValueConst.comingSoonMessage),
-                  ),
-                  ProfileMenuTile(
-                    iconBuilder: (color, size) => AppSvgImage.asset(
-                      ImageConst.card,
-                      color: color,
-                      width: size,
-                      height: size,
+                    // Orders isn't a standalone route — it's a ShellPage tab
+                    // — so this jumps the shell there directly, same
+                    // mechanism as the Order Placed sheet's "Track Your
+                    // Order" (docs/ai-rules/design.md).
+                    onTap: () => context.go(
+                      AppRoutes.home,
+                      extra: ShellPage.ordersTabIndex,
                     ),
-                    label: ValueConst.myCardsLabel,
-                    onTap: () => showSnackBar(ValueConst.comingSoonMessage),
                   ),
                   ProfileMenuTile(
                     iconBuilder: (color, size) => AppSvgImage.asset(
@@ -119,7 +117,7 @@ class _ProfileScreenState extends BaseScreenState<ProfileScreen> {
                       height: size,
                     ),
                     label: ValueConst.myAddressLabel,
-                    onTap: () => showSnackBar(ValueConst.comingSoonMessage),
+                    onTap: () => context.push(AppRoutes.selectAddress),
                   ),
                   ProfileMenuTile(
                     iconBuilder: (color, size) => AppSvgImage.asset(
@@ -151,7 +149,7 @@ class _ProfileScreenState extends BaseScreenState<ProfileScreen> {
                       height: size,
                     ),
                     label: ValueConst.privacyPolicyLabel,
-                    onTap: () => showSnackBar(ValueConst.comingSoonMessage),
+                    onTap: () => context.push(AppRoutes.privacyPolicy),
                   ),
                   ProfileMenuTile(
                     iconBuilder: (color, size) => AppSvgImage.asset(
@@ -161,7 +159,7 @@ class _ProfileScreenState extends BaseScreenState<ProfileScreen> {
                       height: size,
                     ),
                     label: ValueConst.termsAndConditionsLabel,
-                    onTap: () => showSnackBar(ValueConst.comingSoonMessage),
+                    onTap: () => context.push(AppRoutes.termsAndConditions),
                   ),
                   ProfileMenuTile(
                     iconBuilder: (color, size) => AppSvgImage.asset(

@@ -107,6 +107,7 @@ class _HomeScreenState extends BaseScreenState<HomeScreen> {
             onProductTap: _openProductDetails,
             onCategoryTap: _openCategoryDetails,
             onComingSoon: () => showSnackBar(ValueConst.comingSoonMessage),
+            onNotificationTap: () => context.push(AppRoutes.notifications),
             onSearchTap: () => context.push(AppRoutes.search),
           ),
         },
@@ -124,6 +125,7 @@ class _HomeContent extends StatelessWidget {
   final ValueChanged<String> onFavouriteToggle;
   final ValueChanged<ProductEntity> onProductTap;
   final VoidCallback onComingSoon;
+  final VoidCallback onNotificationTap;
   final VoidCallback onSearchTap;
   final ValueChanged<CategoryEntity> onCategoryTap;
 
@@ -136,6 +138,7 @@ class _HomeContent extends StatelessWidget {
     required this.onFavouriteToggle,
     required this.onProductTap,
     required this.onComingSoon,
+    required this.onNotificationTap,
     required this.onSearchTap,
     required this.onCategoryTap,
   });
@@ -145,7 +148,7 @@ class _HomeContent extends StatelessWidget {
     header: HomeHeroHeader(
       addressLabel: addressLabel,
       onLocationTap: onLocationTap,
-      onNotificationTap: onComingSoon,
+      onNotificationTap: onNotificationTap,
       onSearchTap: onSearchTap,
     ),
     body: Padding(
