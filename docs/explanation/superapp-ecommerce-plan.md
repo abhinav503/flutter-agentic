@@ -1,8 +1,10 @@
 # Super App Ecommerce (FlutterAgenticEcommerce) — Platform Plan
 
-> Status: **M1a in progress** (documented 2026-07-18, admin scaffold started
-> 2026-07-18). Turns the `gravia` exemplar into a multi-tenant "app of apps"
-> ecommerce platform. See also `docs/explanation/end-goal.md`.
+> Status: **M1a done; catalog CRUD, read API, and gravia catalog wiring done;
+> cart/order-creation/admin-order-management APIs done but not yet
+> deployed** (last updated 2026-07-18). Turns the `gravia` exemplar into a
+> multi-tenant "app of apps" ecommerce platform. See also
+> `docs/explanation/end-goal.md`.
 
 ## Context
 
@@ -462,3 +464,121 @@ profile, address, notifications intentionally untouched (out of scope).
   interaction available) — confidence there comes from `flutter analyze` passing
   clean, the identical verified `HttpService`/`fromJson` pattern, and each endpoint
   already being independently curl-verified against real data earlier.
+
+## Cart, order creation, and admin order-management APIs — DONE (2026-07-18, pulled forward from M4/M5)
+
+Per user direction, admin-side only this pass — gravia intentionally left
+untouched, same scoping as the read API above. Adds the write surface the
+read-only catalog API didn't cover: a persisted per-store cart, real order
+creation, and store-owner order management.
+
+**The identity/trust question, resolved for now:** gravia has no shopper auth
+yet (M1b, still not built), so there's no ID token these routes can verify for
+a shopper. Two ways through were weighed — relax `firestore.rules` for
+`users/{uid}/carts/{storeId}` and `orders/{orderId}` and enforce everything in
+route code, vs. stand up `firebase-admin` so writes bypass Security Rules
+entirely (the architecturally-correct end state the "Backend recommendation"
+section above already calls for). **Chose `firebase-admin`** — rules stay
+untouched/tight, and it lets the *store-owner* endpoints get a real
+cryptographic guard today (the admin console already has real Firebase Auth),
+even though the *shopper* endpoints still can't be verified until M1b ships.
+That split is deliberate, not an oversight:
+
+- **Shopper-facing** (cart read/write, create order, own order history):
+  accept a plain `userId` string, trusted as-is — the same gap M1b is already
+  scoped to close. Once gravia sends a verified ID token, `userId` swaps from
+  "read off the request" to "read off the verified token," no route signature
+  change.
+- **Store-owner-facing** (list all orders for a store, change order status):
+  real guard — `src/lib/api/admin-guard.ts`'s `requireStoreOwner()` verifies
+  the bearer token is a genuine Firebase ID token via `adminAuth.verifyIdToken()`
+  (cryptographic, not guessable), then checks the resulting uid against
+  `admins/{uid}.storeIds`. The status-update route fetches the order **before**
+  checking ownership and 404s (not 403s) on a storeId mismatch, so a store
+  owner probing another store's order IDs can't tell "wrong store" from
+  "doesn't exist."
+
+**New `admin/src/lib/`:**
+- `firebase-admin.ts` — Admin SDK singleton (service account credentials via
+  `FIREBASE_ADMIN_PROJECT_ID`/`FIREBASE_ADMIN_CLIENT_EMAIL`/`FIREBASE_ADMIN_PRIVATE_KEY`
+  env vars, `admin/.env.local` locally, gitignored). **Real bug hit and fixed**:
+  the Admin SDK's default Firestore transport is gRPC, which hung for 45–75s
+  before failing with `Name resolution failed for target dns:firestore.googleapis.com:443`
+  in this environment — a known flaky spot for `firebase-admin` in
+  serverless/sandboxed runtimes generally, Vercel included, not unique to this
+  session. Fixed with `adminDb.settings({ preferRest: true })`, forcing plain
+  HTTPS — the same transport family the existing client SDK (`firebase.ts`)
+  already uses successfully.
+- `cart.ts` — `getCartItems`/`saveCartItems` against `users/{uid}/carts/{storeId}`,
+  whole-doc replace (matches gravia's `CartCubit`, which always holds a full
+  snapshot, never a diff).
+- `orders.ts` — `createOrder` is the real logic: one Firestore transaction reads
+  every requested product fresh, validates stock, **recomputes price/total
+  server-side** (never trusts a client-submitted price — the plan's stated
+  principle), decrements stock, writes the order, and clears that user's cart
+  for the store, all atomically. `getOrdersForUser`/`getOrdersForStore`/
+  `getOrderForStore`/`updateOrderStatus` round it out.
+- `orders-dashboard.ts` — a **separate, client-SDK** version of the order
+  reads/writes the dashboard's own Orders page uses (`firebase-admin` can't run
+  in the browser). Deliberately does NOT go through the new REST API — it uses
+  direct Firestore reads/writes gated by the *already-deployed*
+  `isStoreOwner(storeId)` rule, the identical pattern Categories/Products
+  already use. The REST API and the dashboard are two separate, intentional
+  paths to the same data: REST serves callers that aren't an authenticated
+  browser session (gravia, curl, future clients); the dashboard uses its own
+  live Firebase Auth session directly.
+
+**New routes** (`admin/src/app/api/stores/[storeId]/`):
+
+| Route | Behavior |
+|---|---|
+| `GET/PUT /cart` | Shopper's cart, `PUT` replaces wholesale; `GET` joins stored `productId`s against **live** product data |
+| `POST /orders` | Creates an order (see `createOrder` above); `409` on insufficient stock, `400` on unknown product |
+| `GET /orders?userId=` | Shopper's own order history |
+| `GET /orders` (no `userId`) | All orders for the store — admin-gated |
+| `PATCH /orders/{orderId}` | Order status change — admin-gated |
+
+**New dashboard page**: `/dashboard/orders` — table + a status `Select` per
+row (Pending/In process/Delivered/Cancelled), added to the sidebar nav.
+
+**New Firestore composite indexes** (`firestore.indexes.json`, deployed to
+`corderlia-ecom` via `firebase deploy --only firestore:indexes` — indexes
+only, rules untouched): `(storeId, uid, placedAt desc)` and
+`(storeId, placedAt desc)` on `orders` — required because Firestore can't
+serve an equality-filter-plus-sort query without one; the first live calls
+correctly 500'd with `FAILED_PRECONDITION` while the index was still building,
+confirming the requirement was real and not just theoretical.
+
+**Verified live against the real "Gravia" store**, not just compiled: cart
+round-trip; order creation with a real stock decrement (100→98, confirmed via
+the live product-read API); insufficient-stock (`409`) and unknown-product
+(`400`) rejections; cart auto-clears on checkout; shopper order history reads
+back correctly. For the admin-only branches, signed up a throwaway test admin
+via the real Identity Toolkit REST API, granted it `storeIds` for the Gravia
+store, and exercised all four gate outcomes: no token → `401`, garbage token →
+`401`, valid token + wrong store → `403`, valid token + correct store → `200`
+(list) and successful status update. All test data (order, admin doc, cart
+doc, auth user) deleted and the product's stock restored to 100 afterward —
+same clean-up discipline as the earlier rules-negative-test passes.
+
+**Real secret-hygiene catch mid-session**: an early, failed attempt at
+generating the service-account key left a raw key JSON sitting in
+`admin/.secrets/` — a path `admin/.gitignore`'s `.env*` rule doesn't cover.
+Caught before it could be committed (that specific key was also independently
+revoked via `gcloud iam service-accounts keys delete` once the leftover was
+found) and the directory deleted. Also force-added `admin/.env.local.example`
+to git (`git add -f`) — despite earlier docs in this file claiming it was
+"committed as the template," it was never actually tracked (blocked by the
+same `.env*` glob); it holds only empty placeholder keys, safe to commit, and
+now includes the three new `FIREBASE_ADMIN_*` placeholders.
+
+**Not yet deployed.** Local commit only (`e86dabd`) — pushing to GitHub and
+adding `FIREBASE_ADMIN_PROJECT_ID`/`FIREBASE_ADMIN_CLIENT_EMAIL`/
+`FIREBASE_ADMIN_PRIVATE_KEY` to Vercel were both requested, but this
+environment currently cannot reach either GitHub or Vercel's API at the
+network level (`connect ETIMEDOUT`, confirmed with plain `curl` too, and
+unaffected by disabling the command sandbox — genuinely not sandbox-scoped).
+`google.com` was reachable in the same check, so this looks like a
+host/network-specific block rather than a general outage. Blocked until that
+connectivity issue is resolved (or the push/env-var steps are run from a
+network that can reach both).
