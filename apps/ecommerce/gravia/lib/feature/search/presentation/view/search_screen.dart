@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 
 import 'package:core/core/base/base_screen.dart';
 import 'package:core/core/theme/app_spacing.dart';
-import 'package:core/core/ui/atoms/loading_indicator.dart';
 import 'package:core/core/ui/blocks/collapsing_header_sheet.dart';
 import 'package:core/core/ui/molecules/error_view.dart';
 
@@ -19,6 +18,7 @@ import '../../../home/presentation/widgets/home_popular_items_section.dart';
 import '../bloc/search_bloc.dart';
 import '../widgets/recent_search_section.dart';
 import '../widgets/search_hero_header.dart';
+import '../widgets/search_skeleton_body.dart';
 
 class SearchScreen extends BaseScreen {
   const SearchScreen({super.key});
@@ -75,61 +75,67 @@ class _SearchScreenState extends BaseScreenState<SearchScreen> {
   void _showAddToCartSheet(ProductEntity product) =>
       showGraviaAddToCartSheet(product: product, onAddToCart: _addToCart);
 
+  Widget _header() => SearchHeroHeader(
+    controller: _searchController,
+    focusNode: _searchFocus,
+    onBack: _goBack,
+    onSubmitted: (_) {},
+  );
+
   @override
   Widget body(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-
     return BlocConsumer<SearchBloc, SearchState>(
       listener: (context, state) {
         if (state case SearchError(:final message)) showSnackBar(message);
       },
-      builder: (context, state) => switch (state) {
-        SearchLoading() => Container(
-          color: cs.primary,
-          child: const SafeArea(child: Center(child: LoadingIndicator())),
-        ),
-        SearchError() => SafeArea(
-          child: ErrorView(
-            message: ValueConst.searchLoadErrorMessage,
-            onRetry: () =>
-                context.read<SearchBloc>().add(const SearchEvent.started()),
+      builder: (context, state) => AnimatedSwitcher(
+        duration: const Duration(milliseconds: 300),
+        child: switch (state) {
+          SearchLoading() => CollapsingHeaderSheet(
+            key: const ValueKey('loading'),
+            initialHeaderHeight: 120,
+            header: _header(),
+            body: const SearchSkeletonBody(),
           ),
-        ),
-        SearchLoaded(:final search) => CollapsingHeaderSheet(
-          initialHeaderHeight: 120,
-          header: SearchHeroHeader(
-            controller: _searchController,
-            focusNode: _searchFocus,
-            onBack: _goBack,
-            onSubmitted: (_) {},
-          ),
-          body: Padding(
-            padding: const EdgeInsets.symmetric(vertical: AppSpacing.xl4),
-            child: Column(
-              children: [
-                RecentSearchSection(
-                  products: search.recentSearches,
-                  onProductTap: _openProductDetails,
-                  onRemove: (productId) => context.read<SearchBloc>().add(
-                    SearchEvent.recentSearchRemoved(productId: productId),
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.xl4),
-                HomePopularItemsSection(
-                  products: search.popularProducts,
-
-                  onAddToCart: _addToCart,
-                  onQuickAdd: _showAddToCartSheet,
-                  onFavouriteToggle: (_) {},
-                  onProductTap: _openProductDetails,
-                  onComingSoon: () =>
-                      showSnackBar(ValueConst.comingSoonMessage),
-                ),
-              ],
+          SearchError() => SafeArea(
+            key: const ValueKey('error'),
+            child: ErrorView(
+              message: ValueConst.searchLoadErrorMessage,
+              onRetry: () =>
+                  context.read<SearchBloc>().add(const SearchEvent.started()),
             ),
           ),
-        ),
-      },
+          SearchLoaded(:final search) => CollapsingHeaderSheet(
+            key: const ValueKey('loaded'),
+            initialHeaderHeight: 120,
+            header: _header(),
+            body: Padding(
+              padding: const EdgeInsets.symmetric(vertical: AppSpacing.xl4),
+              child: Column(
+                children: [
+                  RecentSearchSection(
+                    products: search.recentSearches,
+                    onProductTap: _openProductDetails,
+                    onRemove: (productId) => context.read<SearchBloc>().add(
+                      SearchEvent.recentSearchRemoved(productId: productId),
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.xl4),
+                  HomePopularItemsSection(
+                    products: search.popularProducts,
+                    onAddToCart: _addToCart,
+                    onQuickAdd: _showAddToCartSheet,
+                    onFavouriteToggle: (_) {},
+                    onProductTap: _openProductDetails,
+                    onComingSoon: () =>
+                        showSnackBar(ValueConst.comingSoonMessage),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        },
+      ),
     );
   }
 }

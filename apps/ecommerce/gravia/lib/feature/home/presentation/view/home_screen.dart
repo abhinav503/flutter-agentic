@@ -6,7 +6,6 @@ import 'package:go_router/go_router.dart';
 import 'package:core/core/base/base_screen.dart';
 import 'package:core/core/services/shared_pref_service/shared_preference_service.dart';
 import 'package:core/core/theme/app_spacing.dart';
-import 'package:core/core/ui/atoms/loading_indicator.dart';
 import 'package:core/core/ui/blocks/collapsing_header_sheet.dart';
 import 'package:core/core/ui/molecules/error_view.dart';
 
@@ -23,6 +22,7 @@ import '../bloc/home_bloc.dart';
 import '../widgets/home_category_section.dart';
 import '../widgets/home_hero_header.dart';
 import '../widgets/home_popular_items_section.dart';
+import '../widgets/home_skeleton_body.dart';
 
 class HomeScreen extends BaseScreen {
   const HomeScreen({super.key});
@@ -70,8 +70,6 @@ class _HomeScreenState extends BaseScreenState<HomeScreen> {
 
   @override
   Widget body(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
@@ -82,35 +80,47 @@ class _HomeScreenState extends BaseScreenState<HomeScreen> {
         listener: (context, state) {
           if (state case HomeError(:final message)) showSnackBar(message);
         },
-        builder: (context, state) => switch (state) {
-          HomeLoading() => Container(
-            color: cs.primary,
-            child: const SafeArea(child: Center(child: LoadingIndicator())),
-          ),
-          HomeError() => SafeArea(
-            child: ErrorView(
-              message: ValueConst.homeLoadErrorMessage,
-              onRetry: () =>
-                  context.read<HomeBloc>().add(const HomeEvent.started()),
+        builder: (context, state) => AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          child: switch (state) {
+            HomeLoading() => CollapsingHeaderSheet(
+              key: const ValueKey('loading'),
+              header: HomeHeroHeader(
+                addressLabel:
+                    _selectedAddressLabel ?? ValueConst.noLocationSelectedLabel,
+                onLocationTap: _openSelectAddress,
+                onNotificationTap: () => context.push(AppRoutes.notifications),
+                onSearchTap: () => context.push(AppRoutes.search),
+              ),
+              body: const HomeSkeletonBody(),
             ),
-          ),
-          HomeLoaded(:final home) => _HomeContent(
-            home: home,
-            addressLabel:
-                _selectedAddressLabel ?? ValueConst.noLocationSelectedLabel,
-            onLocationTap: _openSelectAddress,
-            onAddToCart: _addToCart,
-            onQuickAdd: _showAddToCartSheet,
-            onFavouriteToggle: (id) => context.read<HomeBloc>().add(
-              HomeEvent.favouriteToggled(productId: id),
+            HomeError() => SafeArea(
+              key: const ValueKey('error'),
+              child: ErrorView(
+                message: ValueConst.homeLoadErrorMessage,
+                onRetry: () =>
+                    context.read<HomeBloc>().add(const HomeEvent.started()),
+              ),
             ),
-            onProductTap: _openProductDetails,
-            onCategoryTap: _openCategoryDetails,
-            onComingSoon: () => showSnackBar(ValueConst.comingSoonMessage),
-            onNotificationTap: () => context.push(AppRoutes.notifications),
-            onSearchTap: () => context.push(AppRoutes.search),
-          ),
-        },
+            HomeLoaded(:final home) => _HomeContent(
+              key: const ValueKey('loaded'),
+              home: home,
+              addressLabel:
+                  _selectedAddressLabel ?? ValueConst.noLocationSelectedLabel,
+              onLocationTap: _openSelectAddress,
+              onAddToCart: _addToCart,
+              onQuickAdd: _showAddToCartSheet,
+              onFavouriteToggle: (id) => context.read<HomeBloc>().add(
+                HomeEvent.favouriteToggled(productId: id),
+              ),
+              onProductTap: _openProductDetails,
+              onCategoryTap: _openCategoryDetails,
+              onComingSoon: () => showSnackBar(ValueConst.comingSoonMessage),
+              onNotificationTap: () => context.push(AppRoutes.notifications),
+              onSearchTap: () => context.push(AppRoutes.search),
+            ),
+          },
+        ),
       ),
     );
   }
@@ -130,6 +140,7 @@ class _HomeContent extends StatelessWidget {
   final ValueChanged<CategoryEntity> onCategoryTap;
 
   const _HomeContent({
+    super.key,
     required this.home,
     required this.addressLabel,
     required this.onLocationTap,

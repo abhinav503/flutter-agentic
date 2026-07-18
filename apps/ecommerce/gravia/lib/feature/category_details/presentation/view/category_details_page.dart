@@ -36,6 +36,6 @@ class _CategoryDetailsPageState extends BasePageState<CategoryDetailsPage> {
           categoryName: widget.categoryName,
         ),
       ),
-    child: const CategoryDetailsScreen(),
+    child: CategoryDetailsScreen(categoryName: widget.categoryName),
   );
 }

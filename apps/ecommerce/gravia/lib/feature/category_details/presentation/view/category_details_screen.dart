@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 
 import 'package:core/core/base/base_screen.dart';
 import 'package:core/core/theme/app_spacing.dart';
-import 'package:core/core/ui/atoms/loading_indicator.dart';
 import 'package:core/core/ui/blocks/chunked_grid.dart';
 import 'package:core/core/ui/blocks/collapsing_header_sheet.dart';
 import 'package:core/core/ui/molecules/empty_state.dart';
@@ -26,9 +25,12 @@ import 'package:gravia/widgets/radio_options_sheet_content.dart';
 import '../../../home/domain/entities/product_entity.dart';
 import '../bloc/category_details_bloc.dart';
 import '../widgets/category_details_hero_header.dart';
+import '../widgets/category_details_skeleton_body.dart';
 
 class CategoryDetailsScreen extends BaseScreen {
-  const CategoryDetailsScreen({super.key});
+  final String categoryName;
+
+  const CategoryDetailsScreen({super.key, required this.categoryName});
 
   @override
   State<CategoryDetailsScreen> createState() => _CategoryDetailsScreenState();
@@ -51,8 +53,6 @@ class _CategoryDetailsScreenState
 
   @override
   Widget body(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
@@ -65,29 +65,46 @@ class _CategoryDetailsScreenState
             showSnackBar(message);
           }
         },
-        builder: (context, state) => switch (state) {
-          CategoryDetailsLoading() => Container(
-            color: cs.primary,
-            child: const SafeArea(child: Center(child: LoadingIndicator())),
-          ),
-          CategoryDetailsError(
-            :final message,
-            :final categoryId,
-            :final categoryName,
-          ) =>
-            SafeArea(
-              child: ErrorView(
-                message: message,
-                onRetry: () => context.read<CategoryDetailsBloc>().add(
-                  CategoryDetailsEvent.started(
-                    categoryId: categoryId,
-                    categoryName: categoryName,
+        builder: (context, state) => AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          child: switch (state) {
+            CategoryDetailsLoading() => CollapsingHeaderSheet(
+              key: const ValueKey('loading'),
+              initialHeaderHeight: 165,
+              header: CategoryDetailsHeroHeader(
+                categoryName: widget.categoryName,
+                sort: ProductSortOption.relevance,
+                priceFilter: ProductPriceFilter.all,
+                onBack: () => context.pop(),
+                onSearchTap: () => context.push(AppRoutes.search),
+                onSortTap: () {},
+                onPriceTap: () {},
+              ),
+              body: const CategoryDetailsSkeletonBody(),
+            ),
+            CategoryDetailsError(
+              :final message,
+              :final categoryId,
+              :final categoryName,
+            ) =>
+              SafeArea(
+                key: const ValueKey('error'),
+                child: ErrorView(
+                  message: message,
+                  onRetry: () => context.read<CategoryDetailsBloc>().add(
+                    CategoryDetailsEvent.started(
+                      categoryId: categoryId,
+                      categoryName: categoryName,
+                    ),
                   ),
                 ),
               ),
+            CategoryDetailsLoaded() => KeyedSubtree(
+              key: const ValueKey('loaded'),
+              child: _buildLoaded(context, state),
             ),
-          CategoryDetailsLoaded() => _buildLoaded(context, state),
-        },
+          },
+        ),
       ),
     );
   }

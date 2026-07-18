@@ -14,6 +14,7 @@ import 'package:core/core/ui/atoms/loading_indicator.dart';
 import 'package:core/core/ui/atoms/network_image.dart';
 import 'package:core/core/ui/atoms/page_indicator.dart';
 import 'package:core/core/ui/atoms/radio_dot.dart';
+import 'package:core/core/ui/atoms/shimmer_box.dart';
 import 'package:core/core/ui/atoms/svg_image.dart';
 import 'package:core/core/ui/atoms/switch.dart';
 import 'package:core/core/ui/atoms/text_field.dart';
@@ -598,6 +599,35 @@ WidgetbookCategory atomsCategory() {
         'LoadingDots',
         (context) =>
             showcase(context, const [Variant('Default', LoadingDots())]),
+      ),
+      allVariants(
+        'ShimmerBox',
+        (context) => showcase(context, [
+          const Variant(
+            'Rounded rect (e.g. a product card)',
+            ShimmerBox(width: 160, height: 100),
+          ),
+          const Variant('Circle (e.g. a category tile)', ShimmerBox.circle(size: 64)),
+          Variant(
+            'Composed skeleton row (category rail)',
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: List.generate(
+                3,
+                (i) => Padding(
+                  padding: EdgeInsets.only(left: i == 0 ? 0 : 16),
+                  child: const Column(
+                    children: [
+                      ShimmerBox.circle(size: 64),
+                      SizedBox(height: 8),
+                      ShimmerBox(width: 48, height: 12),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ]),
       ),
       allVariants(
         'ThemeModeToggle',
