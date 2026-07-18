@@ -40,3 +40,39 @@ export type Product = {
   // everything.
   isPopular: boolean;
 };
+
+export type CartItem = {
+  productId: string;
+  quantity: number;
+};
+
+// Mirrors OrderStatus in gravia's lib/enums/order_status.dart, plus PENDING
+// (order placed, not yet accepted by the store) — a state gravia doesn't
+// have a dedicated enum case for yet. OrderStatusParse's string->enum
+// fallback treats any unrecognized value as `inProcess`, so a client still
+// on the old 3-state enum degrades safely instead of crashing.
+export type OrderStatus = "PENDING" | "IN_PROCESS" | "DELIVERED" | "CANCELLED";
+
+// A line item's product fields are snapshotted at order time (name, image,
+// price, formatted weight) — never re-read live from the catalog, so a
+// later price change or product deletion can't retroactively alter a past
+// order's contents.
+export type OrderLineItem = {
+  productId: string;
+  productName: string;
+  image: string;
+  price: number;
+  quantity: number;
+  weight: string;
+};
+
+export type Order = {
+  id: string;
+  uid: string;
+  storeId: string;
+  items: OrderLineItem[];
+  status: OrderStatus;
+  total: number;
+  deliveryOtp: string;
+  placedAt: string;
+};

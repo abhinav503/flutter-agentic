@@ -1,4 +1,4 @@
-import type { Category, Product } from "@/lib/types";
+import type { Category, Order, Product } from "@/lib/types";
 
 // Shapes match gravia's existing mock JSON / *Model.fromJson() wire format
 // exactly (apps/ecommerce/gravia/lib/feature/*/data/models/) — snake_case,
@@ -23,6 +23,30 @@ export function serializeProduct(p: Product) {
     // Per-shopper state, not a catalog property — no favorites model yet,
     // so this is always false from a catalog-read endpoint.
     is_favourite: false,
+  };
+}
+
+// Matches OrderModel.fromJson() in gravia (data/models/order_model.dart)
+// exactly — status/placed_at/delivery_otp/items[] with product_name/weight/
+// image/price/quantity — so a future OrdersRemoteDataSourceImpl swap needs
+// no model changes, same intent as serializeProduct above. `status` is
+// already one of gravia's OrderStatusParse wire strings, except PENDING,
+// which that parser doesn't recognize yet and falls back to `inProcess`
+// for — a safe degrade, not a crash, until gravia's enum grows a case for it.
+export function serializeOrder(o: Order) {
+  return {
+    id: o.id,
+    status: o.status,
+    placed_at: o.placedAt,
+    delivery_otp: o.deliveryOtp,
+    total: o.total,
+    items: o.items.map((item) => ({
+      product_name: item.productName,
+      weight: item.weight,
+      image: item.image,
+      price: item.price,
+      quantity: item.quantity,
+    })),
   };
 }
 

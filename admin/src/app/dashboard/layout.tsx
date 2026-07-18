@@ -15,6 +15,7 @@ const NAV_ITEMS = [
   { href: "/dashboard", label: "Overview" },
   { href: "/dashboard/categories", label: "Categories" },
   { href: "/dashboard/products", label: "Products" },
+  { href: "/dashboard/orders", label: "Orders" },
 ];
 
 export default function DashboardLayout({
