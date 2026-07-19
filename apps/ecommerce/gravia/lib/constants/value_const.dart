@@ -194,6 +194,7 @@ abstract final class ValueConst {
   static const ordersPageTitle = 'Orders';
   static const upcomingTabLabel = 'Upcoming';
   static const pastTabLabel = 'Past';
+  static const pendingStatusLabel = 'Order Placed';
   static const inProcessStatusLabel = 'In Process';
   static const deliveredStatusLabel = 'Delivered';
   static const cancelledStatusLabel = 'Cancelled';

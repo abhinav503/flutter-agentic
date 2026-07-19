@@ -29,6 +29,7 @@ abstract class OrderModel with _$OrderModel {
     // than a reusable enum -> string extension, since orders.json is
     // read-only mock data and this direction has no other caller.
     status: switch (e.status) {
+      OrderStatus.pending => 'PENDING',
       OrderStatus.inProcess => 'IN_PROCESS',
       OrderStatus.delivered => 'DELIVERED',
       OrderStatus.cancelled => 'CANCELLED',

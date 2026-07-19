@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:core/core/base/base_screen.dart';
 import 'package:core/core/theme/app_spacing.dart';
+import 'package:core/core/ui/atoms/button.dart';
 import 'package:core/core/ui/blocks/collapsing_header_sheet.dart';
 import 'package:core/core/ui/blocks/section_header.dart';
 import 'package:core/core/ui/molecules/empty_state.dart';
@@ -20,7 +21,9 @@ import 'package:gravia/widgets/gravia_product_card.dart';
 import 'package:gravia/widgets/gravia_sheet.dart';
 
 import '../../../home/domain/entities/product_entity.dart';
+import '../../domain/entities/cart_item_entity.dart';
 import '../bloc/cart_bloc.dart';
+import '../bloc/checkout_bloc.dart';
 import '../cubit/cart_cubit.dart';
 import '../widgets/cart_item_row.dart';
 import '../widgets/cart_summary_section.dart';
@@ -35,10 +38,15 @@ class CartScreen extends BaseScreen {
 class _CartScreenState extends BaseScreenState<CartScreen> {
   void _showComingSoon() => showSnackBar(ValueConst.comingSoonMessage);
 
-  // No payment step exists in this mocked app — tapping the CTA is what
-  // "places" the order, so the cart clears immediately rather than staying
-  // populated behind the confirmation sheet.
-  void _placeOrder() {
+  // No payment step exists yet — tapping the CTA submits the order directly.
+  // The cart only clears once the server confirms creation (see the
+  // CheckoutBloc listener in `body`), not optimistically here, since the
+  // request can fail (e.g. insufficient stock).
+  void _placeOrder(List<CartItemEntity> items) {
+    context.read<CheckoutBloc>().add(CheckoutEvent.submitted(items: items));
+  }
+
+  void _onOrderPlaced() {
     context.read<CartCubit>().clear();
     showOrderPlacedSheet(
       onTrackOrder: () =>
@@ -61,13 +69,18 @@ class _CartScreenState extends BaseScreenState<CartScreen> {
     final cs = Theme.of(context).colorScheme;
     final cartItems = context.watch<CartCubit>().state;
 
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: const SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.light,
-        statusBarBrightness: Brightness.dark,
-      ),
-      child: cartItems.isEmpty
+    return BlocListener<CheckoutBloc, CheckoutState>(
+      listener: (context, state) {
+        if (state case CheckoutSuccess()) _onOrderPlaced();
+        if (state case CheckoutFailure(:final message)) showSnackBar(message);
+      },
+      child: AnnotatedRegion<SystemUiOverlayStyle>(
+        value: const SystemUiOverlayStyle(
+          statusBarColor: Colors.transparent,
+          statusBarIconBrightness: Brightness.light,
+          statusBarBrightness: Brightness.dark,
+        ),
+        child: cartItems.isEmpty
           ? Column(
               children: [
                 GraviaHeroHeader(
@@ -138,13 +151,21 @@ class _CartScreenState extends BaseScreenState<CartScreen> {
                   ),
                 ),
                 GraviaDockedBar(
-                  child: GraviaPrimaryButton(
-                    label: ValueConst.proceedToCheckoutLabel,
-                    onTap: _placeOrder,
+                  child: BlocBuilder<CheckoutBloc, CheckoutState>(
+                    builder: (context, state) => GraviaPrimaryButton(
+                      label: ValueConst.proceedToCheckoutLabel,
+                      state: state is CheckoutSubmitting
+                          ? AppButtonState.loading
+                          : AppButtonState.idle,
+                      onTap: state is CheckoutSubmitting
+                          ? null
+                          : () => _placeOrder(cartItems),
+                    ),
                   ),
                 ),
               ],
             ),
+      ),
     );
   }
 }

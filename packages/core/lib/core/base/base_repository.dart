@@ -57,8 +57,10 @@ mixin BaseRepository {
       (e.type == DioExceptionType.unknown && e.response == null);
 
   // Extracts a human-readable message from the response body when the API
-  // returns a structured error (e.g. {"error": {"message": "..."}}), so the
-  // caller sees the real reason instead of Dio's generic description.
+  // returns a structured error — either {"error": {"message": "..."}} or a
+  // plain {"error": "..."} string (the shape every admin/src/app/api route
+  // uses, e.g. order creation's "Insufficient stock for X") — so the caller
+  // sees the real reason instead of Dio's generic description.
   String _serverMessage(DioException e) {
     final data = e.response?.data;
     if (data is Map) {
@@ -66,6 +68,7 @@ mixin BaseRepository {
       if (error is Map && error['message'] is String) {
         return error['message'] as String;
       }
+      if (error is String) return error;
       if (data['message'] is String) return data['message'] as String;
     }
     return e.message ?? e.error?.toString() ?? 'Server error';

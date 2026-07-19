@@ -68,6 +68,16 @@ class _ShellPageState extends BasePageState<ShellPage> {
   bool _verifySheetOpen = false;
 
   @override
+  void initState() {
+    super.initState();
+    // Shell is only reached once a session is confirmed (Splash routes
+    // signed-out users to Login first), so this is the earliest safe place
+    // to load the signed-in shopper's persisted cart — once per cold start
+    // or fresh login, not on every tab switch (initState, not build).
+    context.read<CartCubit>().hydrate();
+  }
+
+  @override
   void didUpdateWidget(covariant ShellPage oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.initialTab != oldWidget.initialTab) {

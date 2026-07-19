@@ -72,9 +72,15 @@ class OrderPlacedSheetContent extends StatelessWidget {
               Text(
                 ValueConst.orderPlacedSubtitle,
                 textAlign: TextAlign.center,
-                style: TextStyleConst.textSmRegular(
-                  tt,
-                ).copyWith(color: ColorConst.gray200),
+                style: TextStyleConst.textSmRegular(tt).copyWith(
+                  // Asymmetric pick (not a single ColorScheme role): Gray/700
+                  // in light, white in dark — same reasoning as
+                  // ColorScheme.dockedHairline/sheetHairline, matches the
+                  // Verify Email sheet's subtitle.
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? Colors.white
+                      : ColorConst.gray700,
+                ),
               ),
               const SizedBox(height: AppSpacing.xl4),
               GraviaPrimaryButton(

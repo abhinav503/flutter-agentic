@@ -2,6 +2,8 @@ import 'package:core/core/base/base_repository.dart';
 import 'package:core/core/error/failure.dart';
 import 'package:fpdart/fpdart.dart';
 
+import 'package:gravia/feature/cart/domain/entities/cart_item_entity.dart';
+
 import '../../domain/entities/order_entity.dart';
 import '../../domain/repository/orders_repository.dart';
 import '../data_source/orders_remote_data_source.dart';
@@ -17,4 +19,12 @@ class OrdersRepositoryImpl with BaseRepository implements OrdersRepository {
         final models = await _dataSource.getOrders();
         return right(models.map((m) => m.toEntity()).toList());
       });
+
+  @override
+  Future<Either<Failure, OrderEntity>> createOrder(
+    List<CartItemEntity> items,
+  ) => handleRequest(() async {
+    final model = await _dataSource.createOrder(items);
+    return right(model.toEntity());
+  });
 }

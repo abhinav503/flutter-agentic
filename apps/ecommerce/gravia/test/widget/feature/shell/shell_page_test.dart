@@ -37,7 +37,8 @@ void main() {
       MaterialApp(
         theme: AppTheme.fromConfig(AppThemeConfig.defaults),
         home: BlocProvider(
-          create: (_) => CartCubit(),
+          create: (_) =>
+              CartCubit(getCartUseCase: sl(), saveCartUseCase: sl()),
           child: ShellPage(initialTab: initialTab),
         ),
       );

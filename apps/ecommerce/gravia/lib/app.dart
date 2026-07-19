@@ -9,6 +9,7 @@ import 'package:core/core/theme/theme_mode_scope.dart';
 
 import 'constants/app_routes.dart';
 import 'constants/value_const.dart';
+import 'di/injection_container.dart';
 import 'feature/address/domain/entities/address_entity.dart';
 import 'feature/address/presentation/view/address_form_page.dart';
 import 'feature/address/presentation/view/address_page.dart';
@@ -328,7 +329,7 @@ class _AppState extends State<App> {
     // separate GoRouter pages (siblings of ShellPage in the root Navigator),
     // so a shell-scoped provider wouldn't reach them.
     return BlocProvider(
-      create: (_) => CartCubit(),
+      create: (_) => CartCubit(getCartUseCase: sl(), saveCartUseCase: sl()),
       child: ValueListenableBuilder<ThemeMode>(
         valueListenable: _themeMode,
         builder: (context, mode, _) => ThemeModeScope(

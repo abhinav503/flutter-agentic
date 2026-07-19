@@ -147,6 +147,9 @@ class _StatusBadge extends StatelessWidget {
       // Same mint-on-tinted-primary look as ProductCard's weight badge and
       // AddressCard's tag badge — kept identical so status badges don't
       // drift into their own one-off colour.
+      OrderStatus.pending => GraviaTintBadge(
+        text: ValueConst.pendingStatusLabel,
+      ),
       OrderStatus.inProcess => GraviaTintBadge(
         text: ValueConst.inProcessStatusLabel,
       ),

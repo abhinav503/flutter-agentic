@@ -11,6 +11,8 @@ abstract final class ApiConstants {
   static String get categoriesPath => '$_storeBase/categories';
   static String get popularProductsPath => '$_storeBase/products/popular';
   static String get searchPath => '$_storeBase/search';
+  static String get cartPath => '$_storeBase/cart';
+  static String get ordersPath => '$_storeBase/orders';
 
   static String categoryProductsPath(String categoryId) =>
       '$_storeBase/categories/$categoryId/products';

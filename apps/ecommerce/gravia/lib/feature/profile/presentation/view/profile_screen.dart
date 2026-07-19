@@ -19,6 +19,7 @@ import 'package:gravia/constants/image_const.dart';
 import 'package:gravia/constants/value_const.dart';
 import 'package:gravia/feature/auth/presentation/bloc/auth_bloc.dart'
     show kPendingEmailVerificationPrefKey;
+import 'package:gravia/feature/cart/presentation/cubit/cart_cubit.dart';
 import 'package:gravia/feature/shell/presentation/view/shell_page.dart';
 import 'package:gravia/services/firebase_auth_service.dart';
 import 'package:gravia/services/user_profile_cache_service.dart';
@@ -197,6 +198,9 @@ class _ProfileScreenState extends BaseScreenState<ProfileScreen> {
       kPendingEmailVerificationPrefKey,
       false,
     );
-    if (context.mounted) context.go(AppRoutes.login);
+    if (context.mounted) {
+      context.read<CartCubit>().reset();
+      context.go(AppRoutes.login);
+    }
   }
 }

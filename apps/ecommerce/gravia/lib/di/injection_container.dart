@@ -17,6 +17,12 @@ import '../feature/auth/domain/usecase/sign_in_usecase.dart';
 import '../feature/auth/domain/usecase/sign_out_usecase.dart';
 import '../feature/auth/domain/usecase/sign_up_usecase.dart';
 import '../feature/auth/domain/usecase/update_profile_usecase.dart';
+import '../feature/cart/data/data_source/cart_remote_data_source.dart';
+import '../feature/cart/data/data_source/cart_remote_data_source_impl.dart';
+import '../feature/cart/data/repository_impl/cart_repository_impl.dart';
+import '../feature/cart/domain/repository/cart_repository.dart';
+import '../feature/cart/domain/usecase/get_cart_usecase.dart';
+import '../feature/cart/domain/usecase/save_cart_usecase.dart';
 import '../feature/categories/data/data_source/categories_remote_data_source.dart';
 import '../feature/categories/data/data_source/categories_remote_data_source_impl.dart';
 import '../feature/categories/data/repository_impl/categories_repository_impl.dart';
@@ -41,6 +47,7 @@ import '../feature/orders/data/data_source/orders_remote_data_source.dart';
 import '../feature/orders/data/data_source/orders_remote_data_source_impl.dart';
 import '../feature/orders/data/repository_impl/orders_repository_impl.dart';
 import '../feature/orders/domain/repository/orders_repository.dart';
+import '../feature/orders/domain/usecase/create_order_usecase.dart';
 import '../feature/orders/domain/usecase/get_orders_usecase.dart';
 import '../feature/product_details/data/data_source/product_details_remote_data_source.dart';
 import '../feature/product_details/data/data_source/product_details_remote_data_source_impl.dart';
@@ -140,12 +147,21 @@ Future<void> initDependencies() async {
   );
   sl.registerLazySingleton(() => GetAddressesUseCase(sl()));
 
+  // ── Cart ─────────────────────────────────────────────────────────────────
+  sl.registerLazySingleton<CartRemoteDataSource>(
+    () => const CartRemoteDataSourceImpl(),
+  );
+  sl.registerLazySingleton<CartRepository>(() => CartRepositoryImpl(sl()));
+  sl.registerLazySingleton(() => GetCartUseCase(sl()));
+  sl.registerLazySingleton(() => SaveCartUseCase(sl()));
+
   // ── Orders ───────────────────────────────────────────────────────────────
   sl.registerLazySingleton<OrdersRemoteDataSource>(
     () => const OrdersRemoteDataSourceImpl(),
   );
   sl.registerLazySingleton<OrdersRepository>(() => OrdersRepositoryImpl(sl()));
   sl.registerLazySingleton(() => GetOrdersUseCase(sl()));
+  sl.registerLazySingleton(() => CreateOrderUseCase(sl()));
 
   // ── Notifications ────────────────────────────────────────────────────────
   sl.registerLazySingleton<NotificationsRemoteDataSource>(
