@@ -12,6 +12,7 @@ import 'package:gravia/services/firebase_auth_service.dart';
 
 import '../../domain/entities/user_entity.dart';
 import '../../domain/usecase/check_email_verified_usecase.dart';
+import '../../domain/usecase/forgot_password_usecase.dart';
 import '../../domain/usecase/resend_verification_email_usecase.dart';
 import '../../domain/usecase/sign_in_usecase.dart';
 import '../../domain/usecase/sign_up_usecase.dart';
@@ -31,6 +32,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final SignInUseCase _signIn;
   final ResendVerificationEmailUseCase _resendVerification;
   final CheckEmailVerifiedUseCase _checkEmailVerified;
+  final ForgotPasswordUseCase _forgotPassword;
 
   Timer? _verificationTimer;
 
@@ -39,15 +41,18 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required SignInUseCase signInUseCase,
     required ResendVerificationEmailUseCase resendVerificationEmailUseCase,
     required CheckEmailVerifiedUseCase checkEmailVerifiedUseCase,
+    required ForgotPasswordUseCase forgotPasswordUseCase,
   }) : _signUp = signUpUseCase,
        _signIn = signInUseCase,
        _resendVerification = resendVerificationEmailUseCase,
        _checkEmailVerified = checkEmailVerifiedUseCase,
+       _forgotPassword = forgotPasswordUseCase,
        super(const AuthState.initial()) {
     on<AuthStarted>(_onStarted);
     on<AuthSignUpRequested>(_onSignUpRequested);
     on<AuthLoginRequested>(_onLoginRequested);
     on<AuthResendVerificationRequested>(_onResendVerificationRequested);
+    on<AuthForgotPasswordRequested>(_onForgotPasswordRequested);
     on<AuthVerificationTicked>(_onVerificationTicked);
   }
 
@@ -132,6 +137,29 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     result.fold(
       (failure) => emit(AuthState.error(message: failure.message)),
       (_) {},
+    );
+  }
+
+  // No `AuthState.loading()` here — Login's submit button derives its
+  // spinner from that state, and this is an unrelated, near-instant
+  // fire-and-forget (Firebase just enqueues the email); reusing it would
+  // flash the login button's loader for an action the user didn't take.
+  Future<void> _onForgotPasswordRequested(
+    AuthForgotPasswordRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    if (kIsWeb) {
+      emit(
+        const AuthState.error(message: ValueConst.authWebUnsupportedMessage),
+      );
+      return;
+    }
+    final result = await _forgotPassword(
+      ForgotPasswordParams(email: event.email),
+    );
+    result.fold(
+      (failure) => emit(AuthState.error(message: failure.message)),
+      (_) => emit(AuthState.passwordResetEmailSent(email: event.email)),
     );
   }
 

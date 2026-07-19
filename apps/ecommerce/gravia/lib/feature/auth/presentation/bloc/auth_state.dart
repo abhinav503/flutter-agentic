@@ -10,6 +10,12 @@ sealed class AuthState with _$AuthState {
       AuthAuthenticated;
   const factory AuthState.unauthenticated() = AuthUnauthenticated;
 
+  /// Firebase's reset email is on its way to [email] — Login shows a
+  /// confirmation snackbar off this and stays put; no navigation, no other
+  /// state to track (Firebase owns the rest of the reset flow).
+  const factory AuthState.passwordResetEmailSent({required String email}) =
+      AuthPasswordResetEmailSent;
+
   // Carries just `message` (shown via a BlocListener snackbar), not full
   // retry-context — Login/Signup are forms with screen-local
   // TextEditingControllers, so the user retries by editing and tapping the

@@ -33,4 +33,14 @@ abstract interface class AuthRemoteDataSource {
     required String name,
     required String mobile,
   });
+
+  /// Re-authenticates with [currentPassword], then sets [newPassword] on
+  /// the Firebase Auth user. No profile-doc write — password isn't part of
+  /// the synced profile.
+  Future<void> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  });
+
+  Future<void> sendPasswordResetEmail({required String email});
 }

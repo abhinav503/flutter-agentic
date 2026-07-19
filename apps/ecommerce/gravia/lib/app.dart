@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:core/core/services/shared_pref_service/shared_preference_service.dart';
 import 'package:core/core/theme/app_theme.dart';
 import 'package:core/core/theme/app_theme_config.dart';
 import 'package:core/core/theme/theme_mode_controller.dart';
@@ -11,6 +12,8 @@ import 'constants/value_const.dart';
 import 'feature/address/domain/entities/address_entity.dart';
 import 'feature/address/presentation/view/address_form_page.dart';
 import 'feature/address/presentation/view/address_page.dart';
+import 'feature/auth/presentation/bloc/auth_bloc.dart'
+    show kPendingEmailVerificationPrefKey;
 import 'feature/auth/presentation/view/login_page.dart';
 import 'feature/auth/presentation/view/signup_page.dart';
 import 'feature/cart/presentation/cubit/cart_cubit.dart';
@@ -22,10 +25,13 @@ import 'feature/notifications/presentation/view/notifications_page.dart';
 import 'feature/onboarding/presentation/view/onboarding_page.dart';
 import 'feature/product_details/presentation/view/product_details_page.dart';
 import 'feature/profile/domain/entities/profile_entity.dart';
+import 'feature/profile/presentation/view/change_password_page.dart';
 import 'feature/profile/presentation/view/edit_profile_page.dart';
 import 'feature/search/presentation/view/search_page.dart';
 import 'feature/shell/presentation/view/shell_page.dart';
 import 'feature/splash/presentation/view/splash_page.dart';
+import 'services/firebase_auth_service.dart';
+import 'services/user_profile_cache_service.dart';
 
 final _router = GoRouter(
   routes: [
@@ -141,6 +147,21 @@ final _router = GoRouter(
       ),
     ),
     GoRoute(
+      path: AppRoutes.changePassword,
+      // Fade, same reasoning as Edit Profile/Select Address.
+      pageBuilder: (context, state) => CustomTransitionPage<void>(
+        key: state.pageKey,
+        transitionDuration: const Duration(milliseconds: 350),
+        reverseTransitionDuration: const Duration(milliseconds: 300),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+            FadeTransition(
+              opacity: CurveTween(curve: Curves.easeInOut).animate(animation),
+              child: child,
+            ),
+        child: const ChangePasswordPage(),
+      ),
+    ),
+    GoRoute(
       path: AppRoutes.categoryDetails,
       // Fade, same reasoning as the Product Details route above.
       pageBuilder: (context, state) => CustomTransitionPage<void>(
@@ -227,6 +248,61 @@ final _router = GoRouter(
   ],
 );
 
+final _scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
+
+/// Wraps every routed page so a dead Firebase session — e.g. this device's
+/// refresh token revoked by a password change/reset made elsewhere,
+/// discovered the next time any feature's authenticated call reaches
+/// `FirebaseAuthService.idToken()` — gets one consistent, app-wide reaction
+/// instead of each screen independently rendering its own confusing
+/// "something went wrong" with an endless, always-failing Retry (see
+/// `FirebaseAuthService.idToken`/`sessionExpired`).
+///
+/// Lives at `MaterialApp.router`'s `builder`, above the Navigator, so it can
+/// unconditionally `_router.go()` regardless of which page is currently
+/// showing, and uses `_scaffoldMessengerKey` (not `context`) for the
+/// snackbar since this level has no `Scaffold` of its own.
+class _SessionExpiredGuard extends StatefulWidget {
+  final Widget? child;
+
+  const _SessionExpiredGuard({required this.child});
+
+  @override
+  State<_SessionExpiredGuard> createState() => _SessionExpiredGuardState();
+}
+
+class _SessionExpiredGuardState extends State<_SessionExpiredGuard> {
+  @override
+  void initState() {
+    super.initState();
+    FirebaseAuthService.instance.sessionExpired.addListener(_handleExpired);
+  }
+
+  @override
+  void dispose() {
+    FirebaseAuthService.instance.sessionExpired.removeListener(
+      _handleExpired,
+    );
+    super.dispose();
+  }
+
+  Future<void> _handleExpired() async {
+    await UserProfileCacheService.instance.clear();
+    await SharedPreferenceService.instance.setBool(
+      kPendingEmailVerificationPrefKey,
+      false,
+    );
+    _scaffoldMessengerKey.currentState?.showSnackBar(
+      const SnackBar(content: Text(ValueConst.sessionExpiredMessage)),
+    );
+    _router.go(AppRoutes.login);
+  }
+
+  @override
+  Widget build(BuildContext context) =>
+      widget.child ?? const SizedBox.shrink();
+}
+
 class App extends StatefulWidget {
   final AppThemeConfig themeConfig;
 
@@ -263,6 +339,8 @@ class _AppState extends State<App> {
             theme: AppTheme.fromConfig(widget.themeConfig),
             darkTheme: AppTheme.fromConfig(widget.themeConfig, dark: true),
             themeMode: mode,
+            scaffoldMessengerKey: _scaffoldMessengerKey,
+            builder: (context, child) => _SessionExpiredGuard(child: child),
           ),
         ),
       ),

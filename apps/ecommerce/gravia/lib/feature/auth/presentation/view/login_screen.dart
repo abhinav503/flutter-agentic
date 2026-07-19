@@ -78,12 +78,32 @@ class _LoginScreenState extends BaseScreenState<LoginScreen>
     );
   }
 
+  // Reuses whatever the user has already typed into the Email field — no
+  // separate "enter your email" prompt/dialog. An empty/invalid value
+  // surfaces as the same field error _validate() already renders, so the
+  // user just fills it in and taps again.
+  void _forgotPassword() {
+    final emailError = validateEmail(_emailController.text);
+    if (emailError != null) {
+      setState(() => _errors[_LoginField.email] = emailError);
+      return;
+    }
+    context.read<AuthBloc>().add(
+      AuthEvent.forgotPasswordRequested(
+        email: _emailController.text.trim(),
+      ),
+    );
+  }
+
   @override
   Widget body(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) => switch (state) {
         AuthAwaitingVerification(:final email) => _openVerifySheet(email),
         AuthAuthenticated() => _closeSheetAndGoHome(),
+        AuthPasswordResetEmailSent(:final email) => showSnackBar(
+          ValueConst.passwordResetEmailSentMessage(email),
+        ),
         AuthError(:final message) => showSnackBar(message),
         _ => null,
       },
@@ -123,7 +143,18 @@ class _LoginScreenState extends BaseScreenState<LoginScreen>
                           errorText: _errors[_LoginField.password],
                           onChanged: (_) => _clearError(_LoginField.password),
                         ),
-                        const SizedBox(height: AppSpacing.xl2),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            AppButton(
+                              label: ValueConst.forgotPasswordLabel,
+                              variant: AppButtonVariant.text,
+                              size: AppButtonSize.small,
+                              onTap: _forgotPassword,
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: AppSpacing.lg),
                         GraviaPrimaryButton(
                           label: ValueConst.continueLabel,
                           state: isLoading

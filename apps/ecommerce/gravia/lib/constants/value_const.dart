@@ -154,6 +154,17 @@ abstract final class ValueConst {
   static const avatarPickerMobileOnlyMessage =
       'Changing your photo is only available on mobile';
 
+  // ── Change Password ──────────────────────────────────────────────────────
+  static const changePasswordTitle = 'Change Password';
+  static const currentPasswordLabel = 'Current Password';
+  static const currentPasswordHint = 'Enter your current password';
+  static const newPasswordLabel = 'New Password';
+  static const newPasswordHint = 'Enter your new password';
+  static const confirmNewPasswordLabel = 'Confirm New Password';
+  static const confirmNewPasswordHint = 'Re-enter your new password';
+  static const updatePasswordButtonLabel = 'Update Password';
+  static const passwordUpdatedMessage = 'Your password has been updated.';
+
   // ── Cart ───────────────────────────────────────────────────────────────────
   static const myCartTitle = 'My Cart';
   static const beforeYouCheckoutTitle = 'Before you Checkout';
@@ -264,6 +275,12 @@ abstract final class ValueConst {
   static const emailHint = 'you@example.com';
   static const passwordLabel = 'Password';
   static const passwordHint = 'Enter your password';
+  static const forgotPasswordLabel = 'Forgot Password?';
+
+  /// Firebase owns the rest of the reset flow — this confirms the email
+  /// left our side, nothing more.
+  static String passwordResetEmailSentMessage(String email) =>
+      'Password reset link sent to $email';
   static const continueLabel = 'Continue';
   static const orLoginWith = 'Or Login with';
   static const continueWithGoogle = 'Continue with Google';
@@ -293,8 +310,13 @@ abstract final class ValueConst {
   static const mobileRequiredErrorMessage = 'Please enter your mobile number.';
   static const mobileInvalidErrorMessage = 'Enter a valid mobile number.';
   static const passwordRequiredErrorMessage = 'Please enter your password.';
+  static const confirmPasswordRequiredErrorMessage =
+      'Please confirm your new password.';
+  static const passwordsDontMatchErrorMessage = 'Passwords do not match.';
   static const authWebUnsupportedMessage =
       'Sign-in is only available on mobile.';
+  static const sessionExpiredMessage =
+      'Your session has expired. Please sign in again.';
   static const signupButtonLabel = 'Signup';
   static const alreadyHaveAccount = 'Already have an account? ';
   static const loginLink = 'Login';

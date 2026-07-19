@@ -37,4 +37,10 @@ mixin TextfieldValidations {
     if (value.length < 6) return ValueConst.weakPasswordErrorMessage;
     return null;
   }
+
+  String? validateConfirmPassword(String value, String original) {
+    if (value.isEmpty) return ValueConst.confirmPasswordRequiredErrorMessage;
+    if (value != original) return ValueConst.passwordsDontMatchErrorMessage;
+    return null;
+  }
 }

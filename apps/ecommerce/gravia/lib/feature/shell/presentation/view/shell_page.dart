@@ -91,6 +91,7 @@ class _ShellPageState extends BasePageState<ShellPage> {
       signInUseCase: sl(),
       resendVerificationEmailUseCase: sl(),
       checkEmailVerifiedUseCase: sl(),
+      forgotPasswordUseCase: sl(),
     )..add(const AuthEvent.started()),
     child: Builder(
       builder: (context) => BlocListener<AuthBloc, AuthState>(

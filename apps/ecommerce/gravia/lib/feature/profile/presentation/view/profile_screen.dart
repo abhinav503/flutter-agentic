@@ -95,7 +95,7 @@ class _ProfileScreenState extends BaseScreenState<ProfileScreen> {
                       height: size,
                     ),
                     label: ValueConst.changePasswordLabel,
-                    onTap: () => showSnackBar(ValueConst.comingSoonMessage),
+                    onTap: () => context.push(AppRoutes.changePassword),
                   ),
                   ProfileMenuTile(
                     iconBuilder: (color, size) => AppSvgImage.asset(

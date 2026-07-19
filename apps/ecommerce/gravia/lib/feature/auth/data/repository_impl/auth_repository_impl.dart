@@ -95,4 +95,32 @@ class AuthRepositoryImpl with BaseRepository implements AuthRepository {
       return left(Failure.unexpected(message: e.readableMessage));
     }
   });
+
+  @override
+  Future<Either<Failure, void>> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) => handleRequest(() async {
+    try {
+      await _dataSource.changePassword(
+        currentPassword: currentPassword,
+        newPassword: newPassword,
+      );
+      return right(null);
+    } on FirebaseAuthException catch (e) {
+      return left(Failure.unexpected(message: e.readableMessage));
+    }
+  });
+
+  @override
+  Future<Either<Failure, void>> sendPasswordResetEmail({
+    required String email,
+  }) => handleRequest(() async {
+    try {
+      await _dataSource.sendPasswordResetEmail(email: email);
+      return right(null);
+    } on FirebaseAuthException catch (e) {
+      return left(Failure.unexpected(message: e.readableMessage));
+    }
+  });
 }

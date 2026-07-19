@@ -17,6 +17,7 @@ abstract final class AppRoutes {
   /// [addressForm]. Unlike Address, there's no "add" case: a profile always
   /// exists, so `extra` is never null here.
   static const editProfile = '/edit-profile';
+  static const changePassword = '/change-password';
   static const cart = '/cart';
   static const notifications = '/notifications';
   static const termsAndConditions = '/terms-and-conditions';

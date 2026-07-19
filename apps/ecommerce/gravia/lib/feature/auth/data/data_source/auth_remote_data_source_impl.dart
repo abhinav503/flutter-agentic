@@ -65,6 +65,21 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     return _saveUserProfile(idToken: idToken!, name: name, mobile: mobile);
   }
 
+  @override
+  Future<void> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    await FirebaseAuthService.instance.reauthenticate(
+      currentPassword: currentPassword,
+    );
+    await FirebaseAuthService.instance.updatePassword(newPassword);
+  }
+
+  @override
+  Future<void> sendPasswordResetEmail({required String email}) =>
+      FirebaseAuthService.instance.sendPasswordResetEmail(email);
+
   /// Upserts the caller's `users/{uid}` profile on the admin API. `name`/
   /// `mobile` are optional — omit both to just re-sync `emailVerified` off a
   /// freshly-refreshed token without touching the rest of the profile.

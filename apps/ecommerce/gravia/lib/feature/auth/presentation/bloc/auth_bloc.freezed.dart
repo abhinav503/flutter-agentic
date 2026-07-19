@@ -55,15 +55,15 @@ extension AuthEventPatterns on AuthEvent {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( AuthStarted value)?  started,TResult Function( AuthSignUpRequested value)?  signUpRequested,TResult Function( AuthLoginRequested value)?  loginRequested,TResult Function( AuthResendVerificationRequested value)?  resendVerificationRequested,TResult Function( AuthSignedOutRequested value)?  signedOutRequested,TResult Function( AuthVerificationTicked value)?  verificationTicked,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( AuthStarted value)?  started,TResult Function( AuthSignUpRequested value)?  signUpRequested,TResult Function( AuthLoginRequested value)?  loginRequested,TResult Function( AuthResendVerificationRequested value)?  resendVerificationRequested,TResult Function( AuthForgotPasswordRequested value)?  forgotPasswordRequested,TResult Function( AuthVerificationTicked value)?  verificationTicked,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case AuthStarted() when started != null:
 return started(_that);case AuthSignUpRequested() when signUpRequested != null:
 return signUpRequested(_that);case AuthLoginRequested() when loginRequested != null:
 return loginRequested(_that);case AuthResendVerificationRequested() when resendVerificationRequested != null:
-return resendVerificationRequested(_that);case AuthSignedOutRequested() when signedOutRequested != null:
-return signedOutRequested(_that);case AuthVerificationTicked() when verificationTicked != null:
+return resendVerificationRequested(_that);case AuthForgotPasswordRequested() when forgotPasswordRequested != null:
+return forgotPasswordRequested(_that);case AuthVerificationTicked() when verificationTicked != null:
 return verificationTicked(_that);case _:
   return orElse();
 
@@ -82,15 +82,15 @@ return verificationTicked(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( AuthStarted value)  started,required TResult Function( AuthSignUpRequested value)  signUpRequested,required TResult Function( AuthLoginRequested value)  loginRequested,required TResult Function( AuthResendVerificationRequested value)  resendVerificationRequested,required TResult Function( AuthSignedOutRequested value)  signedOutRequested,required TResult Function( AuthVerificationTicked value)  verificationTicked,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( AuthStarted value)  started,required TResult Function( AuthSignUpRequested value)  signUpRequested,required TResult Function( AuthLoginRequested value)  loginRequested,required TResult Function( AuthResendVerificationRequested value)  resendVerificationRequested,required TResult Function( AuthForgotPasswordRequested value)  forgotPasswordRequested,required TResult Function( AuthVerificationTicked value)  verificationTicked,}){
 final _that = this;
 switch (_that) {
 case AuthStarted():
 return started(_that);case AuthSignUpRequested():
 return signUpRequested(_that);case AuthLoginRequested():
 return loginRequested(_that);case AuthResendVerificationRequested():
-return resendVerificationRequested(_that);case AuthSignedOutRequested():
-return signedOutRequested(_that);case AuthVerificationTicked():
+return resendVerificationRequested(_that);case AuthForgotPasswordRequested():
+return forgotPasswordRequested(_that);case AuthVerificationTicked():
 return verificationTicked(_that);}
 }
 /// A variant of `map` that fallback to returning `null`.
@@ -105,15 +105,15 @@ return verificationTicked(_that);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( AuthStarted value)?  started,TResult? Function( AuthSignUpRequested value)?  signUpRequested,TResult? Function( AuthLoginRequested value)?  loginRequested,TResult? Function( AuthResendVerificationRequested value)?  resendVerificationRequested,TResult? Function( AuthSignedOutRequested value)?  signedOutRequested,TResult? Function( AuthVerificationTicked value)?  verificationTicked,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( AuthStarted value)?  started,TResult? Function( AuthSignUpRequested value)?  signUpRequested,TResult? Function( AuthLoginRequested value)?  loginRequested,TResult? Function( AuthResendVerificationRequested value)?  resendVerificationRequested,TResult? Function( AuthForgotPasswordRequested value)?  forgotPasswordRequested,TResult? Function( AuthVerificationTicked value)?  verificationTicked,}){
 final _that = this;
 switch (_that) {
 case AuthStarted() when started != null:
 return started(_that);case AuthSignUpRequested() when signUpRequested != null:
 return signUpRequested(_that);case AuthLoginRequested() when loginRequested != null:
 return loginRequested(_that);case AuthResendVerificationRequested() when resendVerificationRequested != null:
-return resendVerificationRequested(_that);case AuthSignedOutRequested() when signedOutRequested != null:
-return signedOutRequested(_that);case AuthVerificationTicked() when verificationTicked != null:
+return resendVerificationRequested(_that);case AuthForgotPasswordRequested() when forgotPasswordRequested != null:
+return forgotPasswordRequested(_that);case AuthVerificationTicked() when verificationTicked != null:
 return verificationTicked(_that);case _:
   return null;
 
@@ -131,14 +131,14 @@ return verificationTicked(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  started,TResult Function( String name,  String email,  String mobile,  String password)?  signUpRequested,TResult Function( String email,  String password)?  loginRequested,TResult Function()?  resendVerificationRequested,TResult Function()?  signedOutRequested,TResult Function()?  verificationTicked,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  started,TResult Function( String name,  String email,  String mobile,  String password)?  signUpRequested,TResult Function( String email,  String password)?  loginRequested,TResult Function()?  resendVerificationRequested,TResult Function( String email)?  forgotPasswordRequested,TResult Function()?  verificationTicked,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case AuthStarted() when started != null:
 return started();case AuthSignUpRequested() when signUpRequested != null:
 return signUpRequested(_that.name,_that.email,_that.mobile,_that.password);case AuthLoginRequested() when loginRequested != null:
 return loginRequested(_that.email,_that.password);case AuthResendVerificationRequested() when resendVerificationRequested != null:
-return resendVerificationRequested();case AuthSignedOutRequested() when signedOutRequested != null:
-return signedOutRequested();case AuthVerificationTicked() when verificationTicked != null:
+return resendVerificationRequested();case AuthForgotPasswordRequested() when forgotPasswordRequested != null:
+return forgotPasswordRequested(_that.email);case AuthVerificationTicked() when verificationTicked != null:
 return verificationTicked();case _:
   return orElse();
 
@@ -157,14 +157,14 @@ return verificationTicked();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  started,required TResult Function( String name,  String email,  String mobile,  String password)  signUpRequested,required TResult Function( String email,  String password)  loginRequested,required TResult Function()  resendVerificationRequested,required TResult Function()  signedOutRequested,required TResult Function()  verificationTicked,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  started,required TResult Function( String name,  String email,  String mobile,  String password)  signUpRequested,required TResult Function( String email,  String password)  loginRequested,required TResult Function()  resendVerificationRequested,required TResult Function( String email)  forgotPasswordRequested,required TResult Function()  verificationTicked,}) {final _that = this;
 switch (_that) {
 case AuthStarted():
 return started();case AuthSignUpRequested():
 return signUpRequested(_that.name,_that.email,_that.mobile,_that.password);case AuthLoginRequested():
 return loginRequested(_that.email,_that.password);case AuthResendVerificationRequested():
-return resendVerificationRequested();case AuthSignedOutRequested():
-return signedOutRequested();case AuthVerificationTicked():
+return resendVerificationRequested();case AuthForgotPasswordRequested():
+return forgotPasswordRequested(_that.email);case AuthVerificationTicked():
 return verificationTicked();}
 }
 /// A variant of `when` that fallback to returning `null`
@@ -179,14 +179,14 @@ return verificationTicked();}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  started,TResult? Function( String name,  String email,  String mobile,  String password)?  signUpRequested,TResult? Function( String email,  String password)?  loginRequested,TResult? Function()?  resendVerificationRequested,TResult? Function()?  signedOutRequested,TResult? Function()?  verificationTicked,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  started,TResult? Function( String name,  String email,  String mobile,  String password)?  signUpRequested,TResult? Function( String email,  String password)?  loginRequested,TResult? Function()?  resendVerificationRequested,TResult? Function( String email)?  forgotPasswordRequested,TResult? Function()?  verificationTicked,}) {final _that = this;
 switch (_that) {
 case AuthStarted() when started != null:
 return started();case AuthSignUpRequested() when signUpRequested != null:
 return signUpRequested(_that.name,_that.email,_that.mobile,_that.password);case AuthLoginRequested() when loginRequested != null:
 return loginRequested(_that.email,_that.password);case AuthResendVerificationRequested() when resendVerificationRequested != null:
-return resendVerificationRequested();case AuthSignedOutRequested() when signedOutRequested != null:
-return signedOutRequested();case AuthVerificationTicked() when verificationTicked != null:
+return resendVerificationRequested();case AuthForgotPasswordRequested() when forgotPasswordRequested != null:
+return forgotPasswordRequested(_that.email);case AuthVerificationTicked() when verificationTicked != null:
 return verificationTicked();case _:
   return null;
 
@@ -402,34 +402,68 @@ String toString() {
 /// @nodoc
 
 
-class AuthSignedOutRequested implements AuthEvent {
-  const AuthSignedOutRequested();
+class AuthForgotPasswordRequested implements AuthEvent {
+  const AuthForgotPasswordRequested({required this.email});
   
 
+ final  String email;
 
-
+/// Create a copy of AuthEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$AuthForgotPasswordRequestedCopyWith<AuthForgotPasswordRequested> get copyWith => _$AuthForgotPasswordRequestedCopyWithImpl<AuthForgotPasswordRequested>(this, _$identity);
 
 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthSignedOutRequested);
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthForgotPasswordRequested&&(identical(other.email, email) || other.email == email));
 }
 
 
 @override
-int get hashCode => runtimeType.hashCode;
+int get hashCode => Object.hash(runtimeType,email);
 
 @override
 String toString() {
-  return 'AuthEvent.signedOutRequested()';
+  return 'AuthEvent.forgotPasswordRequested(email: $email)';
 }
 
 
 }
 
+/// @nodoc
+abstract mixin class $AuthForgotPasswordRequestedCopyWith<$Res> implements $AuthEventCopyWith<$Res> {
+  factory $AuthForgotPasswordRequestedCopyWith(AuthForgotPasswordRequested value, $Res Function(AuthForgotPasswordRequested) _then) = _$AuthForgotPasswordRequestedCopyWithImpl;
+@useResult
+$Res call({
+ String email
+});
 
 
+
+
+}
+/// @nodoc
+class _$AuthForgotPasswordRequestedCopyWithImpl<$Res>
+    implements $AuthForgotPasswordRequestedCopyWith<$Res> {
+  _$AuthForgotPasswordRequestedCopyWithImpl(this._self, this._then);
+
+  final AuthForgotPasswordRequested _self;
+  final $Res Function(AuthForgotPasswordRequested) _then;
+
+/// Create a copy of AuthEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? email = null,}) {
+  return _then(AuthForgotPasswordRequested(
+email: null == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
+}
 
 /// @nodoc
 
@@ -507,7 +541,7 @@ extension AuthStatePatterns on AuthState {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( AuthInitial value)?  initial,TResult Function( AuthLoading value)?  loading,TResult Function( AuthAwaitingVerification value)?  awaitingVerification,TResult Function( AuthAuthenticated value)?  authenticated,TResult Function( AuthUnauthenticated value)?  unauthenticated,TResult Function( AuthError value)?  error,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( AuthInitial value)?  initial,TResult Function( AuthLoading value)?  loading,TResult Function( AuthAwaitingVerification value)?  awaitingVerification,TResult Function( AuthAuthenticated value)?  authenticated,TResult Function( AuthUnauthenticated value)?  unauthenticated,TResult Function( AuthPasswordResetEmailSent value)?  passwordResetEmailSent,TResult Function( AuthError value)?  error,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case AuthInitial() when initial != null:
@@ -515,7 +549,8 @@ return initial(_that);case AuthLoading() when loading != null:
 return loading(_that);case AuthAwaitingVerification() when awaitingVerification != null:
 return awaitingVerification(_that);case AuthAuthenticated() when authenticated != null:
 return authenticated(_that);case AuthUnauthenticated() when unauthenticated != null:
-return unauthenticated(_that);case AuthError() when error != null:
+return unauthenticated(_that);case AuthPasswordResetEmailSent() when passwordResetEmailSent != null:
+return passwordResetEmailSent(_that);case AuthError() when error != null:
 return error(_that);case _:
   return orElse();
 
@@ -534,7 +569,7 @@ return error(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( AuthInitial value)  initial,required TResult Function( AuthLoading value)  loading,required TResult Function( AuthAwaitingVerification value)  awaitingVerification,required TResult Function( AuthAuthenticated value)  authenticated,required TResult Function( AuthUnauthenticated value)  unauthenticated,required TResult Function( AuthError value)  error,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( AuthInitial value)  initial,required TResult Function( AuthLoading value)  loading,required TResult Function( AuthAwaitingVerification value)  awaitingVerification,required TResult Function( AuthAuthenticated value)  authenticated,required TResult Function( AuthUnauthenticated value)  unauthenticated,required TResult Function( AuthPasswordResetEmailSent value)  passwordResetEmailSent,required TResult Function( AuthError value)  error,}){
 final _that = this;
 switch (_that) {
 case AuthInitial():
@@ -542,7 +577,8 @@ return initial(_that);case AuthLoading():
 return loading(_that);case AuthAwaitingVerification():
 return awaitingVerification(_that);case AuthAuthenticated():
 return authenticated(_that);case AuthUnauthenticated():
-return unauthenticated(_that);case AuthError():
+return unauthenticated(_that);case AuthPasswordResetEmailSent():
+return passwordResetEmailSent(_that);case AuthError():
 return error(_that);}
 }
 /// A variant of `map` that fallback to returning `null`.
@@ -557,7 +593,7 @@ return error(_that);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( AuthInitial value)?  initial,TResult? Function( AuthLoading value)?  loading,TResult? Function( AuthAwaitingVerification value)?  awaitingVerification,TResult? Function( AuthAuthenticated value)?  authenticated,TResult? Function( AuthUnauthenticated value)?  unauthenticated,TResult? Function( AuthError value)?  error,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( AuthInitial value)?  initial,TResult? Function( AuthLoading value)?  loading,TResult? Function( AuthAwaitingVerification value)?  awaitingVerification,TResult? Function( AuthAuthenticated value)?  authenticated,TResult? Function( AuthUnauthenticated value)?  unauthenticated,TResult? Function( AuthPasswordResetEmailSent value)?  passwordResetEmailSent,TResult? Function( AuthError value)?  error,}){
 final _that = this;
 switch (_that) {
 case AuthInitial() when initial != null:
@@ -565,7 +601,8 @@ return initial(_that);case AuthLoading() when loading != null:
 return loading(_that);case AuthAwaitingVerification() when awaitingVerification != null:
 return awaitingVerification(_that);case AuthAuthenticated() when authenticated != null:
 return authenticated(_that);case AuthUnauthenticated() when unauthenticated != null:
-return unauthenticated(_that);case AuthError() when error != null:
+return unauthenticated(_that);case AuthPasswordResetEmailSent() when passwordResetEmailSent != null:
+return passwordResetEmailSent(_that);case AuthError() when error != null:
 return error(_that);case _:
   return null;
 
@@ -583,14 +620,15 @@ return error(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function( String email)?  awaitingVerification,TResult Function( UserEntity user)?  authenticated,TResult Function()?  unauthenticated,TResult Function( String message)?  error,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function( String email)?  awaitingVerification,TResult Function( UserEntity user)?  authenticated,TResult Function()?  unauthenticated,TResult Function( String email)?  passwordResetEmailSent,TResult Function( String message)?  error,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case AuthInitial() when initial != null:
 return initial();case AuthLoading() when loading != null:
 return loading();case AuthAwaitingVerification() when awaitingVerification != null:
 return awaitingVerification(_that.email);case AuthAuthenticated() when authenticated != null:
 return authenticated(_that.user);case AuthUnauthenticated() when unauthenticated != null:
-return unauthenticated();case AuthError() when error != null:
+return unauthenticated();case AuthPasswordResetEmailSent() when passwordResetEmailSent != null:
+return passwordResetEmailSent(_that.email);case AuthError() when error != null:
 return error(_that.message);case _:
   return orElse();
 
@@ -609,14 +647,15 @@ return error(_that.message);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function( String email)  awaitingVerification,required TResult Function( UserEntity user)  authenticated,required TResult Function()  unauthenticated,required TResult Function( String message)  error,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function( String email)  awaitingVerification,required TResult Function( UserEntity user)  authenticated,required TResult Function()  unauthenticated,required TResult Function( String email)  passwordResetEmailSent,required TResult Function( String message)  error,}) {final _that = this;
 switch (_that) {
 case AuthInitial():
 return initial();case AuthLoading():
 return loading();case AuthAwaitingVerification():
 return awaitingVerification(_that.email);case AuthAuthenticated():
 return authenticated(_that.user);case AuthUnauthenticated():
-return unauthenticated();case AuthError():
+return unauthenticated();case AuthPasswordResetEmailSent():
+return passwordResetEmailSent(_that.email);case AuthError():
 return error(_that.message);}
 }
 /// A variant of `when` that fallback to returning `null`
@@ -631,14 +670,15 @@ return error(_that.message);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function( String email)?  awaitingVerification,TResult? Function( UserEntity user)?  authenticated,TResult? Function()?  unauthenticated,TResult? Function( String message)?  error,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function( String email)?  awaitingVerification,TResult? Function( UserEntity user)?  authenticated,TResult? Function()?  unauthenticated,TResult? Function( String email)?  passwordResetEmailSent,TResult? Function( String message)?  error,}) {final _that = this;
 switch (_that) {
 case AuthInitial() when initial != null:
 return initial();case AuthLoading() when loading != null:
 return loading();case AuthAwaitingVerification() when awaitingVerification != null:
 return awaitingVerification(_that.email);case AuthAuthenticated() when authenticated != null:
 return authenticated(_that.user);case AuthUnauthenticated() when unauthenticated != null:
-return unauthenticated();case AuthError() when error != null:
+return unauthenticated();case AuthPasswordResetEmailSent() when passwordResetEmailSent != null:
+return passwordResetEmailSent(_that.email);case AuthError() when error != null:
 return error(_that.message);case _:
   return null;
 
@@ -874,6 +914,72 @@ String toString() {
 
 
 
+
+/// @nodoc
+
+
+class AuthPasswordResetEmailSent implements AuthState {
+  const AuthPasswordResetEmailSent({required this.email});
+  
+
+ final  String email;
+
+/// Create a copy of AuthState
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$AuthPasswordResetEmailSentCopyWith<AuthPasswordResetEmailSent> get copyWith => _$AuthPasswordResetEmailSentCopyWithImpl<AuthPasswordResetEmailSent>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthPasswordResetEmailSent&&(identical(other.email, email) || other.email == email));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,email);
+
+@override
+String toString() {
+  return 'AuthState.passwordResetEmailSent(email: $email)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $AuthPasswordResetEmailSentCopyWith<$Res> implements $AuthStateCopyWith<$Res> {
+  factory $AuthPasswordResetEmailSentCopyWith(AuthPasswordResetEmailSent value, $Res Function(AuthPasswordResetEmailSent) _then) = _$AuthPasswordResetEmailSentCopyWithImpl;
+@useResult
+$Res call({
+ String email
+});
+
+
+
+
+}
+/// @nodoc
+class _$AuthPasswordResetEmailSentCopyWithImpl<$Res>
+    implements $AuthPasswordResetEmailSentCopyWith<$Res> {
+  _$AuthPasswordResetEmailSentCopyWithImpl(this._self, this._then);
+
+  final AuthPasswordResetEmailSent _self;
+  final $Res Function(AuthPasswordResetEmailSent) _then;
+
+/// Create a copy of AuthState
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? email = null,}) {
+  return _then(AuthPasswordResetEmailSent(
+email: null == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
+}
 
 /// @nodoc
 

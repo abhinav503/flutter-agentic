@@ -34,4 +34,19 @@ abstract interface class AuthRepository {
     required String name,
     required String mobile,
   });
+
+  /// Re-authenticates with [currentPassword] (also verifies it's correct),
+  /// then sets [newPassword]. No backend call — password isn't part of the
+  /// synced profile doc.
+  Future<Either<Failure, void>> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  });
+
+  /// Sends Firebase's own password-reset email to [email] — Firebase owns
+  /// the rest of that flow (link, reset form); the app's only job is
+  /// telling the user the email is on its way.
+  Future<Either<Failure, void>> sendPasswordResetEmail({
+    required String email,
+  });
 }

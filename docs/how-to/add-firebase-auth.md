@@ -595,6 +595,109 @@ Firebase JS SDK's popup/redirect quirks) — not something to half-support by ac
 
 ---
 
+## Step 11 — Session invalidation guard (required if you ever revoke sessions)
+
+Anything that revokes this device's refresh token out-of-band — a password reset via
+`sendPasswordResetEmail`'s emailed link, changing the password from another device,
+admin-disabling the account — leaves `FirebaseAuth.instance.currentUser` looking
+signed-in locally.
+The device only discovers this the next time *some* authenticated call tries to mint a
+fresh ID token and the refresh fails. Without a guard, that surfaces as whatever
+generic error screen the feature that happened to make the call already has (e.g.
+Profile's `ErrorView` + a Retry button that fails forever) — not a "please sign in
+again," and not every authenticated screen necessarily hits this at the same time
+(a screen backed by cached data, or a public endpoint like a storefront read, won't).
+
+**Centralize in `FirebaseAuthService.idToken()`** — every authenticated data source
+already calls it, so it's the one choke point:
+
+```dart
+static const _deadSessionCodes = {
+  'user-token-expired',
+  'invalid-user-token',
+  'user-disabled',
+  'user-not-found',
+};
+
+/// Fires exactly once whenever idToken() discovers a dead session — the
+/// app-level SessionExpiredGuard listens here and redirects to Login.
+final ValueNotifier<int> sessionExpired = ValueNotifier<int>(0);
+
+Future<String?> idToken({bool forceRefresh = false}) async {
+  final user = currentUser;
+  if (user == null) return null;
+  try {
+    return await user.getIdToken(forceRefresh);
+  } on FirebaseAuthException catch (e) {
+    if (_deadSessionCodes.contains(e.code)) {
+      await FirebaseAuth.instance.signOut();
+      sessionExpired.value++;
+    }
+    rethrow;
+  }
+}
+```
+
+Keep `_deadSessionCodes` narrow — codes that mean the credential is permanently
+invalid, not transient failures like `network-request-failed`, which must **not**
+sign the user out.
+
+**React app-wide, once, in `app.dart`** — a small guard above the router (via
+`MaterialApp.router`'s `builder`) clears the profile cache + pending-verification
+flag, shows a snackbar (via a `scaffoldMessengerKey`, since this level has no
+`Scaffold` of its own), and redirects to Login:
+
+```dart
+final _scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
+
+class _SessionExpiredGuard extends StatefulWidget {
+  final Widget? child;
+  const _SessionExpiredGuard({required this.child});
+  @override
+  State<_SessionExpiredGuard> createState() => _SessionExpiredGuardState();
+}
+
+class _SessionExpiredGuardState extends State<_SessionExpiredGuard> {
+  @override
+  void initState() {
+    super.initState();
+    FirebaseAuthService.instance.sessionExpired.addListener(_handleExpired);
+  }
+
+  @override
+  void dispose() {
+    FirebaseAuthService.instance.sessionExpired.removeListener(_handleExpired);
+    super.dispose();
+  }
+
+  Future<void> _handleExpired() async {
+    await UserProfileCacheService.instance.clear();
+    await SharedPreferenceService.instance.setBool(kPendingEmailVerificationPrefKey, false);
+    _scaffoldMessengerKey.currentState?.showSnackBar(
+      const SnackBar(content: Text(ValueConst.sessionExpiredMessage)),
+    );
+    _router.go(AppRoutes.login);
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child ?? const SizedBox.shrink();
+}
+
+// in MaterialApp.router(...):
+scaffoldMessengerKey: _scaffoldMessengerKey,
+builder: (context, child) => _SessionExpiredGuard(child: child),
+```
+
+**Why not just listen to `authStateChanges()`?** It's the more commonly reached-for
+API, but it only reliably fires on an explicit local sign-in/out call or the SDK's own
+lazy background refresh (timing not guaranteed relative to *your* screen's fetch) —
+it wouldn't catch the failure at the exact moment Profile's `getIdToken()` call hits
+it. Reacting inside `idToken()`'s own catch block is synchronous with the actual
+failure, and deliberately distinct from `authStateChanges()`/a manual "Logout" tap
+(which already navigates itself) so nothing double-fires.
+
+---
+
 ## Commands reference
 
 ```bash

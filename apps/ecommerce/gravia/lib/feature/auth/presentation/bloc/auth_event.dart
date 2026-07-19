@@ -21,6 +21,9 @@ sealed class AuthEvent with _$AuthEvent {
   const factory AuthEvent.resendVerificationRequested() =
       AuthResendVerificationRequested;
 
+  const factory AuthEvent.forgotPasswordRequested({required String email}) =
+      AuthForgotPasswordRequested;
+
   /// Internal — fired every 3s by the awaiting-verification poll timer.
   const factory AuthEvent.verificationTicked() = AuthVerificationTicked;
 }
