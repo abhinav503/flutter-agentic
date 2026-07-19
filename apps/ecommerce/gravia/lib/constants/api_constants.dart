@@ -17,4 +17,8 @@ abstract final class ApiConstants {
 
   static String productDetailsPath(String productId) =>
       '$_storeBase/products/$productId';
+
+  /// Store-agnostic — a shopper's profile isn't scoped to one store's data,
+  /// unlike everything else in this file.
+  static String get usersPath => '$baseUrl/users';
 }

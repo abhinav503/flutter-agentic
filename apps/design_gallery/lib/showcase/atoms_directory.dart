@@ -9,6 +9,8 @@ import 'package:core/core/ui/atoms/dropdown_menu.dart';
 import 'package:core/core/ui/atoms/glass_chip.dart';
 import 'package:core/core/ui/atoms/glass_surface.dart';
 import 'package:core/core/ui/atoms/icon_button.dart';
+import 'package:core/core/ui/atoms/inline_text_link.dart';
+import 'package:core/core/ui/atoms/labeled_divider.dart';
 import 'package:core/core/ui/atoms/loading_dots.dart';
 import 'package:core/core/ui/atoms/loading_indicator.dart';
 import 'package:core/core/ui/atoms/network_image.dart';
@@ -122,11 +124,7 @@ WidgetbookCategory atomsCategory() {
                     cs.primary.withValues(alpha: 0.1),
                     cs.primary,
                   ],
-                  child: Icon(
-                    Icons.check,
-                    color: cs.onPrimary,
-                    size: 28,
-                  ),
+                  child: Icon(Icons.check, color: cs.onPrimary, size: 28),
                 );
               },
             ),
@@ -144,11 +142,7 @@ WidgetbookCategory atomsCategory() {
                     cs.secondary.withValues(alpha: 0.15),
                     cs.secondary,
                   ],
-                  child: Icon(
-                    Icons.star,
-                    color: cs.onSecondary,
-                    size: 22,
-                  ),
+                  child: Icon(Icons.star, color: cs.onSecondary, size: 22),
                 );
               },
             ),
@@ -538,6 +532,25 @@ WidgetbookCategory atomsCategory() {
         ]),
       ),
       allVariants(
+        'AppLabeledDivider',
+        (context) => showcase(context, [
+          const Variant('Default', AppLabeledDivider(label: 'Or Login with')),
+        ]),
+      ),
+      allVariants(
+        'AppInlineTextLink',
+        (context) => showcase(context, [
+          Variant(
+            'Default',
+            AppInlineTextLink(
+              text: "Don't have an account? ",
+              linkText: 'Signup',
+              onTap: () {},
+            ),
+          ),
+        ]),
+      ),
+      allVariants(
         'AppTextField',
         (context) => showcase(context, [
           Variant(
@@ -607,7 +620,10 @@ WidgetbookCategory atomsCategory() {
             'Rounded rect (e.g. a product card)',
             ShimmerBox(width: 160, height: 100),
           ),
-          const Variant('Circle (e.g. a category tile)', ShimmerBox.circle(size: 64)),
+          const Variant(
+            'Circle (e.g. a category tile)',
+            ShimmerBox.circle(size: 64),
+          ),
           Variant(
             'Composed skeleton row (category rail)',
             Row(

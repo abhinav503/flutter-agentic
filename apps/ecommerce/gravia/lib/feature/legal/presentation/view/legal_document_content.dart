@@ -18,13 +18,14 @@ class LegalDocumentContent {
     required this.body,
   });
 
-  factory LegalDocumentContent.termsAndConditions() => const LegalDocumentContent(
-    title: ValueConst.termsAndConditionsLabel,
-    lastUpdated: ValueConst.legalLastUpdatedLabel,
-    intro: ValueConst.termsAndConditionsIntro,
-    heading: ValueConst.termsAndConditionsHeading,
-    body: ValueConst.termsAndConditionsBody,
-  );
+  factory LegalDocumentContent.termsAndConditions() =>
+      const LegalDocumentContent(
+        title: ValueConst.termsAndConditionsLabel,
+        lastUpdated: ValueConst.legalLastUpdatedLabel,
+        intro: ValueConst.termsAndConditionsIntro,
+        heading: ValueConst.termsAndConditionsHeading,
+        body: ValueConst.termsAndConditionsBody,
+      );
 
   factory LegalDocumentContent.privacyPolicy() => const LegalDocumentContent(
     title: ValueConst.privacyPolicyLabel,

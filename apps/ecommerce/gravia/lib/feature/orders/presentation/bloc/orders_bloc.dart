@@ -33,9 +33,8 @@ class OrdersBloc extends Bloc<OrdersEvent, OrdersState> {
     final result = await _getOrders(const NoParams());
     result.fold(
       (failure) => emit(OrdersState.error(message: failure.message)),
-      (orders) => emit(
-        OrdersState.loaded(orders: orders, selectedTab: OrdersTab.past),
-      ),
+      (orders) =>
+          emit(OrdersState.loaded(orders: orders, selectedTab: OrdersTab.past)),
     );
   }
 

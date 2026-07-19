@@ -116,7 +116,7 @@ class _OnboardingScreenState extends BaseScreenState<OnboardingScreen> {
       kHasSeenOnboardingPrefKey,
       true,
     );
-    if (mounted) context.go(AppRoutes.home);
+    if (mounted) context.go(AppRoutes.login);
   }
 
   // Sheet content is driven by screen state (_currentPage) — just a Text

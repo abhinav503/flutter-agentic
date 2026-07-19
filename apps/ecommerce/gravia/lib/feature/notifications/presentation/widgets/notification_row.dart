@@ -49,7 +49,9 @@ class NotificationRow extends StatelessWidget {
             children: [
               Text(
                 notification.title,
-                style: TextStyleConst.textMdBold(tt).copyWith(color: cs.onSurface),
+                style: TextStyleConst.textMdBold(
+                  tt,
+                ).copyWith(color: cs.onSurface),
               ),
               const SizedBox(height: AppSpacing.xs4),
               Text(

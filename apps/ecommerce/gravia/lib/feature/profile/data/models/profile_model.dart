@@ -12,8 +12,13 @@ abstract class ProfileModel with _$ProfileModel {
   const factory ProfileModel({
     required String name,
     required String email,
-    required String phone,
-    @JsonKey(name: 'avatar_url') required String avatarUrl,
+    // The admin API's users record calls this `mobile`; kept as `phone`
+    // here since that's ProfileEntity's existing field name — no reason to
+    // rename the domain concept just because the wire key differs.
+    @JsonKey(name: 'mobile') required String phone,
+    // The admin API doesn't return an avatar (no upload backend yet) —
+    // defaults to '' so AppNetworkImage's assetPlaceholder fallback kicks in.
+    @JsonKey(name: 'avatar_url', defaultValue: '') required String avatarUrl,
   }) = _ProfileModel;
 
   factory ProfileModel.fromJson(Map<String, dynamic> json) =>

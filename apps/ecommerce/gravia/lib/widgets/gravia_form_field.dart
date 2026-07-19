@@ -31,6 +31,17 @@ class GraviaFormField extends StatelessWidget {
   final ValueChanged<String>? onChanged;
   final List<TextInputFormatter>? inputFormatters;
 
+  /// For a password field's `eye.svg` visibility toggle — Login/Signup's
+  /// only callers so far.
+  final bool obscureText;
+  final Widget? suffix;
+
+  /// Set false for a field that shows a value but can't be edited — e.g.
+  /// Edit Profile's Email, which can't change without Firebase's own
+  /// re-verification flow. `AppTextField` already has a disabled state;
+  /// this just wires it through.
+  final bool enabled;
+
   const GraviaFormField({
     super.key,
     required this.label,
@@ -40,6 +51,9 @@ class GraviaFormField extends StatelessWidget {
     this.keyboardType = TextInputType.text,
     this.onChanged,
     this.inputFormatters,
+    this.obscureText = false,
+    this.suffix,
+    this.enabled = true,
   });
 
   @override
@@ -51,7 +65,9 @@ class GraviaFormField extends StatelessWidget {
       label: label,
       hint: hint,
       keyboardType: keyboardType,
-      state: errorText != null
+      state: !enabled
+          ? AppTextFieldState.disabled
+          : errorText != null
           ? AppTextFieldState.error
           : AppTextFieldState.idle,
       errorText: errorText,
@@ -63,6 +79,8 @@ class GraviaFormField extends StatelessWidget {
       ).copyWith(color: ColorConst.gray500),
       labelSpacing: AppSpacing.xs,
       height: DimenConst.controlHeight,
+      obscureText: obscureText,
+      suffix: suffix,
     );
   }
 }

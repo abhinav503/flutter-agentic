@@ -14,6 +14,14 @@ dependencies:
   core:
     path: ../../../packages/core
 
+  # Firebase (email/password auth — feature/auth)
+  firebase_core: ^4.1.1
+  firebase_auth: ^6.1.0
+
+  # feature/auth's remote data source builds a Dio Options object directly
+  # (Authorization header) — HttpService (core) doesn't expose that shape.
+  dio: ^5.8.0+1
+
   # State management
   flutter_bloc: ^9.1.1
 

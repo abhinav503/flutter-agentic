@@ -21,7 +21,9 @@ abstract class NotificationSectionModel with _$NotificationSectionModel {
   factory NotificationSectionModel.fromEntity(NotificationSectionEntity e) =>
       NotificationSectionModel(
         title: e.title,
-        notifications: e.notifications.map(NotificationModel.fromEntity).toList(),
+        notifications: e.notifications
+            .map(NotificationModel.fromEntity)
+            .toList(),
       );
 
   NotificationSectionEntity toEntity() => NotificationSectionEntity(

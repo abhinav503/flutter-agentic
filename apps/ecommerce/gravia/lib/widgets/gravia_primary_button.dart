@@ -16,7 +16,17 @@ class GraviaPrimaryButton extends StatelessWidget {
   final String label;
   final VoidCallback? onTap;
 
-  const GraviaPrimaryButton({super.key, required this.label, this.onTap});
+  /// Passed straight through to [AppButton] — e.g. `AppButtonState.loading`
+  /// while a form submit is in flight. Defaults to idle, so every existing
+  /// caller is unaffected.
+  final AppButtonState state;
+
+  const GraviaPrimaryButton({
+    super.key,
+    required this.label,
+    this.onTap,
+    this.state = AppButtonState.idle,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -28,6 +38,7 @@ class GraviaPrimaryButton extends StatelessWidget {
       fullWidth: true,
       size: AppButtonSize.large,
       height: barHeight,
+      state: state,
       labelStyle: TextStyleConst.textMdMedium(tt).copyWith(color: cs.onPrimary),
       onTap: onTap,
     );

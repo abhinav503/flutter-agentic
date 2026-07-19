@@ -5,10 +5,33 @@ import 'package:core/core/base/base_screen.dart';
 import 'package:gravia/constants/color_const.dart';
 import 'package:gravia/constants/text_style_const.dart';
 import 'package:gravia/constants/value_const.dart';
+import 'package:gravia/feature/auth/presentation/widgets/verify_email_sheet_content.dart';
 import 'package:gravia/feature/home/domain/entities/product_entity.dart';
 
 import 'add_to_cart_sheet_content.dart';
 import 'order_placed_sheet_content.dart';
+
+/// The persistent post-signup/unverified-login verification step — no
+/// title/close row, same bypass reasoning as [GraviaSheetX.showOrderPlacedSheet],
+/// plus `isDismissible`/`enableDrag: false` since this one must not be
+/// swipe-or-tap-outside dismissible either. A top-level function (not just
+/// the [GraviaSheetX] extension below) since it has two call sites outside
+/// a single `BaseScreenState`: Login/Signup open it right after signing
+/// in/up, and `ShellPage` (a `BasePageState`, not a `BaseScreenState`) opens
+/// it on relaunch to resume a still-unverified session — see
+/// `ShellPage.buildBlocProviders`.
+Future<void> showVerifyEmailSheet({
+  required BuildContext context,
+  required String email,
+  required VoidCallback onResend,
+}) => showModalBottomSheet<void>(
+  context: context,
+  isScrollControlled: true,
+  isDismissible: false,
+  enableDrag: false,
+  backgroundColor: Colors.transparent,
+  builder: (_) => VerifyEmailSheetContent(email: email, onResend: onResend),
+);
 
 /// Gravia-styled wrappers around [BaseScreenState.showAppBottomSheet] — the
 /// pack's one sheet chrome (textLg/bold title, primary "Cancel" close
@@ -65,4 +88,13 @@ extension GraviaSheetX<T extends BaseScreen> on BaseScreenState<T> {
           },
         ),
       );
+
+  /// Convenience for a [BaseScreenState] caller — delegates to the top-level
+  /// [showVerifyEmailSheet] using `this.context`. Callers close it by
+  /// popping the root navigator once `AuthBloc` reaches `authenticated`.
+  Future<void> showVerifyEmailSheetHere({
+    required String email,
+    required VoidCallback onResend,
+  }) =>
+      showVerifyEmailSheet(context: context, email: email, onResend: onResend);
 }

@@ -11,6 +11,8 @@ import 'constants/value_const.dart';
 import 'feature/address/domain/entities/address_entity.dart';
 import 'feature/address/presentation/view/address_form_page.dart';
 import 'feature/address/presentation/view/address_page.dart';
+import 'feature/auth/presentation/view/login_page.dart';
+import 'feature/auth/presentation/view/signup_page.dart';
 import 'feature/cart/presentation/cubit/cart_cubit.dart';
 import 'feature/cart/presentation/view/cart_page.dart';
 import 'feature/category_details/presentation/view/category_details_page.dart';
@@ -34,6 +36,24 @@ final _router = GoRouter(
     GoRoute(
       path: AppRoutes.onboarding,
       builder: (context, _) => const OnboardingPage(),
+    ),
+    GoRoute(path: AppRoutes.login, builder: (context, _) => const LoginPage()),
+    GoRoute(
+      path: AppRoutes.signup,
+      // Fade, same reasoning as Product Details/Cart — Login and Signup
+      // share the same primary canvas colour, so a horizontal push would
+      // visibly overlap the headers' back buttons mid-flight.
+      pageBuilder: (context, state) => CustomTransitionPage<void>(
+        key: state.pageKey,
+        transitionDuration: const Duration(milliseconds: 350),
+        reverseTransitionDuration: const Duration(milliseconds: 300),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+            FadeTransition(
+              opacity: CurveTween(curve: Curves.easeInOut).animate(animation),
+              child: child,
+            ),
+        child: const SignupPage(),
+      ),
     ),
     GoRoute(
       path: AppRoutes.home,

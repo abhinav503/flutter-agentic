@@ -255,4 +255,56 @@ abstract final class ValueConst {
   static const favouriteEmptyTitle = 'No favourites yet';
   static const favouriteEmptySubtitle =
       'Tap the heart on a product to keep it here.';
+
+  // ── Auth: Login ─────────────────────────────────────────────────────────
+  static const loginTitle = 'Welcome To Gravia';
+  static const loginSubtitle =
+      'Log in to your account using email or social networks';
+  static const emailLabel = 'Email Address';
+  static const emailHint = 'you@example.com';
+  static const passwordLabel = 'Password';
+  static const passwordHint = 'Enter your password';
+  static const continueLabel = 'Continue';
+  static const orLoginWith = 'Or Login with';
+  static const continueWithGoogle = 'Continue with Google';
+  static const continueWithApple = 'Continue with Apple';
+  static const byContinuingAgree = 'By continuing, you agree to our';
+  static const termsOfServiceAndPrivacyPolicy =
+      'Terms of Service & Privacy Policy';
+  static const dontHaveAccount = "Don't have an account? ";
+  static const signupLink = 'Signup';
+
+  // ── Auth: Signup ────────────────────────────────────────────────────────
+  static const signupTitle = 'Sign Up Your Account';
+  static const signupSubtitle = 'Enter your information below';
+  static const mobileLabel = 'Mobile Number';
+  static const mobileHint = '(303) 555-0105';
+  static const iAgreeLabel = 'I Agree ';
+  static const termsAndConditionsLink = 'Terms & Conditions';
+  static const weakPasswordErrorMessage =
+      'Password must be at least 6 characters.';
+  static const mustAgreeToTermsMessage =
+      'Please agree to the Terms & Conditions to continue.';
+
+  // ── Auth: field validation (TextfieldValidations) ──────────────────────
+  static const nameRequiredErrorMessage = 'Please enter your name.';
+  static const emailRequiredErrorMessage = 'Please enter your email address.';
+  static const emailInvalidErrorMessage = 'Enter a valid email address.';
+  static const mobileRequiredErrorMessage = 'Please enter your mobile number.';
+  static const mobileInvalidErrorMessage = 'Enter a valid mobile number.';
+  static const passwordRequiredErrorMessage = 'Please enter your password.';
+  static const authWebUnsupportedMessage =
+      'Sign-in is only available on mobile.';
+  static const signupButtonLabel = 'Signup';
+  static const alreadyHaveAccount = 'Already have an account? ';
+  static const loginLink = 'Login';
+
+  // ── Auth: verify-email sheet ───────────────────────────────────────────
+  static const verifyEmailTitle = 'Verify Your Email';
+  static String verifyEmailSubtitle(String email) =>
+      "We've sent a verification link to $email. Open it, then come back "
+      'here — this will update automatically.';
+  static const verifyEmailChecking = 'Checking…';
+  static const resendEmailLabel = 'Resend email';
+  static const resendEmailSentMessage = 'Verification email sent again.';
 }

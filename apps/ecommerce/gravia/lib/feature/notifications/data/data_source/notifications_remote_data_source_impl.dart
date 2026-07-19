@@ -7,7 +7,8 @@ import 'notifications_remote_data_source.dart';
 
 /// Backed by a bundled JSON asset — same pattern as the other mocked data
 /// sources in this app.
-class NotificationsRemoteDataSourceImpl implements NotificationsRemoteDataSource {
+class NotificationsRemoteDataSourceImpl
+    implements NotificationsRemoteDataSource {
   const NotificationsRemoteDataSourceImpl();
 
   @override

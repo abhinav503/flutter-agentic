@@ -10,6 +10,7 @@ import 'package:gravia/constants/app_routes.dart';
 import 'package:gravia/constants/image_const.dart';
 import 'package:gravia/constants/value_const.dart';
 import 'package:gravia/feature/onboarding/presentation/view/onboarding_page.dart';
+import 'package:gravia/services/firebase_auth_service.dart';
 
 class SplashPage extends BasePage {
   const SplashPage({super.key});
@@ -29,7 +30,17 @@ class _SplashPageState extends BasePageState<SplashPage> {
       final hasSeenOnboarding =
           SharedPreferenceService.instance.getBool(kHasSeenOnboardingPrefKey) ??
           false;
-      context.go(hasSeenOnboarding ? AppRoutes.home : AppRoutes.onboarding);
+      if (!hasSeenOnboarding) {
+        context.go(AppRoutes.onboarding);
+        return;
+      }
+      // Signed-in always means home, verified or not — a user who is
+      // signed in but still unverified genuinely has a session, so sending
+      // them to Login would be confusing. ShellPage's own AuthBloc.started()
+      // (the same resume check Login/Signup use) detects the still-pending
+      // case and re-opens the persistent verify sheet on top of the shell.
+      final isSignedIn = FirebaseAuthService.instance.currentUser != null;
+      context.go(isSignedIn ? AppRoutes.home : AppRoutes.login);
     });
   }
 

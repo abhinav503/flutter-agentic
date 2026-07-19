@@ -37,6 +37,8 @@ abstract final class ImageConst {
   static const trash = 'assets/icons/trash.svg';
   static const camera = 'assets/icons/camera.svg';
   static const folderGallery = 'assets/icons/folder_gallery.svg';
+  static const googleIcon = 'assets/icons/google_icon.svg';
+  static const appleIcon = 'assets/icons/apple_icon.svg';
 
   static const profileDefault = 'assets/images/profile_default.png';
 }

@@ -6,7 +6,8 @@ import '../entities/notification_section_entity.dart';
 import '../repository/notifications_repository.dart';
 
 class GetNotificationsUseCase
-    extends UseCase<Either<Failure, List<NotificationSectionEntity>>, NoParams> {
+    extends
+        UseCase<Either<Failure, List<NotificationSectionEntity>>, NoParams> {
   final NotificationsRepository _repository;
 
   const GetNotificationsUseCase(this._repository);

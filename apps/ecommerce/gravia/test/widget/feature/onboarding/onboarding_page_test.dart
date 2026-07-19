@@ -22,8 +22,8 @@ void main() {
           builder: (context, _) => const OnboardingPage(),
         ),
         GoRoute(
-          path: AppRoutes.home,
-          builder: (context, _) => const Scaffold(body: Text('home')),
+          path: AppRoutes.login,
+          builder: (context, _) => const Scaffold(body: Text('login')),
         ),
       ],
     ),
@@ -51,7 +51,7 @@ void main() {
     expect(find.text(ValueConst.onboardingGetStarted), findsOneWidget);
   });
 
-  testWidgets('Get Started persists the flag and navigates home', (
+  testWidgets('Get Started persists the flag and navigates to login', (
     tester,
   ) async {
     await tester.pumpWidget(buildSubject());
@@ -63,7 +63,7 @@ void main() {
     await tester.tap(find.text(ValueConst.onboardingGetStarted));
     await tester.pumpAndSettle();
 
-    expect(find.text('home'), findsOneWidget);
+    expect(find.text('login'), findsOneWidget);
     expect(
       SharedPreferenceService.instance.getBool(kHasSeenOnboardingPrefKey),
       isTrue,

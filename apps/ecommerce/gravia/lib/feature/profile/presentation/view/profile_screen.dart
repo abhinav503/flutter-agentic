@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:core/core/base/base_screen.dart';
+import 'package:core/core/services/shared_pref_service/shared_preference_service.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/theme/theme_mode_scope.dart';
 import 'package:core/core/ui/atoms/loading_indicator.dart';
@@ -16,7 +17,11 @@ import 'package:gravia/constants/app_routes.dart';
 import 'package:gravia/constants/color_const.dart';
 import 'package:gravia/constants/image_const.dart';
 import 'package:gravia/constants/value_const.dart';
+import 'package:gravia/feature/auth/presentation/bloc/auth_bloc.dart'
+    show kPendingEmailVerificationPrefKey;
 import 'package:gravia/feature/shell/presentation/view/shell_page.dart';
+import 'package:gravia/services/firebase_auth_service.dart';
+import 'package:gravia/services/user_profile_cache_service.dart';
 
 import '../../domain/entities/profile_entity.dart';
 import '../bloc/profile_bloc.dart';
@@ -171,7 +176,7 @@ class _ProfileScreenState extends BaseScreenState<ProfileScreen> {
                     label: ValueConst.logoutLabel,
                     danger: true,
                     trailing: const SizedBox.shrink(),
-                    onTap: () => showSnackBar(ValueConst.comingSoonMessage),
+                    onTap: () => _signOut(context),
                   ),
                 ],
               ),
@@ -180,5 +185,18 @@ class _ProfileScreenState extends BaseScreenState<ProfileScreen> {
         },
       ),
     );
+  }
+
+  Future<void> _signOut(BuildContext context) async {
+    await FirebaseAuthService.instance.signOut();
+    await UserProfileCacheService.instance.clear();
+    // Defensive — Profile is only reachable once AuthAuthenticated has fired,
+    // which already clears this key, but a stale flag here would wrongly
+    // reopen the verify sheet for the next account signing in on this device.
+    await SharedPreferenceService.instance.setBool(
+      kPendingEmailVerificationPrefKey,
+      false,
+    );
+    if (context.mounted) context.go(AppRoutes.login);
   }
 }

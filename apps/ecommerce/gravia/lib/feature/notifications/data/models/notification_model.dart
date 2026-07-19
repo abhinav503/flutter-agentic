@@ -27,6 +27,10 @@ abstract class NotificationModel with _$NotificationModel {
         message: e.message,
       );
 
-  NotificationEntity toEntity() =>
-      NotificationEntity(id: id, iconAsset: icon, title: title, message: message);
+  NotificationEntity toEntity() => NotificationEntity(
+    id: id,
+    iconAsset: icon,
+    title: title,
+    message: message,
+  );
 }

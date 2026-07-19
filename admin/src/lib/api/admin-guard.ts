@@ -34,3 +34,28 @@ export async function requireStoreOwner(
 
   return uid;
 }
+
+// Guards the shopper profile endpoint (/api/users) — any signed-in Firebase
+// user, no store-ownership check. `emailVerified` comes off the token's own
+// `email_verified` claim, which only reflects reality once the client has
+// force-refreshed the token after actually verifying (see gravia's
+// FirebaseAuthService.idToken(forceRefresh: true)) — a stale token still
+// reports `false` right after the user clicks the email link.
+export async function requireAuthedUser(
+  request: Request,
+): Promise<{ uid: string; email: string; emailVerified: boolean }> {
+  const authHeader = request.headers.get("authorization") ?? "";
+  const match = authHeader.match(/^Bearer (.+)$/);
+  if (!match) throw new UnauthorizedError("Missing bearer token");
+
+  try {
+    const decoded = await adminAuth.verifyIdToken(match[1]);
+    return {
+      uid: decoded.uid,
+      email: decoded.email ?? "",
+      emailVerified: decoded.email_verified ?? false,
+    };
+  } catch {
+    throw new UnauthorizedError("Invalid or expired token");
+  }
+}

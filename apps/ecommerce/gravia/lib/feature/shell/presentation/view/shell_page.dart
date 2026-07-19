@@ -16,6 +16,7 @@ import 'package:gravia/constants/color_const.dart';
 import 'package:gravia/constants/image_const.dart';
 import 'package:gravia/constants/value_const.dart';
 import 'package:gravia/di/injection_container.dart';
+import 'package:gravia/feature/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gravia/feature/cart/domain/entities/cart_item_entity.dart';
 import 'package:gravia/feature/cart/presentation/cubit/cart_cubit.dart';
 import 'package:gravia/feature/cart/presentation/widgets/cart_status_bar.dart';
@@ -27,6 +28,7 @@ import 'package:gravia/feature/orders/presentation/bloc/orders_bloc.dart';
 import 'package:gravia/feature/orders/presentation/view/orders_screen.dart';
 import 'package:gravia/feature/profile/presentation/bloc/profile_bloc.dart';
 import 'package:gravia/feature/profile/presentation/view/profile_screen.dart';
+import 'package:gravia/widgets/gravia_sheet.dart';
 
 class ShellPage extends BasePage {
   // Nav-tab indices — public so any route outside the shell can request a
@@ -63,12 +65,61 @@ class ShellPage extends BasePage {
 
 class _ShellPageState extends BasePageState<ShellPage> {
   late int _currentTab = widget.initialTab;
+  bool _verifySheetOpen = false;
 
   @override
   void didUpdateWidget(covariant ShellPage oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.initialTab != oldWidget.initialTab) {
       setState(() => _currentTab = widget.initialTab);
+    }
+  }
+
+  // A relaunch-while-unverified session lands here (Splash sends any signed-
+  // in user straight to the shell, verified or not — see its own doc) rather
+  // than back to Login, since the user genuinely does have a session; being
+  // dropped on a "Welcome, log in" screen while already signed in would be
+  // confusing. AuthBloc.started() (the same resume check Login/Signup use)
+  // detects the still-pending case and re-opens the persistent verify sheet
+  // on top of the shell instead. Nothing to do for every other outcome —
+  // this is a resume check, not a live auth flow, so the listener only
+  // reacts to awaitingVerification.
+  @override
+  Widget buildBlocProviders(Widget child) => BlocProvider(
+    create: (_) => AuthBloc(
+      signUpUseCase: sl(),
+      signInUseCase: sl(),
+      resendVerificationEmailUseCase: sl(),
+      checkEmailVerifiedUseCase: sl(),
+    )..add(const AuthEvent.started()),
+    child: Builder(
+      builder: (context) => BlocListener<AuthBloc, AuthState>(
+        listener: (context, state) {
+          if (state is AuthAwaitingVerification) _openVerifySheet(state.email);
+          if (state is AuthAuthenticated) _closeVerifySheet();
+        },
+        child: child,
+      ),
+    ),
+  );
+
+  Future<void> _openVerifySheet(String email) async {
+    if (_verifySheetOpen) return;
+    _verifySheetOpen = true;
+    await showVerifyEmailSheet(
+      context: context,
+      email: email,
+      onResend: () => context.read<AuthBloc>().add(
+        const AuthEvent.resendVerificationRequested(),
+      ),
+    );
+    _verifySheetOpen = false;
+  }
+
+  void _closeVerifySheet() {
+    if (_verifySheetOpen && Navigator.of(context).canPop()) {
+      Navigator.of(context).pop();
+      _verifySheetOpen = false;
     }
   }
 
