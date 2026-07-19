@@ -17,6 +17,7 @@ Read on demand:
 - `docs/how-to/change-app-id.md` — when asked to change the application ID or bundle identifier
 - `docs/how-to/rename-app.md` — when asked to rename the app; covers display name, package name, and all files that reference the old name
 - `docs/how-to/connect-firebase.md` — when connecting an app to Firebase; covers checking/installing the Firebase + FlutterFire CLIs, running `flutterfire configure`, per-app `firebase_core`, `main.dart` init, Android Gradle plugin, iOS deployment target (15.0+), and the Xcode `GoogleService-Info.plist` registration check
+- `add-firebase-auth.md` (in this rules folder) — when adding email/password login/signup to an app; covers `FirebaseAuthService`, a Clean-Architecture `feature/auth/` (thin repository, fat data source), the persistent non-dismissible email-verification bottom sheet with a 3-second poll that resumes correctly across app relaunches, an optional backend dual-write (Firebase Auth + a Firestore profile synced via a token-verifying server API), and a local profile cache to avoid loader flashes; builds on connect-firebase
 - `docs/tutorials/solid-principles.md` — how SOLID principles are applied across all layers
 - `docs/tutorials/design-patterns-and-concepts.md` — design patterns used in this codebase (Singleton, Repository, DTO, Either, Sealed Classes, Strategy, and more)
 - `docs/explanation/ai-agents.md` — per-agent install and usage
