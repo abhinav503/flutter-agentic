@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import 'package:core/core/base/tab_cache.dart';
 import 'package:core/core/usecase/usecase.dart';
 
 import '../../domain/entities/home_entity.dart';
@@ -12,17 +13,18 @@ part 'home_state.dart';
 
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
   final GetHomeUseCase _getHome;
-  static HomeEntity? _cachedHome;
+  static final _cache = TabCache<HomeEntity>();
 
   @visibleForTesting
-  static void resetCache() => _cachedHome = null;
+  static void resetCache() => _cache.reset();
 
   HomeBloc({required GetHomeUseCase getHomeUseCase})
     : _getHome = getHomeUseCase,
       super(
-        _cachedHome != null
-            ? HomeState.loaded(home: _cachedHome!)
-            : const HomeState.loading(),
+        _cache.seed(
+          warm: (home) => HomeState.loaded(home: home),
+          cold: HomeState.loading,
+        ),
       ) {
     on<HomeStarted>(_onStarted);
     on<HomeFavouriteToggled>(_onFavouriteToggled);
@@ -62,7 +64,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   }
 
   void _emitLoaded(HomeEntity home, Emitter<HomeState> emit) {
-    _cachedHome = home;
+    _cache.save(home);
     emit(HomeState.loaded(home: home));
   }
 }

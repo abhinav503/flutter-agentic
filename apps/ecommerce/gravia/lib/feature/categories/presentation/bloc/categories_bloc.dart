@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import 'package:core/core/base/tab_cache.dart';
 import 'package:core/core/usecase/usecase.dart';
 
 import '../../domain/entities/categories_entity.dart';
@@ -12,17 +13,18 @@ part 'categories_state.dart';
 
 class CategoriesBloc extends Bloc<CategoriesEvent, CategoriesState> {
   final GetCategoriesUseCase _getCategories;
-  static CategoriesEntity? _cachedCategories;
+  static final _cache = TabCache<CategoriesEntity>();
 
   @visibleForTesting
-  static void resetCache() => _cachedCategories = null;
+  static void resetCache() => _cache.reset();
 
   CategoriesBloc({required GetCategoriesUseCase getCategoriesUseCase})
     : _getCategories = getCategoriesUseCase,
       super(
-        _cachedCategories != null
-            ? CategoriesState.loaded(categories: _cachedCategories!)
-            : const CategoriesState.loading(),
+        _cache.seed(
+          warm: (categories) => CategoriesState.loaded(categories: categories),
+          cold: CategoriesState.loading,
+        ),
       ) {
     on<CategoriesStarted>(_onStarted);
   }
@@ -46,7 +48,7 @@ class CategoriesBloc extends Bloc<CategoriesEvent, CategoriesState> {
   }
 
   void _emitLoaded(CategoriesEntity categories, Emitter<CategoriesState> emit) {
-    _cachedCategories = categories;
+    _cache.save(categories);
     emit(CategoriesState.loaded(categories: categories));
   }
 }

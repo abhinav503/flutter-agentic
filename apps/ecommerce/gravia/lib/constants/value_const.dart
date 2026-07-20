@@ -305,21 +305,11 @@ abstract final class ValueConst {
   static const mobileHint = '(303) 555-0105';
   static const iAgreeLabel = 'I Agree ';
   static const termsAndConditionsLink = 'Terms & Conditions';
-  static const weakPasswordErrorMessage =
-      'Password must be at least 6 characters.';
   static const mustAgreeToTermsMessage =
       'Please agree to the Terms & Conditions to continue.';
 
-  // ── Auth: field validation (TextfieldValidations) ──────────────────────
-  static const nameRequiredErrorMessage = 'Please enter your name.';
-  static const emailRequiredErrorMessage = 'Please enter your email address.';
-  static const emailInvalidErrorMessage = 'Enter a valid email address.';
-  static const mobileRequiredErrorMessage = 'Please enter your mobile number.';
-  static const mobileInvalidErrorMessage = 'Enter a valid mobile number.';
-  static const passwordRequiredErrorMessage = 'Please enter your password.';
-  static const confirmPasswordRequiredErrorMessage =
-      'Please confirm your new password.';
-  static const passwordsDontMatchErrorMessage = 'Passwords do not match.';
+  // Field-validation messages live in CoreConst (used by core's
+  // TextfieldValidations mixin), not here.
   static const authWebUnsupportedMessage =
       'Sign-in is only available on mobile.';
   static const sessionExpiredMessage =

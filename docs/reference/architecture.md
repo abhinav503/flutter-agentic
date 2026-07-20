@@ -67,7 +67,9 @@ core/
 ├── base/
 │   ├── base_page.dart           BasePage + BasePageState (Scaffold + getter-based bottom nav)
 │   ├── base_repository.dart     BaseRepository mixin (Dio→Failure mapping; handleRequest + handleStream)
-│   └── base_screen.dart         BaseScreen + BaseScreenState (showAppBottomSheet, showSnackBar)
+│   ├── base_screen.dart         BaseScreen + BaseScreenState (showAppBottomSheet, showSnackBar)
+│   └── tab_cache.dart           TabCache<T> — warm-start cache a tab BLoC seeds its
+│                                 initial state from (see docs/how-to/design-tab-flow.md)
 ├── constants/
 │   └── core_const.dart          CoreConst — ONLY generic constants core's own code uses
 │                                (e.g. retryButton, imagePicker* config). No app copy here.
@@ -75,6 +77,13 @@ core/
 │   └── core_injection.dart      shared `sl` (GetIt) + initCoreDependencies()
 ├── error/
 │   └── failure.dart             sealed Failure class; add variants only here
+├── extensions/
+│   └── string_extensions.dart   generic String helpers (isSvgUrl) + FieldValidationX
+│                                 predicates (isValidEmail, digitCount)
+├── mixins/
+│   └── textfield_validations.dart  TextfieldValidations — validate* methods returning
+│                                 user-facing messages (defaults in CoreConst; override
+│                                 a method for custom copy)
 ├── network/
 │   ├── http_service.dart        HttpService static singleton (get/post/postStream via single Dio)
 │   └── interceptors/            logging and other Dio interceptors
@@ -119,7 +128,10 @@ core/
 │   │   ├── bottom_sheet.dart    AppBottomSheet (static show())
 │   │   ├── dialog.dart          AppDialog (static show())
 │   │   ├── empty_state.dart     EmptyState (icon + title + subtitle + actions)
-│   │   └── error_view.dart      ErrorView
+│   │   ├── error_view.dart      ErrorView
+│   │   ├── menu_tile.dart       AppMenuTile (settings/profile row: icon circle +
+│   │   │                        label + chevron/trailing; danger variant)
+│   │   └── radio_group.dart     AppRadioGroup<T> + AppRadioRow (single-select list)
 │   └── blocks/                  larger domain compositions (root = cross-domain,
 │                                 `blocks/<category>/` = domain-specific data, e.g.
 │                                 `ecommerce/`); indexed in `docs/ai-rules/design.md`

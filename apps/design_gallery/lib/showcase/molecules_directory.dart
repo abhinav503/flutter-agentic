@@ -3,6 +3,8 @@ import 'package:core/core/ui/molecules/bottom_sheet.dart';
 import 'package:core/core/ui/molecules/dialog.dart';
 import 'package:core/core/ui/molecules/empty_state.dart';
 import 'package:core/core/ui/molecules/error_view.dart';
+import 'package:core/core/ui/molecules/menu_tile.dart';
+import 'package:core/core/ui/molecules/radio_group.dart';
 import 'package:flutter/material.dart';
 import 'package:widgetbook/widgetbook.dart';
 
@@ -114,6 +116,66 @@ WidgetbookCategory moleculesCategory() {
                 );
               },
             ),
+          ),
+        ]),
+      ),
+      allVariants(
+        'AppRadioGroup',
+        (context) => showcase(context, [
+          Variant(
+            'Default',
+            AppRadioGroup(
+              options: const [
+                'Newest first',
+                'Price: low to high',
+                'Price: high to low',
+              ],
+              labelOf: (option) => option,
+              selected: 'Newest first',
+              onSelected: (_) {},
+            ),
+            width: 320,
+          ),
+        ]),
+      ),
+      allVariants(
+        'AppMenuTile',
+        (context) => showcase(context, [
+          Variant(
+            'Navigable (chevron)',
+            AppMenuTile(
+              iconBuilder: (color, size) =>
+                  Icon(Icons.lock_outline, color: color, size: size),
+              label: 'Change Password',
+              onTap: () {},
+            ),
+            width: 320,
+          ),
+          Variant(
+            'Custom trailing',
+            AppMenuTile(
+              iconBuilder: (color, size) =>
+                  Icon(Icons.info_outline, color: color, size: size),
+              label: 'App Version',
+              trailing: Builder(
+                builder: (context) => Text(
+                  'v1.2.0',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+              ),
+            ),
+            width: 320,
+          ),
+          Variant(
+            'Danger',
+            AppMenuTile(
+              iconBuilder: (color, size) =>
+                  Icon(Icons.logout, color: color, size: size),
+              label: 'Logout',
+              danger: true,
+              onTap: () {},
+            ),
+            width: 320,
           ),
         ]),
       ),

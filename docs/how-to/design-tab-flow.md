@@ -83,16 +83,22 @@ see the caching pattern below, shared by all three tabs.
 
 ## Categories tab — the plain case of the same pattern
 
-Simplest version: one endpoint, one cached entity, one event.
+Simplest version: one endpoint, one cached entity, one event. The cache
+holder is `TabCache<T>` from `package:core/core/base/tab_cache.dart` — don't
+hand-roll a nullable static field.
 
 ```dart
 class CategoriesBloc extends Bloc<CategoriesEvent, CategoriesState> {
-  static CategoriesEntity? _cachedCategories;
+  static final _cache = TabCache<CategoriesEntity>();
+
+  @visibleForTesting
+  static void resetCache() => _cache.reset();
 
   CategoriesBloc({required GetCategoriesUseCase getCategoriesUseCase})
-    : super(_cachedCategories != null
-          ? CategoriesState.loaded(categories: _cachedCategories!)
-          : const CategoriesState.loading()) {
+    : super(_cache.seed(
+        warm: (categories) => CategoriesState.loaded(categories: categories),
+        cold: CategoriesState.loading,
+      )) {
     on<CategoriesStarted>(_onStarted);
   }
 
@@ -104,7 +110,7 @@ class CategoriesBloc extends Bloc<CategoriesEvent, CategoriesState> {
           emit(CategoriesState.loaded(categories: categories, refreshFailed: true)),
         _ => emit(CategoriesState.error(message: failure.message)),
       },
-      (categories) => _emitLoaded(categories, emit), // caches + emits
+      (categories) => _emitLoaded(categories, emit), // _cache.save + emit
     );
   }
 }
@@ -113,6 +119,8 @@ class CategoriesBloc extends Bloc<CategoriesEvent, CategoriesState> {
 **Why static, not an instance field:** the instance dies with the old BLoC on
 every tab switch (see Shell flow above); `static` is the only thing that
 survives to the next `CategoriesBloc()` call, for the app process's life.
+Statics also leak across `bloc_test` cases — that's what `resetCache()` is
+for (call it in the test file's `setUp`).
 
 **Why `refreshFailed`, not `error`:** a warm tab already has good content on
 screen — a failed background refetch shouldn't blank it out. It sets a flag
@@ -127,11 +135,13 @@ cache. Only the **fetched list** is cached — the tab/filter selection resets
 to its default on every warm start, same as a cold one:
 
 ```dart
-static List<OrderEntity>? _cachedOrders;
+static final _cache = TabCache<List<OrderEntity>>();
 
-super(_cachedOrders != null
-    ? OrdersState.loaded(orders: _cachedOrders!, selectedTab: OrdersTab.past)
-    : const OrdersState.loading())
+super(_cache.seed(
+  warm: (orders) =>
+      OrdersState.loaded(orders: orders, selectedTab: OrdersTab.past),
+  cold: OrdersState.loading,
+))
 ```
 
 Local optimistic edits (cancelling an order) route through the same
@@ -226,7 +236,7 @@ point is surviving a *tab switch*, not a relaunch.
 | Flow | Mechanism | Why |
 |---|---|---|
 | Shell | `AuthBloc` in `buildBlocProviders`, above the tab switch | Verify-gate and session state must outlive every individual tab |
-| Any tab | `static` cache + seed-from-cache constructor | Survives the BLoC being rebuilt on every tab switch |
+| Any tab | `static final _cache = TabCache<T>()` + `_cache.seed(...)` constructor | Survives the BLoC being rebuilt on every tab switch |
 | Any tab | `refreshFailed` flag, not `error`, on a warm refetch failure | Don't blank out content the user can already see |
 | Orders | Cache the fetched list only, not `selectedTab`/`filter` | Those are view state, not server data — reset like a cold load |
 | Optimistic local edits | Route through the same cache-updating helper | Keeps the cache correct if the tab is revisited before the next refetch |

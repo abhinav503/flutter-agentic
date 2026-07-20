@@ -9,3 +9,17 @@ extension ImageUrlX on String {
   bool get isSvgUrl =>
       Uri.tryParse(this)?.path.toLowerCase().endsWith('.svg') ?? false;
 }
+
+/// Form-field validation predicates — the logic behind core's
+/// `TextfieldValidations` mixin (`core/mixins/`), exposed separately for
+/// call sites that need the predicate without the message.
+extension FieldValidationX on String {
+  static final RegExp _emailPattern = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
+  static final RegExp _nonDigit = RegExp(r'[^0-9]');
+
+  bool get isValidEmail => _emailPattern.hasMatch(trim());
+
+  /// Digit count ignoring separators/spaces — for phone-number length checks
+  /// (`'+91 98765-43210'.digitCount == 12`).
+  int get digitCount => replaceAll(_nonDigit, '').length;
+}

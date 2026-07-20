@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-import 'package:core/core/theme/app_radius.dart';
-import 'package:core/core/theme/app_shapes_extension.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/shimmer_box.dart';
+
+import 'package:gravia/widgets/gravia_product_rail_skeleton.dart';
 
 /// Mirrors [HomeCategorySection] + [HomePopularItemsSection]'s silhouette —
 /// a circle-tile rail, then a product-card rail — so the loading state
@@ -13,9 +13,6 @@ class HomeSkeletonBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cardRadius = BorderRadius.circular(
-      Theme.of(context).extension<AppShapes>()?.cardRadius ?? AppRadius.xlValue,
-    );
     return Padding(
       padding: const EdgeInsets.only(
         top: AppSpacing.xl4,
@@ -47,23 +44,7 @@ class HomeSkeletonBody extends StatelessWidget {
             ),
           ),
           const SizedBox(height: AppSpacing.xl4),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-            child: ShimmerBox(width: 140, height: 20),
-          ),
-          const SizedBox(height: AppSpacing.base),
-          SizedBox(
-            height: 230,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.only(left: AppSpacing.lg),
-              itemCount: 4,
-              separatorBuilder: (context, index) =>
-                  const SizedBox(width: AppSpacing.base),
-              itemBuilder: (context, index) =>
-                  ShimmerBox(width: 184, height: 230, borderRadius: cardRadius),
-            ),
-          ),
+          const GraviaProductRailSkeleton(),
         ],
       ),
     );

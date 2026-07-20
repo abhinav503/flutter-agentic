@@ -200,7 +200,8 @@ Two themes: complete the monorepo migration (done, shipped in v1.2.0), and add t
 
 Modules every real app eventually needs, as abstract interfaces with swappable implementations. These are not just dev conveniences anymore — they're the **building blocks the generator composes** when a prompt implies them ("users log in" → auth scaffold; "send a reminder" → notifications). Each one shipped is one more capability the engine can emit correctly.
 
-- [ ] `AppRadioGroup` and `AppSnackbar` atoms (success / error / info variants)
+- [x] `AppRadioGroup` — shipped as a core molecule (`AppRadioGroup<T>` + `AppRadioRow`), promoted from gravia's `RadioOptionsSheetContent`
+- [ ] `AppSnackbar` atom (success / error / info variants)
 - [ ] Pagination mixin for list features
 - [ ] Secure storage — `flutter_secure_storage` backed interface in `core/storage/`
 - [ ] Push notifications — FCM-backed `NotificationService` abstraction in `core/notifications/` *(capability shipped app-side in `doc_scanner` + as the repeatable `add-notification-feature` skill; the `core` abstraction itself is still open)*

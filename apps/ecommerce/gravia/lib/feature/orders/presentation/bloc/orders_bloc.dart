@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import 'package:core/core/base/tab_cache.dart';
 import 'package:core/core/usecase/usecase.dart';
 
 import 'package:gravia/enums/order_status.dart';
@@ -17,36 +18,22 @@ part 'orders_state.dart';
 class OrdersBloc extends Bloc<OrdersEvent, OrdersState> {
   final GetOrdersUseCase _getOrders;
 
-  // Static, not an instance field — ShellPage builds a brand-new OrdersBloc
-  // every time the Orders tab is revisited (its BlocProvider lives in
-  // buildBody, tied to the tab switch), so an instance field would die with
-  // the old bloc. Surviving across instances for the life of the app process
-  // is what lets a warm return to Orders skip straight to the last-known
-  // content instead of flashing the shimmer again. Only the fetched list is
-  // cached — [OrdersLoaded.selectedTab]/[OrdersLoaded.filter] are transient
-  // view selections, not fetched data, so a warm start always reopens on the
-  // default Past tab with no filter, same as a cold load.
-  static List<OrderEntity>? _cachedOrders;
+  // Only the fetched list is cached — [OrdersLoaded.selectedTab]/
+  // [OrdersLoaded.filter] are transient view selections, so a warm start
+  // always reopens on the default Past tab with no filter.
+  static final _cache = TabCache<List<OrderEntity>>();
 
-  /// Test-only escape hatch — `_cachedOrders` being static means it
-  /// otherwise leaks across `bloc_test` cases (and app sessions) since
-  /// nothing else ever clears it.
   @visibleForTesting
-  static void resetCache() => _cachedOrders = null;
+  static void resetCache() => _cache.reset();
 
   OrdersBloc({required GetOrdersUseCase getOrdersUseCase})
     : _getOrders = getOrdersUseCase,
-      // Cold start (no cache yet) still opens on loading/shimmer. A warm
-      // start seeds straight into loaded so the screen renders the saved
-      // data on the very first frame; _onStarted then re-fetches in the
-      // background instead of resetting to loading.
       super(
-        _cachedOrders != null
-            ? OrdersState.loaded(
-                orders: _cachedOrders!,
-                selectedTab: OrdersTab.past,
-              )
-            : const OrdersState.loading(),
+        _cache.seed(
+          warm: (orders) =>
+              OrdersState.loaded(orders: orders, selectedTab: OrdersTab.past),
+          cold: OrdersState.loading,
+        ),
       ) {
     on<OrdersStarted>(_onStarted);
     on<OrdersTabChanged>(_onTabChanged);
@@ -121,7 +108,7 @@ class OrdersBloc extends Bloc<OrdersEvent, OrdersState> {
     Emitter<OrdersState> emit, {
     OrdersFilter? filter,
   }) {
-    _cachedOrders = orders;
+    _cache.save(orders);
     emit(
       OrdersState.loaded(
         orders: orders,

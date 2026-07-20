@@ -5,13 +5,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:core/core/base/base_screen.dart';
+import 'package:core/core/mixins/textfield_validations.dart';
 import 'package:core/core/services/image_picker/image_picker_service.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/button.dart';
 import 'package:core/core/ui/blocks/collapsing_header_sheet.dart';
 
 import 'package:gravia/constants/value_const.dart';
-import 'package:gravia/mixins/textfield_validations.dart';
 import 'package:gravia/widgets/gravia_docked_bar.dart';
 import 'package:gravia/widgets/gravia_form_field.dart';
 import 'package:gravia/widgets/gravia_hero_header.dart';

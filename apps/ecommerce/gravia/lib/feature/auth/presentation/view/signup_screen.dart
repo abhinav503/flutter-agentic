@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:core/core/base/base_screen.dart';
+import 'package:core/core/mixins/textfield_validations.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/button.dart';
 import 'package:core/core/ui/atoms/checkbox.dart';
@@ -13,7 +14,6 @@ import 'package:core/core/ui/blocks/collapsing_header_sheet.dart';
 import 'package:gravia/constants/app_routes.dart';
 import 'package:gravia/constants/text_style_const.dart';
 import 'package:gravia/constants/value_const.dart';
-import 'package:gravia/mixins/textfield_validations.dart';
 import 'package:gravia/widgets/gravia_form_field.dart';
 import 'package:gravia/widgets/gravia_primary_button.dart';
 import 'package:gravia/widgets/gravia_sheet.dart';
