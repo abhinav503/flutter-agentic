@@ -25,6 +25,7 @@ Read `docs/how-to/contributing.md` for contributor workflow and git hooks.
 Read `docs/how-to/add-feature-template.md` when scaffolding a new feature — it has the full folder tree, empty class skeletons, DI registration order, and a forbidden-pattern checklist.
 Read `docs/how-to/add-usecase.md` when adding a use case — create the class and register it in `injection_container.dart`.
 Read `docs/how-to/design-screen-state.md` when designing BLoC events and states — covers business-logic naming, state design, retry context, and screen rendering rules with examples from the jokes feature.
+Read `docs/how-to/design-tab-flow.md` when building a bottom-nav shell or wiring a tab's BLoC — covers `ShellPage`'s shared `AuthBloc` + per-tab `BlocProvider`s, the warm-start caching pattern each tab BLoC uses to skip the loading shimmer on revisit, and gravia's full Firebase auth flow (signup/login, the persistent email-verification sheet + 3s poll, resume-on-relaunch, forgot password).
 Read `docs/how-to/review-code.md` when the user asks to review, audit, or check generated code — run through the full checklist and report ✅/❌ per section.
 Read `docs/how-to/change-app-id.md` when the user asks to change the application ID or bundle identifier — covers Android (`build.gradle.kts` + `MainActivity.kt` package path) and iOS (`project.pbxproj`), with Xcode manual steps and provisioning notes.
 Read `docs/how-to/rename-app.md` when the user asks to rename the app — covers display name, package name, and all files that reference the old name.

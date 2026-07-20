@@ -285,7 +285,11 @@ supplies the pack-specific metrics.
   the bar when the slide animation first landed, so don't revert to
   intrinsic sizing without re-checking that regression doesn't come back. →
   `OrdersSegmentedTabBar` (feature-local — single caller today, promote it
-  if a second segmented control shows up).
+  if a second segmented control shows up). The loading state mirrors this
+  same silhouette — two `OrderCard`-shaped skeletons (line-item rows, the
+  date/total row, the paired action buttons) via `OrdersSkeletonBody`, not a
+  spinner — and, per the bottom-nav warm-start rule above, only ever shows on
+  the tab's genuine first load.
 
   An order is one delivery of possibly several products, each with its own
   quantity and line price — never a single product by itself (an earlier
@@ -590,7 +594,14 @@ motion.
 - **Empty, loading, and error states are designed moments.** `EmptyState`
   with an icon, one-line title, one-line subtitle, and a next-step action;
   `LoadingIndicator`/`LoadingDots`; `ErrorView` with retry. A bare spinner or
-  plain-text "No items" is unfinished work.
+  plain-text "No items" is unfinished work. A full-screen initial load gets a
+  skeleton that mirrors the loaded layout's silhouette (`ShimmerBox`
+  composed to match — see `HomeSkeletonBody`/`CategoriesSkeletonBody`/
+  `OrdersSkeletonBody`), not a centred spinner. On a bottom-nav tab
+  specifically, that skeleton should only ever appear on a genuine cold
+  start — switching tabs and back must not re-show it once the tab has
+  loaded once this session; see `docs/how-to/design-tab-flow.md` for the
+  BLoC-level warm-start caching pattern that makes that true.
 - **Images carry the design.** Photo-led apps (commerce, food, travel): big
   images, tight metadata. Always `fit: BoxFit.cover` inside a clipped radius;
   no stretched or letterboxed photos.
@@ -613,6 +624,10 @@ motion.
   value the app's persistent chrome (bottom nav, docked bottom bar) uses
 - A primary action button living at the bottom of scrollable content
   instead of docked outside the scroll view
+- A bottom-nav tab that re-plays its full loading shimmer every time the
+  user switches back to it, instead of showing the already-fetched data
+  instantly and refreshing silently underneath (see
+  `docs/how-to/design-tab-flow.md`)
 
 ---
 
