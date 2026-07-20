@@ -31,6 +31,11 @@ dependencies:
   # Functional error handling
   fpdart: ^1.1.0
 
+  # Debounced+restartable event transformer for search-as-you-type
+  # (SearchBloc) — the bloc-docs-recommended way to compose debounce with
+  # switchMap without pulling in rxdart.
+  stream_transform: ^2.1.0
+
   # Models
   freezed_annotation: ^3.1.0
   json_annotation: ^4.9.0

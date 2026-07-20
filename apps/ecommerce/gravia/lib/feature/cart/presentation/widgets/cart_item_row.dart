@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 
-import 'package:core/core/theme/app_radius.dart';
 import 'package:core/core/theme/app_spacing.dart';
-import 'package:core/core/ui/atoms/network_image.dart';
 
 import 'package:gravia/constants/text_style_const.dart';
 import 'package:gravia/constants/value_const.dart';
 import 'package:gravia/enums/product_unit_type.dart';
+import 'package:gravia/widgets/gravia_list_thumbnail.dart';
 import 'package:gravia/widgets/gravia_quantity_stepper.dart';
 
 import '../../domain/entities/cart_item_entity.dart';
@@ -35,14 +34,7 @@ class CartItemRow extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        ClipRRect(
-          borderRadius: AppRadius.lg,
-          child: SizedBox(
-            width: AppSpacing.xl13,
-            height: AppSpacing.xl13,
-            child: AppNetworkImage(url: product.imageUrl, fit: BoxFit.cover),
-          ),
-        ),
+        GraviaListThumbnail(url: product.imageUrl, size: AppSpacing.xl13),
         const SizedBox(width: AppSpacing.base),
         Expanded(
           child: Column(

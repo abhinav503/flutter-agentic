@@ -20,8 +20,12 @@ class _SearchPageState extends BasePageState<SearchPage> {
   // a generic top bar would double up, same reasoning as HomeScreen.
   @override
   Widget buildBody(BuildContext context) => BlocProvider(
-    create: (_) =>
-        SearchBloc(getSearchUseCase: sl())..add(const SearchEvent.started()),
+    create: (_) => SearchBloc(
+      getSearchUseCase: sl(),
+      searchCatalogUseCase: sl(),
+      addRecentSearchUseCase: sl(),
+      removeRecentSearchUseCase: sl(),
+    )..add(const SearchEvent.started()),
     child: const SearchScreen(),
   );
 }

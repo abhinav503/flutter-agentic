@@ -56,6 +56,11 @@ abstract final class ValueConst {
   // ── Search ─────────────────────────────────────────────────────────────────
   static const recentSearchTitle = 'Recent Search';
   static const searchLoadErrorMessage = 'Something went wrong loading search.';
+  static const searchResultsErrorMessage = 'Something went wrong searching.';
+  static const searchCategoryBadge = 'Category';
+  static const searchNoResultsTitle = 'No results found';
+  static String searchNoResultsSubtitle(String query) =>
+      'Nothing matches "$query". Try a different keyword.';
 
   // ── Product Details ────────────────────────────────────────────────────────
   static const productDetailsTitle = 'Product Details';

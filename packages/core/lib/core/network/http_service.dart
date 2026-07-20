@@ -54,6 +54,22 @@ class HttpService {
             : options,
       );
 
+  Future<Response<T>> delete<T>(
+    String url, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    Map<String, dynamic>? headers,
+    Options? options,
+  }) =>
+      _dio.delete<T>(
+        url,
+        data: data,
+        queryParameters: queryParameters,
+        options: headers != null
+            ? (options ?? Options()).copyWith(headers: headers)
+            : options,
+      );
+
   /// Streaming POST for server-sent events (SSE) and other chunked responses.
   ///
   /// Returns the raw byte stream of the response body

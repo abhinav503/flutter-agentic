@@ -2,6 +2,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../../home/data/models/product_model.dart';
 import '../../domain/entities/search_entity.dart';
+import 'recent_search_model.dart';
 
 part 'search_model.freezed.dart';
 part 'search_model.g.dart';
@@ -12,7 +13,7 @@ abstract class SearchModel with _$SearchModel {
 
   const factory SearchModel({
     @JsonKey(name: 'recent_searches')
-    required List<ProductModel> recentSearches,
+    required List<RecentSearchModel> recentSearches,
     @JsonKey(name: 'popular_products')
     required List<ProductModel> popularProducts,
   }) = _SearchModel;
@@ -21,12 +22,14 @@ abstract class SearchModel with _$SearchModel {
       _$SearchModelFromJson(json);
 
   factory SearchModel.fromEntity(SearchEntity e) => SearchModel(
-    recentSearches: e.recentSearches.map(ProductModel.fromEntity).toList(),
+    recentSearches: e.recentSearches
+        .map(RecentSearchModel.fromEntity)
+        .toList(),
     popularProducts: e.popularProducts.map(ProductModel.fromEntity).toList(),
   );
 
   SearchEntity toEntity() => SearchEntity(
-    recentSearches: recentSearches.map((p) => p.toEntity()).toList(),
+    recentSearches: recentSearches.map((r) => r.toEntity()).toList(),
     popularProducts: popularProducts.map((p) => p.toEntity()).toList(),
   );
 }

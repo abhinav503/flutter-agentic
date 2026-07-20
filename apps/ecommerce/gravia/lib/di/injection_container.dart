@@ -63,7 +63,10 @@ import '../feature/search/data/data_source/search_remote_data_source.dart';
 import '../feature/search/data/data_source/search_remote_data_source_impl.dart';
 import '../feature/search/data/repository_impl/search_repository_impl.dart';
 import '../feature/search/domain/repository/search_repository.dart';
+import '../feature/search/domain/usecase/add_recent_search_usecase.dart';
 import '../feature/search/domain/usecase/get_search_usecase.dart';
+import '../feature/search/domain/usecase/remove_recent_search_usecase.dart';
+import '../feature/search/domain/usecase/search_catalog_usecase.dart';
 
 // Re-export the shared service locator so consumers can import `sl` from the
 // app's own DI entrypoint.
@@ -101,6 +104,9 @@ Future<void> initDependencies() async {
   );
   sl.registerLazySingleton<SearchRepository>(() => SearchRepositoryImpl(sl()));
   sl.registerLazySingleton(() => GetSearchUseCase(sl()));
+  sl.registerLazySingleton(() => SearchCatalogUseCase(sl()));
+  sl.registerLazySingleton(() => AddRecentSearchUseCase(sl()));
+  sl.registerLazySingleton(() => RemoveRecentSearchUseCase(sl()));
 
   // ── Categories ───────────────────────────────────────────────────────────
   sl.registerLazySingleton<CategoriesRemoteDataSource>(

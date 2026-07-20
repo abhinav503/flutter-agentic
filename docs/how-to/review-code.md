@@ -54,7 +54,7 @@ Before accepting new widgets, utilities, or services, check whether the capabili
 **Reuse what core already provides.** Skim `packages/core/lib/core/ui/`, `base/`, `network/`, and `usecase/` before judging new code. Flag ❌ when the change reimplements something core already has:
 - molecules: `EmptyState`, `ErrorView`, `AppBottomSheet`, `AppDialog`
 - atoms: `AppButton`, `AppTextField`, `AppBadge`, `AppChip`, `AppTopBar`, `AppCheckbox`, `LoadingIndicator`, `LoadingDots`, `AppDropdownMenu`
-- logic: `BaseRepository` (`handleRequest` / `handleStream`), `UseCase` / `StreamUseCase`, `HttpService` (`get` / `post` / `postStream`)
+- logic: `BaseRepository` (`handleRequest` / `handleStream`), `UseCase` / `StreamUseCase`, `HttpService` (`get` / `post` / `put` / `delete` / `postStream`)
 
 **No raw Material widgets where a design-system equivalent exists.** Flag direct use of `PopupMenuButton` / `DropdownButton` (→ `AppDropdownMenu`), `TextField` (→ `AppTextField`), `ElevatedButton` / `TextButton` / `OutlinedButton` / `FilledButton` (→ `AppButton`), `CircularProgressIndicator` (→ `LoadingIndicator`), or a hand-rolled empty/error view (→ `EmptyState` / `ErrorView`). If no atom fits, the fix is to add one to core (next point) — not to inline raw Material.
 

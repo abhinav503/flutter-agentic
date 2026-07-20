@@ -4,21 +4,29 @@ import 'package:go_router/go_router.dart';
 
 import 'package:core/core/base/base_screen.dart';
 import 'package:core/core/theme/app_spacing.dart';
+import 'package:core/core/ui/atoms/loading_dots.dart';
 import 'package:core/core/ui/blocks/collapsing_header_sheet.dart';
+import 'package:core/core/ui/molecules/empty_state.dart';
 import 'package:core/core/ui/molecules/error_view.dart';
 
 import 'package:gravia/constants/app_routes.dart';
 import 'package:gravia/constants/value_const.dart';
+import 'package:gravia/enums/recent_search_type.dart';
 import 'package:gravia/widgets/gravia_sheet.dart';
 
 // Cross-feature reuse, not duplication — Search's "Popular Items" is the
 // same composition and product data shape as Home's.
+import '../../../home/domain/entities/category_entity.dart';
 import '../../../home/domain/entities/product_entity.dart';
 import '../../../home/presentation/widgets/home_popular_items_section.dart';
+import '../../domain/entities/recent_search_entity.dart';
+import '../../domain/entities/search_entity.dart';
+import '../../domain/entities/search_results_entity.dart';
 import '../bloc/search_bloc.dart';
 import '../widgets/recent_search_section.dart';
 import '../widgets/search_hero_header.dart';
 import '../widgets/search_skeleton_body.dart';
+import '../widgets/search_suggestions_section.dart';
 
 class SearchScreen extends BaseScreen {
   const SearchScreen({super.key});
@@ -75,10 +83,51 @@ class _SearchScreenState extends BaseScreenState<SearchScreen> {
   void _showAddToCartSheet(ProductEntity product) =>
       showGraviaAddToCartSheet(product: product, onAddToCart: _addToCart);
 
+  // Tapping any search result records it as a recent search (the bloc's
+  // concern) and deep-links to its details page (this screen's concern).
+  void _openProductResult(ProductEntity product) {
+    context.read<SearchBloc>().add(
+      SearchEvent.resultSelected(
+        item: RecentSearchEntity(
+          id: product.id,
+          name: product.name,
+          type: RecentSearchType.product,
+        ),
+      ),
+    );
+    context.push(AppRoutes.productDetailsPath(product.id));
+  }
+
+  void _openCategoryResult(CategoryEntity category) {
+    context.read<SearchBloc>().add(
+      SearchEvent.resultSelected(
+        item: RecentSearchEntity(
+          id: category.id,
+          name: category.name,
+          type: RecentSearchType.category,
+        ),
+      ),
+    );
+    context.push(AppRoutes.categoryDetailsPath(category.id, category.name));
+  }
+
+  // Re-selecting an existing recent moves it back to the top of the list.
+  void _openRecent(RecentSearchEntity item) {
+    context.read<SearchBloc>().add(SearchEvent.resultSelected(item: item));
+    switch (item.type) {
+      case RecentSearchType.product:
+        context.push(AppRoutes.productDetailsPath(item.id));
+      case RecentSearchType.category:
+        context.push(AppRoutes.categoryDetailsPath(item.id, item.name));
+    }
+  }
+
   Widget _header() => SearchHeroHeader(
     controller: _searchController,
     focusNode: _searchFocus,
     onBack: _goBack,
+    onChanged: (value) =>
+        context.read<SearchBloc>().add(SearchEvent.queryChanged(query: value)),
     onSubmitted: (_) {},
   );
 
@@ -88,54 +137,113 @@ class _SearchScreenState extends BaseScreenState<SearchScreen> {
       listener: (context, state) {
         if (state case SearchError(:final message)) showSnackBar(message);
       },
-      builder: (context, state) => AnimatedSwitcher(
-        duration: const Duration(milliseconds: 300),
-        child: switch (state) {
-          SearchLoading() => CollapsingHeaderSheet(
-            key: const ValueKey('loading'),
-            initialHeaderHeight: 120,
-            header: _header(),
-            body: const SearchSkeletonBody(),
+      // One persistent sheet + header across every state — swapping whole
+      // sheets in the AnimatedSwitcher rebuilt the header's text field on
+      // loading → loaded, detaching the focus node and closing the keyboard
+      // right after the screen opened. Only the sheet body animates now.
+      builder: (context, state) => CollapsingHeaderSheet(
+        initialHeaderHeight: 120,
+        header: _header(),
+        body: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          // The default layout builder centers the child in the available
+          // height — short bodies (a few suggestions) would float mid-sheet.
+          layoutBuilder: (currentChild, previousChildren) => Stack(
+            alignment: Alignment.topCenter,
+            children: [...previousChildren, ?currentChild],
           ),
-          SearchError() => SafeArea(
-            key: const ValueKey('error'),
-            child: ErrorView(
-              message: ValueConst.searchLoadErrorMessage,
-              onRetry: () =>
-                  context.read<SearchBloc>().add(const SearchEvent.started()),
+          child: switch (state) {
+            SearchLoading() => const SearchSkeletonBody(
+              key: ValueKey('loading'),
             ),
-          ),
-          SearchLoaded(:final search) => CollapsingHeaderSheet(
-            key: const ValueKey('loaded'),
-            initialHeaderHeight: 120,
-            header: _header(),
-            body: Padding(
+            SearchError() => Padding(
+              key: const ValueKey('error'),
               padding: const EdgeInsets.symmetric(vertical: AppSpacing.xl4),
-              child: Column(
-                children: [
-                  RecentSearchSection(
-                    products: search.recentSearches,
-                    onProductTap: _openProductDetails,
-                    onRemove: (productId) => context.read<SearchBloc>().add(
-                      SearchEvent.recentSearchRemoved(productId: productId),
-                    ),
-                  ),
-                  const SizedBox(height: AppSpacing.xl4),
-                  HomePopularItemsSection(
-                    products: search.popularProducts,
-                    onAddToCart: _addToCart,
-                    onQuickAdd: _showAddToCartSheet,
-                    onFavouriteToggle: (_) {},
-                    onProductTap: _openProductDetails,
-                    onComingSoon: () =>
-                        showSnackBar(ValueConst.comingSoonMessage),
-                  ),
-                ],
+              child: ErrorView(
+                message: ValueConst.searchLoadErrorMessage,
+                onRetry: () =>
+                    context.read<SearchBloc>().add(const SearchEvent.started()),
               ),
             ),
-          ),
-        },
+            SearchLoaded(
+              :final search,
+              :final query,
+              :final searching,
+              :final results,
+              :final resultsError,
+            ) =>
+              Padding(
+                key: const ValueKey('loaded'),
+                padding: const EdgeInsets.symmetric(vertical: AppSpacing.xl4),
+                child: query.isEmpty
+                    ? _browseBody(search)
+                    : _resultsBody(query, searching, results, resultsError),
+              ),
+          },
+        ),
       ),
+    );
+  }
+
+  Widget _browseBody(SearchEntity search) => Column(
+    children: [
+      // The section renders nothing when recents are empty — the spacer must
+      // go with it, or Popular Items gets a stray gap above it.
+      if (search.recentSearches.isNotEmpty) ...[
+        RecentSearchSection(
+          items: search.recentSearches,
+          onItemTap: _openRecent,
+          onRemove: (item) => context.read<SearchBloc>().add(
+            SearchEvent.recentSearchRemoved(item: item),
+          ),
+        ),
+        const SizedBox(height: AppSpacing.xl4),
+      ],
+      HomePopularItemsSection(
+        products: search.popularProducts,
+        onAddToCart: _addToCart,
+        onQuickAdd: _showAddToCartSheet,
+        onFavouriteToggle: (_) {},
+        onProductTap: _openProductDetails,
+        onComingSoon: () => showSnackBar(ValueConst.comingSoonMessage),
+      ),
+    ],
+  );
+
+  Widget _resultsBody(
+    String query,
+    bool searching,
+    SearchResultsEntity? results,
+    String? resultsError,
+  ) {
+    if (resultsError != null) {
+      return ErrorView(
+        message: ValueConst.searchResultsErrorMessage,
+        onRetry: () => context.read<SearchBloc>().add(
+          SearchEvent.queryChanged(query: query),
+        ),
+      );
+    }
+    // `results == null` without an error means the search is still in
+    // flight (or the debounce hasn't fired) — same visual as `searching`.
+    if (searching || results == null) {
+      return const Padding(
+        padding: EdgeInsets.all(AppSpacing.xl4),
+        child: Center(child: LoadingDots()),
+      );
+    }
+    if (results.products.isEmpty && results.categories.isEmpty) {
+      return EmptyState(
+        iconData: Icons.search_off,
+        title: ValueConst.searchNoResultsTitle,
+        subtitle: ValueConst.searchNoResultsSubtitle(query),
+      );
+    }
+    return SearchSuggestionsSection(
+      products: results.products,
+      categories: results.categories,
+      onProductTap: _openProductResult,
+      onCategoryTap: _openCategoryResult,
     );
   }
 }

@@ -35,7 +35,7 @@ flutter_agentic/
 | State management | `flutter_bloc` | Explicit event→state transitions; sealed Freezed classes give compiler-enforced exhaustive `switch` |
 | Error handling | `fpdart` `Either<Failure, T>` | Compiler rejects callers that ignore `Left`; error paths are visible in every signature |
 | Models + BLoC events/states | `freezed` | Immutable value types, `copyWith`, `==`, pattern matching — same package across all layers |
-| Networking | `dio` via `HttpService` | Static singleton owns one `Dio` instance; data sources call `HttpService.instance.get/post` with full URLs (`postStream` for SSE/token streaming) |
+| Networking | `dio` via `HttpService` | Static singleton owns one `Dio` instance; data sources call `HttpService.instance.get/post/put/delete` with full URLs (`postStream` for SSE/token streaming) |
 | Navigation | `go_router` | Declarative, deep-link ready, web-URL capable, Flutter-team maintained |
 | DI | `get_it` | Shared `sl` lives in `core`; BLoCs as factories, everything else lazy singletons |
 | UI baseline | Material 3 | No component library imposed — use the design system atoms in `package:core/core/ui/` |
@@ -85,7 +85,7 @@ core/
 │                                 user-facing messages (defaults in CoreConst; override
 │                                 a method for custom copy)
 ├── network/
-│   ├── http_service.dart        HttpService static singleton (get/post/postStream via single Dio)
+│   ├── http_service.dart        HttpService static singleton (get/post/put/delete/postStream via single Dio)
 │   └── interceptors/            logging and other Dio interceptors
 ├── services/
 │   ├── image_picker/

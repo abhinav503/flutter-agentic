@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$SearchModel {
 
-@JsonKey(name: 'recent_searches') List<ProductModel> get recentSearches;@JsonKey(name: 'popular_products') List<ProductModel> get popularProducts;
+@JsonKey(name: 'recent_searches') List<RecentSearchModel> get recentSearches;@JsonKey(name: 'popular_products') List<ProductModel> get popularProducts;
 /// Create a copy of SearchModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -48,7 +48,7 @@ abstract mixin class $SearchModelCopyWith<$Res>  {
   factory $SearchModelCopyWith(SearchModel value, $Res Function(SearchModel) _then) = _$SearchModelCopyWithImpl;
 @useResult
 $Res call({
-@JsonKey(name: 'recent_searches') List<ProductModel> recentSearches,@JsonKey(name: 'popular_products') List<ProductModel> popularProducts
+@JsonKey(name: 'recent_searches') List<RecentSearchModel> recentSearches,@JsonKey(name: 'popular_products') List<ProductModel> popularProducts
 });
 
 
@@ -68,7 +68,7 @@ class _$SearchModelCopyWithImpl<$Res>
 @pragma('vm:prefer-inline') @override $Res call({Object? recentSearches = null,Object? popularProducts = null,}) {
   return _then(_self.copyWith(
 recentSearches: null == recentSearches ? _self.recentSearches : recentSearches // ignore: cast_nullable_to_non_nullable
-as List<ProductModel>,popularProducts: null == popularProducts ? _self.popularProducts : popularProducts // ignore: cast_nullable_to_non_nullable
+as List<RecentSearchModel>,popularProducts: null == popularProducts ? _self.popularProducts : popularProducts // ignore: cast_nullable_to_non_nullable
 as List<ProductModel>,
   ));
 }
@@ -154,7 +154,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: 'recent_searches')  List<ProductModel> recentSearches, @JsonKey(name: 'popular_products')  List<ProductModel> popularProducts)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: 'recent_searches')  List<RecentSearchModel> recentSearches, @JsonKey(name: 'popular_products')  List<ProductModel> popularProducts)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _SearchModel() when $default != null:
 return $default(_that.recentSearches,_that.popularProducts);case _:
@@ -175,7 +175,7 @@ return $default(_that.recentSearches,_that.popularProducts);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: 'recent_searches')  List<ProductModel> recentSearches, @JsonKey(name: 'popular_products')  List<ProductModel> popularProducts)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: 'recent_searches')  List<RecentSearchModel> recentSearches, @JsonKey(name: 'popular_products')  List<ProductModel> popularProducts)  $default,) {final _that = this;
 switch (_that) {
 case _SearchModel():
 return $default(_that.recentSearches,_that.popularProducts);case _:
@@ -195,7 +195,7 @@ return $default(_that.recentSearches,_that.popularProducts);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: 'recent_searches')  List<ProductModel> recentSearches, @JsonKey(name: 'popular_products')  List<ProductModel> popularProducts)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: 'recent_searches')  List<RecentSearchModel> recentSearches, @JsonKey(name: 'popular_products')  List<ProductModel> popularProducts)?  $default,) {final _that = this;
 switch (_that) {
 case _SearchModel() when $default != null:
 return $default(_that.recentSearches,_that.popularProducts);case _:
@@ -210,11 +210,11 @@ return $default(_that.recentSearches,_that.popularProducts);case _:
 @JsonSerializable()
 
 class _SearchModel extends SearchModel {
-  const _SearchModel({@JsonKey(name: 'recent_searches') required final  List<ProductModel> recentSearches, @JsonKey(name: 'popular_products') required final  List<ProductModel> popularProducts}): _recentSearches = recentSearches,_popularProducts = popularProducts,super._();
+  const _SearchModel({@JsonKey(name: 'recent_searches') required final  List<RecentSearchModel> recentSearches, @JsonKey(name: 'popular_products') required final  List<ProductModel> popularProducts}): _recentSearches = recentSearches,_popularProducts = popularProducts,super._();
   factory _SearchModel.fromJson(Map<String, dynamic> json) => _$SearchModelFromJson(json);
 
- final  List<ProductModel> _recentSearches;
-@override@JsonKey(name: 'recent_searches') List<ProductModel> get recentSearches {
+ final  List<RecentSearchModel> _recentSearches;
+@override@JsonKey(name: 'recent_searches') List<RecentSearchModel> get recentSearches {
   if (_recentSearches is EqualUnmodifiableListView) return _recentSearches;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableListView(_recentSearches);
@@ -261,7 +261,7 @@ abstract mixin class _$SearchModelCopyWith<$Res> implements $SearchModelCopyWith
   factory _$SearchModelCopyWith(_SearchModel value, $Res Function(_SearchModel) _then) = __$SearchModelCopyWithImpl;
 @override @useResult
 $Res call({
-@JsonKey(name: 'recent_searches') List<ProductModel> recentSearches,@JsonKey(name: 'popular_products') List<ProductModel> popularProducts
+@JsonKey(name: 'recent_searches') List<RecentSearchModel> recentSearches,@JsonKey(name: 'popular_products') List<ProductModel> popularProducts
 });
 
 
@@ -281,7 +281,7 @@ class __$SearchModelCopyWithImpl<$Res>
 @override @pragma('vm:prefer-inline') $Res call({Object? recentSearches = null,Object? popularProducts = null,}) {
   return _then(_SearchModel(
 recentSearches: null == recentSearches ? _self._recentSearches : recentSearches // ignore: cast_nullable_to_non_nullable
-as List<ProductModel>,popularProducts: null == popularProducts ? _self._popularProducts : popularProducts // ignore: cast_nullable_to_non_nullable
+as List<RecentSearchModel>,popularProducts: null == popularProducts ? _self._popularProducts : popularProducts // ignore: cast_nullable_to_non_nullable
 as List<ProductModel>,
   ));
 }

@@ -141,6 +141,9 @@ class _AppTextFieldState extends State<AppTextField> {
 
   @override
   void dispose() {
+    // A caller-owned focusNode outlives this state — without removing the
+    // listener it keeps notifying a defunct state (setState after dispose).
+    _focusNode.removeListener(_onFocusChange);
     if (widget.focusNode == null) _focusNode.dispose();
     super.dispose();
   }

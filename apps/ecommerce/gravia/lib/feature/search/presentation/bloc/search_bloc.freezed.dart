@@ -55,11 +55,13 @@ extension SearchEventPatterns on SearchEvent {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( SearchStarted value)?  started,TResult Function( SearchRecentSearchRemoved value)?  recentSearchRemoved,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( SearchStarted value)?  started,TResult Function( SearchQueryChanged value)?  queryChanged,TResult Function( SearchResultSelected value)?  resultSelected,TResult Function( SearchRecentSearchRemoved value)?  recentSearchRemoved,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case SearchStarted() when started != null:
-return started(_that);case SearchRecentSearchRemoved() when recentSearchRemoved != null:
+return started(_that);case SearchQueryChanged() when queryChanged != null:
+return queryChanged(_that);case SearchResultSelected() when resultSelected != null:
+return resultSelected(_that);case SearchRecentSearchRemoved() when recentSearchRemoved != null:
 return recentSearchRemoved(_that);case _:
   return orElse();
 
@@ -78,11 +80,13 @@ return recentSearchRemoved(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( SearchStarted value)  started,required TResult Function( SearchRecentSearchRemoved value)  recentSearchRemoved,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( SearchStarted value)  started,required TResult Function( SearchQueryChanged value)  queryChanged,required TResult Function( SearchResultSelected value)  resultSelected,required TResult Function( SearchRecentSearchRemoved value)  recentSearchRemoved,}){
 final _that = this;
 switch (_that) {
 case SearchStarted():
-return started(_that);case SearchRecentSearchRemoved():
+return started(_that);case SearchQueryChanged():
+return queryChanged(_that);case SearchResultSelected():
+return resultSelected(_that);case SearchRecentSearchRemoved():
 return recentSearchRemoved(_that);}
 }
 /// A variant of `map` that fallback to returning `null`.
@@ -97,11 +101,13 @@ return recentSearchRemoved(_that);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( SearchStarted value)?  started,TResult? Function( SearchRecentSearchRemoved value)?  recentSearchRemoved,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( SearchStarted value)?  started,TResult? Function( SearchQueryChanged value)?  queryChanged,TResult? Function( SearchResultSelected value)?  resultSelected,TResult? Function( SearchRecentSearchRemoved value)?  recentSearchRemoved,}){
 final _that = this;
 switch (_that) {
 case SearchStarted() when started != null:
-return started(_that);case SearchRecentSearchRemoved() when recentSearchRemoved != null:
+return started(_that);case SearchQueryChanged() when queryChanged != null:
+return queryChanged(_that);case SearchResultSelected() when resultSelected != null:
+return resultSelected(_that);case SearchRecentSearchRemoved() when recentSearchRemoved != null:
 return recentSearchRemoved(_that);case _:
   return null;
 
@@ -119,11 +125,13 @@ return recentSearchRemoved(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  started,TResult Function( String productId)?  recentSearchRemoved,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  started,TResult Function( String query)?  queryChanged,TResult Function( RecentSearchEntity item)?  resultSelected,TResult Function( RecentSearchEntity item)?  recentSearchRemoved,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case SearchStarted() when started != null:
-return started();case SearchRecentSearchRemoved() when recentSearchRemoved != null:
-return recentSearchRemoved(_that.productId);case _:
+return started();case SearchQueryChanged() when queryChanged != null:
+return queryChanged(_that.query);case SearchResultSelected() when resultSelected != null:
+return resultSelected(_that.item);case SearchRecentSearchRemoved() when recentSearchRemoved != null:
+return recentSearchRemoved(_that.item);case _:
   return orElse();
 
 }
@@ -141,11 +149,13 @@ return recentSearchRemoved(_that.productId);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  started,required TResult Function( String productId)  recentSearchRemoved,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  started,required TResult Function( String query)  queryChanged,required TResult Function( RecentSearchEntity item)  resultSelected,required TResult Function( RecentSearchEntity item)  recentSearchRemoved,}) {final _that = this;
 switch (_that) {
 case SearchStarted():
-return started();case SearchRecentSearchRemoved():
-return recentSearchRemoved(_that.productId);}
+return started();case SearchQueryChanged():
+return queryChanged(_that.query);case SearchResultSelected():
+return resultSelected(_that.item);case SearchRecentSearchRemoved():
+return recentSearchRemoved(_that.item);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -159,11 +169,13 @@ return recentSearchRemoved(_that.productId);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  started,TResult? Function( String productId)?  recentSearchRemoved,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  started,TResult? Function( String query)?  queryChanged,TResult? Function( RecentSearchEntity item)?  resultSelected,TResult? Function( RecentSearchEntity item)?  recentSearchRemoved,}) {final _that = this;
 switch (_that) {
 case SearchStarted() when started != null:
-return started();case SearchRecentSearchRemoved() when recentSearchRemoved != null:
-return recentSearchRemoved(_that.productId);case _:
+return started();case SearchQueryChanged() when queryChanged != null:
+return queryChanged(_that.query);case SearchResultSelected() when resultSelected != null:
+return resultSelected(_that.item);case SearchRecentSearchRemoved() when recentSearchRemoved != null:
+return recentSearchRemoved(_that.item);case _:
   return null;
 
 }
@@ -206,11 +218,143 @@ String toString() {
 /// @nodoc
 
 
-class SearchRecentSearchRemoved implements SearchEvent {
-  const SearchRecentSearchRemoved({required this.productId});
+class SearchQueryChanged implements SearchEvent {
+  const SearchQueryChanged({required this.query});
   
 
- final  String productId;
+ final  String query;
+
+/// Create a copy of SearchEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$SearchQueryChangedCopyWith<SearchQueryChanged> get copyWith => _$SearchQueryChangedCopyWithImpl<SearchQueryChanged>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SearchQueryChanged&&(identical(other.query, query) || other.query == query));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,query);
+
+@override
+String toString() {
+  return 'SearchEvent.queryChanged(query: $query)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $SearchQueryChangedCopyWith<$Res> implements $SearchEventCopyWith<$Res> {
+  factory $SearchQueryChangedCopyWith(SearchQueryChanged value, $Res Function(SearchQueryChanged) _then) = _$SearchQueryChangedCopyWithImpl;
+@useResult
+$Res call({
+ String query
+});
+
+
+
+
+}
+/// @nodoc
+class _$SearchQueryChangedCopyWithImpl<$Res>
+    implements $SearchQueryChangedCopyWith<$Res> {
+  _$SearchQueryChangedCopyWithImpl(this._self, this._then);
+
+  final SearchQueryChanged _self;
+  final $Res Function(SearchQueryChanged) _then;
+
+/// Create a copy of SearchEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? query = null,}) {
+  return _then(SearchQueryChanged(
+query: null == query ? _self.query : query // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class SearchResultSelected implements SearchEvent {
+  const SearchResultSelected({required this.item});
+  
+
+ final  RecentSearchEntity item;
+
+/// Create a copy of SearchEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$SearchResultSelectedCopyWith<SearchResultSelected> get copyWith => _$SearchResultSelectedCopyWithImpl<SearchResultSelected>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SearchResultSelected&&(identical(other.item, item) || other.item == item));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,item);
+
+@override
+String toString() {
+  return 'SearchEvent.resultSelected(item: $item)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $SearchResultSelectedCopyWith<$Res> implements $SearchEventCopyWith<$Res> {
+  factory $SearchResultSelectedCopyWith(SearchResultSelected value, $Res Function(SearchResultSelected) _then) = _$SearchResultSelectedCopyWithImpl;
+@useResult
+$Res call({
+ RecentSearchEntity item
+});
+
+
+
+
+}
+/// @nodoc
+class _$SearchResultSelectedCopyWithImpl<$Res>
+    implements $SearchResultSelectedCopyWith<$Res> {
+  _$SearchResultSelectedCopyWithImpl(this._self, this._then);
+
+  final SearchResultSelected _self;
+  final $Res Function(SearchResultSelected) _then;
+
+/// Create a copy of SearchEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? item = null,}) {
+  return _then(SearchResultSelected(
+item: null == item ? _self.item : item // ignore: cast_nullable_to_non_nullable
+as RecentSearchEntity,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class SearchRecentSearchRemoved implements SearchEvent {
+  const SearchRecentSearchRemoved({required this.item});
+  
+
+ final  RecentSearchEntity item;
 
 /// Create a copy of SearchEvent
 /// with the given fields replaced by the non-null parameter values.
@@ -222,16 +366,16 @@ $SearchRecentSearchRemovedCopyWith<SearchRecentSearchRemoved> get copyWith => _$
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is SearchRecentSearchRemoved&&(identical(other.productId, productId) || other.productId == productId));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SearchRecentSearchRemoved&&(identical(other.item, item) || other.item == item));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,productId);
+int get hashCode => Object.hash(runtimeType,item);
 
 @override
 String toString() {
-  return 'SearchEvent.recentSearchRemoved(productId: $productId)';
+  return 'SearchEvent.recentSearchRemoved(item: $item)';
 }
 
 
@@ -242,7 +386,7 @@ abstract mixin class $SearchRecentSearchRemovedCopyWith<$Res> implements $Search
   factory $SearchRecentSearchRemovedCopyWith(SearchRecentSearchRemoved value, $Res Function(SearchRecentSearchRemoved) _then) = _$SearchRecentSearchRemovedCopyWithImpl;
 @useResult
 $Res call({
- String productId
+ RecentSearchEntity item
 });
 
 
@@ -259,10 +403,10 @@ class _$SearchRecentSearchRemovedCopyWithImpl<$Res>
 
 /// Create a copy of SearchEvent
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? productId = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? item = null,}) {
   return _then(SearchRecentSearchRemoved(
-productId: null == productId ? _self.productId : productId // ignore: cast_nullable_to_non_nullable
-as String,
+item: null == item ? _self.item : item // ignore: cast_nullable_to_non_nullable
+as RecentSearchEntity,
   ));
 }
 
@@ -380,11 +524,11 @@ return error(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loading,TResult Function( SearchEntity search)?  loaded,TResult Function( String message)?  error,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loading,TResult Function( SearchEntity search,  String query,  bool searching,  SearchResultsEntity? results,  String? resultsError)?  loaded,TResult Function( String message)?  error,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case SearchLoading() when loading != null:
 return loading();case SearchLoaded() when loaded != null:
-return loaded(_that.search);case SearchError() when error != null:
+return loaded(_that.search,_that.query,_that.searching,_that.results,_that.resultsError);case SearchError() when error != null:
 return error(_that.message);case _:
   return orElse();
 
@@ -403,11 +547,11 @@ return error(_that.message);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loading,required TResult Function( SearchEntity search)  loaded,required TResult Function( String message)  error,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loading,required TResult Function( SearchEntity search,  String query,  bool searching,  SearchResultsEntity? results,  String? resultsError)  loaded,required TResult Function( String message)  error,}) {final _that = this;
 switch (_that) {
 case SearchLoading():
 return loading();case SearchLoaded():
-return loaded(_that.search);case SearchError():
+return loaded(_that.search,_that.query,_that.searching,_that.results,_that.resultsError);case SearchError():
 return error(_that.message);}
 }
 /// A variant of `when` that fallback to returning `null`
@@ -422,11 +566,11 @@ return error(_that.message);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loading,TResult? Function( SearchEntity search)?  loaded,TResult? Function( String message)?  error,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loading,TResult? Function( SearchEntity search,  String query,  bool searching,  SearchResultsEntity? results,  String? resultsError)?  loaded,TResult? Function( String message)?  error,}) {final _that = this;
 switch (_that) {
 case SearchLoading() when loading != null:
 return loading();case SearchLoaded() when loaded != null:
-return loaded(_that.search);case SearchError() when error != null:
+return loaded(_that.search,_that.query,_that.searching,_that.results,_that.resultsError);case SearchError() when error != null:
 return error(_that.message);case _:
   return null;
 
@@ -471,10 +615,14 @@ String toString() {
 
 
 class SearchLoaded implements SearchState {
-  const SearchLoaded({required this.search});
+  const SearchLoaded({required this.search, this.query = '', this.searching = false, this.results, this.resultsError});
   
 
  final  SearchEntity search;
+@JsonKey() final  String query;
+@JsonKey() final  bool searching;
+ final  SearchResultsEntity? results;
+ final  String? resultsError;
 
 /// Create a copy of SearchState
 /// with the given fields replaced by the non-null parameter values.
@@ -486,16 +634,16 @@ $SearchLoadedCopyWith<SearchLoaded> get copyWith => _$SearchLoadedCopyWithImpl<S
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is SearchLoaded&&(identical(other.search, search) || other.search == search));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SearchLoaded&&(identical(other.search, search) || other.search == search)&&(identical(other.query, query) || other.query == query)&&(identical(other.searching, searching) || other.searching == searching)&&(identical(other.results, results) || other.results == results)&&(identical(other.resultsError, resultsError) || other.resultsError == resultsError));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,search);
+int get hashCode => Object.hash(runtimeType,search,query,searching,results,resultsError);
 
 @override
 String toString() {
-  return 'SearchState.loaded(search: $search)';
+  return 'SearchState.loaded(search: $search, query: $query, searching: $searching, results: $results, resultsError: $resultsError)';
 }
 
 
@@ -506,7 +654,7 @@ abstract mixin class $SearchLoadedCopyWith<$Res> implements $SearchStateCopyWith
   factory $SearchLoadedCopyWith(SearchLoaded value, $Res Function(SearchLoaded) _then) = _$SearchLoadedCopyWithImpl;
 @useResult
 $Res call({
- SearchEntity search
+ SearchEntity search, String query, bool searching, SearchResultsEntity? results, String? resultsError
 });
 
 
@@ -523,10 +671,14 @@ class _$SearchLoadedCopyWithImpl<$Res>
 
 /// Create a copy of SearchState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? search = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? search = null,Object? query = null,Object? searching = null,Object? results = freezed,Object? resultsError = freezed,}) {
   return _then(SearchLoaded(
 search: null == search ? _self.search : search // ignore: cast_nullable_to_non_nullable
-as SearchEntity,
+as SearchEntity,query: null == query ? _self.query : query // ignore: cast_nullable_to_non_nullable
+as String,searching: null == searching ? _self.searching : searching // ignore: cast_nullable_to_non_nullable
+as bool,results: freezed == results ? _self.results : results // ignore: cast_nullable_to_non_nullable
+as SearchResultsEntity?,resultsError: freezed == resultsError ? _self.resultsError : resultsError // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 

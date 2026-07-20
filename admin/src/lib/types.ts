@@ -46,6 +46,18 @@ export type CartItem = {
   quantity: number;
 };
 
+// A recent search is the catalog item the shopper tapped from search
+// results — not the raw query string — so gravia can deep-link straight
+// back to the product/category details page. `name` is snapshotted at tap
+// time (display-only), same reasoning as OrderLineItem's snapshot fields.
+export type RecentSearchType = "product" | "category";
+
+export type RecentSearch = {
+  id: string;
+  name: string;
+  type: RecentSearchType;
+};
+
 // Mirrors OrderStatus in gravia's lib/enums/order_status.dart, plus PENDING
 // (order placed, not yet accepted by the store) — a state gravia doesn't
 // have a dedicated enum case for yet. OrderStatusParse's string->enum

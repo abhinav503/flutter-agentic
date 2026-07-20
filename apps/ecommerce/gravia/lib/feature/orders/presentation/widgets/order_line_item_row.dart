@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 
-import 'package:core/core/theme/app_radius.dart';
 import 'package:core/core/theme/app_spacing.dart';
-import 'package:core/core/ui/atoms/network_image.dart';
 
 import 'package:gravia/constants/color_const.dart';
 import 'package:gravia/constants/text_style_const.dart';
 import 'package:gravia/constants/value_const.dart';
+import 'package:gravia/widgets/gravia_list_thumbnail.dart';
 
 import '../../domain/entities/order_line_item_entity.dart';
 
@@ -28,15 +27,7 @@ class OrderLineItemRow extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        ClipRRect(
-          borderRadius: AppRadius.lg,
-          child: AppNetworkImage(
-            url: item.imageUrl,
-            width: _imageSize,
-            height: _imageSize,
-            fit: BoxFit.cover,
-          ),
-        ),
+        GraviaListThumbnail(url: item.imageUrl, size: _imageSize),
         const SizedBox(width: AppSpacing.base),
         Expanded(
           child: Column(
