@@ -5,4 +5,10 @@ import '../entities/address_entity.dart';
 
 abstract interface class AddressRepository {
   Future<Either<Failure, List<AddressEntity>>> getAddresses();
+
+  /// Resolves to the saved address — on create the server assigns the id
+  /// (and default flag for a first address), so callers must use the
+  /// returned entity, not the one they submitted.
+  Future<Either<Failure, AddressEntity>> createAddress(AddressEntity address);
+  Future<Either<Failure, AddressEntity>> updateAddress(AddressEntity address);
 }

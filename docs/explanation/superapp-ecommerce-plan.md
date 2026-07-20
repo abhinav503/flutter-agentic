@@ -369,7 +369,12 @@ this pass. Routes under `admin/src/app/api/stores/[storeId]/`:
 | `GET /products/popular` | `{ popular_products: [...] }` — filtered on `isPopular` |
 | `GET /categories/{categoryId}/products` | `{ products: [...] }` — `categoryIds array-contains` |
 | `GET /products/{productId}` | `{ product, images, description, size_options, similar_products }` |
-| `GET /search?q=` | with `q`: `{ products: [...] }` name-match; without: `{ recent_searches: [], popular_products: [...] }` |
+| `GET /search?q=` | with `q`: `{ products: [...], categories: [...] }` name-match on both; without: `{ recent_searches: [...], popular_products: [...] }` — recents read per `userId` from `users/{uid}/recentSearches/{storeId}` (empty when no `userId`) |
+| `POST /search/recent` | `{ userId, item: {id,name,type} }` — records a tapped result (`type`: `product`\|`category`); server prepends, dedupes by (type,id), caps at 10; returns `{ recent_searches: [...] }` |
+| `DELETE /search/recent?userId=&id=&type=` | removes one recent; returns the updated `{ recent_searches: [...] }` |
+| `GET /api/users/addresses` *(store-agnostic, token-authed)* | `{ addresses: [...] }` — the verified shopper's saved addresses, snake_case matching gravia's `AddressModel` |
+| `POST /api/users/addresses` | creates from `{name, phone, address_line1, address_line2?, landmark?, city, country, postal_code, tag, is_default?}`; server assigns the id and forces the shopper's **first** address to `is_default: true`; returns `{ address }` (201) |
+| `PUT /api/users/addresses/{addressId}` | whole-address replace (the form always submits every field); 404 on unknown id; returns `{ address }` |
 
 - **Response JSON deliberately mirrors gravia's existing wire format** (`admin/src/lib/api/serializers.ts`)
   — snake_case (`original_price`, `discount_percentage`, `unit_value`, `unit_type`,

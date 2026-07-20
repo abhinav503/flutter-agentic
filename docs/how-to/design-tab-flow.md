@@ -84,12 +84,25 @@ see the caching pattern below, shared by all three tabs.
 ## Categories tab — the plain case of the same pattern
 
 Simplest version: one endpoint, one cached entity, one event. The cache
-holder is `TabCache<T>` from `package:core/core/base/tab_cache.dart` — don't
+holder is `BlocCache<T>` from `package:core/core/base/bloc_cache.dart` — don't
 hand-roll a nullable static field.
+
+> **Not just tabs.** Apply this same warm-start pattern to any screen the
+> user reopens frequently — gravia's Search (pushed from Home's field) and
+> Select Address (pushed before checkout) both seed from a `BlocCache`
+> exactly like the tabs do. The trigger is the bloc's lifetime, not the
+> navigation style: whenever the screen's `BlocProvider` is rebuilt on every
+> visit and its data is fine to show stale-then-silently-refresh, warm-seed
+> it. Keep a cold start only where stale data could mislead (live payment
+> or stock state). The same rules below apply unchanged: seed in the
+> constructor, refresh silently on `started`, keep cached data over a
+> failed refresh, and never cache transient view state (query text, filter,
+> selection — Select Address re-resolves its selection from prefs at seed
+> time instead of caching it).
 
 ```dart
 class CategoriesBloc extends Bloc<CategoriesEvent, CategoriesState> {
-  static final _cache = TabCache<CategoriesEntity>();
+  static final _cache = BlocCache<CategoriesEntity>();
 
   @visibleForTesting
   static void resetCache() => _cache.reset();
@@ -135,7 +148,7 @@ cache. Only the **fetched list** is cached — the tab/filter selection resets
 to its default on every warm start, same as a cold one:
 
 ```dart
-static final _cache = TabCache<List<OrderEntity>>();
+static final _cache = BlocCache<List<OrderEntity>>();
 
 super(_cache.seed(
   warm: (orders) =>
@@ -236,8 +249,8 @@ point is surviving a *tab switch*, not a relaunch.
 | Flow | Mechanism | Why |
 |---|---|---|
 | Shell | `AuthBloc` in `buildBlocProviders`, above the tab switch | Verify-gate and session state must outlive every individual tab |
-| Any tab | `static final _cache = TabCache<T>()` + `_cache.seed(...)` constructor | Survives the BLoC being rebuilt on every tab switch |
-| Any tab | `refreshFailed` flag, not `error`, on a warm refetch failure | Don't blank out content the user can already see |
+| Any tab / frequently-reopened screen | `static final _cache = BlocCache<T>()` + `_cache.seed(...)` constructor | Survives the BLoC being rebuilt on every tab switch or push |
+| Any tab / frequently-reopened screen | `refreshFailed` flag, not `error`, on a warm refetch failure | Don't blank out content the user can already see |
 | Orders | Cache the fetched list only, not `selectedTab`/`filter` | Those are view state, not server data — reset like a cold load |
 | Optimistic local edits | Route through the same cache-updating helper | Keeps the cache correct if the tab is revisited before the next refetch |
 | Auth verify | 3s `Timer.periodic` inside `AuthBloc`, sheet is presentation-only | One poll owner; sheet stays dumb/reusable |

@@ -24,4 +24,10 @@ abstract final class ApiConstants {
   /// Store-agnostic — a shopper's profile isn't scoped to one store's data,
   /// unlike everything else in this file.
   static String get usersPath => '$baseUrl/users';
+
+  /// Store-agnostic like [usersPath]; token-authed (no userId param).
+  static String get addressesPath => '$baseUrl/users/addresses';
+
+  static String addressPath(String addressId) =>
+      '$baseUrl/users/addresses/$addressId';
 }

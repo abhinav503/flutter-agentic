@@ -17,4 +17,18 @@ class AddressRepositoryImpl with BaseRepository implements AddressRepository {
         final models = await _dataSource.getAddresses();
         return right(models.map((m) => m.toEntity()).toList());
       });
+
+  @override
+  Future<Either<Failure, AddressEntity>> createAddress(AddressEntity address) =>
+      handleRequest(() async {
+        final model = await _dataSource.createAddress(address);
+        return right(model.toEntity());
+      });
+
+  @override
+  Future<Either<Failure, AddressEntity>> updateAddress(AddressEntity address) =>
+      handleRequest(() async {
+        final model = await _dataSource.updateAddress(address);
+        return right(model.toEntity());
+      });
 }

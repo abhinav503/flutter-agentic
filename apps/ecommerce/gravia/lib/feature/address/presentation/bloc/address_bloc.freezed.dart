@@ -452,11 +452,11 @@ return error(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loading,TResult Function( List<AddressEntity> addresses,  String selectedAddressId)?  loaded,TResult Function( String message)?  error,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loading,TResult Function( List<AddressEntity> addresses,  String selectedAddressId,  bool saveFailed)?  loaded,TResult Function( String message)?  error,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case AddressLoading() when loading != null:
 return loading();case AddressLoaded() when loaded != null:
-return loaded(_that.addresses,_that.selectedAddressId);case AddressError() when error != null:
+return loaded(_that.addresses,_that.selectedAddressId,_that.saveFailed);case AddressError() when error != null:
 return error(_that.message);case _:
   return orElse();
 
@@ -475,11 +475,11 @@ return error(_that.message);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loading,required TResult Function( List<AddressEntity> addresses,  String selectedAddressId)  loaded,required TResult Function( String message)  error,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loading,required TResult Function( List<AddressEntity> addresses,  String selectedAddressId,  bool saveFailed)  loaded,required TResult Function( String message)  error,}) {final _that = this;
 switch (_that) {
 case AddressLoading():
 return loading();case AddressLoaded():
-return loaded(_that.addresses,_that.selectedAddressId);case AddressError():
+return loaded(_that.addresses,_that.selectedAddressId,_that.saveFailed);case AddressError():
 return error(_that.message);}
 }
 /// A variant of `when` that fallback to returning `null`
@@ -494,11 +494,11 @@ return error(_that.message);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loading,TResult? Function( List<AddressEntity> addresses,  String selectedAddressId)?  loaded,TResult? Function( String message)?  error,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loading,TResult? Function( List<AddressEntity> addresses,  String selectedAddressId,  bool saveFailed)?  loaded,TResult? Function( String message)?  error,}) {final _that = this;
 switch (_that) {
 case AddressLoading() when loading != null:
 return loading();case AddressLoaded() when loaded != null:
-return loaded(_that.addresses,_that.selectedAddressId);case AddressError() when error != null:
+return loaded(_that.addresses,_that.selectedAddressId,_that.saveFailed);case AddressError() when error != null:
 return error(_that.message);case _:
   return null;
 
@@ -543,7 +543,7 @@ String toString() {
 
 
 class AddressLoaded implements AddressState {
-  const AddressLoaded({required final  List<AddressEntity> addresses, required this.selectedAddressId}): _addresses = addresses;
+  const AddressLoaded({required final  List<AddressEntity> addresses, required this.selectedAddressId, this.saveFailed = false}): _addresses = addresses;
   
 
  final  List<AddressEntity> _addresses;
@@ -554,6 +554,10 @@ class AddressLoaded implements AddressState {
 }
 
  final  String selectedAddressId;
+// One-shot "couldn't save" signal for the screen's snackbar. The list
+// keeps its pre-save contents (saves aren't optimistic — nothing to
+// roll back); the next selection/save emit resets it via the default.
+@JsonKey() final  bool saveFailed;
 
 /// Create a copy of AddressState
 /// with the given fields replaced by the non-null parameter values.
@@ -565,16 +569,16 @@ $AddressLoadedCopyWith<AddressLoaded> get copyWith => _$AddressLoadedCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AddressLoaded&&const DeepCollectionEquality().equals(other._addresses, _addresses)&&(identical(other.selectedAddressId, selectedAddressId) || other.selectedAddressId == selectedAddressId));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AddressLoaded&&const DeepCollectionEquality().equals(other._addresses, _addresses)&&(identical(other.selectedAddressId, selectedAddressId) || other.selectedAddressId == selectedAddressId)&&(identical(other.saveFailed, saveFailed) || other.saveFailed == saveFailed));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_addresses),selectedAddressId);
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_addresses),selectedAddressId,saveFailed);
 
 @override
 String toString() {
-  return 'AddressState.loaded(addresses: $addresses, selectedAddressId: $selectedAddressId)';
+  return 'AddressState.loaded(addresses: $addresses, selectedAddressId: $selectedAddressId, saveFailed: $saveFailed)';
 }
 
 
@@ -585,7 +589,7 @@ abstract mixin class $AddressLoadedCopyWith<$Res> implements $AddressStateCopyWi
   factory $AddressLoadedCopyWith(AddressLoaded value, $Res Function(AddressLoaded) _then) = _$AddressLoadedCopyWithImpl;
 @useResult
 $Res call({
- List<AddressEntity> addresses, String selectedAddressId
+ List<AddressEntity> addresses, String selectedAddressId, bool saveFailed
 });
 
 
@@ -602,11 +606,12 @@ class _$AddressLoadedCopyWithImpl<$Res>
 
 /// Create a copy of AddressState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? addresses = null,Object? selectedAddressId = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? addresses = null,Object? selectedAddressId = null,Object? saveFailed = null,}) {
   return _then(AddressLoaded(
 addresses: null == addresses ? _self._addresses : addresses // ignore: cast_nullable_to_non_nullable
 as List<AddressEntity>,selectedAddressId: null == selectedAddressId ? _self.selectedAddressId : selectedAddressId // ignore: cast_nullable_to_non_nullable
-as String,
+as String,saveFailed: null == saveFailed ? _self.saveFailed : saveFailed // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 

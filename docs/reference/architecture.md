@@ -68,8 +68,9 @@ core/
 │   ├── base_page.dart           BasePage + BasePageState (Scaffold + getter-based bottom nav)
 │   ├── base_repository.dart     BaseRepository mixin (Dio→Failure mapping; handleRequest + handleStream)
 │   ├── base_screen.dart         BaseScreen + BaseScreenState (showAppBottomSheet, showSnackBar)
-│   └── tab_cache.dart           TabCache<T> — warm-start cache a tab BLoC seeds its
-│                                 initial state from (see docs/how-to/design-tab-flow.md)
+│   └── bloc_cache.dart          BlocCache<T> — warm-start cache a frequently-revisited
+│                                 screen's BLoC seeds its initial state from
+│                                 (see docs/how-to/design-tab-flow.md)
 ├── constants/
 │   └── core_const.dart          CoreConst — ONLY generic constants core's own code uses
 │                                (e.g. retryButton, imagePicker* config). No app copy here.

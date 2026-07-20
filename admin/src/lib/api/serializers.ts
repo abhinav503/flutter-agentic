@@ -1,4 +1,4 @@
-import type { Category, Order, Product } from "@/lib/types";
+import type { Address, Category, Order, Product } from "@/lib/types";
 
 // Shapes match gravia's existing mock JSON / *Model.fromJson() wire format
 // exactly (apps/ecommerce/gravia/lib/feature/*/data/models/) — snake_case,
@@ -7,6 +7,23 @@ import type { Category, Order, Product } from "@/lib/types";
 
 export function serializeCategory(c: Category) {
   return { id: c.id, name: c.name, image: c.imageUrl };
+}
+
+// Matches AddressModel.fromJson() in gravia (feature/address/data/models/).
+export function serializeAddress(a: Address) {
+  return {
+    id: a.id,
+    name: a.name,
+    phone: a.phone,
+    address_line1: a.addressLine1,
+    address_line2: a.addressLine2,
+    landmark: a.landmark,
+    city: a.city,
+    country: a.country,
+    postal_code: a.postalCode,
+    tag: a.tag,
+    is_default: a.isDefault,
+  };
 }
 
 export function serializeProduct(p: Product) {

@@ -97,6 +97,11 @@ abstract final class ValueConst {
   static const deleteLabel = 'Delete';
   static const addressLoadErrorMessage =
       'Something went wrong loading your addresses.';
+  static const addressSaveFailedMessage =
+      'Could not save the address. Please try again.';
+  static const addressEmptyTitle = 'No saved addresses';
+  static const addressEmptySubtitle =
+      'Add your first delivery address to get started.';
 
   // ── Add/Edit Address ───────────────────────────────────────────────────────
   static const editAddressTitle = 'Edit Address';

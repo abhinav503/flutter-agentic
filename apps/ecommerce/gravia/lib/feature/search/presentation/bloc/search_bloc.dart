@@ -3,7 +3,7 @@ import 'package:fpdart/fpdart.dart' hide State;
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:stream_transform/stream_transform.dart';
 
-import 'package:core/core/base/tab_cache.dart';
+import 'package:core/core/base/bloc_cache.dart';
 import 'package:core/core/error/failure.dart';
 import 'package:core/core/usecase/usecase.dart';
 
@@ -35,7 +35,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
   // popular) instead of the shimmer; started then refreshes silently. Only
   // the fetched SearchEntity is cached — query/results are transient view
   // state and always start cold.
-  static final _cache = TabCache<SearchEntity>();
+  static final _cache = BlocCache<SearchEntity>();
 
   @visibleForTesting
   static void resetCache() => _cache.reset();

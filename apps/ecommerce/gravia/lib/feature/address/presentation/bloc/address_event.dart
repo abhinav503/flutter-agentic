@@ -6,10 +6,10 @@ sealed class AddressEvent with _$AddressEvent {
   const factory AddressEvent.selected({required String addressId}) =
       AddressSelected;
 
-  /// Dispatched when the Add/Edit Address form returns a result — an id
-  /// already in the list is an edit (replaced in place); an unrecognised id
-  /// is a new address (appended and auto-selected, since the user just
-  /// created it to use it).
+  /// Dispatched when the Add/Edit Address form returns a result — an empty
+  /// id is a new address (created via the API, appended with the
+  /// server-assigned id, and auto-selected since the user just created it
+  /// to use it); a non-empty id is an edit (updated and replaced in place).
   const factory AddressEvent.saved({required AddressEntity address}) =
       AddressSaved;
 }

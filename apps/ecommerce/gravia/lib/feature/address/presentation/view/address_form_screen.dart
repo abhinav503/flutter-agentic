@@ -139,12 +139,9 @@ class _AddressFormScreenState extends BaseScreenState<AddressFormScreen> {
 
     context.pop(
       AddressEntity(
-        // A fresh id for a new address; the same id when editing, so the
-        // bloc's saved-event handler replaces this entry instead of adding
-        // a second one.
-        id:
-            widget.address?.id ??
-            'addr_${DateTime.now().microsecondsSinceEpoch}',
+        // Empty for a new address — the server assigns the real id; the
+        // existing id when editing, so the bloc updates in place.
+        id: widget.address?.id ?? '',
         name: name,
         phone: phone,
         addressLine1: addressLine1,

@@ -71,7 +71,6 @@ flutter:
     - assets/data/categories_page.json
     - assets/data/category_details.json
     - assets/data/profile_page.json
-    - assets/data/addresses.json
     - assets/data/orders.json
     - assets/data/notifications.json
     - assets/images/

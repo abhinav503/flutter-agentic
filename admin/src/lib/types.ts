@@ -46,6 +46,23 @@ export type CartItem = {
   quantity: number;
 };
 
+// Field names mirror AddressEntity in gravia's feature/address. Structured
+// fields, not one text blob — gravia composes its display line client-side
+// (AddressEntityX.displayLine) so edits can't drift from the parts.
+export type Address = {
+  id: string;
+  name: string;
+  phone: string;
+  addressLine1: string;
+  addressLine2: string;
+  landmark: string;
+  city: string;
+  country: string;
+  postalCode: string;
+  tag: string;
+  isDefault: boolean;
+};
+
 // A recent search is the catalog item the shopper tapped from search
 // results — not the raw query string — so gravia can deep-link straight
 // back to the product/category details page. `name` is snapshotted at tap

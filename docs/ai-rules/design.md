@@ -180,10 +180,17 @@ supplies the pack-specific metrics.
   tapping it opens a dedicated Search screen whose reduced header is a glass
   back button + the same field, now editable; the field itself visibly
   glides from Home's header up into Search's (see the Hero flight recipe
-  below the compositions list). Below the header: "Recent Search" rows
-  exactly 20px tall — kit `undo`/`remove` SVGs in `onSurface`, term in
-  Text/sm/regular Gray/700 light / Gray/100 dark — then the same Popular
-  Items rail as Home.
+  below the compositions list). Below the header, two body modes swap under
+  the *persistent* header (swapping the whole sheet would rebuild the field
+  and drop keyboard focus). Field empty: "Recent Search" rows exactly 20px
+  tall — kit `undo`/`remove` SVGs in `onSurface`, term in Text/sm/regular
+  Gray/700 light / Gray/100 dark — then the same Popular Items rail as Home;
+  recents are tapped catalog items (product *or* category), not raw query
+  strings, so each row deep-links to its details page. Typing (debounced):
+  at most 5 suggestion rows — `GraviaListThumbnail` (the shared
+  `AppRadius.lg` square thumbnail cart/order rows also use) + name, price
+  trailing for products, a `GraviaTintBadge` "Category" marker for
+  categories.
 - **Quick-add bottom sheet.** A product card's quick-add icon opens a sheet
   with product photo/name/weight/price and a live quantity stepper that
   scales price and weight together; Cancel + primary `Add to Cart` pills

@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import 'package:core/core/base/tab_cache.dart';
+import 'package:core/core/base/bloc_cache.dart';
 import 'package:core/core/usecase/usecase.dart';
 
 import '../../domain/entities/home_entity.dart';
@@ -13,7 +13,7 @@ part 'home_state.dart';
 
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
   final GetHomeUseCase _getHome;
-  static final _cache = TabCache<HomeEntity>();
+  static final _cache = BlocCache<HomeEntity>();
 
   @visibleForTesting
   static void resetCache() => _cache.reset();

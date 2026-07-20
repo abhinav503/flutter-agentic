@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import 'package:core/core/base/tab_cache.dart';
+import 'package:core/core/base/bloc_cache.dart';
 import 'package:core/core/usecase/usecase.dart';
 
 import 'package:gravia/enums/order_status.dart';
@@ -21,7 +21,7 @@ class OrdersBloc extends Bloc<OrdersEvent, OrdersState> {
   // Only the fetched list is cached — [OrdersLoaded.selectedTab]/
   // [OrdersLoaded.filter] are transient view selections, so a warm start
   // always reopens on the default Past tab with no filter.
-  static final _cache = TabCache<List<OrderEntity>>();
+  static final _cache = BlocCache<List<OrderEntity>>();
 
   @visibleForTesting
   static void resetCache() => _cache.reset();
