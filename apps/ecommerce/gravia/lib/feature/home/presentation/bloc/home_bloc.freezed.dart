@@ -380,11 +380,11 @@ return error(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loading,TResult Function( HomeEntity home)?  loaded,TResult Function( String message)?  error,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loading,TResult Function( HomeEntity home,  bool refreshFailed)?  loaded,TResult Function( String message)?  error,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case HomeLoading() when loading != null:
 return loading();case HomeLoaded() when loaded != null:
-return loaded(_that.home);case HomeError() when error != null:
+return loaded(_that.home,_that.refreshFailed);case HomeError() when error != null:
 return error(_that.message);case _:
   return orElse();
 
@@ -403,11 +403,11 @@ return error(_that.message);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loading,required TResult Function( HomeEntity home)  loaded,required TResult Function( String message)  error,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loading,required TResult Function( HomeEntity home,  bool refreshFailed)  loaded,required TResult Function( String message)  error,}) {final _that = this;
 switch (_that) {
 case HomeLoading():
 return loading();case HomeLoaded():
-return loaded(_that.home);case HomeError():
+return loaded(_that.home,_that.refreshFailed);case HomeError():
 return error(_that.message);}
 }
 /// A variant of `when` that fallback to returning `null`
@@ -422,11 +422,11 @@ return error(_that.message);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loading,TResult? Function( HomeEntity home)?  loaded,TResult? Function( String message)?  error,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loading,TResult? Function( HomeEntity home,  bool refreshFailed)?  loaded,TResult? Function( String message)?  error,}) {final _that = this;
 switch (_that) {
 case HomeLoading() when loading != null:
 return loading();case HomeLoaded() when loaded != null:
-return loaded(_that.home);case HomeError() when error != null:
+return loaded(_that.home,_that.refreshFailed);case HomeError() when error != null:
 return error(_that.message);case _:
   return null;
 
@@ -471,10 +471,15 @@ String toString() {
 
 
 class HomeLoaded implements HomeState {
-  const HomeLoaded({required this.home});
+  const HomeLoaded({required this.home, this.refreshFailed = false});
   
 
  final  HomeEntity home;
+// True only when a silent background refresh (a warm start seeded from
+// HomeBloc's cached data) fails — the already-visible cached content
+// stays on screen; the listener surfaces this via a snackbar instead of
+// replacing it with the error view.
+@JsonKey() final  bool refreshFailed;
 
 /// Create a copy of HomeState
 /// with the given fields replaced by the non-null parameter values.
@@ -486,16 +491,16 @@ $HomeLoadedCopyWith<HomeLoaded> get copyWith => _$HomeLoadedCopyWithImpl<HomeLoa
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is HomeLoaded&&(identical(other.home, home) || other.home == home));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is HomeLoaded&&(identical(other.home, home) || other.home == home)&&(identical(other.refreshFailed, refreshFailed) || other.refreshFailed == refreshFailed));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,home);
+int get hashCode => Object.hash(runtimeType,home,refreshFailed);
 
 @override
 String toString() {
-  return 'HomeState.loaded(home: $home)';
+  return 'HomeState.loaded(home: $home, refreshFailed: $refreshFailed)';
 }
 
 
@@ -506,7 +511,7 @@ abstract mixin class $HomeLoadedCopyWith<$Res> implements $HomeStateCopyWith<$Re
   factory $HomeLoadedCopyWith(HomeLoaded value, $Res Function(HomeLoaded) _then) = _$HomeLoadedCopyWithImpl;
 @useResult
 $Res call({
- HomeEntity home
+ HomeEntity home, bool refreshFailed
 });
 
 
@@ -523,10 +528,11 @@ class _$HomeLoadedCopyWithImpl<$Res>
 
 /// Create a copy of HomeState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? home = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? home = null,Object? refreshFailed = null,}) {
   return _then(HomeLoaded(
 home: null == home ? _self.home : home // ignore: cast_nullable_to_non_nullable
-as HomeEntity,
+as HomeEntity,refreshFailed: null == refreshFailed ? _self.refreshFailed : refreshFailed // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 

@@ -39,6 +39,10 @@ void main() {
   );
 
   setUp(() {
+    // `HomeBloc._cachedHome` is a static field (survives the bloc instance
+    // being recreated on a real Home-tab revisit) — reset it so warm-start
+    // caching from one test doesn't leak into the next.
+    HomeBloc.resetCache();
     repository = FakeHomeRepository()..result = right(home);
   });
 
@@ -74,4 +78,44 @@ void main() {
       expect(state.home.popularProducts.single.isFavourite, isTrue);
     },
   );
+
+  group('warm start (cached data from a prior successful load)', () {
+    setUp(() async {
+      // Prime HomeBloc's static cache the same way a real first Home-tab
+      // load would — build a bloc, let it fetch and cache, then discard it.
+      final primer = HomeBloc(getHomeUseCase: GetHomeUseCase(repository));
+      primer.add(const HomeEvent.started());
+      await primer.stream.first;
+      await primer.close();
+    });
+
+    test(
+      'seeds the loaded state immediately, before any event is processed',
+      () {
+        final bloc = HomeBloc(getHomeUseCase: GetHomeUseCase(repository));
+        expect(bloc.state, const HomeState.loaded(home: home));
+        bloc.close();
+      },
+    );
+
+    blocTest<HomeBloc, HomeState>(
+      'never re-emits loading — silently refreshes in the background',
+      build: () => HomeBloc(getHomeUseCase: GetHomeUseCase(repository)),
+      act: (bloc) => bloc.add(const HomeEvent.started()),
+      // Refetch resolves to the same fake data, so the only emission is the
+      // fresh loaded state — critically, HomeLoading is never emitted.
+      expect: () => [const HomeState.loaded(home: home)],
+    );
+
+    blocTest<HomeBloc, HomeState>(
+      'keeps the cached content and sets refreshFailed when the background '
+      'refetch fails',
+      build: () {
+        repository.result = left(const Failure.unexpected(message: 'boom'));
+        return HomeBloc(getHomeUseCase: GetHomeUseCase(repository));
+      },
+      act: (bloc) => bloc.add(const HomeEvent.started()),
+      expect: () => [const HomeState.loaded(home: home, refreshFailed: true)],
+    );
+  });
 }

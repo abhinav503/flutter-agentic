@@ -79,6 +79,11 @@ class _HomeScreenState extends BaseScreenState<HomeScreen> {
       child: BlocConsumer<HomeBloc, HomeState>(
         listener: (context, state) {
           if (state case HomeError(:final message)) showSnackBar(message);
+          // Warm-start background refresh failed — cached content is still
+          // showing, so this is a toast, not an error view.
+          if (state case HomeLoaded(refreshFailed: true)) {
+            showSnackBar(ValueConst.homeRefreshFailedMessage);
+          }
         },
         builder: (context, state) => AnimatedSwitcher(
           duration: const Duration(milliseconds: 300),

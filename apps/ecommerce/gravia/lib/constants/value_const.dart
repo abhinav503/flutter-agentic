@@ -39,6 +39,8 @@ abstract final class ValueConst {
   static const comingSoonMessage = 'Coming soon';
   static const homeLoadErrorMessage =
       'Something went wrong loading the storefront.';
+  static const homeRefreshFailedMessage =
+      "Couldn't refresh — showing your last loaded storefront.";
   static String addedToCartMessage(String productName, int quantity) =>
       quantity > 1
       ? '$quantity × $productName added to cart'
@@ -71,6 +73,8 @@ abstract final class ValueConst {
   static const categoriesPageTitle = 'Categories';
   static const categoriesLoadErrorMessage =
       'Something went wrong loading categories.';
+  static const categoriesRefreshFailedMessage =
+      "Couldn't refresh — showing your last loaded categories.";
 
   // ── Category Details ───────────────────────────────────────────────────────
   static const sortLabel = 'Sort';
@@ -207,6 +211,8 @@ abstract final class ValueConst {
       '$weight × $quantity';
   static const ordersLoadErrorMessage =
       'Something went wrong loading your orders.';
+  static const ordersRefreshFailedMessage =
+      "Couldn't refresh — showing your last loaded orders.";
   static const ordersEmptyTitle = 'No orders yet';
   static const ordersEmptySubtitle =
       'Your past and active orders will show up here.';

@@ -10,6 +10,12 @@ sealed class OrdersState with _$OrdersState {
     /// Null until the filter sheet's Apply Filter is tapped — no filter,
     /// every order in the selected tab shows.
     OrdersFilter? filter,
+
+    /// True only when a silent background refresh (a warm start seeded from
+    /// OrdersBloc's cached data) fails — the already-visible cached content
+    /// stays on screen; the listener surfaces this via a snackbar instead of
+    /// replacing it with the error view.
+    @Default(false) bool refreshFailed,
   }) = OrdersLoaded;
   const factory OrdersState.error({required String message}) = OrdersError;
 }

@@ -533,11 +533,11 @@ return error(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loading,TResult Function( List<OrderEntity> orders,  OrdersTab selectedTab,  OrdersFilter? filter)?  loaded,TResult Function( String message)?  error,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loading,TResult Function( List<OrderEntity> orders,  OrdersTab selectedTab,  OrdersFilter? filter,  bool refreshFailed)?  loaded,TResult Function( String message)?  error,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case OrdersLoading() when loading != null:
 return loading();case OrdersLoaded() when loaded != null:
-return loaded(_that.orders,_that.selectedTab,_that.filter);case OrdersError() when error != null:
+return loaded(_that.orders,_that.selectedTab,_that.filter,_that.refreshFailed);case OrdersError() when error != null:
 return error(_that.message);case _:
   return orElse();
 
@@ -556,11 +556,11 @@ return error(_that.message);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loading,required TResult Function( List<OrderEntity> orders,  OrdersTab selectedTab,  OrdersFilter? filter)  loaded,required TResult Function( String message)  error,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loading,required TResult Function( List<OrderEntity> orders,  OrdersTab selectedTab,  OrdersFilter? filter,  bool refreshFailed)  loaded,required TResult Function( String message)  error,}) {final _that = this;
 switch (_that) {
 case OrdersLoading():
 return loading();case OrdersLoaded():
-return loaded(_that.orders,_that.selectedTab,_that.filter);case OrdersError():
+return loaded(_that.orders,_that.selectedTab,_that.filter,_that.refreshFailed);case OrdersError():
 return error(_that.message);}
 }
 /// A variant of `when` that fallback to returning `null`
@@ -575,11 +575,11 @@ return error(_that.message);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loading,TResult? Function( List<OrderEntity> orders,  OrdersTab selectedTab,  OrdersFilter? filter)?  loaded,TResult? Function( String message)?  error,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loading,TResult? Function( List<OrderEntity> orders,  OrdersTab selectedTab,  OrdersFilter? filter,  bool refreshFailed)?  loaded,TResult? Function( String message)?  error,}) {final _that = this;
 switch (_that) {
 case OrdersLoading() when loading != null:
 return loading();case OrdersLoaded() when loaded != null:
-return loaded(_that.orders,_that.selectedTab,_that.filter);case OrdersError() when error != null:
+return loaded(_that.orders,_that.selectedTab,_that.filter,_that.refreshFailed);case OrdersError() when error != null:
 return error(_that.message);case _:
   return null;
 
@@ -624,7 +624,7 @@ String toString() {
 
 
 class OrdersLoaded implements OrdersState {
-  const OrdersLoaded({required final  List<OrderEntity> orders, required this.selectedTab, this.filter}): _orders = orders;
+  const OrdersLoaded({required final  List<OrderEntity> orders, required this.selectedTab, this.filter, this.refreshFailed = false}): _orders = orders;
   
 
  final  List<OrderEntity> _orders;
@@ -638,6 +638,11 @@ class OrdersLoaded implements OrdersState {
 /// Null until the filter sheet's Apply Filter is tapped — no filter,
 /// every order in the selected tab shows.
  final  OrdersFilter? filter;
+/// True only when a silent background refresh (a warm start seeded from
+/// OrdersBloc's cached data) fails — the already-visible cached content
+/// stays on screen; the listener surfaces this via a snackbar instead of
+/// replacing it with the error view.
+@JsonKey() final  bool refreshFailed;
 
 /// Create a copy of OrdersState
 /// with the given fields replaced by the non-null parameter values.
@@ -649,16 +654,16 @@ $OrdersLoadedCopyWith<OrdersLoaded> get copyWith => _$OrdersLoadedCopyWithImpl<O
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is OrdersLoaded&&const DeepCollectionEquality().equals(other._orders, _orders)&&(identical(other.selectedTab, selectedTab) || other.selectedTab == selectedTab)&&(identical(other.filter, filter) || other.filter == filter));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is OrdersLoaded&&const DeepCollectionEquality().equals(other._orders, _orders)&&(identical(other.selectedTab, selectedTab) || other.selectedTab == selectedTab)&&(identical(other.filter, filter) || other.filter == filter)&&(identical(other.refreshFailed, refreshFailed) || other.refreshFailed == refreshFailed));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_orders),selectedTab,filter);
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_orders),selectedTab,filter,refreshFailed);
 
 @override
 String toString() {
-  return 'OrdersState.loaded(orders: $orders, selectedTab: $selectedTab, filter: $filter)';
+  return 'OrdersState.loaded(orders: $orders, selectedTab: $selectedTab, filter: $filter, refreshFailed: $refreshFailed)';
 }
 
 
@@ -669,7 +674,7 @@ abstract mixin class $OrdersLoadedCopyWith<$Res> implements $OrdersStateCopyWith
   factory $OrdersLoadedCopyWith(OrdersLoaded value, $Res Function(OrdersLoaded) _then) = _$OrdersLoadedCopyWithImpl;
 @useResult
 $Res call({
- List<OrderEntity> orders, OrdersTab selectedTab, OrdersFilter? filter
+ List<OrderEntity> orders, OrdersTab selectedTab, OrdersFilter? filter, bool refreshFailed
 });
 
 
@@ -686,12 +691,13 @@ class _$OrdersLoadedCopyWithImpl<$Res>
 
 /// Create a copy of OrdersState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? orders = null,Object? selectedTab = null,Object? filter = freezed,}) {
+@pragma('vm:prefer-inline') $Res call({Object? orders = null,Object? selectedTab = null,Object? filter = freezed,Object? refreshFailed = null,}) {
   return _then(OrdersLoaded(
 orders: null == orders ? _self._orders : orders // ignore: cast_nullable_to_non_nullable
 as List<OrderEntity>,selectedTab: null == selectedTab ? _self.selectedTab : selectedTab // ignore: cast_nullable_to_non_nullable
 as OrdersTab,filter: freezed == filter ? _self.filter : filter // ignore: cast_nullable_to_non_nullable
-as OrdersFilter?,
+as OrdersFilter?,refreshFailed: null == refreshFailed ? _self.refreshFailed : refreshFailed // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 

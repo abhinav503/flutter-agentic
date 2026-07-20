@@ -308,11 +308,11 @@ return error(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loading,TResult Function( CategoriesEntity categories)?  loaded,TResult Function( String message)?  error,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loading,TResult Function( CategoriesEntity categories,  bool refreshFailed)?  loaded,TResult Function( String message)?  error,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case CategoriesLoading() when loading != null:
 return loading();case CategoriesLoaded() when loaded != null:
-return loaded(_that.categories);case CategoriesError() when error != null:
+return loaded(_that.categories,_that.refreshFailed);case CategoriesError() when error != null:
 return error(_that.message);case _:
   return orElse();
 
@@ -331,11 +331,11 @@ return error(_that.message);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loading,required TResult Function( CategoriesEntity categories)  loaded,required TResult Function( String message)  error,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loading,required TResult Function( CategoriesEntity categories,  bool refreshFailed)  loaded,required TResult Function( String message)  error,}) {final _that = this;
 switch (_that) {
 case CategoriesLoading():
 return loading();case CategoriesLoaded():
-return loaded(_that.categories);case CategoriesError():
+return loaded(_that.categories,_that.refreshFailed);case CategoriesError():
 return error(_that.message);}
 }
 /// A variant of `when` that fallback to returning `null`
@@ -350,11 +350,11 @@ return error(_that.message);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loading,TResult? Function( CategoriesEntity categories)?  loaded,TResult? Function( String message)?  error,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loading,TResult? Function( CategoriesEntity categories,  bool refreshFailed)?  loaded,TResult? Function( String message)?  error,}) {final _that = this;
 switch (_that) {
 case CategoriesLoading() when loading != null:
 return loading();case CategoriesLoaded() when loaded != null:
-return loaded(_that.categories);case CategoriesError() when error != null:
+return loaded(_that.categories,_that.refreshFailed);case CategoriesError() when error != null:
 return error(_that.message);case _:
   return null;
 
@@ -399,10 +399,15 @@ String toString() {
 
 
 class CategoriesLoaded implements CategoriesState {
-  const CategoriesLoaded({required this.categories});
+  const CategoriesLoaded({required this.categories, this.refreshFailed = false});
   
 
  final  CategoriesEntity categories;
+// True only when a silent background refresh (a warm start seeded from
+// CategoriesBloc's cached data) fails — the already-visible cached
+// content stays on screen; the listener surfaces this via a snackbar
+// instead of replacing it with the error view.
+@JsonKey() final  bool refreshFailed;
 
 /// Create a copy of CategoriesState
 /// with the given fields replaced by the non-null parameter values.
@@ -414,16 +419,16 @@ $CategoriesLoadedCopyWith<CategoriesLoaded> get copyWith => _$CategoriesLoadedCo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is CategoriesLoaded&&(identical(other.categories, categories) || other.categories == categories));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CategoriesLoaded&&(identical(other.categories, categories) || other.categories == categories)&&(identical(other.refreshFailed, refreshFailed) || other.refreshFailed == refreshFailed));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,categories);
+int get hashCode => Object.hash(runtimeType,categories,refreshFailed);
 
 @override
 String toString() {
-  return 'CategoriesState.loaded(categories: $categories)';
+  return 'CategoriesState.loaded(categories: $categories, refreshFailed: $refreshFailed)';
 }
 
 
@@ -434,7 +439,7 @@ abstract mixin class $CategoriesLoadedCopyWith<$Res> implements $CategoriesState
   factory $CategoriesLoadedCopyWith(CategoriesLoaded value, $Res Function(CategoriesLoaded) _then) = _$CategoriesLoadedCopyWithImpl;
 @useResult
 $Res call({
- CategoriesEntity categories
+ CategoriesEntity categories, bool refreshFailed
 });
 
 
@@ -451,10 +456,11 @@ class _$CategoriesLoadedCopyWithImpl<$Res>
 
 /// Create a copy of CategoriesState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? categories = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? categories = null,Object? refreshFailed = null,}) {
   return _then(CategoriesLoaded(
 categories: null == categories ? _self.categories : categories // ignore: cast_nullable_to_non_nullable
-as CategoriesEntity,
+as CategoriesEntity,refreshFailed: null == refreshFailed ? _self.refreshFailed : refreshFailed // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 

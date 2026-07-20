@@ -49,6 +49,11 @@ class _CategoriesScreenState extends BaseScreenState<CategoriesScreen> {
       child: BlocConsumer<CategoriesBloc, CategoriesState>(
         listener: (context, state) {
           if (state case CategoriesError(:final message)) showSnackBar(message);
+          // Warm-start background refresh failed — cached content is still
+          // showing, so this is a toast, not an error view.
+          if (state case CategoriesLoaded(refreshFailed: true)) {
+            showSnackBar(ValueConst.categoriesRefreshFailedMessage);
+          }
         },
         builder: (context, state) => AnimatedSwitcher(
           duration: const Duration(milliseconds: 300),
