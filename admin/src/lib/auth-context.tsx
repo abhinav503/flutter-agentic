@@ -42,9 +42,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await signInWithEmailAndPassword(auth, email, password);
   }
 
-  // Creates the store-owner record on first sign-up. Custom claim
-  // (role: storeAdmin) is stamped by a Cloud Function watching this
-  // collection — not set here, since the client can't grant itself a claim.
+  // Creates the store-owner record on first sign-up. storeIds must start
+  // empty (firestore.rules enforces it) — ownership is granted later by
+  // POST /api/stores, which appends to this doc AND stamps the `storeIds`
+  // custom claim; the client can't grant itself either.
   async function signUp(email: string, password: string) {
     const credential = await createUserWithEmailAndPassword(
       auth,

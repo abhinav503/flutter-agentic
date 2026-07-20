@@ -3,10 +3,11 @@ rules_version = '2';
 // Multi-tenant rules for the FlutterAgenticEcommerce platform.
 // Schema: docs/explanation/superapp-ecommerce-plan.md
 //
-// Store-write authority is ownerUid-based for now (no custom claim yet —
-// the Cloud Function that stamps `role: storeAdmin` on `admins/{uid}` ships
-// in a later milestone). Tighten to `request.auth.token.role == 'storeAdmin'`
-// once that claim exists.
+// Store-write authority is ownerUid-based for now. A `storeIds` custom
+// claim exists (stamped by the admin console's POST /api/stores; trusted by
+// the REST API's requireStoreOwner) but is not yet read here — a `role:
+// storeAdmin` claim ships in a later milestone; tighten to
+// `request.auth.token.role == 'storeAdmin'` once it exists.
 service cloud.firestore {
   match /databases/{database}/documents {
 
@@ -32,22 +33,26 @@ service cloud.firestore {
       }
     }
 
-    // Store-owner record — created on admin-console sign-up. The owner may
-    // update ONLY storeIds (append a new store they created) — role/email
-    // stay immutable client-side until the claim-stamping Cloud Function
-    // ships and takes over storeIds maintenance too.
+    // Store-owner record — created on admin-console sign-up with an empty
+    // storeIds list; from then on the doc is server-maintained (the admin
+    // console's POST /api/stores appends storeIds via the Admin SDK and
+    // stamps the matching `storeIds` custom claim). Client updates are
+    // forbidden so a signed-in admin can't grant itself another store —
+    // the claim, not this doc, is what the REST API's requireStoreOwner
+    // trusts. Clients only read it (dashboard StoreProvider onSnapshot).
     match /admins/{uid} {
-      allow read, create: if isOwner(uid);
-      allow update: if isOwner(uid) &&
-        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['storeIds']);
-      allow delete: if false;
+      allow read: if isOwner(uid);
+      allow create: if isOwner(uid) && request.resource.data.storeIds.size() == 0;
+      allow update, delete: if false;
     }
 
     // Store catalog — world-readable for shopper discovery/browsing;
+    // creation is server-only (POST /api/stores, Admin SDK bypasses rules)
+    // so ownership and the storeIds claim always move together; other
     // writes restricted to the store's own owner.
     match /stores/{storeId} {
       allow read: if true;
-      allow create: if isSignedIn() && request.resource.data.ownerUid == request.auth.uid;
+      allow create: if false;
       allow update, delete: if isStoreOwner(storeId);
 
       match /categories/{categoryId} {

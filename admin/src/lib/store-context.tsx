@@ -7,14 +7,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import {
-  doc,
-  onSnapshot,
-  setDoc,
-  updateDoc,
-  arrayUnion,
-  serverTimestamp,
-} from "firebase/firestore";
+import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "./firebase";
 import { useAuth } from "./auth-context";
 
@@ -65,18 +58,27 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     });
   }, [storeId]);
 
+  // Goes through POST /api/stores (not direct Firestore writes) because
+  // ownership lives in a `storeIds` custom claim only the server can stamp.
+  // The onSnapshot watch above picks up the server's admins-doc write; the
+  // force-refresh pulls the new claim into this session's ID token so API
+  // calls guarded by requireStoreOwner work immediately, not after ≤1h.
   async function createStore(name: string) {
     if (!user) throw new Error("Not signed in");
-    const storeRef = doc(db, "stores", crypto.randomUUID());
-    await setDoc(storeRef, {
-      name,
-      ownerUid: user.uid,
-      status: "active",
-      createdAt: serverTimestamp(),
+    const token = await user.getIdToken();
+    const response = await fetch("/api/stores", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ name }),
     });
-    await updateDoc(doc(db, "admins", user.uid), {
-      storeIds: arrayUnion(storeRef.id),
-    });
+    if (!response.ok) {
+      const body = await response.json().catch(() => ({}));
+      throw new Error(body.error ?? "Failed to create store");
+    }
+    await user.getIdToken(true);
   }
 
   return (

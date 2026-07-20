@@ -492,11 +492,18 @@ That split is deliberate, not an oversight:
 - **Store-owner-facing** (list all orders for a store, change order status):
   real guard — `src/lib/api/admin-guard.ts`'s `requireStoreOwner()` verifies
   the bearer token is a genuine Firebase ID token via `adminAuth.verifyIdToken()`
-  (cryptographic, not guessable), then checks the resulting uid against
-  `admins/{uid}.storeIds`. The status-update route fetches the order **before**
-  checking ownership and 404s (not 403s) on a storeId mismatch, so a store
-  owner probing another store's order IDs can't tell "wrong store" from
-  "doesn't exist."
+  (cryptographic, not guessable — and local signature checking, so no network
+  cost per call), then checks the requested `storeId` against the token's
+  `storeIds` **custom claim**. The claim is stamped server-side by
+  `POST /api/stores` (store creation moved off the client for exactly this
+  reason — a client can't grant itself a claim, and firestore.rules no longer
+  lets it write `admins/{uid}.storeIds` either, which previously would have
+  let any signed-in admin claim another store's id). Zero Firestore reads per
+  guarded request; legacy admins without the claim fall back to one
+  `admins/{uid}` read and get the claim backfilled. The status-update route
+  fetches the order **before** checking ownership and 404s (not 403s) on a
+  storeId mismatch, so a store owner probing another store's order IDs can't
+  tell "wrong store" from "doesn't exist."
 
 **New `admin/src/lib/`:**
 - `firebase-admin.ts` — Admin SDK singleton (service account credentials via
