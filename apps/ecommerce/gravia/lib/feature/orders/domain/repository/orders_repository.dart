@@ -7,5 +7,8 @@ import '../entities/order_entity.dart';
 
 abstract interface class OrdersRepository {
   Future<Either<Failure, List<OrderEntity>>> getOrders();
-  Future<Either<Failure, OrderEntity>> createOrder(List<CartItemEntity> items);
+  Future<Either<Failure, OrderEntity>> createOrder(
+    List<CartItemEntity> items,
+    String addressId,
+  );
 }

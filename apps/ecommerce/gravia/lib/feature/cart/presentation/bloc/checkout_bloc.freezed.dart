@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$CheckoutEvent {
 
- List<CartItemEntity> get items;
+ List<CartItemEntity> get items; String get addressId;
 /// Create a copy of CheckoutEvent
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $CheckoutEventCopyWith<CheckoutEvent> get copyWith => _$CheckoutEventCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is CheckoutEvent&&const DeepCollectionEquality().equals(other.items, items));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CheckoutEvent&&const DeepCollectionEquality().equals(other.items, items)&&(identical(other.addressId, addressId) || other.addressId == addressId));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(items));
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(items),addressId);
 
 @override
 String toString() {
-  return 'CheckoutEvent(items: $items)';
+  return 'CheckoutEvent(items: $items, addressId: $addressId)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $CheckoutEventCopyWith<$Res>  {
   factory $CheckoutEventCopyWith(CheckoutEvent value, $Res Function(CheckoutEvent) _then) = _$CheckoutEventCopyWithImpl;
 @useResult
 $Res call({
- List<CartItemEntity> items
+ List<CartItemEntity> items, String addressId
 });
 
 
@@ -62,10 +62,11 @@ class _$CheckoutEventCopyWithImpl<$Res>
 
 /// Create a copy of CheckoutEvent
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? items = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? items = null,Object? addressId = null,}) {
   return _then(_self.copyWith(
 items: null == items ? _self.items : items // ignore: cast_nullable_to_non_nullable
-as List<CartItemEntity>,
+as List<CartItemEntity>,addressId: null == addressId ? _self.addressId : addressId // ignore: cast_nullable_to_non_nullable
+as String,
   ));
 }
 
@@ -147,10 +148,10 @@ return submitted(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( List<CartItemEntity> items)?  submitted,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( List<CartItemEntity> items,  String addressId)?  submitted,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case CheckoutSubmitted() when submitted != null:
-return submitted(_that.items);case _:
+return submitted(_that.items,_that.addressId);case _:
   return orElse();
 
 }
@@ -168,10 +169,10 @@ return submitted(_that.items);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( List<CartItemEntity> items)  submitted,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( List<CartItemEntity> items,  String addressId)  submitted,}) {final _that = this;
 switch (_that) {
 case CheckoutSubmitted():
-return submitted(_that.items);}
+return submitted(_that.items,_that.addressId);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -185,10 +186,10 @@ return submitted(_that.items);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( List<CartItemEntity> items)?  submitted,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( List<CartItemEntity> items,  String addressId)?  submitted,}) {final _that = this;
 switch (_that) {
 case CheckoutSubmitted() when submitted != null:
-return submitted(_that.items);case _:
+return submitted(_that.items,_that.addressId);case _:
   return null;
 
 }
@@ -200,7 +201,7 @@ return submitted(_that.items);case _:
 
 
 class CheckoutSubmitted implements CheckoutEvent {
-  const CheckoutSubmitted({required final  List<CartItemEntity> items}): _items = items;
+  const CheckoutSubmitted({required final  List<CartItemEntity> items, required this.addressId}): _items = items;
   
 
  final  List<CartItemEntity> _items;
@@ -210,6 +211,7 @@ class CheckoutSubmitted implements CheckoutEvent {
   return EqualUnmodifiableListView(_items);
 }
 
+@override final  String addressId;
 
 /// Create a copy of CheckoutEvent
 /// with the given fields replaced by the non-null parameter values.
@@ -221,16 +223,16 @@ $CheckoutSubmittedCopyWith<CheckoutSubmitted> get copyWith => _$CheckoutSubmitte
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is CheckoutSubmitted&&const DeepCollectionEquality().equals(other._items, _items));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CheckoutSubmitted&&const DeepCollectionEquality().equals(other._items, _items)&&(identical(other.addressId, addressId) || other.addressId == addressId));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_items));
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_items),addressId);
 
 @override
 String toString() {
-  return 'CheckoutEvent.submitted(items: $items)';
+  return 'CheckoutEvent.submitted(items: $items, addressId: $addressId)';
 }
 
 
@@ -241,7 +243,7 @@ abstract mixin class $CheckoutSubmittedCopyWith<$Res> implements $CheckoutEventC
   factory $CheckoutSubmittedCopyWith(CheckoutSubmitted value, $Res Function(CheckoutSubmitted) _then) = _$CheckoutSubmittedCopyWithImpl;
 @override @useResult
 $Res call({
- List<CartItemEntity> items
+ List<CartItemEntity> items, String addressId
 });
 
 
@@ -258,10 +260,11 @@ class _$CheckoutSubmittedCopyWithImpl<$Res>
 
 /// Create a copy of CheckoutEvent
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? items = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? items = null,Object? addressId = null,}) {
   return _then(CheckoutSubmitted(
 items: null == items ? _self._items : items // ignore: cast_nullable_to_non_nullable
-as List<CartItemEntity>,
+as List<CartItemEntity>,addressId: null == addressId ? _self.addressId : addressId // ignore: cast_nullable_to_non_nullable
+as String,
   ));
 }
 
@@ -382,13 +385,13 @@ return failure(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  idle,TResult Function()?  submitting,TResult Function( OrderEntity order)?  success,TResult Function( String message,  List<CartItemEntity> items)?  failure,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  idle,TResult Function()?  submitting,TResult Function( OrderEntity order)?  success,TResult Function( String message,  List<CartItemEntity> items,  String addressId)?  failure,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case CheckoutIdle() when idle != null:
 return idle();case CheckoutSubmitting() when submitting != null:
 return submitting();case CheckoutSuccess() when success != null:
 return success(_that.order);case CheckoutFailure() when failure != null:
-return failure(_that.message,_that.items);case _:
+return failure(_that.message,_that.items,_that.addressId);case _:
   return orElse();
 
 }
@@ -406,13 +409,13 @@ return failure(_that.message,_that.items);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  idle,required TResult Function()  submitting,required TResult Function( OrderEntity order)  success,required TResult Function( String message,  List<CartItemEntity> items)  failure,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  idle,required TResult Function()  submitting,required TResult Function( OrderEntity order)  success,required TResult Function( String message,  List<CartItemEntity> items,  String addressId)  failure,}) {final _that = this;
 switch (_that) {
 case CheckoutIdle():
 return idle();case CheckoutSubmitting():
 return submitting();case CheckoutSuccess():
 return success(_that.order);case CheckoutFailure():
-return failure(_that.message,_that.items);}
+return failure(_that.message,_that.items,_that.addressId);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -426,13 +429,13 @@ return failure(_that.message,_that.items);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  idle,TResult? Function()?  submitting,TResult? Function( OrderEntity order)?  success,TResult? Function( String message,  List<CartItemEntity> items)?  failure,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  idle,TResult? Function()?  submitting,TResult? Function( OrderEntity order)?  success,TResult? Function( String message,  List<CartItemEntity> items,  String addressId)?  failure,}) {final _that = this;
 switch (_that) {
 case CheckoutIdle() when idle != null:
 return idle();case CheckoutSubmitting() when submitting != null:
 return submitting();case CheckoutSuccess() when success != null:
 return success(_that.order);case CheckoutFailure() when failure != null:
-return failure(_that.message,_that.items);case _:
+return failure(_that.message,_that.items,_that.addressId);case _:
   return null;
 
 }
@@ -574,7 +577,7 @@ as OrderEntity,
 
 
 class CheckoutFailure implements CheckoutState {
-  const CheckoutFailure({required this.message, required final  List<CartItemEntity> items}): _items = items;
+  const CheckoutFailure({required this.message, required final  List<CartItemEntity> items, required this.addressId}): _items = items;
   
 
  final  String message;
@@ -585,6 +588,7 @@ class CheckoutFailure implements CheckoutState {
   return EqualUnmodifiableListView(_items);
 }
 
+ final  String addressId;
 
 /// Create a copy of CheckoutState
 /// with the given fields replaced by the non-null parameter values.
@@ -596,16 +600,16 @@ $CheckoutFailureCopyWith<CheckoutFailure> get copyWith => _$CheckoutFailureCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is CheckoutFailure&&(identical(other.message, message) || other.message == message)&&const DeepCollectionEquality().equals(other._items, _items));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CheckoutFailure&&(identical(other.message, message) || other.message == message)&&const DeepCollectionEquality().equals(other._items, _items)&&(identical(other.addressId, addressId) || other.addressId == addressId));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,message,const DeepCollectionEquality().hash(_items));
+int get hashCode => Object.hash(runtimeType,message,const DeepCollectionEquality().hash(_items),addressId);
 
 @override
 String toString() {
-  return 'CheckoutState.failure(message: $message, items: $items)';
+  return 'CheckoutState.failure(message: $message, items: $items, addressId: $addressId)';
 }
 
 
@@ -616,7 +620,7 @@ abstract mixin class $CheckoutFailureCopyWith<$Res> implements $CheckoutStateCop
   factory $CheckoutFailureCopyWith(CheckoutFailure value, $Res Function(CheckoutFailure) _then) = _$CheckoutFailureCopyWithImpl;
 @useResult
 $Res call({
- String message, List<CartItemEntity> items
+ String message, List<CartItemEntity> items, String addressId
 });
 
 
@@ -633,11 +637,12 @@ class _$CheckoutFailureCopyWithImpl<$Res>
 
 /// Create a copy of CheckoutState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? message = null,Object? items = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? message = null,Object? items = null,Object? addressId = null,}) {
   return _then(CheckoutFailure(
 message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
 as String,items: null == items ? _self._items : items // ignore: cast_nullable_to_non_nullable
-as List<CartItemEntity>,
+as List<CartItemEntity>,addressId: null == addressId ? _self.addressId : addressId // ignore: cast_nullable_to_non_nullable
+as String,
   ));
 }
 

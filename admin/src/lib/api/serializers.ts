@@ -61,6 +61,9 @@ export function serializeOrder(o: Order) {
     placed_at: o.placedAt,
     delivery_otp: o.deliveryOtp,
     total: o.total,
+    // Reuses serializeAddress so the order's snapshot round-trips through
+    // gravia's existing AddressModel.fromJson (feature/address) unchanged.
+    delivery_address: serializeAddress(o.deliveryAddress),
     items: o.items.map((item) => ({
       product_name: item.productName,
       weight: item.weight,

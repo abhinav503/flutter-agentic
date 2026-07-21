@@ -51,6 +51,7 @@ export async function POST(
   const body = await request.json();
   const userId = body.userId as string | undefined;
   const items = body.items as CreateOrderItemInput[] | undefined;
+  const addressId = body.addressId as string | undefined;
 
   if (!userId) {
     return NextResponse.json({ error: "userId is required" }, { status: 400 });
@@ -58,9 +59,12 @@ export async function POST(
   if (!Array.isArray(items) || items.length === 0) {
     return NextResponse.json({ error: "items must be a non-empty array" }, { status: 400 });
   }
+  if (!addressId) {
+    return NextResponse.json({ error: "addressId is required" }, { status: 400 });
+  }
 
   try {
-    const order = await createOrder(userId, storeId, items);
+    const order = await createOrder(userId, storeId, items, addressId);
     return NextResponse.json({ order: serializeOrder(order) }, { status: 201 });
   } catch (err) {
     if (err instanceof OrderCreationError) {

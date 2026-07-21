@@ -23,8 +23,9 @@ class OrdersRepositoryImpl with BaseRepository implements OrdersRepository {
   @override
   Future<Either<Failure, OrderEntity>> createOrder(
     List<CartItemEntity> items,
+    String addressId,
   ) => handleRequest(() async {
-    final model = await _dataSource.createOrder(items);
+    final model = await _dataSource.createOrder(items, addressId);
     return right(model.toEntity());
   });
 }

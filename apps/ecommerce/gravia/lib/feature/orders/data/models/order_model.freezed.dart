@@ -15,7 +15,10 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$OrderModel {
 
- String get id; String get status;@JsonKey(name: 'placed_at') String get placedAt;@JsonKey(name: 'delivery_otp') String get deliveryOtp; List<OrderLineItemModel> get items;
+ String get id; String get status;@JsonKey(name: 'placed_at') String get placedAt;@JsonKey(name: 'delivery_otp') String get deliveryOtp; List<OrderLineItemModel> get items;// Reuses AddressModel — the server serializes the snapshot through the
+// same shape the /users/addresses endpoints use. Nullable: legacy orders
+// predate the field.
+@JsonKey(name: 'delivery_address') AddressModel? get deliveryAddress;
 /// Create a copy of OrderModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +31,16 @@ $OrderModelCopyWith<OrderModel> get copyWith => _$OrderModelCopyWithImpl<OrderMo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is OrderModel&&(identical(other.id, id) || other.id == id)&&(identical(other.status, status) || other.status == status)&&(identical(other.placedAt, placedAt) || other.placedAt == placedAt)&&(identical(other.deliveryOtp, deliveryOtp) || other.deliveryOtp == deliveryOtp)&&const DeepCollectionEquality().equals(other.items, items));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is OrderModel&&(identical(other.id, id) || other.id == id)&&(identical(other.status, status) || other.status == status)&&(identical(other.placedAt, placedAt) || other.placedAt == placedAt)&&(identical(other.deliveryOtp, deliveryOtp) || other.deliveryOtp == deliveryOtp)&&const DeepCollectionEquality().equals(other.items, items)&&(identical(other.deliveryAddress, deliveryAddress) || other.deliveryAddress == deliveryAddress));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,status,placedAt,deliveryOtp,const DeepCollectionEquality().hash(items));
+int get hashCode => Object.hash(runtimeType,id,status,placedAt,deliveryOtp,const DeepCollectionEquality().hash(items),deliveryAddress);
 
 @override
 String toString() {
-  return 'OrderModel(id: $id, status: $status, placedAt: $placedAt, deliveryOtp: $deliveryOtp, items: $items)';
+  return 'OrderModel(id: $id, status: $status, placedAt: $placedAt, deliveryOtp: $deliveryOtp, items: $items, deliveryAddress: $deliveryAddress)';
 }
 
 
@@ -48,11 +51,11 @@ abstract mixin class $OrderModelCopyWith<$Res>  {
   factory $OrderModelCopyWith(OrderModel value, $Res Function(OrderModel) _then) = _$OrderModelCopyWithImpl;
 @useResult
 $Res call({
- String id, String status,@JsonKey(name: 'placed_at') String placedAt,@JsonKey(name: 'delivery_otp') String deliveryOtp, List<OrderLineItemModel> items
+ String id, String status,@JsonKey(name: 'placed_at') String placedAt,@JsonKey(name: 'delivery_otp') String deliveryOtp, List<OrderLineItemModel> items,@JsonKey(name: 'delivery_address') AddressModel? deliveryAddress
 });
 
 
-
+$AddressModelCopyWith<$Res>? get deliveryAddress;
 
 }
 /// @nodoc
@@ -65,17 +68,30 @@ class _$OrderModelCopyWithImpl<$Res>
 
 /// Create a copy of OrderModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? status = null,Object? placedAt = null,Object? deliveryOtp = null,Object? items = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? status = null,Object? placedAt = null,Object? deliveryOtp = null,Object? items = null,Object? deliveryAddress = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as String,placedAt: null == placedAt ? _self.placedAt : placedAt // ignore: cast_nullable_to_non_nullable
 as String,deliveryOtp: null == deliveryOtp ? _self.deliveryOtp : deliveryOtp // ignore: cast_nullable_to_non_nullable
 as String,items: null == items ? _self.items : items // ignore: cast_nullable_to_non_nullable
-as List<OrderLineItemModel>,
+as List<OrderLineItemModel>,deliveryAddress: freezed == deliveryAddress ? _self.deliveryAddress : deliveryAddress // ignore: cast_nullable_to_non_nullable
+as AddressModel?,
   ));
 }
+/// Create a copy of OrderModel
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$AddressModelCopyWith<$Res>? get deliveryAddress {
+    if (_self.deliveryAddress == null) {
+    return null;
+  }
 
+  return $AddressModelCopyWith<$Res>(_self.deliveryAddress!, (value) {
+    return _then(_self.copyWith(deliveryAddress: value));
+  });
+}
 }
 
 
@@ -157,10 +173,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String status, @JsonKey(name: 'placed_at')  String placedAt, @JsonKey(name: 'delivery_otp')  String deliveryOtp,  List<OrderLineItemModel> items)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String status, @JsonKey(name: 'placed_at')  String placedAt, @JsonKey(name: 'delivery_otp')  String deliveryOtp,  List<OrderLineItemModel> items, @JsonKey(name: 'delivery_address')  AddressModel? deliveryAddress)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _OrderModel() when $default != null:
-return $default(_that.id,_that.status,_that.placedAt,_that.deliveryOtp,_that.items);case _:
+return $default(_that.id,_that.status,_that.placedAt,_that.deliveryOtp,_that.items,_that.deliveryAddress);case _:
   return orElse();
 
 }
@@ -178,10 +194,10 @@ return $default(_that.id,_that.status,_that.placedAt,_that.deliveryOtp,_that.ite
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String status, @JsonKey(name: 'placed_at')  String placedAt, @JsonKey(name: 'delivery_otp')  String deliveryOtp,  List<OrderLineItemModel> items)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String status, @JsonKey(name: 'placed_at')  String placedAt, @JsonKey(name: 'delivery_otp')  String deliveryOtp,  List<OrderLineItemModel> items, @JsonKey(name: 'delivery_address')  AddressModel? deliveryAddress)  $default,) {final _that = this;
 switch (_that) {
 case _OrderModel():
-return $default(_that.id,_that.status,_that.placedAt,_that.deliveryOtp,_that.items);case _:
+return $default(_that.id,_that.status,_that.placedAt,_that.deliveryOtp,_that.items,_that.deliveryAddress);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -198,10 +214,10 @@ return $default(_that.id,_that.status,_that.placedAt,_that.deliveryOtp,_that.ite
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String status, @JsonKey(name: 'placed_at')  String placedAt, @JsonKey(name: 'delivery_otp')  String deliveryOtp,  List<OrderLineItemModel> items)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String status, @JsonKey(name: 'placed_at')  String placedAt, @JsonKey(name: 'delivery_otp')  String deliveryOtp,  List<OrderLineItemModel> items, @JsonKey(name: 'delivery_address')  AddressModel? deliveryAddress)?  $default,) {final _that = this;
 switch (_that) {
 case _OrderModel() when $default != null:
-return $default(_that.id,_that.status,_that.placedAt,_that.deliveryOtp,_that.items);case _:
+return $default(_that.id,_that.status,_that.placedAt,_that.deliveryOtp,_that.items,_that.deliveryAddress);case _:
   return null;
 
 }
@@ -213,7 +229,7 @@ return $default(_that.id,_that.status,_that.placedAt,_that.deliveryOtp,_that.ite
 @JsonSerializable()
 
 class _OrderModel extends OrderModel {
-  const _OrderModel({required this.id, required this.status, @JsonKey(name: 'placed_at') required this.placedAt, @JsonKey(name: 'delivery_otp') required this.deliveryOtp, required final  List<OrderLineItemModel> items}): _items = items,super._();
+  const _OrderModel({required this.id, required this.status, @JsonKey(name: 'placed_at') required this.placedAt, @JsonKey(name: 'delivery_otp') required this.deliveryOtp, required final  List<OrderLineItemModel> items, @JsonKey(name: 'delivery_address') this.deliveryAddress}): _items = items,super._();
   factory _OrderModel.fromJson(Map<String, dynamic> json) => _$OrderModelFromJson(json);
 
 @override final  String id;
@@ -227,6 +243,10 @@ class _OrderModel extends OrderModel {
   return EqualUnmodifiableListView(_items);
 }
 
+// Reuses AddressModel — the server serializes the snapshot through the
+// same shape the /users/addresses endpoints use. Nullable: legacy orders
+// predate the field.
+@override@JsonKey(name: 'delivery_address') final  AddressModel? deliveryAddress;
 
 /// Create a copy of OrderModel
 /// with the given fields replaced by the non-null parameter values.
@@ -241,16 +261,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _OrderModel&&(identical(other.id, id) || other.id == id)&&(identical(other.status, status) || other.status == status)&&(identical(other.placedAt, placedAt) || other.placedAt == placedAt)&&(identical(other.deliveryOtp, deliveryOtp) || other.deliveryOtp == deliveryOtp)&&const DeepCollectionEquality().equals(other._items, _items));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _OrderModel&&(identical(other.id, id) || other.id == id)&&(identical(other.status, status) || other.status == status)&&(identical(other.placedAt, placedAt) || other.placedAt == placedAt)&&(identical(other.deliveryOtp, deliveryOtp) || other.deliveryOtp == deliveryOtp)&&const DeepCollectionEquality().equals(other._items, _items)&&(identical(other.deliveryAddress, deliveryAddress) || other.deliveryAddress == deliveryAddress));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,status,placedAt,deliveryOtp,const DeepCollectionEquality().hash(_items));
+int get hashCode => Object.hash(runtimeType,id,status,placedAt,deliveryOtp,const DeepCollectionEquality().hash(_items),deliveryAddress);
 
 @override
 String toString() {
-  return 'OrderModel(id: $id, status: $status, placedAt: $placedAt, deliveryOtp: $deliveryOtp, items: $items)';
+  return 'OrderModel(id: $id, status: $status, placedAt: $placedAt, deliveryOtp: $deliveryOtp, items: $items, deliveryAddress: $deliveryAddress)';
 }
 
 
@@ -261,11 +281,11 @@ abstract mixin class _$OrderModelCopyWith<$Res> implements $OrderModelCopyWith<$
   factory _$OrderModelCopyWith(_OrderModel value, $Res Function(_OrderModel) _then) = __$OrderModelCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String status,@JsonKey(name: 'placed_at') String placedAt,@JsonKey(name: 'delivery_otp') String deliveryOtp, List<OrderLineItemModel> items
+ String id, String status,@JsonKey(name: 'placed_at') String placedAt,@JsonKey(name: 'delivery_otp') String deliveryOtp, List<OrderLineItemModel> items,@JsonKey(name: 'delivery_address') AddressModel? deliveryAddress
 });
 
 
-
+@override $AddressModelCopyWith<$Res>? get deliveryAddress;
 
 }
 /// @nodoc
@@ -278,18 +298,31 @@ class __$OrderModelCopyWithImpl<$Res>
 
 /// Create a copy of OrderModel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? status = null,Object? placedAt = null,Object? deliveryOtp = null,Object? items = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? status = null,Object? placedAt = null,Object? deliveryOtp = null,Object? items = null,Object? deliveryAddress = freezed,}) {
   return _then(_OrderModel(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as String,placedAt: null == placedAt ? _self.placedAt : placedAt // ignore: cast_nullable_to_non_nullable
 as String,deliveryOtp: null == deliveryOtp ? _self.deliveryOtp : deliveryOtp // ignore: cast_nullable_to_non_nullable
 as String,items: null == items ? _self._items : items // ignore: cast_nullable_to_non_nullable
-as List<OrderLineItemModel>,
+as List<OrderLineItemModel>,deliveryAddress: freezed == deliveryAddress ? _self.deliveryAddress : deliveryAddress // ignore: cast_nullable_to_non_nullable
+as AddressModel?,
   ));
 }
 
+/// Create a copy of OrderModel
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$AddressModelCopyWith<$Res>? get deliveryAddress {
+    if (_self.deliveryAddress == null) {
+    return null;
+  }
 
+  return $AddressModelCopyWith<$Res>(_self.deliveryAddress!, (value) {
+    return _then(_self.copyWith(deliveryAddress: value));
+  });
+}
 }
 
 // dart format on

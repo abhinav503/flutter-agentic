@@ -1,7 +1,13 @@
 import { FieldValue } from "firebase-admin/firestore";
 import { adminDb } from "./firebase-admin";
 import { cartDocRef } from "./cart";
-import type { Order, OrderLineItem, OrderStatus, UnitType } from "./types";
+import type {
+  Address,
+  Order,
+  OrderLineItem,
+  OrderStatus,
+  UnitType,
+} from "./types";
 
 export type CreateOrderItemInput = { productId: string; quantity: number };
 
@@ -23,6 +29,12 @@ function ordersRef() {
 
 function productDocRef(storeId: string, productId: string) {
   return adminDb.collection("stores").doc(storeId).collection("products").doc(productId);
+}
+
+// Addresses live per-user (see addresses.ts) — the order snapshots one of
+// them by id at placement time.
+function addressDocRef(uid: string, addressId: string) {
+  return adminDb.collection("users").doc(uid).collection("addresses").doc(addressId);
 }
 
 function generateOtp(): string {
@@ -47,12 +59,29 @@ function toOrder(id: string, data: FirebaseFirestore.DocumentData): Order {
     uid: data.uid as string,
     storeId: data.storeId as string,
     items: (data.items as OrderLineItem[]) ?? [],
+    // Orders placed before delivery addresses existed have no snapshot —
+    // fall back to an empty address so serializeOrder/older docs don't throw.
+    deliveryAddress: (data.deliveryAddress as Address) ?? EMPTY_ADDRESS,
     status: (data.status as OrderStatus) ?? "PENDING",
     total: (data.total as number) ?? 0,
     deliveryOtp: (data.deliveryOtp as string) ?? "",
     placedAt: (data.placedAt as string) ?? "",
   };
 }
+
+const EMPTY_ADDRESS: Address = {
+  id: "",
+  name: "",
+  phone: "",
+  addressLine1: "",
+  addressLine2: "",
+  landmark: "",
+  city: "",
+  country: "",
+  postalCode: "",
+  tag: "",
+  isDefault: false,
+};
 
 // Server-side price/stock authority — the client only supplies
 // productId+quantity; name/image/price/stock all come from the live
@@ -65,6 +94,7 @@ export async function createOrder(
   uid: string,
   storeId: string,
   requestedItems: CreateOrderItemInput[],
+  addressId: string,
 ): Promise<Order> {
   if (requestedItems.length === 0) {
     throw new OrderCreationError("Order must contain at least one item");
@@ -73,6 +103,20 @@ export async function createOrder(
   const orderRef = ordersRef().doc();
 
   return adminDb.runTransaction(async (tx) => {
+    // All reads must happen before any write in a Firestore transaction, so
+    // the address and product docs are read up front, before the stock
+    // decrements below.
+    const addressSnap = await tx.get(addressDocRef(uid, addressId));
+    if (!addressSnap.exists) {
+      throw new OrderCreationError("Delivery address not found");
+    }
+    // Snapshot the whole address onto the order — a later edit/delete of the
+    // shopper's address must not change where this order was sent.
+    const deliveryAddress: Address = {
+      id: addressSnap.id,
+      ...(addressSnap.data() as Omit<Address, "id">),
+    };
+
     const productRefs = requestedItems.map((item) =>
       productDocRef(storeId, item.productId),
     );
@@ -118,6 +162,7 @@ export async function createOrder(
       uid,
       storeId,
       items: lineItems,
+      deliveryAddress,
       status: "PENDING",
       total,
       deliveryOtp: generateOtp(),

@@ -26,13 +26,17 @@ class OrdersRemoteDataSourceImpl implements OrdersRemoteDataSource {
   }
 
   @override
-  Future<OrderModel> createOrder(List<CartItemEntity> items) async {
+  Future<OrderModel> createOrder(
+    List<CartItemEntity> items,
+    String addressId,
+  ) async {
     final uid = FirebaseAuthService.instance.currentUser!.uid;
 
     final response = await HttpService.instance.post<Map<String, dynamic>>(
       ApiConstants.ordersPath,
       data: {
         'userId': uid,
+        'addressId': addressId,
         'items': items
             .map(
               (item) => {

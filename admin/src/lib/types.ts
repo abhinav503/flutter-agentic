@@ -95,11 +95,17 @@ export type OrderLineItem = {
   weight: string;
 };
 
+// The delivery address is snapshotted onto the order at placement time (same
+// reasoning as OrderLineItem's snapshot fields) — the shopper editing or
+// deleting that address later must not retroactively change where a past
+// order was sent. Structurally an Address, so it serializes through the same
+// serializeAddress() shape the /users/addresses routes use.
 export type Order = {
   id: string;
   uid: string;
   storeId: string;
   items: OrderLineItem[];
+  deliveryAddress: Address;
   status: OrderStatus;
   total: number;
   deliveryOtp: string;

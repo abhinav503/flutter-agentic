@@ -30,10 +30,16 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
     Emitter<CheckoutState> emit,
   ) async {
     emit(const CheckoutState.submitting());
-    final result = await _createOrder(event.items);
+    final result = await _createOrder(
+      CreateOrderParams(items: event.items, addressId: event.addressId),
+    );
     result.fold(
       (failure) => emit(
-        CheckoutState.failure(message: failure.message, items: event.items),
+        CheckoutState.failure(
+          message: failure.message,
+          items: event.items,
+          addressId: event.addressId,
+        ),
       ),
       (order) => emit(CheckoutState.success(order: order)),
     );

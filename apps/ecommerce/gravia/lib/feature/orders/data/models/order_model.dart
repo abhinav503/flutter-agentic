@@ -1,6 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'package:gravia/enums/order_status.dart';
+import 'package:gravia/feature/address/data/models/address_model.dart';
 
 import '../../domain/entities/order_entity.dart';
 import 'order_line_item_model.dart';
@@ -18,6 +19,10 @@ abstract class OrderModel with _$OrderModel {
     @JsonKey(name: 'placed_at') required String placedAt,
     @JsonKey(name: 'delivery_otp') required String deliveryOtp,
     required List<OrderLineItemModel> items,
+    // Reuses AddressModel — the server serializes the snapshot through the
+    // same shape the /users/addresses endpoints use. Nullable: legacy orders
+    // predate the field.
+    @JsonKey(name: 'delivery_address') AddressModel? deliveryAddress,
   }) = _OrderModel;
 
   factory OrderModel.fromJson(Map<String, dynamic> json) =>
@@ -37,6 +42,9 @@ abstract class OrderModel with _$OrderModel {
     placedAt: e.placedAt.toIso8601String(),
     deliveryOtp: e.deliveryOtp,
     items: e.items.map(OrderLineItemModel.fromEntity).toList(),
+    deliveryAddress: e.deliveryAddress == null
+        ? null
+        : AddressModel.fromEntity(e.deliveryAddress!),
   );
 
   OrderEntity toEntity() => OrderEntity(
@@ -45,5 +53,6 @@ abstract class OrderModel with _$OrderModel {
     placedAt: DateTime.parse(placedAt),
     deliveryOtp: deliveryOtp,
     items: items.map((m) => m.toEntity()).toList(),
+    deliveryAddress: deliveryAddress?.toEntity(),
   );
 }

@@ -51,7 +51,10 @@ class _AddressScreenState extends BaseScreenState<AddressScreen> {
       selected.displayLine,
     );
     if (!mounted) return;
-    context.pop();
+    // Pop with the confirmed address so a caller gating an action on it (the
+    // Cart's checkout flow) can proceed with it; callers that just open this
+    // to set the current address (Home, Profile) ignore the return value.
+    context.pop(selected);
   }
 
   /// Pushes the Add/Edit Address form — [address] null opens it in Add mode,

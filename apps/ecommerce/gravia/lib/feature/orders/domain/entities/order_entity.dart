@@ -1,4 +1,5 @@
 import 'package:gravia/enums/order_status.dart';
+import 'package:gravia/feature/address/domain/entities/address_entity.dart';
 
 import 'order_line_item_entity.dart';
 
@@ -17,12 +18,18 @@ class OrderEntity {
   /// single product by itself.
   final List<OrderLineItemEntity> items;
 
+  /// The delivery address chosen at checkout, snapshotted onto the order by
+  /// the server — null only for legacy orders placed before the address
+  /// step existed (the server sends an empty address for those).
+  final AddressEntity? deliveryAddress;
+
   const OrderEntity({
     required this.id,
     required this.status,
     required this.placedAt,
     required this.deliveryOtp,
     required this.items,
+    this.deliveryAddress,
   });
 }
 

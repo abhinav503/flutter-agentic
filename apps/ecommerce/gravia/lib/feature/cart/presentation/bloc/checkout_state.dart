@@ -7,11 +7,12 @@ sealed class CheckoutState with _$CheckoutState {
   const factory CheckoutState.success({required OrderEntity order}) =
       CheckoutSuccess;
 
-  /// [items] is the exact cart snapshot the failed attempt submitted — a
-  /// retry re-dispatches with these, same "error carries retry context"
-  /// convention as every other `*Error` state in this app.
+  /// [items] and [addressId] are the exact inputs the failed attempt
+  /// submitted — a retry re-dispatches with these, same "error carries retry
+  /// context" convention as every other `*Error` state in this app.
   const factory CheckoutState.failure({
     required String message,
     required List<CartItemEntity> items,
+    required String addressId,
   }) = CheckoutFailure;
 }

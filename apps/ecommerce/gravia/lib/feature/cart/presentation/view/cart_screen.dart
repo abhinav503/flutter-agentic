@@ -20,6 +20,8 @@ import 'package:gravia/widgets/gravia_primary_button.dart';
 import 'package:gravia/widgets/gravia_product_card.dart';
 import 'package:gravia/widgets/gravia_sheet.dart';
 
+import 'package:gravia/feature/address/domain/entities/address_entity.dart';
+
 import '../../../home/domain/entities/product_entity.dart';
 import '../../domain/entities/cart_item_entity.dart';
 import '../bloc/cart_bloc.dart';
@@ -38,12 +40,20 @@ class CartScreen extends BaseScreen {
 class _CartScreenState extends BaseScreenState<CartScreen> {
   void _showComingSoon() => showSnackBar(ValueConst.comingSoonMessage);
 
-  // No payment step exists yet — tapping the CTA submits the order directly.
-  // The cart only clears once the server confirms creation (see the
+  // Checkout first gates on picking a delivery address — reuses the Select
+  // Address screen, which pops with the chosen address (null if the shopper
+  // backs out, in which case no order is placed). Only then is the order
+  // submitted; the cart clears once the server confirms creation (see the
   // CheckoutBloc listener in `body`), not optimistically here, since the
-  // request can fail (e.g. insufficient stock).
-  void _placeOrder(List<CartItemEntity> items) {
-    context.read<CheckoutBloc>().add(CheckoutEvent.submitted(items: items));
+  // request can fail (e.g. insufficient stock). No payment step exists yet.
+  Future<void> _startCheckout(List<CartItemEntity> items) async {
+    final address = await context.push<AddressEntity>(
+      AppRoutes.selectAddress,
+    );
+    if (address == null || !mounted) return;
+    context.read<CheckoutBloc>().add(
+      CheckoutEvent.submitted(items: items, addressId: address.id),
+    );
   }
 
   void _onOrderPlaced() {
@@ -159,7 +169,7 @@ class _CartScreenState extends BaseScreenState<CartScreen> {
                           : AppButtonState.idle,
                       onTap: state is CheckoutSubmitting
                           ? null
-                          : () => _placeOrder(cartItems),
+                          : () => _startCheckout(cartItems),
                     ),
                   ),
                 ),
