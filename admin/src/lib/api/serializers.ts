@@ -26,7 +26,13 @@ export function serializeAddress(a: Address) {
   };
 }
 
-export function serializeProduct(p: Product) {
+// isFavourite defaults false: it's per-shopper state, not a catalog
+// property, and most callers of this serializer (home, categories, search,
+// product details) don't resolve it per-uid — gravia cross-references its
+// own FavouritesCubit instead of trusting this field there. Only the
+// favourites endpoint itself passes a real value, since every item it
+// returns is a favourite by definition.
+export function serializeProduct(p: Product, isFavourite = false) {
   return {
     id: p.id,
     name: p.name,
@@ -37,9 +43,7 @@ export function serializeProduct(p: Product) {
     unit_value: p.unitValue,
     unit_type: p.unitType,
     prep_time: p.prepTime,
-    // Per-shopper state, not a catalog property — no favorites model yet,
-    // so this is always false from a catalog-read endpoint.
-    is_favourite: false,
+    is_favourite: isFavourite,
   };
 }
 

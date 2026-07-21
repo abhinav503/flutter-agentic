@@ -6,7 +6,6 @@ import 'package:core/core/ui/atoms/theme_mode_toggle.dart';
 import 'package:core/core/ui/atoms/top_bar.dart';
 import 'package:core/core/ui/blocks/bottom_nav_bar.dart';
 import 'package:core/core/ui/blocks/docked_bar_overlap.dart';
-import 'package:core/core/ui/molecules/empty_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -22,6 +21,8 @@ import 'package:gravia/feature/cart/presentation/cubit/cart_cubit.dart';
 import 'package:gravia/feature/cart/presentation/widgets/cart_status_bar.dart';
 import 'package:gravia/feature/categories/presentation/bloc/categories_bloc.dart';
 import 'package:gravia/feature/categories/presentation/view/categories_screen.dart';
+import 'package:gravia/feature/favourites/presentation/cubit/favourites_cubit.dart';
+import 'package:gravia/feature/favourites/presentation/view/favourites_screen.dart';
 import 'package:gravia/feature/home/presentation/bloc/home_bloc.dart';
 import 'package:gravia/feature/home/presentation/view/home_screen.dart';
 import 'package:gravia/feature/orders/presentation/bloc/orders_bloc.dart';
@@ -75,6 +76,7 @@ class _ShellPageState extends BasePageState<ShellPage> {
     // to load the signed-in shopper's persisted cart — once per cold start
     // or fresh login, not on every tab switch (initState, not build).
     context.read<CartCubit>().hydrate();
+    context.read<FavouritesCubit>().hydrate();
   }
 
   @override
@@ -165,20 +167,21 @@ class _ShellPageState extends BasePageState<ShellPage> {
 
   // Explicit rather than relying on Scaffold's implicit default, which was
   // resolving to something other than the theme's actual surface colour —
-  // it's the backdrop of the tabs that don't paint their own canvas
-  // (the EmptyState ones).
+  // it's the backdrop below each tab's coloured header canvas.
   @override
   Color? backgroundColor(BuildContext context) =>
       Theme.of(context).colorScheme.surface;
 
   @override
   PreferredSizeWidget? buildAppBar(BuildContext context) {
-    // Home, Categories, Orders, and Profile render their own coloured hero
-    // header as part of the screen body, per the pack's "coloured header
-    // canvas" composition — a generic top bar on top of any of them would
-    // double up.
+    // Every tab renders its own coloured hero header as part of the screen
+    // body, per the pack's "coloured header canvas" composition — a generic
+    // top bar on top of any of them would double up. Kept as a switch
+    // (rather than always returning null) so a future tab without its own
+    // header still gets one for free.
     if (_currentTab == ShellPage.homeTabIndex ||
         _currentTab == ShellPage.categoriesTabIndex ||
+        _currentTab == ShellPage.favouriteTabIndex ||
         _currentTab == ShellPage.ordersTabIndex ||
         _currentTab == ShellPage.profileTabIndex) {
       return null;
@@ -223,11 +226,7 @@ class _ShellPageState extends BasePageState<ShellPage> {
               ..add(const CategoriesEvent.started()),
         child: const CategoriesScreen(),
       ),
-      ShellPage.favouriteTabIndex => const EmptyState(
-        iconData: Icons.favorite_outline,
-        title: ValueConst.favouriteEmptyTitle,
-        subtitle: ValueConst.favouriteEmptySubtitle,
-      ),
+      ShellPage.favouriteTabIndex => const FavouritesScreen(),
       ShellPage.ordersTabIndex => BlocProvider(
         create: (_) =>
             OrdersBloc(getOrdersUseCase: sl())

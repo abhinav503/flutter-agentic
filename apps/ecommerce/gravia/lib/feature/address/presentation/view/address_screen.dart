@@ -91,25 +91,34 @@ class _AddressScreenState extends BaseScreenState<AddressScreen> {
             showSnackBar(ValueConst.addressDeleteFailedMessage);
           }
         },
-        builder: (context, state) => switch (state) {
-          AddressLoading() => CollapsingHeaderSheet(
-            initialHeaderHeight: 110,
-            header: GraviaHeroHeader(
-              title: ValueConst.selectAddressTitle,
-              onBack: () => context.pop(),
+        builder: (context, state) => AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          child: switch (state) {
+            AddressLoading() => CollapsingHeaderSheet(
+              key: const ValueKey('loading'),
+              initialHeaderHeight: 110,
+              header: GraviaHeroHeader(
+                title: ValueConst.selectAddressTitle,
+                onBack: () => context.pop(),
+              ),
+              body: const AddressSkeletonBody(),
             ),
-            body: const AddressSkeletonBody(),
-          ),
-          AddressError() => SafeArea(
-            child: ErrorView(
-              message: ValueConst.addressLoadErrorMessage,
-              onRetry: () =>
-                  context.read<AddressBloc>().add(const AddressEvent.started()),
+            AddressError() => SafeArea(
+              key: const ValueKey('error'),
+              child: ErrorView(
+                message: ValueConst.addressLoadErrorMessage,
+                onRetry: () => context.read<AddressBloc>().add(
+                  const AddressEvent.started(),
+                ),
+              ),
             ),
-          ),
-          AddressLoaded(:final addresses, :final selectedAddressId) =>
-            _buildLoaded(context, addresses, selectedAddressId),
-        },
+            AddressLoaded(:final addresses, :final selectedAddressId) =>
+              KeyedSubtree(
+                key: const ValueKey('loaded'),
+                child: _buildLoaded(context, addresses, selectedAddressId),
+              ),
+          },
+        ),
       ),
     );
   }

@@ -20,6 +20,7 @@ import 'feature/auth/presentation/view/signup_page.dart';
 import 'feature/cart/presentation/cubit/cart_cubit.dart';
 import 'feature/cart/presentation/view/cart_page.dart';
 import 'feature/category_details/presentation/view/category_details_page.dart';
+import 'feature/favourites/presentation/cubit/favourites_cubit.dart';
 import 'feature/legal/presentation/view/legal_document_content.dart';
 import 'feature/legal/presentation/view/legal_document_page.dart';
 import 'feature/notifications/presentation/view/notifications_page.dart';
@@ -324,12 +325,23 @@ class _AppState extends State<App> {
 
   @override
   Widget build(BuildContext context) {
-    // CartCubit lives here, above the router, rather than in ShellPage's
-    // buildBlocProviders — Product Details, Search, and Cart itself are
-    // separate GoRouter pages (siblings of ShellPage in the root Navigator),
-    // so a shell-scoped provider wouldn't reach them.
-    return BlocProvider(
-      create: (_) => CartCubit(getCartUseCase: sl(), saveCartUseCase: sl()),
+    // CartCubit and FavouritesCubit live here, above the router, rather than
+    // in ShellPage's buildBlocProviders — Product Details, Search, and Cart
+    // itself are separate GoRouter pages (siblings of ShellPage in the root
+    // Navigator), so a shell-scoped provider wouldn't reach them.
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (_) => CartCubit(getCartUseCase: sl(), saveCartUseCase: sl()),
+        ),
+        BlocProvider(
+          create: (_) => FavouritesCubit(
+            getFavouritesUseCase: sl(),
+            addFavouriteUseCase: sl(),
+            removeFavouriteUseCase: sl(),
+          ),
+        ),
+      ],
       child: ValueListenableBuilder<ThemeMode>(
         valueListenable: _themeMode,
         builder: (context, mode, _) => ThemeModeScope(

@@ -56,6 +56,13 @@ class GraviaProductCard extends StatelessWidget {
   /// spec.
   final String? discountLabel;
 
+  /// Whether the image's top-right favourite toggle is filled. Ignored
+  /// (heart hidden entirely) when [onFavouriteToggle] is null — a caller
+  /// that has nowhere to persist the toggle just omits it rather than
+  /// showing a heart that does nothing.
+  final bool isFavourite;
+  final VoidCallback? onFavouriteToggle;
+
   const GraviaProductCard({
     super.key,
     required this.product,
@@ -66,6 +73,8 @@ class GraviaProductCard extends StatelessWidget {
     this.showPrepTime = true,
     this.showDiscount = true,
     this.discountLabel,
+    this.isFavourite = false,
+    this.onFavouriteToggle,
   });
 
   /// The pack's 14px Gray/500 meta-row glyph (flash, percent, …) — public so
@@ -131,6 +140,22 @@ class GraviaProductCard extends StatelessWidget {
         ),
         onTap: onQuickAdd,
       ),
+      favouriteAction: onFavouriteToggle == null
+          ? null
+          : AppIconButton(
+              variant: AppIconButtonVariant.glass,
+              containerSize: AppSpacing.xl6,
+              iconSize: AppSpacing.lg,
+              glassHighlightThickness: AppSpacing.xs3,
+              glassBlurSigma: AppSpacing.xs4,
+              iconBuilder: (color, size) => AppSvgImage.asset(
+                isFavourite ? ImageConst.favouriteFilled : ImageConst.navFavourite,
+                color: color,
+                width: size,
+                height: size,
+              ),
+              onTap: onFavouriteToggle,
+            ),
       onTap: onTap,
     );
 

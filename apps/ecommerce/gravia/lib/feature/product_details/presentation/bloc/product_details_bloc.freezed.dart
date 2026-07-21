@@ -14,30 +14,61 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$ProductDetailsEvent {
 
-
+ String get productId;
+/// Create a copy of ProductDetailsEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$ProductDetailsEventCopyWith<ProductDetailsEvent> get copyWith => _$ProductDetailsEventCopyWithImpl<ProductDetailsEvent>(this as ProductDetailsEvent, _$identity);
 
 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProductDetailsEvent);
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProductDetailsEvent&&(identical(other.productId, productId) || other.productId == productId));
 }
 
 
 @override
-int get hashCode => runtimeType.hashCode;
+int get hashCode => Object.hash(runtimeType,productId);
 
 @override
 String toString() {
-  return 'ProductDetailsEvent()';
+  return 'ProductDetailsEvent(productId: $productId)';
 }
 
 
 }
 
 /// @nodoc
-class $ProductDetailsEventCopyWith<$Res>  {
-$ProductDetailsEventCopyWith(ProductDetailsEvent _, $Res Function(ProductDetailsEvent) __);
+abstract mixin class $ProductDetailsEventCopyWith<$Res>  {
+  factory $ProductDetailsEventCopyWith(ProductDetailsEvent value, $Res Function(ProductDetailsEvent) _then) = _$ProductDetailsEventCopyWithImpl;
+@useResult
+$Res call({
+ String productId
+});
+
+
+
+
+}
+/// @nodoc
+class _$ProductDetailsEventCopyWithImpl<$Res>
+    implements $ProductDetailsEventCopyWith<$Res> {
+  _$ProductDetailsEventCopyWithImpl(this._self, this._then);
+
+  final ProductDetailsEvent _self;
+  final $Res Function(ProductDetailsEvent) _then;
+
+/// Create a copy of ProductDetailsEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? productId = null,}) {
+  return _then(_self.copyWith(
+productId: null == productId ? _self.productId : productId // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
 }
 
 
@@ -55,12 +86,11 @@ extension ProductDetailsEventPatterns on ProductDetailsEvent {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( ProductDetailsStarted value)?  started,TResult Function( ProductDetailsFavouriteToggled value)?  favouriteToggled,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( ProductDetailsStarted value)?  started,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case ProductDetailsStarted() when started != null:
-return started(_that);case ProductDetailsFavouriteToggled() when favouriteToggled != null:
-return favouriteToggled(_that);case _:
+return started(_that);case _:
   return orElse();
 
 }
@@ -78,12 +108,11 @@ return favouriteToggled(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( ProductDetailsStarted value)  started,required TResult Function( ProductDetailsFavouriteToggled value)  favouriteToggled,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( ProductDetailsStarted value)  started,}){
 final _that = this;
 switch (_that) {
 case ProductDetailsStarted():
-return started(_that);case ProductDetailsFavouriteToggled():
-return favouriteToggled(_that);}
+return started(_that);}
 }
 /// A variant of `map` that fallback to returning `null`.
 ///
@@ -97,12 +126,11 @@ return favouriteToggled(_that);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( ProductDetailsStarted value)?  started,TResult? Function( ProductDetailsFavouriteToggled value)?  favouriteToggled,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( ProductDetailsStarted value)?  started,}){
 final _that = this;
 switch (_that) {
 case ProductDetailsStarted() when started != null:
-return started(_that);case ProductDetailsFavouriteToggled() when favouriteToggled != null:
-return favouriteToggled(_that);case _:
+return started(_that);case _:
   return null;
 
 }
@@ -119,11 +147,10 @@ return favouriteToggled(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String productId)?  started,TResult Function()?  favouriteToggled,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String productId)?  started,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case ProductDetailsStarted() when started != null:
-return started(_that.productId);case ProductDetailsFavouriteToggled() when favouriteToggled != null:
-return favouriteToggled();case _:
+return started(_that.productId);case _:
   return orElse();
 
 }
@@ -141,11 +168,10 @@ return favouriteToggled();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String productId)  started,required TResult Function()  favouriteToggled,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String productId)  started,}) {final _that = this;
 switch (_that) {
 case ProductDetailsStarted():
-return started(_that.productId);case ProductDetailsFavouriteToggled():
-return favouriteToggled();}
+return started(_that.productId);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -159,11 +185,10 @@ return favouriteToggled();}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String productId)?  started,TResult? Function()?  favouriteToggled,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String productId)?  started,}) {final _that = this;
 switch (_that) {
 case ProductDetailsStarted() when started != null:
-return started(_that.productId);case ProductDetailsFavouriteToggled() when favouriteToggled != null:
-return favouriteToggled();case _:
+return started(_that.productId);case _:
   return null;
 
 }
@@ -178,11 +203,11 @@ class ProductDetailsStarted implements ProductDetailsEvent {
   const ProductDetailsStarted({required this.productId});
   
 
- final  String productId;
+@override final  String productId;
 
 /// Create a copy of ProductDetailsEvent
 /// with the given fields replaced by the non-null parameter values.
-@JsonKey(includeFromJson: false, includeToJson: false)
+@override @JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
 $ProductDetailsStartedCopyWith<ProductDetailsStarted> get copyWith => _$ProductDetailsStartedCopyWithImpl<ProductDetailsStarted>(this, _$identity);
 
@@ -208,7 +233,7 @@ String toString() {
 /// @nodoc
 abstract mixin class $ProductDetailsStartedCopyWith<$Res> implements $ProductDetailsEventCopyWith<$Res> {
   factory $ProductDetailsStartedCopyWith(ProductDetailsStarted value, $Res Function(ProductDetailsStarted) _then) = _$ProductDetailsStartedCopyWithImpl;
-@useResult
+@override @useResult
 $Res call({
  String productId
 });
@@ -227,7 +252,7 @@ class _$ProductDetailsStartedCopyWithImpl<$Res>
 
 /// Create a copy of ProductDetailsEvent
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? productId = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? productId = null,}) {
   return _then(ProductDetailsStarted(
 productId: null == productId ? _self.productId : productId // ignore: cast_nullable_to_non_nullable
 as String,
@@ -236,38 +261,6 @@ as String,
 
 
 }
-
-/// @nodoc
-
-
-class ProductDetailsFavouriteToggled implements ProductDetailsEvent {
-  const ProductDetailsFavouriteToggled();
-  
-
-
-
-
-
-
-@override
-bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProductDetailsFavouriteToggled);
-}
-
-
-@override
-int get hashCode => runtimeType.hashCode;
-
-@override
-String toString() {
-  return 'ProductDetailsEvent.favouriteToggled()';
-}
-
-
-}
-
-
-
 
 /// @nodoc
 mixin _$ProductDetailsState {

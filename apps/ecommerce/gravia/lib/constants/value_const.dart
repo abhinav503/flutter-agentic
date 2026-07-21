@@ -284,7 +284,8 @@ abstract final class ValueConst {
       'The generated Lorem Ipsum is therefore always free from repetition, '
       'injected humour, or non-characteristic words etc.';
 
-  // ── Placeholder tabs (removed as real screens land) ───────────────────────
+  // ── Favourite tab ───────────────────────────────────────────────────────
+  static const favouritePageTitle = 'Favourite';
   static const favouriteEmptyTitle = 'No favourites yet';
   static const favouriteEmptySubtitle =
       'Tap the heart on a product to keep it here.';

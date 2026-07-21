@@ -36,6 +36,13 @@ import '../feature/category_details/data/data_source/category_details_remote_dat
 import '../feature/category_details/data/repository_impl/category_details_repository_impl.dart';
 import '../feature/category_details/domain/repository/category_details_repository.dart';
 import '../feature/category_details/domain/usecase/get_category_details_usecase.dart';
+import '../feature/favourites/data/data_source/favourites_remote_data_source.dart';
+import '../feature/favourites/data/data_source/favourites_remote_data_source_impl.dart';
+import '../feature/favourites/data/repository_impl/favourites_repository_impl.dart';
+import '../feature/favourites/domain/repository/favourites_repository.dart';
+import '../feature/favourites/domain/usecase/add_favourite_usecase.dart';
+import '../feature/favourites/domain/usecase/get_favourites_usecase.dart';
+import '../feature/favourites/domain/usecase/remove_favourite_usecase.dart';
 import '../feature/home/data/data_source/home_remote_data_source.dart';
 import '../feature/home/data/data_source/home_remote_data_source_impl.dart';
 import '../feature/home/data/repository_impl/home_repository_impl.dart';
@@ -174,6 +181,17 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton<OrdersRepository>(() => OrdersRepositoryImpl(sl()));
   sl.registerLazySingleton(() => GetOrdersUseCase(sl()));
   sl.registerLazySingleton(() => CreateOrderUseCase(sl()));
+
+  // ── Favourites ───────────────────────────────────────────────────────────
+  sl.registerLazySingleton<FavouritesRemoteDataSource>(
+    () => const FavouritesRemoteDataSourceImpl(),
+  );
+  sl.registerLazySingleton<FavouritesRepository>(
+    () => FavouritesRepositoryImpl(sl()),
+  );
+  sl.registerLazySingleton(() => GetFavouritesUseCase(sl()));
+  sl.registerLazySingleton(() => AddFavouriteUseCase(sl()));
+  sl.registerLazySingleton(() => RemoveFavouriteUseCase(sl()));
 
   // ── Notifications ────────────────────────────────────────────────────────
   sl.registerLazySingleton<NotificationsRemoteDataSource>(

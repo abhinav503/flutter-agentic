@@ -16,6 +16,7 @@ import 'package:gravia/constants/text_style_const.dart';
 import 'package:gravia/constants/value_const.dart';
 import 'package:gravia/enums/product_unit_type.dart';
 import 'package:gravia/feature/cart/presentation/cubit/cart_cubit.dart';
+import 'package:gravia/feature/favourites/presentation/cubit/favourites_cubit.dart';
 import 'package:gravia/widgets/gravia_glass_icon_button.dart';
 import 'package:gravia/widgets/gravia_hero_header.dart';
 import 'package:gravia/widgets/gravia_product_card.dart';
@@ -111,6 +112,8 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen> {
     final product = detail.product;
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
+    final favourites = context.watch<FavouritesCubit>().state.items;
+    final isFavourite = favourites.any((p) => p.id == product.id);
     // Same divider colour as the bottom nav bar's top border (ShellPage uses
     // cs.dockedHairline for both its top and bottom borders) — so the
     // hairlines in this screen match the bar rather than the generic
@@ -131,12 +134,11 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen> {
               title: ValueConst.productDetailsTitle,
               onBack: () => context.pop(),
               trailing: GraviaGlassIconButton(
-                asset: product.isFavourite
+                asset: isFavourite
                     ? ImageConst.favouriteFilled
                     : ImageConst.navFavourite,
-                onTap: () => context.read<ProductDetailsBloc>().add(
-                  const ProductDetailsEvent.favouriteToggled(),
-                ),
+                onTap: () =>
+                    context.read<FavouritesCubit>().toggle(product),
               ),
             ),
             body: Padding(

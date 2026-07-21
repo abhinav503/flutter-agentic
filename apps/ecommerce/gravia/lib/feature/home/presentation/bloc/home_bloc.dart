@@ -27,7 +27,6 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         ),
       ) {
     on<HomeStarted>(_onStarted);
-    on<HomeFavouriteToggled>(_onFavouriteToggled);
   }
 
   Future<void> _onStarted(HomeStarted event, Emitter<HomeState> emit) async {
@@ -41,26 +40,6 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
           emit(HomeState.error(message: failure.message));
       }
     }, (home) => _emitLoaded(home, emit));
-  }
-
-  void _onFavouriteToggled(
-    HomeFavouriteToggled event,
-    Emitter<HomeState> emit,
-  ) {
-    switch (state) {
-      case HomeLoaded(:final home):
-        final updatedProducts = home.popularProducts
-            .map(
-              (p) => p.id == event.productId
-                  ? p.copyWith(isFavourite: !p.isFavourite)
-                  : p,
-            )
-            .toList();
-        _emitLoaded(home.copyWith(popularProducts: updatedProducts), emit);
-      case HomeLoading():
-      case HomeError():
-        break;
-    }
   }
 
   void _emitLoaded(HomeEntity home, Emitter<HomeState> emit) {

@@ -44,24 +44,29 @@ class _NotificationsScreenState extends BaseScreenState<NotificationsScreen> {
             showSnackBar(message);
           }
         },
-        builder: (context, state) => switch (state) {
-          NotificationsLoading() => Container(
-            color: cs.primary,
-            child: const SafeArea(child: Center(child: LoadingIndicator())),
-          ),
-          NotificationsError() => SafeArea(
-            child: ErrorView(
-              message: ValueConst.notificationsLoadErrorMessage,
-              onRetry: () => context.read<NotificationsBloc>().add(
-                const NotificationsEvent.started(),
+        builder: (context, state) => AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          child: switch (state) {
+            NotificationsLoading() => Container(
+              key: const ValueKey('loading'),
+              color: cs.primary,
+              child: const SafeArea(child: Center(child: LoadingIndicator())),
+            ),
+            NotificationsError() => SafeArea(
+              key: const ValueKey('error'),
+              child: ErrorView(
+                message: ValueConst.notificationsLoadErrorMessage,
+                onRetry: () => context.read<NotificationsBloc>().add(
+                  const NotificationsEvent.started(),
+                ),
               ),
             ),
-          ),
-          NotificationsLoaded(:final sections) => _buildLoaded(
-            context,
-            sections,
-          ),
-        },
+            NotificationsLoaded(:final sections) => KeyedSubtree(
+              key: const ValueKey('loaded'),
+              child: _buildLoaded(context, sections),
+            ),
+          },
+        ),
       ),
     );
   }

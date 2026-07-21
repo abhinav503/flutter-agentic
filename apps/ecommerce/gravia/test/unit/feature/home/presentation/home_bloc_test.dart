@@ -62,23 +62,6 @@ void main() {
     expect: () => [const HomeState.error(message: 'boom')],
   );
 
-  blocTest<HomeBloc, HomeState>(
-    'favouriteToggled flips isFavourite for the matching product only',
-    build: () => HomeBloc(getHomeUseCase: GetHomeUseCase(repository)),
-    act: (bloc) async {
-      bloc.add(const HomeEvent.started());
-      await Future<void>.delayed(Duration.zero);
-      bloc.add(const HomeEvent.favouriteToggled(productId: '1'));
-    },
-    // ProductEntity has no value equality (plain domain entity, per
-    // convention), so assert on the resulting field rather than object
-    // equality against a freshly-built copyWith instance.
-    verify: (bloc) {
-      final state = bloc.state as HomeLoaded;
-      expect(state.home.popularProducts.single.isFavourite, isTrue);
-    },
-  );
-
   group('warm start (cached data from a prior successful load)', () {
     setUp(() async {
       // Prime HomeBloc's static cache the same way a real first Home-tab

@@ -47,6 +47,11 @@ class ProductCard extends StatelessWidget {
   /// agnostic, same reasoning as [ProductCardMeta.icon].
   final Widget? trailingAction;
 
+  /// Optional overlay pinned to the image's top-right corner (e.g. a glass
+  /// favourite toggle) — caller-built for the same reason as
+  /// [trailingAction]. Omit to render the image with no overlay.
+  final Widget? favouriteAction;
+
   const ProductCard({
     super.key,
     required this.image,
@@ -64,6 +69,7 @@ class ProductCard extends StatelessWidget {
     this.onAction,
     this.onTap,
     this.trailingAction,
+    this.favouriteAction,
   });
 
   @override
@@ -80,7 +86,22 @@ class ProductCard extends StatelessWidget {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(shapes.cardRadius),
-            child: AspectRatio(aspectRatio: 1, child: image),
+            child: AspectRatio(
+              aspectRatio: 1,
+              child: favouriteAction == null
+                  ? image
+                  : Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        image,
+                        Positioned(
+                          top: AppSpacing.xs2,
+                          right: AppSpacing.xs2,
+                          child: favouriteAction!,
+                        ),
+                      ],
+                    ),
+            ),
           ),
           if (badgeLabel != null) ...[
             const SizedBox(height: AppSpacing.xs),

@@ -31,6 +31,6 @@ export async function GET(
     images: product.imageUrl ? [product.imageUrl] : [],
     description: product.description,
     size_options: [],
-    similar_products: similarProducts.map(serializeProduct),
+    similar_products: similarProducts.map((p) => serializeProduct(p)),
   });
 }

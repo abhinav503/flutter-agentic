@@ -12,6 +12,7 @@ import 'package:core/core/ui/molecules/error_view.dart';
 import 'package:gravia/constants/app_routes.dart';
 import 'package:gravia/constants/value_const.dart';
 import 'package:gravia/enums/recent_search_type.dart';
+import 'package:gravia/feature/favourites/presentation/cubit/favourites_cubit.dart';
 import 'package:gravia/widgets/gravia_sheet.dart';
 
 // Cross-feature reuse, not duplication — Search's "Popular Items" is the
@@ -203,7 +204,8 @@ class _SearchScreenState extends BaseScreenState<SearchScreen> {
         products: search.popularProducts,
         onAddToCart: _addToCart,
         onQuickAdd: _showAddToCartSheet,
-        onFavouriteToggle: (_) {},
+        onFavouriteToggle: (product) =>
+            context.read<FavouritesCubit>().toggle(product),
         onProductTap: _openProductDetails,
       ),
     ],

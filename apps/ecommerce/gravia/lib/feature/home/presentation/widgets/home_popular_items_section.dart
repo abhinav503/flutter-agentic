@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/blocks/section_header.dart';
 
 import 'package:gravia/constants/text_style_const.dart';
 import 'package:gravia/constants/value_const.dart';
+import 'package:gravia/feature/favourites/presentation/cubit/favourites_cubit.dart';
 import 'package:gravia/widgets/gravia_product_card.dart';
 
 import '../../domain/entities/product_entity.dart';
@@ -13,7 +15,7 @@ class HomePopularItemsSection extends StatelessWidget {
   final List<ProductEntity> products;
   final void Function(ProductEntity product, int quantity) onAddToCart;
   final ValueChanged<ProductEntity> onQuickAdd;
-  final ValueChanged<String> onFavouriteToggle;
+  final ValueChanged<ProductEntity> onFavouriteToggle;
   final ValueChanged<ProductEntity> onProductTap;
 
   const HomePopularItemsSection({
@@ -29,6 +31,7 @@ class HomePopularItemsSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
+    final favourites = context.watch<FavouritesCubit>().state.items;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -60,6 +63,8 @@ class HomePopularItemsSection extends StatelessWidget {
                   onAddToCart: () => onAddToCart(products[i], 1),
                   onQuickAdd: () => onQuickAdd(products[i]),
                   onTap: () => onProductTap(products[i]),
+                  isFavourite: favourites.any((p) => p.id == products[i].id),
+                  onFavouriteToggle: () => onFavouriteToggle(products[i]),
                 ),
               ],
             ],

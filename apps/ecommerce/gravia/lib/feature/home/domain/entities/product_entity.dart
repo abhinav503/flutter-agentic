@@ -29,17 +29,4 @@ class ProductEntity {
     required this.prepTime,
     required this.isFavourite,
   });
-
-  ProductEntity copyWith({bool? isFavourite}) => ProductEntity(
-    id: id,
-    name: name,
-    imageUrl: imageUrl,
-    price: price,
-    originalPrice: originalPrice,
-    discountPercentage: discountPercentage,
-    unitValue: unitValue,
-    unitType: unitType,
-    prepTime: prepTime,
-    isFavourite: isFavourite ?? this.isFavourite,
-  );
 }

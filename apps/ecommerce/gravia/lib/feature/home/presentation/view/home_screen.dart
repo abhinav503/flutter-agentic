@@ -13,6 +13,7 @@ import 'package:gravia/constants/app_routes.dart';
 import 'package:gravia/constants/value_const.dart';
 import 'package:gravia/feature/address/presentation/view/address_page.dart';
 import 'package:gravia/feature/cart/presentation/cubit/cart_cubit.dart';
+import 'package:gravia/feature/favourites/presentation/cubit/favourites_cubit.dart';
 import 'package:gravia/feature/shell/presentation/view/shell_page.dart';
 import 'package:gravia/widgets/gravia_sheet.dart';
 
@@ -116,9 +117,8 @@ class _HomeScreenState extends BaseScreenState<HomeScreen> {
               onLocationTap: _openSelectAddress,
               onAddToCart: _addToCart,
               onQuickAdd: _showAddToCartSheet,
-              onFavouriteToggle: (id) => context.read<HomeBloc>().add(
-                HomeEvent.favouriteToggled(productId: id),
-              ),
+              onFavouriteToggle: (product) =>
+                  context.read<FavouritesCubit>().toggle(product),
               onProductTap: _openProductDetails,
               onCategoryTap: _openCategoryDetails,
               onSeeAllCategories: () =>
@@ -139,7 +139,7 @@ class _HomeContent extends StatelessWidget {
   final VoidCallback onLocationTap;
   final void Function(ProductEntity product, int quantity) onAddToCart;
   final ValueChanged<ProductEntity> onQuickAdd;
-  final ValueChanged<String> onFavouriteToggle;
+  final ValueChanged<ProductEntity> onFavouriteToggle;
   final ValueChanged<ProductEntity> onProductTap;
   final VoidCallback onNotificationTap;
   final VoidCallback onSearchTap;

@@ -8,6 +8,7 @@ import 'package:core/core/ui/blocks/bottom_nav_bar.dart';
 import 'package:gravia/constants/value_const.dart';
 import 'package:gravia/di/injection_container.dart';
 import 'package:gravia/feature/cart/presentation/cubit/cart_cubit.dart';
+import 'package:gravia/feature/favourites/presentation/cubit/favourites_cubit.dart';
 import 'package:gravia/feature/shell/presentation/view/shell_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -31,14 +32,26 @@ void main() {
   // ShellPage renders blocks (AppBadge, ProductCard) that read theme
   // extensions the app always provides in production (see app.dart) — a
   // bare MaterialApp with no theme crashes on the extension's force-unwrap.
-  // CartCubit is likewise provided above the router in production; the
-  // shell's cart status bar reads it unconditionally.
+  // CartCubit and FavouritesCubit are likewise provided above the router in
+  // production; the shell's cart status bar and Home's product cards read
+  // them unconditionally, and ShellPage.initState hydrates both.
   Widget buildSubject({int initialTab = ShellPage.homeTabIndex}) =>
       MaterialApp(
         theme: AppTheme.fromConfig(AppThemeConfig.defaults),
-        home: BlocProvider(
-          create: (_) =>
-              CartCubit(getCartUseCase: sl(), saveCartUseCase: sl()),
+        home: MultiBlocProvider(
+          providers: [
+            BlocProvider(
+              create: (_) =>
+                  CartCubit(getCartUseCase: sl(), saveCartUseCase: sl()),
+            ),
+            BlocProvider(
+              create: (_) => FavouritesCubit(
+                getFavouritesUseCase: sl(),
+                addFavouriteUseCase: sl(),
+                removeFavouriteUseCase: sl(),
+              ),
+            ),
+          ],
           child: ShellPage(initialTab: initialTab),
         ),
       );

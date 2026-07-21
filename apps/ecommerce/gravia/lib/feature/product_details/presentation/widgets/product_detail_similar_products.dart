@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/blocks/section_header.dart';
 
 import 'package:gravia/constants/text_style_const.dart';
 import 'package:gravia/constants/value_const.dart';
+import 'package:gravia/feature/favourites/presentation/cubit/favourites_cubit.dart';
 import 'package:gravia/widgets/gravia_product_card.dart';
 
 import '../../../home/domain/entities/product_entity.dart';
@@ -29,6 +31,7 @@ class ProductDetailSimilarProducts extends StatelessWidget {
 
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
+    final favourites = context.watch<FavouritesCubit>().state.items;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -59,6 +62,10 @@ class ProductDetailSimilarProducts extends StatelessWidget {
                   onAddToCart: () => onAddToCart(products[i], 1),
                   onQuickAdd: () => onQuickAdd(products[i]),
                   onTap: () => onProductTap(products[i]),
+                  isFavourite: favourites.any((p) => p.id == products[i].id),
+                  onFavouriteToggle: () => context
+                      .read<FavouritesCubit>()
+                      .toggle(products[i]),
                 ),
               ],
             ],

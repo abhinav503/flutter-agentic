@@ -10,5 +10,5 @@ export async function GET(
 ) {
   const { storeId } = await params;
   const products = await getPopularProducts(storeId);
-  return NextResponse.json({ popular_products: products.map(serializeProduct) });
+  return NextResponse.json({ popular_products: products.map((p) => serializeProduct(p)) });
 }

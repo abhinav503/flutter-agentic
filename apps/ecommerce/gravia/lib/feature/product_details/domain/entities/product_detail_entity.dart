@@ -21,14 +21,4 @@ class ProductDetailEntity {
     required this.sizeOptions,
     required this.similarProducts,
   });
-
-  ProductDetailEntity copyWith({bool? isFavourite}) => ProductDetailEntity(
-    product: isFavourite == null
-        ? product
-        : product.copyWith(isFavourite: isFavourite),
-    images: images,
-    description: description,
-    sizeOptions: sizeOptions,
-    similarProducts: similarProducts,
-  );
 }

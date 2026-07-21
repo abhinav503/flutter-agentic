@@ -10,5 +10,5 @@ export async function GET(
 ) {
   const { storeId, categoryId } = await params;
   const products = await getProductsByCategory(storeId, categoryId);
-  return NextResponse.json({ products: products.map(serializeProduct) });
+  return NextResponse.json({ products: products.map((p) => serializeProduct(p)) });
 }

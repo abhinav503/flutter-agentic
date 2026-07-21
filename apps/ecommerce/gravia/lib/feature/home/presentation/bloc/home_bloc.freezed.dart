@@ -55,12 +55,11 @@ extension HomeEventPatterns on HomeEvent {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( HomeStarted value)?  started,TResult Function( HomeFavouriteToggled value)?  favouriteToggled,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( HomeStarted value)?  started,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case HomeStarted() when started != null:
-return started(_that);case HomeFavouriteToggled() when favouriteToggled != null:
-return favouriteToggled(_that);case _:
+return started(_that);case _:
   return orElse();
 
 }
@@ -78,12 +77,11 @@ return favouriteToggled(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( HomeStarted value)  started,required TResult Function( HomeFavouriteToggled value)  favouriteToggled,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( HomeStarted value)  started,}){
 final _that = this;
 switch (_that) {
 case HomeStarted():
-return started(_that);case HomeFavouriteToggled():
-return favouriteToggled(_that);}
+return started(_that);}
 }
 /// A variant of `map` that fallback to returning `null`.
 ///
@@ -97,12 +95,11 @@ return favouriteToggled(_that);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( HomeStarted value)?  started,TResult? Function( HomeFavouriteToggled value)?  favouriteToggled,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( HomeStarted value)?  started,}){
 final _that = this;
 switch (_that) {
 case HomeStarted() when started != null:
-return started(_that);case HomeFavouriteToggled() when favouriteToggled != null:
-return favouriteToggled(_that);case _:
+return started(_that);case _:
   return null;
 
 }
@@ -119,11 +116,10 @@ return favouriteToggled(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  started,TResult Function( String productId)?  favouriteToggled,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  started,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case HomeStarted() when started != null:
-return started();case HomeFavouriteToggled() when favouriteToggled != null:
-return favouriteToggled(_that.productId);case _:
+return started();case _:
   return orElse();
 
 }
@@ -141,11 +137,10 @@ return favouriteToggled(_that.productId);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  started,required TResult Function( String productId)  favouriteToggled,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  started,}) {final _that = this;
 switch (_that) {
 case HomeStarted():
-return started();case HomeFavouriteToggled():
-return favouriteToggled(_that.productId);}
+return started();}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -159,11 +154,10 @@ return favouriteToggled(_that.productId);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  started,TResult? Function( String productId)?  favouriteToggled,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  started,}) {final _that = this;
 switch (_that) {
 case HomeStarted() when started != null:
-return started();case HomeFavouriteToggled() when favouriteToggled != null:
-return favouriteToggled(_that.productId);case _:
+return started();case _:
   return null;
 
 }
@@ -202,72 +196,6 @@ String toString() {
 
 
 
-
-/// @nodoc
-
-
-class HomeFavouriteToggled implements HomeEvent {
-  const HomeFavouriteToggled({required this.productId});
-  
-
- final  String productId;
-
-/// Create a copy of HomeEvent
-/// with the given fields replaced by the non-null parameter values.
-@JsonKey(includeFromJson: false, includeToJson: false)
-@pragma('vm:prefer-inline')
-$HomeFavouriteToggledCopyWith<HomeFavouriteToggled> get copyWith => _$HomeFavouriteToggledCopyWithImpl<HomeFavouriteToggled>(this, _$identity);
-
-
-
-@override
-bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is HomeFavouriteToggled&&(identical(other.productId, productId) || other.productId == productId));
-}
-
-
-@override
-int get hashCode => Object.hash(runtimeType,productId);
-
-@override
-String toString() {
-  return 'HomeEvent.favouriteToggled(productId: $productId)';
-}
-
-
-}
-
-/// @nodoc
-abstract mixin class $HomeFavouriteToggledCopyWith<$Res> implements $HomeEventCopyWith<$Res> {
-  factory $HomeFavouriteToggledCopyWith(HomeFavouriteToggled value, $Res Function(HomeFavouriteToggled) _then) = _$HomeFavouriteToggledCopyWithImpl;
-@useResult
-$Res call({
- String productId
-});
-
-
-
-
-}
-/// @nodoc
-class _$HomeFavouriteToggledCopyWithImpl<$Res>
-    implements $HomeFavouriteToggledCopyWith<$Res> {
-  _$HomeFavouriteToggledCopyWithImpl(this._self, this._then);
-
-  final HomeFavouriteToggled _self;
-  final $Res Function(HomeFavouriteToggled) _then;
-
-/// Create a copy of HomeEvent
-/// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? productId = null,}) {
-  return _then(HomeFavouriteToggled(
-productId: null == productId ? _self.productId : productId // ignore: cast_nullable_to_non_nullable
-as String,
-  ));
-}
-
-
-}
 
 /// @nodoc
 mixin _$HomeState {

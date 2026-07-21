@@ -17,7 +17,6 @@ class ProductDetailsBloc
   }) : _getProductDetails = getProductDetailsUseCase,
        super(const ProductDetailsState.loading()) {
     on<ProductDetailsStarted>(_onStarted);
-    on<ProductDetailsFavouriteToggled>(_onFavouriteToggled);
   }
 
   Future<void> _onStarted(
@@ -38,21 +37,4 @@ class ProductDetailsBloc
     );
   }
 
-  void _onFavouriteToggled(
-    ProductDetailsFavouriteToggled event,
-    Emitter<ProductDetailsState> emit,
-  ) {
-    switch (state) {
-      case ProductDetailsLoaded(:final detail):
-        final isFavourite = !detail.product.isFavourite;
-        emit(
-          ProductDetailsState.loaded(
-            detail: detail.copyWith(isFavourite: isFavourite),
-          ),
-        );
-      case ProductDetailsLoading():
-      case ProductDetailsError():
-        break;
-    }
-  }
 }

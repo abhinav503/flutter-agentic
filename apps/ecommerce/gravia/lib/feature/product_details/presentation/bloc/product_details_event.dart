@@ -4,6 +4,4 @@ part of 'product_details_bloc.dart';
 sealed class ProductDetailsEvent with _$ProductDetailsEvent {
   const factory ProductDetailsEvent.started({required String productId}) =
       ProductDetailsStarted;
-  const factory ProductDetailsEvent.favouriteToggled() =
-      ProductDetailsFavouriteToggled;
 }

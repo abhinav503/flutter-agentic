@@ -20,6 +20,7 @@ import 'package:gravia/constants/value_const.dart';
 import 'package:gravia/feature/auth/presentation/bloc/auth_bloc.dart'
     show kPendingEmailVerificationPrefKey;
 import 'package:gravia/feature/cart/presentation/cubit/cart_cubit.dart';
+import 'package:gravia/feature/favourites/presentation/cubit/favourites_cubit.dart';
 import 'package:gravia/feature/shell/presentation/view/shell_page.dart';
 import 'package:gravia/services/firebase_auth_service.dart';
 import 'package:gravia/services/user_profile_cache_service.dart';
@@ -63,127 +64,134 @@ class _ProfileScreenState extends BaseScreenState<ProfileScreen> {
         listener: (context, state) {
           if (state case ProfileError(:final message)) showSnackBar(message);
         },
-        builder: (context, state) => switch (state) {
-          ProfileLoading() => Container(
-            color: cs.primary,
-            child: const SafeArea(child: Center(child: LoadingIndicator())),
-          ),
-          ProfileError() => SafeArea(
-            child: ErrorView(
-              message: ValueConst.profileLoadErrorMessage,
-              onRetry: () =>
-                  context.read<ProfileBloc>().add(const ProfileEvent.started()),
+        builder: (context, state) => AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          child: switch (state) {
+            ProfileLoading() => Container(
+              key: const ValueKey('loading'),
+              color: cs.primary,
+              child: const SafeArea(child: Center(child: LoadingIndicator())),
             ),
-          ),
-          ProfileLoaded(:final profile) => CollapsingHeaderSheet(
-            initialHeaderHeight: 195,
-            header: ProfileHeroHeader(
-              profile: profile,
-              onEditTap: () => _openEditProfile(profile),
-            ),
-            body: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.lg,
-                vertical: AppSpacing.xl2,
-              ),
-              child: Column(
-                children: [
-                  ProfileMenuTile(
-                    iconBuilder: (color, size) => AppSvgImage.asset(
-                      ImageConst.lock,
-                      color: color,
-                      width: size,
-                      height: size,
-                    ),
-                    label: ValueConst.changePasswordLabel,
-                    onTap: () => context.push(AppRoutes.changePassword),
-                  ),
-                  ProfileMenuTile(
-                    iconBuilder: (color, size) => AppSvgImage.asset(
-                      ImageConst.shoppingBag,
-                      color: color,
-                      width: size,
-                      height: size,
-                    ),
-                    label: ValueConst.myOrdersLabel,
-                    // Orders isn't a standalone route — it's a ShellPage tab
-                    // — so this jumps the shell there directly, same
-                    // mechanism as the Order Placed sheet's "Track Your
-                    // Order" (docs/ai-rules/design.md).
-                    onTap: () => context.go(
-                      AppRoutes.home,
-                      extra: ShellPage.ordersTabIndex,
-                    ),
-                  ),
-                  ProfileMenuTile(
-                    iconBuilder: (color, size) => AppSvgImage.asset(
-                      ImageConst.locationIcon,
-                      color: color,
-                      width: size,
-                      height: size,
-                    ),
-                    label: ValueConst.myAddressLabel,
-                    onTap: () => context.push(AppRoutes.selectAddress),
-                  ),
-                  ProfileMenuTile(
-                    iconBuilder: (color, size) => AppSvgImage.asset(
-                      ImageConst.eye,
-                      color: color,
-                      width: size,
-                      height: size,
-                    ),
-                    label: ValueConst.darkModeLabel,
-                    // Material's own Switch grows the thumb when selected
-                    // (M3 spec: active radius 12, inactive 8) with no public
-                    // way to equalize them — AppSwitch keeps one fixed thumb
-                    // size in both states instead, plus the exact kit-spec
-                    // track colours (Gray/100 off, Success/500 on).
-                    trailing: AppSwitch(
-                      value: Theme.of(context).brightness == Brightness.dark,
-                      onChanged: (isDark) => ThemeModeScope.of(
-                        context,
-                      ).setMode(isDark ? ThemeMode.dark : ThemeMode.light),
-                      activeTrackColor: ColorConst.success500,
-                      inactiveTrackColor: ColorConst.gray100,
-                    ),
-                  ),
-                  ProfileMenuTile(
-                    iconBuilder: (color, size) => AppSvgImage.asset(
-                      ImageConst.shieldCheck,
-                      color: color,
-                      width: size,
-                      height: size,
-                    ),
-                    label: ValueConst.privacyPolicyLabel,
-                    onTap: () => context.push(AppRoutes.privacyPolicy),
-                  ),
-                  ProfileMenuTile(
-                    iconBuilder: (color, size) => AppSvgImage.asset(
-                      ImageConst.notes,
-                      color: color,
-                      width: size,
-                      height: size,
-                    ),
-                    label: ValueConst.termsAndConditionsLabel,
-                    onTap: () => context.push(AppRoutes.termsAndConditions),
-                  ),
-                  ProfileMenuTile(
-                    iconBuilder: (color, size) => AppSvgImage.asset(
-                      ImageConst.logout,
-                      color: color,
-                      width: size,
-                      height: size,
-                    ),
-                    label: ValueConst.logoutLabel,
-                    danger: true,
-                    trailing: const SizedBox.shrink(),
-                    onTap: () => _signOut(context),
-                  ),
-                ],
+            ProfileError() => SafeArea(
+              key: const ValueKey('error'),
+              child: ErrorView(
+                message: ValueConst.profileLoadErrorMessage,
+                onRetry: () => context.read<ProfileBloc>().add(
+                  const ProfileEvent.started(),
+                ),
               ),
             ),
-          ),
-        },
+            ProfileLoaded(:final profile) => CollapsingHeaderSheet(
+              key: const ValueKey('loaded'),
+              initialHeaderHeight: 195,
+              header: ProfileHeroHeader(
+                profile: profile,
+                onEditTap: () => _openEditProfile(profile),
+              ),
+              body: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.lg,
+                  vertical: AppSpacing.xl2,
+                ),
+                child: Column(
+                  children: [
+                    ProfileMenuTile(
+                      iconBuilder: (color, size) => AppSvgImage.asset(
+                        ImageConst.lock,
+                        color: color,
+                        width: size,
+                        height: size,
+                      ),
+                      label: ValueConst.changePasswordLabel,
+                      onTap: () => context.push(AppRoutes.changePassword),
+                    ),
+                    ProfileMenuTile(
+                      iconBuilder: (color, size) => AppSvgImage.asset(
+                        ImageConst.shoppingBag,
+                        color: color,
+                        width: size,
+                        height: size,
+                      ),
+                      label: ValueConst.myOrdersLabel,
+                      // Orders isn't a standalone route — it's a ShellPage tab
+                      // — so this jumps the shell there directly, same
+                      // mechanism as the Order Placed sheet's "Track Your
+                      // Order" (docs/ai-rules/design.md).
+                      onTap: () => context.go(
+                        AppRoutes.home,
+                        extra: ShellPage.ordersTabIndex,
+                      ),
+                    ),
+                    ProfileMenuTile(
+                      iconBuilder: (color, size) => AppSvgImage.asset(
+                        ImageConst.locationIcon,
+                        color: color,
+                        width: size,
+                        height: size,
+                      ),
+                      label: ValueConst.myAddressLabel,
+                      onTap: () => context.push(AppRoutes.selectAddress),
+                    ),
+                    ProfileMenuTile(
+                      iconBuilder: (color, size) => AppSvgImage.asset(
+                        ImageConst.eye,
+                        color: color,
+                        width: size,
+                        height: size,
+                      ),
+                      label: ValueConst.darkModeLabel,
+                      // Material's own Switch grows the thumb when selected
+                      // (M3 spec: active radius 12, inactive 8) with no public
+                      // way to equalize them — AppSwitch keeps one fixed thumb
+                      // size in both states instead, plus the exact kit-spec
+                      // track colours (Gray/100 off, Success/500 on).
+                      trailing: AppSwitch(
+                        value: Theme.of(context).brightness == Brightness.dark,
+                        onChanged: (isDark) => ThemeModeScope.of(
+                          context,
+                        ).setMode(isDark ? ThemeMode.dark : ThemeMode.light),
+                        activeTrackColor: ColorConst.success500,
+                        inactiveTrackColor: ColorConst.gray100,
+                      ),
+                    ),
+                    ProfileMenuTile(
+                      iconBuilder: (color, size) => AppSvgImage.asset(
+                        ImageConst.shieldCheck,
+                        color: color,
+                        width: size,
+                        height: size,
+                      ),
+                      label: ValueConst.privacyPolicyLabel,
+                      onTap: () => context.push(AppRoutes.privacyPolicy),
+                    ),
+                    ProfileMenuTile(
+                      iconBuilder: (color, size) => AppSvgImage.asset(
+                        ImageConst.notes,
+                        color: color,
+                        width: size,
+                        height: size,
+                      ),
+                      label: ValueConst.termsAndConditionsLabel,
+                      onTap: () => context.push(AppRoutes.termsAndConditions),
+                    ),
+                    ProfileMenuTile(
+                      iconBuilder: (color, size) => AppSvgImage.asset(
+                        ImageConst.logout,
+                        color: color,
+                        width: size,
+                        height: size,
+                      ),
+                      label: ValueConst.logoutLabel,
+                      danger: true,
+                      trailing: const SizedBox.shrink(),
+                      onTap: () => _signOut(context),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          },
+        ),
       ),
     );
   }
@@ -200,6 +208,7 @@ class _ProfileScreenState extends BaseScreenState<ProfileScreen> {
     );
     if (context.mounted) {
       context.read<CartCubit>().reset();
+      context.read<FavouritesCubit>().reset();
       context.go(AppRoutes.login);
     }
   }

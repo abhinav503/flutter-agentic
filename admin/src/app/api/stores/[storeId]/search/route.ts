@@ -30,7 +30,7 @@ export async function GET(
     ]);
     return NextResponse.json({
       recent_searches: recents,
-      popular_products: popular.map(serializeProduct),
+      popular_products: popular.map((p) => serializeProduct(p)),
     });
   }
 
@@ -42,7 +42,7 @@ export async function GET(
   return NextResponse.json({
     products: allProducts
       .filter((p) => p.name.toLowerCase().includes(needle))
-      .map(serializeProduct),
+      .map((p) => serializeProduct(p)),
     categories: allCategories
       .filter((c) => c.name.toLowerCase().includes(needle))
       .map(serializeCategory),

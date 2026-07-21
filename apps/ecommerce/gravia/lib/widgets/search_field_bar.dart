@@ -97,17 +97,29 @@ class SearchFieldBar extends StatelessWidget {
             direction,
             fromHeroContext,
             toHeroContext,
-          ) => Material(
-            type: MaterialType.transparency,
-            child: ColoredBox(
-              color: cs.primary,
-              child: ExcludeFocus(
-                child: AbsorbPointer(
-                  child: _buildField(flightContext, interactive: false),
+          ) {
+            final shapes =
+                Theme.of(flightContext).extension<AppShapes>() ??
+                AppShapes.standard;
+            return Material(
+              type: MaterialType.transparency,
+              // Clipped to the same pill radius as the field itself — an
+              // unclipped ColoredBox is a hard rectangle, so its corners
+              // would peek out past the glass surface's rounded corners for
+              // the whole flight.
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(shapes.inputRadius),
+                child: ColoredBox(
+                  color: cs.primary,
+                  child: ExcludeFocus(
+                    child: AbsorbPointer(
+                      child: _buildField(flightContext, interactive: false),
+                    ),
+                  ),
                 ),
               ),
-            ),
-          ),
+            );
+          },
       child: Material(
         type: MaterialType.transparency,
         child: _buildField(context, interactive: true),
