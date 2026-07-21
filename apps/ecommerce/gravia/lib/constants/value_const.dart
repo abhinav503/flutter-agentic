@@ -99,6 +99,11 @@ abstract final class ValueConst {
       'Something went wrong loading your addresses.';
   static const addressSaveFailedMessage =
       'Could not save the address. Please try again.';
+  static const deleteAddressTitle = 'Delete Address';
+  static const deleteAddressConfirmMessage =
+      'Are you sure you want to delete this address? This action cannot be undone.';
+  static const addressDeleteFailedMessage =
+      'Could not delete the address. Please try again.';
   static const addressEmptyTitle = 'No saved addresses';
   static const addressEmptySubtitle =
       'Add your first delivery address to get started.';

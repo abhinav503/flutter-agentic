@@ -13,13 +13,13 @@ import '../../domain/entities/category_entity.dart';
 
 class HomeCategorySection extends StatelessWidget {
   final List<CategoryEntity> categories;
-  final VoidCallback onComingSoon;
+  final VoidCallback onSeeAllCategories;
   final ValueChanged<CategoryEntity> onCategoryTap;
 
   const HomeCategorySection({
     super.key,
     required this.categories,
-    required this.onComingSoon,
+    required this.onSeeAllCategories,
     required this.onCategoryTap,
   });
 
@@ -38,7 +38,7 @@ class HomeCategorySection extends StatelessWidget {
           child: SectionHeader(
             title: ValueConst.allCategoriesTitle,
             actionLabel: ValueConst.seeAll,
-            onAction: onComingSoon,
+            onAction: onSeeAllCategories,
             titleStyle: TextStyleConst.textLgBold(
               tt,
             ).copyWith(color: cs.onSurface),

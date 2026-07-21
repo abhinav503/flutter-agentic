@@ -7,6 +7,7 @@ import 'package:core/core/usecase/usecase.dart';
 
 import '../../domain/entities/address_entity.dart';
 import '../../domain/usecase/create_address_usecase.dart';
+import '../../domain/usecase/delete_address_usecase.dart';
 import '../../domain/usecase/get_addresses_usecase.dart';
 import '../../domain/usecase/update_address_usecase.dart';
 import '../view/address_page.dart' show kSelectedAddressIdPrefKey;
@@ -19,6 +20,7 @@ class AddressBloc extends Bloc<AddressEvent, AddressState> {
   final GetAddressesUseCase _getAddresses;
   final CreateAddressUseCase _createAddress;
   final UpdateAddressUseCase _updateAddress;
+  final DeleteAddressUseCase _deleteAddress;
 
   // Warm-start cache: reopening Select Address seeds straight into loaded
   // instead of the skeleton; started then refreshes silently. Only the
@@ -33,9 +35,11 @@ class AddressBloc extends Bloc<AddressEvent, AddressState> {
     required GetAddressesUseCase getAddressesUseCase,
     required CreateAddressUseCase createAddressUseCase,
     required UpdateAddressUseCase updateAddressUseCase,
+    required DeleteAddressUseCase deleteAddressUseCase,
   }) : _getAddresses = getAddressesUseCase,
        _createAddress = createAddressUseCase,
        _updateAddress = updateAddressUseCase,
+       _deleteAddress = deleteAddressUseCase,
        super(
          _cache.seed(
            warm: (addresses) => AddressState.loaded(
@@ -48,6 +52,7 @@ class AddressBloc extends Bloc<AddressEvent, AddressState> {
     on<AddressStarted>(_onStarted);
     on<AddressSelected>(_onSelected);
     on<AddressSaved>(_onSaved);
+    on<AddressDeleted>(_onDeleted);
   }
 
   /// The last-confirmed selection (prefs) when it still exists, else the
@@ -145,6 +150,52 @@ class AddressBloc extends Bloc<AddressEvent, AddressState> {
                   AddressState.loaded(
                     addresses: updated,
                     selectedAddressId: isNew ? saved.id : selectedAddressId,
+                  ),
+                );
+              },
+            );
+          case AddressLoading():
+          case AddressError():
+            break;
+        }
+      case AddressLoading():
+      case AddressError():
+        break;
+    }
+  }
+
+  Future<void> _onDeleted(
+    AddressDeleted event,
+    Emitter<AddressState> emit,
+  ) async {
+    switch (state) {
+      case AddressLoaded():
+        final result = await _deleteAddress(event.addressId);
+        // Re-read state after the await — a selection tap or another save
+        // may have landed while the delete was in flight.
+        switch (state) {
+          case AddressLoaded(:final addresses, :final selectedAddressId):
+            result.fold(
+              (_) => emit(
+                AddressState.loaded(
+                  addresses: addresses,
+                  selectedAddressId: selectedAddressId,
+                  deleteFailed: true,
+                ),
+              ),
+              (remaining) {
+                // Trust the server's list — it re-derives the default if
+                // the deleted address held it, so a local filter of the
+                // pre-delete list could disagree with the new default.
+                _cache.save(remaining);
+                emit(
+                  AddressState.loaded(
+                    addresses: remaining,
+                    selectedAddressId: remaining.any(
+                          (a) => a.id == selectedAddressId,
+                        )
+                        ? selectedAddressId
+                        : _resolveSelectedId(remaining),
                   ),
                 );
               },

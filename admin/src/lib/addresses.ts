@@ -71,3 +71,30 @@ export async function updateAddress(
   );
   return { id, ...data };
 }
+
+// Returns null for an unknown id (caller 404s), otherwise the addresses
+// remaining after the delete — same "return the synced list" shape as
+// recent-searches' DELETE, so the client never has to refetch.
+export async function deleteAddress(
+  uid: string,
+  id: string,
+): Promise<Address[] | null> {
+  const ref = addressesRef(uid).doc(id);
+  const snap = await ref.get();
+  if (!snap.exists) return null;
+
+  const wasDefault = (snap.data() as Omit<Address, "id">).isDefault;
+  await ref.delete();
+
+  // createAddress makes the shopper's first address their default — keep
+  // that "always one default while any address exists" invariant when the
+  // default itself is the one being deleted.
+  if (wasDefault) {
+    const next = await addressesRef(uid).orderBy("createdAt").limit(1).get();
+    if (!next.empty) {
+      await next.docs[0].ref.set({ isDefault: true }, { merge: true });
+    }
+  }
+
+  return getAddresses(uid);
+}

@@ -15,7 +15,6 @@ class HomePopularItemsSection extends StatelessWidget {
   final ValueChanged<ProductEntity> onQuickAdd;
   final ValueChanged<String> onFavouriteToggle;
   final ValueChanged<ProductEntity> onProductTap;
-  final VoidCallback onComingSoon;
 
   const HomePopularItemsSection({
     super.key,
@@ -24,7 +23,6 @@ class HomePopularItemsSection extends StatelessWidget {
     required this.onQuickAdd,
     required this.onFavouriteToggle,
     required this.onProductTap,
-    required this.onComingSoon,
   });
 
   @override
@@ -39,14 +37,9 @@ class HomePopularItemsSection extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
           child: SectionHeader(
             title: ValueConst.popularItemsTitle,
-            actionLabel: ValueConst.seeAll,
-            onAction: onComingSoon,
             titleStyle: TextStyleConst.textLgBold(
               tt,
             ).copyWith(color: cs.onSurface),
-            actionStyle: TextStyleConst.textSmRegular(
-              tt,
-            ).copyWith(color: cs.primary),
           ),
         ),
         const SizedBox(height: AppSpacing.base),

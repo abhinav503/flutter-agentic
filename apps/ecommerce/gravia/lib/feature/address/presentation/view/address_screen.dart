@@ -21,6 +21,7 @@ import 'package:gravia/constants/value_const.dart';
 import 'package:gravia/widgets/gravia_docked_bar.dart';
 import 'package:gravia/widgets/gravia_hero_header.dart';
 import 'package:gravia/widgets/gravia_primary_button.dart';
+import 'package:gravia/widgets/gravia_sheet.dart';
 
 import '../../domain/entities/address_entity.dart';
 import '../bloc/address_bloc.dart';
@@ -66,6 +67,12 @@ class _AddressScreenState extends BaseScreenState<AddressScreen> {
     context.read<AddressBloc>().add(AddressEvent.saved(address: result));
   }
 
+  void _confirmDelete(AddressEntity address) => showGraviaDeleteAddressSheet(
+    onConfirm: () => context.read<AddressBloc>().add(
+      AddressEvent.deleted(addressId: address.id),
+    ),
+  );
+
   @override
   Widget body(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
@@ -79,6 +86,9 @@ class _AddressScreenState extends BaseScreenState<AddressScreen> {
           if (state case AddressError(:final message)) showSnackBar(message);
           if (state case AddressLoaded(saveFailed: true)) {
             showSnackBar(ValueConst.addressSaveFailedMessage);
+          }
+          if (state case AddressLoaded(deleteFailed: true)) {
+            showSnackBar(ValueConst.addressDeleteFailedMessage);
           }
         },
         builder: (context, state) => switch (state) {
@@ -169,8 +179,6 @@ class _AddressScreenState extends BaseScreenState<AddressScreen> {
     void selectAddress(String id) =>
         context.read<AddressBloc>().add(AddressEvent.selected(addressId: id));
 
-    void showComingSoon() => showSnackBar(ValueConst.comingSoonMessage);
-
     return Column(
       children: [
         Expanded(
@@ -200,7 +208,7 @@ class _AddressScreenState extends BaseScreenState<AddressScreen> {
                     selected: defaultAddress.id == selectedAddressId,
                     onSelect: () => selectAddress(defaultAddress.id),
                     onEdit: () => _openAddressForm(defaultAddress),
-                    onDelete: showComingSoon,
+                    onDelete: () => _confirmDelete(defaultAddress),
                   ),
                   if (otherAddresses.isNotEmpty) ...[
                     const SizedBox(height: AppSpacing.xl4),
@@ -216,7 +224,7 @@ class _AddressScreenState extends BaseScreenState<AddressScreen> {
                         selected: otherAddresses[i].id == selectedAddressId,
                         onSelect: () => selectAddress(otherAddresses[i].id),
                         onEdit: () => _openAddressForm(otherAddresses[i]),
-                        onDelete: showComingSoon,
+                        onDelete: () => _confirmDelete(otherAddresses[i]),
                       ),
                     ],
                   ],

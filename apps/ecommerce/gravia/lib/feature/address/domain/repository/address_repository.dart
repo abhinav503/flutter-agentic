@@ -11,4 +11,7 @@ abstract interface class AddressRepository {
   /// returned entity, not the one they submitted.
   Future<Either<Failure, AddressEntity>> createAddress(AddressEntity address);
   Future<Either<Failure, AddressEntity>> updateAddress(AddressEntity address);
+
+  /// Resolves to the addresses remaining after the delete.
+  Future<Either<Failure, List<AddressEntity>>> deleteAddress(String addressId);
 }

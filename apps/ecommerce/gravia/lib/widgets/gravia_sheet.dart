@@ -5,6 +5,7 @@ import 'package:core/core/base/base_screen.dart';
 import 'package:gravia/constants/color_const.dart';
 import 'package:gravia/constants/text_style_const.dart';
 import 'package:gravia/constants/value_const.dart';
+import 'package:gravia/feature/address/presentation/widgets/delete_address_sheet_content.dart';
 import 'package:gravia/feature/auth/presentation/widgets/verify_email_sheet_content.dart';
 import 'package:gravia/feature/home/domain/entities/product_entity.dart';
 
@@ -72,6 +73,15 @@ extension GraviaSheetX<T extends BaseScreen> on BaseScreenState<T> {
       onAddToCart: (quantity) => onAddToCart(product, quantity),
     ),
   );
+
+  /// The delete-confirmation sheet opened from [AddressCard]'s Delete
+  /// action. [onConfirm] dispatches the actual delete — the sheet itself
+  /// only gates the tap, it never touches the bloc.
+  Future<void> showGraviaDeleteAddressSheet({required VoidCallback onConfirm}) =>
+      showGraviaSheet(
+        title: ValueConst.deleteAddressTitle,
+        child: DeleteAddressSheetContent(onConfirm: onConfirm),
+      );
 
   /// The checkout confirmation sheet — bypasses [showGraviaSheet] since
   /// [OrderPlacedSheetContent] has no title row or close control to render;

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { parseAddressInput, updateAddress } from "@/lib/addresses";
+import { deleteAddress, parseAddressInput, updateAddress } from "@/lib/addresses";
 import { requireAuthedUser, UnauthorizedError } from "@/lib/api/admin-guard";
 import { serializeAddress } from "@/lib/api/serializers";
 
@@ -38,4 +38,28 @@ export async function PUT(
     return NextResponse.json({ error: "Address not found" }, { status: 404 });
   }
   return NextResponse.json({ address: serializeAddress(address) });
+}
+
+// Returns the addresses remaining after the delete — same "sync from the
+// response" shape as recent-searches' DELETE.
+export async function DELETE(
+  request: Request,
+  { params }: { params: Promise<{ addressId: string }> },
+) {
+  let auth;
+  try {
+    auth = await requireAuthedUser(request);
+  } catch (e) {
+    if (e instanceof UnauthorizedError) {
+      return NextResponse.json({ error: e.message }, { status: 401 });
+    }
+    throw e;
+  }
+
+  const { addressId } = await params;
+  const addresses = await deleteAddress(auth.uid, addressId);
+  if (!addresses) {
+    return NextResponse.json({ error: "Address not found" }, { status: 404 });
+  }
+  return NextResponse.json({ addresses: addresses.map(serializeAddress) });
 }

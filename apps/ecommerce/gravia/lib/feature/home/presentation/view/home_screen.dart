@@ -13,6 +13,7 @@ import 'package:gravia/constants/app_routes.dart';
 import 'package:gravia/constants/value_const.dart';
 import 'package:gravia/feature/address/presentation/view/address_page.dart';
 import 'package:gravia/feature/cart/presentation/cubit/cart_cubit.dart';
+import 'package:gravia/feature/shell/presentation/view/shell_page.dart';
 import 'package:gravia/widgets/gravia_sheet.dart';
 
 import '../../domain/entities/category_entity.dart';
@@ -120,7 +121,8 @@ class _HomeScreenState extends BaseScreenState<HomeScreen> {
               ),
               onProductTap: _openProductDetails,
               onCategoryTap: _openCategoryDetails,
-              onComingSoon: () => showSnackBar(ValueConst.comingSoonMessage),
+              onSeeAllCategories: () =>
+                  context.go(AppRoutes.home, extra: ShellPage.categoriesTabIndex),
               onNotificationTap: () => context.push(AppRoutes.notifications),
               onSearchTap: () => context.push(AppRoutes.search),
             ),
@@ -139,10 +141,10 @@ class _HomeContent extends StatelessWidget {
   final ValueChanged<ProductEntity> onQuickAdd;
   final ValueChanged<String> onFavouriteToggle;
   final ValueChanged<ProductEntity> onProductTap;
-  final VoidCallback onComingSoon;
   final VoidCallback onNotificationTap;
   final VoidCallback onSearchTap;
   final ValueChanged<CategoryEntity> onCategoryTap;
+  final VoidCallback onSeeAllCategories;
 
   const _HomeContent({
     super.key,
@@ -153,10 +155,10 @@ class _HomeContent extends StatelessWidget {
     required this.onQuickAdd,
     required this.onFavouriteToggle,
     required this.onProductTap,
-    required this.onComingSoon,
     required this.onNotificationTap,
     required this.onSearchTap,
     required this.onCategoryTap,
+    required this.onSeeAllCategories,
   });
 
   @override
@@ -176,7 +178,7 @@ class _HomeContent extends StatelessWidget {
         children: [
           HomeCategorySection(
             categories: home.categories,
-            onComingSoon: onComingSoon,
+            onSeeAllCategories: onSeeAllCategories,
             onCategoryTap: onCategoryTap,
           ),
           const SizedBox(height: AppSpacing.xl4),
@@ -186,7 +188,6 @@ class _HomeContent extends StatelessWidget {
             onQuickAdd: onQuickAdd,
             onFavouriteToggle: onFavouriteToggle,
             onProductTap: onProductTap,
-            onComingSoon: onComingSoon,
           ),
         ],
       ),

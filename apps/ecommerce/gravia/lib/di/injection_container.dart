@@ -5,6 +5,7 @@ import '../feature/address/data/data_source/address_remote_data_source_impl.dart
 import '../feature/address/data/repository_impl/address_repository_impl.dart';
 import '../feature/address/domain/repository/address_repository.dart';
 import '../feature/address/domain/usecase/create_address_usecase.dart';
+import '../feature/address/domain/usecase/delete_address_usecase.dart';
 import '../feature/address/domain/usecase/get_addresses_usecase.dart';
 import '../feature/address/domain/usecase/update_address_usecase.dart';
 import '../feature/auth/data/data_source/auth_remote_data_source.dart';
@@ -156,6 +157,7 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton(() => GetAddressesUseCase(sl()));
   sl.registerLazySingleton(() => CreateAddressUseCase(sl()));
   sl.registerLazySingleton(() => UpdateAddressUseCase(sl()));
+  sl.registerLazySingleton(() => DeleteAddressUseCase(sl()));
 
   // ── Cart ─────────────────────────────────────────────────────────────────
   sl.registerLazySingleton<CartRemoteDataSource>(

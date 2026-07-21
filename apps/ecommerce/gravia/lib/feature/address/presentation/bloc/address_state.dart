@@ -10,6 +10,8 @@ sealed class AddressState with _$AddressState {
     // keeps its pre-save contents (saves aren't optimistic — nothing to
     // roll back); the next selection/save emit resets it via the default.
     @Default(false) bool saveFailed,
+    // Same one-shot pattern as [saveFailed], for a failed delete.
+    @Default(false) bool deleteFailed,
   }) = AddressLoaded;
   const factory AddressState.error({required String message}) = AddressError;
 }

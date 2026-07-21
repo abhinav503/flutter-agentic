@@ -13,8 +13,15 @@ class FakeAddressRepository implements AddressRepository {
     const Failure.unexpected(message: 'saveResult not set'),
   );
 
+  /// Set per test to override what [deleteAddress] resolves to (e.g. a
+  /// [Failure]). Left unset, it defaults to [result]'s list minus the
+  /// deleted id — mimicking the real API, which returns the addresses
+  /// remaining after the delete.
+  Either<Failure, List<AddressEntity>>? deleteResult;
+
   AddressEntity? lastCreated;
   AddressEntity? lastUpdated;
+  String? lastDeletedId;
 
   @override
   Future<Either<Failure, List<AddressEntity>>> getAddresses() async => result;
@@ -33,5 +40,16 @@ class FakeAddressRepository implements AddressRepository {
   ) async {
     lastUpdated = address;
     return saveResult;
+  }
+
+  @override
+  Future<Either<Failure, List<AddressEntity>>> deleteAddress(
+    String addressId,
+  ) async {
+    lastDeletedId = addressId;
+    return deleteResult ??
+        result.map(
+          (addresses) => addresses.where((a) => a.id != addressId).toList(),
+        );
   }
 }

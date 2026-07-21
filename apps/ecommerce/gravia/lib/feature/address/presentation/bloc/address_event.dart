@@ -12,4 +12,6 @@ sealed class AddressEvent with _$AddressEvent {
   /// to use it); a non-empty id is an edit (updated and replaced in place).
   const factory AddressEvent.saved({required AddressEntity address}) =
       AddressSaved;
+  const factory AddressEvent.deleted({required String addressId}) =
+      AddressDeleted;
 }

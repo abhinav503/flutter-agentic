@@ -205,7 +205,6 @@ class _SearchScreenState extends BaseScreenState<SearchScreen> {
         onQuickAdd: _showAddToCartSheet,
         onFavouriteToggle: (_) {},
         onProductTap: _openProductDetails,
-        onComingSoon: () => showSnackBar(ValueConst.comingSoonMessage),
       ),
     ],
   );

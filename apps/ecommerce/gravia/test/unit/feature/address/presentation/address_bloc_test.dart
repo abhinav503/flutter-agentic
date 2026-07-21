@@ -7,6 +7,7 @@ import 'package:core/core/error/failure.dart';
 import 'package:core/core/services/shared_pref_service/shared_preference_service.dart';
 import 'package:gravia/feature/address/domain/entities/address_entity.dart';
 import 'package:gravia/feature/address/domain/usecase/create_address_usecase.dart';
+import 'package:gravia/feature/address/domain/usecase/delete_address_usecase.dart';
 import 'package:gravia/feature/address/domain/usecase/get_addresses_usecase.dart';
 import 'package:gravia/feature/address/domain/usecase/update_address_usecase.dart';
 import 'package:gravia/feature/address/presentation/bloc/address_bloc.dart';
@@ -33,6 +34,7 @@ void main() {
     getAddressesUseCase: GetAddressesUseCase(repository),
     createAddressUseCase: CreateAddressUseCase(repository),
     updateAddressUseCase: UpdateAddressUseCase(repository),
+    deleteAddressUseCase: DeleteAddressUseCase(repository),
   );
 
   setUp(() async {
@@ -137,6 +139,62 @@ void main() {
     verify: (bloc) {
       final state = bloc.state as AddressLoaded;
       expect(state.saveFailed, isTrue);
+      expect(state.addresses.map((a) => a.id), ['a1']);
+    },
+  );
+
+  blocTest<AddressBloc, AddressState>(
+    'deleting a non-selected address removes it and keeps the selection',
+    setUp: () =>
+        repository.result = right([address('a1', isDefault: true), address('a2')]),
+    build: buildBloc,
+    act: (bloc) async {
+      bloc.add(const AddressEvent.started());
+      await Future<void>.delayed(Duration.zero);
+      bloc.add(const AddressEvent.deleted(addressId: 'a2'));
+    },
+    verify: (bloc) {
+      final state = bloc.state as AddressLoaded;
+      expect(repository.lastDeletedId, 'a2');
+      expect(state.addresses.map((a) => a.id), ['a1']);
+      expect(state.selectedAddressId, 'a1');
+    },
+  );
+
+  blocTest<AddressBloc, AddressState>(
+    'deleting the selected address re-resolves the selection',
+    setUp: () =>
+        repository.result = right([address('a1', isDefault: true), address('a2')]),
+    build: buildBloc,
+    act: (bloc) async {
+      bloc.add(const AddressEvent.started());
+      await Future<void>.delayed(Duration.zero);
+      bloc.add(const AddressEvent.selected(addressId: 'a2'));
+      bloc.add(const AddressEvent.deleted(addressId: 'a2'));
+    },
+    verify: (bloc) {
+      final state = bloc.state as AddressLoaded;
+      expect(state.addresses.map((a) => a.id), ['a1']);
+      expect(state.selectedAddressId, 'a1');
+    },
+  );
+
+  blocTest<AddressBloc, AddressState>(
+    'a failed delete keeps the list and raises deleteFailed',
+    setUp: () {
+      repository
+        ..result = right([address('a1', isDefault: true)])
+        ..deleteResult = left(const Failure.unexpected(message: 'boom'));
+    },
+    build: buildBloc,
+    act: (bloc) async {
+      bloc.add(const AddressEvent.started());
+      await Future<void>.delayed(Duration.zero);
+      bloc.add(const AddressEvent.deleted(addressId: 'a1'));
+    },
+    verify: (bloc) {
+      final state = bloc.state as AddressLoaded;
+      expect(state.deleteFailed, isTrue);
       expect(state.addresses.map((a) => a.id), ['a1']);
     },
   );

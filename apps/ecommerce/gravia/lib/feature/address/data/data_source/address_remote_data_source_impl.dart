@@ -26,10 +26,7 @@ class AddressRemoteDataSourceImpl implements AddressRemoteDataSource {
       ApiConstants.addressesPath,
       options: await _authOptions(),
     );
-    final list = response.data!['addresses'] as List<dynamic>;
-    return list
-        .map((json) => AddressModel.fromJson(json as Map<String, dynamic>))
-        .toList();
+    return _parseAddresses(response.data!);
   }
 
   @override
@@ -52,6 +49,18 @@ class AddressRemoteDataSourceImpl implements AddressRemoteDataSource {
     return _parseAddress(response.data!);
   }
 
+  // Returns the addresses remaining after the delete — the server re-derives
+  // the default if the deleted address held it, so the client syncs from
+  // this response rather than filtering its own copy of the list.
+  @override
+  Future<List<AddressModel>> deleteAddress(String addressId) async {
+    final response = await HttpService.instance.delete<Map<String, dynamic>>(
+      ApiConstants.addressPath(addressId),
+      options: await _authOptions(),
+    );
+    return _parseAddresses(response.data!);
+  }
+
   // The id travels in the URL (update) or is server-assigned (create) —
   // never in the body.
   Map<String, dynamic> _payload(AddressEntity address) =>
@@ -59,4 +68,9 @@ class AddressRemoteDataSourceImpl implements AddressRemoteDataSource {
 
   AddressModel _parseAddress(Map<String, dynamic> json) =>
       AddressModel.fromJson(json['address'] as Map<String, dynamic>);
+
+  List<AddressModel> _parseAddresses(Map<String, dynamic> json) =>
+      (json['addresses'] as List<dynamic>)
+          .map((a) => AddressModel.fromJson(a as Map<String, dynamic>))
+          .toList();
 }

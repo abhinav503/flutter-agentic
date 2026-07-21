@@ -36,6 +36,7 @@ class _AddressPageState extends BasePageState<AddressPage> {
       getAddressesUseCase: sl(),
       createAddressUseCase: sl(),
       updateAddressUseCase: sl(),
+      deleteAddressUseCase: sl(),
     )..add(const AddressEvent.started()),
     child: const AddressScreen(),
   );
