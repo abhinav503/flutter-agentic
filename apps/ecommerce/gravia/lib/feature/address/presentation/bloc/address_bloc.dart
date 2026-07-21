@@ -10,7 +10,8 @@ import '../../domain/usecase/create_address_usecase.dart';
 import '../../domain/usecase/delete_address_usecase.dart';
 import '../../domain/usecase/get_addresses_usecase.dart';
 import '../../domain/usecase/update_address_usecase.dart';
-import '../view/address_page.dart' show kSelectedAddressIdPrefKey;
+import '../view/address_page.dart'
+    show kSelectedAddressIdPrefKey, kSelectedAddressLabelPrefKey;
 
 part 'address_bloc.freezed.dart';
 part 'address_event.dart';
@@ -164,6 +165,31 @@ class AddressBloc extends Bloc<AddressEvent, AddressState> {
     }
   }
 
+  /// Writes (or clears, when the list is now empty) the confirmed-selection
+  /// prefs `HomeHeroHeader` reads directly — keeps them from going stale
+  /// once a delete forces the in-memory selection to move on its own.
+  Future<void> _persistSelection(
+    List<AddressEntity> addresses,
+    String selectedId,
+  ) async {
+    if (selectedId.isEmpty) {
+      await SharedPreferenceService.instance.remove(kSelectedAddressIdPrefKey);
+      await SharedPreferenceService.instance.remove(
+        kSelectedAddressLabelPrefKey,
+      );
+      return;
+    }
+    final selected = addresses.firstWhere((a) => a.id == selectedId);
+    await SharedPreferenceService.instance.setString(
+      kSelectedAddressIdPrefKey,
+      selected.id,
+    );
+    await SharedPreferenceService.instance.setString(
+      kSelectedAddressLabelPrefKey,
+      selected.displayLine,
+    );
+  }
+
   Future<void> _onDeleted(
     AddressDeleted event,
     Emitter<AddressState> emit,
@@ -188,14 +214,24 @@ class AddressBloc extends Bloc<AddressEvent, AddressState> {
                 // the deleted address held it, so a local filter of the
                 // pre-delete list could disagree with the new default.
                 _cache.save(remaining);
+                final stillSelected = remaining.any(
+                  (a) => a.id == selectedAddressId,
+                );
+                final newSelectedId = stillSelected
+                    ? selectedAddressId
+                    : _resolveSelectedId(remaining);
+                // The deleted address was the confirmed selection — persist
+                // the auto-picked replacement immediately (or clear it when
+                // none is left) rather than waiting for an explicit "Confirm"
+                // tap, so Home's header stops showing the deleted address the
+                // moment the user backs out of this screen.
+                if (!stillSelected) {
+                  _persistSelection(remaining, newSelectedId);
+                }
                 emit(
                   AddressState.loaded(
                     addresses: remaining,
-                    selectedAddressId: remaining.any(
-                          (a) => a.id == selectedAddressId,
-                        )
-                        ? selectedAddressId
-                        : _resolveSelectedId(remaining),
+                    selectedAddressId: newSelectedId,
                   ),
                 );
               },
