@@ -14,11 +14,11 @@ import 'package:gravia/constants/value_const.dart';
 import 'package:gravia/feature/cart/presentation/cubit/cart_cubit.dart';
 import 'package:gravia/widgets/gravia_hero_header.dart';
 import 'package:gravia/widgets/gravia_product_card.dart';
+import 'package:gravia/widgets/gravia_product_grid_skeleton.dart';
 import 'package:gravia/widgets/gravia_sheet.dart';
 
 import '../../../home/domain/entities/product_entity.dart';
 import '../cubit/favourites_cubit.dart';
-import '../widgets/favourites_skeleton_body.dart';
 
 /// The Favourite tab's content — same coloured-hero-header-over-
 /// `CollapsingHeaderSheet` composition as the other tab roots (Categories,
@@ -66,7 +66,7 @@ class _FavouritesScreenState extends BaseScreenState<FavouritesScreen> {
                 key: const ValueKey('loading'),
                 initialHeaderHeight: 130,
                 header: _header(),
-                body: const FavouritesSkeletonBody(),
+                body: const GraviaProductGridSkeleton(),
               )
             : CollapsingHeaderSheet(
                 key: const ValueKey('loaded'),

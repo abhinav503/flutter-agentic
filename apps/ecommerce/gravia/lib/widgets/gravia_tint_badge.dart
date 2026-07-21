@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
+import 'package:core/core/theme/app_colors_extension.dart';
 import 'package:core/core/ui/atoms/badge.dart';
 
-import 'package:gravia/constants/color_const.dart';
 import 'package:gravia/constants/text_style_const.dart';
 
 /// Gravia's tinted-primary info badge — mint-on-tinted-primary fill with the
@@ -27,8 +27,9 @@ class GraviaTintBadge extends StatelessWidget {
     return TextStyleConst.badgeLabel(tt).copyWith(color: cs.primary);
   }
 
-  static Color backgroundColor(BuildContext context) =>
-      Theme.of(context).colorScheme.tintedPrimaryFill;
+  static Color backgroundColor(BuildContext context) => Theme.of(
+    context,
+  ).extension<AppColorsExtension>()!.tintedPrimaryFill;
 
   @override
   Widget build(BuildContext context) => AppBadge(

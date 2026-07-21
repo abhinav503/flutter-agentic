@@ -2,20 +2,22 @@ import 'package:flutter/material.dart';
 
 import 'package:core/core/theme/app_colors_extension.dart';
 import 'package:core/core/theme/app_spacing.dart';
+import 'package:core/core/ui/blocks/hero_header.dart';
 
 import 'package:gravia/constants/image_const.dart';
 import 'package:gravia/constants/text_style_const.dart';
 
 import 'gravia_glass_icon_button.dart';
-import 'gravia_header_canvas.dart';
 
-/// Gravia's title hero header on the [GraviaHeaderCanvas] — the two title
-/// compositions every screen-top uses:
+/// Gravia's title styling on core's [HeroHeader] — the pack's specific
+/// leading control ([GraviaGlassIconButton]) and title text styles
+/// (`TextStyleConst.textLgBold`/`textXlBold`) baked in, so screens never
+/// re-supply them. The layout/centering/canvas mechanics (invisible spacer,
+/// `bottom` row, `HeaderCanvas` padding) live in core and are shared by any
+/// pack with a hero-header treatment.
 ///
 /// - default: glass back button + centered title (+ optional [trailing]
-///   glass action). With no [trailing], an invisible back-button-sized
-///   spacer keeps the title centered instead of drifting toward the button
-///   (Cart/Address shipped this trick hand-copied; it lives here now).
+///   glass action).
 /// - [GraviaHeroHeader.page]: left-aligned XL page title (+ optional
 ///   [trailing]) for tab roots that aren't pushed routes (Categories,
 ///   Profile) — no back button.
@@ -39,7 +41,7 @@ class GraviaHeroHeader extends StatelessWidget {
   /// Gap between the title row and [bottom].
   final double bottomGap;
 
-  /// Forwarded to [GraviaHeaderCanvas.bottomPadding].
+  /// Forwarded to [HeroHeader.canvasBottomPadding].
   final double canvasBottomPadding;
 
   final bool _pageTitle;
@@ -74,41 +76,27 @@ class GraviaHeroHeader extends StatelessWidget {
       context,
     ).extension<AppColorsExtension>()!.onOverlay;
 
-    final titleRow = Row(
-      children: [
-        if (!_pageTitle)
-          GraviaGlassIconButton(asset: ImageConst.arrowLeft, onTap: onBack),
-        Expanded(
-          child: Text(
-            title,
-            textAlign: _pageTitle ? TextAlign.start : TextAlign.center,
-            style:
-                (_pageTitle
-                        ? TextStyleConst.textXlBold(tt)
-                        : TextStyleConst.textLgBold(tt))
-                    .copyWith(color: onOverlay),
-          ),
-        ),
-        if (trailing != null)
-          trailing!
-        else if (!_pageTitle)
-          const SizedBox(width: GraviaGlassIconButton.containerSize),
-      ],
-    );
-
-    return GraviaHeaderCanvas(
-      bottomPadding: canvasBottomPadding,
-      child: bottom == null
-          ? titleRow
-          : Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                titleRow,
-                SizedBox(height: bottomGap),
-                bottom!,
-              ],
+    return _pageTitle
+        ? HeroHeader.page(
+            title: title,
+            titleStyle: TextStyleConst.textXlBold(tt).copyWith(color: onOverlay),
+            trailing: trailing,
+            bottom: bottom,
+            bottomGap: bottomGap,
+            canvasBottomPadding: canvasBottomPadding,
+          )
+        : HeroHeader(
+            title: title,
+            titleStyle: TextStyleConst.textLgBold(tt).copyWith(color: onOverlay),
+            leading: GraviaGlassIconButton(
+              asset: ImageConst.arrowLeft,
+              onTap: onBack,
             ),
-    );
+            leadingBalanceWidth: GraviaGlassIconButton.containerSize,
+            trailing: trailing,
+            bottom: bottom,
+            bottomGap: bottomGap,
+            canvasBottomPadding: canvasBottomPadding,
+          );
   }
 }

@@ -27,8 +27,7 @@ class HomeCategorySection extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final tileBackgroundColor = isDark ? ColorConst.gray950 : ColorConst.gray50;
+    final tileBackgroundColor = cs.iconCircleFill;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

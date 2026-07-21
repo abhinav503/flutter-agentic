@@ -1,4 +1,5 @@
 import 'package:core/core/base/base_page.dart';
+import 'package:core/core/theme/app_colors_extension.dart';
 import 'package:core/core/theme/app_shapes_extension.dart';
 import 'package:core/core/theme/theme_mode_scope.dart';
 import 'package:core/core/ui/atoms/svg_image.dart';
@@ -194,7 +195,7 @@ class _ShellPageState extends BasePageState<ShellPage> {
         if (themeMode != null)
           ThemeModeToggle(mode: themeMode.value, onTap: themeMode.cycle),
       ],
-      bottomBorderColor: Theme.of(context).colorScheme.dockedHairline,
+      bottomBorderColor: Theme.of(context).extension<AppColorsExtension>()!.dockedHairline,
       bottomBorderWidth: 0.5,
     );
   }
@@ -204,7 +205,7 @@ class _ShellPageState extends BasePageState<ShellPage> {
     items: _tabs,
     currentIndex: _currentTab,
     onTap: (index) => setState(() => _currentTab = index),
-    topBorderColor: Theme.of(context).colorScheme.dockedHairline,
+    topBorderColor: Theme.of(context).extension<AppColorsExtension>()!.dockedHairline,
     topBorderWidth: 0.5,
     // Gray/500 in both modes per kit spec — same value doesn't come from
     // the (mode-differing) onSurfaceVariant role, so it's an explicit

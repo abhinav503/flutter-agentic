@@ -7,7 +7,7 @@ import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/blocks/collapsing_header_sheet.dart';
 
 import 'package:gravia/constants/value_const.dart';
-import 'package:gravia/widgets/gravia_docked_bar.dart';
+import 'package:core/core/ui/blocks/docked_bar.dart';
 import 'package:gravia/widgets/gravia_dropdown_field.dart';
 import 'package:gravia/widgets/gravia_form_field.dart';
 import 'package:gravia/widgets/gravia_hero_header.dart';
@@ -260,7 +260,7 @@ class _AddressFormScreenState extends BaseScreenState<AddressFormScreen> {
               ),
             ),
           ),
-          GraviaDockedBar(
+          DockedBar(
             child: GraviaPrimaryButton(
               label: _isEditing
                   ? ValueConst.updateAddressButtonLabel

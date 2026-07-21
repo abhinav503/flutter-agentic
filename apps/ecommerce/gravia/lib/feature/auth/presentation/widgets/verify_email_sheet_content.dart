@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import 'package:core/core/theme/app_colors_extension.dart';
 import 'package:core/core/theme/app_radius.dart';
 import 'package:core/core/theme/app_shapes_extension.dart';
 import 'package:core/core/theme/app_spacing.dart';
@@ -92,7 +93,9 @@ class _VerifyEmailSheetContentState extends State<VerifyEmailSheetContent> {
                   height: 3,
                   margin: const EdgeInsets.only(bottom: AppSpacing.xl4),
                   decoration: BoxDecoration(
-                    color: cs.sheetHairline,
+                    color: Theme.of(
+                      context,
+                    ).extension<AppColorsExtension>()!.sheetHairline,
                     borderRadius: AppRadius.full,
                   ),
                 ),
@@ -112,7 +115,7 @@ class _VerifyEmailSheetContentState extends State<VerifyEmailSheetContent> {
                   style: TextStyleConst.textSmRegular(tt).copyWith(
                     // Asymmetric pick (not a single ColorScheme role): Gray/700
                     // in light, white in dark — same reasoning as
-                    // ColorScheme.dockedHairline/sheetHairline.
+                    // AppColorsExtension.dockedHairline/sheetHairline.
                     color: Theme.of(context).brightness == Brightness.dark
                         ? Colors.white
                         : ColorConst.gray700,

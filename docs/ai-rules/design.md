@@ -110,9 +110,9 @@ supplies the pack-specific metrics.
   and sheet scrolling as one unit. On-header controls are glass circles
   (`GraviaGlassIconButton` — real backdrop blur, not a flat translucent
   fill), never default AppBar icons. → `CollapsingHeaderSheet` — caller
-  supplies `header`/`body`; the header itself is built on `GraviaHeaderCanvas`
-  (the primary-coloured, status-bar-inset surface — keep `Center`/`Align` out
-  of what you put on it, see its doc). Most screens don't need their own
+  supplies `header`/`body`; the header itself is built on core's
+  `HeaderCanvas` (the primary-coloured, status-bar-inset surface — keep
+  `Center`/`Align` out of what you put on it, see its doc). Most screens don't need their own
   header *widget* at all — they call `GraviaHeroHeader` (back + centered
   title, optional `trailing` glass action, optional second `bottom` row) or
   `GraviaHeroHeader.page` (left-aligned XL title, no back — tab roots)
@@ -121,7 +121,7 @@ supplies the pack-specific metrics.
   header widget when it composes real extra content onto the canvas beyond
   a title row: `HomeHeroHeader` (location + notification + search field),
   `SearchHeroHeader` (back + live search field, Hero-morphed from Home's,
-  built directly on `GraviaHeaderCanvas` since it has no title row),
+  built directly on core's `HeaderCanvas` since it has no title row),
   `CategoryDetailsHeroHeader` (`GraviaHeroHeader` *plus* a second row — see
   the filter chip row bullet below), `ProfileHeroHeader`
   (`GraviaHeroHeader.page` *plus* an avatar/name/email identity row; the
@@ -223,7 +223,7 @@ supplies the pack-specific metrics.
   specific tab from a route pushed outside the shell.
 - **Docked bottom CTA.** Checkout-style primary actions dock at the bottom as
   one full-width large pill above the safe area — often paired with a
-  `QuantityStepper` beside it (`ProductDetailBottomBar`). → `GraviaDockedBar`
+  `QuantityStepper` beside it (`ProductDetailBottomBar`). → core's `DockedBar`
   (the surface + top-hairline + safe-area shell — same hairline treatment as
   the bottom nav bar, see rule 4 in §2, not a one-off shade) wrapping
   `GraviaPrimaryButton` (the pill CTA itself). A screen with nothing but the
@@ -411,11 +411,22 @@ the `/search` route in `apps/ecommerce/gravia/lib/app.dart`.
 **Blocks:** `package:core/core/ui/blocks/` is split by scope:
 - **Root** — cross-domain compositions any style pack can use as-is:
   `section_header.dart`, `quantity_stepper.dart`, `bottom_nav_bar.dart`,
-  `collapsing_header_sheet.dart`, `docked_bar_overlap.dart` (bottom-docked
-  bar whose rounded top corners float over content extending `overlap` px
-  underneath — a plain `Column` would show the scaffold background through
-  the corner cut-outs; see gravia's `CartStatusBar` in `ShellPage`),
-  `chunked_grid.dart` (`ChunkedGrid` — a fixed-column grid nested inside
+  `collapsing_header_sheet.dart`, `docked_bar.dart` (`DockedBar` — the docked
+  bottom CTA bar shell: surface colour, top hairline from
+  `AppColorsExtension.dockedHairline`, safe area, bar padding; promoted from
+  gravia's `GraviaDockedBar` once it had zero pack-specific styling left —
+  see gravia's `ProductDetailBottomBar`/`CartScreen`), `docked_bar_overlap.dart`
+  (bottom-docked bar whose rounded top corners float over content extending
+  `overlap` px underneath — a plain `Column` would show the scaffold
+  background through the corner cut-outs; see gravia's `CartStatusBar` in
+  `ShellPage`), `header_canvas.dart` + `hero_header.dart` (`HeaderCanvas` —
+  the primary-coloured, status-bar-inset canvas a hero header sits on;
+  `HeroHeader`/`HeroHeader.page` — the two title compositions, back-or-not,
+  centered-or-left, with an optional `bottom` row; both promoted from
+  gravia's `GraviaHeaderCanvas`/`GraviaHeroHeader` — a pack still wraps
+  `HeroHeader` in its own preset for pack-specific `leading` control and
+  title styles, see gravia's roster below), `chunked_grid.dart` (`ChunkedGrid`
+  — a fixed-column grid nested inside
   `CollapsingHeaderSheet`'s body, or any scrollable that isn't itself
   sliver-composed, laid out with manual `Row`/`Expanded` chunking rather than
   `GridView`; see `CategoryGroupSection`'s 4-column category grid and
@@ -481,11 +492,12 @@ re-style the underlying atom/block inline:
 | Need | Preset |
 |---|---|
 | Product card (any rail or grid) | `GraviaProductCard` — never raw `ProductCard` |
-| Coloured header canvas | `GraviaHeaderCanvas` (rich headers compose onto it; no `Center`/`Align` inside — see its doc) |
-| Back + centered-title header (± trailing action, ± second row) | `GraviaHeroHeader` |
+| Coloured header canvas | core's `HeaderCanvas` directly (rich headers — `HomeHeroHeader`, `SearchHeroHeader`, `LoginHeader`, `SignupHeader` — compose onto it; no `Center`/`Align` inside — see its doc). Structural now, no gravia-specific styling left, so screens import `package:core/core/ui/blocks/header_canvas.dart` directly rather than a gravia wrapper |
+| Back + centered-title header (± trailing action, ± second row) | `GraviaHeroHeader` — a thin preset over core's `HeroHeader`, baking in `GraviaGlassIconButton` as the leading control and the pack's title text styles |
 | Tab-root page-title header (left XL title, no back) | `GraviaHeroHeader.page` |
 | Glass header control (back/search/favourite/bell/filter) | `GraviaGlassIconButton` — never raw glass `AppIconButton`; pass `asset` for a kit SVG or `icon` for a Material fallback when no SVG exists yet (exactly one, never both) |
-| Docked bottom CTA bar shell | `GraviaDockedBar` (top hairline + safe area + bar padding) |
+| Docked bottom CTA bar shell | core's `DockedBar` directly (`package:core/core/ui/blocks/docked_bar.dart`) — structural now (top hairline + safe area + bar padding, hairline sourced from `AppColorsExtension.dockedHairline`), no gravia-specific styling left, so screens import it directly rather than a gravia wrapper |
+| Product grid loading skeleton (2-column) | `GraviaProductGridSkeleton` (`padding` param) — Favourites and Category Details render this, never a re-typed `ChunkedGrid`-of-`ShimmerBox` recipe |
 | Full-width primary CTA (in a docked bar) | `GraviaPrimaryButton` — never a re-typed `AppButton` recipe |
 | Tinted-error pill (destructive inline action, e.g. Delete/Cancel) | `GraviaTintedButton` — no `AppButton` variant renders a filled error-tinted pill; never fork the atom for this look |
 | Two half-width actions side by side (e.g. Cancel/Confirm, Edit/Delete) | `GraviaActionPair` — bakes in the shared `DimenConst.controlHeight` and `textSmMedium` label style across both buttons; renders a `GraviaTintedButton` for a `tintedError` action so a paired row never mixes styling recipes by hand |
@@ -498,7 +510,8 @@ re-style the underlying atom/block inline:
 | Form text field (any form) | `GraviaFormField` — never a re-typed `AppTextField` override recipe |
 | Profile avatar (any size) | `GraviaAvatarImage` — never re-branch `avatarBytes`/`avatarUrl` per call site |
 | Single-select option chip | `SelectorChip` |
-| Hairline colours | `ColorScheme.dockedHairline` / `ColorScheme.sheetHairline` (extensions in `color_const.dart`, like `tintedPrimaryFill`) — never re-derive the brightness ternary |
+| Hairline / tinted-fill colours | `AppColorsExtension.dockedHairline` / `.sheetHairline` / `.tintedPrimaryFill` (`Theme.of(context).extension<AppColorsExtension>()!...`) — real theme data set per-preset in `app_theme_presets.dart`, not a `ColorScheme` extension; never re-derive the brightness ternary. `ColorScheme.tintedErrorFill` (in `color_const.dart`) stays a gravia-local derived getter — single-caller, error-specific, not promoted |
+| Neutral icon-circle / tile fill (icon circles, category tiles) | `ColorScheme.iconCircleFill` (extension in `color_const.dart`) — Gray/50 light / Gray/950 dark; never re-derive the brightness ternary |
 
 **When the built-in widget has no override point for the spec at all,** stop
 trying to theme it and build a dedicated `core` atom instead. Reference case:
@@ -536,7 +549,7 @@ Get the shape right before touching a `TextStyle` or a colour.
    pack's "Signature compositions" list (§1) first — gravia's screens never
    use a default `AppBar`; they use `CollapsingHeaderSheet` with either
    `GraviaHeroHeader`/`GraviaHeroHeader.page` called inline or a
-   pack-specific header widget built on `GraviaHeaderCanvas` for a screen
+   pack-specific header widget built on core's `HeaderCanvas` for a screen
    that composes extra content onto it (`HomeHeroHeader`,
    `SearchHeroHeader`). Reach for a plain `AppBar` only when the pack's own
    catalog doesn't define a header pattern for this kind of screen.

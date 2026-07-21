@@ -3,14 +3,14 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:core/core/theme/app_colors_extension.dart';
 import 'package:core/core/theme/app_spacing.dart';
+import 'package:core/core/ui/blocks/header_canvas.dart';
 
 import 'package:gravia/constants/image_const.dart';
 import 'package:gravia/constants/text_style_const.dart';
 import 'package:gravia/constants/value_const.dart';
-import 'package:gravia/widgets/gravia_header_canvas.dart';
 
 /// Login screen's coloured header: the Gravia wordmark, title, and subtitle
-/// on [GraviaHeaderCanvas].
+/// on [HeaderCanvas].
 class LoginHeader extends StatelessWidget {
   const LoginHeader({super.key});
 
@@ -31,12 +31,12 @@ class LoginHeader extends StatelessWidget {
       letterSpacing: 1,
     );
 
-    return GraviaHeaderCanvas(
+    return HeaderCanvas(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          // No Center/Expanded here — GraviaHeaderCanvas's child gets loose
+          // No Center/Expanded here — HeaderCanvas's child gets loose
           // (unbounded) height inside CollapsingHeaderSheet's Stack, and an
           // alignment widget would expand to fill it, blowing the header up
           // to nearly the full screen (see the canvas's own doc).

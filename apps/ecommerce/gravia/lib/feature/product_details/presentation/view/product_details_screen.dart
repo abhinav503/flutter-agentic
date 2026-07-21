@@ -4,13 +4,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:core/core/base/base_screen.dart';
+import 'package:core/core/theme/app_colors_extension.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/blocks/collapsing_header_sheet.dart';
 import 'package:core/core/ui/blocks/ecommerce/product_meta_row.dart';
 import 'package:core/core/ui/molecules/error_view.dart';
 
 import 'package:gravia/constants/app_routes.dart';
-import 'package:gravia/constants/color_const.dart';
 import 'package:gravia/constants/image_const.dart';
 import 'package:gravia/constants/text_style_const.dart';
 import 'package:gravia/constants/value_const.dart';
@@ -115,10 +115,11 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen> {
     final favourites = context.watch<FavouritesCubit>().state.items;
     final isFavourite = favourites.any((p) => p.id == product.id);
     // Same divider colour as the bottom nav bar's top border (ShellPage uses
-    // cs.dockedHairline for both its top and bottom borders) — so the
-    // hairlines in this screen match the bar rather than the generic
-    // Gray/200 hairline.
-    final hairlineColor = cs.dockedHairline;
+    // AppColorsExtension.dockedHairline for both its top and bottom borders)
+    // — so the hairlines in this screen match the bar rather than the
+    // generic Gray/200 hairline.
+    final hairlineColor =
+        Theme.of(context).extension<AppColorsExtension>()!.dockedHairline;
 
     return Column(
       children: [

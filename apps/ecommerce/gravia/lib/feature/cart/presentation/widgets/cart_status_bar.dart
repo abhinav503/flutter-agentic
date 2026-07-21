@@ -42,15 +42,14 @@ class CartStatusBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final onOverlay = Theme.of(
       context,
     ).extension<AppColorsExtension>()!.onOverlay;
     final shapes =
         Theme.of(context).extension<AppShapes>() ?? AppShapes.standard;
-    // Same icon-circle convention as ProfileMenuTile — Gray/50 light /
-    // Gray/950 dark — not a primary-tinted circle invented for this bar.
-    final iconCircleColor = isDark ? ColorConst.gray950 : ColorConst.gray50;
+    // Same icon-circle convention as ProfileMenuTile — not a primary-tinted
+    // circle invented for this bar.
+    final iconCircleColor = cs.iconCircleFill;
 
     // No SafeArea here — unlike a docked bottom bar that IS the screen's
     // last widget, this sits above ShellPage's own BottomNavBar, which

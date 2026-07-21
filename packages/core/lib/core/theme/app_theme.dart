@@ -31,13 +31,15 @@ class AppTheme {
           )
         : ColorScheme.fromSeed(seedColor: config.lightSeed);
 
-    cs = _applyOverrides(cs, dark ? config.darkOverrides : config.lightOverrides);
+    final overrides = dark ? config.darkOverrides : config.lightOverrides;
+    cs = _applyOverrides(cs, overrides);
 
     return _build(
       cs,
       fontFamily: config.fontFamily,
       shapes: config.shapes,
       density: config.density,
+      colorOverrides: overrides,
     );
   }
 
@@ -181,8 +183,22 @@ class AppTheme {
     String? fontFamily,
     AppShapes shapes = AppShapes.standard,
     double density = 0,
+    Map<String, Color> colorOverrides = const {},
   }) {
     final isDark = cs.brightness == Brightness.dark;
+
+    // AppColorsExtension roles that are theme data (a kit specs exact
+    // swatches — see the gravia preset) but have sensible scheme-derived
+    // defaults for presets that don't set them. Keys share the namespace of
+    // the ColorScheme role overrides; unknown keys are ignored by
+    // _applyOverrides, so both readers can consume the same map.
+    final colors = (isDark ? AppColorsExtension.dark : AppColorsExtension.light)
+        .copyWith(
+      tintedPrimaryFill: colorOverrides['tintedPrimaryFill'] ??
+          cs.primary.withValues(alpha: isDark ? 0.20 : 0.10),
+      dockedHairline: colorOverrides['dockedHairline'] ?? cs.outlineVariant,
+      sheetHairline: colorOverrides['sheetHairline'] ?? cs.outlineVariant,
+    );
 
     // Every brand shape is derived from the config's radii, so raw Material
     // widgets (ElevatedButton, Chip, Card…) and our atoms — which read the same
@@ -213,7 +229,7 @@ class AppTheme {
       // success/warning colours via AppColorsExtension; brand radii via
       // AppShapes — atoms read both from Theme.of(context).extension<…>().
       extensions: [
-        isDark ? AppColorsExtension.dark : AppColorsExtension.light,
+        colors,
         shapes,
       ],
 

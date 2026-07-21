@@ -374,6 +374,10 @@ const Map<String, Map<String, dynamic>> kThemePresets = {
       'onSurfaceVariant': '#7B7B7B', // Gray/700
       'outline': '#ADADAD', // Gray/400
       'outlineVariant': '#DFDFDF', // Gray/200
+      // AppColorsExtension roles (consumed by AppTheme, not ColorScheme)
+      'tintedPrimaryFill': '#ECFDF6', // Primary/50 — selected/emphasis pill fill
+      'dockedHairline': '#A1A1A1', // Gray/500 — docked bar / nav top hairline
+      'sheetHairline': '#DFDFDF', // Gray/200 — sheet divider + drag handle
     },
     'dark': {
       'seed': '#027A60',
@@ -401,6 +405,10 @@ const Map<String, Map<String, dynamic>> kThemePresets = {
       'onSurfaceVariant': '#ADADAD', // Gray/400
       'outline': '#545454', // Gray/900
       'outlineVariant': '#363636', // Gray/950
+      // AppColorsExtension roles (consumed by AppTheme, not ColorScheme)
+      'tintedPrimaryFill': '#33027A60', // kit's "Primary 20%" — Primary/500 at 20% alpha
+      'dockedHairline': '#FFFFFF', // kit specs white so the divider reads on dark surface
+      'sheetHairline': '#3A3B3F', // Light/900 — kit's dark neutral
     },
   },
 

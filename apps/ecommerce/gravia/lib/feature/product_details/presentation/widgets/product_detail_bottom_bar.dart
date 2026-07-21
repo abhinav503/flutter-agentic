@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:core/core/theme/app_spacing.dart';
+import 'package:core/core/ui/blocks/docked_bar.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gravia/constants/app_routes.dart';
@@ -9,13 +10,11 @@ import 'package:gravia/constants/value_const.dart';
 import 'package:gravia/feature/cart/domain/entities/cart_item_entity.dart';
 import 'package:gravia/feature/cart/presentation/cubit/cart_cubit.dart';
 import 'package:gravia/feature/cart/presentation/widgets/cart_status_bar.dart';
-import 'package:gravia/widgets/gravia_docked_bar.dart';
 import 'package:gravia/widgets/gravia_primary_button.dart';
 import 'package:gravia/widgets/gravia_quantity_stepper.dart';
 
-/// [GraviaDockedBar] for Product Details: a quantity stepper next to the
-/// primary CTA whose label live-updates with the line total for the chosen
-/// quantity.
+/// [DockedBar] for Product Details: a quantity stepper next to the primary
+/// CTA whose label live-updates with the line total for the chosen quantity.
 class ProductDetailBottomBar extends StatelessWidget {
   final int quantity;
   final double unitPrice;
@@ -46,7 +45,7 @@ class ProductDetailBottomBar extends StatelessWidget {
                   onClear: () => context.read<CartCubit>().clear(),
                 ),
         ),
-        GraviaDockedBar(
+        DockedBar(
           child: Row(
             children: [
               GraviaQuantityStepper(

@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 
 import 'package:core/core/theme/app_spacing.dart';
+import 'package:core/core/ui/blocks/header_canvas.dart';
 
 import 'package:gravia/constants/color_const.dart';
 import 'package:gravia/constants/image_const.dart';
 import 'package:gravia/constants/text_style_const.dart';
 import 'package:gravia/constants/value_const.dart';
 import 'package:gravia/widgets/gravia_glass_icon_button.dart';
-import 'package:gravia/widgets/gravia_header_canvas.dart';
 import 'package:gravia/widgets/search_field_bar.dart';
 
-/// [GraviaHeaderCanvas] for Home: delivery location + notification bell,
+/// [HeaderCanvas] for Home: delivery location + notification bell,
 /// plus a white search field. The search field is a tap-to-navigate trigger
 /// here (see [SearchFieldBar]) — real typing happens on the pushed Search
 /// screen it Hero-morphs into.
@@ -50,7 +50,7 @@ class _HomeHeroHeaderState extends State<HomeHeroHeader> {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
 
-    return GraviaHeaderCanvas(
+    return HeaderCanvas(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,

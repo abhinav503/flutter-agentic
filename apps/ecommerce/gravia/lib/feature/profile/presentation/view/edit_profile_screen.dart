@@ -12,7 +12,7 @@ import 'package:core/core/ui/atoms/button.dart';
 import 'package:core/core/ui/blocks/collapsing_header_sheet.dart';
 
 import 'package:gravia/constants/value_const.dart';
-import 'package:gravia/widgets/gravia_docked_bar.dart';
+import 'package:core/core/ui/blocks/docked_bar.dart';
 import 'package:gravia/widgets/gravia_form_field.dart';
 import 'package:gravia/widgets/gravia_hero_header.dart';
 import 'package:gravia/widgets/gravia_primary_button.dart';
@@ -199,7 +199,7 @@ class _EditProfileScreenState extends BaseScreenState<EditProfileScreen>
                   ),
                 ),
               ),
-              GraviaDockedBar(
+              DockedBar(
                 child: GraviaPrimaryButton(
                   label: ValueConst.updateProfileButtonLabel,
                   state: isSaving

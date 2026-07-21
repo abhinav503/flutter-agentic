@@ -17,15 +17,15 @@ import 'package:gravia/enums/product_sort_option.dart';
 import 'package:gravia/feature/cart/domain/entities/cart_item_entity.dart';
 import 'package:gravia/feature/cart/presentation/cubit/cart_cubit.dart';
 import 'package:gravia/feature/cart/presentation/widgets/cart_status_bar.dart';
-import 'package:gravia/widgets/gravia_docked_bar.dart';
+import 'package:core/core/ui/blocks/docked_bar.dart';
 import 'package:gravia/widgets/gravia_product_card.dart';
+import 'package:gravia/widgets/gravia_product_grid_skeleton.dart';
 import 'package:gravia/widgets/gravia_sheet.dart';
 import 'package:gravia/widgets/radio_options_sheet_content.dart';
 
 import '../../../home/domain/entities/product_entity.dart';
 import '../bloc/category_details_bloc.dart';
 import '../widgets/category_details_hero_header.dart';
-import '../widgets/category_details_skeleton_body.dart';
 
 class CategoryDetailsScreen extends BaseScreen {
   final String categoryName;
@@ -80,7 +80,14 @@ class _CategoryDetailsScreenState
                 onSortTap: () {},
                 onPriceTap: () {},
               ),
-              body: const CategoryDetailsSkeletonBody(),
+              body: const GraviaProductGridSkeleton(
+                padding: EdgeInsets.only(
+                  left: AppSpacing.lg,
+                  right: AppSpacing.lg,
+                  top: AppSpacing.xl4,
+                  bottom: AppSpacing.xl14,
+                ),
+              ),
             ),
             CategoryDetailsError(
               :final message,
@@ -177,7 +184,7 @@ class _CategoryDetailsScreenState
             ),
           ),
         ),
-        GraviaDockedBar(
+        DockedBar(
           padding: const EdgeInsets.only(top: AppSpacing.sm),
           child: BlocBuilder<CartCubit, List<CartItemEntity>>(
             builder: (context, items) => items.isEmpty

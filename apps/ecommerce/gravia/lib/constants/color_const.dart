@@ -32,37 +32,32 @@ abstract final class ColorConst {
 /// [ColorScheme] role that isn't itself a `ColorScheme`/`AppColorsExtension`
 /// member — computed once here instead of re-deriving the same ternary at
 /// every call site.
+///
+/// `tintedPrimaryFill`/`dockedHairline`/`sheetHairline` used to live here as
+/// derived ternaries but are now real theme data on core's
+/// `AppColorsExtension` (set from this app's `gravia` preset in
+/// `app_theme_presets.dart`) — read them via
+/// `Theme.of(context).extension<AppColorsExtension>()!.dockedHairline` etc.,
+/// not from `ColorScheme`. `tintedErrorFill` stays here: it's a single-caller
+/// (Select Address's Delete pill), error-specific value, not a cross-cutting
+/// role other packs would need.
 extension GraviaColorSchemeX on ColorScheme {
-  /// Tinted-primary fill for selected/emphasis pill surfaces (product
-  /// badges, selector chips). Light mode uses the kit's pre-baked pastel
-  /// swatch (Primary/50); dark mode's spec calls this "Primary 20%" — the
-  /// actual brand colour at 20% opacity over the dark surface, not a
-  /// separate baked swatch — so it can't be expressed as a single static
-  /// `Color` the way [ColorConst.primary50] is.
-  Color get tintedPrimaryFill => brightness == Brightness.dark
-      ? primary.withValues(alpha: 0.2)
-      : ColorConst.primary50;
-
-  /// Same light-baked-swatch / dark-20%-alpha split as [tintedPrimaryFill],
-  /// for the Select Address screen's Delete pill: light mode uses the kit's
-  /// pre-baked pastel swatch (Error/50); dark mode's spec calls this
-  /// "Error/500 20%" — the actual error colour at 20% opacity, not a
-  /// separate baked swatch.
+  /// Same light-baked-swatch / dark-20%-alpha split as
+  /// `AppColorsExtension.tintedPrimaryFill`, for the Select Address screen's
+  /// Delete pill: light mode uses the kit's pre-baked pastel swatch
+  /// (Error/50); dark mode's spec calls this "Error/500 20%" — the actual
+  /// error colour at 20% opacity, not a separate baked swatch.
   Color get tintedErrorFill => brightness == Brightness.dark
       ? ColorConst.error500.withValues(alpha: 0.2)
       : ColorConst.error50;
 
-  /// Top hairline separating a docked bar (BottomNavBar, docked CTA bars,
-  /// AppTopBar's bottom border) from scrollable content: Gray/500 in light;
-  /// the kit's dark-mode spec calls for white rather than a darker gray, so
-  /// the divider still reads against the dark surface.
-  Color get dockedHairline =>
-      brightness == Brightness.dark ? Colors.white : ColorConst.gray500;
-
-  /// Hairline/handle shade for bottom sheets (divider + drag handle):
-  /// Gray/200 light, the kit's dark neutral "Light/900" ([ColorConst.gray900])
-  /// dark — neither `outlineVariant` nor `onSurfaceVariant` lands on the
-  /// kit's exact shade in both modes.
-  Color get sheetHairline =>
-      brightness == Brightness.dark ? ColorConst.gray900 : ColorConst.gray200;
+  /// Neutral icon-circle / tile fill — Gray/50 light, Gray/950 dark. The
+  /// kit's default "raised neutral surface" behind a glyph or thumbnail:
+  /// `ProfileMenuTile`'s icon circle (via `AppMenuTile.iconCircleColor`),
+  /// `CartStatusBar`'s cart icon circle, and `HomeCategorySection`/
+  /// `CategoryGroupSection`'s `CategoryTile` background all render this —
+  /// four copies of the same ternary had already drifted into their own
+  /// comments cross-referencing each other before this existed.
+  Color get iconCircleFill =>
+      brightness == Brightness.dark ? ColorConst.gray950 : ColorConst.gray50;
 }

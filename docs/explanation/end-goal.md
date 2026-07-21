@@ -187,11 +187,14 @@ Two themes: complete the monorepo migration (done, shipped in v1.2.0), and add t
 `doc_scanner`/`ai_chat` proved the architecture is reusable; `gravia` proves the **visual identity** is too — a style-pack selection system (`docs/ai-rules/design.md`) plus a real ecommerce app generated from it, and the first app to exercise the "free pack" (logo, splash, onboarding) as reusable skills rather than one-off code.
 
 - [x] Style-pack catalog + selection procedure (`docs/ai-rules/design.md`) — category/mood matching; `gravia` (ecommerce) profile with palette/shape/typography sampled from a real UI8 kit, not invented
-- [x] `core/ui/blocks/` — cross-domain compositions (`section_header`, `quantity_stepper`, `bottom_nav_bar`) and ecommerce-domain compositions (`product_card`, `category_tile`)
+- [x] `core/ui/blocks/` — cross-domain compositions (`section_header`, `quantity_stepper`, `bottom_nav_bar`, `collapsing_header_sheet`, `docked_bar_overlap`, `chunked_grid`) and ecommerce-domain compositions (`product_card`, `category_tile`, `product_meta_row`)
+- [x] `apps/design_gallery` — Widgetbook showcase rendering every core atom/molecule/block against every theme preset; a new `core/ui/` component ships with its gallery entry in the same commit (sole documented exception: `AppFileThumbnail`, which imports `dart:io`)
 - [x] `gravia` app logo, native splash screen, and onboarding flow — the "free pack" skills (`/add-app-logo`, `/add-splash-screen`, onboarding pattern) proven end-to-end on a real generated app, not just in isolation
 - [x] Nav shell pattern (`feature/shell/`) for bottom-nav tabbed apps, documented in `docs/reference/architecture.md`
-- [x] Product/ecommerce feature screens (home/product grid, categories, cart, product details, orders, address, profile, search) — all wired end-to-end (BLoC → screen → navigation) on `product_card`/`category_tile` and the rest of the `core/ui/blocks/` catalog
-- [ ] Real checkout flow — "Proceed to Checkout" on the Cart screen is still a `comingSoon` stub (same pattern as the cart's coupon-apply); no payment/order-confirmation screens exist yet
+- [x] Product/ecommerce feature screens (home/product grid, categories + category details, cart, product details, orders, address CRUD + selection, profile + edit/change-password, search + recent searches, favourites, notifications, legal) — all wired end-to-end (BLoC → screen → navigation) on the `core/ui/blocks/` catalog and the gravia preset roster (`lib/widgets/`), with warm-start `BlocCache` on frequently-revisited screens
+- [x] Full Firebase auth flow (`/connect-firebase` + `/add-firebase-auth` skills) — email/password signup/login, persistent email-verification sheet with 3s poll + resume-on-relaunch, forgot/reset password, Firestore profile dual-write behind a token-verifying API, local profile cache
+- [x] Checkout flow — Cart's "Proceed to Checkout" submits through `CheckoutBloc` and confirms via the chrome-free order-placed sheet; orders land in the Orders tab (with cancel)
+- [ ] Remaining `comingSoon` stubs — cart coupon-apply; Orders' Track Order / View Details / Write Review; Login's social buttons
 - [ ] A second style pack proven end-to-end — today only `gravia` has a real app behind it; `rocketWarm`/`oceanBreeze`/`forestWalk`/`dadJokes` are presets in the catalog without an exemplar app
 
 ---

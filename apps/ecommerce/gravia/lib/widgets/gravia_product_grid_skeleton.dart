@@ -6,10 +6,22 @@ import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/shimmer_box.dart';
 import 'package:core/core/ui/blocks/chunked_grid.dart';
 
-/// Mirrors the loaded [ChunkedGrid] of [GraviaProductCard]s — a 2-column
-/// grid of card-shaped placeholders.
-class CategoryDetailsSkeletonBody extends StatelessWidget {
-  const CategoryDetailsSkeletonBody({super.key});
+/// Skeleton silhouette of a 2-column [ChunkedGrid] of [GraviaProductCard]s —
+/// shared by every gravia screen whose loading state IS a product grid
+/// (Favourites, Category Details) so the recipe can't drift between them the
+/// way it already had before this existed (only the outer [padding] ever
+/// differed between the two copies).
+class GraviaProductGridSkeleton extends StatelessWidget {
+  static const EdgeInsets defaultPadding = EdgeInsets.all(AppSpacing.lg);
+
+  final EdgeInsets padding;
+  final int itemCount;
+
+  const GraviaProductGridSkeleton({
+    super.key,
+    this.padding = defaultPadding,
+    this.itemCount = 6,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -17,14 +29,9 @@ class CategoryDetailsSkeletonBody extends StatelessWidget {
       Theme.of(context).extension<AppShapes>()?.cardRadius ?? AppRadius.xlValue,
     );
     return Padding(
-      padding: const EdgeInsets.only(
-        left: AppSpacing.lg,
-        right: AppSpacing.lg,
-        top: AppSpacing.xl4,
-        bottom: AppSpacing.xl14,
-      ),
+      padding: padding,
       child: ChunkedGrid(
-        itemCount: 6,
+        itemCount: itemCount,
         columns: 2,
         spacing: AppSpacing.lg,
         runSpacing: AppSpacing.lg,

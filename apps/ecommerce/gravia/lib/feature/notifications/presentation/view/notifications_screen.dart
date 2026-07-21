@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:core/core/base/base_screen.dart';
+import 'package:core/core/theme/app_colors_extension.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/loading_indicator.dart';
 import 'package:core/core/ui/blocks/collapsing_header_sheet.dart';
@@ -11,7 +12,6 @@ import 'package:core/core/ui/blocks/section_header.dart';
 import 'package:core/core/ui/molecules/empty_state.dart';
 import 'package:core/core/ui/molecules/error_view.dart';
 
-import 'package:gravia/constants/color_const.dart';
 import 'package:gravia/constants/text_style_const.dart';
 import 'package:gravia/constants/value_const.dart';
 import 'package:gravia/widgets/gravia_hero_header.dart';
@@ -77,6 +77,8 @@ class _NotificationsScreenState extends BaseScreenState<NotificationsScreen> {
   ) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
+    final sheetHairline =
+        Theme.of(context).extension<AppColorsExtension>()!.sheetHairline;
 
     return Column(
       children: [
@@ -119,7 +121,7 @@ class _NotificationsScreenState extends BaseScreenState<NotificationsScreen> {
                           ) ...[
                             if (i > 0) ...[
                               const SizedBox(height: AppSpacing.base),
-                              Divider(color: cs.sheetHairline, height: 1),
+                              Divider(color: sheetHairline, height: 1),
                               const SizedBox(height: AppSpacing.base),
                             ],
                             NotificationRow(

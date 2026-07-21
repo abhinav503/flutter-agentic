@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:core/core/theme/app_colors_extension.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/svg_image.dart';
 
@@ -31,7 +32,7 @@ class NotificationRow extends StatelessWidget {
           width: _iconCircleSize,
           height: _iconCircleSize,
           decoration: BoxDecoration(
-            color: cs.tintedPrimaryFill,
+            color: Theme.of(context).extension<AppColorsExtension>()!.tintedPrimaryFill,
             shape: BoxShape.circle,
           ),
           alignment: Alignment.center,

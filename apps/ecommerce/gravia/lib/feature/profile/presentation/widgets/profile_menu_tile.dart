@@ -33,7 +33,6 @@ class ProfileMenuTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return AppMenuTile(
       iconBuilder: iconBuilder,
@@ -43,7 +42,7 @@ class ProfileMenuTile extends StatelessWidget {
       danger: danger,
       iconCircleColor: danger
           ? null // keep AppMenuTile's themed error tint
-          : (isDark ? ColorConst.gray950 : ColorConst.gray50),
+          : cs.iconCircleFill,
       labelStyle: TextStyleConst.textMdMedium(
         tt,
       ).copyWith(color: danger ? cs.error : cs.onSurface),

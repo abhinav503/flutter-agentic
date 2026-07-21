@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
+import 'package:core/core/theme/app_colors_extension.dart';
 import 'package:core/core/theme/app_radius.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/shimmer_box.dart';
 
-import 'package:gravia/constants/color_const.dart';
 import 'package:gravia/constants/dimen_const.dart';
 
 /// Mirrors [OrderCard]'s silhouette — two line-item rows (thumbnail + text +
@@ -15,7 +15,8 @@ class OrdersSkeletonBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+    final sheetHairline =
+        Theme.of(context).extension<AppColorsExtension>()!.sheetHairline;
 
     return Padding(
       padding: const EdgeInsets.symmetric(
@@ -26,14 +27,14 @@ class OrdersSkeletonBody extends StatelessWidget {
         children: [
           for (var i = 0; i < 2; i++) ...[
             if (i > 0) const SizedBox(height: AppSpacing.xl2),
-            _orderCardSkeleton(cs),
+            _orderCardSkeleton(sheetHairline),
           ],
         ],
       ),
     );
   }
 
-  Widget _orderCardSkeleton(ColorScheme cs) => Column(
+  Widget _orderCardSkeleton(Color sheetHairline) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
       for (var i = 0; i < 2; i++) ...[
@@ -41,7 +42,7 @@ class OrdersSkeletonBody extends StatelessWidget {
         _lineItemSkeleton(),
       ],
       const SizedBox(height: AppSpacing.base),
-      Divider(color: cs.sheetHairline, height: 1),
+      Divider(color: sheetHairline, height: 1),
       const SizedBox(height: AppSpacing.base),
       Row(
         children: [
@@ -51,7 +52,7 @@ class OrdersSkeletonBody extends StatelessWidget {
         ],
       ),
       const SizedBox(height: AppSpacing.base),
-      Divider(color: cs.sheetHairline, height: 1),
+      Divider(color: sheetHairline, height: 1),
       const SizedBox(height: AppSpacing.lg),
       Row(
         children: [

@@ -14,7 +14,7 @@ import 'package:gravia/constants/app_routes.dart';
 import 'package:gravia/constants/text_style_const.dart';
 import 'package:gravia/constants/value_const.dart';
 import 'package:gravia/feature/shell/presentation/view/shell_page.dart';
-import 'package:gravia/widgets/gravia_docked_bar.dart';
+import 'package:core/core/ui/blocks/docked_bar.dart';
 import 'package:gravia/widgets/gravia_hero_header.dart';
 import 'package:gravia/widgets/gravia_primary_button.dart';
 import 'package:gravia/widgets/gravia_product_card.dart';
@@ -150,7 +150,7 @@ class _CartScreenState extends BaseScreenState<CartScreen> {
                     ),
                   ),
                 ),
-                GraviaDockedBar(
+                DockedBar(
                   child: BlocBuilder<CheckoutBloc, CheckoutState>(
                     builder: (context, state) => GraviaPrimaryButton(
                       label: ValueConst.proceedToCheckoutLabel,

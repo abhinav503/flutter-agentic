@@ -10,9 +10,18 @@ import 'package:flutter/material.dart';
 /// ext.warningContainer
 /// ext.onWarningContainer
 /// ext.onOverlay           // icon/text on a colour/photo/glass overlay surface
+/// ext.tintedPrimaryFill   // selected/emphasis pill fill (badges, selector chips)
+/// ext.dockedHairline      // top hairline of docked bars (bottom nav, CTA bars)
+/// ext.sheetHairline       // bottom-sheet divider + drag-handle shade
 /// ```
 ///
-/// To customise per-theme, override the values in [AppTheme._build()].
+/// `tintedPrimaryFill`/`dockedHairline`/`sheetHairline` are theme data, not
+/// derivable ternaries: a style pack's kit typically specs exact swatches for
+/// them (see the `gravia` preset), so they're overridable per theme via the
+/// same config keys as `ColorScheme` roles ([AppTheme.fromConfig] resolves
+/// them, falling back to scheme-derived defaults when a preset doesn't set
+/// them). The constants below only cover direct construction outside
+/// [AppTheme].
 @immutable
 class AppColorsExtension extends ThemeExtension<AppColorsExtension> {
   final Color successContainer;
@@ -30,12 +39,29 @@ class AppColorsExtension extends ThemeExtension<AppColorsExtension> {
   /// mode instead of staying legible.
   final Color onOverlay;
 
+  /// Tinted-primary fill for selected/emphasis pill surfaces (product
+  /// badges, selector chips). Kits typically bake a pastel swatch in light
+  /// mode and spec "primary at N% opacity" in dark mode, so neither
+  /// `primaryContainer` nor a single static colour lands on both.
+  final Color tintedPrimaryFill;
+
+  /// Top hairline separating a docked bar (bottom nav, docked CTA bars, a
+  /// top bar's bottom border) from scrollable content.
+  final Color dockedHairline;
+
+  /// Hairline/handle shade for bottom sheets (divider + drag handle) —
+  /// packs spec this independently of [dockedHairline].
+  final Color sheetHairline;
+
   const AppColorsExtension({
     required this.successContainer,
     required this.onSuccessContainer,
     required this.warningContainer,
     required this.onWarningContainer,
     this.onOverlay = Colors.white,
+    this.tintedPrimaryFill = const Color(0x1A6750A4),
+    this.dockedHairline = const Color(0x1F000000),
+    this.sheetHairline = const Color(0x1F000000),
   });
 
   /// Default light-mode values.
@@ -52,6 +78,9 @@ class AppColorsExtension extends ThemeExtension<AppColorsExtension> {
     onSuccessContainer: Color(0xFF8DD5B2),
     warningContainer:   Color(0xFF3D2C00),
     onWarningContainer: Color(0xFFFFD60A),
+    tintedPrimaryFill:  Color(0x336750A4),
+    dockedHairline:     Color(0x33FFFFFF),
+    sheetHairline:      Color(0x33FFFFFF),
   );
 
   @override
@@ -61,6 +90,9 @@ class AppColorsExtension extends ThemeExtension<AppColorsExtension> {
     Color? warningContainer,
     Color? onWarningContainer,
     Color? onOverlay,
+    Color? tintedPrimaryFill,
+    Color? dockedHairline,
+    Color? sheetHairline,
   }) =>
       AppColorsExtension(
         successContainer:   successContainer   ?? this.successContainer,
@@ -68,6 +100,9 @@ class AppColorsExtension extends ThemeExtension<AppColorsExtension> {
         warningContainer:   warningContainer   ?? this.warningContainer,
         onWarningContainer: onWarningContainer ?? this.onWarningContainer,
         onOverlay:          onOverlay          ?? this.onOverlay,
+        tintedPrimaryFill:  tintedPrimaryFill  ?? this.tintedPrimaryFill,
+        dockedHairline:     dockedHairline     ?? this.dockedHairline,
+        sheetHairline:      sheetHairline      ?? this.sheetHairline,
       );
 
   @override
@@ -78,5 +113,8 @@ class AppColorsExtension extends ThemeExtension<AppColorsExtension> {
         warningContainer:   Color.lerp(warningContainer,   other.warningContainer,   t)!,
         onWarningContainer: Color.lerp(onWarningContainer, other.onWarningContainer, t)!,
         onOverlay:          Color.lerp(onOverlay,          other.onOverlay,          t)!,
+        tintedPrimaryFill:  Color.lerp(tintedPrimaryFill,  other.tintedPrimaryFill,  t)!,
+        dockedHairline:     Color.lerp(dockedHairline,     other.dockedHairline,     t)!,
+        sheetHairline:      Color.lerp(sheetHairline,      other.sheetHairline,      t)!,
       );
 }

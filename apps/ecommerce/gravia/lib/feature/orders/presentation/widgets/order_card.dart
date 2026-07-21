@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:core/core/theme/app_colors_extension.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/badge.dart';
 
@@ -40,6 +41,8 @@ class OrderCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
+    final sheetHairline =
+        Theme.of(context).extension<AppColorsExtension>()!.sheetHairline;
     final isUpcoming = order.status.isUpcoming;
 
     return Column(
@@ -50,7 +53,7 @@ class OrderCard extends StatelessWidget {
           OrderLineItemRow(item: order.items[i]),
         ],
         const SizedBox(height: AppSpacing.base),
-        Divider(color: cs.sheetHairline, height: 1),
+        Divider(color: sheetHairline, height: 1),
         const SizedBox(height: AppSpacing.base),
         Row(
           children: [
@@ -77,7 +80,7 @@ class OrderCard extends StatelessWidget {
           ],
         ),
         const SizedBox(height: AppSpacing.base),
-        Divider(color: cs.sheetHairline, height: 1),
+        Divider(color: sheetHairline, height: 1),
         const SizedBox(height: AppSpacing.base),
         if (isUpcoming) ...[
           Row(
@@ -102,7 +105,7 @@ class OrderCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppSpacing.base),
-          Divider(color: cs.sheetHairline, height: 1),
+          Divider(color: sheetHairline, height: 1),
           const SizedBox(height: AppSpacing.lg),
           GraviaActionPair(
             left: GraviaAction(
@@ -184,7 +187,7 @@ class _OtpDigitBox extends StatelessWidget {
       height: _size,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: cs.tintedPrimaryFill,
+        color: Theme.of(context).extension<AppColorsExtension>()!.tintedPrimaryFill,
         border: Border.all(color: cs.primary),
       ),
       alignment: Alignment.center,

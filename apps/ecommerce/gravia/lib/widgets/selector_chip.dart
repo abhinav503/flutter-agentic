@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:core/core/theme/app_colors_extension.dart';
 import 'package:core/core/ui/atoms/chip.dart';
 
 import 'package:gravia/constants/color_const.dart';
@@ -46,7 +47,8 @@ class SelectorChip extends StatelessWidget {
       borderColor: ColorConst.gray200,
       selectedBorderColor: Colors.transparent,
       backgroundColor: Colors.transparent,
-      selectedBackgroundColor: cs.tintedPrimaryFill,
+      selectedBackgroundColor:
+          Theme.of(context).extension<AppColorsExtension>()!.tintedPrimaryFill,
       // Same base style for both states — only the colour differs — so the
       // chip's footprint doesn't change size when selection toggles.
       labelStyle: TextStyleConst.badgeLabel(

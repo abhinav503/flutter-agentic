@@ -2,7 +2,10 @@ import 'package:core/core/theme/app_shapes_extension.dart';
 import 'package:core/core/ui/blocks/bottom_nav_bar.dart';
 import 'package:core/core/ui/blocks/chunked_grid.dart';
 import 'package:core/core/ui/blocks/collapsing_header_sheet.dart';
+import 'package:core/core/ui/blocks/docked_bar.dart';
 import 'package:core/core/ui/blocks/docked_bar_overlap.dart';
+import 'package:core/core/ui/blocks/header_canvas.dart';
+import 'package:core/core/ui/blocks/hero_header.dart';
 import 'package:core/core/ui/blocks/quantity_stepper.dart';
 import 'package:core/core/ui/blocks/section_header.dart';
 import 'package:flutter/material.dart';
@@ -235,6 +238,103 @@ WidgetbookFolder genericBlocksFolder() {
               },
             ),
             width: 320,
+          ),
+        ]),
+      ),
+      allVariants(
+        'DockedBar',
+        (context) => showcaseStacked(context, [
+          Variant(
+            'Default (e.g. a docked "Add to Cart" CTA)',
+            Builder(
+              builder: (context) {
+                final cs = Theme.of(context).colorScheme;
+                final shapes =
+                    Theme.of(context).extension<AppShapes>() ??
+                    AppShapes.standard;
+                return DockedBar(
+                  child: Container(
+                    height: 45,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: cs.primary,
+                      borderRadius: BorderRadius.circular(shapes.buttonRadius),
+                    ),
+                    child: Text(
+                      'Add to Cart',
+                      style: TextStyle(color: cs.onPrimary),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ]),
+      ),
+      allVariants(
+        'HeaderCanvas',
+        (context) => showcaseStacked(context, [
+          Variant(
+            'Default (a screen-top hero header composes onto this)',
+            HeaderCanvas(
+              child: Builder(
+                builder: (context) => Text(
+                  'Header content\n(e.g. a location row, a search field)',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onPrimary,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ]),
+      ),
+      allVariants(
+        'HeroHeader',
+        (context) => showcaseStacked(context, [
+          Variant(
+            'Default — leading control + centered title',
+            HeroHeader(
+              title: 'My Cart',
+              leading: Builder(
+                builder: (context) => IconButton(
+                  icon: Icon(
+                    Icons.arrow_back,
+                    color: Theme.of(context).colorScheme.onPrimary,
+                  ),
+                  onPressed: () {},
+                ),
+              ),
+              leadingBalanceWidth: 48,
+            ),
+          ),
+          Variant(
+            'HeroHeader.page — left-aligned, no leading control',
+            HeroHeader.page(title: 'Categories'),
+          ),
+          Variant(
+            'With a bottom row (e.g. filter chips)',
+            HeroHeader(
+              title: 'Vegetables',
+              leading: Builder(
+                builder: (context) => IconButton(
+                  icon: Icon(
+                    Icons.arrow_back,
+                    color: Theme.of(context).colorScheme.onPrimary,
+                  ),
+                  onPressed: () {},
+                ),
+              ),
+              leadingBalanceWidth: 48,
+              bottom: Builder(
+                builder: (context) => Text(
+                  'Sort: Relevance · Price: All',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onPrimary,
+                  ),
+                ),
+              ),
+            ),
           ),
         ]),
       ),

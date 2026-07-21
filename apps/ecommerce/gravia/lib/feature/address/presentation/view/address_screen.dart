@@ -18,7 +18,7 @@ import 'package:gravia/constants/dimen_const.dart';
 import 'package:gravia/constants/image_const.dart';
 import 'package:gravia/constants/text_style_const.dart';
 import 'package:gravia/constants/value_const.dart';
-import 'package:gravia/widgets/gravia_docked_bar.dart';
+import 'package:core/core/ui/blocks/docked_bar.dart';
 import 'package:gravia/widgets/gravia_hero_header.dart';
 import 'package:gravia/widgets/gravia_primary_button.dart';
 import 'package:gravia/widgets/gravia_sheet.dart';
@@ -242,7 +242,7 @@ class _AddressScreenState extends BaseScreenState<AddressScreen> {
             ),
           ),
         ),
-        GraviaDockedBar(
+        DockedBar(
           child: GraviaPrimaryButton(
             label: ValueConst.selectAddressTitle,
             onTap: () => _confirmSelection(addresses, selectedAddressId),

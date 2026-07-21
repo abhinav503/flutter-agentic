@@ -94,7 +94,9 @@ core/
 │   └── shared_pref_service/
 │       └── shared_preference_service.dart  SharedPreferenceService static singleton
 ├── theme/
-│   ├── app_colors_extension.dart  ThemeExtension for success/warning colours
+│   ├── app_colors_extension.dart  ThemeExtension for success/warning colours,
+│   │                               onOverlay, and per-preset theme data
+│   │                               (dockedHairline/sheetHairline/tintedPrimaryFill)
 │   ├── app_shapes_extension.dart  ThemeExtension for brand radii (button/chip/card/input/sheet)
 │   ├── app_radius.dart            border-radius token scale (defaults behind AppShapes)
 │   ├── app_spacing.dart           spacing token scale
@@ -630,7 +632,7 @@ Each app owns `assets/theme/theme_config.json`; `AppTheme.fromConfig` (in core) 
 }
 ```
 
-- **Colours** — `activeTheme` selects a preset (`dadJokes`, `oceanBreeze`, `forestWalk`, `rocketWarm`); a seed drives all 45 M3 roles via `ColorScheme.fromSeed`, and any role can be overridden by key. Custom success/warning roles live in `AppColorsExtension`.
+- **Colours** — `activeTheme` selects a preset (`dadJokes`, `oceanBreeze`, `forestWalk`, `rocketWarm`, `gravia`); a seed drives all 45 M3 roles via `ColorScheme.fromSeed`, and any role can be overridden by key. Custom success/warning roles, plus the cross-pack `dockedHairline`/`sheetHairline`/`tintedPrimaryFill` roles (also overridable per preset — a pack's kit typically specs exact swatches, see the `gravia` preset — with scheme-derived fallbacks when a preset omits them), live in `AppColorsExtension`.
 - **Shape** — the optional `shape` block sets brand corner radii. These populate `ThemeData`'s **component themes** (`elevatedButtonTheme`, `filledButtonTheme`, `chipTheme`, `cardTheme`, `dialogTheme`, `bottomSheetTheme`, `fab`, `inputDecorationTheme`) **and** the `AppShapes` extension that atoms read — so a raw `ElevatedButton` and an `AppButton` come out identical, and both re-skin per theme. Omitted → `AppShapes.standard`.
 - **One source of truth** — colours come from `ColorScheme` (free for raw Material + atoms); shape comes from `AppShapes`/component themes. Atoms own *structure + behaviour* and read *all* style from the theme, so you never fork an atom per app — you change the config.
 
