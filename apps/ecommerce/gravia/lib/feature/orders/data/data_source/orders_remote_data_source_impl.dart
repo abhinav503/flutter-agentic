@@ -1,3 +1,5 @@
+import 'package:dio/dio.dart';
+
 import 'package:core/core/network/http_service.dart';
 
 import 'package:gravia/constants/api_constants.dart';
@@ -10,14 +12,17 @@ import 'orders_remote_data_source.dart';
 class OrdersRemoteDataSourceImpl implements OrdersRemoteDataSource {
   const OrdersRemoteDataSourceImpl();
 
+  // The server derives the shopper's uid from this verified token and
+  // returns only that user's orders — a null token means signed out, so
+  // the list degrades to empty rather than hitting the API.
   @override
   Future<List<OrderModel>> getOrders() async {
-    final uid = FirebaseAuthService.instance.currentUser?.uid;
-    if (uid == null) return const [];
+    final idToken = await FirebaseAuthService.instance.idToken();
+    if (idToken == null) return const [];
 
     final response = await HttpService.instance.get<Map<String, dynamic>>(
       ApiConstants.ordersPath,
-      queryParameters: {'userId': uid},
+      options: Options(headers: {'Authorization': 'Bearer $idToken'}),
     );
     final orders = response.data!['orders'] as List<dynamic>;
     return orders
@@ -30,12 +35,13 @@ class OrdersRemoteDataSourceImpl implements OrdersRemoteDataSource {
     List<CartItemEntity> items,
     String addressId,
   ) async {
-    final uid = FirebaseAuthService.instance.currentUser!.uid;
+    // Checkout is only reachable while signed in; the server rejects a
+    // missing/invalid token with 401, surfaced as a Failure.
+    final idToken = await FirebaseAuthService.instance.idToken();
 
     final response = await HttpService.instance.post<Map<String, dynamic>>(
       ApiConstants.ordersPath,
       data: {
-        'userId': uid,
         'addressId': addressId,
         'items': items
             .map(
@@ -46,6 +52,7 @@ class OrdersRemoteDataSourceImpl implements OrdersRemoteDataSource {
             )
             .toList(),
       },
+      options: Options(headers: {'Authorization': 'Bearer $idToken'}),
     );
     return OrderModel.fromJson(response.data!['order'] as Map<String, dynamic>);
   }

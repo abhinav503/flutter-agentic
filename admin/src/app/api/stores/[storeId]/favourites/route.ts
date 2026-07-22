@@ -2,22 +2,28 @@ import { NextResponse } from "next/server";
 import { addFavourite, getFavouriteIds, removeFavourite } from "@/lib/favourites";
 import { getProduct } from "@/lib/products";
 import { serializeProduct } from "@/lib/api/serializers";
+import { requireAuthedUser, UnauthorizedError } from "@/lib/api/admin-guard";
 import type { Product } from "@/lib/types";
 
-// No shopper auth yet — same trusted-`userId` gap as cart.ts/recent-searches
-// (see cart/route.ts), closed together once gravia sends a verified token.
+// The shopper's own favourites — uid always comes off a verified Firebase
+// ID token, never a client-supplied `userId`.
 
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ storeId: string }> },
 ) {
   const { storeId } = await params;
-  const userId = new URL(request.url).searchParams.get("userId");
-  if (!userId) {
-    return NextResponse.json({ error: "userId is required" }, { status: 400 });
+  let uid: string;
+  try {
+    uid = (await requireAuthedUser(request)).uid;
+  } catch (e) {
+    if (e instanceof UnauthorizedError) {
+      return NextResponse.json({ error: e.message }, { status: 401 });
+    }
+    throw e;
   }
 
-  const productIds = await getFavouriteIds(userId, storeId);
+  const productIds = await getFavouriteIds(uid, storeId);
   const resolved = await Promise.all(
     productIds.map((id) => getProduct(storeId, id)),
   );
@@ -34,18 +40,24 @@ export async function POST(
   { params }: { params: Promise<{ storeId: string }> },
 ) {
   const { storeId } = await params;
+  let uid: string;
+  try {
+    uid = (await requireAuthedUser(request)).uid;
+  } catch (e) {
+    if (e instanceof UnauthorizedError) {
+      return NextResponse.json({ error: e.message }, { status: 401 });
+    }
+    throw e;
+  }
+
   const body = await request.json().catch(() => ({}));
-  const userId = body.userId as string | undefined;
   const productId = body.productId as string | undefined;
 
-  if (!userId) {
-    return NextResponse.json({ error: "userId is required" }, { status: 400 });
-  }
   if (!productId) {
     return NextResponse.json({ error: "productId is required" }, { status: 400 });
   }
 
-  const productIds = await addFavourite(userId, storeId, productId);
+  const productIds = await addFavourite(uid, storeId, productId);
   return NextResponse.json({ product_ids: productIds });
 }
 
@@ -54,17 +66,21 @@ export async function DELETE(
   { params }: { params: Promise<{ storeId: string }> },
 ) {
   const { storeId } = await params;
-  const searchParams = new URL(request.url).searchParams;
-  const userId = searchParams.get("userId");
-  const productId = searchParams.get("productId");
-
-  if (!userId) {
-    return NextResponse.json({ error: "userId is required" }, { status: 400 });
+  let uid: string;
+  try {
+    uid = (await requireAuthedUser(request)).uid;
+  } catch (e) {
+    if (e instanceof UnauthorizedError) {
+      return NextResponse.json({ error: e.message }, { status: 401 });
+    }
+    throw e;
   }
+
+  const productId = new URL(request.url).searchParams.get("productId");
   if (!productId) {
     return NextResponse.json({ error: "productId is required" }, { status: 400 });
   }
 
-  const productIds = await removeFavourite(userId, storeId, productId);
+  const productIds = await removeFavourite(uid, storeId, productId);
   return NextResponse.json({ product_ids: productIds });
 }

@@ -1,10 +1,20 @@
 # Super App Ecommerce (FlutterAgenticEcommerce) — Platform Plan
 
 > Status: **M1a done; catalog CRUD, read API, and gravia catalog wiring done;
-> cart/order-creation/admin-order-management APIs done but not yet
-> deployed** (last updated 2026-07-18). Turns the `gravia` exemplar into a
+> cart/order-creation/admin-order-management APIs done; shopper-auth trust gap
+> closed (all shopper routes now token-verified). Not yet deployed**
+> (last updated 2026-07-22). Turns the `gravia` exemplar into a
 > multi-tenant "app of apps" ecommerce platform. See also
 > `docs/explanation/end-goal.md`.
+>
+> **Note (2026-07-22):** much of M1b (shopper Firebase auth in gravia) shipped
+> in gravia between the 07-18 entries below and now — `feature/auth/` (login/
+> signup, persistent email-verification sheet + poll, session-expired guard,
+> forgot/reset password), plus cart/orders/address/favourites/search all wired
+> to the deployed API. `users/{uid}` is created server-side via the token-authed
+> `POST /api/users` route (no `cloud_firestore` in the client — cleaner than a
+> direct client write). Several 07-18 entries below that say "gravia
+> intentionally left untouched" predate that and are stale.
 
 ## Context
 
@@ -594,3 +604,53 @@ unaffected by disabling the command sandbox — genuinely not sandbox-scoped).
 host/network-specific block rather than a general outage. Blocked until that
 connectivity issue is resolved (or the push/env-var steps are run from a
 network that can reach both).
+
+## Shopper-auth trust gap closed — all shopper routes token-verified — DONE (2026-07-22)
+
+The cart/order/favourites/search routes above accepted a plain `userId`
+string, "trusted as-is" — the deliberate placeholder for M1b. Now that gravia
+has real Firebase auth (see the 07-22 note at the top), that gap is closed on
+**both** sides: every per-user shopper route derives the uid from a verified
+Firebase ID token, and gravia sends `Authorization: Bearer <idToken>` instead
+of a `userId` param. **No route reads `userId` off the request anymore** — one
+shopper can no longer read or overwrite another's cart, orders, favourites, or
+recent searches by passing a different id.
+
+- **`admin/src/lib/api/admin-guard.ts`** — two helpers added beside the
+  existing `requireAuthedUser`/`requireStoreOwner`:
+  - `verifyIdToken(request)` → `{ uid, storeIds }` — verifies the token and
+    returns its `storeIds` custom claim **without** the legacy-admin Firestore
+    backfill `requireStoreOwner` does. Used by the dual-mode order-list route so
+    a plain shopper reading their own history never gets an empty `storeIds`
+    claim silently stamped onto their token.
+  - `optionalAuthedUser(request)` → `uid | null` — soft variant that returns
+    null for an anonymous caller instead of throwing, for the Search screen's
+    recents (a signed-out shopper still sees popular products, just no recents).
+- **Routes swapped** (`admin/src/app/api/stores/[storeId]/`): `cart` (GET/PUT),
+  `favourites` (GET/POST/DELETE), `orders` (GET/POST), `search` (recents branch,
+  optional), `search/recent` (POST/DELETE). Missing/invalid token → 401 on the
+  hard routes; the `orders` GET now distinguishes store-owner (all orders) from
+  shopper (own orders) by the **verified token's role**, not a client flag —
+  the un-spoofable version of the old `userId`-presence branch. The admin-only
+  `orders/[orderId]` PATCH already used `requireStoreOwner` and was untouched.
+- **gravia data sources** (`cart`, `orders`, `favourites`, `search`) now send
+  the bearer token — matching the address/profile pattern already in the app —
+  and dropped the `userId` param/body field. The signed-out degrade is
+  preserved (null token → empty cart/orders/favourites, recents no-op).
+- **Verified live**, not just compiled: `flutter analyze` clean on gravia,
+  `tsc`+`eslint` clean on admin, then a Node script signed up **two** throwaway
+  Firebase shoppers via the real Identity Toolkit REST API, booted the admin
+  dev server, and ran 19 checks against the real "Gravia" store — every auth
+  gate (no token / garbage token → 401; POST without token → 401; the anonymous
+  search still 200s with empty recents) **and cross-user isolation** (A writes a
+  cart/favourite/recent; B with a different token sees none of them; A re-reads
+  and its own data persists). All 19 passed; both throwaway users and A's test
+  data deleted afterward (same clean-up discipline as the earlier rules tests).
+
+**Still not deployed** — same blocker as the section above: the admin changes
+ride on the un-pushed `e86dabd` work and need the `FIREBASE_ADMIN_*` env vars
+in Vercel to run in production. Deploy the admin API and ship gravia together:
+old gravia (sending `userId`, no token) would 401 against the new routes, so
+they must not go live independently. gravia isn't store-published, so its
+running instance always tracks latest — the ordering only matters for the
+production API cutover.

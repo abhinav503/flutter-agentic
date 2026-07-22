@@ -158,6 +158,8 @@ abstract final class ValueConst {
   static const privacyPolicyLabel = 'Privacy Policy';
   static const termsAndConditionsLabel = 'Terms & Conditions';
   static const logoutLabel = 'Logout';
+  static const logoutTitle = 'Logout';
+  static const logoutConfirmMessage = 'Are you sure you want to log out?';
   static const profileLoadErrorMessage =
       'Something went wrong loading your profile.';
 
@@ -200,6 +202,10 @@ abstract final class ValueConst {
   static const cartBarTitle = 'See more products';
   static const exploreLabel = 'Explore';
   static const checkoutLabel = 'Checkout';
+  static const clearCartTitle = 'Clear Cart';
+  static const clearCartConfirmMessage =
+      'Are you sure you want to remove all items from your cart?';
+  static const clearCartConfirmLabel = 'Clear Cart';
   static String cartSummaryLabel(int itemCount, double total) =>
       '$itemCount item${itemCount > 1 ? 's' : ''} | \$${total.toStringAsFixed(2)}';
 

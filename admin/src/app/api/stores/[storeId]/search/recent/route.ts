@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import { addRecentSearch, removeRecentSearch } from "@/lib/recent-searches";
+import { requireAuthedUser, UnauthorizedError } from "@/lib/api/admin-guard";
 import type { RecentSearch, RecentSearchType } from "@/lib/types";
 
-// Recent searches for the Search screen. `userId` is trusted as-is — the
-// same shopper-auth gap as the cart routes, closed together when gravia
-// sends a verified ID token. Both verbs return the updated list so the
-// client can sync state from the response instead of refetching.
+// Recent searches for the Search screen. The uid comes off a verified
+// Firebase ID token, never a client-supplied `userId`. Both verbs return
+// the updated list so the client can sync state from the response instead
+// of refetching.
 
 function isRecentSearchType(value: unknown): value is RecentSearchType {
   return value === "product" || value === "category";
@@ -18,13 +19,19 @@ export async function POST(
   { params }: { params: Promise<{ storeId: string }> },
 ) {
   const { storeId } = await params;
+  let uid: string;
+  try {
+    uid = (await requireAuthedUser(request)).uid;
+  } catch (e) {
+    if (e instanceof UnauthorizedError) {
+      return NextResponse.json({ error: e.message }, { status: 401 });
+    }
+    throw e;
+  }
+
   const body = await request.json().catch(() => ({}));
-  const userId = body.userId as string | undefined;
   const item = body.item as Partial<RecentSearch> | undefined;
 
-  if (!userId) {
-    return NextResponse.json({ error: "userId is required" }, { status: 400 });
-  }
   if (
     !item ||
     typeof item.id !== "string" ||
@@ -39,7 +46,7 @@ export async function POST(
     );
   }
 
-  const items = await addRecentSearch(userId, storeId, {
+  const items = await addRecentSearch(uid, storeId, {
     id: item.id,
     name: item.name,
     type: item.type,
@@ -52,14 +59,20 @@ export async function DELETE(
   { params }: { params: Promise<{ storeId: string }> },
 ) {
   const { storeId } = await params;
+  let uid: string;
+  try {
+    uid = (await requireAuthedUser(request)).uid;
+  } catch (e) {
+    if (e instanceof UnauthorizedError) {
+      return NextResponse.json({ error: e.message }, { status: 401 });
+    }
+    throw e;
+  }
+
   const searchParams = new URL(request.url).searchParams;
-  const userId = searchParams.get("userId");
   const id = searchParams.get("id");
   const type = searchParams.get("type");
 
-  if (!userId) {
-    return NextResponse.json({ error: "userId is required" }, { status: 400 });
-  }
   if (!id || !isRecentSearchType(type)) {
     return NextResponse.json(
       { error: "id and type ('product' | 'category') are required" },
@@ -67,6 +80,6 @@ export async function DELETE(
     );
   }
 
-  const items = await removeRecentSearch(userId, storeId, type, id);
+  const items = await removeRecentSearch(uid, storeId, type, id);
   return NextResponse.json({ recent_searches: items });
 }

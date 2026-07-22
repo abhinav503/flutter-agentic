@@ -73,3 +73,47 @@ export async function requireAuthedUser(
     throw new UnauthorizedError("Invalid or expired token");
   }
 }
+
+// Verifies the bearer token and returns the uid plus its `storeIds` custom
+// claim (empty array when absent) — for routes that must branch on role
+// WITHOUT the legacy-admin Firestore backfill `requireStoreOwner` does.
+// Used by the dual-mode order-list route: a plain shopper (no `storeIds`)
+// must not get an empty `storeIds` claim silently stamped onto their token
+// just for reading their own order history.
+export async function verifyIdToken(
+  request: Request,
+): Promise<{ uid: string; storeIds: string[] }> {
+  const authHeader = request.headers.get("authorization") ?? "";
+  const match = authHeader.match(/^Bearer (.+)$/);
+  if (!match) throw new UnauthorizedError("Missing bearer token");
+
+  try {
+    const decoded = await adminAuth.verifyIdToken(match[1]);
+    return {
+      uid: decoded.uid,
+      storeIds: (decoded.storeIds as string[] | undefined) ?? [],
+    };
+  } catch {
+    throw new UnauthorizedError("Invalid or expired token");
+  }
+}
+
+// Soft variant of requireAuthedUser: returns the uid when a valid bearer
+// token is present, or null when the caller is anonymous (no token) or the
+// token doesn't verify — never throws. For per-user reads that must still
+// succeed for a signed-out shopper (the Search screen's recent-searches
+// list: an anonymous user simply has none).
+export async function optionalAuthedUser(
+  request: Request,
+): Promise<string | null> {
+  const authHeader = request.headers.get("authorization") ?? "";
+  const match = authHeader.match(/^Bearer (.+)$/);
+  if (!match) return null;
+
+  try {
+    const decoded = await adminAuth.verifyIdToken(match[1]);
+    return decoded.uid;
+  } catch {
+    return null;
+  }
+}

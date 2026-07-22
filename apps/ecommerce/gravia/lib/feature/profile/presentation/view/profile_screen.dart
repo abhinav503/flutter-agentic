@@ -24,6 +24,7 @@ import 'package:gravia/feature/favourites/presentation/cubit/favourites_cubit.da
 import 'package:gravia/feature/shell/presentation/view/shell_page.dart';
 import 'package:gravia/services/firebase_auth_service.dart';
 import 'package:gravia/services/user_profile_cache_service.dart';
+import 'package:gravia/widgets/gravia_sheet.dart';
 
 import '../../domain/entities/profile_entity.dart';
 import '../bloc/profile_bloc.dart';
@@ -184,7 +185,13 @@ class _ProfileScreenState extends BaseScreenState<ProfileScreen> {
                       label: ValueConst.logoutLabel,
                       danger: true,
                       trailing: const SizedBox.shrink(),
-                      onTap: () => _signOut(context),
+                      onTap: () => showGraviaConfirmSheet(
+                        context: context,
+                        title: ValueConst.logoutTitle,
+                        message: ValueConst.logoutConfirmMessage,
+                        confirmLabel: ValueConst.logoutLabel,
+                        onConfirm: () => _signOut(context),
+                      ),
                     ),
                   ],
                 ),

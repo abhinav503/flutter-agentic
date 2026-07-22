@@ -6,12 +6,22 @@ import 'package:gravia/constants/text_style_const.dart';
 import 'package:gravia/constants/value_const.dart';
 import 'package:gravia/widgets/gravia_action_pair.dart';
 
-/// Body of the delete-confirmation sheet opened from [AddressCard]'s Delete
-/// action — a plain message + Cancel/Delete pair, no local state.
-class DeleteAddressSheetContent extends StatelessWidget {
+/// Body of a destructive-confirmation sheet — a plain message + a
+/// Cancel/confirm pair, no local state. Shared across every "are you sure?"
+/// gate in the app (delete address, clear cart, log out); the chrome (title +
+/// Cancel close + hairline) comes from `showGraviaConfirmSheet`. [onConfirm]
+/// performs the action — the sheet only gates the tap, it never touches a bloc.
+class GraviaConfirmSheetContent extends StatelessWidget {
+  final String message;
+  final String confirmLabel;
   final VoidCallback onConfirm;
 
-  const DeleteAddressSheetContent({super.key, required this.onConfirm});
+  const GraviaConfirmSheetContent({
+    super.key,
+    required this.message,
+    required this.confirmLabel,
+    required this.onConfirm,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +40,7 @@ class DeleteAddressSheetContent extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            ValueConst.deleteAddressConfirmMessage,
+            message,
             style: TextStyleConst.textSmRegular(
               tt,
             ).copyWith(color: cs.onSurfaceVariant),
@@ -46,7 +56,7 @@ class DeleteAddressSheetContent extends StatelessWidget {
               onTap: () => Navigator.of(context).pop(),
             ),
             right: GraviaAction(
-              label: ValueConst.deleteLabel,
+              label: confirmLabel,
               kind: GraviaActionKind.tintedError,
               onTap: () {
                 onConfirm();

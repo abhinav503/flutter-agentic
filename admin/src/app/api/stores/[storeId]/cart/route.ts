@@ -2,25 +2,29 @@ import { NextResponse } from "next/server";
 import { getCartItems, saveCartItems } from "@/lib/cart";
 import { getProduct } from "@/lib/products";
 import { serializeProduct } from "@/lib/api/serializers";
+import { requireAuthedUser, UnauthorizedError } from "@/lib/api/admin-guard";
 import type { CartItem } from "@/lib/types";
 
-// No shopper auth yet (gravia doesn't have it — see
-// docs/explanation/superapp-ecommerce-plan.md M1b) — `userId` is trusted
-// as-is, the same gap the request/response shapes below are already
-// designed to close later: once gravia sends a verified ID token, `userId`
-// swaps from "read off the request" to "read off the verified token,"
-// with no route signature change.
+// The shopper's own cart. The uid always comes off a verified Firebase ID
+// token (gravia sends `Authorization: Bearer <idToken>`), never a
+// client-supplied `userId` — so one shopper can never read or overwrite
+// another's cart.
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ storeId: string }> },
 ) {
   const { storeId } = await params;
-  const userId = new URL(request.url).searchParams.get("userId");
-  if (!userId) {
-    return NextResponse.json({ error: "userId is required" }, { status: 400 });
+  let uid: string;
+  try {
+    uid = (await requireAuthedUser(request)).uid;
+  } catch (e) {
+    if (e instanceof UnauthorizedError) {
+      return NextResponse.json({ error: e.message }, { status: 401 });
+    }
+    throw e;
   }
 
-  const cartItems = await getCartItems(userId, storeId);
+  const cartItems = await getCartItems(uid, storeId);
   const resolved = await Promise.all(
     cartItems.map(async (item) => {
       const product = await getProduct(storeId, item.productId);
@@ -38,18 +42,24 @@ export async function PUT(
   { params }: { params: Promise<{ storeId: string }> },
 ) {
   const { storeId } = await params;
+  let uid: string;
+  try {
+    uid = (await requireAuthedUser(request)).uid;
+  } catch (e) {
+    if (e instanceof UnauthorizedError) {
+      return NextResponse.json({ error: e.message }, { status: 401 });
+    }
+    throw e;
+  }
+
   const body = await request.json();
-  const userId = body.userId as string | undefined;
   const items = body.items as CartItem[] | undefined;
 
-  if (!userId) {
-    return NextResponse.json({ error: "userId is required" }, { status: 400 });
-  }
   if (!Array.isArray(items)) {
     return NextResponse.json({ error: "items must be an array" }, { status: 400 });
   }
 
-  await saveCartItems(userId, storeId, items);
+  await saveCartItems(uid, storeId, items);
 
   const resolved = await Promise.all(
     items.map(async (item) => {

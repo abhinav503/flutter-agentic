@@ -3,12 +3,13 @@ import { getProducts, getPopularProducts } from "@/lib/products";
 import { getCategories } from "@/lib/categories";
 import { getRecentSearches } from "@/lib/recent-searches";
 import { serializeCategory, serializeProduct } from "@/lib/api/serializers";
+import { optionalAuthedUser } from "@/lib/api/admin-guard";
 
 // No `q` param: matches SearchEntity's initial/empty-state shape in gravia
 // (recent_searches + popular_products shown before the shopper types
-// anything). recent_searches is per-shopper (`userId`, trusted as-is —
-// same gap as the cart routes until gravia sends a verified token); without
-// a userId there's nothing to look up, so it's empty.
+// anything). recent_searches is per-shopper, keyed on the verified token's
+// uid (optional here — a signed-out shopper can still open Search, they
+// just have no recents); the catalog search itself needs no auth.
 //
 // With `q`: returns matching products AND categories by case-insensitive
 // name search — Firestore has no native text search, and the catalog is
@@ -23,9 +24,9 @@ export async function GET(
   const q = searchParams.get("q")?.trim();
 
   if (!q) {
-    const userId = searchParams.get("userId");
+    const uid = await optionalAuthedUser(request);
     const [recents, popular] = await Promise.all([
-      userId ? getRecentSearches(userId, storeId) : Promise.resolve([]),
+      uid ? getRecentSearches(uid, storeId) : Promise.resolve([]),
       getPopularProducts(storeId),
     ]);
     return NextResponse.json({

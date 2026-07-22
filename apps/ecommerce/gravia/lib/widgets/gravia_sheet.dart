@@ -2,14 +2,15 @@ import 'package:flutter/material.dart';
 
 import 'package:core/core/base/base_screen.dart';
 import 'package:core/core/theme/app_colors_extension.dart';
+import 'package:core/core/ui/molecules/bottom_sheet.dart';
 
 import 'package:gravia/constants/text_style_const.dart';
 import 'package:gravia/constants/value_const.dart';
-import 'package:gravia/feature/address/presentation/widgets/delete_address_sheet_content.dart';
 import 'package:gravia/feature/auth/presentation/widgets/verify_email_sheet_content.dart';
 import 'package:gravia/feature/home/domain/entities/product_entity.dart';
 
 import 'add_to_cart_sheet_content.dart';
+import 'gravia_confirm_sheet_content.dart';
 import 'order_placed_sheet_content.dart';
 
 /// The persistent post-signup/unverified-login verification step — no
@@ -33,6 +34,44 @@ Future<void> showVerifyEmailSheet({
   backgroundColor: Colors.transparent,
   builder: (_) => VerifyEmailSheetContent(email: email, onResend: onResend),
 );
+
+/// Gravia-styled destructive-confirmation sheet — the pack chrome (textLg/bold
+/// title, primary "Cancel" close, kit hairline) around a
+/// [GraviaConfirmSheetContent]. A top-level function (not just the
+/// [GraviaSheetX] extension below) so a `BasePageState` host can open it too —
+/// `ShellPage`'s docked cart bar clears the cart from a `BasePageState`, where
+/// the `BaseScreenState` extension isn't in scope (same reason as
+/// [showVerifyEmailSheet]). [onConfirm] runs the action; the sheet only gates
+/// the tap.
+Future<void> showGraviaConfirmSheet({
+  required BuildContext context,
+  required String title,
+  required String message,
+  required String confirmLabel,
+  required VoidCallback onConfirm,
+}) {
+  final cs = Theme.of(context).colorScheme;
+  final tt = Theme.of(context).textTheme;
+  final hairline =
+      Theme.of(context).extension<AppColorsExtension>()!.sheetHairline;
+
+  return AppBottomSheet.show<void>(
+    context,
+    title: title,
+    titleStyle: TextStyleConst.textLgBold(tt),
+    closeLabel: ValueConst.cancel,
+    closeLabelStyle: TextStyleConst.textSmRegular(
+      tt,
+    ).copyWith(color: cs.primary),
+    dividerColor: hairline,
+    handleColor: hairline,
+    child: GraviaConfirmSheetContent(
+      message: message,
+      confirmLabel: confirmLabel,
+      onConfirm: onConfirm,
+    ),
+  );
+}
 
 /// Gravia-styled wrappers around [BaseScreenState.showAppBottomSheet] — the
 /// pack's one sheet chrome (textLg/bold title, primary "Cancel" close
@@ -78,9 +117,12 @@ extension GraviaSheetX<T extends BaseScreen> on BaseScreenState<T> {
   /// action. [onConfirm] dispatches the actual delete — the sheet itself
   /// only gates the tap, it never touches the bloc.
   Future<void> showGraviaDeleteAddressSheet({required VoidCallback onConfirm}) =>
-      showGraviaSheet(
+      showGraviaConfirmSheet(
+        context: context,
         title: ValueConst.deleteAddressTitle,
-        child: DeleteAddressSheetContent(onConfirm: onConfirm),
+        message: ValueConst.deleteAddressConfirmMessage,
+        confirmLabel: ValueConst.deleteLabel,
+        onConfirm: onConfirm,
       );
 
   /// The checkout confirmation sheet — bypasses [showGraviaSheet] since
