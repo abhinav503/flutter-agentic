@@ -42,10 +42,10 @@ class _CartScreenState extends BaseScreenState<CartScreen> {
 
   // Checkout first gates on picking a delivery address — reuses the Select
   // Address screen, which pops with the chosen address (null if the shopper
-  // backs out, in which case no order is placed). Only then is the order
-  // submitted; the cart clears once the server confirms creation (see the
-  // CheckoutBloc listener in `body`), not optimistically here, since the
-  // request can fail (e.g. insufficient stock). No payment step exists yet.
+  // backs out, in which case no order is placed). Submitting hands the whole
+  // flow to CheckoutBloc (payment + order placement); the cart clears only
+  // once the server confirms the order (see the CheckoutBloc listener in
+  // `body`), not optimistically here, since the request can still fail.
   Future<void> _startCheckout(List<CartItemEntity> items) async {
     final address = await context.push<AddressEntity>(
       AppRoutes.selectAddress,
@@ -81,8 +81,14 @@ class _CartScreenState extends BaseScreenState<CartScreen> {
 
     return BlocListener<CheckoutBloc, CheckoutState>(
       listener: (context, state) {
-        if (state case CheckoutSuccess()) _onOrderPlaced();
-        if (state case CheckoutFailure(:final message)) showSnackBar(message);
+        switch (state) {
+          case CheckoutSuccess():
+            _onOrderPlaced();
+          case CheckoutFailure(:final message):
+            showSnackBar(message);
+          case CheckoutIdle() || CheckoutSubmitting():
+            break;
+        }
       },
       child: AnnotatedRegion<SystemUiOverlayStyle>(
         value: const SystemUiOverlayStyle(
@@ -162,15 +168,18 @@ class _CartScreenState extends BaseScreenState<CartScreen> {
                 ),
                 DockedBar(
                   child: BlocBuilder<CheckoutBloc, CheckoutState>(
-                    builder: (context, state) => GraviaPrimaryButton(
-                      label: ValueConst.proceedToCheckoutLabel,
-                      state: state is CheckoutSubmitting
-                          ? AppButtonState.loading
-                          : AppButtonState.idle,
-                      onTap: state is CheckoutSubmitting
-                          ? null
-                          : () => _startCheckout(cartItems),
-                    ),
+                    builder: (context, state) {
+                      // Submitting spans the whole flow (payment + placement),
+                      // so the CTA stays loading and un-tappable throughout.
+                      final busy = state is CheckoutSubmitting;
+                      return GraviaPrimaryButton(
+                        label: ValueConst.proceedToCheckoutLabel,
+                        state: busy
+                            ? AppButtonState.loading
+                            : AppButtonState.idle,
+                        onTap: busy ? null : () => _startCheckout(cartItems),
+                      );
+                    },
                   ),
                 ),
               ],

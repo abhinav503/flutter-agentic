@@ -5,6 +5,8 @@ import 'package:fpdart/fpdart.dart';
 import 'package:gravia/feature/cart/domain/entities/cart_item_entity.dart';
 
 import '../../domain/entities/order_entity.dart';
+import '../../domain/entities/payment_intent_entity.dart';
+import '../../domain/entities/payment_result_entity.dart';
 import '../../domain/repository/orders_repository.dart';
 import '../data_source/orders_remote_data_source.dart';
 
@@ -21,11 +23,25 @@ class OrdersRepositoryImpl with BaseRepository implements OrdersRepository {
       });
 
   @override
-  Future<Either<Failure, OrderEntity>> createOrder(
+  Future<Either<Failure, PaymentIntentEntity>> createPayment(
     List<CartItemEntity> items,
     String addressId,
   ) => handleRequest(() async {
-    final model = await _dataSource.createOrder(items, addressId);
+    final model = await _dataSource.createPayment(items, addressId);
+    return right(model.toEntity());
+  });
+
+  @override
+  Future<Either<Failure, OrderEntity>> createOrder(
+    List<CartItemEntity> items,
+    String addressId, {
+    PaymentResultEntity? payment,
+  }) => handleRequest(() async {
+    final model = await _dataSource.createOrder(
+      items,
+      addressId,
+      payment: payment,
+    );
     return right(model.toEntity());
   });
 }

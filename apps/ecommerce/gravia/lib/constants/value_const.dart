@@ -215,6 +215,11 @@ abstract final class ValueConst {
       'Thank you for your order you can track your delivery in the order section';
   static const trackYourOrderLabel = 'Track Your Order';
 
+  // ── Payment (provider-agnostic copy) ─────────────────────────────────────
+  static const paymentCancelledMessage = 'Payment cancelled';
+  static const paymentFailedMessage =
+      'Payment could not be completed. Please try again.';
+
   // ── Orders ─────────────────────────────────────────────────────────────────
   static const ordersPageTitle = 'Orders';
   static const upcomingTabLabel = 'Upcoming';

@@ -110,4 +110,8 @@ export type Order = {
   total: number;
   deliveryOtp: string;
   placedAt: string;
+  // The verified Razorpay payment this order was placed against. Empty for
+  // orders placed through the test-mode payment-less path (the web preview,
+  // which can't run the native checkout SDK) — never empty for a live store.
+  razorpayPaymentId: string;
 };

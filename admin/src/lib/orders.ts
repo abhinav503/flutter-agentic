@@ -66,6 +66,7 @@ function toOrder(id: string, data: FirebaseFirestore.DocumentData): Order {
     total: (data.total as number) ?? 0,
     deliveryOtp: (data.deliveryOtp as string) ?? "",
     placedAt: (data.placedAt as string) ?? "",
+    razorpayPaymentId: (data.razorpayPaymentId as string) ?? "",
   };
 }
 
@@ -90,11 +91,50 @@ const EMPTY_ADDRESS: Address = {
 // corrupt an order or oversell. Also clears the shopper's cart for this
 // store in the same transaction — standard "checkout empties the cart"
 // behavior, and atomic with the order write.
+// Reads live product docs and sums price*quantity without touching stock —
+// the authoritative amount for a payment intent, computed the same way (and
+// from the same source) as the final transaction below, so the shopper is
+// charged exactly what the confirmed order totals. Validates existence and
+// stock up front so a doomed cart fails before the shopper is charged,
+// rather than after (which would need a refund).
+export async function priceCart(
+  storeId: string,
+  requestedItems: CreateOrderItemInput[],
+): Promise<number> {
+  if (requestedItems.length === 0) {
+    throw new OrderCreationError("Order must contain at least one item");
+  }
+
+  const snaps = await Promise.all(
+    requestedItems.map((item) => productDocRef(storeId, item.productId).get()),
+  );
+
+  let total = 0;
+  for (let i = 0; i < requestedItems.length; i++) {
+    const { productId, quantity } = requestedItems[i];
+    const snap = snaps[i];
+    if (!snap.exists) {
+      throw new OrderCreationError(`Product not found: ${productId}`, productId);
+    }
+    const data = snap.data()!;
+    const stock = (data.stock as number) ?? 0;
+    if (stock < quantity) {
+      throw new OrderCreationError(
+        `Insufficient stock for ${(data.name as string) ?? productId}`,
+        productId,
+      );
+    }
+    total += ((data.price as number) ?? 0) * quantity;
+  }
+  return total;
+}
+
 export async function createOrder(
   uid: string,
   storeId: string,
   requestedItems: CreateOrderItemInput[],
   addressId: string,
+  razorpayPaymentId = "",
 ): Promise<Order> {
   if (requestedItems.length === 0) {
     throw new OrderCreationError("Order must contain at least one item");
@@ -167,6 +207,7 @@ export async function createOrder(
       total,
       deliveryOtp: generateOtp(),
       placedAt: new Date().toISOString(),
+      razorpayPaymentId,
     };
 
     tx.set(orderRef, newOrder);

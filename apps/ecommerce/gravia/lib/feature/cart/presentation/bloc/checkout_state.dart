@@ -3,7 +3,12 @@ part of 'checkout_bloc.dart';
 @freezed
 sealed class CheckoutState with _$CheckoutState {
   const factory CheckoutState.idle() = CheckoutIdle;
+
+  /// The whole checkout flow is in flight — payment intent, provider
+  /// checkout, and order placement all run under this one state, so the CTA
+  /// simply shows its loading state from tap to finish.
   const factory CheckoutState.submitting() = CheckoutSubmitting;
+
   const factory CheckoutState.success({required OrderEntity order}) =
       CheckoutSuccess;
 

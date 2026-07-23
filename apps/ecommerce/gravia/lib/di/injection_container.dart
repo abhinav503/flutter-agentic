@@ -55,10 +55,16 @@ import '../feature/notifications/domain/repository/notifications_repository.dart
 import '../feature/notifications/domain/usecase/get_notifications_usecase.dart';
 import '../feature/orders/data/data_source/orders_remote_data_source.dart';
 import '../feature/orders/data/data_source/orders_remote_data_source_impl.dart';
+import '../feature/orders/data/data_source/payment_gateway_data_source.dart';
+import '../feature/orders/data/data_source/razorpay_gateway_data_source_impl.dart';
 import '../feature/orders/data/repository_impl/orders_repository_impl.dart';
+import '../feature/orders/data/repository_impl/payment_gateway_repository_impl.dart';
 import '../feature/orders/domain/repository/orders_repository.dart';
+import '../feature/orders/domain/repository/payment_gateway_repository.dart';
 import '../feature/orders/domain/usecase/create_order_usecase.dart';
+import '../feature/orders/domain/usecase/create_payment_usecase.dart';
 import '../feature/orders/domain/usecase/get_orders_usecase.dart';
+import '../feature/orders/domain/usecase/process_payment_usecase.dart';
 import '../feature/product_details/data/data_source/product_details_remote_data_source.dart';
 import '../feature/product_details/data/data_source/product_details_remote_data_source_impl.dart';
 import '../feature/product_details/data/repository_impl/product_details_repository_impl.dart';
@@ -179,7 +185,17 @@ Future<void> initDependencies() async {
     () => const OrdersRemoteDataSourceImpl(),
   );
   sl.registerLazySingleton<OrdersRepository>(() => OrdersRepositoryImpl(sl()));
+  // Swap this one impl to change payment providers — nothing downstream
+  // (repository, use case, BLoC, screen) references Razorpay.
+  sl.registerLazySingleton<PaymentGatewayDataSource>(
+    () => const RazorpayGatewayDataSourceImpl(),
+  );
+  sl.registerLazySingleton<PaymentGatewayRepository>(
+    () => PaymentGatewayRepositoryImpl(sl()),
+  );
   sl.registerLazySingleton(() => GetOrdersUseCase(sl()));
+  sl.registerLazySingleton(() => CreatePaymentUseCase(sl()));
+  sl.registerLazySingleton(() => ProcessPaymentUseCase(sl()));
   sl.registerLazySingleton(() => CreateOrderUseCase(sl()));
 
   // ── Favourites ───────────────────────────────────────────────────────────

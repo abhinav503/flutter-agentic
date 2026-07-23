@@ -27,7 +27,11 @@ class _CartPageState extends BasePageState<CartPage> {
             CartBloc(getHomeUseCase: sl())..add(const CartEvent.started()),
       ),
       BlocProvider(
-        create: (_) => CheckoutBloc(createOrderUseCase: sl()),
+        create: (_) => CheckoutBloc(
+          createPaymentUseCase: sl(),
+          processPaymentUseCase: sl(),
+          createOrderUseCase: sl(),
+        ),
       ),
     ],
     child: const CartScreen(),

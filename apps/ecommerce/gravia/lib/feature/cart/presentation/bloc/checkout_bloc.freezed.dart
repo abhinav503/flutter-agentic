@@ -12,7 +12,7 @@ part of 'checkout_bloc.dart';
 // dart format off
 T _$identity<T>(T value) => value;
 /// @nodoc
-mixin _$CheckoutEvent {
+mixin _$CheckoutEvent implements DiagnosticableTreeMixin {
 
  List<CartItemEntity> get items; String get addressId;
 /// Create a copy of CheckoutEvent
@@ -22,6 +22,12 @@ mixin _$CheckoutEvent {
 $CheckoutEventCopyWith<CheckoutEvent> get copyWith => _$CheckoutEventCopyWithImpl<CheckoutEvent>(this as CheckoutEvent, _$identity);
 
 
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'CheckoutEvent'))
+    ..add(DiagnosticsProperty('items', items))..add(DiagnosticsProperty('addressId', addressId));
+}
 
 @override
 bool operator ==(Object other) {
@@ -33,7 +39,7 @@ bool operator ==(Object other) {
 int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(items),addressId);
 
 @override
-String toString() {
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
   return 'CheckoutEvent(items: $items, addressId: $addressId)';
 }
 
@@ -200,7 +206,7 @@ return submitted(_that.items,_that.addressId);case _:
 /// @nodoc
 
 
-class CheckoutSubmitted implements CheckoutEvent {
+class CheckoutSubmitted with DiagnosticableTreeMixin implements CheckoutEvent {
   const CheckoutSubmitted({required final  List<CartItemEntity> items, required this.addressId}): _items = items;
   
 
@@ -220,6 +226,12 @@ class CheckoutSubmitted implements CheckoutEvent {
 $CheckoutSubmittedCopyWith<CheckoutSubmitted> get copyWith => _$CheckoutSubmittedCopyWithImpl<CheckoutSubmitted>(this, _$identity);
 
 
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'CheckoutEvent.submitted'))
+    ..add(DiagnosticsProperty('items', items))..add(DiagnosticsProperty('addressId', addressId));
+}
 
 @override
 bool operator ==(Object other) {
@@ -231,7 +243,7 @@ bool operator ==(Object other) {
 int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_items),addressId);
 
 @override
-String toString() {
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
   return 'CheckoutEvent.submitted(items: $items, addressId: $addressId)';
 }
 
@@ -272,11 +284,17 @@ as String,
 }
 
 /// @nodoc
-mixin _$CheckoutState {
+mixin _$CheckoutState implements DiagnosticableTreeMixin {
 
 
 
 
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'CheckoutState'))
+    ;
+}
 
 @override
 bool operator ==(Object other) {
@@ -288,7 +306,7 @@ bool operator ==(Object other) {
 int get hashCode => runtimeType.hashCode;
 
 @override
-String toString() {
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
   return 'CheckoutState()';
 }
 
@@ -446,7 +464,7 @@ return failure(_that.message,_that.items,_that.addressId);case _:
 /// @nodoc
 
 
-class CheckoutIdle implements CheckoutState {
+class CheckoutIdle with DiagnosticableTreeMixin implements CheckoutState {
   const CheckoutIdle();
   
 
@@ -454,6 +472,12 @@ class CheckoutIdle implements CheckoutState {
 
 
 
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'CheckoutState.idle'))
+    ;
+}
 
 @override
 bool operator ==(Object other) {
@@ -465,7 +489,7 @@ bool operator ==(Object other) {
 int get hashCode => runtimeType.hashCode;
 
 @override
-String toString() {
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
   return 'CheckoutState.idle()';
 }
 
@@ -478,7 +502,7 @@ String toString() {
 /// @nodoc
 
 
-class CheckoutSubmitting implements CheckoutState {
+class CheckoutSubmitting with DiagnosticableTreeMixin implements CheckoutState {
   const CheckoutSubmitting();
   
 
@@ -486,6 +510,12 @@ class CheckoutSubmitting implements CheckoutState {
 
 
 
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'CheckoutState.submitting'))
+    ;
+}
 
 @override
 bool operator ==(Object other) {
@@ -497,7 +527,7 @@ bool operator ==(Object other) {
 int get hashCode => runtimeType.hashCode;
 
 @override
-String toString() {
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
   return 'CheckoutState.submitting()';
 }
 
@@ -510,7 +540,7 @@ String toString() {
 /// @nodoc
 
 
-class CheckoutSuccess implements CheckoutState {
+class CheckoutSuccess with DiagnosticableTreeMixin implements CheckoutState {
   const CheckoutSuccess({required this.order});
   
 
@@ -523,6 +553,12 @@ class CheckoutSuccess implements CheckoutState {
 $CheckoutSuccessCopyWith<CheckoutSuccess> get copyWith => _$CheckoutSuccessCopyWithImpl<CheckoutSuccess>(this, _$identity);
 
 
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'CheckoutState.success'))
+    ..add(DiagnosticsProperty('order', order));
+}
 
 @override
 bool operator ==(Object other) {
@@ -534,7 +570,7 @@ bool operator ==(Object other) {
 int get hashCode => Object.hash(runtimeType,order);
 
 @override
-String toString() {
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
   return 'CheckoutState.success(order: $order)';
 }
 
@@ -576,7 +612,7 @@ as OrderEntity,
 /// @nodoc
 
 
-class CheckoutFailure implements CheckoutState {
+class CheckoutFailure with DiagnosticableTreeMixin implements CheckoutState {
   const CheckoutFailure({required this.message, required final  List<CartItemEntity> items, required this.addressId}): _items = items;
   
 
@@ -597,6 +633,12 @@ class CheckoutFailure implements CheckoutState {
 $CheckoutFailureCopyWith<CheckoutFailure> get copyWith => _$CheckoutFailureCopyWithImpl<CheckoutFailure>(this, _$identity);
 
 
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'CheckoutState.failure'))
+    ..add(DiagnosticsProperty('message', message))..add(DiagnosticsProperty('items', items))..add(DiagnosticsProperty('addressId', addressId));
+}
 
 @override
 bool operator ==(Object other) {
@@ -608,7 +650,7 @@ bool operator ==(Object other) {
 int get hashCode => Object.hash(runtimeType,message,const DeepCollectionEquality().hash(_items),addressId);
 
 @override
-String toString() {
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
   return 'CheckoutState.failure(message: $message, items: $items, addressId: $addressId)';
 }
 

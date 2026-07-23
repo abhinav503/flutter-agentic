@@ -43,6 +43,12 @@ dependencies:
   # Brand SVG rendering (splash wordmark glyph)
   flutter_svg: ^2.3.0
 
+  # Razorpay native checkout (per-store keys) — mobile only. The plugin
+  # compiles for web (MethodChannel only, no dart:io) but its channel has no
+  # web impl, so CheckoutBloc branches on kIsWeb *before* the payment step and
+  # the web preview places a test-mode order without opening the sheet.
+  razorpay_flutter: ^1.4.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

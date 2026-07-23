@@ -86,13 +86,14 @@ extension FailurePatterns on Failure {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( NetworkFailure value)?  network,TResult Function( ServerFailure value)?  server,TResult Function( UnexpectedFailure value)?  unexpected,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( NetworkFailure value)?  network,TResult Function( ServerFailure value)?  server,TResult Function( UnexpectedFailure value)?  unexpected,TResult Function( PaymentFailure value)?  payment,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case NetworkFailure() when network != null:
 return network(_that);case ServerFailure() when server != null:
 return server(_that);case UnexpectedFailure() when unexpected != null:
-return unexpected(_that);case _:
+return unexpected(_that);case PaymentFailure() when payment != null:
+return payment(_that);case _:
   return orElse();
 
 }
@@ -110,13 +111,14 @@ return unexpected(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( NetworkFailure value)  network,required TResult Function( ServerFailure value)  server,required TResult Function( UnexpectedFailure value)  unexpected,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( NetworkFailure value)  network,required TResult Function( ServerFailure value)  server,required TResult Function( UnexpectedFailure value)  unexpected,required TResult Function( PaymentFailure value)  payment,}){
 final _that = this;
 switch (_that) {
 case NetworkFailure():
 return network(_that);case ServerFailure():
 return server(_that);case UnexpectedFailure():
-return unexpected(_that);}
+return unexpected(_that);case PaymentFailure():
+return payment(_that);}
 }
 /// A variant of `map` that fallback to returning `null`.
 ///
@@ -130,13 +132,14 @@ return unexpected(_that);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( NetworkFailure value)?  network,TResult? Function( ServerFailure value)?  server,TResult? Function( UnexpectedFailure value)?  unexpected,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( NetworkFailure value)?  network,TResult? Function( ServerFailure value)?  server,TResult? Function( UnexpectedFailure value)?  unexpected,TResult? Function( PaymentFailure value)?  payment,}){
 final _that = this;
 switch (_that) {
 case NetworkFailure() when network != null:
 return network(_that);case ServerFailure() when server != null:
 return server(_that);case UnexpectedFailure() when unexpected != null:
-return unexpected(_that);case _:
+return unexpected(_that);case PaymentFailure() when payment != null:
+return payment(_that);case _:
   return null;
 
 }
@@ -153,12 +156,13 @@ return unexpected(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String message)?  network,TResult Function( int statusCode,  String message)?  server,TResult Function( String message)?  unexpected,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String message)?  network,TResult Function( int statusCode,  String message)?  server,TResult Function( String message)?  unexpected,TResult Function( String message,  bool cancelled)?  payment,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case NetworkFailure() when network != null:
 return network(_that.message);case ServerFailure() when server != null:
 return server(_that.statusCode,_that.message);case UnexpectedFailure() when unexpected != null:
-return unexpected(_that.message);case _:
+return unexpected(_that.message);case PaymentFailure() when payment != null:
+return payment(_that.message,_that.cancelled);case _:
   return orElse();
 
 }
@@ -176,12 +180,13 @@ return unexpected(_that.message);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String message)  network,required TResult Function( int statusCode,  String message)  server,required TResult Function( String message)  unexpected,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String message)  network,required TResult Function( int statusCode,  String message)  server,required TResult Function( String message)  unexpected,required TResult Function( String message,  bool cancelled)  payment,}) {final _that = this;
 switch (_that) {
 case NetworkFailure():
 return network(_that.message);case ServerFailure():
 return server(_that.statusCode,_that.message);case UnexpectedFailure():
-return unexpected(_that.message);}
+return unexpected(_that.message);case PaymentFailure():
+return payment(_that.message,_that.cancelled);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -195,12 +200,13 @@ return unexpected(_that.message);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String message)?  network,TResult? Function( int statusCode,  String message)?  server,TResult? Function( String message)?  unexpected,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String message)?  network,TResult? Function( int statusCode,  String message)?  server,TResult? Function( String message)?  unexpected,TResult? Function( String message,  bool cancelled)?  payment,}) {final _that = this;
 switch (_that) {
 case NetworkFailure() when network != null:
 return network(_that.message);case ServerFailure() when server != null:
 return server(_that.statusCode,_that.message);case UnexpectedFailure() when unexpected != null:
-return unexpected(_that.message);case _:
+return unexpected(_that.message);case PaymentFailure() when payment != null:
+return payment(_that.message,_that.cancelled);case _:
   return null;
 
 }
@@ -402,6 +408,74 @@ class _$UnexpectedFailureCopyWithImpl<$Res>
   return _then(UnexpectedFailure(
 message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
 as String,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class PaymentFailure implements Failure {
+  const PaymentFailure({required this.message, this.cancelled = false});
+  
+
+@override final  String message;
+@JsonKey() final  bool cancelled;
+
+/// Create a copy of Failure
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$PaymentFailureCopyWith<PaymentFailure> get copyWith => _$PaymentFailureCopyWithImpl<PaymentFailure>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is PaymentFailure&&(identical(other.message, message) || other.message == message)&&(identical(other.cancelled, cancelled) || other.cancelled == cancelled));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,message,cancelled);
+
+@override
+String toString() {
+  return 'Failure.payment(message: $message, cancelled: $cancelled)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $PaymentFailureCopyWith<$Res> implements $FailureCopyWith<$Res> {
+  factory $PaymentFailureCopyWith(PaymentFailure value, $Res Function(PaymentFailure) _then) = _$PaymentFailureCopyWithImpl;
+@override @useResult
+$Res call({
+ String message, bool cancelled
+});
+
+
+
+
+}
+/// @nodoc
+class _$PaymentFailureCopyWithImpl<$Res>
+    implements $PaymentFailureCopyWith<$Res> {
+  _$PaymentFailureCopyWithImpl(this._self, this._then);
+
+  final PaymentFailure _self;
+  final $Res Function(PaymentFailure) _then;
+
+/// Create a copy of Failure
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? message = null,Object? cancelled = null,}) {
+  return _then(PaymentFailure(
+message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
+as String,cancelled: null == cancelled ? _self.cancelled : cancelled // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 

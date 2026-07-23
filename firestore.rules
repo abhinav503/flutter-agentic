@@ -55,6 +55,15 @@ service cloud.firestore {
       allow create: if false;
       allow update, delete: if isStoreOwner(storeId);
 
+      // Server-only secrets (Razorpay key id + encrypted secret). The store
+      // doc above is world-readable and Firestore reads are per-document, so
+      // these must live in their own doc that no client can read — the admin
+      // console's payment-config API reaches them via the Admin SDK, which
+      // bypasses rules.
+      match /private/{doc} {
+        allow read, write: if false;
+      }
+
       match /categories/{categoryId} {
         allow read: if true;
         allow write: if isStoreOwner(storeId);
