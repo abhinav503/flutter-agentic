@@ -25,4 +25,9 @@ abstract interface class OrdersRemoteDataSource {
     String addressId, {
     PaymentResultEntity? payment,
   });
+
+  /// Cancels the shopper's own order server-side (restock + refund if it was
+  /// paid) and returns the updated order, whose `refund_status` reflects the
+  /// refund outcome. The server authorizes by the verified token's uid.
+  Future<OrderModel> cancelOrder(String orderId);
 }

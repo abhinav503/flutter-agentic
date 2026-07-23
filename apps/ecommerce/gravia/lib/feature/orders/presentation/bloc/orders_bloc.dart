@@ -9,6 +9,7 @@ import 'package:gravia/enums/orders_filter_period.dart';
 import 'package:gravia/enums/orders_tab.dart';
 
 import '../../domain/entities/order_entity.dart';
+import '../../domain/usecase/cancel_order_usecase.dart';
 import '../../domain/usecase/get_orders_usecase.dart';
 
 part 'orders_bloc.freezed.dart';
@@ -17,6 +18,7 @@ part 'orders_state.dart';
 
 class OrdersBloc extends Bloc<OrdersEvent, OrdersState> {
   final GetOrdersUseCase _getOrders;
+  final CancelOrderUseCase _cancelOrder;
 
   // Only the fetched list is cached — [OrdersLoaded.selectedTab]/
   // [OrdersLoaded.filter] are transient view selections, so a warm start
@@ -26,15 +28,18 @@ class OrdersBloc extends Bloc<OrdersEvent, OrdersState> {
   @visibleForTesting
   static void resetCache() => _cache.reset();
 
-  OrdersBloc({required GetOrdersUseCase getOrdersUseCase})
-    : _getOrders = getOrdersUseCase,
-      super(
-        _cache.seed(
-          warm: (orders) =>
-              OrdersState.loaded(orders: orders, selectedTab: OrdersTab.past),
-          cold: OrdersState.loading,
-        ),
-      ) {
+  OrdersBloc({
+    required GetOrdersUseCase getOrdersUseCase,
+    required CancelOrderUseCase cancelOrderUseCase,
+  }) : _getOrders = getOrdersUseCase,
+       _cancelOrder = cancelOrderUseCase,
+       super(
+         _cache.seed(
+           warm: (orders) =>
+               OrdersState.loaded(orders: orders, selectedTab: OrdersTab.past),
+           cold: OrdersState.loading,
+         ),
+       ) {
     on<OrdersStarted>(_onStarted);
     on<OrdersTabChanged>(_onTabChanged);
     on<OrdersCancelled>(_onCancelled);
@@ -62,40 +67,65 @@ class OrdersBloc extends Bloc<OrdersEvent, OrdersState> {
   void _onTabChanged(OrdersTabChanged event, Emitter<OrdersState> emit) {
     switch (state) {
       case final OrdersLoaded loaded:
-        emit(loaded.copyWith(selectedTab: event.tab));
+        emit(loaded.copyWith(selectedTab: event.tab, cancelFailed: false));
       case OrdersLoading():
       case OrdersError():
         break;
     }
   }
 
-  void _onCancelled(OrdersCancelled event, Emitter<OrdersState> emit) {
-    switch (state) {
-      case final OrdersLoaded loaded:
-        final updated = [
-          for (final order in loaded.orders)
-            if (order.id == event.orderId)
-              OrderEntity(
-                id: order.id,
-                status: OrderStatus.cancelled,
-                placedAt: order.placedAt,
-                deliveryOtp: order.deliveryOtp,
-                items: order.items,
-              )
-            else
-              order,
-        ];
-        _emitLoaded(updated, loaded.selectedTab, emit, filter: loaded.filter);
-      case OrdersLoading():
-      case OrdersError():
-        break;
+  Future<void> _onCancelled(
+    OrdersCancelled event,
+    Emitter<OrdersState> emit,
+  ) async {
+    if (state case final OrdersLoaded loaded) {
+      final index = loaded.orders.indexWhere((o) => o.id == event.orderId);
+      // Only an upcoming order can be cancelled — ignore a stale tap on an
+      // already-cancelled/delivered one.
+      if (index == -1 || !loaded.orders[index].status.isUpcoming) return;
+
+      // Optimistic: flip to cancelled with the refund shown as processing
+      // until the server confirms, so the card moves to Past immediately.
+      final optimistic = [...loaded.orders];
+      optimistic[index] = _cancelledCopy(
+        loaded.orders[index],
+        RefundStatus.pending,
+      );
+      _cache.save(optimistic);
+      emit(loaded.copyWith(orders: optimistic, cancelFailed: false));
+
+      final result = await _cancelOrder(event.orderId);
+      result.fold(
+        (failure) {
+          // Roll back to the pre-cancel list; the listener toasts the failure.
+          _cache.save(loaded.orders);
+          emit(loaded.copyWith(cancelFailed: true));
+        },
+        (serverOrder) {
+          final reconciled = [...loaded.orders];
+          reconciled[index] = serverOrder;
+          _cache.save(reconciled);
+          emit(loaded.copyWith(orders: reconciled));
+        },
+      );
     }
   }
+
+  OrderEntity _cancelledCopy(OrderEntity order, RefundStatus refundStatus) =>
+      OrderEntity(
+        id: order.id,
+        status: OrderStatus.cancelled,
+        refundStatus: refundStatus,
+        placedAt: order.placedAt,
+        deliveryOtp: order.deliveryOtp,
+        items: order.items,
+        deliveryAddress: order.deliveryAddress,
+      );
 
   void _onFilterApplied(OrdersFilterApplied event, Emitter<OrdersState> emit) {
     switch (state) {
       case final OrdersLoaded loaded:
-        emit(loaded.copyWith(filter: event.filter));
+        emit(loaded.copyWith(filter: event.filter, cancelFailed: false));
       case OrdersLoading():
       case OrdersError():
         break;

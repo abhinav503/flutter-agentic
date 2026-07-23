@@ -58,6 +58,9 @@ export function serializeOrder(o: Order) {
   return {
     id: o.id,
     status: o.status,
+    // Shopper-facing refund state for a cancelled order. refundId is
+    // reconciliation-only (support/dashboard) and isn't sent to the client.
+    refund_status: o.refundStatus,
     placed_at: o.placedAt,
     delivery_otp: o.deliveryOtp,
     total: o.total,

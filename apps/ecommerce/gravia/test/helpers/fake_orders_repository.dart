@@ -54,4 +54,24 @@ class FakeOrdersRepository implements OrdersRepository {
     String addressId, {
     PaymentResultEntity? payment,
   }) async => result.map((orders) => orders.first);
+
+  /// Set per test to control what [cancelOrder] resolves to.
+  Either<Failure, OrderEntity>? cancelResult;
+
+  @override
+  Future<Either<Failure, OrderEntity>> cancelOrder(String orderId) async =>
+      cancelResult ??
+      result.map(
+        (orders) => _cancelled(orders.firstWhere((o) => o.id == orderId)),
+      );
+
+  OrderEntity _cancelled(OrderEntity order) => OrderEntity(
+    id: order.id,
+    status: OrderStatus.cancelled,
+    refundStatus: RefundStatus.processed,
+    placedAt: order.placedAt,
+    deliveryOtp: order.deliveryOtp,
+    items: order.items,
+    deliveryAddress: order.deliveryAddress,
+  );
 }

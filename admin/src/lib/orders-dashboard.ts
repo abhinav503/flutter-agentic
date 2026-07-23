@@ -42,3 +42,45 @@ export function watchOrdersForStore(
 export async function setOrderStatus(orderId: string, status: OrderStatus) {
   await updateDoc(doc(db, "orders", orderId), { status });
 }
+
+// Cancelling can't go through the client SDK like the other status changes:
+// it restocks items and issues a Razorpay refund, both of which need the
+// store secret and run server-side only. So this hits the REST cancel route
+// (admin SDK, requireStoreOwner via the token) instead of updateDoc. Returns
+// the updated order's refund status so the caller can toast the outcome.
+export async function cancelOrder(
+  storeId: string,
+  orderId: string,
+  token: string,
+): Promise<{ refundStatus: string }> {
+  const res = await fetch(
+    `/api/stores/${storeId}/orders/${orderId}/cancel`,
+    { method: "POST", headers: { Authorization: `Bearer ${token}` } },
+  );
+  if (!res.ok) {
+    const body = (await res.json().catch(() => ({}))) as { error?: string };
+    throw new Error(body.error ?? "Cancel failed");
+  }
+  const body = (await res.json()) as { order: { refund_status: string } };
+  return { refundStatus: body.order.refund_status };
+}
+
+// Issue or complete the refund on an already-cancelled order — the admin's
+// recourse when the auto-refund at cancel time didn't settle. Server-side and
+// idempotent (see the refund route); returns the resulting refund status.
+export async function refundOrder(
+  storeId: string,
+  orderId: string,
+  token: string,
+): Promise<{ refundStatus: string }> {
+  const res = await fetch(
+    `/api/stores/${storeId}/orders/${orderId}/refund`,
+    { method: "POST", headers: { Authorization: `Bearer ${token}` } },
+  );
+  if (!res.ok) {
+    const body = (await res.json().catch(() => ({}))) as { error?: string };
+    throw new Error(body.error ?? "Refund failed");
+  }
+  const body = (await res.json()) as { order: { refund_status: string } };
+  return { refundStatus: body.order.refund_status };
+}

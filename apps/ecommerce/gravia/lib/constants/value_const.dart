@@ -225,7 +225,7 @@ abstract final class ValueConst {
   static const upcomingTabLabel = 'Upcoming';
   static const pastTabLabel = 'Past';
   static const pendingStatusLabel = 'Order Placed';
-  static const inProcessStatusLabel = 'In Process';
+  static const inProcessStatusLabel = 'On the way';
   static const deliveredStatusLabel = 'Delivered';
   static const cancelledStatusLabel = 'Cancelled';
   static const deliveryOtpLabel = 'Delivery OTP';
@@ -233,6 +233,21 @@ abstract final class ValueConst {
   static const trackOrderLabel = 'Track Order';
   static const viewDetailsLabel = 'View Details';
   static const writeReviewLabel = 'Write A Review';
+
+  // Refund state shown on a cancelled order card. No label for RefundStatus.none
+  // — an unpaid/test order had no money to return, so nothing is shown.
+  static const refundPendingLabel = 'Refund processing';
+  static const refundProcessedLabel = 'Refunded';
+  static const refundFailedLabel = 'Refund failed';
+
+  // Cancel confirmation + outcome.
+  static const cancelOrderConfirmTitle = 'Cancel this order?';
+  static const cancelOrderConfirmBody =
+      'This will cancel your order. If you paid, you\'ll be refunded in full.';
+  static const cancelOrderConfirmCta = 'Cancel Order';
+  static const cancelOrderDismissCta = 'Keep Order';
+  static const cancelFailedMessage =
+      'Could not cancel the order. Please try again.';
   static String weightQuantityLabel(String weight, int quantity) =>
       '$weight × $quantity';
   static const ordersLoadErrorMessage =

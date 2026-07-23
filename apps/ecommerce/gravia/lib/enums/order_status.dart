@@ -31,3 +31,31 @@ extension OrderStatusParse on String {
     _ => OrderStatus.inProcess,
   };
 }
+
+/// The refund lifecycle for a cancelled order — an axis orthogonal to
+/// [OrderStatus] (mirrors `RefundStatus` in `admin/src/lib/types.ts`), so a
+/// cancelled order carries separately whether its money has been returned.
+/// [none] = never paid (test/web) or not cancelled; [pending] = Razorpay
+/// accepted the refund, still settling; [processed] = settled; [failed] = the
+/// refund call errored (order is still cancelled — retriable).
+enum RefundStatus { none, pending, processed, failed }
+
+extension RefundStatusX on RefundStatus {
+  /// The shopper-facing note; null for [none] — nothing to show when no money
+  /// was ever taken.
+  String? get label => switch (this) {
+    RefundStatus.none => null,
+    RefundStatus.pending => ValueConst.refundPendingLabel,
+    RefundStatus.processed => ValueConst.refundProcessedLabel,
+    RefundStatus.failed => ValueConst.refundFailedLabel,
+  };
+}
+
+extension RefundStatusParse on String {
+  RefundStatus toRefundStatus() => switch (this) {
+    'PENDING' => RefundStatus.pending,
+    'PROCESSED' => RefundStatus.processed,
+    'FAILED' => RefundStatus.failed,
+    _ => RefundStatus.none,
+  };
+}

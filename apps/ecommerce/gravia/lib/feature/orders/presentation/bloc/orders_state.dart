@@ -16,6 +16,11 @@ sealed class OrdersState with _$OrdersState {
     /// stays on screen; the listener surfaces this via a snackbar instead of
     /// replacing it with the error view.
     @Default(false) bool refreshFailed,
+
+    /// True for one emission after a cancel request fails and its optimistic
+    /// update is rolled back — the listener surfaces a snackbar, and any
+    /// later event (tab/filter change) clears it so it can't re-fire.
+    @Default(false) bool cancelFailed,
   }) = OrdersLoaded;
   const factory OrdersState.error({required String message}) = OrdersError;
 }

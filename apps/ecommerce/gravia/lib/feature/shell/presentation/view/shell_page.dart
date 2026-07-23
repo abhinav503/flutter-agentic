@@ -230,7 +230,7 @@ class _ShellPageState extends BasePageState<ShellPage> {
       ShellPage.favouriteTabIndex => const FavouritesScreen(),
       ShellPage.ordersTabIndex => BlocProvider(
         create: (_) =>
-            OrdersBloc(getOrdersUseCase: sl())
+            OrdersBloc(getOrdersUseCase: sl(), cancelOrderUseCase: sl())
               ..add(const OrdersEvent.started()),
         child: const OrdersScreen(),
       ),

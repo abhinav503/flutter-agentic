@@ -7,6 +7,7 @@ import {
 import {
   getStorePaymentStatus,
   setStorePaymentConfig,
+  setStoreWebhookSecret,
 } from "@/lib/payments";
 
 // Store-owner-only. GET returns a non-secret status (configured?, keyId,
@@ -56,6 +57,15 @@ export async function PUT(
   const keyId = typeof body.keyId === "string" ? body.keyId.trim() : "";
   const keySecret =
     typeof body.keySecret === "string" ? body.keySecret.trim() : "";
+  const webhookSecret =
+    typeof body.webhookSecret === "string" ? body.webhookSecret.trim() : "";
+
+  // Webhook-secret-only update — the owner sets it separately, after creating
+  // the webhook in Razorpay, without re-entering the (write-only) key secret.
+  if (webhookSecret && !keyId && !keySecret) {
+    await setStoreWebhookSecret(storeId, webhookSecret);
+    return NextResponse.json(await getStorePaymentStatus(storeId));
+  }
 
   if (!keyId || !keySecret) {
     return NextResponse.json(

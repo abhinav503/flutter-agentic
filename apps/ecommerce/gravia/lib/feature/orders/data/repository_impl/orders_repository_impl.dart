@@ -44,4 +44,11 @@ class OrdersRepositoryImpl with BaseRepository implements OrdersRepository {
     );
     return right(model.toEntity());
   });
+
+  @override
+  Future<Either<Failure, OrderEntity>> cancelOrder(String orderId) =>
+      handleRequest(() async {
+        final model = await _dataSource.cancelOrder(orderId);
+        return right(model.toEntity());
+      });
 }

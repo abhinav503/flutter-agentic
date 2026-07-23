@@ -6,6 +6,11 @@ import 'order_line_item_entity.dart';
 class OrderEntity {
   final String id;
   final OrderStatus status;
+
+  /// Whether this order's payment has been returned — only meaningful once
+  /// [status] is [OrderStatus.cancelled]; [RefundStatus.none] otherwise.
+  final RefundStatus refundStatus;
+
   final DateTime placedAt;
 
   /// 4-digit code the delivery agent verifies on handoff for the whole
@@ -29,6 +34,7 @@ class OrderEntity {
     required this.placedAt,
     required this.deliveryOtp,
     required this.items,
+    this.refundStatus = RefundStatus.none,
     this.deliveryAddress,
   });
 }

@@ -20,4 +20,6 @@ abstract interface class OrdersRepository {
     String addressId, {
     PaymentResultEntity? payment,
   });
+
+  Future<Either<Failure, OrderEntity>> cancelOrder(String orderId);
 }

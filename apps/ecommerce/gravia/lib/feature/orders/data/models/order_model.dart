@@ -16,6 +16,9 @@ abstract class OrderModel with _$OrderModel {
   const factory OrderModel({
     required String id,
     required String status,
+    // Defaulted: orders placed before the refund axis existed (and the
+    // fromEntity path) omit it — parsed to RefundStatus.none in toEntity.
+    @JsonKey(name: 'refund_status') @Default('NONE') String refundStatus,
     @JsonKey(name: 'placed_at') required String placedAt,
     @JsonKey(name: 'delivery_otp') required String deliveryOtp,
     required List<OrderLineItemModel> items,
@@ -39,6 +42,12 @@ abstract class OrderModel with _$OrderModel {
       OrderStatus.delivered => 'DELIVERED',
       OrderStatus.cancelled => 'CANCELLED',
     },
+    refundStatus: switch (e.refundStatus) {
+      RefundStatus.none => 'NONE',
+      RefundStatus.pending => 'PENDING',
+      RefundStatus.processed => 'PROCESSED',
+      RefundStatus.failed => 'FAILED',
+    },
     placedAt: e.placedAt.toIso8601String(),
     deliveryOtp: e.deliveryOtp,
     items: e.items.map(OrderLineItemModel.fromEntity).toList(),
@@ -50,6 +59,7 @@ abstract class OrderModel with _$OrderModel {
   OrderEntity toEntity() => OrderEntity(
     id: id,
     status: status.toOrderStatus(),
+    refundStatus: refundStatus.toRefundStatus(),
     placedAt: DateTime.parse(placedAt),
     deliveryOtp: deliveryOtp,
     items: items.map((m) => m.toEntity()).toList(),

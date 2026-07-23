@@ -41,8 +41,9 @@ class OrderCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
-    final sheetHairline =
-        Theme.of(context).extension<AppColorsExtension>()!.sheetHairline;
+    final sheetHairline = Theme.of(
+      context,
+    ).extension<AppColorsExtension>()!.sheetHairline;
     final isUpcoming = order.status.isUpcoming;
 
     return Column(
@@ -119,7 +120,12 @@ class OrderCard extends StatelessWidget {
               onTap: onTrackOrder,
             ),
           ),
-        ] else
+        ] else ...[
+          if (order.status == OrderStatus.cancelled &&
+              order.refundStatus.label != null) ...[
+            _RefundNote(status: order.refundStatus),
+            const SizedBox(height: AppSpacing.lg),
+          ],
           GraviaActionPair(
             left: GraviaAction(
               label: ValueConst.viewDetailsLabel,
@@ -132,6 +138,40 @@ class OrderCard extends StatelessWidget {
               onTap: onWriteReview,
             ),
           ),
+        ],
+      ],
+    );
+  }
+}
+
+class _RefundNote extends StatelessWidget {
+  final RefundStatus status;
+
+  const _RefundNote({required this.status});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+    // A failed refund is the one case the shopper must notice — flag it in the
+    // error colour; a pending/processed refund is reassuring, so it reads in
+    // the muted body colour like the rest of the card's metadata.
+    final isFailed = status == RefundStatus.failed;
+
+    return Row(
+      children: [
+        Icon(
+          isFailed ? Icons.error_outline : Icons.check_circle_outline,
+          size: 16,
+          color: isFailed ? cs.error : ColorConst.gray500,
+        ),
+        const SizedBox(width: AppSpacing.xs2),
+        Text(
+          status.label!,
+          style: TextStyleConst.textSmRegular(
+            tt,
+          ).copyWith(color: isFailed ? cs.error : ColorConst.gray500),
+        ),
       ],
     );
   }
@@ -187,7 +227,9 @@ class _OtpDigitBox extends StatelessWidget {
       height: _size,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: Theme.of(context).extension<AppColorsExtension>()!.tintedPrimaryFill,
+        color: Theme.of(
+          context,
+        ).extension<AppColorsExtension>()!.tintedPrimaryFill,
         border: Border.all(color: cs.primary),
       ),
       alignment: Alignment.center,

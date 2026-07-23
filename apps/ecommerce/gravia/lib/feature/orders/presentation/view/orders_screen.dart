@@ -47,6 +47,10 @@ class _OrdersScreenState extends BaseScreenState<OrdersScreen> {
           if (state case OrdersLoaded(refreshFailed: true)) {
             showSnackBar(ValueConst.ordersRefreshFailedMessage);
           }
+          // Cancel failed and its optimistic update rolled back.
+          if (state case OrdersLoaded(cancelFailed: true)) {
+            showSnackBar(ValueConst.cancelFailedMessage);
+          }
         },
         builder: (context, state) => AnimatedSwitcher(
           duration: const Duration(milliseconds: 300),
@@ -144,9 +148,7 @@ class _OrdersScreenState extends BaseScreenState<OrdersScreen> {
                     if (i > 0) const SizedBox(height: AppSpacing.xl2),
                     OrderCard(
                       order: visible[i],
-                      onCancel: () => context.read<OrdersBloc>().add(
-                        OrdersEvent.cancelled(orderId: visible[i].id),
-                      ),
+                      onCancel: () => _confirmCancel(context, visible[i].id),
                       onTrackOrder: () =>
                           showSnackBar(ValueConst.comingSoonMessage),
                       onViewDetails: () =>
@@ -158,6 +160,17 @@ class _OrdersScreenState extends BaseScreenState<OrdersScreen> {
                 ],
               ),
       ),
+    );
+  }
+
+  void _confirmCancel(BuildContext context, String orderId) {
+    final bloc = context.read<OrdersBloc>();
+    showGraviaConfirmSheet(
+      context: context,
+      title: ValueConst.cancelOrderConfirmTitle,
+      message: ValueConst.cancelOrderConfirmBody,
+      confirmLabel: ValueConst.cancelOrderConfirmCta,
+      onConfirm: () => bloc.add(OrdersEvent.cancelled(orderId: orderId)),
     );
   }
 

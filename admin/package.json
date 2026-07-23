@@ -6,7 +6,8 @@
     "dev": "next dev -p 4100",
     "build": "next build --webpack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:webhook": "node scripts/test-refund-webhook.mjs"
   },
   "dependencies": {
     "class-variance-authority": "^0.7.1",

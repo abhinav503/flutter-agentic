@@ -6,6 +6,7 @@ import type {
   Order,
   OrderLineItem,
   OrderStatus,
+  RefundStatus,
   UnitType,
 } from "./types";
 
@@ -67,6 +68,10 @@ function toOrder(id: string, data: FirebaseFirestore.DocumentData): Order {
     deliveryOtp: (data.deliveryOtp as string) ?? "",
     placedAt: (data.placedAt as string) ?? "",
     razorpayPaymentId: (data.razorpayPaymentId as string) ?? "",
+    // Orders placed before the refund axis existed have no field — default to
+    // NONE so an un-refunded past order reads correctly.
+    refundStatus: (data.refundStatus as RefundStatus) ?? "NONE",
+    refundId: (data.refundId as string) ?? "",
   };
 }
 
@@ -208,6 +213,8 @@ export async function createOrder(
       deliveryOtp: generateOtp(),
       placedAt: new Date().toISOString(),
       razorpayPaymentId,
+      refundStatus: "NONE",
+      refundId: "",
     };
 
     tx.set(orderRef, newOrder);
@@ -258,4 +265,88 @@ export async function updateOrderStatus(
   status: OrderStatus,
 ): Promise<void> {
   await ordersRef().doc(orderId).update({ status });
+}
+
+export async function getOrderById(orderId: string): Promise<Order | null> {
+  const snap = await ordersRef().doc(orderId).get();
+  if (!snap.exists) return null;
+  return toOrder(snap.id, snap.data()!);
+}
+
+// Finds the order a Razorpay payment belongs to, scoped to the store the
+// webhook is for. A full-order refund is 1:1 with a payment, so this uniquely
+// identifies the order to reconcile. Two equality filters are served by
+// single-field indexes (no composite index needed).
+export async function getOrderByPaymentId(
+  storeId: string,
+  paymentId: string,
+): Promise<Order | null> {
+  const snap = await ordersRef()
+    .where("storeId", "==", storeId)
+    .where("razorpayPaymentId", "==", paymentId)
+    .limit(1)
+    .get();
+  if (snap.empty) return null;
+  const doc = snap.docs[0];
+  return toOrder(doc.id, doc.data());
+}
+
+// A cancel that isn't allowed by the order's current lifecycle — a delivered
+// order is done, an already-cancelled one is a no-op. Routes map this to 409.
+export class CancelNotAllowedError extends Error {}
+
+// Cancels an order and reverses its stock, atomically. Deliberately does NOT
+// touch Razorpay — issuing the refund needs the store secret and an external
+// HTTP call, which can't run inside a Firestore transaction; the caller does
+// that next and records the outcome via setOrderRefund. This split means the
+// order is always left in a recoverable state: CANCELLED + restocked, with
+// refundStatus PENDING (a refund is owed) when it was paid, so a failed
+// refund call can be retried without re-cancelling. Returns the updated order.
+export async function cancelOrder(orderId: string): Promise<Order> {
+  const orderRef = ordersRef().doc(orderId);
+
+  return adminDb.runTransaction(async (tx) => {
+    const snap = await tx.get(orderRef);
+    if (!snap.exists) {
+      throw new CancelNotAllowedError("Order not found");
+    }
+    const order = toOrder(snap.id, snap.data()!);
+
+    if (order.status === "CANCELLED") {
+      throw new CancelNotAllowedError("Order is already cancelled");
+    }
+    if (order.status === "DELIVERED") {
+      throw new CancelNotAllowedError("A delivered order can't be cancelled");
+    }
+
+    // Restock every line item — read all product docs first (Firestore
+    // transactions require reads before writes), then increment.
+    const productRefs = order.items.map((item) =>
+      productDocRef(order.storeId, item.productId),
+    );
+    const productSnaps = await Promise.all(productRefs.map((ref) => tx.get(ref)));
+
+    const paid = order.razorpayPaymentId !== "";
+    const refundStatus: RefundStatus = paid ? "PENDING" : "NONE";
+
+    tx.update(orderRef, { status: "CANCELLED", refundStatus });
+    for (let i = 0; i < order.items.length; i++) {
+      const productSnap = productSnaps[i];
+      // A product deleted since the order was placed simply isn't restocked —
+      // there's no doc to increment, and re-creating it would be wrong.
+      if (!productSnap.exists) continue;
+      const stock = (productSnap.data()!.stock as number) ?? 0;
+      tx.update(productRefs[i], { stock: stock + order.items[i].quantity });
+    }
+
+    return { ...order, status: "CANCELLED", refundStatus };
+  });
+}
+
+export async function setOrderRefund(
+  orderId: string,
+  refundStatus: RefundStatus,
+  refundId: string,
+): Promise<void> {
+  await ordersRef().doc(orderId).update({ refundStatus, refundId });
 }

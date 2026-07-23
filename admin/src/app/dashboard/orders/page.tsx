@@ -2,10 +2,17 @@
 
 import { Fragment, useEffect, useState } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
+import { useAuth } from "@/lib/auth-context";
 import { useStore } from "@/lib/store-context";
-import { watchOrdersForStore, setOrderStatus } from "@/lib/orders-dashboard";
-import type { Address, Order, OrderStatus } from "@/lib/types";
+import {
+  watchOrdersForStore,
+  setOrderStatus,
+  cancelOrder,
+  refundOrder,
+} from "@/lib/orders-dashboard";
+import type { Address, Order, OrderStatus, RefundStatus } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -13,6 +20,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import {
   Table,
   TableBody,
@@ -27,9 +44,26 @@ const COLUMN_COUNT = 9;
 
 const STATUS_LABELS: Record<OrderStatus, string> = {
   PENDING: "Pending",
-  IN_PROCESS: "In process",
+  IN_PROCESS: "On the way",
   DELIVERED: "Delivered",
   CANCELLED: "Cancelled",
+};
+
+// The refund badge shown alongside a cancelled order's status. NONE (an
+// unpaid/test order) shows nothing — there was never money to return.
+const REFUND_LABELS: Record<Exclude<RefundStatus, "NONE">, string> = {
+  PENDING: "Refund pending",
+  PROCESSED: "Refunded",
+  FAILED: "Refund failed",
+};
+
+const REFUND_BADGE_VARIANT: Record<
+  Exclude<RefundStatus, "NONE">,
+  "secondary" | "success" | "destructive"
+> = {
+  PENDING: "secondary",
+  PROCESSED: "success",
+  FAILED: "destructive",
 };
 
 const STATUS_BADGE_VARIANT: Record<
@@ -59,9 +93,14 @@ function addressLines(address: Address): string {
 }
 
 export default function OrdersPage() {
+  const { user } = useAuth();
   const { storeId } = useStore();
   const [orders, setOrders] = useState<Order[]>([]);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
+  const [cancelTarget, setCancelTarget] = useState<Order | null>(null);
+  const [cancelling, setCancelling] = useState(false);
+  const [refundTarget, setRefundTarget] = useState<Order | null>(null);
+  const [refunding, setRefunding] = useState(false);
 
   useEffect(() => {
     if (!storeId) return;
@@ -80,11 +119,65 @@ export default function OrdersPage() {
   }
 
   async function handleStatusChange(order: Order, status: OrderStatus) {
+    // Cancelling isn't a plain status write — it restocks and refunds
+    // server-side. Route it through a confirm dialog + the REST cancel path.
+    if (status === "CANCELLED") {
+      setCancelTarget(order);
+      return;
+    }
     try {
       await setOrderStatus(order.id, status);
       toast.success("Order status updated");
     } catch {
       toast.error("Could not update order status");
+    }
+  }
+
+  async function confirmCancel() {
+    if (!cancelTarget || !user || !storeId) return;
+    setCancelling(true);
+    try {
+      const token = await user.getIdToken();
+      const { refundStatus } = await cancelOrder(storeId, cancelTarget.id, token);
+      toast.success(
+        refundStatus === "PROCESSED"
+          ? "Order cancelled and customer refunded"
+          : refundStatus === "PENDING"
+            ? "Order cancelled — refund is processing"
+            : refundStatus === "FAILED"
+              ? "Order cancelled, but the refund failed — retry from the order"
+              : "Order cancelled",
+      );
+      setCancelTarget(null);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not cancel order");
+    } finally {
+      setCancelling(false);
+    }
+  }
+
+  async function confirmRefund() {
+    if (!refundTarget || !user || !storeId) return;
+    setRefunding(true);
+    try {
+      const token = await user.getIdToken();
+      const { refundStatus } = await refundOrder(
+        storeId,
+        refundTarget.id,
+        token,
+      );
+      toast.success(
+        refundStatus === "PROCESSED"
+          ? "Refund completed"
+          : refundStatus === "PENDING"
+            ? "Refund is processing at Razorpay"
+            : "Refund could not be completed — try again",
+      );
+      setRefundTarget(null);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not issue refund");
+    } finally {
+      setRefunding(false);
     }
   }
 
@@ -168,27 +261,56 @@ export default function OrdersPage() {
                     {order.deliveryOtp}
                   </TableCell>
                   <TableCell onClick={(e) => e.stopPropagation()}>
-                    <Select
-                      value={order.status}
-                      onValueChange={(value) =>
-                        handleStatusChange(order, value as OrderStatus)
-                      }
-                    >
-                      <SelectTrigger size="sm" className="w-full">
-                        <SelectValue>
-                          <Badge variant={STATUS_BADGE_VARIANT[order.status]}>
-                            {STATUS_LABELS[order.status]}
+                    <div className="flex flex-col gap-1">
+                      <Select
+                        value={order.status}
+                        // A cancelled order is terminal — no transitions out.
+                        disabled={order.status === "CANCELLED"}
+                        onValueChange={(value) =>
+                          handleStatusChange(order, value as OrderStatus)
+                        }
+                      >
+                        <SelectTrigger size="sm" className="w-full">
+                          <SelectValue>
+                            <Badge variant={STATUS_BADGE_VARIANT[order.status]}>
+                              {STATUS_LABELS[order.status]}
+                            </Badge>
+                          </SelectValue>
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Object.entries(STATUS_LABELS).map(([value, label]) => (
+                            <SelectItem key={value} value={value}>
+                              {label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {order.status === "CANCELLED" &&
+                        order.refundStatus !== "NONE" && (
+                          <Badge
+                            variant={REFUND_BADGE_VARIANT[order.refundStatus]}
+                            className="w-fit"
+                          >
+                            {REFUND_LABELS[order.refundStatus]}
                           </Badge>
-                        </SelectValue>
-                      </SelectTrigger>
-                      <SelectContent>
-                        {Object.entries(STATUS_LABELS).map(([value, label]) => (
-                          <SelectItem key={value} value={value}>
-                            {label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                        )}
+                      {/* A refund that isn't settled yet — let the owner push
+                          it through (or reconcile a pending one). */}
+                      {order.status === "CANCELLED" &&
+                        (order.refundStatus === "PENDING" ||
+                          order.refundStatus === "FAILED") && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="w-fit"
+                            onClick={() => setRefundTarget(order)}
+                          >
+                            {order.refundStatus === "FAILED"
+                              ? "Retry refund"
+                              : "Complete refund"}
+                          </Button>
+                        )}
+                    </div>
                   </TableCell>
                 </TableRow>
                 {isOpen && (
@@ -203,6 +325,64 @@ export default function OrdersPage() {
           })}
         </TableBody>
       </Table>
+
+      <AlertDialog
+        open={!!cancelTarget}
+        onOpenChange={(open) => !open && !cancelling && setCancelTarget(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Cancel this order?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {cancelTarget?.razorpayPaymentId
+                ? "The items will be restocked and the customer refunded in full via Razorpay. This can't be undone."
+                : "The items will be restocked. This order had no payment to refund. This can't be undone."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={cancelling}>
+              Keep order
+            </AlertDialogCancel>
+            <AlertDialogAction
+              disabled={cancelling}
+              onClick={(e) => {
+                e.preventDefault();
+                confirmCancel();
+              }}
+            >
+              {cancelling ? "Cancelling…" : "Cancel order"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog
+        open={!!refundTarget}
+        onOpenChange={(open) => !open && !refunding && setRefundTarget(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Refund this order?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {refundTarget?.refundStatus === "FAILED"
+                ? "The earlier refund didn't go through. This retries the full refund to the customer via Razorpay."
+                : "This issues the full refund to the customer via Razorpay. If a refund is already in progress, it's just re-checked, not duplicated."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={refunding}>Back</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={refunding}
+              onClick={(e) => {
+                e.preventDefault();
+                confirmRefund();
+              }}
+            >
+              {refunding ? "Refunding…" : "Refund customer"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

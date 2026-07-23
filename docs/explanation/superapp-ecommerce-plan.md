@@ -2,8 +2,9 @@
 
 > Status: **M1a done; catalog CRUD, read API, and gravia catalog wiring done;
 > cart/order-creation/admin-order-management APIs done; shopper-auth trust gap
-> closed (all shopper routes now token-verified). Not yet deployed**
-> (last updated 2026-07-22). Turns the `gravia` exemplar into a
+> closed (all shopper routes now token-verified); checkout + per-store Razorpay
+> payments + cancel/refund done (both shopper and admin). Not yet deployed**
+> (last updated 2026-07-24). Turns the `gravia` exemplar into a
 > multi-tenant "app of apps" ecommerce platform. See also
 > `docs/explanation/end-goal.md`.
 >
@@ -113,8 +114,8 @@ New `feature/discovery/` (store search/browse) becomes the app's first screen;
 1. **Store onboarding** — how a creator signs up, creates a store, becomes its admin (roles/claims).
 2. **Auth depth** — password reset, email verification, session persistence, shopper-vs-admin roles.
 3. **Persistent cart** — today in-memory; must persist per-user-per-store and merge on login.
-4. **Checkout + payment** — biggest gap; real PSP, server-side order write, failure/refund states.
-5. **Order lifecycle + admin order management** — who advances pending→…→delivered; OTP verify; cancel/refund.
+4. ✅ **Checkout + payment** — **DONE** (per-store Razorpay, server-side verified order write, test-mode web path). See "Checkout, per-store payments, and cancel/refund — DONE (2026-07-24)".
+5. ✅ **Order lifecycle + cancel/refund** — **DONE** (status advance via admin dashboard; shopper + admin cancel with restock + auto-refund; admin manual refund). OTP is issued/displayed but agent-side verify isn't wired. Same section.
 6. **Inventory/stock** — no stock field today; decrement in a transaction to avoid oversell; out-of-stock UI.
 7. **Image hosting** — Cloud Storage upload vs. image URLs in the Excel import.
 8. **Import validation** — schema/column mapping, dedupe, upsert-vs-replace, error reporting.
@@ -654,3 +655,96 @@ old gravia (sending `userId`, no token) would 401 against the new routes, so
 they must not go live independently. gravia isn't store-published, so its
 running instance always tracks latest — the ordering only matters for the
 production API cutover.
+
+## Checkout, per-store payments, and cancel/refund — DONE (2026-07-24)
+
+Closes **Missing flow #4 (Checkout + payment)** and **#5 (order lifecycle,
+cancel/refund)**. The end-to-end money path now works: shopper pays into the
+**store's own** Razorpay account, the server verifies the payment before
+writing the order, and both the shopper and the store owner can cancel with a
+refund.
+
+**Per-store Razorpay (the SaaS monetization model, made real).** Each store
+holds its own credentials — `stores/{id}/private/payment` (a `private`
+subcollection locked `read,write:if false`, reachable only by the Admin SDK).
+The `keyId` is public (ships to the checkout sheet); the `keySecret` is
+**encrypted at rest** (`admin/src/lib/crypto.ts`, AES via `PAYMENTS_ENC_KEY`)
+and only ever decrypted server-side to sign order-creation and verify/refund
+calls. Owners set keys on `/dashboard/settings` (`payment-config` API). The key
+**prefix** (`rzp_test_` vs `rzp_live_`) is the source of truth for test-vs-live:
+a live store must present a verified payment before an order is placed; a test
+store may place a **payment-less** order — the web-preview path, which can't run
+the native checkout SDK.
+
+**Checkout flow (gravia).** `CheckoutBloc` (in `feature/cart/`, since it's a
+cart CTA) orchestrates: `POST /payments` (server prices the cart from the live
+catalog and creates the Razorpay order with the store secret) → native Razorpay
+checkout via `RazorpayService` → `POST /orders` with the `razorpayOrderId/
+PaymentId/Signature`, which the server **verifies** (`verifyPaymentSignature`,
+constant-time HMAC) before writing. On web (`kIsWeb`) it skips straight to a
+test-mode payment-less order. Provider-agnostic by construction: the orders
+feature has **two** repositories — `OrdersRepository` (own backend) and
+`PaymentGatewayRepository` (the PSP, seen only as "take this intent → verifiable
+result"). "Razorpay" appears in exactly one file
+(`razorpay_gateway_data_source_impl.dart`); swapping PSPs is a data-source-impl
+change.
+
+**Order lifecycle + refund axis.** Status stays `PENDING → IN_PROCESS →
+DELIVERED` + `CANCELLED` (wire values unchanged); `IN_PROCESS` is **relabelled
+"On the way"** in both UIs. Refund is a **separate axis** — `refundStatus`
+(`NONE|PENDING|PROCESSED|FAILED`) + `refundId` on the order — so a cancelled
+order records separately whether its money was returned. `RefundStatus` mirrors
+across `admin/src/lib/types.ts` and gravia's `enums/order_status.dart`.
+
+**Cancel + refund.**
+- *Shopper self-cancel* (pre-dispatch only — `PENDING`/`IN_PROCESS`): gravia
+  `OrdersBloc` cancels **optimistically** (card flips to Cancelled, refund
+  shown pending) then reconciles with the server order, or rolls back + toasts
+  on failure. Server route `POST /orders/{id}/cancel` is **dual-role** (the
+  order's own shopper *or* the store owner), runs a transaction that sets
+  `CANCELLED` and **restocks** every line item, then settles the refund.
+- *Admin cancel*: the dashboard `/dashboard/orders` Cancelled selection routes
+  through the same server path (a client `updateDoc` can't refund — needs the
+  secret), behind a confirm dialog.
+- *Refund settlement* is one idempotent, never-throwing helper
+  (`admin/src/lib/refunds.ts` `settleRefund`): creates a Razorpay refund only
+  when none exists (`refundId` empty), otherwise **refreshes** the existing
+  one's status — so it can't double-refund; on provider failure it returns
+  `FAILED` (retriable) instead of 500ing and stranding the order in `PENDING`.
+- *Admin manual refund*: `POST /orders/{id}/refund` (owner-only) + a
+  **"Complete refund"/"Retry refund"** button on the dashboard for any
+  cancelled order whose refund is `PENDING`/`FAILED` — the recourse when the
+  auto-refund didn't settle.
+
+**Verified**: `flutter analyze` clean on gravia; `tsc`+`eslint` clean on admin;
+gravia orders BLoC tests 7/7 (incl. optimistic-reconcile and rollback cases).
+
+**Refund webhook + idempotency — DONE (2026-07-24, same track).**
+- **Per-store webhook** `POST /api/stores/{storeId}/webhooks/razorpay` —
+  signature-verified against the store's own **webhook secret** (a new
+  encrypted field on `stores/{id}/private/payment`, set on `/dashboard/settings`
+  alongside the keys via `setStoreWebhookSecret`; `verifyWebhookSignature` HMACs
+  the raw body). Handles `refund.processed`/`refund.failed`: finds the order by
+  `razorpayPaymentId` (`getOrderByPaymentId`) and flips `refundStatus` — so a
+  refund Razorpay accepts as pending settles to PROCESSED **automatically**, no
+  admin click. Irrelevant events + unknown payments are acked 200 (no retries).
+- **Refund idempotency** — `settleRefund` now calls `getExistingRefund`
+  (`GET /payments/{id}/refunds`) before creating: if Razorpay already has a
+  refund for the payment (e.g. a create that succeeded before we persisted its
+  id), it **adopts** it instead of creating a second. Closes the double-refund
+  window (the Refund create API has no idempotency-key header, so existing-
+  refund lookup is the correct guard).
+- **Webhook verification test** — `admin/scripts/test-refund-webhook.mjs`
+  (`npm run test:webhook`) signs sample `refund.processed` payloads the way
+  Razorpay does and POSTs them to the live route, asserting valid signatures are
+  accepted and tampered/wrong-secret/missing ones are rejected (401). Default
+  run is non-destructive (synthetic payment id → acked, no writes); pass
+  `PAYMENT_ID=<real cancelled order>` to assert an actual flip to PROCESSED.
+
+**Remaining on this track:**
+- **Deploy** — needs `PAYMENTS_ENC_KEY` + `FIREBASE_ADMIN_*` in Vercel, and the
+  `stores/{id}/private/payment` rule (`read,write:if false`) deployed; same
+  un-pushed-work + prod-cutover blocker as the sections above. Webhook delivery
+  needs the admin API live (Razorpay must reach a public URL).
+- **Return/refund after delivery** — today refund is only wired to cancel;
+  a post-delivery return flow (often partial) isn't built.

@@ -6,9 +6,10 @@ sealed class OrdersEvent with _$OrdersEvent {
   const factory OrdersEvent.tabChanged({required OrdersTab tab}) =
       OrdersTabChanged;
 
-  /// No real cancellation backend to call — this is a demo action that just
-  /// flips the matching order to [OrderStatus.cancelled] in memory, the same
-  /// "mutate the bloc's own state" shape as `AddressEvent.saved`.
+  /// Cancels the order through the backend (restock + refund if it was paid).
+  /// Applied optimistically — the card flips to [OrderStatus.cancelled]
+  /// immediately, then reconciles with the server's returned order (its real
+  /// [RefundStatus]) or rolls back on failure.
   const factory OrdersEvent.cancelled({required String orderId}) =
       OrdersCancelled;
 

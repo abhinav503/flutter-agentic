@@ -79,8 +79,19 @@ export type RecentSearch = {
 // (order placed, not yet accepted by the store) — a state gravia doesn't
 // have a dedicated enum case for yet. OrderStatusParse's string->enum
 // fallback treats any unrecognized value as `inProcess`, so a client still
-// on the old 3-state enum degrades safely instead of crashing.
+// on the old 3-state enum degrades safely instead of crashing. IN_PROCESS is
+// labelled "On the way" in both UIs; the wire value stays IN_PROCESS so no
+// existing order doc needs migrating.
 export type OrderStatus = "PENDING" | "IN_PROCESS" | "DELIVERED" | "CANCELLED";
+
+// The refund lifecycle — an axis orthogonal to OrderStatus, so a cancelled
+// order records separately whether its money has been returned. NONE for an
+// order that was never paid (test-mode/web) or isn't cancelled; PENDING once
+// Razorpay has accepted the refund but not yet settled it; PROCESSED once
+// settled; FAILED when the refund call itself errored (the order is still
+// cancelled — the refund can be retried). Razorpay's own refund `status`
+// ("pending"/"processed") maps onto PENDING/PROCESSED.
+export type RefundStatus = "NONE" | "PENDING" | "PROCESSED" | "FAILED";
 
 // A line item's product fields are snapshotted at order time (name, image,
 // price, formatted weight) — never re-read live from the catalog, so a
@@ -114,4 +125,10 @@ export type Order = {
   // orders placed through the test-mode payment-less path (the web preview,
   // which can't run the native checkout SDK) — never empty for a live store.
   razorpayPaymentId: string;
+  // The refund axis (see RefundStatus). NONE on every freshly-placed order;
+  // set only when the order is cancelled and a refund is attempted.
+  refundStatus: RefundStatus;
+  // Razorpay's refund id (`rfnd_...`), set once a refund is issued — empty
+  // otherwise. Kept for reconciliation/support lookups.
+  refundId: string;
 };

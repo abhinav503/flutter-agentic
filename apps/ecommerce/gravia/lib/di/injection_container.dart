@@ -61,6 +61,7 @@ import '../feature/orders/data/repository_impl/orders_repository_impl.dart';
 import '../feature/orders/data/repository_impl/payment_gateway_repository_impl.dart';
 import '../feature/orders/domain/repository/orders_repository.dart';
 import '../feature/orders/domain/repository/payment_gateway_repository.dart';
+import '../feature/orders/domain/usecase/cancel_order_usecase.dart';
 import '../feature/orders/domain/usecase/create_order_usecase.dart';
 import '../feature/orders/domain/usecase/create_payment_usecase.dart';
 import '../feature/orders/domain/usecase/get_orders_usecase.dart';
@@ -197,6 +198,7 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton(() => CreatePaymentUseCase(sl()));
   sl.registerLazySingleton(() => ProcessPaymentUseCase(sl()));
   sl.registerLazySingleton(() => CreateOrderUseCase(sl()));
+  sl.registerLazySingleton(() => CancelOrderUseCase(sl()));
 
   // ── Favourites ───────────────────────────────────────────────────────────
   sl.registerLazySingleton<FavouritesRemoteDataSource>(
