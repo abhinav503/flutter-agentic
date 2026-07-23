@@ -196,28 +196,35 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: AppSpacing.xl2),
-                  Divider(color: hairlineColor, height: 1, thickness: 1),
-                  const SizedBox(height: AppSpacing.xl2),
-                  Text(
-                    ValueConst.selectQtyLabel,
-                    style: TextStyleConst.textLgBold(
-                      tt,
-                    ).copyWith(color: cs.onSurface),
-                  ),
-                  const SizedBox(height: AppSpacing.base),
-                  Row(
-                    children: [
-                      for (var i = 0; i < detail.sizeOptions.length; i++) ...[
-                        if (i > 0) const SizedBox(width: AppSpacing.base),
-                        SelectorChip(
-                          label: product.unitType.format(detail.sizeOptions[i]),
-                          selected: i == _selectedSizeIndex,
-                          onTap: () => setState(() => _selectedSizeIndex = i),
-                        ),
+                  // "Select QTY" only renders when the product actually has
+                  // package sizes (admin-driven) — an empty list means no size
+                  // picker, not an orphaned heading between two dividers.
+                  if (detail.sizeOptions.isNotEmpty) ...[
+                    const SizedBox(height: AppSpacing.xl2),
+                    Divider(color: hairlineColor, height: 1, thickness: 1),
+                    const SizedBox(height: AppSpacing.xl2),
+                    Text(
+                      ValueConst.selectQtyLabel,
+                      style: TextStyleConst.textLgBold(
+                        tt,
+                      ).copyWith(color: cs.onSurface),
+                    ),
+                    const SizedBox(height: AppSpacing.base),
+                    Row(
+                      children: [
+                        for (var i = 0; i < detail.sizeOptions.length; i++) ...[
+                          if (i > 0) const SizedBox(width: AppSpacing.base),
+                          SelectorChip(
+                            label: product.unitType.format(
+                              detail.sizeOptions[i],
+                            ),
+                            selected: i == _selectedSizeIndex,
+                            onTap: () => setState(() => _selectedSizeIndex = i),
+                          ),
+                        ],
                       ],
-                    ],
-                  ),
+                    ),
+                  ],
                   const SizedBox(height: AppSpacing.xl2),
                   Divider(color: hairlineColor, height: 1, thickness: 1),
                   const SizedBox(height: AppSpacing.xl2),

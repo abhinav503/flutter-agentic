@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 
+import 'package:core/core/theme/app_colors_extension.dart';
 import 'package:core/core/ui/atoms/svg_image.dart';
 
 import 'package:gravia/constants/image_const.dart';
@@ -31,6 +32,8 @@ class ProfileAvatarPicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final onOverlay = Theme.of(context).extension<AppColorsExtension>()!.onOverlay;
     final previewProfile = pickedAvatarBytes == null
         ? profile
         : ProfileEntity(
@@ -52,12 +55,12 @@ class ProfileAvatarPicker extends StatelessWidget {
             height: _cameraBadgeSize,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: Colors.black.withValues(alpha: 0.45),
+              color: cs.scrim.withValues(alpha: 0.45),
             ),
             alignment: Alignment.center,
             child: AppSvgImage.asset(
               ImageConst.camera,
-              color: Colors.white,
+              color: onOverlay,
               width: 18,
               height: 18,
             ),

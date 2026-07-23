@@ -49,7 +49,7 @@ class CartStatusBar extends StatelessWidget {
         Theme.of(context).extension<AppShapes>() ?? AppShapes.standard;
     // Same icon-circle convention as ProfileMenuTile — not a primary-tinted
     // circle invented for this bar.
-    final iconCircleColor = cs.iconCircleFill;
+    final iconCircleColor = cs.surfaceContainerLow;
 
     // No SafeArea here — unlike a docked bottom bar that IS the screen's
     // last widget, this sits above ShellPage's own BottomNavBar, which

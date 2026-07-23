@@ -35,6 +35,10 @@ export type Product = {
   description: string;
   stock: number;
   categoryIds: string[];
+  // Selectable package sizes shown on gravia's Product Details "Select QTY"
+  // row, in unitType's base unit (e.g. [250, 500, 1000] for grams). Empty =
+  // the product has no size picker.
+  sizeOptions: number[];
   // Real curation flag for the storefront's "popular products" rail —
   // without this, that endpoint would have to fake it by returning
   // everything.

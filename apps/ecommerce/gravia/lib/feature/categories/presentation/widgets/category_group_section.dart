@@ -5,7 +5,6 @@ import 'package:core/core/ui/atoms/network_image.dart';
 import 'package:core/core/ui/blocks/chunked_grid.dart';
 import 'package:core/core/ui/blocks/ecommerce/category_tile.dart';
 
-import 'package:gravia/constants/color_const.dart';
 import 'package:gravia/constants/text_style_const.dart';
 
 import '../../../home/domain/entities/category_entity.dart';
@@ -31,7 +30,7 @@ class CategoryGroupSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
-    final tileBackgroundColor = cs.iconCircleFill;
+    final tileBackgroundColor = cs.surfaceContainerLow;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),

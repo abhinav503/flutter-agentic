@@ -21,7 +21,7 @@ extension ProductUnitTypeX on ProductUnitType {
       small: 'ml',
       large: 'L',
     ),
-    ProductUnitType.pieces => '${amount.toStringAsFixed(0)} pcs',
+    ProductUnitType.pieces => _pieces(amount),
   };
 
   static String _withLargeUnit(
@@ -33,6 +33,13 @@ extension ProductUnitTypeX on ProductUnitType {
     final rolled = amount / 1000;
     final isWhole = rolled == rolled.roundToDouble();
     return '${isWhole ? rolled.toStringAsFixed(0) : rolled.toStringAsFixed(1)} $large';
+  }
+
+  // Singular "pc" for a single piece; "pcs" otherwise. Pluralised off the
+  // displayed count so it always agrees with the shown number.
+  static String _pieces(double amount) {
+    final count = amount.toStringAsFixed(0);
+    return '$count ${count == '1' ? 'pc' : 'pcs'}';
   }
 }
 

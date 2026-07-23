@@ -141,10 +141,10 @@ supplies the pack-specific metrics.
   below).
 - **Circle category rail/grid.** Product cutout on an elevated circle, label
   below. → `CategoryTile` block; gravia tightens `imagePadding` so the PNG
-  fills more of the same-size circle, and fixes the circle's own fill to a
-  raw Gray/50-light / Gray/950-dark swatch (`backgroundColor` override —
-  neither shade is a `ColorScheme` role) rather than the themed
-  `surfaceContainerHighest` default. Two instances: Home's single horizontal
+  fills more of the same-size circle, and sets the circle's fill to
+  `surfaceContainerLow` (`backgroundColor` override — Gray/50 light / Gray/950
+  dark on this preset) rather than the themed `surfaceContainerHighest`
+  default. Two instances: Home's single horizontal
   rail (`HomeCategorySection`, one `SingleChildScrollView`+`Row`), and the
   Categories tab's full browse view (`CategoryGroupSection`) — categories
   grouped under bold section headings, each group a 4-column grid (manual
@@ -348,8 +348,9 @@ supplies the pack-specific metrics.
   they drift stale.
 - **Settings/menu list.** A vertical stack of icon-circle + label + chevron
   rows below a coloured header (Profile is the reference screen). Each row:
-  a fixed-size tinted circle (Gray/50 light / Gray/950 dark — the same
-  swatch pair as the category rail's circles) holding a themed-colour SVG
+  a fixed-size circle filled with `surfaceContainerLow` (Gray/50 light /
+  Gray/950 dark — the same fill as the category rail's circles) holding a
+  themed-colour SVG
   icon, then the label in Text/md/medium, then a trailing element — by
   default a `direction-right.svg` chevron whenever the row has an `onTap`
   and no explicit override. Two row variants deviate from that default
@@ -487,7 +488,10 @@ after the third copy.
 
 **Gravia's preset roster (`apps/ecommerce/gravia/lib/widgets/`)** — when a
 gravia screen needs one of these compositions, render the preset; never
-re-style the underlying atom/block inline:
+re-style the underlying atom/block inline. This table is also the **worked
+example of the category-agnostic wrapper roster every pack fills** — §3 step 3
+lists the roles in the abstract; the rows below are gravia's concrete fill of
+them (only the product-card row is category-specific):
 
 | Need | Preset |
 |---|---|
@@ -510,8 +514,8 @@ re-style the underlying atom/block inline:
 | Form text field (any form) | `GraviaFormField` — never a re-typed `AppTextField` override recipe |
 | Profile avatar (any size) | `GraviaAvatarImage` — never re-branch `avatarBytes`/`avatarUrl` per call site |
 | Single-select option chip | `SelectorChip` |
-| Hairline / tinted-fill colours | `AppColorsExtension.dockedHairline` / `.sheetHairline` / `.tintedPrimaryFill` (`Theme.of(context).extension<AppColorsExtension>()!...`) — real theme data set per-preset in `app_theme_presets.dart`, not a `ColorScheme` extension; never re-derive the brightness ternary. `ColorScheme.tintedErrorFill` (in `color_const.dart`) stays a gravia-local derived getter — single-caller, error-specific, not promoted |
-| Neutral icon-circle / tile fill (icon circles, category tiles) | `ColorScheme.iconCircleFill` (extension in `color_const.dart`) — Gray/50 light / Gray/950 dark; never re-derive the brightness ternary |
+| Hairline / tinted-fill / sheet-text colours | `AppColorsExtension.dockedHairline` / `.sheetHairline` / `.tintedPrimaryFill` / `.onSheetMuted` (chrome-free sheet subtitle text) (`Theme.of(context).extension<AppColorsExtension>()!...`) — real theme data set per-preset in `app_theme_presets.dart`, not a `ColorScheme` extension; never re-derive the brightness ternary. `ColorScheme.tintedErrorFill` (in `color_const.dart`) stays a gravia-local derived getter — single-caller, error-specific, not promoted |
+| Neutral icon-circle / tile fill (icon circles, category tiles) | `cs.surfaceContainerLow` directly — Gray/50 light / Gray/950 dark on this preset; the raised-neutral fill for icon circles and category tiles, no app-local swatch/getter |
 
 **When the built-in widget has no override point for the spec at all,** stop
 trying to theme it and build a dedicated `core` atom instead. Reference case:
@@ -663,7 +667,39 @@ motion.
    domain-specific (encodes data particular to the pack's category) →
    `core/ui/blocks/<category>/` (new subfolder if the category is new, same
    subfolder as an existing pack if the category matches).
-3. Add a catalog row + a profile section here: categories, mood, signature
-   compositions, block list.
-4. Verify: switch an app's `theme_config.json` to the new preset — atoms,
+3. **Fill the pack's wrapper roster** — the app-level `lib/widgets/` layer of
+   thin presets that bake this pack's fixed override recipe into one place
+   (the "wrap once, never repeat overrides at every call site" rule above).
+   **This roster is category-agnostic**: almost every role below recurs in
+   *any* app regardless of vertical — only the **domain card** is specific to
+   the pack's category. Gravia's filled version is the worked example in the
+   **preset roster table** under its profile (§1) — read that table as the
+   template, not just as gravia trivia; a new pack fills the same roles with
+   its own look:
+
+   | Wrapper role (fill one per pack) | Wraps | Gravia's instance |
+   |---|---|---|
+   | Full-width primary CTA (docked-bar confirm) | `AppButton` | `GraviaPrimaryButton` |
+   | Destructive / tinted inline pill | `AppButton` (no error-filled variant) | `GraviaTintedButton` |
+   | Two half-width actions side by side | two buttons | `GraviaActionPair` |
+   | Form text field | `AppTextField` | `GraviaFormField` |
+   | Bounded-picklist trigger field | field-styled box | `GraviaDropdownField` |
+   | Styled bottom-sheet chrome (title + close recipe) | `AppBottomSheet` / `showAppBottomSheet` | `showGraviaSheet` (extension on `BaseScreenState`) |
+   | Chrome-free confirmation sheet (no title/close) | `showModalBottomSheet` directly | `showOrderPlacedSheet` |
+   | Bounded-picklist selection sheet (radio list) | sheet body | `RadioOptionsSheetContent<T>` |
+   | Back + centered-title header / page-title header | core `HeroHeader` | `GraviaHeroHeader` / `.page` |
+   | Glass / icon header control | glass `AppIconButton` | `GraviaGlassIconButton` |
+   | Single-select option chip | `AppChip` | `SelectorChip` |
+   | Thumbnail / avatar / info badge | `AppNetworkImage` / `AppBadge` | `GraviaListThumbnail` / `GraviaAvatarImage` / `GraviaTintBadge` |
+   | Loading skeleton body (mirrors loaded layout) | `ShimmerBox` + a grid/rail | `GraviaProductGridSkeleton`, feature `*SkeletonBody`s (§2) |
+   | **Domain card** (category-specific) | a `core/ui/blocks/<category>/` block | `GraviaProductCard` wrapping `ProductCard` |
+
+   When a role's spec needs an override the core atom/block doesn't expose,
+   add the override param to the core widget (defaulting to prior behaviour)
+   **before** wrapping — never fork the atom or hand-repeat params. Extract
+   the preset on the **second** screen that repeats a styled composition, not
+   the third (see the `GraviaProductCard` drift cautionary tale above).
+4. Add a catalog row + a profile section here: categories, mood, signature
+   compositions, block list, and the pack's filled roster table.
+5. Verify: switch an app's `theme_config.json` to the new preset — atoms,
    blocks, and raw Material must all re-skin with zero app-code changes.

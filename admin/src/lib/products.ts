@@ -34,6 +34,7 @@ function mapProductDoc(d: QueryDocumentSnapshot): Product {
     description: (data.description as string) ?? "",
     stock: (data.stock as number) ?? 0,
     categoryIds: (data.categoryIds as string[]) ?? [],
+    sizeOptions: (data.sizeOptions as number[]) ?? [],
     isPopular: (data.isPopular as boolean) ?? false,
   };
 }

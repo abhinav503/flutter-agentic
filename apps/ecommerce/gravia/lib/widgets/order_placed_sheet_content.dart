@@ -7,7 +7,6 @@ import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/concentric_circles.dart';
 import 'package:core/core/ui/atoms/svg_image.dart';
 
-import 'package:gravia/constants/color_const.dart';
 import 'package:gravia/constants/image_const.dart';
 import 'package:gravia/constants/text_style_const.dart';
 import 'package:gravia/constants/value_const.dart';
@@ -76,13 +75,9 @@ class OrderPlacedSheetContent extends StatelessWidget {
                 ValueConst.orderPlacedSubtitle,
                 textAlign: TextAlign.center,
                 style: TextStyleConst.textSmRegular(tt).copyWith(
-                  // Asymmetric pick (not a single ColorScheme role): Gray/700
-                  // in light, white in dark — same reasoning as
-                  // AppColorsExtension.dockedHairline/sheetHairline, matches
-                  // the Verify Email sheet's subtitle.
-                  color: Theme.of(context).brightness == Brightness.dark
-                      ? Colors.white
-                      : ColorConst.gray700,
+                  color: Theme.of(context)
+                      .extension<AppColorsExtension>()!
+                      .onSheetMuted,
                 ),
               ),
               const SizedBox(height: AppSpacing.xl4),

@@ -198,6 +198,7 @@ class AppTheme {
           cs.primary.withValues(alpha: isDark ? 0.20 : 0.10),
       dockedHairline: colorOverrides['dockedHairline'] ?? cs.outlineVariant,
       sheetHairline: colorOverrides['sheetHairline'] ?? cs.outlineVariant,
+      onSheetMuted: colorOverrides['onSheetMuted'] ?? cs.onSurfaceVariant,
     );
 
     // Every brand shape is derived from the config's radii, so raw Material

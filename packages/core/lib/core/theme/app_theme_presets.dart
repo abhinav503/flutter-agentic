@@ -345,7 +345,7 @@ const Map<String, Map<String, dynamic>> kThemePresets = {
       'button': 999,
       'chip': 999,
       'card': 20,
-      'input': 999, // confirmed on real screens (Signup form fields) — not a pill
+      'input': 999, // pill — SearchFieldBar's glass field; form fields override to 16 (GraviaFormField)
       'sheet': 28,
     },
     'light': {
@@ -354,6 +354,11 @@ const Map<String, Map<String, dynamic>> kThemePresets = {
       'onPrimary': '#FFFFFF',
       'primaryContainer': '#D0FBE8', // Primary/100
       'onPrimaryContainer': '#012D25', // Primary/950
+      // Reserved — not currently surfaced. Teal (secondary) + indigo (tertiary)
+      // accent ramps are the kit's real Figma values, kept as brand reference:
+      // no gravia screen paints them today (design is emerald + neutrals +
+      // error), but keeping them means a future accent matches the kit instead
+      // of a seed-derived tone. Prune only if the design stays monochrome.
       'secondary': '#0D9488', // Secondary/600
       'onSecondary': '#FFFFFF',
       'secondaryContainer': '#CCFBF1', // Secondary/100
@@ -378,6 +383,7 @@ const Map<String, Map<String, dynamic>> kThemePresets = {
       'tintedPrimaryFill': '#ECFDF6', // Primary/50 — selected/emphasis pill fill
       'dockedHairline': '#A1A1A1', // Gray/500 — docked bar / nav top hairline
       'sheetHairline': '#DFDFDF', // Gray/200 — sheet divider + drag handle
+      'onSheetMuted': '#7B7B7B', // Gray/700 — chrome-free sheet subtitle text
     },
     'dark': {
       'seed': '#027A60',
@@ -385,6 +391,7 @@ const Map<String, Map<String, dynamic>> kThemePresets = {
       'onPrimary': '#FFFFFF', // matches light mode's pairing for this tone
       'primaryContainer': '#04614D', // Primary/800
       'onPrimaryContainer': '#D0FBE8', // Primary/100
+      // Reserved — not currently surfaced (see the light block's note above).
       'secondary': '#5EEAD4', // Secondary/300
       'onSecondary': '#042F2E', // Secondary/950
       'secondaryContainer': '#115E59', // Secondary/800
@@ -409,6 +416,7 @@ const Map<String, Map<String, dynamic>> kThemePresets = {
       'tintedPrimaryFill': '#33027A60', // kit's "Primary 20%" — Primary/500 at 20% alpha
       'dockedHairline': '#FFFFFF', // kit specs white so the divider reads on dark surface
       'sheetHairline': '#3A3B3F', // Light/900 — kit's dark neutral
+      'onSheetMuted': '#FFFFFF', // kit specs white subtitle so it reads on dark surface
     },
   },
 

@@ -247,6 +247,9 @@ function ProductDialog({
     product?.categoryIds ?? [],
   );
   const [isPopular, setIsPopular] = useState(product?.isPopular ?? false);
+  const [sizeOptions, setSizeOptions] = useState(
+    product?.sizeOptions?.join(", ") ?? "",
+  );
   const [submitting, setSubmitting] = useState(false);
 
   function toggleCategory(id: string) {
@@ -277,6 +280,10 @@ function ProductDialog({
         description: description.trim(),
         stock: Number(stock),
         categoryIds,
+        sizeOptions: sizeOptions
+          .split(",")
+          .map((s) => Number(s.trim()))
+          .filter((n) => Number.isFinite(n) && n > 0),
         isPopular,
       };
       if (product) {
@@ -412,6 +419,20 @@ function ProductDialog({
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
             />
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="product-size-options">Size options</Label>
+            <Input
+              id="product-size-options"
+              value={sizeOptions}
+              onChange={(e) => setSizeOptions(e.target.value)}
+              placeholder="e.g. 250, 500, 1000"
+            />
+            <p className="text-xs text-muted-foreground">
+              Comma-separated pack sizes in {unitType}, shown as the &ldquo;Select
+              QTY&rdquo; row on the product page. Leave empty for none.
+            </p>
           </div>
 
           <div className="flex flex-col gap-1.5">

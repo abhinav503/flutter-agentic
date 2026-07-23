@@ -4,19 +4,14 @@ import 'package:flutter/material.dart';
 /// role — used when a design spec calls out an exact shade (e.g. "Gray/500")
 /// rather than a semantic role like `onSurfaceVariant`.
 abstract final class ColorConst {
-  static const gray50 = Color(0xFFF7F7F7);
   static const gray100 = Color(0xFFEDEDED);
   static const gray200 = Color(0xFFDFDFDF);
   static const gray500 = Color(0xFFA1A1A1);
   static const gray900 = Color(0xFF3A3B3F);
 
-  /// Dark-mode counterpart to [gray50] — category tile circle background.
-  static const gray950 = Color(0xFF242528);
-
   /// Same shade in both light and dark — unlike `onSurfaceVariant`, which
   /// resolves to Gray/700 in light but Gray/400 in dark.
   static const gray700 = Color(0xFF7B7B7B);
-  static const primary50 = Color(0xFFECFDF6);
 
   /// Success/500 — the Dark Mode switch's active-track colour (not the
   /// same green as [primary]; the kit calls out this specific swatch).
@@ -50,14 +45,4 @@ extension GraviaColorSchemeX on ColorScheme {
   Color get tintedErrorFill => brightness == Brightness.dark
       ? ColorConst.error500.withValues(alpha: 0.2)
       : ColorConst.error50;
-
-  /// Neutral icon-circle / tile fill — Gray/50 light, Gray/950 dark. The
-  /// kit's default "raised neutral surface" behind a glyph or thumbnail:
-  /// `ProfileMenuTile`'s icon circle (via `AppMenuTile.iconCircleColor`),
-  /// `CartStatusBar`'s cart icon circle, and `HomeCategorySection`/
-  /// `CategoryGroupSection`'s `CategoryTile` background all render this —
-  /// four copies of the same ternary had already drifted into their own
-  /// comments cross-referencing each other before this existed.
-  Color get iconCircleFill =>
-      brightness == Brightness.dark ? ColorConst.gray950 : ColorConst.gray50;
 }

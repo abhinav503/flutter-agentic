@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 /// ext.tintedPrimaryFill   // selected/emphasis pill fill (badges, selector chips)
 /// ext.dockedHairline      // top hairline of docked bars (bottom nav, CTA bars)
 /// ext.sheetHairline       // bottom-sheet divider + drag-handle shade
+/// ext.onSheetMuted        // muted subtitle/body text on chrome-free sheets
 /// ```
 ///
 /// `tintedPrimaryFill`/`dockedHairline`/`sheetHairline` are theme data, not
@@ -53,6 +54,13 @@ class AppColorsExtension extends ThemeExtension<AppColorsExtension> {
   /// packs spec this independently of [dockedHairline].
   final Color sheetHairline;
 
+  /// Subtitle/body text on a chrome-free sheet (no title row to inherit an
+  /// `onSurface` heading from). Asymmetric like the hairlines — a kit often
+  /// specs a muted grey in light but flips to a bright/near-white in dark so
+  /// the copy still reads over the sheet's own surface, which is why a single
+  /// `ColorScheme` role (`onSurfaceVariant` flips the other way) doesn't land.
+  final Color onSheetMuted;
+
   const AppColorsExtension({
     required this.successContainer,
     required this.onSuccessContainer,
@@ -62,6 +70,7 @@ class AppColorsExtension extends ThemeExtension<AppColorsExtension> {
     this.tintedPrimaryFill = const Color(0x1A6750A4),
     this.dockedHairline = const Color(0x1F000000),
     this.sheetHairline = const Color(0x1F000000),
+    this.onSheetMuted = const Color(0xFF7B7B7B),
   });
 
   /// Default light-mode values.
@@ -93,6 +102,7 @@ class AppColorsExtension extends ThemeExtension<AppColorsExtension> {
     Color? tintedPrimaryFill,
     Color? dockedHairline,
     Color? sheetHairline,
+    Color? onSheetMuted,
   }) =>
       AppColorsExtension(
         successContainer:   successContainer   ?? this.successContainer,
@@ -103,6 +113,7 @@ class AppColorsExtension extends ThemeExtension<AppColorsExtension> {
         tintedPrimaryFill:  tintedPrimaryFill  ?? this.tintedPrimaryFill,
         dockedHairline:     dockedHairline     ?? this.dockedHairline,
         sheetHairline:      sheetHairline      ?? this.sheetHairline,
+        onSheetMuted:       onSheetMuted       ?? this.onSheetMuted,
       );
 
   @override
@@ -116,5 +127,6 @@ class AppColorsExtension extends ThemeExtension<AppColorsExtension> {
         tintedPrimaryFill:  Color.lerp(tintedPrimaryFill,  other.tintedPrimaryFill,  t)!,
         dockedHairline:     Color.lerp(dockedHairline,     other.dockedHairline,     t)!,
         sheetHairline:      Color.lerp(sheetHairline,      other.sheetHairline,      t)!,
+        onSheetMuted:       Color.lerp(onSheetMuted,       other.onSheetMuted,       t)!,
       );
 }

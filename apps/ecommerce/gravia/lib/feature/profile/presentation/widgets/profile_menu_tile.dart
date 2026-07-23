@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:core/core/ui/atoms/svg_image.dart';
 import 'package:core/core/ui/molecules/menu_tile.dart';
 
-import 'package:gravia/constants/color_const.dart';
 import 'package:gravia/constants/image_const.dart';
 import 'package:gravia/constants/text_style_const.dart';
 
@@ -42,7 +41,7 @@ class ProfileMenuTile extends StatelessWidget {
       danger: danger,
       iconCircleColor: danger
           ? null // keep AppMenuTile's themed error tint
-          : cs.iconCircleFill,
+          : cs.surfaceContainerLow,
       labelStyle: TextStyleConst.textMdMedium(
         tt,
       ).copyWith(color: danger ? cs.error : cs.onSurface),
