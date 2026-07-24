@@ -8,6 +8,22 @@
 > multi-tenant "app of apps" ecommerce platform. See also
 > `docs/explanation/end-goal.md`.
 >
+> **Note (2026-07-25): the multi-tenant runtime moved to `cordelia`, and
+> per-store identity became a full swappable template, not just a
+> `ColorScheme`.** `apps/ecommerce/cordelia` (the store-discovery "app of
+> apps" shell — splash/onboarding/shared Firebase auth/discovery — already
+> exists as a sibling app to `gravia`) is where the multi-tenant storefront
+> now lives, not `gravia` itself. The "Key gravia refactor" section below is
+> **superseded** by "Multi-template storefront in `cordelia`" further down:
+> home/cart/orders/profile `domain`+`data` are ported into `cordelia` once,
+> shared by every store, while each store's screens (Home layout, bottom
+> nav, etc.) come from a swappable `presentation/templates/<name>/` — of
+> which `AppTheme.fromConfig` color/shape config is only one input, not the
+> whole story. `gravia` the app remains the frozen single-store exemplar the
+> first template (`gravia`) was ported from; it is not itself the
+> multi-tenant runtime going forward. **Planned, not yet implemented** — see
+> that section for the concrete plan.
+>
 > **Note (2026-07-22):** much of M1b (shopper Firebase auth in gravia) shipped
 > in gravia between the 07-18 entries below and now — `feature/auth/` (login/
 > signup, persistent email-verification sheet + poll, session-expired guard,
@@ -97,17 +113,107 @@ orders/{orderId}                     { uid, storeId, items[], status, total, pay
 - No `payments/` collection in the SaaS model — the platform never records a shopper
   charge; the order carries only the store-PSP reference the store's own provider returns.
 
-## Key gravia refactor: inject an "active store" context
+## Key gravia refactor: inject an "active store" context — SUPERSEDED (2026-07-25)
 
-The single biggest app change. Introduce an **active-store context** (storeId +
-that store's `themeConfig`). Every existing data source stops reading `rootBundle`
-JSON and instead queries Firestore **scoped by the active storeId**. The existing
-screens (home grid, categories, product details, cart) render for whichever store is
-active. Per-store re-skin reuses the existing `AppTheme.fromConfig` — a store's
-branding JSON in Firestore drives the theme.
+*Original plan, kept for history:* introduce an active-store context
+(storeId + that store's `themeConfig`); every gravia data source stops
+reading `rootBundle` JSON and queries Firestore scoped by the active
+storeId; the *existing* gravia screens (home grid, categories, product
+details, cart) render for whichever store is active, re-skinned only via
+`AppTheme.fromConfig`; `feature/discovery/` becomes the app's first screen
+and `feature/shell/` the per-store shell, both inside gravia.
 
-New `feature/discovery/` (store search/browse) becomes the app's first screen;
-`feature/shell/` becomes the per-store storefront shell once a store is opened.
+This assumed **one** screen set, re-themed by color/shape alone. That's no
+longer the plan — see "Multi-template storefront in `cordelia`" below for
+the actual direction: a different runtime app (`cordelia`, not `gravia`),
+and per-store identity as a full swappable presentation template, not just
+a palette swap.
+
+## Multi-template storefront in `cordelia` — PLANNED, not yet built (2026-07-25)
+
+`cordelia` (`apps/ecommerce/cordelia`) is already the store-discovery
+"app of apps" shell: splash → onboarding → shared Firebase auth →
+`feature/home` (discovery, lists stores via `GET /api/stores`) → tap a store
+→ `feature/storefront` (today a genuine stub — `EmptyState`, no
+data/domain). This section is where that stub becomes real, as a
+**multi-template** storefront rather than a single re-skinned screen set.
+
+**Why a template, not just a theme.** A store's screens can now differ in
+*layout*, not just color — different Home composition, different bottom
+nav — while `repository`/data-source code stays identical across stores.
+Flutter ships one binary, so this can't be "load a different app at
+runtime"; it has to be **one app (`cordelia`) with multiple swappable
+presentation implementations**, selected per store. Confirmed by exploring
+gravia's code: its `presentation/` layers are the *only* place
+branding/styling leaks in (`Gravia*`-prefixed classes live exclusively
+under `presentation/view`/`presentation/widgets`, zero hits in any
+`data/`/`domain/` folder) — so `domain`+`data` are already reusable
+as-is across templates.
+
+**Shared domain/data, per-template presentation.** For each storefront
+feature, `domain`/`data` are written once in `cordelia`, ported from
+gravia's theme-agnostic layers; only `presentation` forks per template
+under `presentation/templates/<name>/`:
+
+```
+feature/storefront/
+  active_store/            # ActiveStoreEntity {storeId, storeName, templateId}
+                            # + ActiveStoreCubit, provided once the shell mounts
+  template/                # enum StorefrontTemplate { gravia } + string<->enum
+                            # extension (per CLAUDE.md enum convention)
+  shell/presentation/templates/gravia/    # ported gravia ShellPage; tabs
+                                           # Home + Orders + Profile; cart
+                                           # stays a docked bar, not a tab
+  home/     data/ domain/ (storeId-scoped) + presentation/{bloc/, templates/gravia/}
+  cart/     data/ domain/                 + presentation/{cubit/, templates/gravia/}
+  orders/   data/ domain/ (orders only, no payment-gateway this pass)
+                                           + presentation/{bloc/, templates/gravia/}
+
+feature/profile/           # top-level, sibling to feature/auth — store-agnostic,
+                            # so NOT nested under storefront
+  data/ domain/             # only the GET-fetch (ApiConstants.usersPath) gravia's
+                             # own slim feature/profile already isolates
+  presentation/{bloc/, templates/gravia/}
+```
+
+This nests storefront's sub-features under `feature/storefront/` as a
+deliberate, explicit exception to "one feature = one top-level folder" (the
+same kind of case `docs/reference/architecture.md` already documents for
+the shell/tabbed-app split) — specifically to avoid colliding with
+`cordelia`'s existing `feature/home/`, which means *store discovery*, not a
+per-store product home. **Adding template #2 later = one new
+`presentation/templates/<name>/` folder per feature + one new enum case +
+one new admin dropdown option — no `domain`/`data` changes.**
+
+**Removing the hardcoded-storeId seam.** gravia's `ApiConstants.storeId` is
+a compile-time constant baked into every endpoint path — the concrete gap
+this section closes. Since `core`'s forbidden-pattern list requires data
+sources to stay const/no-arg (infra reached only via `.instance`
+singletons), `storeId` becomes a **call parameter** threaded the normal
+Clean-Architecture way (data-source method args → repository method args →
+use-case `Params` → BLoC event field), read once from `ActiveStoreCubit`
+when the storefront shell provisions each BLoC — not a constructor
+parameter and not a global constant.
+
+**Auth stays super-app-level, not per-store.** Login/signup/verify-email/
+forgot-password/change-password/update-profile already live in `cordelia`'s
+existing `feature/auth/` (all 8 use cases already ported and DI-registered).
+A shopper signs in once, before discovery; opening a store's storefront
+reuses that session — no per-store re-login, no auth porting needed. The
+only new piece is a **Profile screen**: `cordelia`'s auth can mutate a
+profile but has no GET-fetch of it, so `feature/profile/` ports gravia's
+slim fetch-only `ProfileRepository`/`GetProfileUseCase`; edit-profile and
+change-password screens call `cordelia`'s **existing** auth use cases
+(matching how gravia's own `EditProfileBloc`/`ChangePasswordBloc` already
+call into its `feature/auth`, not a forked copy).
+
+**Admin `templateId`.** `stores/{storeId}.themeConfig` was always
+aspirational (zero references in `admin/src`); `templateId` will be the
+first field wired end-to-end: `admin/src/lib/types.ts` (`Store.templateId`),
+`POST /api/stores` (accept + default `'gravia'`), `serializeStore()`
+(`template_id`), `mapStoreDoc` (default `'gravia'`), plus a small dropdown
+UI (new dashboard section or page) behind a `PUT` sub-route, following the
+existing `payment-config` route's pattern.
 
 ## Missing flows (fill these or explicitly defer)
 
