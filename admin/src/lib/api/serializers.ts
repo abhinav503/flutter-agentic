@@ -1,4 +1,4 @@
-import type { Address, Category, Order, Product } from "@/lib/types";
+import type { Address, Category, Order, Product, Store } from "@/lib/types";
 
 // Shapes match gravia's existing mock JSON / *Model.fromJson() wire format
 // exactly (apps/ecommerce/gravia/lib/feature/*/data/models/) — snake_case,
@@ -75,6 +75,13 @@ export function serializeOrder(o: Order) {
       quantity: item.quantity,
     })),
   };
+}
+
+// Matches StoreModel.fromJson() in cordelia (feature/home/data/models/) —
+// snake_case like every other serializer in this file, `image` not
+// `imageUrl` for consistency with serializeCategory/serializeProduct.
+export function serializeStore(s: Store) {
+  return { id: s.id, name: s.name, image: s.logoUrl, description: s.description };
 }
 
 export function groupCategories(categories: Category[]) {

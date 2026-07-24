@@ -66,6 +66,22 @@
             "flutterMode": "profile"
         },
         {
+            "name": "cordelia (debug)",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "cwd": "apps/ecommerce/cordelia",
+            "flutterMode": "debug"
+        },
+        {
+            "name": "cordelia (profile)",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "cwd": "apps/ecommerce/cordelia",
+            "flutterMode": "profile"
+        },
+        {
             "name": "design_gallery (debug)",
             "request": "launch",
             "type": "dart",

@@ -1,0 +1,95 @@
+name: cordelia
+description: CordeliaApps — the multi-store super app entry point (store discovery, shared shopper auth).
+publish_to: 'none'
+version: 0.1.0
+resolution: workspace
+
+environment:
+  sdk: ^3.12.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  core:
+    path: ../../../packages/core
+
+  # Firebase (email/password auth — feature/auth), shared corderlia-ecom
+  # project/user pool with gravia (see /connect-firebase).
+  firebase_core: ^4.1.1
+  firebase_auth: ^6.1.0
+
+  # feature/auth's remote data source builds a Dio Options object directly
+  # (Authorization header) — HttpService (core) doesn't expose that shape.
+  dio: ^5.8.0+1
+
+  # State management
+  flutter_bloc: ^9.1.1
+
+  # Navigation
+  go_router: ^17.2.3
+
+  # Functional error handling
+  fpdart: ^1.1.0
+
+  # Debounced+restartable event transformer for search-as-you-type
+  # (DiscoveryBloc's store search) — the bloc-docs-recommended way to
+  # compose debounce with switchMap without pulling in rxdart.
+  stream_transform: ^2.1.0
+
+  # Models
+  freezed_annotation: ^3.1.0
+  json_annotation: ^4.9.0
+
+  # Brand SVG rendering (splash wordmark glyph)
+  flutter_svg: ^2.3.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  build_runner: ^2.4.15
+  freezed: ^3.2.5
+  json_serializable: ^6.9.5
+  bloc_test: ^10.0.0
+  flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.3
+  flutter_native_splash: ^2.4.3
+  get_it: ^8.0.1
+  shared_preferences: ^2.3.3
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/theme/theme_config.json
+    - assets/icons/
+    - assets/images/
+
+# One source mark → every launcher-icon size. branding/ holds these
+# build-time generator sources and lives OUTSIDE assets/ on purpose — it
+# must never be registered as a flutter asset (assets/icons/ = runtime
+# SVGs; assets/images/ = runtime raster images).
+# Regenerate: dart run flutter_launcher_icons
+flutter_launcher_icons:
+  android: true
+  ios: true
+  remove_alpha_ios: true
+  image_path: branding/app_icon.png
+  adaptive_icon_background: "#FFFFFF"
+  adaptive_icon_foreground: branding/app_icon_foreground.png
+  web:
+    generate: true
+    image_path: branding/app_icon.png
+
+# Native boot splash (kills the white flash before Flutter's first frame).
+# Android 12+ centers the launcher icon by default.
+# Regenerate: dart run flutter_native_splash:create
+flutter_native_splash:
+  color: "#FFFFFF"
+  color_dark: "#0C0503"
+  image: branding/splash_logo.png
+  web: true
+  android_12:
+    color: "#FFFFFF"
+    color_dark: "#0C0503"
+    image: branding/splash_logo_android12.png

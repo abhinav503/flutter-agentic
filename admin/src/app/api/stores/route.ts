@@ -2,6 +2,19 @@ import { NextResponse } from "next/server";
 import { FieldValue } from "firebase-admin/firestore";
 import { adminAuth, adminDb } from "@/lib/firebase-admin";
 import { requireAuthedUser, UnauthorizedError } from "@/lib/api/admin-guard";
+import { getStores } from "@/lib/stores";
+import { serializeStore } from "@/lib/api/serializers";
+
+// Store discovery for the CordeliaApps super app — world-readable, no auth
+// (stores/{storeId} is `allow read: if true` in firestore.rules, same
+// reasoning the existing unauthenticated storefront search branch uses).
+// Optional `?q=` filters by name/searchKeywords (see getStores).
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const q = searchParams.get("q") ?? undefined;
+  const stores = await getStores(q);
+  return NextResponse.json({ stores: stores.map(serializeStore) });
+}
 
 // Store creation moved server-side so ownership can be stamped into the
 // caller's `storeIds` custom claim — a client can't grant itself a claim,

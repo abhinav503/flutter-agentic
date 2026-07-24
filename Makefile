@@ -8,14 +8,14 @@
 FLUTTER ?= fvm flutter
 DART ?= fvm dart
 
-APPS = apps/jokes apps/doc_scanner apps/ai_chat apps/ecommerce/gravia
-GEN_PACKAGES = packages/core apps/jokes apps/doc_scanner apps/ai_chat
+APPS = apps/jokes apps/doc_scanner apps/ai_chat apps/ecommerce/gravia apps/ecommerce/cordelia
+GEN_PACKAGES = packages/core apps/jokes apps/doc_scanner apps/ai_chat apps/ecommerce/cordelia
 
 # web-terminal collides with the web-terminal/ directory, so targets must be
 # declared phony or make treats them as up-to-date files.
 .PHONY: setup run-jokes run-doc-scanner run-ai-chat run-design-gallery \
-        run-gravia web-jokes web-doc-scanner web-ai-chat web-design-gallery \
-        web-gravia console terminal-bridge dev-web-terminal analyze test gen \
+        run-gravia run-cordelia web-jokes web-doc-scanner web-ai-chat web-design-gallery \
+        web-gravia web-cordelia console terminal-bridge dev-web-terminal analyze test gen \
         clean docker-build docker-up ws-image ws-create ws-delete
 
 setup:
@@ -41,6 +41,10 @@ run-design-gallery:
 run-gravia:
 	cd apps/ecommerce/gravia && $(FLUTTER) run
 
+# cordelia is the CordeliaApps super app — multi-store discovery entry point.
+run-cordelia:
+	cd apps/ecommerce/cordelia && $(FLUTTER) run
+
 web-jokes:
 	cd apps/jokes && $(FLUTTER) run -d chrome
 
@@ -55,6 +59,9 @@ web-design-gallery:
 
 web-gravia:
 	cd apps/ecommerce/gravia && $(FLUTTER) run -d chrome
+
+web-cordelia:
+	cd apps/ecommerce/cordelia && $(FLUTTER) run -d chrome
 
 # --- web-terminal console: React/Next.js UI + local Node PTY bridge ---
 # The console (web-terminal/console) is a Next.js app that streams a real shell

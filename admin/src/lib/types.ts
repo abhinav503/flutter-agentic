@@ -50,6 +50,22 @@ export type CartItem = {
   quantity: number;
 };
 
+// Mirrors the real stores/{storeId} doc written by POST /api/stores
+// (store-creation route) — only name/ownerUid/status/createdAt are
+// actually written today. logoUrl/description/searchKeywords are part of
+// the schema documented in docs/explanation/superapp-ecommerce-plan.md but
+// aren't populated by any code yet, so they default to empty in
+// mapStoreDoc rather than being treated as always-present.
+export type Store = {
+  id: string;
+  name: string;
+  logoUrl: string;
+  description: string;
+  ownerUid: string;
+  status: string;
+  searchKeywords: string[];
+};
+
 // Field names mirror AddressEntity in gravia's feature/address. Structured
 // fields, not one text blob — gravia composes its display line client-side
 // (AddressEntityX.displayLine) so edits can't drift from the parts.
