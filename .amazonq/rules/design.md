@@ -1,0 +1,1 @@
+../../docs/ai-rules/design.md
