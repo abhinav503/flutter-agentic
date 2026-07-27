@@ -1,6 +1,9 @@
 import {
   collection,
+  doc,
+  getDoc,
   getDocs,
+  type DocumentSnapshot,
   type QueryDocumentSnapshot,
 } from "firebase/firestore";
 import { db } from "./firebase";
@@ -10,8 +13,10 @@ function storesRef() {
   return collection(db, "stores");
 }
 
-function mapStoreDoc(d: QueryDocumentSnapshot): Store {
-  const data = d.data();
+function mapStoreDoc(d: QueryDocumentSnapshot | DocumentSnapshot): Store {
+  // `?? {}`: DocumentSnapshot.data() is undefined for a missing doc (getStore
+  // already guards with exists(), but the type doesn't know that).
+  const data = d.data() ?? {};
   return {
     id: d.id,
     name: (data.name as string) ?? "",
@@ -20,6 +25,7 @@ function mapStoreDoc(d: QueryDocumentSnapshot): Store {
     ownerUid: (data.ownerUid as string) ?? "",
     status: (data.status as string) ?? "active",
     searchKeywords: (data.searchKeywords as string[] | undefined) ?? [],
+    templateId: (data.templateId as string) ?? "gravia",
   };
 }
 
@@ -29,6 +35,14 @@ function mapStoreDoc(d: QueryDocumentSnapshot): Store {
 // match, not full text search (see "Missing flow #9" in
 // docs/explanation/superapp-ecommerce-plan.md — Algolia/Typesense is a
 // later upgrade, this is the MVP scope).
+// One-shot single-store read for the dashboard Settings page's store-profile
+// prefill (stores are world-readable; writes go through PUT
+// /api/stores/{storeId} so validation stays server-side).
+export async function getStore(storeId: string): Promise<Store | null> {
+  const snap = await getDoc(doc(db, "stores", storeId));
+  return snap.exists() ? mapStoreDoc(snap) : null;
+}
+
 export async function getStores(q?: string): Promise<Store[]> {
   const snap = await getDocs(storesRef());
   const stores = snap.docs.map(mapStoreDoc).filter((s) => s.status === "active");

@@ -1,0 +1,257 @@
+import 'package:cordelia/constants/app_routes.dart';
+import 'package:cordelia/constants/value_const.dart';
+import 'package:cordelia/feature/storefront/active_store/presentation/cubit/active_store_cubit.dart';
+import 'package:cordelia/feature/storefront/address/domain/entities/address_entity.dart';
+import 'package:cordelia/feature/storefront/home/domain/entities/product_entity.dart';
+import 'package:cordelia/feature/storefront/presentation/view/storefront_page.dart';
+import 'package:cordelia/feature/storefront/shell/presentation/templates/gravia/view/shell_page.dart';
+import 'package:cordelia/templates/gravia/constants/gravia_text_style_const.dart';
+import 'package:cordelia/templates/gravia/constants/gravia_value_const.dart';
+import 'package:cordelia/templates/gravia/widgets/gravia_product_card.dart';
+import 'package:cordelia/templates/gravia/widgets/gravia_sheet.dart';
+import 'package:cordelia/widgets/cordelia_hero_header.dart';
+import 'package:cordelia/widgets/cordelia_primary_button.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+
+import 'package:core/core/base/base_screen.dart';
+import 'package:core/core/theme/app_spacing.dart';
+import 'package:core/core/ui/atoms/button.dart';
+import 'package:core/core/ui/blocks/collapsing_header_sheet.dart';
+import 'package:core/core/ui/blocks/section_header.dart';
+import 'package:core/core/ui/molecules/empty_state.dart';
+import 'package:core/core/ui/blocks/docked_bar.dart';
+
+import '../../../../domain/entities/cart_item_entity.dart';
+import '../../../bloc/cart_bloc.dart';
+import '../../../bloc/checkout_bloc.dart';
+import '../../../cubit/cart_cubit.dart';
+import '../widgets/cart_item_row.dart';
+import '../widgets/cart_summary_section.dart';
+
+class CartScreen extends BaseScreen {
+  final String storeId;
+
+  const CartScreen({super.key, required this.storeId});
+
+  @override
+  State<CartScreen> createState() => _CartScreenState();
+}
+
+class _CartScreenState extends BaseScreenState<CartScreen> {
+  void _showComingSoon() => showSnackBar(ValueConst.comingSoonMessage);
+
+  // Checkout first gates on picking a delivery address — reuses the Select
+  // Address screen, which pops with the chosen address (null if the shopper
+  // backs out, in which case no order is placed). Submitting hands the whole
+  // flow to CheckoutBloc (payment + order placement); the cart clears only
+  // once the server confirms the order (see the CheckoutBloc listener in
+  // `body`), not optimistically here, since the request can still fail.
+  Future<void> _startCheckout(List<CartItemEntity> items) async {
+    final address = await context.push<AddressEntity>(
+      AppRoutes.selectAddress,
+    );
+    if (address == null || !mounted) return;
+    context.read<CheckoutBloc>().add(
+      CheckoutEvent.submitted(items: items, addressId: address.id),
+    );
+  }
+
+  void _onOrderPlaced() {
+    context.read<CartCubit>().clear();
+    showOrderPlacedSheet(
+      onTrackOrder: () => context.go(
+        AppRoutes.storefront,
+        extra: StorefrontRouteArgs(
+          store: context.read<ActiveStoreCubit>().state!,
+          initialTab: ShellPage.ordersTabIndex,
+        ),
+      ),
+    );
+  }
+
+  void _addToCart(ProductEntity product, int quantity) {
+    context.read<CartCubit>().addToCart(product, quantity);
+  }
+
+  void _openProductDetails(ProductEntity product) => context.push(
+    AppRoutes.productDetailsPath(product.id),
+    extra: widget.storeId,
+  );
+
+  void _showAddToCartSheet(ProductEntity product) =>
+      showGraviaAddToCartSheet(product: product, onAddToCart: _addToCart);
+
+  @override
+  Widget body(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final cartItems = context.watch<CartCubit>().state;
+
+    return BlocListener<CheckoutBloc, CheckoutState>(
+      listener: (context, state) {
+        switch (state) {
+          case CheckoutSuccess():
+            _onOrderPlaced();
+          case CheckoutFailure(:final message):
+            showSnackBar(message);
+          case CheckoutIdle() || CheckoutSubmitting():
+            break;
+        }
+      },
+      child: AnnotatedRegion<SystemUiOverlayStyle>(
+        value: const SystemUiOverlayStyle(
+          statusBarColor: Colors.transparent,
+          statusBarIconBrightness: Brightness.light,
+          statusBarBrightness: Brightness.dark,
+        ),
+        child: cartItems.isEmpty
+          ? Column(
+              children: [
+                CordeliaHeroHeader(
+                  title: GraviaValueConst.myCartTitle,
+                  onBack: () => context.pop(),
+                ),
+                Expanded(
+                  child: Container(
+                    color: cs.surface,
+                    child: const EmptyState(
+                      iconData: Icons.shopping_bag_outlined,
+                      title: GraviaValueConst.cartEmptyTitle,
+                      subtitle: GraviaValueConst.cartEmptySubtitle,
+                    ),
+                  ),
+                ),
+              ],
+            )
+          : Column(
+              children: [
+                Expanded(
+                  child: CollapsingHeaderSheet(
+                    initialHeaderHeight: 110,
+                    header: CordeliaHeroHeader(
+                      title: GraviaValueConst.myCartTitle,
+                      onBack: () => context.pop(),
+                    ),
+                    body: Padding(
+                      padding: const EdgeInsets.all(AppSpacing.lg),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          for (var i = 0; i < cartItems.length; i++) ...[
+                            if (i > 0) const SizedBox(height: AppSpacing.xl2),
+                            CartItemRow(
+                              item: cartItems[i],
+                              onIncrement: () => context
+                                  .read<CartCubit>()
+                                  .incrementQuantity(cartItems[i].product.id),
+                              onDecrement: () => context
+                                  .read<CartCubit>()
+                                  .decrementQuantity(cartItems[i].product.id),
+                            ),
+                          ],
+                          const SizedBox(height: AppSpacing.xl4),
+                          BlocBuilder<CartBloc, CartState>(
+                            builder: (context, state) => switch (state) {
+                              CartLoaded(:final suggestions) =>
+                                _BeforeYouCheckoutRail(
+                                  products: suggestions,
+                                  onAddToCart: (product) =>
+                                      _addToCart(product, 1),
+                                  onQuickAdd: _showAddToCartSheet,
+                                  onProductTap: _openProductDetails,
+                                ),
+                              CartLoading() ||
+                              CartError() => const SizedBox.shrink(),
+                            },
+                          ),
+                          const SizedBox(height: AppSpacing.xl4),
+                          CartSummarySection(
+                            items: cartItems,
+                            onApplyCoupon: _showComingSoon,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                DockedBar(
+                  child: BlocBuilder<CheckoutBloc, CheckoutState>(
+                    builder: (context, state) {
+                      // Submitting spans the whole flow (payment + placement),
+                      // so the CTA stays loading and un-tappable throughout.
+                      final busy = state is CheckoutSubmitting;
+                      return CordeliaPrimaryButton(
+                        label: GraviaValueConst.proceedToCheckoutLabel,
+                        state: busy
+                            ? AppButtonState.loading
+                            : AppButtonState.idle,
+                        onTap: busy ? null : () => _startCheckout(cartItems),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+      ),
+    );
+  }
+}
+
+class _BeforeYouCheckoutRail extends StatelessWidget {
+  final List<ProductEntity> products;
+  final ValueChanged<ProductEntity> onAddToCart;
+  final ValueChanged<ProductEntity> onQuickAdd;
+  final ValueChanged<ProductEntity> onProductTap;
+
+  const _BeforeYouCheckoutRail({
+    required this.products,
+    required this.onAddToCart,
+    required this.onQuickAdd,
+    required this.onProductTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (products.isEmpty) return const SizedBox.shrink();
+
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SectionHeader(
+          title: GraviaValueConst.beforeYouCheckoutTitle,
+          titleStyle: GraviaTextStyleConst.textLgBold(
+            tt,
+          ).copyWith(color: cs.onSurface),
+        ),
+        const SizedBox(height: AppSpacing.base),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              for (var i = 0; i < products.length; i++) ...[
+                if (i > 0) const SizedBox(width: AppSpacing.base),
+                GraviaProductCard(
+                  product: products[i],
+                  width: GraviaProductCard.railWidth,
+                  // Kit's "Before you checkout" cards are barer — no
+                  // prep-time/discount meta row.
+                  showPrepTime: false,
+                  showDiscount: false,
+                  onAddToCart: () => onAddToCart(products[i]),
+                  onQuickAdd: () => onQuickAdd(products[i]),
+                  onTap: () => onProductTap(products[i]),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}

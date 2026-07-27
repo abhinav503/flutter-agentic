@@ -11,6 +11,9 @@ import 'package:core/core/ui/molecules/error_view.dart';
 
 import 'package:cordelia/constants/app_routes.dart';
 import 'package:cordelia/constants/value_const.dart';
+import 'package:cordelia/feature/storefront/active_store/domain/entities/active_store_entity.dart';
+import 'package:cordelia/feature/storefront/presentation/view/storefront_page.dart';
+import 'package:cordelia/feature/storefront/template/storefront_template.dart';
 
 import '../bloc/discovery_bloc.dart';
 import '../widgets/store_card.dart';
@@ -31,9 +34,19 @@ class _DiscoveryScreenState extends BaseScreenState<DiscoveryScreen> {
     super.dispose();
   }
 
-  void _openStore(String storeId, String storeName) => context.push(
+  void _openStore(
+    String storeId,
+    String storeName,
+    StorefrontTemplate templateId,
+  ) => context.push(
     AppRoutes.storefront,
-    extra: (storeId: storeId, storeName: storeName),
+    extra: StorefrontRouteArgs(
+      store: ActiveStoreEntity(
+        storeId: storeId,
+        storeName: storeName,
+        templateId: templateId,
+      ),
+    ),
   );
 
   @override
@@ -91,7 +104,11 @@ class _DiscoveryScreenState extends BaseScreenState<DiscoveryScreen> {
                         const SizedBox(height: AppSpacing.base),
                     itemBuilder: (context, i) => StoreCard(
                       store: stores[i],
-                      onTap: () => _openStore(stores[i].id, stores[i].name),
+                      onTap: () => _openStore(
+                        stores[i].id,
+                        stores[i].name,
+                        stores[i].templateId,
+                      ),
                     ),
                   ),
                 },

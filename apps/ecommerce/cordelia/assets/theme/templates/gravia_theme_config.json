@@ -1,0 +1,4 @@
+{
+  "_doc": "The 'gravia' storefront template's own theme, distinct from CordeliaApps' own app-level brand config at assets/theme/theme_config.json. Selects the shared 'gravia' preset (packages/core/lib/core/theme/app_theme_presets.dart) verbatim — a store opened under this template re-skins to the real gravia kit palette, not CordeliaApps' purple brand chrome. Loaded at runtime by StorefrontPage once a store's templateId resolves to 'gravia', not at boot (see docs/explanation/superapp-ecommerce-plan.md).",
+  "activeTheme": "gravia"
+}

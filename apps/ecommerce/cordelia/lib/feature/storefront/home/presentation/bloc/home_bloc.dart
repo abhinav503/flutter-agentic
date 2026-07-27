@@ -1,0 +1,68 @@
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+import 'package:core/core/base/bloc_cache.dart';
+import 'package:core/core/error/failure.dart';
+import 'package:fpdart/fpdart.dart';
+
+import '../../domain/entities/home_entity.dart';
+import '../../domain/usecase/get_home_usecase.dart';
+
+part 'home_bloc.freezed.dart';
+part 'home_event.dart';
+part 'home_state.dart';
+
+class HomeBloc extends Bloc<HomeEvent, HomeState> {
+  final GetHomeUseCase _getHome;
+  static final _cache = BlocCache<HomeEntity>();
+
+  // Unlike gravia (one store forever), this app opens a different store's
+  // Home behind the same static cache across visits — without this guard, a
+  // warm start would flash the previously-opened store's cached catalog for
+  // one frame before the fresh fetch resolves. Only trust the cache when
+  // it was populated for the same storeId.
+  static String? _cachedStoreId;
+
+  @visibleForTesting
+  static void resetCache() {
+    _cache.reset();
+    _cachedStoreId = null;
+  }
+
+  HomeBloc({required GetHomeUseCase getHomeUseCase, required String storeId})
+    : _getHome = getHomeUseCase,
+      super(_seed(storeId)) {
+    on<HomeStarted>(_onStarted);
+  }
+
+  static HomeState _seed(String storeId) {
+    if (_cachedStoreId != storeId) {
+      _cache.reset();
+      _cachedStoreId = storeId;
+    }
+    return _cache.seed(
+      warm: (home) => HomeState.loaded(home: home),
+      cold: HomeState.loading,
+    );
+  }
+
+  Future<void> _onStarted(HomeStarted event, Emitter<HomeState> emit) async {
+    final Either<Failure, HomeEntity> result = await _getHome(
+      GetHomeParams(storeId: event.storeId),
+    );
+    result.fold((failure) {
+      switch (state) {
+        case HomeLoaded(:final home):
+          emit(HomeState.loaded(home: home, refreshFailed: true));
+        case HomeLoading():
+        case HomeError():
+          emit(HomeState.error(message: failure.message));
+      }
+    }, (home) => _emitLoaded(home, emit));
+  }
+
+  void _emitLoaded(HomeEntity home, Emitter<HomeState> emit) {
+    _cache.save(home);
+    emit(HomeState.loaded(home: home));
+  }
+}

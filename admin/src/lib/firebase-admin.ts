@@ -24,4 +24,11 @@ export const adminAuth = getAuth(app);
 // known flaky spot in serverless runtimes generally, incl. Vercel) — force
 // plain HTTPS/REST instead, the same transport family firebase.ts's client
 // SDK already uses successfully. Must be set before any Firestore call.
-adminDb.settings({ preferRest: true });
+try {
+  adminDb.settings({ preferRest: true });
+} catch {
+  // settings() is once-only per Firestore instance and throws on the second
+  // call. In `next dev`, separate route chunks each evaluate this module
+  // against the same reused app — the settings are already applied then, so
+  // the retry is safely ignored.
+}

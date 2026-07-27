@@ -6,9 +6,9 @@ import 'package:core/core/base/base_screen.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/blocks/collapsing_header_sheet.dart';
 
-import 'package:cordelia/constants/color_const.dart';
-import 'package:cordelia/constants/text_style_const.dart';
-import 'package:cordelia/widgets/gravia_hero_header.dart';
+import 'package:cordelia/templates/gravia/constants/gravia_color_const.dart';
+import 'package:cordelia/templates/gravia/constants/gravia_text_style_const.dart';
+import 'package:cordelia/widgets/cordelia_hero_header.dart';
 
 import 'legal_document_content.dart';
 
@@ -42,7 +42,7 @@ class _LegalDocumentScreenState extends BaseScreenState<LegalDocumentScreen> {
           Expanded(
             child: CollapsingHeaderSheet(
               initialHeaderHeight: 110,
-              header: GraviaHeroHeader(
+              header: CordeliaHeroHeader(
                 title: widget.content.title,
                 onBack: () => context.pop(),
               ),
@@ -53,28 +53,28 @@ class _LegalDocumentScreenState extends BaseScreenState<LegalDocumentScreen> {
                   children: [
                     Text(
                       widget.content.lastUpdated,
-                      style: TextStyleConst.textSmRegular(
+                      style: GraviaTextStyleConst.textSmRegular(
                         tt,
-                      ).copyWith(color: ColorConst.gray500),
+                      ).copyWith(color: GraviaColorConst.gray500),
                     ),
                     const SizedBox(height: AppSpacing.base),
                     Text(
                       widget.content.intro,
-                      style: TextStyleConst.textMdRegular(
+                      style: GraviaTextStyleConst.textMdRegular(
                         tt,
                       ).copyWith(color: cs.onSurface),
                     ),
                     const SizedBox(height: AppSpacing.xl2),
                     Text(
                       widget.content.heading,
-                      style: TextStyleConst.textMdBold(
+                      style: GraviaTextStyleConst.textMdBold(
                         tt,
                       ).copyWith(color: cs.primary),
                     ),
                     const SizedBox(height: AppSpacing.base),
                     Text(
                       widget.content.body,
-                      style: TextStyleConst.textMdRegular(
+                      style: GraviaTextStyleConst.textMdRegular(
                         tt,
                       ).copyWith(color: cs.onSurfaceVariant),
                     ),

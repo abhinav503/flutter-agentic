@@ -9,7 +9,7 @@ import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/concentric_circles.dart';
 import 'package:core/core/ui/atoms/loading_dots.dart';
 
-import 'package:cordelia/constants/text_style_const.dart';
+import 'package:cordelia/templates/gravia/constants/gravia_text_style_const.dart';
 import 'package:cordelia/constants/value_const.dart';
 
 /// The persistent, zero-exit verification step after signup/an
@@ -103,7 +103,7 @@ class _VerifyEmailSheetContentState extends State<VerifyEmailSheetContent> {
                 Text(
                   ValueConst.verifyEmailTitle,
                   textAlign: TextAlign.center,
-                  style: TextStyleConst.displayXsBold(
+                  style: GraviaTextStyleConst.displayXsBold(
                     tt,
                   ).copyWith(color: cs.onSurface),
                 ),
@@ -111,7 +111,7 @@ class _VerifyEmailSheetContentState extends State<VerifyEmailSheetContent> {
                 Text(
                   ValueConst.verifyEmailSubtitle(widget.email),
                   textAlign: TextAlign.center,
-                  style: TextStyleConst.textSmRegular(tt).copyWith(
+                  style: GraviaTextStyleConst.textSmRegular(tt).copyWith(
                     color: Theme.of(context)
                         .extension<AppColorsExtension>()!
                         .onSheetMuted,
@@ -125,7 +125,7 @@ class _VerifyEmailSheetContentState extends State<VerifyEmailSheetContent> {
                     const SizedBox(width: AppSpacing.xs2),
                     Text(
                       ValueConst.verifyEmailChecking,
-                      style: TextStyleConst.textSmRegular(
+                      style: GraviaTextStyleConst.textSmRegular(
                         tt,
                       ).copyWith(color: cs.onSurfaceVariant),
                     ),
@@ -138,7 +138,7 @@ class _VerifyEmailSheetContentState extends State<VerifyEmailSheetContent> {
                     _cooldownSeconds > 0
                         ? '${ValueConst.resendEmailLabel} (${_cooldownSeconds}s)'
                         : ValueConst.resendEmailLabel,
-                    style: TextStyleConst.textSmMedium(
+                    style: GraviaTextStyleConst.textSmMedium(
                       tt,
                     ).copyWith(color: cs.primary),
                   ),

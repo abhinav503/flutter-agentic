@@ -43,6 +43,7 @@ dependencies:
 
   # Brand SVG rendering (splash wordmark glyph)
   flutter_svg: ^2.3.0
+  razorpay_flutter: ^1.4.0
 
 dev_dependencies:
   flutter_test:
@@ -62,8 +63,11 @@ flutter:
 
   assets:
     - assets/theme/theme_config.json
+    - assets/theme/templates/gravia_theme_config.json
+    - assets/theme/templates/dailymart_theme_config.json
     - assets/icons/
     - assets/images/
+    - assets/data/
 
 # One source mark → every launcher-icon size. branding/ holds these
 # build-time generator sources and lives OUTSIDE assets/ on purpose — it

@@ -64,6 +64,20 @@ export type Store = {
   ownerUid: string;
   status: string;
   searchKeywords: string[];
+  // Which cordelia presentation/templates/<id>/ this store's storefront
+  // renders as — defaults to 'gravia' (see mapStoreDoc) since it's the only
+  // template with a real UI behind it today; see templates/{id} in Firestore
+  // (world-readable, `getTemplates()`) for the set the create-store dialog
+  // offers.
+  templateId: string;
+};
+
+// One doc per storefront template the create-store dialog can offer —
+// seeded via scripts/seed-templates.mjs, never client-written (see
+// firestore.rules). `id` matches cordelia's StorefrontTemplate wire value.
+export type Template = {
+  id: string;
+  name: string;
 };
 
 // Field names mirror AddressEntity in gravia's feature/address. Structured

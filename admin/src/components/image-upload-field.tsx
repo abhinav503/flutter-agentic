@@ -19,7 +19,7 @@ export function ImageUploadField({
   id: string;
   label: string;
   storeId: string;
-  kind: "categories" | "products";
+  kind: "categories" | "products" | "store";
   value: string;
   onChange: (url: string) => void;
 }) {

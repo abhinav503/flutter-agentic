@@ -40,7 +40,7 @@ class _SplashPageState extends BasePageState<SplashPage> {
       // detects the still-pending case and re-opens the persistent verify
       // sheet on top of discovery.
       final isSignedIn = FirebaseAuthService.instance.currentUser != null;
-      context.go(isSignedIn ? AppRoutes.home : AppRoutes.login);
+      context.go(isSignedIn ? AppRoutes.discovery : AppRoutes.login);
     });
   }
 

@@ -18,7 +18,10 @@ mixin _$StoreModel {
  String get id; String get name;// Matches admin's serializeStore() — `image` not `logoUrl`, same
 // snake_case-avoidant convention as gravia's CategoryModel/ProductModel
 // (these particular keys have no snake_case form to begin with).
- String get image; String get description;
+ String get image; String get description;// Defaulted, not required — the admin backend doesn't send template_id
+// yet (see docs/explanation/superapp-ecommerce-plan.md), so this must
+// parse cleanly against today's real API response.
+@JsonKey(name: 'template_id') String get templateId;
 /// Create a copy of StoreModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -31,16 +34,16 @@ $StoreModelCopyWith<StoreModel> get copyWith => _$StoreModelCopyWithImpl<StoreMo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is StoreModel&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.image, image) || other.image == image)&&(identical(other.description, description) || other.description == description));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is StoreModel&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.image, image) || other.image == image)&&(identical(other.description, description) || other.description == description)&&(identical(other.templateId, templateId) || other.templateId == templateId));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,image,description);
+int get hashCode => Object.hash(runtimeType,id,name,image,description,templateId);
 
 @override
 String toString() {
-  return 'StoreModel(id: $id, name: $name, image: $image, description: $description)';
+  return 'StoreModel(id: $id, name: $name, image: $image, description: $description, templateId: $templateId)';
 }
 
 
@@ -51,7 +54,7 @@ abstract mixin class $StoreModelCopyWith<$Res>  {
   factory $StoreModelCopyWith(StoreModel value, $Res Function(StoreModel) _then) = _$StoreModelCopyWithImpl;
 @useResult
 $Res call({
- String id, String name, String image, String description
+ String id, String name, String image, String description,@JsonKey(name: 'template_id') String templateId
 });
 
 
@@ -68,12 +71,13 @@ class _$StoreModelCopyWithImpl<$Res>
 
 /// Create a copy of StoreModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? image = null,Object? description = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? image = null,Object? description = null,Object? templateId = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,image: null == image ? _self.image : image // ignore: cast_nullable_to_non_nullable
 as String,description: null == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
+as String,templateId: null == templateId ? _self.templateId : templateId // ignore: cast_nullable_to_non_nullable
 as String,
   ));
 }
@@ -159,10 +163,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  String image,  String description)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  String image,  String description, @JsonKey(name: 'template_id')  String templateId)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _StoreModel() when $default != null:
-return $default(_that.id,_that.name,_that.image,_that.description);case _:
+return $default(_that.id,_that.name,_that.image,_that.description,_that.templateId);case _:
   return orElse();
 
 }
@@ -180,10 +184,10 @@ return $default(_that.id,_that.name,_that.image,_that.description);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  String image,  String description)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  String image,  String description, @JsonKey(name: 'template_id')  String templateId)  $default,) {final _that = this;
 switch (_that) {
 case _StoreModel():
-return $default(_that.id,_that.name,_that.image,_that.description);case _:
+return $default(_that.id,_that.name,_that.image,_that.description,_that.templateId);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -200,10 +204,10 @@ return $default(_that.id,_that.name,_that.image,_that.description);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  String image,  String description)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  String image,  String description, @JsonKey(name: 'template_id')  String templateId)?  $default,) {final _that = this;
 switch (_that) {
 case _StoreModel() when $default != null:
-return $default(_that.id,_that.name,_that.image,_that.description);case _:
+return $default(_that.id,_that.name,_that.image,_that.description,_that.templateId);case _:
   return null;
 
 }
@@ -215,7 +219,7 @@ return $default(_that.id,_that.name,_that.image,_that.description);case _:
 @JsonSerializable()
 
 class _StoreModel extends StoreModel {
-  const _StoreModel({required this.id, required this.name, required this.image, required this.description}): super._();
+  const _StoreModel({required this.id, required this.name, required this.image, required this.description, @JsonKey(name: 'template_id') this.templateId = 'gravia'}): super._();
   factory _StoreModel.fromJson(Map<String, dynamic> json) => _$StoreModelFromJson(json);
 
 @override final  String id;
@@ -225,6 +229,10 @@ class _StoreModel extends StoreModel {
 // (these particular keys have no snake_case form to begin with).
 @override final  String image;
 @override final  String description;
+// Defaulted, not required — the admin backend doesn't send template_id
+// yet (see docs/explanation/superapp-ecommerce-plan.md), so this must
+// parse cleanly against today's real API response.
+@override@JsonKey(name: 'template_id') final  String templateId;
 
 /// Create a copy of StoreModel
 /// with the given fields replaced by the non-null parameter values.
@@ -239,16 +247,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _StoreModel&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.image, image) || other.image == image)&&(identical(other.description, description) || other.description == description));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _StoreModel&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.image, image) || other.image == image)&&(identical(other.description, description) || other.description == description)&&(identical(other.templateId, templateId) || other.templateId == templateId));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,image,description);
+int get hashCode => Object.hash(runtimeType,id,name,image,description,templateId);
 
 @override
 String toString() {
-  return 'StoreModel(id: $id, name: $name, image: $image, description: $description)';
+  return 'StoreModel(id: $id, name: $name, image: $image, description: $description, templateId: $templateId)';
 }
 
 
@@ -259,7 +267,7 @@ abstract mixin class _$StoreModelCopyWith<$Res> implements $StoreModelCopyWith<$
   factory _$StoreModelCopyWith(_StoreModel value, $Res Function(_StoreModel) _then) = __$StoreModelCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String name, String image, String description
+ String id, String name, String image, String description,@JsonKey(name: 'template_id') String templateId
 });
 
 
@@ -276,12 +284,13 @@ class __$StoreModelCopyWithImpl<$Res>
 
 /// Create a copy of StoreModel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? image = null,Object? description = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? image = null,Object? description = null,Object? templateId = null,}) {
   return _then(_StoreModel(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,image: null == image ? _self.image : image // ignore: cast_nullable_to_non_nullable
 as String,description: null == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
+as String,templateId: null == templateId ? _self.templateId : templateId // ignore: cast_nullable_to_non_nullable
 as String,
   ));
 }

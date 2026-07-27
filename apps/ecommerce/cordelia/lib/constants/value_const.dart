@@ -119,8 +119,15 @@ abstract final class ValueConst {
   static const discoveryEmptySubtitle =
       'Try a different search, or check back soon as more stores join.';
 
-  // ── Storefront stub (feature/storefront) ───────────────────────────────
-  static const storefrontComingSoonTitle = 'Coming soon';
-  static const storefrontComingSoonSubtitle =
-      "This store's catalog isn't ready yet — check back soon.";
+  // ── Profile ────────────────────────────────────────────────────────────────
+  static const profilePageTitle = 'Profile';
+  static const changePasswordLabel = 'Change Password';
+  static const myOrdersLabel = 'My Orders';
+  static const myAddressLabel = 'My Address';
+  static const darkModeLabel = 'Dark Mode';
+  static const logoutLabel = 'Logout';
+  static const logoutTitle = 'Logout';
+  static const logoutConfirmMessage = 'Are you sure you want to log out?';
+  static const profileLoadErrorMessage =
+      'Something went wrong loading your profile.';
 }

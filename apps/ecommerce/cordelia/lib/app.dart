@@ -1,4 +1,19 @@
+import 'package:cordelia/feature/home/presentation/view/discovery_page.dart';
+import 'package:cordelia/feature/storefront/address/domain/entities/address_entity.dart';
+import 'package:cordelia/feature/storefront/address/presentation/templates/gravia/view/address_form_page.dart';
+import 'package:cordelia/feature/storefront/address/presentation/templates/gravia/view/address_page.dart';
+import 'package:cordelia/feature/storefront/cart/presentation/cubit/cart_cubit.dart';
+import 'package:cordelia/feature/storefront/cart/presentation/templates/gravia/view/cart_page.dart';
+import 'package:cordelia/feature/storefront/category_details/presentation/templates/gravia/view/category_details_page.dart';
+import 'package:cordelia/feature/storefront/favourites/presentation/cubit/favourites_cubit.dart';
+import 'package:cordelia/feature/storefront/notifications/presentation/templates/gravia/view/notifications_page.dart';
+import 'package:cordelia/feature/storefront/product_details/presentation/templates/gravia/view/product_details_page.dart';
+import 'package:cordelia/feature/storefront/profile/domain/entities/profile_entity.dart';
+import 'package:cordelia/feature/storefront/profile/presentation/templates/gravia/view/change_password_page.dart';
+import 'package:cordelia/feature/storefront/profile/presentation/templates/gravia/view/edit_profile_page.dart';
+import 'package:cordelia/feature/storefront/search/presentation/templates/gravia/view/search_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:core/core/services/shared_pref_service/shared_preference_service.dart';
 import 'package:core/core/theme/app_theme.dart';
@@ -8,22 +23,48 @@ import 'package:core/core/theme/theme_mode_scope.dart';
 
 import 'constants/app_routes.dart';
 import 'constants/value_const.dart';
+import 'di/injection_container.dart';
 import 'feature/auth/presentation/bloc/auth_bloc.dart'
     show kPendingEmailVerificationPrefKey;
 import 'feature/auth/presentation/view/login_page.dart';
 import 'feature/auth/presentation/view/signup_page.dart';
-import 'feature/home/presentation/view/home_page.dart';
 import 'feature/legal/presentation/view/legal_document_content.dart';
 import 'feature/legal/presentation/view/legal_document_page.dart';
 import 'feature/onboarding/presentation/view/onboarding_page.dart';
 import 'feature/splash/presentation/view/splash_page.dart';
+import 'feature/storefront/active_store/presentation/cubit/active_store_cubit.dart';
 import 'feature/storefront/presentation/view/storefront_page.dart';
 import 'services/firebase_auth_service.dart';
 import 'services/user_profile_cache_service.dart';
+import 'theme/active_theme_controller.dart';
+import 'theme/active_theme_scope.dart';
 
 final _router = GoRouter(
   routes: [
-    GoRoute(path: AppRoutes.splash, builder: (context, _) => const SplashPage()),
+    GoRoute(
+      path: AppRoutes.splash,
+      builder: (context, _) => const SplashPage(),
+    ),
+    GoRoute(
+      path: AppRoutes.discovery,
+      builder: (context, _) => const DiscoveryPage(),
+      routes: [
+        // Nested (not top-level) so `context.go(AppRoutes.storefront, …)` —
+        // the tab-jump mechanism Cart/Profile/Home use — rebuilds the stack
+        // as [Discovery, Storefront] instead of leaving Storefront with
+        // nothing beneath it to pop back to.
+        GoRoute(
+          path: AppRoutes.storefrontSubPath,
+          builder: (context, state) {
+            final args = state.extra as StorefrontRouteArgs;
+            return StorefrontPage(
+              store: args.store,
+              initialTab: args.initialTab,
+            );
+          },
+        ),
+      ],
+    ),
     GoRoute(
       path: AppRoutes.onboarding,
       builder: (context, _) => const OnboardingPage(),
@@ -45,14 +86,6 @@ final _router = GoRouter(
             ),
         child: const SignupPage(),
       ),
-    ),
-    GoRoute(path: AppRoutes.home, builder: (context, _) => const HomePage()),
-    GoRoute(
-      path: AppRoutes.storefront,
-      builder: (context, state) {
-        final args = state.extra as ({String storeId, String storeName});
-        return StorefrontPage(storeId: args.storeId, storeName: args.storeName);
-      },
     ),
     GoRoute(
       path: AppRoutes.termsAndConditions,
@@ -82,6 +115,158 @@ final _router = GoRouter(
               child: child,
             ),
         child: LegalDocumentPage(content: LegalDocumentContent.privacyPolicy()),
+      ),
+    ),
+
+    GoRoute(
+      path: AppRoutes.search,
+      pageBuilder: (context, state) => CustomTransitionPage<void>(
+        key: state.pageKey,
+        transitionDuration: const Duration(milliseconds: 350),
+        reverseTransitionDuration: const Duration(milliseconds: 300),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+            FadeTransition(
+              opacity: CurveTween(curve: Curves.easeInOut).animate(animation),
+              child: child,
+            ),
+        child: SearchPage(storeId: state.extra as String),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.productDetails,
+      // Fade, not the default slide — every "coloured header canvas" screen
+      // (design.md) places its back button in roughly the same spot, so a
+      // horizontal push visibly overlaps the outgoing and incoming back
+      // buttons mid-flight. Same fix as the Search route.
+      pageBuilder: (context, state) => CustomTransitionPage<void>(
+        key: state.pageKey,
+        transitionDuration: const Duration(milliseconds: 350),
+        reverseTransitionDuration: const Duration(milliseconds: 300),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+            FadeTransition(
+              opacity: CurveTween(curve: Curves.easeInOut).animate(animation),
+              child: child,
+            ),
+        child: ProductDetailsPage(
+          storeId: state.extra as String,
+          productId: state.pathParameters['id']!,
+        ),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.selectAddress,
+      // Fade, same reasoning as the Search route — Home and this screen
+      // share the same primary canvas colour, so a horizontal push would
+      // visibly overlap the two headers' back/location controls mid-flight.
+      pageBuilder: (context, state) => CustomTransitionPage<void>(
+        key: state.pageKey,
+        transitionDuration: const Duration(milliseconds: 350),
+        reverseTransitionDuration: const Duration(milliseconds: 300),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+            FadeTransition(
+              opacity: CurveTween(curve: Curves.easeInOut).animate(animation),
+              child: child,
+            ),
+        child: const AddressPage(),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.addressForm,
+      // Fade, same reasoning as Select Address — they share the same
+      // primary canvas colour and back-button position.
+      pageBuilder: (context, state) => CustomTransitionPage<void>(
+        key: state.pageKey,
+        transitionDuration: const Duration(milliseconds: 350),
+        reverseTransitionDuration: const Duration(milliseconds: 300),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+            FadeTransition(
+              opacity: CurveTween(curve: Curves.easeInOut).animate(animation),
+              child: child,
+            ),
+        child: AddressFormPage(address: state.extra as AddressEntity?),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.editProfile,
+      // Fade, same reasoning as Select Address/Address form.
+      pageBuilder: (context, state) => CustomTransitionPage<void>(
+        key: state.pageKey,
+        transitionDuration: const Duration(milliseconds: 350),
+        reverseTransitionDuration: const Duration(milliseconds: 300),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+            FadeTransition(
+              opacity: CurveTween(curve: Curves.easeInOut).animate(animation),
+              child: child,
+            ),
+        child: EditProfilePage(profile: state.extra as ProfileEntity),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.changePassword,
+      // Fade, same reasoning as Edit Profile/Select Address.
+      pageBuilder: (context, state) => CustomTransitionPage<void>(
+        key: state.pageKey,
+        transitionDuration: const Duration(milliseconds: 350),
+        reverseTransitionDuration: const Duration(milliseconds: 300),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+            FadeTransition(
+              opacity: CurveTween(curve: Curves.easeInOut).animate(animation),
+              child: child,
+            ),
+        child: const ChangePasswordPage(),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.categoryDetails,
+      // Fade, same reasoning as the Product Details route above.
+      pageBuilder: (context, state) => CustomTransitionPage<void>(
+        key: state.pageKey,
+        transitionDuration: const Duration(milliseconds: 350),
+        reverseTransitionDuration: const Duration(milliseconds: 300),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+            FadeTransition(
+              opacity: CurveTween(curve: Curves.easeInOut).animate(animation),
+              child: child,
+            ),
+        child: CategoryDetailsPage(
+          storeId: state.extra as String,
+          categoryId: state.pathParameters['id']!,
+          categoryName: state.uri.queryParameters['name'] ?? '',
+        ),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.cart,
+      // Fade, same reasoning as the Select Address route — Home/Categories
+      // and Cart share the same primary canvas colour, so a horizontal push
+      // would visibly overlap the headers' back buttons mid-flight.
+      pageBuilder: (context, state) => CustomTransitionPage<void>(
+        key: state.pageKey,
+        transitionDuration: const Duration(milliseconds: 350),
+        reverseTransitionDuration: const Duration(milliseconds: 300),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+            FadeTransition(
+              opacity: CurveTween(curve: Curves.easeInOut).animate(animation),
+              child: child,
+            ),
+        child: CartPage(storeId: state.extra as String),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.notifications,
+      // Fade, same reasoning as Cart/Select Address — this screen's coloured
+      // header canvas shares the back-button position every other "coloured
+      // header canvas" screen uses.
+      pageBuilder: (context, state) => CustomTransitionPage<void>(
+        key: state.pageKey,
+        transitionDuration: const Duration(milliseconds: 350),
+        reverseTransitionDuration: const Duration(milliseconds: 300),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+            FadeTransition(
+              opacity: CurveTween(curve: Curves.easeInOut).animate(animation),
+              child: child,
+            ),
+        child: const NotificationsPage(),
       ),
     ),
   ],
@@ -117,9 +302,7 @@ class _SessionExpiredGuardState extends State<_SessionExpiredGuard> {
 
   @override
   void dispose() {
-    FirebaseAuthService.instance.sessionExpired.removeListener(
-      _handleExpired,
-    );
+    FirebaseAuthService.instance.sessionExpired.removeListener(_handleExpired);
     super.dispose();
   }
 
@@ -136,8 +319,7 @@ class _SessionExpiredGuardState extends State<_SessionExpiredGuard> {
   }
 
   @override
-  Widget build(BuildContext context) =>
-      widget.child ?? const SizedBox.shrink();
+  Widget build(BuildContext context) => widget.child ?? const SizedBox.shrink();
 }
 
 class App extends StatefulWidget {
@@ -151,27 +333,68 @@ class App extends StatefulWidget {
 
 class _AppState extends State<App> {
   final ThemeModeController _themeMode = ThemeModeController()..load();
+  late final ActiveThemeController _activeTheme = ActiveThemeController(
+    widget.themeConfig,
+  );
+
+  // Shared across the whole app (Home, Product Details, Search, Cart/
+  // Favourite tab) — see CartCubit/FavouritesCubit's own class docs for why:
+  // Product Details/Cart/Search are separate GoRouter pages, not descendants
+  // of one shell, so these must live above the router, not inside any page.
+  late final CartCubit _cartCubit = CartCubit(
+    getCartUseCase: sl(),
+    saveCartUseCase: sl(),
+  );
+  late final FavouritesCubit _favouritesCubit = FavouritesCubit(
+    getFavouritesUseCase: sl(),
+    addFavouriteUseCase: sl(),
+    removeFavouriteUseCase: sl(),
+  );
+
+  // App-level for the same reason as the cubits above — Cart/Product
+  // Details/Search are separate GoRouter pages, not descendants of the
+  // storefront subtree, yet still need the active store's identity.
+  // StorefrontPage seeds/clears it per store visit.
+  final ActiveStoreCubit _activeStoreCubit = ActiveStoreCubit();
 
   @override
   void dispose() {
     _themeMode.dispose();
+    _activeTheme.dispose();
+    _cartCubit.close();
+    _favouritesCubit.close();
+    _activeStoreCubit.close();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder<ThemeMode>(
-      valueListenable: _themeMode,
-      builder: (context, mode, _) => ThemeModeScope(
-        controller: _themeMode,
-        child: MaterialApp.router(
-          title: ValueConst.appTitle,
-          routerConfig: _router,
-          theme: AppTheme.fromConfig(widget.themeConfig),
-          darkTheme: AppTheme.fromConfig(widget.themeConfig, dark: true),
-          themeMode: mode,
-          scaffoldMessengerKey: _scaffoldMessengerKey,
-          builder: (context, child) => _SessionExpiredGuard(child: child),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider.value(value: _cartCubit),
+        BlocProvider.value(value: _favouritesCubit),
+        BlocProvider.value(value: _activeStoreCubit),
+      ],
+      child: ValueListenableBuilder<ThemeMode>(
+        valueListenable: _themeMode,
+        builder: (context, mode, _) => ValueListenableBuilder<AppThemeConfig>(
+          valueListenable: _activeTheme,
+          builder: (context, themeConfig, _) => ThemeModeScope(
+            controller: _themeMode,
+            child: ActiveThemeScope(
+              controller: _activeTheme,
+              child: MaterialApp.router(
+                title: ValueConst.appTitle,
+                routerConfig: _router,
+                theme: AppTheme.fromConfig(themeConfig),
+                darkTheme: AppTheme.fromConfig(themeConfig, dark: true),
+                themeMode: mode,
+                scaffoldMessengerKey: _scaffoldMessengerKey,
+                builder: (context, child) =>
+                    _SessionExpiredGuard(child: child),
+              ),
+            ),
+          ),
         ),
       ),
     );

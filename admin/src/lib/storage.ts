@@ -1,11 +1,12 @@
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { storage } from "./firebase";
 
-// Path convention matches storage.rules: {storeId}/categories/** and
-// {storeId}/products/** are the only writable prefixes (owner-gated there).
+// Path convention matches storage.rules: {storeId}/categories/**,
+// {storeId}/products/**, and {storeId}/store/** (profile assets, e.g. the
+// logo) are the only writable prefixes (owner-gated there).
 export async function uploadCatalogImage(
   storeId: string,
-  kind: "categories" | "products",
+  kind: "categories" | "products" | "store",
   file: File,
 ): Promise<string> {
   const extension = file.name.split(".").pop() || "jpg";

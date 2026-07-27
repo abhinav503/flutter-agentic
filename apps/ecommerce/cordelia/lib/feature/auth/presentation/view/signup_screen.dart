@@ -12,10 +12,10 @@ import 'package:core/core/ui/atoms/inline_text_link.dart';
 import 'package:core/core/ui/blocks/collapsing_header_sheet.dart';
 
 import 'package:cordelia/constants/app_routes.dart';
-import 'package:cordelia/constants/text_style_const.dart';
+import 'package:cordelia/templates/gravia/constants/gravia_text_style_const.dart';
 import 'package:cordelia/constants/value_const.dart';
-import 'package:cordelia/widgets/gravia_form_field.dart';
-import 'package:cordelia/widgets/gravia_primary_button.dart';
+import 'package:cordelia/widgets/cordelia_form_field.dart';
+import 'package:cordelia/widgets/cordelia_primary_button.dart';
 import 'package:cordelia/widgets/cordelia_sheet.dart';
 
 import '../bloc/auth_bloc.dart';
@@ -95,7 +95,7 @@ class _SignupScreenState extends BaseScreenState<SignupScreen>
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) => switch (state) {
         AuthAwaitingVerification(:final email) => _openVerifySheet(email),
-        AuthAuthenticated() => _closeSheetAndGoHome(),
+        AuthAuthenticated() => _closeSheetAndGoToDiscovery(),
         AuthError(:final message) => showSnackBar(message),
         _ => null,
       },
@@ -110,7 +110,7 @@ class _SignupScreenState extends BaseScreenState<SignupScreen>
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  GraviaFormField(
+                  CordeliaFormField(
                     label: ValueConst.nameLabel,
                     controller: _nameController,
                     hint: ValueConst.nameHint,
@@ -119,7 +119,7 @@ class _SignupScreenState extends BaseScreenState<SignupScreen>
                     onChanged: (_) => _clearError(_SignupField.name),
                   ),
                   const SizedBox(height: AppSpacing.lg),
-                  GraviaFormField(
+                  CordeliaFormField(
                     label: ValueConst.emailLabel,
                     controller: _emailController,
                     hint: ValueConst.emailHint,
@@ -128,7 +128,7 @@ class _SignupScreenState extends BaseScreenState<SignupScreen>
                     onChanged: (_) => _clearError(_SignupField.email),
                   ),
                   const SizedBox(height: AppSpacing.lg),
-                  GraviaFormField(
+                  CordeliaFormField(
                     label: ValueConst.mobileLabel,
                     controller: _mobileController,
                     hint: ValueConst.mobileHint,
@@ -137,7 +137,7 @@ class _SignupScreenState extends BaseScreenState<SignupScreen>
                     onChanged: (_) => _clearError(_SignupField.mobile),
                   ),
                   const SizedBox(height: AppSpacing.lg),
-                  GraviaFormField(
+                  CordeliaFormField(
                     label: ValueConst.passwordLabel,
                     controller: _passwordController,
                     hint: ValueConst.passwordHint,
@@ -160,7 +160,7 @@ class _SignupScreenState extends BaseScreenState<SignupScreen>
                         Text.rich(
                           TextSpan(
                             style:
-                                TextStyleConst.textSmRegular(
+                                GraviaTextStyleConst.textSmRegular(
                                   Theme.of(context).textTheme,
                                 ).copyWith(
                                   color: Theme.of(
@@ -172,7 +172,7 @@ class _SignupScreenState extends BaseScreenState<SignupScreen>
                               TextSpan(
                                 text: ValueConst.termsAndConditionsLink,
                                 style:
-                                    TextStyleConst.textSmMedium(
+                                    GraviaTextStyleConst.textSmMedium(
                                       Theme.of(context).textTheme,
                                     ).copyWith(
                                       color: Theme.of(
@@ -191,7 +191,7 @@ class _SignupScreenState extends BaseScreenState<SignupScreen>
                     ),
                   ),
                   const SizedBox(height: AppSpacing.xl2),
-                  GraviaPrimaryButton(
+                  CordeliaPrimaryButton(
                     label: ValueConst.signupButtonLabel,
                     state: isLoading
                         ? AppButtonState.loading
@@ -204,12 +204,12 @@ class _SignupScreenState extends BaseScreenState<SignupScreen>
                     linkText: ValueConst.loginLink,
                     onTap: () => context.pop(),
                     textStyle:
-                        TextStyleConst.textSmRegular(
+                        GraviaTextStyleConst.textSmRegular(
                           Theme.of(context).textTheme,
                         ).copyWith(
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
-                    linkStyle: TextStyleConst.textSmMedium(
+                    linkStyle: GraviaTextStyleConst.textSmMedium(
                       Theme.of(context).textTheme,
                     ).copyWith(color: Theme.of(context).colorScheme.primary),
                   ),
@@ -234,11 +234,11 @@ class _SignupScreenState extends BaseScreenState<SignupScreen>
     _sheetOpen = false;
   }
 
-  void _closeSheetAndGoHome() {
+  void _closeSheetAndGoToDiscovery() {
     if (_sheetOpen && Navigator.of(context).canPop()) {
       Navigator.of(context).pop();
       _sheetOpen = false;
     }
-    context.go(AppRoutes.home);
+    context.go(AppRoutes.discovery);
   }
 }

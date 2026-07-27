@@ -5,10 +5,19 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { useStore } from "@/lib/store-context";
+import { getTemplates } from "@/lib/templates";
+import type { Template } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
 
 const NAV_ITEMS = [
@@ -81,13 +90,24 @@ export default function DashboardLayout({
 function CreateStoreGate() {
   const { createStore } = useStore();
   const [name, setName] = useState("");
+  const [templates, setTemplates] = useState<Template[]>([]);
+  const [templateId, setTemplateId] = useState("");
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    getTemplates()
+      .then((fetched) => {
+        setTemplates(fetched);
+        setTemplateId((current) => current || fetched[0]?.id || "");
+      })
+      .catch(() => toast.error("Could not load templates"));
+  }, []);
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
     setSubmitting(true);
     try {
-      await createStore(name.trim());
+      await createStore(name.trim(), templateId);
       toast.success("Store created");
     } catch {
       toast.error("Could not create store. Please try again.");
@@ -117,7 +137,25 @@ function CreateStoreGate() {
                 placeholder="e.g. Gravia Grocers"
               />
             </div>
-            <Button type="submit" disabled={submitting || !name.trim()}>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="store-template">Template</Label>
+              <Select value={templateId} onValueChange={setTemplateId}>
+                <SelectTrigger id="store-template" className="w-full">
+                  <SelectValue placeholder="Choose a template" />
+                </SelectTrigger>
+                <SelectContent>
+                  {templates.map((t) => (
+                    <SelectItem key={t.id} value={t.id}>
+                      {t.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <Button
+              type="submit"
+              disabled={submitting || !name.trim() || !templateId}
+            >
               {submitting ? "Creating…" : "Create store"}
             </Button>
           </form>

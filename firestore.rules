@@ -75,6 +75,14 @@ service cloud.firestore {
       }
     }
 
+    // Storefront template catalog — world-readable so the create-store
+    // dialog's template dropdown can list them; seeded only via the Admin
+    // SDK (scripts/seed-templates.mjs), never client-writable.
+    match /templates/{templateId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
     // Orders — a shopper creates/reads their own; the owning store can read
     // (and later advance status). No client-side price trust beyond create.
     match /orders/{orderId} {

@@ -1,0 +1,48 @@
+[
+  {
+    "title": "Today",
+    "notifications": [
+      {
+        "id": "notif_1",
+        "icon": "assets/icons/badge-percent.svg",
+        "title": "Best Deal of the Day",
+        "message": "Buy 1 Get 1 Offer on selected product… hurry up"
+      },
+      {
+        "id": "notif_2",
+        "icon": "assets/icons/open-box.svg",
+        "title": "Your Order Delivered",
+        "message": "Your order has been successfully delivered."
+      },
+      {
+        "id": "notif_3",
+        "icon": "assets/icons/user-circle.svg",
+        "title": "Account Setup Successfully",
+        "message": "Your account has been created."
+      },
+      {
+        "id": "notif_4",
+        "icon": "assets/icons/lock.svg",
+        "title": "Password Update Successful",
+        "message": "Your password has been placed successfully."
+      }
+    ]
+  },
+  {
+    "title": "Yesterday",
+    "notifications": [
+      {
+        "id": "notif_5",
+        "icon": "assets/icons/package-box.svg",
+        "title": "Order Place Successfully",
+        "message": "Your order has been placed successfully."
+      },
+      {
+        "id": "notif_7",
+        "icon": "assets/icons/open-box.svg",
+        "title": "Your Order Delivered",
+        "message": "Your order has been successfully delivered."
+      }
+    ]
+  }
+]

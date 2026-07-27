@@ -7,7 +7,8 @@
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint",
-    "test:webhook": "node scripts/test-refund-webhook.mjs"
+    "test:webhook": "node scripts/test-refund-webhook.mjs",
+    "seed:templates": "node --env-file=.env.local scripts/seed-templates.mjs"
   },
   "dependencies": {
     "class-variance-authority": "^0.7.1",

@@ -1,0 +1,45 @@
+/// Icon/image assets the `gravia` template's storefront screens use. The
+/// underlying SVGs already ship in `assets/icons/` (copied alongside the
+/// app's own icon set); this only declares the Dart constants pointing at
+/// them, scoped to this template rather than the app-wide `ImageConst`.
+abstract final class GraviaImageConst {
+  static const locationIcon = 'assets/icons/location_icon.svg';
+  static const notification = 'assets/icons/notification.svg';
+  static const search = 'assets/icons/search.svg';
+  static const mic = 'assets/icons/mic.svg';
+  static const navHome = 'assets/icons/home-minus.svg';
+  static const navCategories = 'assets/icons/apps-circle.svg';
+  static const navFavourite = 'assets/icons/heart.svg';
+  static const favouriteFilled = 'assets/icons/heart-filled.svg';
+  static const navOrders = 'assets/icons/bag.svg';
+  static const navProfile = 'assets/icons/user-circle.svg';
+  static const flash = 'assets/icons/flash.svg';
+  static const badgePercent = 'assets/icons/badge-percent.svg';
+  static const bagAdd = 'assets/icons/bag-add.svg';
+  static const cart = 'assets/icons/cart.svg';
+  static const gift = 'assets/icons/gift.svg';
+  static const plus = 'assets/icons/plus.svg';
+  static const minus = 'assets/icons/minus.svg';
+  static const undo = 'assets/icons/undo.svg';
+  static const remove = 'assets/icons/remove.svg';
+  static const arrowSort = 'assets/icons/arrow-sort.svg';
+  static const filter = 'assets/icons/filter.svg';
+  static const directionRight = 'assets/icons/direction-right.svg';
+  static const shoppingBag = 'assets/icons/shopping-bag.svg';
+  static const shieldCheck = 'assets/icons/shield-check.svg';
+  static const circleCheck = 'assets/icons/circle_check.svg';
+  static const openBox = 'assets/icons/open-box.svg';
+  static const packageBox = 'assets/icons/package-box.svg';
+  static const notes = 'assets/icons/notes.svg';
+  static const editRectangle = 'assets/icons/edit-rectangle.svg';
+  static const calling = 'assets/icons/calling.svg';
+  static const trash = 'assets/icons/trash.svg';
+  static const camera = 'assets/icons/camera.svg';
+  static const folderGallery = 'assets/icons/folder_gallery.svg';
+
+  static const profileDefault = 'assets/images/profile_default.png';
+  static const graviaBrandIcon = 'assets/icons/gravia_brand_icon.svg';
+  static const logout = 'assets/icons/logout.svg';
+  static const eye = 'assets/icons/eye.svg';
+  static const lock = 'assets/icons/lock.svg';
+}

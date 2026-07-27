@@ -3,6 +3,7 @@ import { FieldValue } from "firebase-admin/firestore";
 import { adminAuth, adminDb } from "@/lib/firebase-admin";
 import { requireAuthedUser, UnauthorizedError } from "@/lib/api/admin-guard";
 import { getStores } from "@/lib/stores";
+import { getTemplates } from "@/lib/templates";
 import { serializeStore } from "@/lib/api/serializers";
 
 // Store discovery for the CordeliaApps super app — world-readable, no auth
@@ -38,10 +39,31 @@ export async function POST(request: Request) {
   if (!name) {
     return NextResponse.json({ error: "name is required" }, { status: 400 });
   }
+  // Validated against the seeded `templates` collection when provided —
+  // cordelia's StorefrontTemplateParse silently falls back to gravia on an
+  // unknown id (a hand-backfilled "dialymart" typo proved exactly that), so
+  // the write side fails loud instead. Absent → default 'gravia'.
+  let templateId = "gravia";
+  if (body.templateId !== undefined) {
+    templateId =
+      typeof body.templateId === "string" ? body.templateId.trim() : "";
+    const templates = await getTemplates();
+    if (!templates.some((t) => t.id === templateId)) {
+      return NextResponse.json(
+        {
+          error: `Unknown templateId "${templateId}" — valid: ${templates
+            .map((t) => t.id)
+            .join(", ")}`,
+        },
+        { status: 400 },
+      );
+    }
+  }
 
   const storeRef = adminDb.collection("stores").doc();
   await storeRef.set({
     name,
+    templateId,
     ownerUid: auth.uid,
     status: "active",
     createdAt: FieldValue.serverTimestamp(),

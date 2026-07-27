@@ -81,7 +81,13 @@ export function serializeOrder(o: Order) {
 // snake_case like every other serializer in this file, `image` not
 // `imageUrl` for consistency with serializeCategory/serializeProduct.
 export function serializeStore(s: Store) {
-  return { id: s.id, name: s.name, image: s.logoUrl, description: s.description };
+  return {
+    id: s.id,
+    name: s.name,
+    image: s.logoUrl,
+    description: s.description,
+    template_id: s.templateId,
+  };
 }
 
 export function groupCategories(categories: Category[]) {

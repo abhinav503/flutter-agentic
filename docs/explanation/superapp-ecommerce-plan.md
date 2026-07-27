@@ -3,10 +3,14 @@
 > Status: **M1a done; catalog CRUD, read API, and gravia catalog wiring done;
 > cart/order-creation/admin-order-management APIs done; shopper-auth trust gap
 > closed (all shopper routes now token-verified); checkout + per-store Razorpay
-> payments + cancel/refund done (both shopper and admin). Not yet deployed**
-> (last updated 2026-07-24). Turns the `gravia` exemplar into a
-> multi-tenant "app of apps" ecommerce platform. See also
-> `docs/explanation/end-goal.md`.
+> payments + cancel/refund done (both shopper and admin); `cordelia`
+> multi-template storefront **fully ported** (all storefront features + shell +
+> checkout, not just the Phase-1 Home slice) with the `dailymart` template
+> seams open, pre-dailymart bug sweep done, and admin-side template
+> management (validated `templateId`, `PUT /api/stores/{id}`, store-profile
+> settings UI) done. Not yet deployed** (last updated 2026-07-28). Turns the
+> `gravia` exemplar into a multi-tenant "app of apps" ecommerce platform.
+> See also `docs/explanation/end-goal.md`.
 >
 > **Note (2026-07-25): the multi-tenant runtime moved to `cordelia`, and
 > per-store identity became a full swappable template, not just a
@@ -214,6 +218,167 @@ first field wired end-to-end: `admin/src/lib/types.ts` (`Store.templateId`),
 (`template_id`), `mapStoreDoc` (default `'gravia'`), plus a small dropdown
 UI (new dashboard section or page) behind a `PUT` sub-route, following the
 existing `payment-config` route's pattern.
+
+## Multi-template storefront in `cordelia` — Phase 1 (Home slice) DONE (2026-07-27)
+
+The proof-of-concept slice described in the section above is now built:
+`feature/storefront/` in `cordelia` renders a real, storeId-scoped Home for
+the seeded "Gravia" store, with the runtime theme swap working. Confirms the
+whole mechanism the section above only proposed. No `ShellPage`/bottom nav
+yet — deliberately deferred, see "Not built this pass" below.
+
+- **`active_store/`** — `ActiveStoreEntity {storeId, storeName, templateId}`
+  + `ActiveStoreCubit`, seeded once per `StorefrontPage` mount (not
+  app-wide).
+- **`template/`** — `enum StorefrontTemplate { gravia }` + wire-value/parse
+  extensions, tolerant default `gravia` (the admin backend still doesn't
+  send `template_id` — confirmed live: `GET /api/stores` returns no such
+  field today, and the tolerant default is what actually resolves it).
+- **`home/`** — `data`/`domain` ported from gravia's own `feature/home`
+  near-verbatim, with `storeId` threaded as a call parameter at every layer
+  (`getHome({required storeId})` → `GetHomeParams` → `HomeEvent.started
+  ({required storeId})`), never a constructor/global constant. The
+  categories-groups response is parsed inline in
+  `HomeRemoteDataSourceImpl` rather than depending on the not-yet-ported
+  Categories feature's own model. `presentation/templates/gravia/` holds a
+  trimmed screen (category rail + popular-products rail, built entirely
+  from `core` blocks — `CategoryTile`, `ProductCard`, `HeroHeader.page`,
+  `ShimmerBox` — not gravia's own app-local widgets) with cart/favourite/
+  address/notification/search/category-tap/product-tap all no-ops this
+  phase, since those features aren't ported yet.
+- **`BlocCache` cross-store guard** — added a `static String? _cachedStoreId`
+  beside `HomeBloc`'s existing `BlocCache`, since (unlike gravia, one store
+  forever) opening store A then store B behind the same static cache would
+  otherwise flash A's stale catalog before B's fetch resolves.
+- **Runtime theme swap** — `cordelia`'s `App`/`_AppState` gained a new
+  `ActiveThemeController`/`ActiveThemeScope` (`lib/theme/`, mirroring
+  `core`'s `ThemeModeController`/`ThemeModeScope` shape but kept app-local
+  for now), driving `MaterialApp.router`'s `theme`/`darkTheme` alongside the
+  existing `_themeMode` `ValueListenableBuilder`. `StorefrontPage` applies
+  the `gravia` template's bundled theme config
+  (`assets/theme/templates/gravia_theme_config.json`, i.e. the *real* shared
+  `gravia` preset — emerald `#027A60` — not CordeliaApps' own purple-brand
+  override at `assets/theme/theme_config.json`) on mount and restores the
+  app default on dispose. Per-store Firestore theming
+  (`stores/{id}.themeConfig`) is still explicitly deferred — this proves the
+  swap *mechanism*, not per-store colors; only `templateId` is wired
+  end-to-end, matching this doc's own stated near-term priority.
+- **DI** — new `HomeRemoteDataSource`/`HomeRepository`/`GetHomeUseCase`
+  bindings in `cordelia`'s `injection_container.dart`. `ActiveStoreCubit` is
+  not GetIt-registered (constructed directly from route data, matching how
+  every other Cubit/Bloc in both apps is wired).
+
+**Verified**: `flutter analyze` clean on `cordelia`; curled the live seeded
+"Gravia" store's `/categories` and `/products/popular` responses directly
+and confirmed their shapes match `CategoryModel`/`ProductModel`'s
+`fromJson` mapping exactly (including the `groups[].categories[]` nesting
+`HomeRemoteDataSourceImpl` flattens, and every `snake_case` `@JsonKey`). The
+user then click-verified the real path live in Chrome: Discovery →
+`GET /stores` (200) → tapped the seeded "Gravia" store → real
+`[REQ]`/`[RES]` logs for `.../stores/4116e313.../categories` and
+`.../products/popular` (both 200, correct storeId in the URL, not a
+hardcoded constant) → Home rendered.
+
+**Bug found + fixed (2026-07-27) — dispose-time crash on navigating back.**
+Popping Storefront → Discovery threw `setState() or markNeedsBuild() called
+when widget tree was locked`: `_StorefrontPageState.dispose()` called
+`ActiveThemeController.resetToAppDefault()` synchronously, which
+`notifyListeners()`s a still-mounted ancestor's `ValueListenableBuilder`
+while the framework was mid-unmount (`BuildOwner.finalizeTree`, tree
+locked) — a widget must not trigger a still-mounted ancestor's rebuild from
+its own `dispose()`. Fixed by deferring the reset to
+`WidgetsBinding.instance.addPostFrameCallback` in `dispose()`
+(`storefront_page.dart`), so the ancestor rebuild happens on the next frame
+instead of during the locked pass. Verify the fix on a real back-navigation
+(not yet re-confirmed live at time of writing this note).
+
+**Not built this pass** — *superseded; everything in this list has since
+shipped, see the next section*: `ShellPage`/bottom nav + a second tab
+(Profile recommended next), Categories, Cart, Orders, Favourites, Search,
+Checkout/Razorpay, and the admin `templateId` field.
+
+## Full storefront port + dailymart seams + admin template management — DONE (2026-07-28)
+
+**The storefront is no longer a slice.** Every gravia feature is ported into
+`cordelia`'s `feature/storefront/` with shared `data`/`domain` and
+presentation under `templates/gravia/` (`view/` + `widgets/`, consistent
+across all features): home, categories, category_details, product_details,
+cart (+ `CheckoutBloc` with the full payments flow — `POST /payments` →
+native Razorpay via `lib/services/razorpay/` → verified `POST /orders`, with
+the `kIsWeb` payment-less test-mode path), orders (incl. cancel), address,
+favourites, search, notifications, profile (edit/change-password), and
+`shell/` (5 tabs: Home/Categories/Favourite/Orders/Profile, cart as a docked
+bar). All DI-registered and routed; `flutter analyze` clean; cordelia is now
+a strict superset of gravia's feature set. Remaining `comingSoon` stubs:
+cart coupon-apply; Orders' Track Order/View Details/Write Review; login's
+social buttons — same set as gravia.
+
+**Pre-dailymart bug sweep (all fixed + verified):**
+- *Missing asset*: notifications loaded `assets/data/notifications.json`,
+  which didn't exist in cordelia — copied from gravia + pubspec entry.
+- *Orphaned storefront splash* (`feature/storefront/splash/`, referenced by
+  nothing, would have crashed on `context.go(home)`) — deleted.
+- *Duplicate `termsAndConditions`/`privacyPolicy` routes* in `app.dart` —
+  dead second pair removed.
+- **`/home` route crash cluster** — the big one: every
+  `context.go(AppRoutes.home)` (post-login/signup, Profile "My Orders",
+  Home "see all", Cart "Track Your Order") landed on a bare `ShellPage`
+  with no `ActiveStoreCubit` → guaranteed `ProviderNotFoundException`; the
+  route was ported from gravia where the shell was the root. Fix:
+  `ActiveStoreCubit` hoisted app-level (nullable state, seeded/cleared per
+  `StorefrontPage` mount — same rationale as the app-level `CartCubit`);
+  `/home` route deleted; storefront route nested as
+  `/discovery/storefront` so `go()` tab-jumps rebuild the stack with
+  Discovery beneath; new `StorefrontRouteArgs {store, initialTab}` used by
+  all former callers; login/signup now land on Discovery.
+- *Back-nav theme reset* verified by a new widget test
+  (`test/widget/feature/storefront/storefront_page_test.dart`) that pops a
+  real `StorefrontPage` over a rebuilding ancestor — it also caught (and
+  the fix now covers) an unsafe `context.read` in `dispose()`.
+
+**dailymart template seams open.** `StorefrontTemplate { gravia, dailymart }`
+with wire/parse arms (`"dailymart"` no longer silently parses to gravia);
+dispatch + theme-asset switches in `storefront_page.dart` have dailymart
+arms — dailymart currently renders the gravia screens under its own
+placeholder theme (`assets/theme/templates/dailymart_theme_config.json`,
+`rocketWarm` preset) until `presentation/templates/dailymart/` is forked,
+which is the actual dailymart build. The four gravia-named app-level
+widgets were neutralized (`Cordelia{FormField,PrimaryButton,GlassIconButton,
+HeroHeader}` in `lib/widgets/`) so auth/legal/discovery no longer import
+gravia-branded chrome; they still read `Gravia*Const` styling internally —
+revisit when dailymart's design pack exists.
+
+**Admin-side template management.**
+- `POST /api/stores` now **validates** `templateId` against the seeded
+  `templates` collection (400 with the valid-id list) instead of trusting
+  the dropdown — a hand-backfilled `"dialymart"` typo on the live "Daily
+  Mart" store (silently falling back to gravia client-side) is exactly what
+  this prevents; the live doc was also corrected to `dailymart`.
+- New `admin/src/app/api/stores/[storeId]/route.ts` — public GET (single
+  store, 404 on missing/inactive) + owner-gated PUT (partial update of
+  name/description/logoUrl/searchKeywords/templateId, template validated).
+  Live-verified the full matrix (401/403/400/200 + create→rename→retemplate
+  →public-read) with a throwaway user, cleaned up after.
+- `/dashboard/settings` gained a **Store profile card** (name, description,
+  logo upload, search keywords, template dropdown) saving through the PUT
+  route. Logo uploads use a new owner-gated `{storeId}/store/**` prefix in
+  `storage.rules` — **already deployed** to `corderlia-ecom`.
+- Two junk store docs (unrelated "blissBestGrocery" demo data with empty
+  names + `your-bucket` logos leaking into public discovery) deleted after
+  inspection. `stores/be01f080…` ("Storage Test Store") deliberately left —
+  named/active, user's call whether to remove.
+- Latent `firebase-admin` dev bug fixed: `adminDb.settings()` is once-only
+  per Firestore instance and threw when a second `next dev` route chunk
+  re-evaluated the singleton module — now guarded.
+
+**Remaining before/alongside the dailymart build**: commit + push + redeploy
+admin (env vars are already in Vercel — the "needs `PAYMENTS_ENC_KEY` +
+`FIREBASE_ADMIN_*`" blocker below is stale; the deployed build still serves
+no `template_id`, and admin + Flutter clients must cut over together);
+fork `presentation/templates/dailymart/` per feature (the template's actual
+screens); sample dailymart's real design pack (replace the `rocketWarm`
+placeholder); the `comingSoon` stubs above; and the platform-level items in
+"Missing flows".
 
 ## Missing flows (fill these or explicitly defer)
 
@@ -848,9 +1013,12 @@ gravia orders BLoC tests 7/7 (incl. optimistic-reconcile and rollback cases).
   `PAYMENT_ID=<real cancelled order>` to assert an actual flip to PROCESSED.
 
 **Remaining on this track:**
-- **Deploy** — needs `PAYMENTS_ENC_KEY` + `FIREBASE_ADMIN_*` in Vercel, and the
-  `stores/{id}/private/payment` rule (`read,write:if false`) deployed; same
-  un-pushed-work + prod-cutover blocker as the sections above. Webhook delivery
+- **Deploy** — *(update 2026-07-28: `PAYMENTS_ENC_KEY` + `FIREBASE_ADMIN_*`
+  are now confirmed set in Vercel — `.env.local` was produced by
+  `vercel env pull` and carries all of them — so the blocker is only the
+  un-pushed work + prod cutover itself)*; the
+  `stores/{id}/private/payment` rule (`read,write:if false`) still needs its
+  deploy checked alongside. Webhook delivery
   needs the admin API live (Razorpay must reach a public URL).
 - **Return/refund after delivery** — today refund is only wired to cancel;
   a post-delivery return flow (often partial) isn't built.
