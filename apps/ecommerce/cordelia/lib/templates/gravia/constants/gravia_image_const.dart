@@ -1,45 +1,54 @@
-/// Icon/image assets the `gravia` template's storefront screens use. The
-/// underlying SVGs already ship in `assets/icons/` (copied alongside the
-/// app's own icon set); this only declares the Dart constants pointing at
-/// them, scoped to this template rather than the app-wide `ImageConst`.
+/// Icon/image assets the `gravia` template's storefront screens use.
+///
+/// The files live under `assets/icons/templates/gravia/` (and
+/// `assets/images/templates/gravia/`), not the app-wide `assets/icons/` —
+/// pack-scoped the same way `assets/theme/templates/` already scopes each
+/// template's theme config. A pack owns its own artwork, so `dailymart` can
+/// ship its own `search.svg` / `cart.svg` without colliding with these.
+///
+/// Genuinely app-level assets (Cordelia's brand marks, the auth providers'
+/// logos, the shared back arrow) stay in `ImageConst` / `assets/icons/`.
 abstract final class GraviaImageConst {
-  static const locationIcon = 'assets/icons/location_icon.svg';
-  static const notification = 'assets/icons/notification.svg';
-  static const search = 'assets/icons/search.svg';
-  static const mic = 'assets/icons/mic.svg';
-  static const navHome = 'assets/icons/home-minus.svg';
-  static const navCategories = 'assets/icons/apps-circle.svg';
-  static const navFavourite = 'assets/icons/heart.svg';
-  static const favouriteFilled = 'assets/icons/heart-filled.svg';
-  static const navOrders = 'assets/icons/bag.svg';
-  static const navProfile = 'assets/icons/user-circle.svg';
-  static const flash = 'assets/icons/flash.svg';
-  static const badgePercent = 'assets/icons/badge-percent.svg';
-  static const bagAdd = 'assets/icons/bag-add.svg';
-  static const cart = 'assets/icons/cart.svg';
-  static const gift = 'assets/icons/gift.svg';
-  static const plus = 'assets/icons/plus.svg';
-  static const minus = 'assets/icons/minus.svg';
-  static const undo = 'assets/icons/undo.svg';
-  static const remove = 'assets/icons/remove.svg';
-  static const arrowSort = 'assets/icons/arrow-sort.svg';
-  static const filter = 'assets/icons/filter.svg';
-  static const directionRight = 'assets/icons/direction-right.svg';
-  static const shoppingBag = 'assets/icons/shopping-bag.svg';
-  static const shieldCheck = 'assets/icons/shield-check.svg';
-  static const circleCheck = 'assets/icons/circle_check.svg';
-  static const openBox = 'assets/icons/open-box.svg';
-  static const packageBox = 'assets/icons/package-box.svg';
-  static const notes = 'assets/icons/notes.svg';
-  static const editRectangle = 'assets/icons/edit-rectangle.svg';
-  static const calling = 'assets/icons/calling.svg';
-  static const trash = 'assets/icons/trash.svg';
-  static const camera = 'assets/icons/camera.svg';
-  static const folderGallery = 'assets/icons/folder_gallery.svg';
+  static const _icons = 'assets/icons/templates/gravia';
+  static const _images = 'assets/images/templates/gravia';
 
-  static const profileDefault = 'assets/images/profile_default.png';
-  static const graviaBrandIcon = 'assets/icons/gravia_brand_icon.svg';
-  static const logout = 'assets/icons/logout.svg';
-  static const eye = 'assets/icons/eye.svg';
-  static const lock = 'assets/icons/lock.svg';
+  static const locationIcon = '$_icons/location_icon.svg';
+  static const notification = '$_icons/notification.svg';
+  static const search = '$_icons/search.svg';
+  static const mic = '$_icons/mic.svg';
+  static const navHome = '$_icons/home-minus.svg';
+  static const navCategories = '$_icons/apps-circle.svg';
+  static const navFavourite = '$_icons/heart.svg';
+  static const favouriteFilled = '$_icons/heart-filled.svg';
+  static const navOrders = '$_icons/bag.svg';
+  static const navProfile = '$_icons/user-circle.svg';
+  static const flash = '$_icons/flash.svg';
+  static const badgePercent = '$_icons/badge-percent.svg';
+  static const bagAdd = '$_icons/bag-add.svg';
+  static const cart = '$_icons/cart.svg';
+  static const gift = '$_icons/gift.svg';
+  static const plus = '$_icons/plus.svg';
+  static const minus = '$_icons/minus.svg';
+  static const undo = '$_icons/undo.svg';
+  static const remove = '$_icons/remove.svg';
+  static const arrowSort = '$_icons/arrow-sort.svg';
+  static const filter = '$_icons/filter.svg';
+  static const directionRight = '$_icons/direction-right.svg';
+  static const shoppingBag = '$_icons/shopping-bag.svg';
+  static const shieldCheck = '$_icons/shield-check.svg';
+  static const circleCheck = '$_icons/circle_check.svg';
+  static const openBox = '$_icons/open-box.svg';
+  static const packageBox = '$_icons/package-box.svg';
+  static const notes = '$_icons/notes.svg';
+  static const editRectangle = '$_icons/edit-rectangle.svg';
+  static const calling = '$_icons/calling.svg';
+  static const trash = '$_icons/trash.svg';
+  static const camera = '$_icons/camera.svg';
+  static const folderGallery = '$_icons/folder_gallery.svg';
+  static const graviaBrandIcon = '$_icons/gravia_brand_icon.svg';
+  static const logout = '$_icons/logout.svg';
+  static const eye = '$_icons/eye.svg';
+  static const lock = '$_icons/lock.svg';
+
+  static const profileDefault = '$_images/profile_default.png';
 }

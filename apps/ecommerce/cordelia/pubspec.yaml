@@ -65,8 +65,14 @@ flutter:
     - assets/theme/theme_config.json
     - assets/theme/templates/gravia_theme_config.json
     - assets/theme/templates/dailymart_theme_config.json
+    # App-level assets (Cordelia brand marks, auth-provider logos, the shared
+    # back arrow). A directory entry is NOT recursive, so each storefront
+    # template's pack folder below needs its own line — adding a template
+    # means adding its two lines here.
     - assets/icons/
     - assets/images/
+    - assets/icons/templates/gravia/
+    - assets/images/templates/gravia/
     - assets/data/
 
 # One source mark → every launcher-icon size. branding/ holds these
