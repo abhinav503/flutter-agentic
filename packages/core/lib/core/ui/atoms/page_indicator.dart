@@ -15,17 +15,29 @@ class PageIndicator extends StatelessWidget {
   final int currentIndex;
   final Axis axis;
 
+  /// Active-dot colour — omit for `cs.primary`.
+  final Color? activeColor;
+
+  /// Inactive-dot colour — omit for `cs.surfaceContainerHighest`. Pass one
+  /// when the indicator sits on a tinted canvas rather than `surface`, where
+  /// a container shade has almost no contrast left against the background.
+  final Color? inactiveColor;
+
   const PageIndicator({
     super.key,
     required this.count,
     required this.currentIndex,
     this.axis = Axis.horizontal,
+    this.activeColor,
+    this.inactiveColor,
   });
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final isHorizontal = axis == Axis.horizontal;
+    final active = activeColor ?? cs.primary;
+    final inactive = inactiveColor ?? cs.surfaceContainerHighest;
 
     final dots = [
       for (var i = 0; i < count; i++) ...[
@@ -35,7 +47,7 @@ class PageIndicator extends StatelessWidget {
           width: isHorizontal ? (i == currentIndex ? 20 : 6) : 6,
           height: isHorizontal ? 6 : (i == currentIndex ? 20 : 6),
           decoration: BoxDecoration(
-            color: i == currentIndex ? cs.primary : cs.surfaceContainerHighest,
+            color: i == currentIndex ? active : inactive,
             borderRadius: AppRadius.full,
           ),
         ),

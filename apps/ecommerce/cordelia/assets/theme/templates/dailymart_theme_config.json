@@ -1,4 +1,4 @@
 {
-  "_doc": "The 'dailymart' storefront template's own theme. Placeholder: selects the shared 'rocketWarm' preset (packages/core/lib/core/theme/app_theme_presets.dart) until dailymart's real design pack is sampled — visibly distinct from gravia's emerald so the per-store template/theme swap is provable end-to-end. Loaded at runtime by StorefrontPage once a store's templateId resolves to 'dailymart', not at boot.",
-  "activeTheme": "rocketWarm"
+  "_doc": "The 'dailymart' storefront template's own theme, distinct from CordeliaApps' own app-level brand config at assets/theme/theme_config.json. Selects the shared 'dailyMart' preset (packages/core/lib/core/theme/app_theme_presets.dart) verbatim — the real DailyMart kit palette (grass green on a mint canvas, cool blue-grey neutrals) sampled from the kit's live screens. Full contract: docs/ai-rules/style-packs/dailymart.md. Loaded at runtime by StorefrontPage once a store's templateId resolves to 'dailymart', not at boot.",
+  "activeTheme": "dailyMart"
 }

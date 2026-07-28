@@ -73,6 +73,8 @@ flutter:
     - assets/images/
     - assets/icons/templates/gravia/
     - assets/images/templates/gravia/
+    # dailymart ships no pack images yet — only icons, so it has one line.
+    - assets/icons/templates/dailymart/
     - assets/data/
 
 # One source mark → every launcher-icon size. branding/ holds these

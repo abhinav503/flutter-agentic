@@ -1,0 +1,440 @@
+# Style pack — `dailyMart`
+
+Bright grass green on a mint canvas. Cool blue-grey neutrals, white cards
+lifted on a hairline shadow, and a pill for almost every control.
+
+Companion docs: `docs/ai-rules/design.md` (pack-agnostic screen rules),
+`docs/ai-rules/conventions.md` (code organisation).
+
+---
+
+## 0. Identity
+
+| Field | Value |
+|---|---|
+| Preset key (`activeTheme`) | `dailyMart` |
+| Source | UI8 — *DailyMart · Grocery Shop App UI Kit* (Figma `kSTxkipKGeY8FrqWqibDLH`). Licensed for use in end products; **patterns and proportions are re-authored here, kit assets are not redistributed** |
+| Categories | ecommerce, grocery, quick-commerce, retail |
+| Mood | fresh, bright, friendly, photo-led |
+| Exemplar app | `apps/ecommerce/cordelia` — the `dailymart` storefront template (`feature/storefront/*/presentation/templates/dailymart/`) |
+| Font family | Plus Jakarta Sans |
+| Preset location | `packages/core/lib/core/theme/app_theme_presets.dart` → `'dailyMart'` |
+| App constants | `apps/ecommerce/cordelia/lib/templates/dailymart/constants/` — `dailymart_color_const.dart`, `dailymart_text_style_const.dart`, `dailymart_dimen_const.dart`, `dailymart_value_const.dart`, `dailymart_image_const.dart` |
+| Icon assets | `apps/ecommerce/cordelia/assets/icons/templates/dailymart/` (pack-scoped, registered in the app's `pubspec.yaml`) |
+| Theme config | `apps/ecommerce/cordelia/assets/theme/templates/dailymart_theme_config.json` (loaded at runtime by `StorefrontPage`, not at boot) |
+
+**Sourcing note.** Every value below was sampled from the kit's **real
+screens** — `16 Home`, `17 Home Scroll`, `19 Search product`, `20 Search
+product [result]`, `21 Filter`. The kit's foundation pages lie in two ways,
+and both were rejected:
+
+- Its **colour** page (`node 6037-11786`) ships a `Greyscale/*` +
+  `System Background/*` ramp (`#0D0D12`, `#666D80`, `#A7AEC1`, …) that **no
+  live screen paints**. Screens use a `Gary Modern/*` ramp instead
+  (`#0D121C`, `#697586`, `#CDD5DF`). Only `Project Color` `#44BC28` agreed.
+- Its **typography** page (`node 2-8755`) ships an **Inter Tight** Display /
+  Heading scale. Every screen renders **Plus Jakarta Sans**. Inter Tight is
+  not used anywhere in this pack.
+
+The kit has **no dark screens**. The light block of the preset is measured;
+the dark block is authored (§1) by inverting the same neutral ramp. Treat
+dark values as this pack's decisions, not the kit's.
+
+---
+
+## 1. Colour contract
+
+**Character.** Primary is an *accent*, not a canvas: it paints CTAs, the
+active nav tab, "See all" chips, the add button, and the active search
+border — never a full-bleed header. What replaces the coloured header of
+other packs is `primaryContainer` — the mint `#C6FFB9` wash that Home's
+entire page sits on, with **ink text on top of it, not white**. Every other
+screen (Search, Search results, and anything behind the Filter sheet) is
+plain white. Content separates from the canvas by being a **white card with
+a soft shadow**, not by a surface-ladder step.
+
+Dark mode differs in kind, not just value: the mint canvas has no dark
+equivalent (a desaturated green wash reads as sickly), so Home's canvas
+becomes `surface` and the white cards become `surfaceContainerLow`. The
+brand green is the one thing held constant.
+
+**Cross-mode invariants:**
+
+| Role | Value | Why it doesn't flip |
+|---|---|---|
+| `primary` | `#44BC28` | The kit's only brand hue ("Project Color"); it clears contrast on both white and the dark canvas, so flipping it would only weaken brand recognition |
+| `onPrimary` | `#FFFFFF` | Every green surface in the kit carries white text — the pairing is part of the brand, not a contrast calculation |
+| Rating star | `DailyMartColorConst.ratingStar` `#FFB800` | A product-photo overlay; amber must stay amber on a photo regardless of app theme |
+
+**Fixed swatches** — pinned to one value in both modes, in
+`dailymart_color_const.dart`:
+
+| Constant | Value | Used by |
+|---|---|---|
+| `ratingStar` | `#FFB800` | The product card's rating star glyph |
+| `promoScrim` | `#33000000` | The 20 % black wash over a promo card's photo so white copy stays legible on any image |
+
+The mint canvas is deliberately **not** a fixed swatch: it's
+`cs.primaryContainer` in light and `cs.surface` in dark, so it lives as
+`ColorScheme.canvas` (`DailyMartColorSchemeX` in the same file). Read
+`Theme.of(context).colorScheme.canvas`; never the raw `#C6FFB9`.
+
+**Collapsed shades.** The kit draws two field borders one ramp stop apart —
+`#9AA4B2` (Home's search bar) and `#CDD5DF` (bell disc, Filter fields). Both
+resolve to `cs.outline` (`#CDD5DF`) here. A one-stop difference doesn't
+survive §6's one-hairline-value rule, and reproducing it would mean a second
+border constant nobody could tell apart on device.
+
+**Extension roles** (`AppColorsExtension`, set from the preset):
+
+| Role | Light | Dark | Used by |
+|---|---|---|---|
+| `dockedHairline` | `#CDD5DF` (Gary Modern/300) | `#4B5565` (Gary Modern/600) | bottom-nav top border, in-content dividers |
+| `sheetHairline` | `#DFE1E7` (Greyscale/100) | `#2A3448` | Filter sheet's drag handle + dividers |
+| `tintedPrimaryFill` | `#C6FFB9` | `#3344BC28` (primary @ 20 %) | selected chips / emphasis pills. Light reuses the canvas mint — this pack has exactly one primary tint; dark drops to alpha because the mint swatch blows out on a dark surface |
+| `onSheetMuted` | `#697586` | `#9AA4B2` | Filter sheet's field labels |
+
+**Unused ramp policy.** The kit's `Gary Modern` ramp runs 300→950; the
+preset promotes exactly four stops — 300 → `outline`, 400 → dark
+`onSurfaceVariant`, 500 → light `onSurfaceVariant`, 950 → `onSurface`. The
+kit's `Action/*` ramp (SystemGreen, SystemBlue) is parked on
+`secondary`/`tertiary` **unused**, so a future accent lands on a kit value
+instead of a seed-derived tone. An in-between shade a screen needs goes to
+`dailymart_color_const.dart` if it's a pack-specific exact swatch, and to
+`AppColorsExtension` in core only if it's a generic semantic role.
+
+---
+
+## 2. Shape contract
+
+| Role | Radius | Source |
+|---|---|---|
+| Button | 999 (pill) | preset `shape.button` |
+| Chip | 999 (pill) | preset `shape.chip` |
+| Card / product image | 16 | preset `shape.card` |
+| Input (shared default) | 999 (pill) | preset `shape.input` |
+| Bottom sheet | 24 | preset `shape.sheet` |
+| Sheet-over-header | — (not used by this pack — no collapsing-sheet screens) | |
+| List thumbnail | `AppRadius.sm` (4) | category tile — and its inner photo, whose kit value of 2 rounds up to the same token rather than adding an off-scale literal |
+| Icon circle / avatar | full circle | avatar, bell, back disc, favourite disc, add button |
+
+**Documented deviations:**
+
+| Where | Deviates to | Why |
+|---|---|---|
+| Product card's inner image well | 14 | Sits 2 px inside the card's own 16 — a concentric inset, so matching the parent radius would read as a thicker white border on the corners |
+| Category tile | 4 | The kit's one non-pill, non-card corner. A small photo tile deliberately reads as a chip of the grid, not a card |
+| "See all" section chip | 4 | Matches the category tile, not the pill CTAs — it's a label affordance, not an action button |
+| Filter sheet's select fields | 10 | Bordered dropdown triggers, **not** pills. This is the pack's only non-pill input; it's what distinguishes an inert trigger from the live search field |
+| Filter FAB | 40 | Effectively a pill at its 52 px height; recorded because it is a literal 40 in the kit, not the 999 token |
+
+---
+
+## 3. Dimension contract
+
+| Constant | Value | Applies to |
+|---|---|---|
+| `DailyMartDimenConst.controlHeight` | **48** | back disc, Filter-sheet close disc, all three Filter select fields, the Search screens' search bar |
+| `DailyMartDimenConst.headerControlHeight` | 52 | Home's header row only — avatar, bell disc, and the search bar share this taller size so the row reads as one band |
+| `DailyMartDimenConst.ctaHeight` | 56 | Filter sheet's Reset / Apply pair |
+| Icon-circle diameter (header control) | 52 | bell, avatar |
+| Icon-circle diameter (back / sheet close) | 48 | |
+| Icon-circle diameter (card overlay) | 28 | favourite heart, add button |
+| Icon glyph size (in a circle) | 24 | nav, bell, back, close |
+| Icon glyph size (inline / trailing) | 22 (search bar), 20 (recent-search rows), 16 (rating star) | |
+| Product-card image well | 150 tall, full card width | |
+| Category tile | 78 × 92 (image 70 × 63) | |
+| Promo card | 286 wide | horizontal carousel, peeking neighbours |
+| Avatar — header | 52 | |
+| Screen gutter | `AppSpacing.lg` (16) — the kit measures 20 on a 375 frame; 16 is the token nearest it and keeps the pack on the shared scale | |
+| Between sections | `AppSpacing.xl4` (24) | |
+| Inside a card | `AppSpacing.base` (12) | |
+| Minimum touch target | ≥ 44 — the 28 px card discs are exempt only because they sit inside a larger tappable card | |
+
+> `controlHeight` (48) is the number to reach for. 52 and 56 are the two
+> declared exceptions above; anything else sharing a height with them is a
+> drift, not a decision.
+
+---
+
+## 4. Type contract
+
+| Field | Value |
+|---|---|
+| Family | Plus Jakarta Sans (**not** the foundation page's Inter Tight — see §0) |
+| Letter-spacing | −2 % below 18 px (`−0.32` @16, `−0.28` @14, `−0.24` @12); **0** at 18 px and above. The H5 token is the lone positive (+0.5) |
+| Weights in use | 400 Regular, 500 Medium, 600 SemiBold, 700 Bold. No light weights; 700 appears only on promo-card headlines and the "See all" chip |
+| Scale source | The kit's `Heading/H5` + `Body/{Large,Medium,Small,XSmall}` × `{Semibold, Medium, Regular}` groups |
+
+`core`'s 13-role M3 scale is shared by every preset — never edited for one
+pack. `dailymart_text_style_const.dart` wraps only the tokens a real screen
+uses:
+
+| Token | M3 role it wraps | Used for |
+|---|---|---|
+| `headingH5(tt)` | `titleLarge` (20/600, lh 28, ls +0.5) | Filter sheet's centered title |
+| `bodyLgSemibold(tt)` | `titleMedium` (18/600, lh 1.55, ls 0) | every section header ("Top Seller🔥", "Shop by category", "Result for …") |
+| `bodyMdMedium(tt)` | `titleMedium` (16/500, lh 1.6, ls −0.32) | "See all" link text, "4 founds", Filter CTA labels |
+| `bodyMdSemibold(tt)` | `titleMedium` (16/600, lh 1.55, ls −0.32) | user name in the Home header |
+| `bodyMdRegular(tt)` | `bodyLarge` (16/400, lh 1.6, ls −0.32) | Filter select-field values |
+| `bodySmSemibold(tt)` | `bodyMedium` (14/600, lh 1.55, ls −0.28) | product name, product price, Filter field labels |
+| `bodySmRegular(tt)` | `bodyMedium` (14/400, lh 1.55, ls −0.28) | search placeholder, location line, recent-search terms |
+| `bodyXsMedium(tt)` | `bodySmall` (12/500, lh 1.55, ls −0.24) | category label, rating, nav labels, promo subtitle |
+| `bodyXsSemibold(tt)` | `bodySmall` (12/600, lh 1.55, ls −0.24) | discount pill, "Order Now" |
+| `promoTitle(tt)` | `headlineSmall` (24/700, lh 1.36) | promo-card headline — the pack's single largest type |
+
+---
+
+## 5. Iconography contract
+
+| Field | Value |
+|---|---|
+| Style | line (outline), single weight |
+| Stroke width | 1.5 |
+| Corner/terminal | round caps, round joins |
+| Source | Kit SVGs in `assets/icons/templates/dailymart/`, named by [`DailyMartImageConst`], rendered via `AppSvgImage.asset(…, color: …)`. The folder needs its own line in the app's `pubspec.yaml` — a directory asset entry is **not** recursive |
+| Material fallback | Only for a glyph the kit hasn't exported yet — see the gap list below. `DailyMartIconDisc` takes `asset` **or** `icon`, never both, so a fallback is always visible at the call site rather than hidden inside a wrapper |
+| Colour policy | Every glyph is tinted at the call site: nav takes `cs.primary` active / `cs.onSurfaceVariant` inactive, header discs take `cs.onSurface`. The rating star is the one fixed swatch (`DailyMartColorConst.ratingStar`) |
+| Sizes | see §3 |
+
+**Two glyphs behave specially, and both are asset facts, not choices:**
+
+- **`home.svg` is the *active* state only** — a filled green house with a
+  white smile cut into it. An `srcIn` tint repaints the smile as well and
+  flattens the glyph into a solid block, so it renders **untinted** while its
+  tab is selected (its own `#44BC28` already equals `cs.primary`) and tinted
+  only when inactive, which is a state the kit never draws. An outline
+  `home` export would remove the special case entirely.
+- **The favourite heart has no filled counterpart** — `heart.svg` is a
+  stroke-only outline, so favouriting is marked by **tint** (`cs.error`)
+  rather than by swapping fill. Same asset serves the Wishlist tab at 24 and
+  the product card at 16.
+
+**Still Material Symbols** (`_rounded`/`_outlined` only), pending an export:
+the location pin and its chevron in Home's header, the product card's
+**+** add button, the rating star, the avatar's person placeholder, and the
+placeholder tabs' `EmptyState` glyphs. `_rounded`/`_outlined` are the one
+permitted family because DailyMart's glyphs are round-capped outlines — a
+`_sharp` or filled Material icon here is immediately visible and is a review
+finding.
+
+---
+
+## 6. Surface & contrast ladder
+
+| Layer | Token | Carries |
+|---|---|---|
+| Brand canvas | `cs.primaryContainer` (light) / `cs.surface` (dark) | Home's full-bleed page background. **Not `cs.primary`** — this pack has no coloured header |
+| Content sheet | `cs.surface` | every non-Home screen's background; the Filter sheet |
+| Raised neutral | `cs.surface` + `DailyMartElevation.card` shadow | product cards, category tiles, promo "Order Now" pill. On the mint canvas the card separates by **shadow**, not by a lighter fill — there is no lighter fill than white |
+| Recessed neutral | `cs.surfaceContainerLow` (`#F5F8FF`) / `cs.surfaceContainer` (`#EEF2F6`) | active search field; back-button and sheet-close discs |
+| Tinted info | `cs.surfaceContainerHighest` (`#EFF4FF`) | the well behind a product photo — a cool tint so produce photography reads warm against it |
+| Emphasis | `cs.primary` fill / `tintedPrimaryFill` | "See all" chip, add button, active nav, Apply CTA |
+| Hairline | `AppColorsExtension.dockedHairline` | nav top border and every in-content divider — one value, app-wide |
+| Glass | — (not used by this pack — the gravia glass language has no DailyMart equivalent) | |
+
+**Card elevation** is a real token here, unlike packs that separate by fill
+alone: `0 1 2 rgba(0,0,0,.25)` for cards and tiles, `0 -20 30
+rgba(0,0,0,.08)` for the bottom nav's upward lift, `0 12 12
+rgba(87,111,133,.24)` for the floating Filter FAB. All three live on
+`DailyMartElevation`; a fourth shadow value is drift.
+
+---
+
+## 7. Motion contract
+
+| Tier | Duration | Curve | Used for |
+|---|---|---|---|
+| Micro (state flip) | 200 ms | `Curves.easeOut` | nav tab colour, favourite heart, chip selection |
+| Component | 250 ms | `Curves.easeInOut` | promo-carousel page settle, page-indicator dot |
+| Content swap | 300 ms | `Curves.easeInOut` | `AnimatedSwitcher` between skeleton / loaded / error |
+| Route | 350 ms in, 300 ms out | `Curves.easeInOut` | page transitions (fade — matches cordelia's existing routes) |
+| Shared element | — (not used by this pack — no `Hero` flights; the search field is a plain push, not a morph) | | |
+| Ambient / looping | 1400 ms | linear | `ShimmerBox` sweep (core's own constant) |
+
+No bounces, no overshoot. The nav tab and its label share the 200 ms micro
+tier because they read as one flip.
+
+---
+
+## 8. Screen skeleton
+
+```
+Scaffold (backgroundColor: DailyMartColorConst.canvas(context))
+└── SafeArea
+    └── CustomScrollView / SingleChildScrollView   ← the whole page scrolls; nothing pins
+        ├── header row      (48–52 controls: back disc | title or search bar | action disc)
+        ├── section         (SectionHeader + rail or grid)
+        ├── section
+        └── …
+    ⋯ optional floating action pill over a bottom fade  (Search results' "Filter")
+BottomNavBar (stacked variant)                    ← shell-owned, not per screen
+```
+
+| Region | Widget | Notes |
+|---|---|---|
+| Chrome | **No `AppBar`, ever** | Every screen builds its own header row as the first item in the scroll view. `BasePageState.buildAppBar` returns `null` for all tabs |
+| Scroll behaviour | Everything scrolls away, including the header | This pack has no pinned or collapsing header; `CollapsingHeaderSheet` is not used |
+| Body | Sections separated by `AppSpacing.xl4` | |
+| Persistent action | Floating pill over a bottom `surface→transparent` fade | Only Search results uses one (Filter). A full-width docked bar is **not** part of this pack |
+| Global nav | `BottomNavBar(variant: stacked)` — Home / Wishlist / Cart / Profile | Four tabs; the cart **is** a tab here (unlike gravia, where it's a docked status bar). Only Home is ported so far — the other three render an `EmptyState` rather than borrowing gravia's screens, which would put two packs' visual languages on one nav bar |
+
+**Screens that deviate:** none within the storefront. Cordelia's own
+app-level screens (Splash, Onboarding, Login, Discovery) are not part of this
+pack — they keep CordeliaApps' brand chrome regardless of which store's
+template is open.
+
+---
+
+## 9. Overlay policy
+
+**Bottom sheets carry every decision in this pack. `AppDialog` /
+`showDialog` are not used at all.**
+
+| Interaction | Overlay | Entry point |
+|---|---|---|
+| Bounded picklist (category, sort, price) | bottom sheet | `showDailyMartSheet` → `AppRadioGroup` body |
+| Confirm / destructive | bottom sheet, two 56 px pills side by side (outlined Reset-style + filled Apply-style) | `showDailyMartConfirmSheet` |
+| Terminal confirmation | bottom sheet, single full-width pill | `showDailyMartSheet` |
+| Contextual action list | bottom sheet | — |
+| Transient feedback | snackbar | `showSnackBar` from `BaseScreenState` |
+
+`PopupMenuButton` / `AppDropdownMenu` are **not** used — the Filter screen's
+three "dropdowns" are bordered trigger fields that open a sheet, which is
+why they are field-shaped (10 px, bordered) rather than menu-shaped.
+
+---
+
+## 10. Signature compositions
+
+- **The mint canvas.** Home is one continuous `#C6FFB9` page — header,
+  sections, and the gaps between them all sit on it. There is no header
+  block, no coloured band, no sheet. This single decision is what makes the
+  pack recognisable at a glance; a DailyMart screen with a white Home
+  background is wrong.
+- **The product card.** White, radius 16, `0 1 2` shadow, 2 px inner
+  padding. A 150 px image well (radius 14, on the cool `#EFF4FF` tint)
+  carries a red discount pill top-left and a white 28 px favourite disc
+  top-right. Below: name and price stacked at 14/600 on the left, a green
+  28 px circular **+** on the right, then a rating row (16 px amber star +
+  `4.9 (345)` at 12/500). It appears in a 2-column grid on Home and Search
+  results, and in a rail on Search's "Recently viewed".
+- **The promo carousel.** 286 px cards, radius 16, peeking neighbours, a
+  photo under a 20 % black scrim, headline at 24/700, two-line subtitle at
+  12/500, and a small white "Order Now" pill — all white-on-photo. A dot
+  `PageIndicator` sits centred beneath.
+- **The "See all" chip.** Sections end their header row with a *filled green
+  chip* at radius 4, not a text link. (Home's first screen state shows a
+  plain green text link on the category row; `17 Home Scroll` shows the chip
+  on every row. The chip is the pack's rule — the text link is the outlier
+  and is not reproduced.)
+- **The category tile.** A 78 × 92 white tile at radius 4: a 70 × 63 photo
+  at radius 2 on top, a 12/500 centred label beneath. Rails horizontally.
+- **The search bar, in three states.** Idle on Home — white fill, 1 px
+  `#9AA4B2` border, 52 tall. Idle on Search — no border, `#EEF2F6` @ 70 %
+  fill, 48 tall. Active with a query — `#F5F8FF` fill with a **1 px primary
+  border**. That green border is the only place a form control turns brand
+  green.
+- **The floating Filter pill.** A 120 px green pill with icon + label,
+  radius 40, `0 12 12 rgba(87,111,133,.24)` shadow, floating over a
+  `surface → transparent` bottom fade so scrolling content dissolves behind
+  it rather than colliding with it.
+
+---
+
+## 11. Recipes
+
+- **Peeking carousel.** The promo rail is a `PageView` with
+  `viewportFraction ≈ 0.79` (286 / 375 minus gutter) plus `padEnds: false`,
+  not a `ListView` — a `ListView` gets the peek right but loses page
+  snapping and the indicator's page index. Drive the `PageIndicator` from
+  the controller's `page`, rounded, so the dot settles with the card.
+- **Bottom fade over a scroll view.** The Filter FAB's backdrop is a
+  `DecoratedBox` with a `LinearGradient` from `cs.surface` (at ~24 % stop)
+  to the same colour at zero alpha, `IgnorePointer`-wrapped and stacked over
+  the scroll view — not a solid bar. `Colors.transparent` as the end stop
+  produces a grey halo on some engines; use `cs.surface.withValues(alpha: 0)`.
+- **Ink text on the mint canvas.** `primaryContainer` is a *light* tint, so
+  `onPrimaryContainer` is set to the ink `#0D121C`, not white. Any widget
+  placed on the canvas must read `cs.onSurface` (or `onPrimaryContainer`),
+  never `cs.onPrimary` — that would come out white-on-mint.
+
+---
+
+## 12. Blocks used
+
+From `core/ui/blocks/` — `bottom_nav_bar.dart`, `section_header.dart`,
+`chunked_grid.dart` (the 2-column product grid). From `core/ui/molecules/` —
+`EmptyState`, `ErrorView`. From `core/ui/atoms/` — `AppNetworkImage`,
+`AppIconButton`, `PageIndicator`, `ShimmerBox`, `AppButton`.
+
+**Contributed back to core by this pack** (each defaulting to the prior
+behaviour, so no existing caller changed):
+
+| Component | Added |
+|---|---|
+| `BottomNavBar` | `variant:` (`pill` \| `stacked`), plus `activeColor` and `shadows` |
+| `SectionHeader` | `action:` — an arbitrary widget in place of the text link, for the green chip |
+| `AppIconButton` | `backgroundColor` / `foregroundColor` / `borderColor` — a neutral or bordered disc, which none of the three variants could express |
+| `PageIndicator` | `activeColor` / `inactiveColor` — the default `surfaceContainerHighest` dot vanishes on a tinted canvas |
+
+**Deliberately not used:** `blocks/ecommerce/product_card.dart`. Core's
+`ProductCard` is square-image → badge → title → meta → price → full-width
+pill CTA. DailyMart's is fixed-height image with corner overlays → name +
+price beside a circular add button → rating row. The orders and the CTA
+shape both differ; bending one into the other would need overrides for
+every slot. `DailyMartProductCard` composes core **atoms** directly instead
+— recorded here so nobody "fixes" it back to the block. Same reasoning for
+`blocks/ecommerce/category_tile.dart` (circular; DailyMart's is a rounded
+rectangle) and `blocks/header_canvas.dart` / `collapsing_header_sheet.dart`
+(this pack has no coloured header — see §8).
+
+---
+
+## 13. Wrapper roster
+
+App-level presets under
+`apps/ecommerce/cordelia/lib/templates/dailymart/widgets/`:
+
+| Wrapper role | Wraps | This pack's instance |
+|---|---|---|
+| Full-width primary CTA | `AppButton` | `DailyMartPrimaryButton` — 56 px, pill, `bodyMdMedium` label |
+| Destructive / tinted inline pill | `AppButton` | `DailyMartOutlineButton` — 56 px pill, 1 px `cs.primary` border, primary label (the Filter sheet's Reset) |
+| Two half-width actions side by side | two buttons | `DailyMartActionPair` — outline + filled, `AppSpacing.lg` gap |
+| Form text field | `AppTextField` | `DailyMartFormField` — pill, `cs.outline` border |
+| Bounded-picklist trigger field | field-styled box | `DailyMartSelectField` — 48 px, radius **10**, `cs.outline` border, trailing chevron |
+| Styled bottom-sheet chrome | `AppBottomSheet` | `showDailyMartSheet` — 24 px top radius, 64 × 5 drag handle, close disc left + centred `headingH5` title |
+| Chrome-free confirmation sheet | `showModalBottomSheet` | `showDailyMartConfirmSheet` |
+| Bounded-picklist selection sheet | sheet body | `DailyMartRadioSheetContent` → `AppRadioGroup` |
+| Back + centered-title / page-title header | — | `DailyMartHeaderRow` — back disc + flexible middle + optional trailing. This pack has no `HeroHeader`/`HeaderCanvas` usage (§8) |
+| Glass / icon header control | `AppIconButton` | `DailyMartIconDisc` (neutral `surfaceContainer` fill) / `.outlined` (transparent + `cs.outline` ring, Home's bell); takes `asset` or `icon`, **no glass** in this pack |
+| Single-select option chip | `AppChip` | `DailyMartChip` |
+| Thumbnail / avatar / info badge | `AppNetworkImage` / `AppBadge` | `DailyMartAvatar` (52 circle), `DailyMartDiscountPill` (error fill, pill, 12/600) |
+| Quantity or numeric stepper | `QuantityStepper` | `DailyMartQuantityStepper` |
+| Loading skeleton body | `ShimmerBox` + a grid/rail | `DailyMartProductGridSkeleton`, `DailyMartCategoryRailSkeleton`, `DailyMartPromoSkeleton` |
+| **Domain card** | core atoms (not `blocks/ecommerce/product_card.dart` — see §12) | `DailyMartProductCard` |
+| Section header with chip action | `SectionHeader` | `DailyMartSectionHeader` — bakes the `bodyLgSemibold` title and the green radius-4 "See all" chip |
+| Promo banner | — | `DailyMartPromoCard` + `DailyMartPromoCarousel` |
+| Category tile | — | `DailyMartCategoryTile` |
+
+**Built today** (the shell + Home slice): `DailyMartIconDisc`,
+`DailyMartSectionHeader`, `DailyMartProductCard`, `DailyMartCategoryTile`,
+`DailyMartPromoCard`, `DailyMartSearchBar`, plus the `DailyMartElevation`
+shadow set.
+
+Every other row above is the pack's **declared spec, not a shipped widget** —
+the name and the values are fixed here so the screen that first needs one
+builds it to this contract instead of inventing a second recipe. Extract on
+the second screen that repeats a styled composition, not the third.
+
+---
+
+## 14. State design
+
+| State | Treatment |
+|---|---|
+| First load | `DailyMartHomeSkeletonBody` — the same header row, then a promo-card block, a category rail, and a 2-column card grid in `ShimmerBox`. Never a spinner |
+| Warm revisit (nav tab) | `HomeBloc`'s `BlocCache` seeds `loaded` straight from cache; the refetch runs silently underneath. Switching tabs and back must not re-shimmer |
+| Empty | `EmptyState` — icon + one-line title + one-line subtitle + a next-step action |
+| Error | `ErrorView` + retry; the retry inputs (`storeId`) ride on the error state |
+| Inline pending | `LoadingDots` |

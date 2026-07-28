@@ -51,6 +51,7 @@ system = picking a **style pack** from the catalog below.
 | Pack (`activeTheme`) | Categories | Mood | Blocks coverage | Spec sheet |
 |---|---|---|---|---|
 | `gravia` | ecommerce, grocery, retail, marketplace, food delivery | fresh, clean, premium | product-grid, cart, categories, checkout patterns | [`style-packs/gravia.md`](style-packs/gravia.md) — full profile, exemplar app `apps/ecommerce/gravia` |
+| `dailyMart` | ecommerce, grocery, quick-commerce, retail | fresh, bright, friendly, photo-led | product-grid, promo carousel, category rail, search + filter | [`style-packs/dailymart.md`](style-packs/dailymart.md) — full profile, exemplar `apps/ecommerce/cordelia`'s `dailymart` storefront template |
 | `rocketWarm` | utility, productivity, tools | warm, minimal, editorial | generic | — preset only (ink + amber, pill buttons); no exemplar app yet |
 | `oceanBreeze` | productivity, finance, reading | calm, clean, cool | generic | — preset only (sky blue + navy) |
 | `forestWalk` | health, wellness, outdoors | grounded, natural | generic | — preset only (forest green) |
@@ -88,8 +89,8 @@ them for free — **no new block is needed just because a new pack shows up.**
 | `collapsing_header_sheet.dart` | header + a surface sheet whose large top radius overlaps it and scrolls up underneath, rather than header and sheet scrolling as one unit |
 | `docked_bar.dart` | `DockedBar` — docked bottom CTA shell: surface colour, top hairline from `AppColorsExtension.dockedHairline`, safe area, bar padding |
 | `docked_bar_overlap.dart` | bottom-docked bar whose rounded top corners float over content extending `overlap` px underneath — a plain `Column` would show the scaffold background through the corner cut-outs |
-| `bottom_nav_bar.dart` | `BottomNavBar` |
-| `section_header.dart` | `SectionHeader` — bold title + action link |
+| `bottom_nav_bar.dart` | `BottomNavBar` — `variant:` picks the pack's look: `pill` (active tab is a filled pill, inactive are icon circles — `gravia`) or `stacked` (icon over label on every tab, colour marks active — `dailyMart`) |
+| `section_header.dart` | `SectionHeader` — bold title + action. The action is a text link by default (`actionLabel`) or any widget (`action:`) when a pack renders it as a chip/icon instead |
 | `quantity_stepper.dart` | `QuantityStepper` |
 | `chunked_grid.dart` | `ChunkedGrid` — a fixed-column grid inside a scrollable that isn't sliver-composed, laid out with manual `Row`/`Expanded` chunking rather than `GridView` |
 

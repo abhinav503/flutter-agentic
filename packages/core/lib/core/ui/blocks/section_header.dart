@@ -8,12 +8,20 @@ import 'package:flutter/material.dart';
 /// / [actionStyle] when a style pack's real screens use different metrics
 /// for section headers specifically (not a change to titleLarge/labelLarge
 /// app-wide — those still apply everywhere else that reads them).
+/// When a pack renders the action as something other than a text link (a
+/// filled chip, an icon), pass [action] instead of [actionLabel] — the
+/// header keeps owning the row, so the title/action rhythm stays identical
+/// across packs.
 class SectionHeader extends StatelessWidget {
   final String title;
   final String? actionLabel;
   final VoidCallback? onAction;
   final TextStyle? titleStyle;
   final TextStyle? actionStyle;
+
+  /// Replaces the [actionLabel] text link entirely. Wire its own tap
+  /// handler — [onAction] is not applied to it.
+  final Widget? action;
 
   const SectionHeader({
     super.key,
@@ -22,7 +30,11 @@ class SectionHeader extends StatelessWidget {
     this.onAction,
     this.titleStyle,
     this.actionStyle,
-  });
+    this.action,
+  }) : assert(
+         action == null || actionLabel == null,
+         'SectionHeader takes either actionLabel or action, not both',
+       );
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +53,9 @@ class SectionHeader extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
           ),
         ),
-        if (actionLabel != null)
+        if (action != null)
+          action!
+        else if (actionLabel != null)
           GestureDetector(
             onTap: onAction,
             child: Text(

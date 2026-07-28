@@ -1,6 +1,12 @@
 import 'dart:convert';
 
-import 'package:cordelia/feature/storefront/shell/presentation/templates/gravia/view/shell_page.dart';
+// Every template names its shell `ShellPage` (the class name belongs to the
+// role, not the pack), so both need a prefix to be dispatched from the one
+// switch below.
+import 'package:cordelia/feature/storefront/shell/presentation/templates/dailymart/view/shell_page.dart'
+    as dailymart;
+import 'package:cordelia/feature/storefront/shell/presentation/templates/gravia/view/shell_page.dart'
+    as gravia;
 import 'package:core/core/base/base_page.dart';
 import 'package:core/core/theme/app_theme_config.dart';
 import 'package:flutter/material.dart';
@@ -90,11 +96,12 @@ class _StorefrontPageState extends BasePageState<StorefrontPage> {
 
   @override
   Widget buildBody(BuildContext context) => switch (widget.store.templateId) {
-    // dailymart's own presentation layer isn't built yet — it renders the
-    // gravia screens (under its own theme config) until its
-    // `presentation/templates/dailymart/` fork lands.
-    StorefrontTemplate.gravia ||
-    StorefrontTemplate.dailymart => ShellPage(initialTab: widget.initialTab),
+    StorefrontTemplate.gravia => gravia.ShellPage(
+      initialTab: widget.initialTab,
+    ),
+    StorefrontTemplate.dailymart => dailymart.ShellPage(
+      initialTab: widget.initialTab,
+    ),
   };
 }
 

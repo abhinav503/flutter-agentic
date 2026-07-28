@@ -420,6 +420,99 @@ const Map<String, Map<String, dynamic>> kThemePresets = {
     },
   },
 
+  // Bright grass green on a mint canvas, cool blue-grey neutrals, white
+  // shadowed cards. Everything is a pill except cards (16) and the small
+  // category tile (4). Values are the real design tokens of the UI8
+  // "DailyMart — Grocery Shop App UI Kit", sampled from its Home / Search /
+  // Filter screens rather than its foundation page, which still ships an
+  // Inter Tight type scale and a `Greyscale/*` neutral ramp no live screen
+  // uses (see docs/ai-rules/style-packs/dailymart.md §0).
+  //
+  // The kit ships light screens only. The light block below is measured; the
+  // dark block is authored here by inverting the same neutral ramp (the ink
+  // #0D121C becomes the surface, the Gary Modern stops climb back up as
+  // elevation) and holding primary fixed — recorded as a decision in the
+  // spec sheet, not sampled from the kit.
+  'dailyMart': {
+    'fontFamily': 'Plus Jakarta Sans',
+    'shape': {
+      'button': 999, // pill — Reset/Apply, Order Now, the Filter FAB
+      'chip': 999,
+      'card': 16, // product card; its inner image well is 14
+      'input': 999, // pill — the search bar, on Home and on Search
+      'sheet': 24, // Filter sheet's top corners
+    },
+    'light': {
+      'seed': '#44BC28',
+      'primary': '#44BC28', // "Project Color" — the kit's only brand hue
+      'onPrimary': '#FFFFFF',
+      // Home's full-bleed canvas. Doubles as the pack's one primary tint
+      // (see tintedPrimaryFill) — the kit never shows a second green wash.
+      'primaryContainer': '#C6FFB9',
+      'onPrimaryContainer': '#0D121C', // the canvas carries ink text, not white
+      // Reserved — no DailyMart screen paints these. Kept as the kit's own
+      // Action ramp (its foundation page's SystemGreen/SystemBlue) so a
+      // future accent matches the kit instead of a seed-derived tone.
+      'secondary': '#00D261',
+      'onSecondary': '#FFFFFF',
+      'secondaryContainer': '#C6FFB9',
+      'onSecondaryContainer': '#0D121C',
+      'tertiary': '#007AFF',
+      'onTertiary': '#FFFFFF',
+      'tertiaryContainer': '#EFF4FF',
+      'onTertiaryContainer': '#0D121C',
+      'error': '#EF4444', // Error/500 — the product card's discount pill
+      'onError': '#FFFFFF',
+      'errorContainer': '#FEE2E2',
+      'onErrorContainer': '#7F1D1D',
+      'surface': '#FFFFFF',
+      'onSurface': '#0D121C', // Gary Modern/950 — the kit's cool text black
+      'surfaceContainerLow': '#F5F8FF', // Dark Blue/25 — active search field, sheet discs
+      'surfaceContainer': '#EEF2F6', // back-button disc, avatar well
+      'surfaceContainerHighest': '#EFF4FF', // product-image well behind the photo
+      'onSurfaceVariant': '#697586', // Gary Modern/500 — placeholder + inactive nav
+      'outline': '#CDD5DF', // Gary Modern/300 — field borders, the bell disc ring
+      'outlineVariant': '#DFE1E7', // Greyscale/100
+      // AppColorsExtension roles (consumed by AppTheme, not ColorScheme)
+      'tintedPrimaryFill': '#C6FFB9', // same mint as the canvas — the pack has one tint
+      'dockedHairline': '#CDD5DF', // Gary Modern/300
+      'sheetHairline': '#DFE1E7', // Greyscale/100 — sheet divider + drag handle
+      'onSheetMuted': '#697586', // Gary Modern/500
+    },
+    'dark': {
+      'seed': '#44BC28',
+      'primary': '#44BC28', // held identical to light — the brand green reads on both
+      'onPrimary': '#FFFFFF',
+      'primaryContainer': '#1E5C11',
+      'onPrimaryContainer': '#C6FFB9',
+      'secondary': '#5BE39A',
+      'onSecondary': '#04331B',
+      'secondaryContainer': '#12351F',
+      'onSecondaryContainer': '#C6FFB9',
+      'tertiary': '#7FB6FF',
+      'onTertiary': '#0A2540',
+      'tertiaryContainer': '#1B2C42',
+      'onTertiaryContainer': '#EFF4FF',
+      'error': '#F87171',
+      'onError': '#450A0A',
+      'errorContainer': '#7F1D1D',
+      'onErrorContainer': '#FEE2E2',
+      'surface': '#0D121C', // light mode's ink, reused as the dark canvas
+      'onSurface': '#F8FAFC',
+      'surfaceContainerLow': '#171E2B',
+      'surfaceContainer': '#1F2839',
+      'surfaceContainerHighest': '#2A3448',
+      'onSurfaceVariant': '#9AA4B2', // Gary Modern/400
+      'outline': '#4B5565', // Gary Modern/600
+      'outlineVariant': '#364152',
+      // AppColorsExtension roles (consumed by AppTheme, not ColorScheme)
+      'tintedPrimaryFill': '#3344BC28', // primary at 20% — the mint swatch blows out on dark
+      'dockedHairline': '#4B5565',
+      'sheetHairline': '#2A3448',
+      'onSheetMuted': '#9AA4B2',
+    },
+  },
+
   // Near-black ink + amber accent on warm paper. Pill buttons. Mirrors a
   // RocketAI-generated theme — used to prove raw Material widgets and our atoms
   // come out identical under a config-driven theme (see core test).

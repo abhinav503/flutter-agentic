@@ -52,6 +52,34 @@ WidgetbookFolder genericBlocksFolder() {
             ),
             width: 320,
           ),
+          Variant(
+            'Custom action widget',
+            Builder(
+              builder: (context) => SectionHeader(
+                title: 'Top Seller',
+                action: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primary,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 5,
+                    ),
+                    child: Text(
+                      'See all',
+                      style: Theme.of(context).textTheme.labelMedium!.copyWith(
+                        color: Theme.of(context).colorScheme.onPrimary,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            width: 320,
+          ),
         ]),
       ),
       allVariants(
@@ -372,6 +400,46 @@ WidgetbookFolder genericBlocksFolder() {
                 BottomNavBarItem(
                   icon: Icons.favorite_border,
                   label: 'Favourite',
+                ),
+                BottomNavBarItem(
+                  icon: Icons.shopping_bag_outlined,
+                  label: 'Cart',
+                ),
+                BottomNavBarItem(icon: Icons.person_outline, label: 'Profile'),
+              ],
+            ),
+          ),
+          Variant(
+            'Stacked — Home active',
+            BottomNavBar(
+              variant: BottomNavBarVariant.stacked,
+              currentIndex: 0,
+              onTap: (_) {},
+              items: const [
+                BottomNavBarItem(icon: Icons.home_outlined, label: 'Home'),
+                BottomNavBarItem(
+                  icon: Icons.favorite_border,
+                  label: 'Wishlist',
+                ),
+                BottomNavBarItem(
+                  icon: Icons.shopping_bag_outlined,
+                  label: 'Cart',
+                ),
+                BottomNavBarItem(icon: Icons.person_outline, label: 'Profile'),
+              ],
+            ),
+          ),
+          Variant(
+            'Stacked — Cart active',
+            BottomNavBar(
+              variant: BottomNavBarVariant.stacked,
+              currentIndex: 2,
+              onTap: (_) {},
+              items: const [
+                BottomNavBarItem(icon: Icons.home_outlined, label: 'Home'),
+                BottomNavBarItem(
+                  icon: Icons.favorite_border,
+                  label: 'Wishlist',
                 ),
                 BottomNavBarItem(
                   icon: Icons.shopping_bag_outlined,

@@ -64,6 +64,22 @@ class AppIconButton extends StatelessWidget {
   /// scale it down alongside [containerSize].
   final double glassBlurSigma;
 
+  /// Disc fill override — for packs whose icon disc sits on a neutral or
+  /// transparent surface rather than [ColorScheme.primary]. Omit to keep the
+  /// variant's own fill. Ignored by [AppIconButtonVariant.glass], which
+  /// composes its tint from the blur.
+  final Color? backgroundColor;
+
+  /// Glyph (and ripple) colour override — pair it with [backgroundColor]
+  /// when the disc is light enough that the default white-on-overlay
+  /// foreground would disappear. Omit to keep the variant's own.
+  final Color? foregroundColor;
+
+  /// 1px ring around the disc — omit for no border. A bordered, unfilled
+  /// disc is a distinct control in some packs (e.g. `dailyMart`'s
+  /// notification bell) rather than a variant of its own.
+  final Color? borderColor;
+
   const AppIconButton({
     super.key,
     this.icon,
@@ -74,6 +90,9 @@ class AppIconButton extends StatelessWidget {
     this.iconSize = 20,
     this.glassHighlightThickness = 4,
     this.glassBlurSigma = 12,
+    this.backgroundColor,
+    this.foregroundColor,
+    this.borderColor,
   }) : assert(
           icon != null || iconBuilder != null,
           'AppIconButton requires either icon or iconBuilder',
@@ -89,12 +108,16 @@ class AppIconButton extends StatelessWidget {
     // (correct for text sitting *on* a solid `cs.primary` surface, wrong
     // here). `bg` still uses `cs.primary` for `filled` since that's a real
     // theme-adaptive surface.
-    final fg = Theme.of(context).extension<AppColorsExtension>()!.onOverlay;
-    final bg = switch (variant) {
-      AppIconButtonVariant.filled => cs.primary,
-      AppIconButtonVariant.translucent ||
-      AppIconButtonVariant.glass => fg.withValues(alpha: 0.1),
-    };
+    final fg =
+        foregroundColor ??
+        Theme.of(context).extension<AppColorsExtension>()!.onOverlay;
+    final bg =
+        backgroundColor ??
+        switch (variant) {
+          AppIconButtonVariant.filled => cs.primary,
+          AppIconButtonVariant.translucent ||
+          AppIconButtonVariant.glass => fg.withValues(alpha: 0.1),
+        };
 
     final iconWidget = iconBuilder != null
         ? SizedBox(
@@ -123,7 +146,13 @@ class AppIconButton extends StatelessWidget {
             // Centering forces that Align wrap, giving iconWidget loose
             // constraints it can actually size itself within.
             alignment: Alignment.center,
-            decoration: BoxDecoration(color: bg, shape: BoxShape.circle),
+            decoration: BoxDecoration(
+              color: bg,
+              shape: BoxShape.circle,
+              border: borderColor == null
+                  ? null
+                  : Border.all(color: borderColor!),
+            ),
             child: iconWidget,
           );
 

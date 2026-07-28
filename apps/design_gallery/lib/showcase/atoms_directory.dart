@@ -246,6 +246,33 @@ WidgetbookCategory atomsCategory() {
             AppIconButton(icon: Icons.arrow_back, onTap: () {}),
           ),
           Variant(
+            'Neutral fill (colour overrides)',
+            Builder(
+              builder: (context) => AppIconButton(
+                icon: Icons.arrow_back_rounded,
+                containerSize: 48,
+                iconSize: 24,
+                backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
+                foregroundColor: Theme.of(context).colorScheme.onSurface,
+                onTap: () {},
+              ),
+            ),
+          ),
+          Variant(
+            'Outlined (borderColor, no fill)',
+            Builder(
+              builder: (context) => AppIconButton(
+                icon: Icons.notifications_none_rounded,
+                containerSize: 52,
+                iconSize: 24,
+                backgroundColor: Colors.transparent,
+                foregroundColor: Theme.of(context).colorScheme.onSurface,
+                borderColor: Theme.of(context).colorScheme.outline,
+                onTap: () {},
+              ),
+            ),
+          ),
+          Variant(
             'Translucent (on primary)',
             ColoredBox(
               color: Theme.of(context).colorScheme.primary,
