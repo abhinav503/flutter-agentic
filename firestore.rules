@@ -73,6 +73,15 @@ service cloud.firestore {
         allow read: if true;
         allow write: if isStoreOwner(storeId);
       }
+
+      // Promo banners for the storefront's home carousel — same gate as the
+      // catalog above. World-readable includes banners the owner has
+      // unchecked ("Show in carousel"); hiding one is merchandising, not
+      // access control, and the banners API is what enforces it.
+      match /banners/{bannerId} {
+        allow read: if true;
+        allow write: if isStoreOwner(storeId);
+      }
     }
 
     // Storefront template catalog — world-readable so the create-store

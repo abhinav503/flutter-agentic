@@ -1,8 +1,9 @@
 rules_version = '2';
 
 // Multi-tenant rules for the FlutterAgenticEcommerce platform's default
-// bucket. Mirrors firestore.rules' ownerUid model — a store's category and
-// product images live under {storeId}/categories/** and {storeId}/products/**,
+// bucket. Mirrors firestore.rules' ownerUid model — a store's category,
+// product, and banner images live under {storeId}/categories/**,
+// {storeId}/products/**, and {storeId}/banners/**,
 // writable only by that store's owner (cross-checked against the
 // stores/{storeId} Firestore doc), world-readable so shopper clients can
 // display them.
@@ -30,6 +31,13 @@ service firebase.storage {
     }
 
     match /{storeId}/products/{allPaths=**} {
+      allow read: if true;
+      allow write: if isStoreOwner(storeId);
+    }
+
+    // Promo-banner artwork uploaded from the dashboard's Banners page —
+    // same owner gate as the catalog prefixes above.
+    match /{storeId}/banners/{allPaths=**} {
       allow read: if true;
       allow write: if isStoreOwner(storeId);
     }

@@ -18,9 +18,9 @@ mixin _$StoreModel {
  String get id; String get name;// Matches admin's serializeStore() — `image` not `logoUrl`, same
 // snake_case-avoidant convention as gravia's CategoryModel/ProductModel
 // (these particular keys have no snake_case form to begin with).
- String get image; String get description;// Defaulted, not required — the admin backend doesn't send template_id
-// yet (see docs/explanation/superapp-ecommerce-plan.md), so this must
-// parse cleanly against today's real API response.
+ String get image; String get description;// Defaulted, not required — the admin backend sends template_id now,
+// but the still-deployed older API build may not, so this must parse
+// cleanly either way.
 @JsonKey(name: 'template_id') String get templateId;
 /// Create a copy of StoreModel
 /// with the given fields replaced by the non-null parameter values.
@@ -229,9 +229,9 @@ class _StoreModel extends StoreModel {
 // (these particular keys have no snake_case form to begin with).
 @override final  String image;
 @override final  String description;
-// Defaulted, not required — the admin backend doesn't send template_id
-// yet (see docs/explanation/superapp-ecommerce-plan.md), so this must
-// parse cleanly against today's real API response.
+// Defaulted, not required — the admin backend sends template_id now,
+// but the still-deployed older API build may not, so this must parse
+// cleanly either way.
 @override@JsonKey(name: 'template_id') final  String templateId;
 
 /// Create a copy of StoreModel

@@ -13,10 +13,16 @@ _HomeModel _$HomeModelFromJson(Map<String, dynamic> json) => _HomeModel(
   popularProducts: (json['popular_products'] as List<dynamic>)
       .map((e) => ProductModel.fromJson(e as Map<String, dynamic>))
       .toList(),
+  banners:
+      (json['banners'] as List<dynamic>?)
+          ?.map((e) => BannerModel.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      const <BannerModel>[],
 );
 
 Map<String, dynamic> _$HomeModelToJson(_HomeModel instance) =>
     <String, dynamic>{
       'categories': instance.categories,
       'popular_products': instance.popularProducts,
+      'banners': instance.banners,
     };

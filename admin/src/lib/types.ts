@@ -45,6 +45,40 @@ export type Product = {
   isPopular: boolean;
 };
 
+// A merchandising banner for a storefront template's promo carousel (today
+// dailymart's DailyMartHomePromoCarousel). Unlike Category/Product this has
+// no catalog counterpart — title/subtitle are marketing copy the admin
+// writes, which is exactly why it exists: before it, that carousel had to
+// borrow top-selling products and derive its copy from their discounts.
+export type BannerTargetType = "none" | "product" | "category";
+
+export const BANNER_TARGET_TYPE_LABELS: Record<BannerTargetType, string> = {
+  none: "Nothing (display only)",
+  product: "A product",
+  category: "A category",
+};
+
+export type Banner = {
+  id: string;
+  imageUrl: string;
+  title: string;
+  subtitle: string;
+  // What tapping the banner opens; targetId is that product/category doc's
+  // id, empty when targetType is "none". Only the id travels — the
+  // storefront resolves display data (e.g. a category's name, needed for
+  // its details route) from the catalog it has already loaded, so a rename
+  // can't leave a stale copy behind here.
+  targetType: BannerTargetType;
+  targetId: string;
+  // Carousel position, ascending. Sorted in JS rather than with a Firestore
+  // orderBy so combining it with the active-only filter needs no composite
+  // index — the collection is a handful of docs per store.
+  sortOrder: number;
+  // Lets a store stage a seasonal banner, or retire one, without deleting
+  // the doc and re-uploading its image.
+  isActive: boolean;
+};
+
 export type CartItem = {
   productId: string;
   quantity: number;

@@ -3,29 +3,26 @@ import 'package:flutter/material.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/page_indicator.dart';
 
-import 'package:cordelia/feature/storefront/home/domain/entities/product_entity.dart';
+import 'package:cordelia/feature/storefront/home/domain/entities/banner_entity.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_dimen_const.dart';
-import 'package:cordelia/templates/dailymart/constants/dailymart_value_const.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_promo_card.dart';
 
 /// The "Top Seller" rail — peeking promo cards with a dot indicator beneath.
 ///
-/// The kit's promo copy is per-banner marketing text. This app has no banner
-/// resource (the admin catalog seeds products and categories only), so each
-/// card is driven by a real top-selling product: its photo and name, with the
-/// subtitle derived from its own discount. Swap the source, not the widget,
-/// when a banners endpoint exists.
+/// Driven by the store's admin-authored banners (dashboard → Banners): the
+/// kit's promo copy is per-banner marketing text, which is what a banner
+/// carries. A banner with no link target renders as a non-tappable card.
 ///
 /// A `PageView` rather than a horizontal `ListView`: the list gets the peek
 /// right but loses page snapping and the page index the indicator needs.
 class DailyMartHomePromoCarousel extends StatefulWidget {
-  final List<ProductEntity> products;
-  final ValueChanged<ProductEntity> onProductTap;
+  final List<BannerEntity> banners;
+  final ValueChanged<BannerEntity> onBannerTap;
 
   const DailyMartHomePromoCarousel({
     super.key,
-    required this.products,
-    required this.onProductTap,
+    required this.banners,
+    required this.onBannerTap,
   });
 
   @override
@@ -66,19 +63,19 @@ class _DailyMartHomePromoCarouselState
               // centring it — the kit's first card starts flush, with only
               // the next one peeking.
               padEnds: false,
-              itemCount: widget.products.length,
+              itemCount: widget.banners.length,
               onPageChanged: (page) => setState(() => _page = page),
               itemBuilder: (context, index) {
-                final product = widget.products[index];
+                final banner = widget.banners[index];
                 return Padding(
                   padding: const EdgeInsets.only(right: AppSpacing.base),
                   child: DailyMartPromoCard(
-                    title: product.name,
-                    subtitle: DailyMartValueConst.promoSubtitle(
-                      product.discountPercentage,
-                    ),
-                    imageUrl: product.imageUrl,
-                    onTap: () => widget.onProductTap(product),
+                    title: banner.title,
+                    subtitle: banner.subtitle,
+                    imageUrl: banner.imageUrl,
+                    onTap: banner.hasTarget
+                        ? () => widget.onBannerTap(banner)
+                        : null,
                   ),
                 );
               },
@@ -87,7 +84,7 @@ class _DailyMartHomePromoCarouselState
         ),
         const SizedBox(height: AppSpacing.base),
         PageIndicator(
-          count: widget.products.length,
+          count: widget.banners.length,
           currentIndex: _page,
           // On the mint canvas, `surfaceContainerHighest` (the default) is a
           // near-white blue that all but disappears — the outline shade is

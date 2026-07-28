@@ -1,4 +1,11 @@
-import type { Address, Category, Order, Product, Store } from "@/lib/types";
+import type {
+  Address,
+  Banner,
+  Category,
+  Order,
+  Product,
+  Store,
+} from "@/lib/types";
 
 // Shapes match gravia's existing mock JSON / *Model.fromJson() wire format
 // exactly (apps/ecommerce/gravia/lib/feature/*/data/models/) — snake_case,
@@ -87,6 +94,21 @@ export function serializeStore(s: Store) {
     image: s.logoUrl,
     description: s.description,
     template_id: s.templateId,
+  };
+}
+
+// Matches BannerModel.fromJson() in cordelia (feature/storefront/home/
+// data/models/) — snake_case, `image` not `imageUrl`, same as the
+// serializers above. isActive/sortOrder aren't sent: the route already
+// filtered and ordered by them, so they're admin-side concerns only.
+export function serializeBanner(b: Banner) {
+  return {
+    id: b.id,
+    image: b.imageUrl,
+    title: b.title,
+    subtitle: b.subtitle,
+    target_type: b.targetType,
+    target_id: b.targetId,
   };
 }
 

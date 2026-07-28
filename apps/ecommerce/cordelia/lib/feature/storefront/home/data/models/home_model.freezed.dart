@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$HomeModel {
 
- List<CategoryModel> get categories;@JsonKey(name: 'popular_products') List<ProductModel> get popularProducts;
+ List<CategoryModel> get categories;@JsonKey(name: 'popular_products') List<ProductModel> get popularProducts; List<BannerModel> get banners;
 /// Create a copy of HomeModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $HomeModelCopyWith<HomeModel> get copyWith => _$HomeModelCopyWithImpl<HomeModel>
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is HomeModel&&const DeepCollectionEquality().equals(other.categories, categories)&&const DeepCollectionEquality().equals(other.popularProducts, popularProducts));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is HomeModel&&const DeepCollectionEquality().equals(other.categories, categories)&&const DeepCollectionEquality().equals(other.popularProducts, popularProducts)&&const DeepCollectionEquality().equals(other.banners, banners));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(categories),const DeepCollectionEquality().hash(popularProducts));
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(categories),const DeepCollectionEquality().hash(popularProducts),const DeepCollectionEquality().hash(banners));
 
 @override
 String toString() {
-  return 'HomeModel(categories: $categories, popularProducts: $popularProducts)';
+  return 'HomeModel(categories: $categories, popularProducts: $popularProducts, banners: $banners)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $HomeModelCopyWith<$Res>  {
   factory $HomeModelCopyWith(HomeModel value, $Res Function(HomeModel) _then) = _$HomeModelCopyWithImpl;
 @useResult
 $Res call({
- List<CategoryModel> categories,@JsonKey(name: 'popular_products') List<ProductModel> popularProducts
+ List<CategoryModel> categories,@JsonKey(name: 'popular_products') List<ProductModel> popularProducts, List<BannerModel> banners
 });
 
 
@@ -65,11 +65,12 @@ class _$HomeModelCopyWithImpl<$Res>
 
 /// Create a copy of HomeModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? categories = null,Object? popularProducts = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? categories = null,Object? popularProducts = null,Object? banners = null,}) {
   return _then(_self.copyWith(
 categories: null == categories ? _self.categories : categories // ignore: cast_nullable_to_non_nullable
 as List<CategoryModel>,popularProducts: null == popularProducts ? _self.popularProducts : popularProducts // ignore: cast_nullable_to_non_nullable
-as List<ProductModel>,
+as List<ProductModel>,banners: null == banners ? _self.banners : banners // ignore: cast_nullable_to_non_nullable
+as List<BannerModel>,
   ));
 }
 
@@ -154,10 +155,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<CategoryModel> categories, @JsonKey(name: 'popular_products')  List<ProductModel> popularProducts)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<CategoryModel> categories, @JsonKey(name: 'popular_products')  List<ProductModel> popularProducts,  List<BannerModel> banners)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _HomeModel() when $default != null:
-return $default(_that.categories,_that.popularProducts);case _:
+return $default(_that.categories,_that.popularProducts,_that.banners);case _:
   return orElse();
 
 }
@@ -175,10 +176,10 @@ return $default(_that.categories,_that.popularProducts);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<CategoryModel> categories, @JsonKey(name: 'popular_products')  List<ProductModel> popularProducts)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<CategoryModel> categories, @JsonKey(name: 'popular_products')  List<ProductModel> popularProducts,  List<BannerModel> banners)  $default,) {final _that = this;
 switch (_that) {
 case _HomeModel():
-return $default(_that.categories,_that.popularProducts);case _:
+return $default(_that.categories,_that.popularProducts,_that.banners);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -195,10 +196,10 @@ return $default(_that.categories,_that.popularProducts);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<CategoryModel> categories, @JsonKey(name: 'popular_products')  List<ProductModel> popularProducts)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<CategoryModel> categories, @JsonKey(name: 'popular_products')  List<ProductModel> popularProducts,  List<BannerModel> banners)?  $default,) {final _that = this;
 switch (_that) {
 case _HomeModel() when $default != null:
-return $default(_that.categories,_that.popularProducts);case _:
+return $default(_that.categories,_that.popularProducts,_that.banners);case _:
   return null;
 
 }
@@ -210,7 +211,7 @@ return $default(_that.categories,_that.popularProducts);case _:
 @JsonSerializable()
 
 class _HomeModel extends HomeModel {
-  const _HomeModel({required final  List<CategoryModel> categories, @JsonKey(name: 'popular_products') required final  List<ProductModel> popularProducts}): _categories = categories,_popularProducts = popularProducts,super._();
+  const _HomeModel({required final  List<CategoryModel> categories, @JsonKey(name: 'popular_products') required final  List<ProductModel> popularProducts, final  List<BannerModel> banners = const <BannerModel>[]}): _categories = categories,_popularProducts = popularProducts,_banners = banners,super._();
   factory _HomeModel.fromJson(Map<String, dynamic> json) => _$HomeModelFromJson(json);
 
  final  List<CategoryModel> _categories;
@@ -227,6 +228,13 @@ class _HomeModel extends HomeModel {
   return EqualUnmodifiableListView(_popularProducts);
 }
 
+ final  List<BannerModel> _banners;
+@override@JsonKey() List<BannerModel> get banners {
+  if (_banners is EqualUnmodifiableListView) return _banners;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_banners);
+}
+
 
 /// Create a copy of HomeModel
 /// with the given fields replaced by the non-null parameter values.
@@ -241,16 +249,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _HomeModel&&const DeepCollectionEquality().equals(other._categories, _categories)&&const DeepCollectionEquality().equals(other._popularProducts, _popularProducts));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _HomeModel&&const DeepCollectionEquality().equals(other._categories, _categories)&&const DeepCollectionEquality().equals(other._popularProducts, _popularProducts)&&const DeepCollectionEquality().equals(other._banners, _banners));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_categories),const DeepCollectionEquality().hash(_popularProducts));
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_categories),const DeepCollectionEquality().hash(_popularProducts),const DeepCollectionEquality().hash(_banners));
 
 @override
 String toString() {
-  return 'HomeModel(categories: $categories, popularProducts: $popularProducts)';
+  return 'HomeModel(categories: $categories, popularProducts: $popularProducts, banners: $banners)';
 }
 
 
@@ -261,7 +269,7 @@ abstract mixin class _$HomeModelCopyWith<$Res> implements $HomeModelCopyWith<$Re
   factory _$HomeModelCopyWith(_HomeModel value, $Res Function(_HomeModel) _then) = __$HomeModelCopyWithImpl;
 @override @useResult
 $Res call({
- List<CategoryModel> categories,@JsonKey(name: 'popular_products') List<ProductModel> popularProducts
+ List<CategoryModel> categories,@JsonKey(name: 'popular_products') List<ProductModel> popularProducts, List<BannerModel> banners
 });
 
 
@@ -278,11 +286,12 @@ class __$HomeModelCopyWithImpl<$Res>
 
 /// Create a copy of HomeModel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? categories = null,Object? popularProducts = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? categories = null,Object? popularProducts = null,Object? banners = null,}) {
   return _then(_HomeModel(
 categories: null == categories ? _self._categories : categories // ignore: cast_nullable_to_non_nullable
 as List<CategoryModel>,popularProducts: null == popularProducts ? _self._popularProducts : popularProducts // ignore: cast_nullable_to_non_nullable
-as List<ProductModel>,
+as List<ProductModel>,banners: null == banners ? _self._banners : banners // ignore: cast_nullable_to_non_nullable
+as List<BannerModel>,
   ));
 }
 

@@ -9,10 +9,12 @@ import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/molecules/error_view.dart';
 
 import 'package:cordelia/constants/app_routes.dart';
+import 'package:cordelia/enums/banner_target_type.dart';
 import 'package:cordelia/feature/storefront/active_store/presentation/cubit/active_store_cubit.dart';
 import 'package:cordelia/feature/storefront/address/presentation/templates/gravia/view/address_page.dart';
 import 'package:cordelia/feature/storefront/cart/presentation/cubit/cart_cubit.dart';
 import 'package:cordelia/feature/storefront/favourites/presentation/cubit/favourites_cubit.dart';
+import 'package:cordelia/feature/storefront/home/domain/entities/banner_entity.dart';
 import 'package:cordelia/feature/storefront/home/domain/entities/category_entity.dart';
 import 'package:cordelia/feature/storefront/home/domain/entities/product_entity.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_color_const.dart';
@@ -73,6 +75,27 @@ class _HomeScreenState extends BaseScreenState<HomeScreen> {
     extra: _storeId,
   );
 
+  /// A banner links to a product or a category by id — or to nothing, in
+  /// which case the card passes a null `onTap` and this is never reached.
+  ///
+  /// The category branch needs a display name for the details title, and Home
+  /// already holds every category, so it resolves one here rather than having
+  /// the banner snapshot a name that a later rename would leave stale.
+  void _openBanner(BannerEntity banner, HomeEntity home) {
+    switch (banner.targetType) {
+      case BannerTargetType.product:
+        context.push(
+          AppRoutes.productDetailsPath(banner.targetId),
+          extra: _storeId,
+        );
+      case BannerTargetType.category:
+        final matches = home.categories.where((c) => c.id == banner.targetId);
+        if (matches.isNotEmpty) _openCategoryDetails(matches.first);
+      case BannerTargetType.none:
+        break;
+    }
+  }
+
   /// The card's **+** adds one unit outright — this pack has no quantity
   /// sheet on the card (spec sheet §10).
   void _addToCart(ProductEntity product) =>
@@ -127,6 +150,7 @@ class _HomeScreenState extends BaseScreenState<HomeScreen> {
                   home: home,
                   onProductTap: _openProductDetails,
                   onCategoryTap: _openCategoryDetails,
+                  onBannerTap: (banner) => _openBanner(banner, home),
                   onAddToCart: _addToCart,
                   onFavouriteToggle: (product) =>
                       context.read<FavouritesCubit>().toggle(product),
@@ -194,6 +218,7 @@ class _HomeContent extends StatelessWidget {
   final HomeEntity home;
   final ValueChanged<ProductEntity> onProductTap;
   final ValueChanged<CategoryEntity> onCategoryTap;
+  final ValueChanged<BannerEntity> onBannerTap;
   final ValueChanged<ProductEntity> onAddToCart;
   final ValueChanged<ProductEntity> onFavouriteToggle;
 
@@ -201,22 +226,49 @@ class _HomeContent extends StatelessWidget {
     required this.home,
     required this.onProductTap,
     required this.onCategoryTap,
+    required this.onBannerTap,
     required this.onAddToCart,
     required this.onFavouriteToggle,
   });
 
-  /// How many products the Top Seller carousel promotes. The kit shows three
-  /// peeking cards; beyond that the rail stops reading as a highlight.
-  static const _promoCount = 3;
+  /// How many top sellers stand in for banners (see [_promosFromTopSellers]).
+  /// The kit shows three peeking cards; beyond that the rail stops reading as
+  /// a highlight. It doesn't cap real banners — silently dropping a store's
+  /// fourth banner would be worse than a longer rail.
+  static const _fallbackPromoCount = 3;
+
+  /// A store that hasn't added banners yet still gets a Top Seller rail: its
+  /// top products stand in, each linking to itself, with the subtitle derived
+  /// from its own discount — exactly what this carousel showed before the
+  /// banners resource existed.
+  static List<BannerEntity> _promosFromTopSellers(
+    List<ProductEntity> products,
+  ) => products
+      .take(_fallbackPromoCount)
+      .map(
+        (product) => BannerEntity(
+          id: product.id,
+          imageUrl: product.imageUrl,
+          title: product.name,
+          subtitle: DailyMartValueConst.promoSubtitle(
+            product.discountPercentage,
+          ),
+          targetType: BannerTargetType.product,
+          targetId: product.id,
+        ),
+      )
+      .toList();
 
   @override
   Widget build(BuildContext context) {
-    final promoted = home.popularProducts.take(_promoCount).toList();
+    final promos = home.banners.isNotEmpty
+        ? home.banners
+        : _promosFromTopSellers(home.popularProducts);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (promoted.isNotEmpty) ...[
+        if (promos.isNotEmpty) ...[
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
             child: DailyMartSectionHeader(
@@ -228,8 +280,8 @@ class _HomeContent extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(left: AppSpacing.lg),
             child: DailyMartHomePromoCarousel(
-              products: promoted,
-              onProductTap: onProductTap,
+              banners: promos,
+              onBannerTap: onBannerTap,
             ),
           ),
           const SizedBox(height: AppSpacing.xl4),

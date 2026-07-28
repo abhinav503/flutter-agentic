@@ -5,7 +5,7 @@ import Image from "next/image";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { uploadCatalogImage } from "@/lib/storage";
+import { uploadCatalogImage, type CatalogImageKind } from "@/lib/storage";
 import { toast } from "sonner";
 
 export function ImageUploadField({
@@ -19,7 +19,7 @@ export function ImageUploadField({
   id: string;
   label: string;
   storeId: string;
-  kind: "categories" | "products" | "store";
+  kind: CatalogImageKind;
   value: string;
   onChange: (url: string) => void;
 }) {

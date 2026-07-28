@@ -22,6 +22,10 @@ abstract final class ApiConstants {
   static String popularProductsPath(String storeId) =>
       '${_storeBase(storeId)}/products/popular';
 
+  /// Live promo banners for the storefront's home carousel, in admin-set
+  /// order — the API filters out hidden ones, so the client shows what it gets.
+  static String bannersPath(String storeId) => '${_storeBase(storeId)}/banners';
+
 
   static String searchPath(String storeId) => '${_storeBase(storeId)}/search';
 

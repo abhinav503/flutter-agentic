@@ -24,6 +24,7 @@ const NAV_ITEMS = [
   { href: "/dashboard", label: "Overview" },
   { href: "/dashboard/categories", label: "Categories" },
   { href: "/dashboard/products", label: "Products" },
+  { href: "/dashboard/banners", label: "Banners" },
   { href: "/dashboard/orders", label: "Orders" },
   { href: "/dashboard/settings", label: "Settings" },
 ];
