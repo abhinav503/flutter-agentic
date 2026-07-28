@@ -3,6 +3,8 @@ import 'package:core/core/ui/molecules/bottom_sheet.dart';
 import 'package:core/core/ui/molecules/dialog.dart';
 import 'package:core/core/ui/molecules/empty_state.dart';
 import 'package:core/core/ui/molecules/error_view.dart';
+import 'package:core/core/ui/molecules/icon_info_row.dart';
+import 'package:core/core/ui/molecules/skeleton_rows.dart';
 import 'package:core/core/ui/molecules/menu_tile.dart';
 import 'package:core/core/ui/molecules/radio_group.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +16,59 @@ WidgetbookCategory moleculesCategory() {
   return WidgetbookCategory(
     name: 'Molecules',
     children: [
+      allVariants(
+        'IconInfoRow',
+        (context) => showcase(context, [
+          Variant(
+            'Notification-style',
+            Builder(
+              builder: (context) {
+                final cs = Theme.of(context).colorScheme;
+                return IconInfoRow(
+                  leading: Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: cs.primaryContainer,
+                      shape: BoxShape.circle,
+                    ),
+                    alignment: Alignment.center,
+                    child: Icon(Icons.percent_rounded, color: cs.primary),
+                  ),
+                  title: '30% Special Discount!',
+                  subtitle: 'Special promotion only valid today',
+                );
+              },
+            ),
+            width: 320,
+          ),
+        ]),
+      ),
+      allVariants(
+        'ShimmerListRow',
+        (context) => showcase(context, [
+          Variant(
+            'Single row',
+            const ShimmerListRow(),
+            width: 320,
+          ),
+          Variant(
+            'List of 3',
+            const ShimmerListRow(itemCount: 3),
+            width: 320,
+          ),
+        ]),
+      ),
+      allVariants(
+        'ShimmerSectionHeader',
+        (context) => showcase(context, [
+          Variant(
+            'Title + action chip',
+            const ShimmerSectionHeader(),
+            width: 320,
+          ),
+        ]),
+      ),
       allVariants(
         'EmptyState',
         (context) => showcase(context, [

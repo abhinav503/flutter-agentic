@@ -45,6 +45,11 @@ Dart pub-workspace monorepo: one shared `core` package consumed by multiple Flut
 packages/core/   shared toolbelt → import 'package:core/core/…'   (no app-specific code)
 apps/jokes/      demo app          apps/doc_scanner/  request/response app
 apps/ai_chat/    streaming app
+apps/ecommerce/gravia/  style-pack exemplar (`gravia` theme, ecommerce blocks, free-pack
+                         screens: splash, onboarding, app logo)
+apps/ecommerce/cordelia/  multi-tenant storefront — one shopper app, many stores; each
+                           store's template (`gravia` | `dailymart`) restyles it at runtime
+apps/design_gallery/  Widgetbook showcase — every core atom/molecule/block × every preset
 ```
 
 - One `flutter pub get` at the repo root resolves all packages; editing `core` is live in any running app.
@@ -100,6 +105,7 @@ The pre-commit hook formats staged Dart files and runs `flutter analyze` at the 
 - Creating a new entity that is structurally identical to an existing one — reuse the existing entity
 - Adding constructor parameters to data source impls for infrastructure — data sources are `const` no-arg; they reach infrastructure through static singleton `.instance` calls
 - Duplicating UI concerns (safe-area padding, snackbars, bottom sheet or dialog presentation) across screens — these belong in `BaseScreenState`, `AppBottomSheet`, or `AppDialog`; if something appears in more than one screen, move it to the appropriate base class
+- Wrapping a screen's body in `AnnotatedRegion<SystemUiOverlayStyle>` — override `BaseScreenState.overlayStyle` instead, returning `BaseScreenState.lightStatusIcons` (coloured header canvas) or `BaseScreenState.themedStatusIcons(context)` (plain surface)
 - Creating a `*Model` without a corresponding `*Entity`, or a `*Entity` without a corresponding `*Model` — every DTO in `data/` must map to an entity in `domain/` and vice versa; they are always a pair
 - Registering a static-singleton service (`HttpService`, `SharedPreferenceService`, `ImagePickerService`, or any class with a `static final instance`) in GetIt, or calling `sl<T>()` for it — these are never in the GetIt graph; always access them via `ServiceName.instance`
 - Writing field-by-field `Model(field: entity.field, ...)` construction inside a repository — use `Model.fromEntity(entity)` and `model.toEntity()` instead; every `*Model` must expose both

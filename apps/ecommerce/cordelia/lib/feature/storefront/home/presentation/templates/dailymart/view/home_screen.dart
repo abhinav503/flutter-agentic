@@ -4,14 +4,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:core/core/base/base_screen.dart';
-import 'package:core/core/services/shared_pref_service/shared_preference_service.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/molecules/error_view.dart';
 
 import 'package:cordelia/constants/app_routes.dart';
 import 'package:cordelia/enums/banner_target_type.dart';
 import 'package:cordelia/feature/storefront/active_store/presentation/cubit/active_store_cubit.dart';
-import 'package:cordelia/feature/storefront/address/presentation/templates/gravia/view/address_page.dart';
+import 'package:cordelia/feature/storefront/address/presentation/selected_address_label.dart';
 import 'package:cordelia/feature/storefront/cart/presentation/cubit/cart_cubit.dart';
 import 'package:cordelia/feature/storefront/favourites/presentation/cubit/favourites_cubit.dart';
 import 'package:cordelia/feature/storefront/home/domain/entities/banner_entity.dart';
@@ -44,28 +43,9 @@ class HomeScreen extends BaseScreen {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends BaseScreenState<HomeScreen> {
-  String? _selectedAddressLabel;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadSelectedAddress();
-  }
-
-  void _loadSelectedAddress() {
-    _selectedAddressLabel = SharedPreferenceService.instance.getString(
-      kSelectedAddressLabelPrefKey,
-    );
-  }
-
+class _HomeScreenState extends BaseScreenState<HomeScreen>
+    with SelectedAddressLabelState {
   String get _storeId => context.read<ActiveStoreCubit>().state!.storeId;
-
-  Future<void> _openSelectAddress() async {
-    await context.push(AppRoutes.selectAddress);
-    if (!mounted) return;
-    setState(_loadSelectedAddress);
-  }
 
   void _openProductDetails(ProductEntity product) =>
       context.push(AppRoutes.productDetailsPath(product.id), extra: _storeId);
@@ -102,69 +82,64 @@ class _HomeScreenState extends BaseScreenState<HomeScreen> {
       context.read<CartCubit>().addToCart(product, 1);
 
   @override
+  SystemUiOverlayStyle? overlayStyle(BuildContext context) =>
+      BaseScreenState.themedStatusIcons(context);
+
+  @override
   Widget body(BuildContext context) {
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      // The canvas is a light mint (or, in dark mode, the near-black
-      // surface) — the status bar draws straight onto it, so its icons take
-      // the theme's brightness rather than the light-on-colour pairing a
-      // coloured header would need.
-      value: Theme.of(context).brightness == Brightness.dark
-          ? SystemUiOverlayStyle.light
-          : SystemUiOverlayStyle.dark,
-      child: ColoredBox(
-        color: Theme.of(context).colorScheme.canvas,
-        child: SafeArea(
-          bottom: false,
-          child: BlocConsumer<HomeBloc, HomeState>(
-            listener: (context, state) {
-              if (state case HomeError(:final message)) showSnackBar(message);
-              // Cached content is still on screen — a failed silent refresh
-              // is a toast, not an error view.
-              if (state case HomeLoaded(refreshFailed: true)) {
-                showSnackBar(DailyMartValueConst.homeLoadErrorMessage);
-              }
-            },
-            builder: (context, state) => switch (state) {
-              HomeError() => ErrorView(
-                message: DailyMartValueConst.homeLoadErrorMessage,
-                onRetry: () => context.read<HomeBloc>().add(
-                  HomeEvent.started(storeId: _storeId),
-                ),
+    return ColoredBox(
+      color: Theme.of(context).colorScheme.canvas,
+      child: SafeArea(
+        bottom: false,
+        child: BlocConsumer<HomeBloc, HomeState>(
+          listener: (context, state) {
+            if (state case HomeError(:final message)) showSnackBar(message);
+            // Cached content is still on screen — a failed silent refresh
+            // is a toast, not an error view.
+            if (state case HomeLoaded(refreshFailed: true)) {
+              showSnackBar(DailyMartValueConst.homeLoadErrorMessage);
+            }
+          },
+          builder: (context, state) => switch (state) {
+            HomeError() => ErrorView(
+              message: DailyMartValueConst.homeLoadErrorMessage,
+              onRetry: () => context.read<HomeBloc>().add(
+                HomeEvent.started(storeId: _storeId),
               ),
-              // Loading and loaded share the header and the scroll view, so
-              // only the body swaps — a differently-structured loading state
-              // makes the whole page jump when data lands.
-              HomeLoading() => _Page(
-                addressLabel: _addressLabel,
-                onLocationTap: _openSelectAddress,
-                onNotificationTap: _openNotifications,
-                onSearchTap: _openSearch,
-                body: const DailyMartHomeSkeletonBody(),
+            ),
+            // Loading and loaded share the header and the scroll view, so
+            // only the body swaps — a differently-structured loading state
+            // makes the whole page jump when data lands.
+            HomeLoading() => _Page(
+              addressLabel: _addressLabel,
+              onLocationTap: openSelectAddress,
+              onNotificationTap: _openNotifications,
+              onSearchTap: _openSearch,
+              body: const DailyMartHomeSkeletonBody(),
+            ),
+            HomeLoaded(:final home) => _Page(
+              addressLabel: _addressLabel,
+              onLocationTap: openSelectAddress,
+              onNotificationTap: _openNotifications,
+              onSearchTap: _openSearch,
+              body: _HomeContent(
+                home: home,
+                onProductTap: _openProductDetails,
+                onCategoryTap: _openCategoryDetails,
+                onBannerTap: (banner) => _openBanner(banner, home),
+                onAddToCart: _addToCart,
+                onFavouriteToggle: (product) =>
+                    context.read<FavouritesCubit>().toggle(product),
               ),
-              HomeLoaded(:final home) => _Page(
-                addressLabel: _addressLabel,
-                onLocationTap: _openSelectAddress,
-                onNotificationTap: _openNotifications,
-                onSearchTap: _openSearch,
-                body: _HomeContent(
-                  home: home,
-                  onProductTap: _openProductDetails,
-                  onCategoryTap: _openCategoryDetails,
-                  onBannerTap: (banner) => _openBanner(banner, home),
-                  onAddToCart: _addToCart,
-                  onFavouriteToggle: (product) =>
-                      context.read<FavouritesCubit>().toggle(product),
-                ),
-              ),
-            },
-          ),
+            ),
+          },
         ),
       ),
     );
   }
 
   String get _addressLabel =>
-      _selectedAddressLabel ?? DailyMartValueConst.noLocationSelectedLabel;
+      selectedAddressLabel ?? DailyMartValueConst.noLocationSelectedLabel;
 
   void _openNotifications() => context.push(AppRoutes.notifications);
 
@@ -277,12 +252,9 @@ class _HomeContent extends StatelessWidget {
             ),
           ),
           const SizedBox(height: AppSpacing.xl),
-          Padding(
-            padding: const EdgeInsets.only(left: AppSpacing.lg),
-            child: DailyMartHomePromoCarousel(
-              banners: promos,
-              onBannerTap: onBannerTap,
-            ),
+          DailyMartHomePromoCarousel(
+            banners: promos,
+            onBannerTap: onBannerTap,
           ),
           const SizedBox(height: AppSpacing.xl4),
         ],

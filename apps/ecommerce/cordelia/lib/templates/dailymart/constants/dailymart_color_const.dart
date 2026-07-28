@@ -8,13 +8,21 @@ import 'package:flutter/material.dart';
 /// `cs.canvas` below, the discount pill is `cs.error`, the neutrals are the
 /// scheme's own ramp.
 abstract final class DailyMartColorConst {
-  /// The rating star. Amber on a product photo in both modes — a theme role
-  /// would flip it and the star would stop reading as a rating.
-  static const ratingStar = Color(0xFFFFB800);
+  /// The rating star. Amber in both modes — a theme role would flip it and
+  /// the star would stop reading as a rating. Matches the fill baked into
+  /// `star.svg`, so tinting the glyph with this is a no-op by design: the
+  /// swatch stays the single source of truth for the number beside it.
+  static const ratingStar = Color(0xFFF1B826);
 
   /// 20% black wash between a promo card's photo and its white copy, so the
   /// headline stays legible over any image the store uploads.
   static const promoScrim = Color(0x33000000);
+
+  /// The kit's "Color/orange" — the payment glyph on the Notification
+  /// screen, and the pack's only warm accent. Pinned rather than mapped to
+  /// `AppColorsExtension.warning`: the `dailyMart` preset declares no warning
+  /// role, so that would resolve to a seed-derived tone, not this swatch.
+  static const paymentIcon = Color(0xFFFF9C44);
 }
 
 /// The pack's canvas role, which no `ColorScheme` member expresses on its

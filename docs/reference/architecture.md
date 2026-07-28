@@ -14,10 +14,16 @@ flutter_agentic/
     ├── jokes/                   demo app
     ├── doc_scanner/             real app — request/response reference (image → JSON)
     ├── ai_chat/                 real app — streaming reference (SSE token streaming)
+    ├── design_gallery/          Widgetbook showcase — every core atom/molecule/block
+    │                             rendered against every theme preset
     └── ecommerce/
-        └── gravia/              real app — style-pack exemplar (`gravia` theme, ecommerce
-                                  blocks, generated free-pack screens: splash, onboarding,
-                                  app logo)
+        ├── gravia/              real app — style-pack exemplar (`gravia` theme, ecommerce
+        │                         blocks, generated free-pack screens: splash, onboarding,
+        │                         app logo)
+        └── cordelia/            real app — multi-tenant storefront: one shopper app, many
+                                  stores; shared storefront `domain`/`data`, per-template
+                                  `presentation/templates/<id>/` UI (`gravia`, `dailymart`)
+                                  picked per store at runtime
 ```
 
 - **`packages/core`** — the shared mobile toolbelt: base classes, design system, networking, DI seed, generic device services. Zero app-specific copy, feature logic, or product API URLs. Imported everywhere as `package:core/core/…`.
@@ -132,9 +138,13 @@ core/
 │   │   ├── dialog.dart          AppDialog (static show())
 │   │   ├── empty_state.dart     EmptyState (icon + title + subtitle + actions)
 │   │   ├── error_view.dart      ErrorView
+│   │   ├── icon_info_row.dart   IconInfoRow (leading block + title over subtitle —
+│   │   │                        the notification/activity-feed row silhouette)
 │   │   ├── menu_tile.dart       AppMenuTile (settings/profile row: icon circle +
 │   │   │                        label + chevron/trailing; danger variant)
-│   │   └── radio_group.dart     AppRadioGroup<T> + AppRadioRow (single-select list)
+│   │   ├── radio_group.dart     AppRadioGroup<T> + AppRadioRow (single-select list)
+│   │   └── skeleton_rows.dart   ShimmerListRow (disc + two lines, itemCount) +
+│   │                            ShimmerSectionHeader — common skeleton silhouettes
 │   └── blocks/                  larger domain compositions (root = cross-domain,
 │                                 `blocks/<category>/` = domain-specific data, e.g.
 │                                 `ecommerce/`); indexed in `docs/ai-rules/design.md`

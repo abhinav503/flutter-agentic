@@ -77,7 +77,12 @@ them for free — **no new block is needed just because a new pack shows up.**
   `AppGlassChip`, `AppConcentricCircles`, `PageIndicator`, `ShimmerBox`,
   `LoadingIndicator`, `LoadingDots`, `DeviceFrame`, `ThemeModeToggle`
 - **molecules** (`core/ui/molecules/`) — composed atoms: `AppBottomSheet`,
-  `AppDialog`, `EmptyState`, `ErrorView`, `AppMenuTile`, `AppRadioGroup`
+  `AppDialog`, `EmptyState`, `ErrorView`, `AppMenuTile`, `AppRadioGroup`,
+  `IconInfoRow` (leading block + title over subtitle — the notification /
+  activity-feed row; the pack supplies the styled leading disc),
+  `ShimmerListRow` + `ShimmerSectionHeader` (the two common skeleton
+  silhouettes — disc + two lines with `itemCount`, and title + action chip —
+  compose these before hand-rolling a `ShimmerBox` layout)
 - **blocks** (`core/ui/blocks/`) — larger compositions, split by scope:
 
 **Root — cross-domain, any style pack can use as-is:**

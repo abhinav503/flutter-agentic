@@ -6,6 +6,7 @@ import 'package:core/core/theme/app_colors_extension.dart';
 import 'package:core/core/theme/app_radius.dart';
 import 'package:core/core/theme/app_shapes_extension.dart';
 import 'package:core/core/theme/app_spacing.dart';
+import 'package:core/core/ui/atoms/button.dart';
 import 'package:core/core/ui/atoms/concentric_circles.dart';
 import 'package:core/core/ui/atoms/loading_dots.dart';
 
@@ -132,16 +133,16 @@ class _VerifyEmailSheetContentState extends State<VerifyEmailSheetContent> {
                   ],
                 ),
                 const SizedBox(height: AppSpacing.xl2),
-                TextButton(
-                  onPressed: _cooldownSeconds > 0 ? null : _handleResend,
-                  child: Text(
-                    _cooldownSeconds > 0
-                        ? '${ValueConst.resendEmailLabel} (${_cooldownSeconds}s)'
-                        : ValueConst.resendEmailLabel,
-                    style: GraviaTextStyleConst.textSmMedium(
-                      tt,
-                    ).copyWith(color: cs.primary),
-                  ),
+                AppButton(
+                  label: _cooldownSeconds > 0
+                      ? '${ValueConst.resendEmailLabel} (${_cooldownSeconds}s)'
+                      : ValueConst.resendEmailLabel,
+                  variant: AppButtonVariant.text,
+                  size: AppButtonSize.small,
+                  onTap: _cooldownSeconds > 0 ? null : _handleResend,
+                  labelStyle: GraviaTextStyleConst.textSmMedium(
+                    tt,
+                  ).copyWith(color: cs.primary),
                 ),
               ],
             ),

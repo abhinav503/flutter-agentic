@@ -36,13 +36,6 @@ class DailyMartProductCard extends StatelessWidget {
   final bool isFavourite;
   final VoidCallback? onFavouriteToggle;
 
-  /// The kit shows `4.9 (345)` on every card. `ProductEntity` carries no
-  /// rating (the admin catalog doesn't collect reviews yet), so callers pass
-  /// one only when they have it — the row is omitted, never filled with an
-  /// invented number.
-  final double? rating;
-  final int? reviewCount;
-
   const DailyMartProductCard({
     super.key,
     required this.product,
@@ -50,8 +43,6 @@ class DailyMartProductCard extends StatelessWidget {
     this.onTap,
     this.isFavourite = false,
     this.onFavouriteToggle,
-    this.rating,
-    this.reviewCount,
   });
 
   @override
@@ -137,10 +128,8 @@ class DailyMartProductCard extends StatelessWidget {
                           _AddButton(onTap: onAdd),
                         ],
                       ),
-                      if (rating != null && reviewCount != null) ...[
-                        const SizedBox(height: AppSpacing.xs3),
-                        _RatingRow(rating: rating!, reviewCount: reviewCount!),
-                      ],
+                      const SizedBox(height: AppSpacing.xs3),
+                      const _RatingRow(),
                     ],
                   ),
                 ),
@@ -293,11 +282,13 @@ class _AddButton extends StatelessWidget {
   }
 }
 
+/// The kit's amber star + `4.9 (345)`. Both values are static placeholder
+/// copy — see [DailyMartValueConst.staticRatingLabel] for why, and for what
+/// to change when reviews reach `ProductEntity`. The row always renders: the
+/// kit's card is laid out around it, and showing it on some cards and not
+/// others would ripple a height change through the grid.
 class _RatingRow extends StatelessWidget {
-  final double rating;
-  final int reviewCount;
-
-  const _RatingRow({required this.rating, required this.reviewCount});
+  const _RatingRow();
 
   @override
   Widget build(BuildContext context) {
@@ -306,14 +297,15 @@ class _RatingRow extends StatelessWidget {
 
     return Row(
       children: [
-        const Icon(
-          Icons.star_rounded,
-          size: AppSpacing.lg,
+        AppSvgImage.asset(
+          DailyMartImageConst.star,
+          width: AppSpacing.md,
+          height: AppSpacing.md,
           color: DailyMartColorConst.ratingStar,
         ),
         const SizedBox(width: AppSpacing.xs3),
         Text(
-          DailyMartValueConst.ratingLabel(rating, reviewCount),
+          DailyMartValueConst.staticRatingLabel,
           style: DailyMartTextStyleConst.bodyXsMedium(
             tt,
           ).copyWith(color: cs.onSurface),

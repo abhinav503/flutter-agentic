@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../ui/molecules/bottom_sheet.dart';
 
@@ -8,10 +9,38 @@ abstract class BaseScreen extends StatefulWidget {
 
 abstract class BaseScreenState<T extends BaseScreen> extends State<T> {
   @override
-  Widget build(BuildContext context) => body(context);
+  Widget build(BuildContext context) {
+    final style = overlayStyle(context);
+    final content = body(context);
+    if (style == null) return content;
+    return AnnotatedRegion<SystemUiOverlayStyle>(value: style, child: content);
+  }
 
   /// Required: the main content of the screen.
   Widget body(BuildContext context);
+
+  /// Status-bar icon style for this screen — override instead of wrapping
+  /// [body] in an `AnnotatedRegion` yourself. `null` (the default) leaves
+  /// whatever the route already set.
+  ///
+  /// Two overrides cover the app: [lightStatusIcons] for a screen whose top
+  /// edge is a coloured header canvas, [themedStatusIcons] for one whose top
+  /// edge is the plain (theme-following) surface.
+  SystemUiOverlayStyle? overlayStyle(BuildContext context) => null;
+
+  /// Light (white) status icons over a coloured header, in both modes.
+  static const SystemUiOverlayStyle lightStatusIcons = SystemUiOverlayStyle(
+    statusBarColor: Colors.transparent,
+    statusBarIconBrightness: Brightness.light,
+    statusBarBrightness: Brightness.dark,
+  );
+
+  /// Status icons that follow the theme — dark icons on a light surface,
+  /// light icons on a dark one.
+  static SystemUiOverlayStyle themedStatusIcons(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark
+      ? SystemUiOverlayStyle.light
+      : SystemUiOverlayStyle.dark;
 
   // ── Bottom sheet ───────────────────────────────────────────────────────────
 

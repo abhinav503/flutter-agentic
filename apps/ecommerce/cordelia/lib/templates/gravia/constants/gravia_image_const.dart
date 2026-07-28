@@ -24,6 +24,7 @@ abstract final class GraviaImageConst {
   static const navProfile = '$_icons/user-circle.svg';
   static const flash = '$_icons/flash.svg';
   static const badgePercent = '$_icons/badge-percent.svg';
+  static const card = '$_icons/card.svg';
   static const bagAdd = '$_icons/bag-add.svg';
   static const cart = '$_icons/cart.svg';
   static const gift = '$_icons/gift.svg';

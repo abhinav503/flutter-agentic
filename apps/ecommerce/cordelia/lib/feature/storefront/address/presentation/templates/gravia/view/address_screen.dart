@@ -76,51 +76,48 @@ class _AddressScreenState extends BaseScreenState<AddressScreen> {
   );
 
   @override
+  SystemUiOverlayStyle? overlayStyle(BuildContext context) =>
+      BaseScreenState.lightStatusIcons;
+
+  @override
   Widget body(BuildContext context) {
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: const SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.light,
-        statusBarBrightness: Brightness.dark,
-      ),
-      child: BlocConsumer<AddressBloc, AddressState>(
-        listener: (context, state) {
-          if (state case AddressError(:final message)) showSnackBar(message);
-          if (state case AddressLoaded(saveFailed: true)) {
-            showSnackBar(GraviaValueConst.addressSaveFailedMessage);
-          }
-          if (state case AddressLoaded(deleteFailed: true)) {
-            showSnackBar(GraviaValueConst.addressDeleteFailedMessage);
-          }
+    return BlocConsumer<AddressBloc, AddressState>(
+      listener: (context, state) {
+        if (state case AddressError(:final message)) showSnackBar(message);
+        if (state case AddressLoaded(saveFailed: true)) {
+          showSnackBar(GraviaValueConst.addressSaveFailedMessage);
+        }
+        if (state case AddressLoaded(deleteFailed: true)) {
+          showSnackBar(GraviaValueConst.addressDeleteFailedMessage);
+        }
+      },
+      builder: (context, state) => AnimatedSwitcher(
+        duration: const Duration(milliseconds: 300),
+        child: switch (state) {
+          AddressLoading() => CollapsingHeaderSheet(
+            key: const ValueKey('loading'),
+            initialHeaderHeight: 110,
+            header: CordeliaHeroHeader(
+              title: GraviaValueConst.selectAddressTitle,
+              onBack: () => context.pop(),
+            ),
+            body: const AddressSkeletonBody(),
+          ),
+          AddressError() => SafeArea(
+            key: const ValueKey('error'),
+            child: ErrorView(
+              message: GraviaValueConst.addressLoadErrorMessage,
+              onRetry: () => context.read<AddressBloc>().add(
+                const AddressEvent.started(),
+              ),
+            ),
+          ),
+          AddressLoaded(:final addresses, :final selectedAddressId) =>
+            KeyedSubtree(
+              key: const ValueKey('loaded'),
+              child: _buildLoaded(context, addresses, selectedAddressId),
+            ),
         },
-        builder: (context, state) => AnimatedSwitcher(
-          duration: const Duration(milliseconds: 300),
-          child: switch (state) {
-            AddressLoading() => CollapsingHeaderSheet(
-              key: const ValueKey('loading'),
-              initialHeaderHeight: 110,
-              header: CordeliaHeroHeader(
-                title: GraviaValueConst.selectAddressTitle,
-                onBack: () => context.pop(),
-              ),
-              body: const AddressSkeletonBody(),
-            ),
-            AddressError() => SafeArea(
-              key: const ValueKey('error'),
-              child: ErrorView(
-                message: GraviaValueConst.addressLoadErrorMessage,
-                onRetry: () => context.read<AddressBloc>().add(
-                  const AddressEvent.started(),
-                ),
-              ),
-            ),
-            AddressLoaded(:final addresses, :final selectedAddressId) =>
-              KeyedSubtree(
-                key: const ValueKey('loaded'),
-                child: _buildLoaded(context, addresses, selectedAddressId),
-              ),
-          },
-        ),
       ),
     );
   }

@@ -1,5 +1,5 @@
 import 'package:cordelia/constants/app_routes.dart';
-import 'package:cordelia/feature/storefront/address/presentation/templates/gravia/view/address_page.dart';
+import 'package:cordelia/feature/storefront/address/presentation/selected_address_label.dart';
 import 'package:cordelia/feature/storefront/cart/presentation/cubit/cart_cubit.dart';
 import 'package:cordelia/feature/storefront/favourites/presentation/cubit/favourites_cubit.dart';
 import 'package:cordelia/feature/storefront/home/domain/entities/category_entity.dart';
@@ -8,7 +8,6 @@ import 'package:cordelia/feature/storefront/home/presentation/templates/gravia/w
 import 'package:cordelia/feature/storefront/presentation/view/storefront_page.dart';
 import 'package:cordelia/feature/storefront/shell/presentation/templates/gravia/view/shell_page.dart';
 import 'package:cordelia/templates/gravia/widgets/gravia_sheet.dart';
-import 'package:core/core/services/shared_pref_service/shared_preference_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -39,26 +38,8 @@ class HomeScreen extends BaseScreen {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends BaseScreenState<HomeScreen> {
-  String? _selectedAddressLabel;
-  @override
-  void initState() {
-    super.initState();
-    _loadSelectedAddress();
-  }
-
-  void _loadSelectedAddress() {
-    _selectedAddressLabel = SharedPreferenceService.instance.getString(
-      kSelectedAddressLabelPrefKey,
-    );
-  }
-
-  Future<void> _openSelectAddress() async {
-    await context.push(AppRoutes.selectAddress);
-    if (!mounted) return;
-    setState(_loadSelectedAddress);
-  }
-
+class _HomeScreenState extends BaseScreenState<HomeScreen>
+    with SelectedAddressLabelState {
   void _addToCart(ProductEntity product, int quantity) {
     context.read<CartCubit>().addToCart(product, quantity);
   }
@@ -79,42 +60,46 @@ class _HomeScreenState extends BaseScreenState<HomeScreen> {
       showGraviaAddToCartSheet(product: product, onAddToCart: _addToCart);
 
   @override
+  SystemUiOverlayStyle? overlayStyle(BuildContext context) =>
+      BaseScreenState.lightStatusIcons;
+
+  @override
   Widget body(BuildContext context) {
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: const SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.light,
-        statusBarBrightness: Brightness.dark,
-      ),
-      child: BlocConsumer<HomeBloc, HomeState>(
-        listener: (context, state) {
-          if (state case HomeError(:final message)) showSnackBar(message);
-          // Warm-start background refresh failed — cached content is still
-          // showing, so this is a toast, not an error view.
-          if (state case HomeLoaded(refreshFailed: true)) {
-            showSnackBar(GraviaValueConst.homeLoadErrorMessage);
-          }
-        },
-        builder: (context, state) => AnimatedSwitcher(
+    return BlocConsumer<HomeBloc, HomeState>(
+      listener: (context, state) {
+        if (state case HomeError(:final message)) showSnackBar(message);
+        // Warm-start background refresh failed — cached content is still
+        // showing, so this is a toast, not an error view.
+        if (state case HomeLoaded(refreshFailed: true)) {
+          showSnackBar(GraviaValueConst.homeLoadErrorMessage);
+        }
+      },
+      // The header is built ONCE, outside the switcher, and only the body
+      // swaps — which is what this screen always intended. Building it per
+      // state meant two copies were mounted at once for the length of a
+      // crossfade, and its `SearchFieldBar` carries a fixed `Hero` tag:
+      // two heroes sharing a tag in one route is a hard framework error,
+      // not a cosmetic one. It also keeps the sheet's scroll position
+      // across a refresh instead of resetting it.
+      builder: (context, state) => CollapsingHeaderSheet(
+        header: HomeHeroHeader(
+          storeId: _storeId,
+          addressLabel:
+              selectedAddressLabel ??
+              GraviaValueConst.noLocationSelectedLabel,
+          onLocationTap: openSelectAddress,
+          onNotificationTap: () => context.push(AppRoutes.notifications),
+          onSearchTap: () => context.push(AppRoutes.search, extra: _storeId),
+        ),
+        body: AnimatedSwitcher(
           duration: const Duration(milliseconds: 300),
           child: switch (state) {
-            // Same header as the loaded state, so only the body swaps in —
-            // a different loading header makes the whole screen jump.
-            HomeLoading() => CollapsingHeaderSheet(
-              key: const ValueKey('loading'),
-              header: HomeHeroHeader(
-                addressLabel:
-                    _selectedAddressLabel ??
-                    GraviaValueConst.noLocationSelectedLabel,
-                onLocationTap: _openSelectAddress,
-                onNotificationTap: () => context.push(AppRoutes.notifications),
-                onSearchTap: () =>
-                    context.push(AppRoutes.search, extra: _storeId),
-              ),
-              body: const HomeSkeletonBody(),
+            HomeLoading() => const HomeSkeletonBody(
+              key: ValueKey('loading'),
             ),
-            HomeError() => SafeArea(
+            HomeError() => Padding(
               key: const ValueKey('error'),
+              padding: const EdgeInsets.symmetric(vertical: AppSpacing.xl10),
               child: ErrorView(
                 message: GraviaValueConst.homeLoadErrorMessage,
                 onRetry: () => context.read<HomeBloc>().add(
@@ -125,10 +110,6 @@ class _HomeScreenState extends BaseScreenState<HomeScreen> {
             HomeLoaded(:final home) => _HomeContent(
               key: const ValueKey('loaded'),
               home: home,
-              addressLabel:
-                  _selectedAddressLabel ??
-                  GraviaValueConst.noLocationSelectedLabel,
-              onLocationTap: _openSelectAddress,
               onAddToCart: _addToCart,
               onQuickAdd: _showAddToCartSheet,
               onFavouriteToggle: (product) =>
@@ -142,8 +123,6 @@ class _HomeScreenState extends BaseScreenState<HomeScreen> {
                   initialTab: ShellPage.categoriesTabIndex,
                 ),
               ),
-              onNotificationTap: () => context.push(AppRoutes.notifications),
-              onSearchTap: () => context.push(AppRoutes.search, extra: _storeId),
             ),
           },
         ),
@@ -152,64 +131,50 @@ class _HomeScreenState extends BaseScreenState<HomeScreen> {
   }
 }
 
+/// The loaded body only — the header and the sheet around it are owned by
+/// [HomeScreen] and outlive every state swap (see its `builder`).
 class _HomeContent extends StatelessWidget {
   final HomeEntity home;
-  final String addressLabel;
-  final VoidCallback onLocationTap;
   final void Function(ProductEntity product, int quantity) onAddToCart;
   final ValueChanged<ProductEntity> onQuickAdd;
   final ValueChanged<ProductEntity> onFavouriteToggle;
   final ValueChanged<ProductEntity> onProductTap;
-  final VoidCallback onNotificationTap;
-  final VoidCallback onSearchTap;
   final ValueChanged<CategoryEntity> onCategoryTap;
   final VoidCallback onSeeAllCategories;
 
   const _HomeContent({
     super.key,
     required this.home,
-    required this.addressLabel,
-    required this.onLocationTap,
     required this.onAddToCart,
     required this.onQuickAdd,
     required this.onFavouriteToggle,
     required this.onProductTap,
-    required this.onNotificationTap,
-    required this.onSearchTap,
     required this.onCategoryTap,
     required this.onSeeAllCategories,
   });
 
   @override
-  Widget build(BuildContext context) => CollapsingHeaderSheet(
-    header: HomeHeroHeader(
-      addressLabel: addressLabel,
-      onLocationTap: onLocationTap,
-      onNotificationTap: onNotificationTap,
-      onSearchTap: onSearchTap,
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.only(
+      top: AppSpacing.xl4,
+      bottom: AppSpacing.xl10,
     ),
-    body: Padding(
-      padding: const EdgeInsets.only(
-        top: AppSpacing.xl4,
-        bottom: AppSpacing.xl10,
-      ),
-      child: Column(
-        children: [
-          HomeCategorySection(
-            categories: home.categories,
-            onSeeAllCategories: onSeeAllCategories,
-            onCategoryTap: onCategoryTap,
-          ),
-          const SizedBox(height: AppSpacing.xl4),
-          HomePopularItemsSection(
-            products: home.popularProducts,
-            onAddToCart: onAddToCart,
-            onQuickAdd: onQuickAdd,
-            onFavouriteToggle: onFavouriteToggle,
-            onProductTap: onProductTap,
-          ),
-        ],
-      ),
+    child: Column(
+      children: [
+        HomeCategorySection(
+          categories: home.categories,
+          onSeeAllCategories: onSeeAllCategories,
+          onCategoryTap: onCategoryTap,
+        ),
+        const SizedBox(height: AppSpacing.xl4),
+        HomePopularItemsSection(
+          products: home.popularProducts,
+          onAddToCart: onAddToCart,
+          onQuickAdd: onQuickAdd,
+          onFavouriteToggle: onFavouriteToggle,
+          onProductTap: onProductTap,
+        ),
+      ],
     ),
   );
 }

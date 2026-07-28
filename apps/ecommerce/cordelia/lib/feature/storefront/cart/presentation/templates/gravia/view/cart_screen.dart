@@ -85,6 +85,10 @@ class _CartScreenState extends BaseScreenState<CartScreen> {
       showGraviaAddToCartSheet(product: product, onAddToCart: _addToCart);
 
   @override
+  SystemUiOverlayStyle? overlayStyle(BuildContext context) =>
+      BaseScreenState.lightStatusIcons;
+
+  @override
   Widget body(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final cartItems = context.watch<CartCubit>().state;
@@ -100,101 +104,94 @@ class _CartScreenState extends BaseScreenState<CartScreen> {
             break;
         }
       },
-      child: AnnotatedRegion<SystemUiOverlayStyle>(
-        value: const SystemUiOverlayStyle(
-          statusBarColor: Colors.transparent,
-          statusBarIconBrightness: Brightness.light,
-          statusBarBrightness: Brightness.dark,
-        ),
-        child: cartItems.isEmpty
-          ? Column(
-              children: [
-                CordeliaHeroHeader(
-                  title: GraviaValueConst.myCartTitle,
-                  onBack: () => context.pop(),
-                ),
-                Expanded(
-                  child: Container(
-                    color: cs.surface,
-                    child: const EmptyState(
-                      iconData: Icons.shopping_bag_outlined,
-                      title: GraviaValueConst.cartEmptyTitle,
-                      subtitle: GraviaValueConst.cartEmptySubtitle,
-                    ),
+      child: cartItems.isEmpty
+        ? Column(
+            children: [
+              CordeliaHeroHeader(
+                title: GraviaValueConst.myCartTitle,
+                onBack: () => context.pop(),
+              ),
+              Expanded(
+                child: Container(
+                  color: cs.surface,
+                  child: const EmptyState(
+                    iconData: Icons.shopping_bag_outlined,
+                    title: GraviaValueConst.cartEmptyTitle,
+                    subtitle: GraviaValueConst.cartEmptySubtitle,
                   ),
                 ),
-              ],
-            )
-          : Column(
-              children: [
-                Expanded(
-                  child: CollapsingHeaderSheet(
-                    initialHeaderHeight: 110,
-                    header: CordeliaHeroHeader(
-                      title: GraviaValueConst.myCartTitle,
-                      onBack: () => context.pop(),
-                    ),
-                    body: Padding(
-                      padding: const EdgeInsets.all(AppSpacing.lg),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          for (var i = 0; i < cartItems.length; i++) ...[
-                            if (i > 0) const SizedBox(height: AppSpacing.xl2),
-                            CartItemRow(
-                              item: cartItems[i],
-                              onIncrement: () => context
-                                  .read<CartCubit>()
-                                  .incrementQuantity(cartItems[i].product.id),
-                              onDecrement: () => context
-                                  .read<CartCubit>()
-                                  .decrementQuantity(cartItems[i].product.id),
-                            ),
-                          ],
-                          const SizedBox(height: AppSpacing.xl4),
-                          BlocBuilder<CartBloc, CartState>(
-                            builder: (context, state) => switch (state) {
-                              CartLoaded(:final suggestions) =>
-                                _BeforeYouCheckoutRail(
-                                  products: suggestions,
-                                  onAddToCart: (product) =>
-                                      _addToCart(product, 1),
-                                  onQuickAdd: _showAddToCartSheet,
-                                  onProductTap: _openProductDetails,
-                                ),
-                              CartLoading() ||
-                              CartError() => const SizedBox.shrink(),
-                            },
-                          ),
-                          const SizedBox(height: AppSpacing.xl4),
-                          CartSummarySection(
-                            items: cartItems,
-                            onApplyCoupon: _showComingSoon,
+              ),
+            ],
+          )
+        : Column(
+            children: [
+              Expanded(
+                child: CollapsingHeaderSheet(
+                  initialHeaderHeight: 110,
+                  header: CordeliaHeroHeader(
+                    title: GraviaValueConst.myCartTitle,
+                    onBack: () => context.pop(),
+                  ),
+                  body: Padding(
+                    padding: const EdgeInsets.all(AppSpacing.lg),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        for (var i = 0; i < cartItems.length; i++) ...[
+                          if (i > 0) const SizedBox(height: AppSpacing.xl2),
+                          CartItemRow(
+                            item: cartItems[i],
+                            onIncrement: () => context
+                                .read<CartCubit>()
+                                .incrementQuantity(cartItems[i].product.id),
+                            onDecrement: () => context
+                                .read<CartCubit>()
+                                .decrementQuantity(cartItems[i].product.id),
                           ),
                         ],
-                      ),
+                        const SizedBox(height: AppSpacing.xl4),
+                        BlocBuilder<CartBloc, CartState>(
+                          builder: (context, state) => switch (state) {
+                            CartLoaded(:final suggestions) =>
+                              _BeforeYouCheckoutRail(
+                                products: suggestions,
+                                onAddToCart: (product) =>
+                                    _addToCart(product, 1),
+                                onQuickAdd: _showAddToCartSheet,
+                                onProductTap: _openProductDetails,
+                              ),
+                            CartLoading() ||
+                            CartError() => const SizedBox.shrink(),
+                          },
+                        ),
+                        const SizedBox(height: AppSpacing.xl4),
+                        CartSummarySection(
+                          items: cartItems,
+                          onApplyCoupon: _showComingSoon,
+                        ),
+                      ],
                     ),
                   ),
                 ),
-                DockedBar(
-                  child: BlocBuilder<CheckoutBloc, CheckoutState>(
-                    builder: (context, state) {
-                      // Submitting spans the whole flow (payment + placement),
-                      // so the CTA stays loading and un-tappable throughout.
-                      final busy = state is CheckoutSubmitting;
-                      return CordeliaPrimaryButton(
-                        label: GraviaValueConst.proceedToCheckoutLabel,
-                        state: busy
-                            ? AppButtonState.loading
-                            : AppButtonState.idle,
-                        onTap: busy ? null : () => _startCheckout(cartItems),
-                      );
-                    },
-                  ),
+              ),
+              DockedBar(
+                child: BlocBuilder<CheckoutBloc, CheckoutState>(
+                  builder: (context, state) {
+                    // Submitting spans the whole flow (payment + placement),
+                    // so the CTA stays loading and un-tappable throughout.
+                    final busy = state is CheckoutSubmitting;
+                    return CordeliaPrimaryButton(
+                      label: GraviaValueConst.proceedToCheckoutLabel,
+                      state: busy
+                          ? AppButtonState.loading
+                          : AppButtonState.idle,
+                      onTap: busy ? null : () => _startCheckout(cartItems),
+                    );
+                  },
                 ),
-              ],
-            ),
-      ),
+              ),
+            ],
+          ),
     );
   }
 }

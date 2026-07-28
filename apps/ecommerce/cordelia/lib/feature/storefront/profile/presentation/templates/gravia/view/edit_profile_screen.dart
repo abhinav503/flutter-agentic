@@ -121,96 +121,93 @@ class _EditProfileScreenState extends BaseScreenState<EditProfileScreen>
   }
 
   @override
+  SystemUiOverlayStyle? overlayStyle(BuildContext context) =>
+      BaseScreenState.lightStatusIcons;
+
+  @override
   Widget body(BuildContext context) {
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: const SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.light,
-        statusBarBrightness: Brightness.dark,
-      ),
-      child: BlocConsumer<EditProfileBloc, EditProfileState>(
-        listener: (context, state) => switch (state) {
-          EditProfileSuccess(:final user) => context.pop(
-            ProfileEntity(
-              name: user.name,
-              email: user.email,
-              phone: user.mobile,
-              avatarUrl: widget.profile.avatarUrl,
-              avatarBytes: _pickedAvatarBytes ?? widget.profile.avatarBytes,
-            ),
+    return BlocConsumer<EditProfileBloc, EditProfileState>(
+      listener: (context, state) => switch (state) {
+        EditProfileSuccess(:final user) => context.pop(
+          ProfileEntity(
+            name: user.name,
+            email: user.email,
+            phone: user.mobile,
+            avatarUrl: widget.profile.avatarUrl,
+            avatarBytes: _pickedAvatarBytes ?? widget.profile.avatarBytes,
           ),
-          EditProfileError(:final message) => showSnackBar(message),
-          _ => null,
-        },
-        builder: (context, state) {
-          final isSaving = state is EditProfileSaving;
-          return Column(
-            children: [
-              Expanded(
-                child: CollapsingHeaderSheet(
-                  initialHeaderHeight: 110,
-                  header: CordeliaHeroHeader(
-                    title: GraviaValueConst.editProfileTitle,
-                    onBack: () => context.pop(),
-                  ),
-                  body: Padding(
-                    padding: const EdgeInsets.all(AppSpacing.lg),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Center(
-                          child: ProfileAvatarPicker(
-                            profile: widget.profile,
-                            pickedAvatarBytes: _pickedAvatarBytes,
-                            onTap: _pickAvatar,
-                          ),
+        ),
+        EditProfileError(:final message) => showSnackBar(message),
+        _ => null,
+      },
+      builder: (context, state) {
+        final isSaving = state is EditProfileSaving;
+        return Column(
+          children: [
+            Expanded(
+              child: CollapsingHeaderSheet(
+                initialHeaderHeight: 110,
+                header: CordeliaHeroHeader(
+                  title: GraviaValueConst.editProfileTitle,
+                  onBack: () => context.pop(),
+                ),
+                body: Padding(
+                  padding: const EdgeInsets.all(AppSpacing.lg),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Center(
+                        child: ProfileAvatarPicker(
+                          profile: widget.profile,
+                          pickedAvatarBytes: _pickedAvatarBytes,
+                          onTap: _pickAvatar,
                         ),
-                        const SizedBox(height: AppSpacing.xl2),
-                        _field(
-                          GraviaValueConst.nameLabel,
-                          _nameController,
-                          field: _ProfileField.name,
-                          keyboardType: TextInputType.name,
-                          hint: GraviaValueConst.nameHint,
-                        ),
-                        const SizedBox(height: AppSpacing.lg),
-                        _field(
-                          GraviaValueConst.emailAddressLabel,
-                          _emailController,
-                          field: _ProfileField.email,
-                          keyboardType: TextInputType.emailAddress,
-                          hint: GraviaValueConst.emailAddressHint,
-                          // Can't change here — Firebase's own re-verification
-                          // flow (verifyBeforeUpdateEmail) is needed to change
-                          // the sign-in email, out of scope for this form.
-                          enabled: false,
-                        ),
-                        const SizedBox(height: AppSpacing.lg),
-                        _field(
-                          GraviaValueConst.mobileNumberLabel,
-                          _phoneController,
-                          field: _ProfileField.phone,
-                          keyboardType: TextInputType.phone,
-                          hint: GraviaValueConst.phoneNumberHint,
-                        ),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(height: AppSpacing.xl2),
+                      _field(
+                        GraviaValueConst.nameLabel,
+                        _nameController,
+                        field: _ProfileField.name,
+                        keyboardType: TextInputType.name,
+                        hint: GraviaValueConst.nameHint,
+                      ),
+                      const SizedBox(height: AppSpacing.lg),
+                      _field(
+                        GraviaValueConst.emailAddressLabel,
+                        _emailController,
+                        field: _ProfileField.email,
+                        keyboardType: TextInputType.emailAddress,
+                        hint: GraviaValueConst.emailAddressHint,
+                        // Can't change here — Firebase's own re-verification
+                        // flow (verifyBeforeUpdateEmail) is needed to change
+                        // the sign-in email, out of scope for this form.
+                        enabled: false,
+                      ),
+                      const SizedBox(height: AppSpacing.lg),
+                      _field(
+                        GraviaValueConst.mobileNumberLabel,
+                        _phoneController,
+                        field: _ProfileField.phone,
+                        keyboardType: TextInputType.phone,
+                        hint: GraviaValueConst.phoneNumberHint,
+                      ),
+                    ],
                   ),
                 ),
               ),
-              DockedBar(
-                child: CordeliaPrimaryButton(
-                  label: GraviaValueConst.updateProfileButtonLabel,
-                  state: isSaving
-                      ? AppButtonState.loading
-                      : AppButtonState.idle,
-                  onTap: isSaving ? null : _submit,
-                ),
+            ),
+            DockedBar(
+              child: CordeliaPrimaryButton(
+                label: GraviaValueConst.updateProfileButtonLabel,
+                state: isSaving
+                    ? AppButtonState.loading
+                    : AppButtonState.idle,
+                onTap: isSaving ? null : _submit,
               ),
-            ],
-          );
-        },
-      ),
+            ),
+          ],
+        );
+      },
     );
   }
 

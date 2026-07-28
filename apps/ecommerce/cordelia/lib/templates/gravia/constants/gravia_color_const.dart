@@ -45,4 +45,11 @@ extension GraviaColorSchemeX on ColorScheme {
   Color get tintedErrorFill => brightness == Brightness.dark
       ? GraviaColorConst.error500.withValues(alpha: 0.2)
       : GraviaColorConst.error50;
+
+  /// Pure black in light mode, pure white in dark — the kit's Address card
+  /// spec calls for true black/white here, not the warm near-black/near-white
+  /// `onSurface` pair the rest of the app reads.
+  Color get inkContrast => brightness == Brightness.dark
+      ? const Color(0xFFFFFFFF)
+      : const Color(0xFF000000);
 }

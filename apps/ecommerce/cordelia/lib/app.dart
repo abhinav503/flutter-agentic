@@ -6,12 +6,19 @@ import 'package:cordelia/feature/storefront/cart/presentation/cubit/cart_cubit.d
 import 'package:cordelia/feature/storefront/cart/presentation/templates/gravia/view/cart_page.dart';
 import 'package:cordelia/feature/storefront/category_details/presentation/templates/gravia/view/category_details_page.dart';
 import 'package:cordelia/feature/storefront/favourites/presentation/cubit/favourites_cubit.dart';
-import 'package:cordelia/feature/storefront/notifications/presentation/templates/gravia/view/notifications_page.dart';
+// Every template names its Notifications entry `NotificationsPage` (the class
+// name belongs to the role, not the pack), so both need a prefix to be
+// dispatched from one StorefrontTemplateSwitch.
+import 'package:cordelia/feature/storefront/notifications/presentation/templates/dailymart/view/notifications_page.dart'
+    as dailymart_notifications;
+import 'package:cordelia/feature/storefront/notifications/presentation/templates/gravia/view/notifications_page.dart'
+    as gravia_notifications;
 import 'package:cordelia/feature/storefront/product_details/presentation/templates/gravia/view/product_details_page.dart';
 import 'package:cordelia/feature/storefront/profile/domain/entities/profile_entity.dart';
 import 'package:cordelia/feature/storefront/profile/presentation/templates/gravia/view/change_password_page.dart';
 import 'package:cordelia/feature/storefront/profile/presentation/templates/gravia/view/edit_profile_page.dart';
 import 'package:cordelia/feature/storefront/search/presentation/templates/gravia/view/search_page.dart';
+import 'package:cordelia/feature/storefront/template/storefront_template_switch.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -254,9 +261,9 @@ final _router = GoRouter(
     ),
     GoRoute(
       path: AppRoutes.notifications,
-      // Fade, same reasoning as Cart/Select Address — this screen's coloured
-      // header canvas shares the back-button position every other "coloured
-      // header canvas" screen uses.
+      // Fade, same reasoning as Cart/Select Address — this screen shares the
+      // back-button position with the screen it is pushed from, so a
+      // horizontal push would visibly slide one over the other.
       pageBuilder: (context, state) => CustomTransitionPage<void>(
         key: state.pageKey,
         transitionDuration: const Duration(milliseconds: 350),
@@ -266,7 +273,10 @@ final _router = GoRouter(
               opacity: CurveTween(curve: Curves.easeInOut).animate(animation),
               child: child,
             ),
-        child: const NotificationsPage(),
+        child: StorefrontTemplateSwitch(
+          gravia: (_) => const gravia_notifications.NotificationsPage(),
+          dailymart: (_) => const dailymart_notifications.NotificationsPage(),
+        ),
       ),
     ),
   ],

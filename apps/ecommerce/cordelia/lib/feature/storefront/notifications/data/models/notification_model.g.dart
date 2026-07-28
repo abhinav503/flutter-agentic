@@ -9,7 +9,7 @@ part of 'notification_model.dart';
 _NotificationModel _$NotificationModelFromJson(Map<String, dynamic> json) =>
     _NotificationModel(
       id: json['id'] as String,
-      icon: json['icon'] as String,
+      kind: json['kind'] as String,
       title: json['title'] as String,
       message: json['message'] as String,
     );
@@ -17,7 +17,7 @@ _NotificationModel _$NotificationModelFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$NotificationModelToJson(_NotificationModel instance) =>
     <String, dynamic>{
       'id': instance.id,
-      'icon': instance.icon,
+      'kind': instance.kind,
       'title': instance.title,
       'message': instance.message,
     };

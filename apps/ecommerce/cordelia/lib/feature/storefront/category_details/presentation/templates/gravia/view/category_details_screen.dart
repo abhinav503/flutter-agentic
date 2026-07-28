@@ -59,69 +59,66 @@ class _CategoryDetailsScreenState
       showGraviaAddToCartSheet(product: product, onAddToCart: _addToCart);
 
   @override
+  SystemUiOverlayStyle? overlayStyle(BuildContext context) =>
+      BaseScreenState.lightStatusIcons;
+
+  @override
   Widget body(BuildContext context) {
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: const SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.light,
-        statusBarBrightness: Brightness.dark,
-      ),
-      child: BlocConsumer<CategoryDetailsBloc, CategoryDetailsState>(
-        listener: (context, state) {
-          if (state case CategoryDetailsError(:final message)) {
-            showSnackBar(message);
-          }
-        },
-        builder: (context, state) => AnimatedSwitcher(
-          duration: const Duration(milliseconds: 300),
-          child: switch (state) {
-            CategoryDetailsLoading() => CollapsingHeaderSheet(
-              key: const ValueKey('loading'),
-              initialHeaderHeight: 165,
-              header: CategoryDetailsHeroHeader(
-                categoryName: widget.categoryName,
-                sort: ProductSortOption.relevance,
-                priceFilter: ProductPriceFilter.all,
-                onBack: () => context.pop(),
-                onSearchTap: () =>
-                    context.push(AppRoutes.search, extra: widget.storeId),
-                onSortTap: () {},
-                onPriceTap: () {},
-              ),
-              body: const GraviaProductGridSkeleton(
-                padding: EdgeInsets.only(
-                  left: AppSpacing.lg,
-                  right: AppSpacing.lg,
-                  top: AppSpacing.xl4,
-                  bottom: AppSpacing.xl14,
-                ),
+    return BlocConsumer<CategoryDetailsBloc, CategoryDetailsState>(
+      listener: (context, state) {
+        if (state case CategoryDetailsError(:final message)) {
+          showSnackBar(message);
+        }
+      },
+      builder: (context, state) => AnimatedSwitcher(
+        duration: const Duration(milliseconds: 300),
+        child: switch (state) {
+          CategoryDetailsLoading() => CollapsingHeaderSheet(
+            key: const ValueKey('loading'),
+            initialHeaderHeight: 165,
+            header: CategoryDetailsHeroHeader(
+              categoryName: widget.categoryName,
+              sort: ProductSortOption.relevance,
+              priceFilter: ProductPriceFilter.all,
+              onBack: () => context.pop(),
+              onSearchTap: () =>
+                  context.push(AppRoutes.search, extra: widget.storeId),
+              onSortTap: () {},
+              onPriceTap: () {},
+            ),
+            body: const GraviaProductGridSkeleton(
+              padding: EdgeInsets.only(
+                left: AppSpacing.lg,
+                right: AppSpacing.lg,
+                top: AppSpacing.xl4,
+                bottom: AppSpacing.xl14,
               ),
             ),
-            CategoryDetailsError(
-              :final message,
-              :final storeId,
-              :final categoryId,
-              :final categoryName,
-            ) =>
-              SafeArea(
-                key: const ValueKey('error'),
-                child: ErrorView(
-                  message: message,
-                  onRetry: () => context.read<CategoryDetailsBloc>().add(
-                    CategoryDetailsEvent.started(
-                      storeId: storeId,
-                      categoryId: categoryId,
-                      categoryName: categoryName,
-                    ),
+          ),
+          CategoryDetailsError(
+            :final message,
+            :final storeId,
+            :final categoryId,
+            :final categoryName,
+          ) =>
+            SafeArea(
+              key: const ValueKey('error'),
+              child: ErrorView(
+                message: message,
+                onRetry: () => context.read<CategoryDetailsBloc>().add(
+                  CategoryDetailsEvent.started(
+                    storeId: storeId,
+                    categoryId: categoryId,
+                    categoryName: categoryName,
                   ),
                 ),
               ),
-            CategoryDetailsLoaded() => KeyedSubtree(
-              key: const ValueKey('loaded'),
-              child: _buildLoaded(context, state),
             ),
-          },
-        ),
+          CategoryDetailsLoaded() => KeyedSubtree(
+            key: const ValueKey('loaded'),
+            child: _buildLoaded(context, state),
+          ),
+        },
       ),
     );
   }

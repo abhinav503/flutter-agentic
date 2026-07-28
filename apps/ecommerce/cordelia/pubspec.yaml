@@ -68,14 +68,15 @@ flutter:
     # App-level assets (Cordelia brand marks, auth-provider logos, the shared
     # back arrow). A directory entry is NOT recursive, so each storefront
     # template's pack folder below needs its own line — adding a template
-    # means adding its two lines here.
+    # means adding a line per asset kind it ships (icons / images / data).
     - assets/icons/
     - assets/images/
     - assets/icons/templates/gravia/
     - assets/images/templates/gravia/
-    # dailymart ships no pack images yet — only icons, so it has one line.
+    - assets/data/templates/gravia/
+    # dailymart ships no pack images yet — icons and mock data only.
     - assets/icons/templates/dailymart/
-    - assets/data/
+    - assets/data/templates/dailymart/
 
 # One source mark → every launcher-icon size. branding/ holds these
 # build-time generator sources and lives OUTSIDE assets/ on purpose — it

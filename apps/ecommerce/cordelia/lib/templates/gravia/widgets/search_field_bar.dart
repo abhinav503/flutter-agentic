@@ -17,7 +17,16 @@ class SearchFieldBar extends StatelessWidget {
   final VoidCallback? onTap;
   final ValueChanged<String>? onChanged;
   final ValueChanged<String>? onSubmitted;
-  static const Object heroTagDefault = 'gravia-search-field-hero';
+  /// The Home <-> Search flight tag, scoped to one store.
+  ///
+  /// A fixed tag would also let *two different storefronts* running this pack
+  /// pair their search bars during a storefront-to-storefront transition, so
+  /// the bar would fly out of one store's Home into another's. Both ends of
+  /// the intended flight derive the tag through this one factory, so they
+  /// cannot drift apart and silently stop flying.
+  static Object heroTagFor(String storeId) =>
+      'gravia-search-field-hero-$storeId';
+
   final Object heroTag;
 
   const SearchFieldBar({
@@ -28,7 +37,7 @@ class SearchFieldBar extends StatelessWidget {
     this.onTap,
     this.onChanged,
     this.onSubmitted,
-    this.heroTag = heroTagDefault,
+    required this.heroTag,
   });
 
   Widget _buildField(BuildContext context, {required bool interactive}) {

@@ -1,0 +1,48 @@
+[
+  {
+    "title": "Today",
+    "notifications": [
+      {
+        "id": "notif_1",
+        "kind": "discount",
+        "title": "30% Special Discount!",
+        "message": "Special promotion only valid today"
+      },
+      {
+        "id": "notif_2",
+        "kind": "discount",
+        "title": "New Member Promotion",
+        "message": "Special promo to all apple device"
+      }
+    ]
+  },
+  {
+    "title": "Yesterday",
+    "notifications": [
+      {
+        "id": "notif_3",
+        "kind": "discount",
+        "title": "Special Offer! 40% Off",
+        "message": "Special offer for new account, valid until 20 Nov 2022"
+      },
+      {
+        "id": "notif_4",
+        "kind": "discount",
+        "title": "Special Offer! 50% Off",
+        "message": "Special offer for new account, valid until 20 Nov 2022"
+      },
+      {
+        "id": "notif_5",
+        "kind": "payment",
+        "title": "Credit Card Connected",
+        "message": "Special promotion only valid today"
+      },
+      {
+        "id": "notif_6",
+        "kind": "account",
+        "title": "Account Setup Successfull!",
+        "message": "Special promotion only valid today"
+      }
+    ]
+  }
+]

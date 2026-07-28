@@ -18,6 +18,23 @@ abstract final class DailyMartImageConst {
   static const search = '$_icons/search-normal.svg';
   static const scanner = '$_icons/scaner.svg';
 
+  /// The product card's rating star. Ships 14 × 13, not square — render it
+  /// inside a square box and let `BoxFit.contain` letterbox it rather than
+  /// stretching it to fit.
+  static const star = '$_icons/star.svg';
+
+  /// The Notification screen's row glyphs. Unlike everything else in this
+  /// pack these two are **solid**, not outline — the kit draws its
+  /// `Icon / solid / …` family here and nowhere else, so the §5 outline rule
+  /// still describes the rest of the app.
+  ///
+  /// The kit exports these three of the kinds [NotificationKind] carries;
+  /// the order and security glyphs fall back to a filled Material Symbol at
+  /// the call site (see `NotificationRow`).
+  static const discountSolid = '$_icons/discount-solid.svg';
+  static const cardSolid = '$_icons/card-solid.svg';
+  static const profileSolid = '$_icons/profile-solid.svg';
+
   /// The **active** home tab — a filled house with a white smile cut into
   /// it, drawn in the brand green. Unlike every other icon here it must NOT
   /// be recoloured while active: an `srcIn` filter repaints the smile too

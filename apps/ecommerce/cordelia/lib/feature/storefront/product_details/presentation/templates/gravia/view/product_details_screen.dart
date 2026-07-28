@@ -61,59 +61,56 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen> {
       showGraviaAddToCartSheet(product: product, onAddToCart: _addToCart);
 
   @override
+  SystemUiOverlayStyle? overlayStyle(BuildContext context) =>
+      BaseScreenState.lightStatusIcons;
+
+  @override
   Widget body(BuildContext context) {
     // The header canvas is coloured (like Home/Search), so status bar icons
     // need to stay light for contrast — same override as HomeScreen.
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: const SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.light,
-        statusBarBrightness: Brightness.dark,
-      ),
-      child: BlocConsumer<ProductDetailsBloc, ProductDetailsState>(
-        listener: (context, state) {
-          if (state case ProductDetailsError(:final message)) {
-            showSnackBar(message);
-          }
+    return BlocConsumer<ProductDetailsBloc, ProductDetailsState>(
+      listener: (context, state) {
+        if (state case ProductDetailsError(:final message)) {
+          showSnackBar(message);
+        }
+      },
+      builder: (context, state) => AnimatedSwitcher(
+        duration: const Duration(milliseconds: 300),
+        child: switch (state) {
+          ProductDetailsLoading() => CollapsingHeaderSheet(
+            key: const ValueKey('loading'),
+            initialHeaderHeight: 130,
+            header: CordeliaHeroHeader(
+              title: GraviaValueConst.productDetailsTitle,
+              onBack: () => context.pop(),
+              trailing: CordeliaGlassIconButton(
+                asset: GraviaImageConst.navFavourite,
+                onTap: () {},
+              ),
+            ),
+            body: const ProductDetailsSkeletonBody(),
+          ),
+          ProductDetailsError(
+            :final message,
+            :final storeId,
+            :final productId,
+          ) => SafeArea(
+            key: const ValueKey('error'),
+            child: ErrorView(
+              message: message,
+              onRetry: () => context.read<ProductDetailsBloc>().add(
+                ProductDetailsEvent.started(
+                  storeId: storeId,
+                  productId: productId,
+                ),
+              ),
+            ),
+          ),
+          ProductDetailsLoaded(:final detail) => KeyedSubtree(
+            key: const ValueKey('loaded'),
+            child: _buildLoaded(context, detail),
+          ),
         },
-        builder: (context, state) => AnimatedSwitcher(
-          duration: const Duration(milliseconds: 300),
-          child: switch (state) {
-            ProductDetailsLoading() => CollapsingHeaderSheet(
-              key: const ValueKey('loading'),
-              initialHeaderHeight: 130,
-              header: CordeliaHeroHeader(
-                title: GraviaValueConst.productDetailsTitle,
-                onBack: () => context.pop(),
-                trailing: CordeliaGlassIconButton(
-                  asset: GraviaImageConst.navFavourite,
-                  onTap: () {},
-                ),
-              ),
-              body: const ProductDetailsSkeletonBody(),
-            ),
-            ProductDetailsError(
-              :final message,
-              :final storeId,
-              :final productId,
-            ) => SafeArea(
-              key: const ValueKey('error'),
-              child: ErrorView(
-                message: message,
-                onRetry: () => context.read<ProductDetailsBloc>().add(
-                  ProductDetailsEvent.started(
-                    storeId: storeId,
-                    productId: productId,
-                  ),
-                ),
-              ),
-            ),
-            ProductDetailsLoaded(:final detail) => KeyedSubtree(
-              key: const ValueKey('loaded'),
-              child: _buildLoaded(context, detail),
-            ),
-          },
-        ),
       ),
     );
   }

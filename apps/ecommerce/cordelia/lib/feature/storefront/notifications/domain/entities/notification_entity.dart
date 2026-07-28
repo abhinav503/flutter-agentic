@@ -1,12 +1,14 @@
+import 'package:cordelia/enums/notification_kind.dart';
+
 class NotificationEntity {
   final String id;
-  final String iconAsset;
+  final NotificationKind kind;
   final String title;
   final String message;
 
   const NotificationEntity({
     required this.id,
-    required this.iconAsset,
+    required this.kind,
     required this.title,
     required this.message,
   });

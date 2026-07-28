@@ -4,25 +4,25 @@
     "notifications": [
       {
         "id": "notif_1",
-        "icon": "assets/icons/badge-percent.svg",
+        "kind": "discount",
         "title": "Best Deal of the Day",
         "message": "Buy 1 Get 1 Offer on selected product… hurry up"
       },
       {
         "id": "notif_2",
-        "icon": "assets/icons/open-box.svg",
+        "kind": "orderDelivered",
         "title": "Your Order Delivered",
         "message": "Your order has been successfully delivered."
       },
       {
         "id": "notif_3",
-        "icon": "assets/icons/user-circle.svg",
+        "kind": "account",
         "title": "Account Setup Successfully",
         "message": "Your account has been created."
       },
       {
         "id": "notif_4",
-        "icon": "assets/icons/lock.svg",
+        "kind": "security",
         "title": "Password Update Successful",
         "message": "Your password has been placed successfully."
       }
@@ -33,13 +33,19 @@
     "notifications": [
       {
         "id": "notif_5",
-        "icon": "assets/icons/package-box.svg",
+        "kind": "orderPlaced",
         "title": "Order Place Successfully",
         "message": "Your order has been placed successfully."
       },
       {
+        "id": "notif_6",
+        "kind": "payment",
+        "title": "Payment Method Added",
+        "message": "Your card has been linked to your account."
+      },
+      {
         "id": "notif_7",
-        "icon": "assets/icons/open-box.svg",
+        "kind": "orderDelivered",
         "title": "Your Order Delivered",
         "message": "Your order has been successfully delivered."
       }

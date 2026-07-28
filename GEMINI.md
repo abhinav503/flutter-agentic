@@ -12,6 +12,9 @@ apps/jokes/      demo app          apps/doc_scanner/  request/response app
 apps/ai_chat/    streaming app
 apps/ecommerce/gravia/  style-pack exemplar (`gravia` theme, ecommerce blocks, free-pack
                          screens: splash, onboarding, app logo)
+apps/ecommerce/cordelia/  multi-tenant storefront — one shopper app, many stores; each
+                           store's template (`gravia` | `dailymart`) restyles it at runtime
+apps/design_gallery/  Widgetbook showcase — every core atom/molecule/block × every preset
 ```
 
 One `flutter pub get` at the repo root resolves all packages. Run `make` targets from the root; run an app from its folder (`apps/<app>`). Each app owns its `main.dart`, `di/injection_container.dart`, and `constants/` (`ValueConst`/`ApiConstants`); `core` holds only `CoreConst`. The primary feature is always `feature/home/`.

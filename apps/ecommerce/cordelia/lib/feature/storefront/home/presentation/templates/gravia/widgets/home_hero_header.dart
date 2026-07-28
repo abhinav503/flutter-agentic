@@ -14,6 +14,9 @@ import 'package:core/core/ui/blocks/header_canvas.dart';
 /// here (see [SearchFieldBar]) — real typing happens on the pushed Search
 /// screen it Hero-morphs into.
 class HomeHeroHeader extends StatefulWidget {
+  /// Scopes the search bar's Hero tag — see [SearchFieldBar.heroTagFor].
+  final String storeId;
+
   final String addressLabel;
   final VoidCallback onLocationTap;
   final VoidCallback onNotificationTap;
@@ -21,6 +24,7 @@ class HomeHeroHeader extends StatefulWidget {
 
   const HomeHeroHeader({
     super.key,
+    required this.storeId,
     required this.addressLabel,
     required this.onLocationTap,
     required this.onNotificationTap,
@@ -111,6 +115,7 @@ class _HomeHeroHeaderState extends State<HomeHeroHeader> {
           ),
           const SizedBox(height: AppSpacing.lg),
           SearchFieldBar(
+            heroTag: SearchFieldBar.heroTagFor(widget.storeId),
             controller: _searchController,
             onTap: widget.onSearchTap,
           ),

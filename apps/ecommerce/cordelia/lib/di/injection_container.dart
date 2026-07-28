@@ -224,7 +224,7 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton(() => UpdateAddressUseCase(sl()));
   sl.registerLazySingleton(() => DeleteAddressUseCase(sl()));
 
-  // ── Storefront: Notifications (bundled mock, not per-store) ─────────────
+  // ── Storefront: Notifications (bundled mock, one file per template) ─────
   sl.registerLazySingleton<NotificationsRemoteDataSource>(
     () => const NotificationsRemoteDataSourceImpl(),
   );

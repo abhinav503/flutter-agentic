@@ -14,30 +14,61 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$NotificationsEvent {
 
-
+ StorefrontTemplate get template;
+/// Create a copy of NotificationsEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$NotificationsEventCopyWith<NotificationsEvent> get copyWith => _$NotificationsEventCopyWithImpl<NotificationsEvent>(this as NotificationsEvent, _$identity);
 
 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is NotificationsEvent);
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is NotificationsEvent&&(identical(other.template, template) || other.template == template));
 }
 
 
 @override
-int get hashCode => runtimeType.hashCode;
+int get hashCode => Object.hash(runtimeType,template);
 
 @override
 String toString() {
-  return 'NotificationsEvent()';
+  return 'NotificationsEvent(template: $template)';
 }
 
 
 }
 
 /// @nodoc
-class $NotificationsEventCopyWith<$Res>  {
-$NotificationsEventCopyWith(NotificationsEvent _, $Res Function(NotificationsEvent) __);
+abstract mixin class $NotificationsEventCopyWith<$Res>  {
+  factory $NotificationsEventCopyWith(NotificationsEvent value, $Res Function(NotificationsEvent) _then) = _$NotificationsEventCopyWithImpl;
+@useResult
+$Res call({
+ StorefrontTemplate template
+});
+
+
+
+
+}
+/// @nodoc
+class _$NotificationsEventCopyWithImpl<$Res>
+    implements $NotificationsEventCopyWith<$Res> {
+  _$NotificationsEventCopyWithImpl(this._self, this._then);
+
+  final NotificationsEvent _self;
+  final $Res Function(NotificationsEvent) _then;
+
+/// Create a copy of NotificationsEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? template = null,}) {
+  return _then(_self.copyWith(
+template: null == template ? _self.template : template // ignore: cast_nullable_to_non_nullable
+as StorefrontTemplate,
+  ));
+}
+
 }
 
 
@@ -116,10 +147,10 @@ return started(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  started,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( StorefrontTemplate template)?  started,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case NotificationsStarted() when started != null:
-return started();case _:
+return started(_that.template);case _:
   return orElse();
 
 }
@@ -137,10 +168,10 @@ return started();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  started,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( StorefrontTemplate template)  started,}) {final _that = this;
 switch (_that) {
 case NotificationsStarted():
-return started();}
+return started(_that.template);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -154,10 +185,10 @@ return started();}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  started,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( StorefrontTemplate template)?  started,}) {final _that = this;
 switch (_that) {
 case NotificationsStarted() when started != null:
-return started();case _:
+return started(_that.template);case _:
   return null;
 
 }
@@ -169,33 +200,67 @@ return started();case _:
 
 
 class NotificationsStarted implements NotificationsEvent {
-  const NotificationsStarted();
+  const NotificationsStarted({required this.template});
   
 
+@override final  StorefrontTemplate template;
 
-
+/// Create a copy of NotificationsEvent
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$NotificationsStartedCopyWith<NotificationsStarted> get copyWith => _$NotificationsStartedCopyWithImpl<NotificationsStarted>(this, _$identity);
 
 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is NotificationsStarted);
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is NotificationsStarted&&(identical(other.template, template) || other.template == template));
 }
 
 
 @override
-int get hashCode => runtimeType.hashCode;
+int get hashCode => Object.hash(runtimeType,template);
 
 @override
 String toString() {
-  return 'NotificationsEvent.started()';
+  return 'NotificationsEvent.started(template: $template)';
 }
 
 
 }
 
+/// @nodoc
+abstract mixin class $NotificationsStartedCopyWith<$Res> implements $NotificationsEventCopyWith<$Res> {
+  factory $NotificationsStartedCopyWith(NotificationsStarted value, $Res Function(NotificationsStarted) _then) = _$NotificationsStartedCopyWithImpl;
+@override @useResult
+$Res call({
+ StorefrontTemplate template
+});
 
 
+
+
+}
+/// @nodoc
+class _$NotificationsStartedCopyWithImpl<$Res>
+    implements $NotificationsStartedCopyWith<$Res> {
+  _$NotificationsStartedCopyWithImpl(this._self, this._then);
+
+  final NotificationsStarted _self;
+  final $Res Function(NotificationsStarted) _then;
+
+/// Create a copy of NotificationsEvent
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? template = null,}) {
+  return _then(NotificationsStarted(
+template: null == template ? _self.template : template // ignore: cast_nullable_to_non_nullable
+as StorefrontTemplate,
+  ));
+}
+
+
+}
 
 /// @nodoc
 mixin _$NotificationsState {

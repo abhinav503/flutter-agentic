@@ -61,7 +61,7 @@ seed-derived tone).
 | `success500` | `#22C55E` | `AppSwitch` on track — a distinct green from `primary`, so it's a named raw swatch, not a `ColorScheme` role |
 | `light900` | Light/900 | dark-mode sheet hairline |
 
-`ColorScheme.tintedErrorFill` (also in `color_const.dart`) stays a gravia-local
+`ColorScheme.tintedErrorFill` and `inkContrast` (pure black/white flipped per mode — the Address card's kit spec) stay gravia-local
 derived getter — single-caller, error-specific, not promoted to core.
 
 **Extension roles** (`AppColorsExtension`, real theme data set per-preset — read
@@ -466,10 +466,17 @@ How the Search takeover's field is actually built; reuse for any shared-element
 transition. Reference: `lib/widgets/search_field_bar.dart` + the `/search`
 route in `lib/app.dart`.
 
-1. **One shared widget, one shared tag.** Both screens render the *same* widget
-   class wrapped in `Hero`; the tag is a single `static const` on that widget
-   (namespaced, e.g. `'gravia-search-field-hero'`) that both ends inherit — two
-   hand-typed literals will drift and silently kill the flight.
+1. **One shared widget, one shared tag factory.** Both screens render the
+   *same* widget class wrapped in `Hero`; the tag comes from one static
+   factory on that widget, **scoped per store** —
+   `SearchFieldBar.heroTagFor(storeId)` — and is a required parameter. Two
+   hand-typed literals drift and silently kill the flight, and an *unscoped*
+   constant is worse: two storefronts running this pack in one transition
+   (a tab jump between stores) would pair their bars and fly the field out
+   of one store's Home into another's. Never render two Heroes with one tag
+   in a single route — e.g. an `AnimatedSwitcher` whose branches each build
+   the header keeps both mounted mid-crossfade, which is a hard framework
+   error; build the header once outside the switcher (see Home).
 2. **Trigger mode vs input mode.** The origin's copy is display-only:
    `GestureDetector` (navigates) around `AbsorbPointer` (so the real field never
    grabs focus). The destination's copy is live.

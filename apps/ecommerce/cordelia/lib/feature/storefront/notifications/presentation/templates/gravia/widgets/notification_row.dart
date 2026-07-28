@@ -1,10 +1,13 @@
+import 'package:cordelia/enums/notification_kind.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_color_const.dart';
+import 'package:cordelia/templates/gravia/constants/gravia_image_const.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_text_style_const.dart';
 import 'package:flutter/material.dart';
 
 import 'package:core/core/theme/app_colors_extension.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/svg_image.dart';
+import 'package:core/core/ui/molecules/icon_info_row.dart';
 
 import '../../../../domain/entities/notification_entity.dart';
 
@@ -19,51 +22,49 @@ class NotificationRow extends StatelessWidget {
 
   static const double _iconCircleSize = 44;
 
+  /// The pack's glyph for each notification kind. The kind is what the shared
+  /// data carries — the asset path is this template's business, so a store on
+  /// another template can draw the same notification with its own artwork.
+  static String _asset(NotificationKind kind) => switch (kind) {
+    NotificationKind.discount => GraviaImageConst.badgePercent,
+    NotificationKind.orderPlaced => GraviaImageConst.packageBox,
+    NotificationKind.orderDelivered => GraviaImageConst.openBox,
+    NotificationKind.payment => GraviaImageConst.card,
+    NotificationKind.account => GraviaImageConst.navProfile,
+    NotificationKind.security => GraviaImageConst.lock,
+  };
+
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
 
-    return Row(
+    return IconInfoRow(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          width: _iconCircleSize,
-          height: _iconCircleSize,
-          decoration: BoxDecoration(
-            color: Theme.of(context).extension<AppColorsExtension>()!.tintedPrimaryFill,
-            shape: BoxShape.circle,
-          ),
-          alignment: Alignment.center,
-          child: AppSvgImage.asset(
-            notification.iconAsset,
-            color: cs.primary,
-            width: 24,
-            height: 24,
-          ),
+      lineGap: AppSpacing.xs4,
+      leading: Container(
+        width: _iconCircleSize,
+        height: _iconCircleSize,
+        decoration: BoxDecoration(
+          color: Theme.of(
+            context,
+          ).extension<AppColorsExtension>()!.tintedPrimaryFill,
+          shape: BoxShape.circle,
         ),
-        const SizedBox(width: AppSpacing.base),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                notification.title,
-                style: GraviaTextStyleConst.textMdBold(
-                  tt,
-                ).copyWith(color: cs.onSurface),
-              ),
-              const SizedBox(height: AppSpacing.xs4),
-              Text(
-                notification.message,
-                style: GraviaTextStyleConst.textXsRegular(
-                  tt,
-                ).copyWith(color: GraviaColorConst.gray500),
-              ),
-            ],
-          ),
+        alignment: Alignment.center,
+        child: AppSvgImage.asset(
+          _asset(notification.kind),
+          color: cs.primary,
         ),
-      ],
+      ),
+      title: notification.title,
+      titleStyle: GraviaTextStyleConst.textMdBold(
+        tt,
+      ).copyWith(color: cs.onSurface),
+      subtitle: notification.message,
+      subtitleStyle: GraviaTextStyleConst.textXsRegular(
+        tt,
+      ).copyWith(color: GraviaColorConst.gray500),
     );
   }
 }

@@ -56,10 +56,15 @@ class _StorefrontPageState extends BasePageState<StorefrontPage> {
   // dispose() throw "Looking up a deactivated widget's ancestor is unsafe".
   late final ActiveStoreCubit _activeStore;
 
+  /// This storefront visit's token, handed back on teardown so a visit that
+  /// has already been replaced doesn't tear down its successor's state.
+  late final int _storeSession;
+
   @override
   void initState() {
     super.initState();
-    _activeStore = context.read<ActiveStoreCubit>()..open(widget.store);
+    _activeStore = context.read<ActiveStoreCubit>();
+    _storeSession = _activeStore.open(widget.store);
   }
 
   @override
@@ -87,9 +92,16 @@ class _StorefrontPageState extends BasePageState<StorefrontPage> {
     // next frame instead of during the locked unmount pass.
     final activeTheme = _activeTheme;
     final activeStore = _activeStore;
+    final session = _storeSession;
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Deferring the teardown means it can land *after* a replacement
+      // storefront has already mounted and installed its own store + theme —
+      // which is exactly what a tab jump (`context.go(AppRoutes.storefront,
+      // …)`) does. Tearing down then would strand the new storefront with a
+      // null store, and its shell reads that non-null on every frame.
+      if (!activeStore.isCurrentSession(session)) return;
       activeTheme?.resetToAppDefault();
-      activeStore.clear();
+      activeStore.closeSession(session);
     });
     super.dispose();
   }
@@ -108,15 +120,16 @@ class _StorefrontPageState extends BasePageState<StorefrontPage> {
 /// Each template's own bundled theme config lives under
 /// assets/theme/templates/. Falls back to the app's own boot config on any
 /// load failure — same defensive shape as main.dart's `_loadThemeConfig`.
+///
+/// Path derived from `wireValue` (same scheme as the notifications mock's
+/// `assets/data/templates/<id>/`), so a new template adds its asset +
+/// `pubspec.yaml` line without editing a switch here — and a typo'd name
+/// falls into the same defaults fallback as any other load failure.
 Future<AppThemeConfig> _templateThemeConfig(
   StorefrontTemplate templateId,
 ) async {
-  final assetPath = switch (templateId) {
-    StorefrontTemplate.gravia =>
-      'assets/theme/templates/gravia_theme_config.json',
-    StorefrontTemplate.dailymart =>
-      'assets/theme/templates/dailymart_theme_config.json',
-  };
+  final assetPath =
+      'assets/theme/templates/${templateId.wireValue}_theme_config.json';
   try {
     final raw = await rootBundle.loadString(assetPath);
     return AppThemeConfig.fromJson(jsonDecode(raw) as Map<String, dynamic>);

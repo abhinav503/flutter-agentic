@@ -48,52 +48,49 @@ class _FavouritesScreenState extends BaseScreenState<FavouritesScreen> {
       CordeliaHeroHeader.page(title: GraviaValueConst.favouritePageTitle);
 
   @override
+  SystemUiOverlayStyle? overlayStyle(BuildContext context) =>
+      BaseScreenState.lightStatusIcons;
+
+  @override
   Widget body(BuildContext context) {
     final state = context.watch<FavouritesCubit>().state;
 
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: const SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.light,
-        statusBarBrightness: Brightness.dark,
-      ),
-      child: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 300),
-        // isLoading only ever reads true before ShellPage.initState's
-        // hydrate resolves — there's no warm cache to seed from (unlike
-        // HomeBloc/AddressBloc), so a shopper who opens this tab first sees
-        // the skeleton instead of a premature "no favourites yet".
-        child: state.isLoading
-            ? CollapsingHeaderSheet(
-                key: const ValueKey('loading'),
-                initialHeaderHeight: 130,
-                header: _header(),
-                body: const GraviaProductGridSkeleton(),
-              )
-            : CollapsingHeaderSheet(
-                key: const ValueKey('loaded'),
-                initialHeaderHeight: 130,
-                header: _header(),
-                body: Padding(
-                  padding: const EdgeInsets.all(AppSpacing.lg),
-                  child: state.items.isEmpty
-                      ? const EmptyState(
-                          iconData: Icons.favorite_outline,
-                          title: GraviaValueConst.favouriteEmptyTitle,
-                          subtitle: GraviaValueConst.favouriteEmptySubtitle,
-                        )
-                      : ChunkedGrid(
-                          itemCount: state.items.length,
-                          columns: 2,
-                          spacing: AppSpacing.lg,
-                          runSpacing: AppSpacing.lg,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          itemBuilder: (context, index) =>
-                              _productCard(state.items[index]),
-                        ),
-                ),
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 300),
+      // isLoading only ever reads true before ShellPage.initState's
+      // hydrate resolves — there's no warm cache to seed from (unlike
+      // HomeBloc/AddressBloc), so a shopper who opens this tab first sees
+      // the skeleton instead of a premature "no favourites yet".
+      child: state.isLoading
+          ? CollapsingHeaderSheet(
+              key: const ValueKey('loading'),
+              initialHeaderHeight: 130,
+              header: _header(),
+              body: const GraviaProductGridSkeleton(),
+            )
+          : CollapsingHeaderSheet(
+              key: const ValueKey('loaded'),
+              initialHeaderHeight: 130,
+              header: _header(),
+              body: Padding(
+                padding: const EdgeInsets.all(AppSpacing.lg),
+                child: state.items.isEmpty
+                    ? const EmptyState(
+                        iconData: Icons.favorite_outline,
+                        title: GraviaValueConst.favouriteEmptyTitle,
+                        subtitle: GraviaValueConst.favouriteEmptySubtitle,
+                      )
+                    : ChunkedGrid(
+                        itemCount: state.items.length,
+                        columns: 2,
+                        spacing: AppSpacing.lg,
+                        runSpacing: AppSpacing.lg,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        itemBuilder: (context, index) =>
+                            _productCard(state.items[index]),
+                      ),
               ),
-      ),
+            ),
     );
   }
 

@@ -136,6 +136,7 @@ class _SearchScreenState extends BaseScreenState<SearchScreen> {
   }
 
   Widget _header() => SearchHeroHeader(
+    storeId: widget.storeId,
     controller: _searchController,
     focusNode: _searchFocus,
     onBack: _goBack,

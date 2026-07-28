@@ -32,57 +32,54 @@ class OrdersScreen extends BaseScreen {
 
 class _OrdersScreenState extends BaseScreenState<OrdersScreen> {
   @override
+  SystemUiOverlayStyle? overlayStyle(BuildContext context) =>
+      BaseScreenState.lightStatusIcons;
+
+  @override
   Widget body(BuildContext context) {
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: const SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.light,
-        statusBarBrightness: Brightness.dark,
-      ),
-      child: BlocConsumer<OrdersBloc, OrdersState>(
-        listener: (context, state) {
-          if (state case OrdersError(:final message)) showSnackBar(message);
-          // Warm-start background refresh failed — cached content is still
-          // showing, so this is a toast, not an error view.
-          if (state case OrdersLoaded(refreshFailed: true)) {
-            showSnackBar(GraviaValueConst.ordersRefreshFailedMessage);
-          }
-          // Cancel failed and its optimistic update rolled back.
-          if (state case OrdersLoaded(cancelFailed: true)) {
-            showSnackBar(GraviaValueConst.cancelFailedMessage);
-          }
+    return BlocConsumer<OrdersBloc, OrdersState>(
+      listener: (context, state) {
+        if (state case OrdersError(:final message)) showSnackBar(message);
+        // Warm-start background refresh failed — cached content is still
+        // showing, so this is a toast, not an error view.
+        if (state case OrdersLoaded(refreshFailed: true)) {
+          showSnackBar(GraviaValueConst.ordersRefreshFailedMessage);
+        }
+        // Cancel failed and its optimistic update rolled back.
+        if (state case OrdersLoaded(cancelFailed: true)) {
+          showSnackBar(GraviaValueConst.cancelFailedMessage);
+        }
+      },
+      builder: (context, state) => AnimatedSwitcher(
+        duration: const Duration(milliseconds: 300),
+        child: switch (state) {
+          OrdersLoading() => CollapsingHeaderSheet(
+            key: const ValueKey('loading'),
+            initialHeaderHeight: 190,
+            header: CordeliaHeroHeader.page(
+              title: GraviaValueConst.ordersPageTitle,
+              bottomGap: AppSpacing.lg,
+              // Static Past tab — real selection/filter data doesn't exist
+              // yet, so the tab bar is a non-interactive placeholder that
+              // keeps the header the same height as the loaded state.
+              bottom: OrdersSegmentedTabBar(
+                selected: OrdersTab.past,
+                onChanged: (_) {},
+              ),
+            ),
+            body: const OrdersSkeletonBody(),
+          ),
+          OrdersError() => SafeArea(
+            key: const ValueKey('error'),
+            child: ErrorView(
+              message: GraviaValueConst.ordersLoadErrorMessage,
+              onRetry: () =>
+                  context.read<OrdersBloc>().add(const OrdersEvent.started()),
+            ),
+          ),
+          OrdersLoaded(:final orders, :final selectedTab, :final filter) =>
+            _buildLoaded(context, orders, selectedTab, filter),
         },
-        builder: (context, state) => AnimatedSwitcher(
-          duration: const Duration(milliseconds: 300),
-          child: switch (state) {
-            OrdersLoading() => CollapsingHeaderSheet(
-              key: const ValueKey('loading'),
-              initialHeaderHeight: 190,
-              header: CordeliaHeroHeader.page(
-                title: GraviaValueConst.ordersPageTitle,
-                bottomGap: AppSpacing.lg,
-                // Static Past tab — real selection/filter data doesn't exist
-                // yet, so the tab bar is a non-interactive placeholder that
-                // keeps the header the same height as the loaded state.
-                bottom: OrdersSegmentedTabBar(
-                  selected: OrdersTab.past,
-                  onChanged: (_) {},
-                ),
-              ),
-              body: const OrdersSkeletonBody(),
-            ),
-            OrdersError() => SafeArea(
-              key: const ValueKey('error'),
-              child: ErrorView(
-                message: GraviaValueConst.ordersLoadErrorMessage,
-                onRetry: () =>
-                    context.read<OrdersBloc>().add(const OrdersEvent.started()),
-              ),
-            ),
-            OrdersLoaded(:final orders, :final selectedTab, :final filter) =>
-              _buildLoaded(context, orders, selectedTab, filter),
-          },
-        ),
       ),
     );
   }

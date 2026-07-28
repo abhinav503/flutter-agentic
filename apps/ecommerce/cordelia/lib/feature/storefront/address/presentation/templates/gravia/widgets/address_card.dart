@@ -42,12 +42,9 @@ class AddressCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
-    // Kit spec calls for pure white/black here, not the warm near-black/
-    // near-white `onSurface` pair the rest of the app reads — shared by the
-    // phone row and the Edit button's icon+label.
-    final blackOrWhite = Theme.of(context).brightness == Brightness.dark
-        ? Colors.white
-        : Colors.black;
+    // Shared by the phone row and the Edit button's icon+label — see
+    // GraviaColorSchemeX.inkContrast for why it isn't `onSurface`.
+    final blackOrWhite = cs.inkContrast;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

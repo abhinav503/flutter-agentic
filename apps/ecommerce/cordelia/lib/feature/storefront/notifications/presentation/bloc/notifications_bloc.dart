@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import 'package:core/core/usecase/usecase.dart';
+import 'package:cordelia/feature/storefront/template/storefront_template.dart';
 
 import '../../domain/entities/notification_section_entity.dart';
 import '../../domain/usecase/get_notifications_usecase.dart';
@@ -23,7 +23,9 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
     NotificationsStarted event,
     Emitter<NotificationsState> emit,
   ) async {
-    final result = await _getNotifications(const NoParams());
+    final result = await _getNotifications(
+      GetNotificationsParams(template: event.template),
+    );
     result.fold(
       (failure) => emit(NotificationsState.error(message: failure.message)),
       (sections) => emit(NotificationsState.loaded(sections: sections)),

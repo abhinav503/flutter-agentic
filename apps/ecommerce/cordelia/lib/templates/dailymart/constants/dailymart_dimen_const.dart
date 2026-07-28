@@ -21,6 +21,15 @@ abstract final class DailyMartDimenConst {
   /// The product card's image well.
   static const double productImageHeight = 150;
 
+  /// Everything `DailyMartProductCard` stacks *below* that image well: the
+  /// 10px gap, the name + price block beside the add button (45.4), the 4px
+  /// gap, the rating row (18.6), and the card's own 8px vertical padding.
+  ///
+  /// Skeletons size against `productImageHeight + productCardChromeHeight`
+  /// rather than guessing, so the grid doesn't reflow when real cards land.
+  /// Changing the card's stack below the image means re-deriving this.
+  static const double productCardChromeHeight = 86;
+
   /// Category tile — a rounded photo tile, not a circle.
   static const double categoryTileWidth = 78;
   static const double categoryTileHeight = 92;

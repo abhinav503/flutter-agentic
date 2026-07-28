@@ -1,3 +1,4 @@
+import 'package:cordelia/feature/storefront/template/storefront_template.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_text_style_const.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_value_const.dart';
 import 'package:cordelia/widgets/cordelia_hero_header.dart';
@@ -28,44 +29,43 @@ class NotificationsScreen extends BaseScreen {
 
 class _NotificationsScreenState extends BaseScreenState<NotificationsScreen> {
   @override
+  SystemUiOverlayStyle? overlayStyle(BuildContext context) =>
+      BaseScreenState.lightStatusIcons;
+
+  @override
   Widget body(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
 
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: const SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.light,
-        statusBarBrightness: Brightness.dark,
-      ),
-      child: BlocConsumer<NotificationsBloc, NotificationsState>(
-        listener: (context, state) {
-          if (state case NotificationsError(:final message)) {
-            showSnackBar(message);
-          }
-        },
-        builder: (context, state) => AnimatedSwitcher(
-          duration: const Duration(milliseconds: 300),
-          child: switch (state) {
-            NotificationsLoading() => Container(
-              key: const ValueKey('loading'),
-              color: cs.primary,
-              child: const SafeArea(child: Center(child: LoadingIndicator())),
-            ),
-            NotificationsError() => SafeArea(
-              key: const ValueKey('error'),
-              child: ErrorView(
-                message: GraviaValueConst.notificationsLoadErrorMessage,
-                onRetry: () => context.read<NotificationsBloc>().add(
-                  const NotificationsEvent.started(),
+    return BlocConsumer<NotificationsBloc, NotificationsState>(
+      listener: (context, state) {
+        if (state case NotificationsError(:final message)) {
+          showSnackBar(message);
+        }
+      },
+      builder: (context, state) => AnimatedSwitcher(
+        duration: const Duration(milliseconds: 300),
+        child: switch (state) {
+          NotificationsLoading() => Container(
+            key: const ValueKey('loading'),
+            color: cs.primary,
+            child: const SafeArea(child: Center(child: LoadingIndicator())),
+          ),
+          NotificationsError() => SafeArea(
+            key: const ValueKey('error'),
+            child: ErrorView(
+              message: GraviaValueConst.notificationsLoadErrorMessage,
+              onRetry: () => context.read<NotificationsBloc>().add(
+                const NotificationsEvent.started(
+                  template: StorefrontTemplate.gravia,
                 ),
               ),
             ),
-            NotificationsLoaded(:final sections) => KeyedSubtree(
-              key: const ValueKey('loaded'),
-              child: _buildLoaded(context, sections),
-            ),
-          },
-        ),
+          ),
+          NotificationsLoaded(:final sections) => KeyedSubtree(
+            key: const ValueKey('loaded'),
+            child: _buildLoaded(context, sections),
+          ),
+        },
       ),
     );
   }

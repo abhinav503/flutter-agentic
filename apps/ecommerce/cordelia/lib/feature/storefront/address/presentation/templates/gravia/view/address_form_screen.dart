@@ -159,116 +159,113 @@ class _AddressFormScreenState extends BaseScreenState<AddressFormScreen> {
   }
 
   @override
+  SystemUiOverlayStyle? overlayStyle(BuildContext context) =>
+      BaseScreenState.lightStatusIcons;
+
+  @override
   Widget body(BuildContext context) {
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: const SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.light,
-        statusBarBrightness: Brightness.dark,
-      ),
-      child: Column(
-        children: [
-          Expanded(
-            child: CollapsingHeaderSheet(
-              initialHeaderHeight: 110,
-              header: CordeliaHeroHeader(
-                title: _isEditing
-                    ? GraviaValueConst.editAddressTitle
-                    : GraviaValueConst.addNewAddressLabel,
-                onBack: () => context.pop(),
-              ),
-              body: Padding(
-                padding: const EdgeInsets.all(AppSpacing.lg),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _field(
-                      GraviaValueConst.nameLabel,
-                      _nameController,
-                      field: _AddressField.name,
-                      keyboardType: TextInputType.name,
-                      hint: GraviaValueConst.nameHint,
+    return Column(
+      children: [
+        Expanded(
+          child: CollapsingHeaderSheet(
+            initialHeaderHeight: 110,
+            header: CordeliaHeroHeader(
+              title: _isEditing
+                  ? GraviaValueConst.editAddressTitle
+                  : GraviaValueConst.addNewAddressLabel,
+              onBack: () => context.pop(),
+            ),
+            body: Padding(
+              padding: const EdgeInsets.all(AppSpacing.lg),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _field(
+                    GraviaValueConst.nameLabel,
+                    _nameController,
+                    field: _AddressField.name,
+                    keyboardType: TextInputType.name,
+                    hint: GraviaValueConst.nameHint,
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+                  _field(
+                    GraviaValueConst.phoneNumberLabel,
+                    _phoneController,
+                    field: _AddressField.phone,
+                    keyboardType: TextInputType.phone,
+                    hint: GraviaValueConst.phoneNumberHint,
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+                  _field(
+                    GraviaValueConst.addressLine1Label,
+                    _addressLine1Controller,
+                    field: _AddressField.addressLine1,
+                    hint: GraviaValueConst.addressLine1Hint,
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+                  _field(
+                    GraviaValueConst.addressLine2Label,
+                    _addressLine2Controller,
+                    hint: GraviaValueConst.addressLine2Hint,
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+                  _field(
+                    GraviaValueConst.landmarkLabel,
+                    _landmarkController,
+                    hint: GraviaValueConst.landmarkHint,
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+                  GraviaDropdownField(
+                    label: GraviaValueConst.cityLabel,
+                    value: _city,
+                    onTap: () => _showOptionPicker(
+                      title: GraviaValueConst.selectCityTitle,
+                      options: GraviaValueConst.addressFormCities,
+                      selected: _city,
+                      onSelected: (city) => setState(() => _city = city),
                     ),
-                    const SizedBox(height: AppSpacing.lg),
-                    _field(
-                      GraviaValueConst.phoneNumberLabel,
-                      _phoneController,
-                      field: _AddressField.phone,
-                      keyboardType: TextInputType.phone,
-                      hint: GraviaValueConst.phoneNumberHint,
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+                  GraviaDropdownField(
+                    label: GraviaValueConst.countryLabel,
+                    value: _country,
+                    onTap: () => _showOptionPicker(
+                      title: GraviaValueConst.selectCountryTitle,
+                      options: GraviaValueConst.addressFormCountries,
+                      selected: _country,
+                      onSelected: (country) =>
+                          setState(() => _country = country),
                     ),
-                    const SizedBox(height: AppSpacing.lg),
-                    _field(
-                      GraviaValueConst.addressLine1Label,
-                      _addressLine1Controller,
-                      field: _AddressField.addressLine1,
-                      hint: GraviaValueConst.addressLine1Hint,
-                    ),
-                    const SizedBox(height: AppSpacing.lg),
-                    _field(
-                      GraviaValueConst.addressLine2Label,
-                      _addressLine2Controller,
-                      hint: GraviaValueConst.addressLine2Hint,
-                    ),
-                    const SizedBox(height: AppSpacing.lg),
-                    _field(
-                      GraviaValueConst.landmarkLabel,
-                      _landmarkController,
-                      hint: GraviaValueConst.landmarkHint,
-                    ),
-                    const SizedBox(height: AppSpacing.lg),
-                    GraviaDropdownField(
-                      label: GraviaValueConst.cityLabel,
-                      value: _city,
-                      onTap: () => _showOptionPicker(
-                        title: GraviaValueConst.selectCityTitle,
-                        options: GraviaValueConst.addressFormCities,
-                        selected: _city,
-                        onSelected: (city) => setState(() => _city = city),
-                      ),
-                    ),
-                    const SizedBox(height: AppSpacing.lg),
-                    GraviaDropdownField(
-                      label: GraviaValueConst.countryLabel,
-                      value: _country,
-                      onTap: () => _showOptionPicker(
-                        title: GraviaValueConst.selectCountryTitle,
-                        options: GraviaValueConst.addressFormCountries,
-                        selected: _country,
-                        onSelected: (country) =>
-                            setState(() => _country = country),
-                      ),
-                    ),
-                    const SizedBox(height: AppSpacing.lg),
-                    _field(
-                      GraviaValueConst.postalCodeLabel,
-                      _postalCodeController,
-                      field: _AddressField.postalCode,
-                      keyboardType: TextInputType.number,
-                      hint: GraviaValueConst.postalCodeHint,
-                    ),
-                    const SizedBox(height: AppSpacing.lg),
-                    _field(
-                      GraviaValueConst.addressTagLabel,
-                      _tagController,
-                      field: _AddressField.tag,
-                      hint: GraviaValueConst.addressTagHint,
-                    ),
-                  ],
-                ),
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+                  _field(
+                    GraviaValueConst.postalCodeLabel,
+                    _postalCodeController,
+                    field: _AddressField.postalCode,
+                    keyboardType: TextInputType.number,
+                    hint: GraviaValueConst.postalCodeHint,
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+                  _field(
+                    GraviaValueConst.addressTagLabel,
+                    _tagController,
+                    field: _AddressField.tag,
+                    hint: GraviaValueConst.addressTagHint,
+                  ),
+                ],
               ),
             ),
           ),
-          DockedBar(
-            child: CordeliaPrimaryButton(
-              label: _isEditing
-                  ? GraviaValueConst.updateAddressButtonLabel
-                  : GraviaValueConst.addAddressButtonLabel,
-              onTap: _submit,
-            ),
+        ),
+        DockedBar(
+          child: CordeliaPrimaryButton(
+            label: _isEditing
+                ? GraviaValueConst.updateAddressButtonLabel
+                : GraviaValueConst.addAddressButtonLabel,
+            onTap: _submit,
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 

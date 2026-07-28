@@ -5,8 +5,11 @@ import 'package:core/core/theme/app_shapes_extension.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/shimmer_box.dart';
 import 'package:core/core/ui/blocks/chunked_grid.dart';
+import 'package:core/core/ui/molecules/skeleton_rows.dart';
 
 import 'package:cordelia/templates/dailymart/constants/dailymart_dimen_const.dart';
+
+import 'home_promo_carousel.dart';
 
 /// Mirrors the loaded Home's silhouette — promo card, category rail, then the
 /// 2-column product grid — so nothing jumps when real data replaces it. The
@@ -26,18 +29,9 @@ class DailyMartHomeSkeletonBody extends StatelessWidget {
       children: [
         const _SectionHeaderSkeleton(),
         const SizedBox(height: AppSpacing.lg),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-          child: LayoutBuilder(
-            builder: (context, constraints) => ShimmerBox(
-              width:
-                  constraints.maxWidth *
-                  DailyMartDimenConst.promoViewportFraction,
-              height: DailyMartDimenConst.promoCardHeight,
-              borderRadius: cardRadius,
-            ),
-          ),
-        ),
+        // The rail's own geometry, dot row included — see
+        // DailyMartHomePromoCarouselSkeleton for why it isn't measured here.
+        const DailyMartHomePromoCarouselSkeleton(),
         const SizedBox(height: AppSpacing.xl4),
         const _SectionHeaderSkeleton(),
         const SizedBox(height: AppSpacing.lg),
@@ -69,11 +63,10 @@ class DailyMartHomeSkeletonBody extends StatelessWidget {
             spacing: AppSpacing.base,
             runSpacing: AppSpacing.lg,
             itemBuilder: (context, index) => ShimmerBox(
-              // The card's own height: image well + name/price block +
-              // padding. Guessing lower would make the grid shift upward
-              // when the real cards land.
               width: double.infinity,
-              height: DailyMartDimenConst.productImageHeight + AppSpacing.xl11,
+              height:
+                  DailyMartDimenConst.productImageHeight +
+                  DailyMartDimenConst.productCardChromeHeight,
               borderRadius: cardRadius,
             ),
           ),
@@ -83,18 +76,14 @@ class DailyMartHomeSkeletonBody extends StatelessWidget {
   }
 }
 
+/// Core's [ShimmerSectionHeader] inside this pack's screen gutter — the
+/// trailing block defaults match DailyMart's radius-4 "See all" chip.
 class _SectionHeaderSkeleton extends StatelessWidget {
   const _SectionHeaderSkeleton();
 
   @override
   Widget build(BuildContext context) => const Padding(
     padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        ShimmerBox(width: 140, height: 20),
-        ShimmerBox(width: 64, height: 28, borderRadius: AppRadius.sm),
-      ],
-    ),
+    child: ShimmerSectionHeader(),
   );
 }

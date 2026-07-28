@@ -1,4 +1,5 @@
 import 'package:cordelia/di/injection_container.dart';
+import 'package:cordelia/feature/storefront/template/storefront_template.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:core/core/base/base_page.dart';
@@ -20,7 +21,11 @@ class _NotificationsPageState extends BasePageState<NotificationsPage> {
   Widget buildBody(BuildContext context) => BlocProvider(
     create: (_) =>
         NotificationsBloc(getNotificationsUseCase: sl())
-          ..add(const NotificationsEvent.started()),
+          ..add(
+            const NotificationsEvent.started(
+              template: StorefrontTemplate.gravia,
+            ),
+          ),
     child: const NotificationsScreen(),
   );
 }

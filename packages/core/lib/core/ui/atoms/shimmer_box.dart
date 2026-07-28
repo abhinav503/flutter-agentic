@@ -16,6 +16,12 @@ class ShimmerBox extends StatefulWidget {
   final double height;
   final BorderRadius borderRadius;
 
+  /// Override the theme-derived shimmer colours — for a skeleton sitting on
+  /// a canvas where the surface-container ramp has no contrast left (e.g. a
+  /// brand-tinted page background). Omit both for the theme defaults.
+  final Color? baseColor;
+  final Color? sweepColor;
+
   // Small default — matches a thin text-line placeholder (title/label/price
   // bars, the majority of call sites). Pass an explicit borderRadius (e.g.
   // the theme's AppShapes.cardRadius) for anything mimicking a card or image.
@@ -24,13 +30,19 @@ class ShimmerBox extends StatefulWidget {
     required this.width,
     required this.height,
     this.borderRadius = AppRadius.sm,
+    this.baseColor,
+    this.sweepColor,
   });
 
   /// Circular variant — e.g. a category tile's image circle.
-  const ShimmerBox.circle({super.key, required double size})
-    : width = size,
-      height = size,
-      borderRadius = const BorderRadius.all(Radius.circular(9999));
+  const ShimmerBox.circle({
+    super.key,
+    required double size,
+    this.baseColor,
+    this.sweepColor,
+  }) : width = size,
+       height = size,
+       borderRadius = const BorderRadius.all(Radius.circular(9999));
 
   @override
   State<ShimmerBox> createState() => _ShimmerBoxState();
@@ -52,8 +64,8 @@ class _ShimmerBoxState extends State<ShimmerBox>
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final base = cs.surfaceContainerHighest;
-    final sweep = cs.surfaceContainerHigh;
+    final base = widget.baseColor ?? cs.surfaceContainerHighest;
+    final sweep = widget.sweepColor ?? cs.surfaceContainerHigh;
 
     return ClipRRect(
       borderRadius: widget.borderRadius,

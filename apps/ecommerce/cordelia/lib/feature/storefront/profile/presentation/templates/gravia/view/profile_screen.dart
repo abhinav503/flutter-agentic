@@ -51,156 +51,153 @@ class _ProfileScreenState extends BaseScreenState<ProfileScreen> {
   }
 
   @override
+  SystemUiOverlayStyle? overlayStyle(BuildContext context) =>
+      BaseScreenState.lightStatusIcons;
+
+  @override
   Widget body(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
 
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: const SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.light,
-        statusBarBrightness: Brightness.dark,
-      ),
-      child: BlocConsumer<ProfileBloc, ProfileState>(
-        listener: (context, state) {
-          if (state case ProfileError(:final message)) showSnackBar(message);
+    return BlocConsumer<ProfileBloc, ProfileState>(
+      listener: (context, state) {
+        if (state case ProfileError(:final message)) showSnackBar(message);
+      },
+      builder: (context, state) => AnimatedSwitcher(
+        duration: const Duration(milliseconds: 300),
+        child: switch (state) {
+          ProfileLoading() => Container(
+            key: const ValueKey('loading'),
+            color: cs.primary,
+            child: const SafeArea(child: Center(child: LoadingIndicator())),
+          ),
+          ProfileError() => SafeArea(
+            key: const ValueKey('error'),
+            child: ErrorView(
+              message: GraviaValueConst.profileLoadErrorMessage,
+              onRetry: () => context.read<ProfileBloc>().add(
+                const ProfileEvent.started(),
+              ),
+            ),
+          ),
+          ProfileLoaded(:final profile) => CollapsingHeaderSheet(
+            key: const ValueKey('loaded'),
+            initialHeaderHeight: 195,
+            header: ProfileHeroHeader(
+              profile: profile,
+              onEditTap: () => _openEditProfile(profile),
+            ),
+            body: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.lg,
+                vertical: AppSpacing.xl2,
+              ),
+              child: Column(
+                children: [
+                  ProfileMenuTile(
+                    iconBuilder: (color, size) => AppSvgImage.asset(
+                      GraviaImageConst.lock,
+                      color: color,
+                      width: size,
+                      height: size,
+                    ),
+                    label: GraviaValueConst.changePasswordLabel,
+                    onTap: () => context.push(AppRoutes.changePassword),
+                  ),
+                  ProfileMenuTile(
+                    iconBuilder: (color, size) => AppSvgImage.asset(
+                      GraviaImageConst.shoppingBag,
+                      color: color,
+                      width: size,
+                      height: size,
+                    ),
+                    label: GraviaValueConst.myOrdersLabel,
+                    // Orders isn't a standalone route — it's a ShellPage tab
+                    // — so this jumps the shell there directly, same
+                    // mechanism as the Order Placed sheet's "Track Your
+                    // Order" (docs/ai-rules/design.md).
+                    onTap: () => context.go(
+                      AppRoutes.storefront,
+                      extra: StorefrontRouteArgs(
+                        store: context.read<ActiveStoreCubit>().state!,
+                        initialTab: ShellPage.ordersTabIndex,
+                      ),
+                    ),
+                  ),
+                  ProfileMenuTile(
+                    iconBuilder: (color, size) => AppSvgImage.asset(
+                      GraviaImageConst.locationIcon,
+                      color: color,
+                      width: size,
+                      height: size,
+                    ),
+                    label: GraviaValueConst.myAddressLabel,
+                    onTap: () => context.push(AppRoutes.selectAddress),
+                  ),
+                  ProfileMenuTile(
+                    iconBuilder: (color, size) => AppSvgImage.asset(
+                      GraviaImageConst.eye,
+                      color: color,
+                      width: size,
+                      height: size,
+                    ),
+                    label: GraviaValueConst.darkModeLabel,
+                    // Material's own Switch grows the thumb when selected
+                    // (M3 spec: active radius 12, inactive 8) with no public
+                    // way to equalize them — AppSwitch keeps one fixed thumb
+                    // size in both states instead, plus the exact kit-spec
+                    // track colours (Gray/100 off, Success/500 on).
+                    trailing: AppSwitch(
+                      value: Theme.of(context).brightness == Brightness.dark,
+                      onChanged: (isDark) => ThemeModeScope.of(
+                        context,
+                      ).setMode(isDark ? ThemeMode.dark : ThemeMode.light),
+                      activeTrackColor: GraviaColorConst.success500,
+                      inactiveTrackColor: GraviaColorConst.gray100,
+                    ),
+                  ),
+                  ProfileMenuTile(
+                    iconBuilder: (color, size) => AppSvgImage.asset(
+                      GraviaImageConst.shieldCheck,
+                      color: color,
+                      width: size,
+                      height: size,
+                    ),
+                    label: GraviaValueConst.privacyPolicyLabel,
+                    onTap: () => context.push(AppRoutes.privacyPolicy),
+                  ),
+                  ProfileMenuTile(
+                    iconBuilder: (color, size) => AppSvgImage.asset(
+                      GraviaImageConst.notes,
+                      color: color,
+                      width: size,
+                      height: size,
+                    ),
+                    label: GraviaValueConst.termsAndConditionsLabel,
+                    onTap: () => context.push(AppRoutes.termsAndConditions),
+                  ),
+                  ProfileMenuTile(
+                    iconBuilder: (color, size) => AppSvgImage.asset(
+                      GraviaImageConst.logout,
+                      color: color,
+                      width: size,
+                      height: size,
+                    ),
+                    label: GraviaValueConst.logoutLabel,
+                    danger: true,
+                    trailing: const SizedBox.shrink(),
+                    onTap: () => showGraviaConfirmSheet(
+                      context: context,
+                      title: GraviaValueConst.logoutTitle,
+                      message: GraviaValueConst.logoutConfirmMessage,
+                      confirmLabel: GraviaValueConst.logoutLabel,
+                      onConfirm: () => _signOut(context),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         },
-        builder: (context, state) => AnimatedSwitcher(
-          duration: const Duration(milliseconds: 300),
-          child: switch (state) {
-            ProfileLoading() => Container(
-              key: const ValueKey('loading'),
-              color: cs.primary,
-              child: const SafeArea(child: Center(child: LoadingIndicator())),
-            ),
-            ProfileError() => SafeArea(
-              key: const ValueKey('error'),
-              child: ErrorView(
-                message: GraviaValueConst.profileLoadErrorMessage,
-                onRetry: () => context.read<ProfileBloc>().add(
-                  const ProfileEvent.started(),
-                ),
-              ),
-            ),
-            ProfileLoaded(:final profile) => CollapsingHeaderSheet(
-              key: const ValueKey('loaded'),
-              initialHeaderHeight: 195,
-              header: ProfileHeroHeader(
-                profile: profile,
-                onEditTap: () => _openEditProfile(profile),
-              ),
-              body: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.lg,
-                  vertical: AppSpacing.xl2,
-                ),
-                child: Column(
-                  children: [
-                    ProfileMenuTile(
-                      iconBuilder: (color, size) => AppSvgImage.asset(
-                        GraviaImageConst.lock,
-                        color: color,
-                        width: size,
-                        height: size,
-                      ),
-                      label: GraviaValueConst.changePasswordLabel,
-                      onTap: () => context.push(AppRoutes.changePassword),
-                    ),
-                    ProfileMenuTile(
-                      iconBuilder: (color, size) => AppSvgImage.asset(
-                        GraviaImageConst.shoppingBag,
-                        color: color,
-                        width: size,
-                        height: size,
-                      ),
-                      label: GraviaValueConst.myOrdersLabel,
-                      // Orders isn't a standalone route — it's a ShellPage tab
-                      // — so this jumps the shell there directly, same
-                      // mechanism as the Order Placed sheet's "Track Your
-                      // Order" (docs/ai-rules/design.md).
-                      onTap: () => context.go(
-                        AppRoutes.storefront,
-                        extra: StorefrontRouteArgs(
-                          store: context.read<ActiveStoreCubit>().state!,
-                          initialTab: ShellPage.ordersTabIndex,
-                        ),
-                      ),
-                    ),
-                    ProfileMenuTile(
-                      iconBuilder: (color, size) => AppSvgImage.asset(
-                        GraviaImageConst.locationIcon,
-                        color: color,
-                        width: size,
-                        height: size,
-                      ),
-                      label: GraviaValueConst.myAddressLabel,
-                      onTap: () => context.push(AppRoutes.selectAddress),
-                    ),
-                    ProfileMenuTile(
-                      iconBuilder: (color, size) => AppSvgImage.asset(
-                        GraviaImageConst.eye,
-                        color: color,
-                        width: size,
-                        height: size,
-                      ),
-                      label: GraviaValueConst.darkModeLabel,
-                      // Material's own Switch grows the thumb when selected
-                      // (M3 spec: active radius 12, inactive 8) with no public
-                      // way to equalize them — AppSwitch keeps one fixed thumb
-                      // size in both states instead, plus the exact kit-spec
-                      // track colours (Gray/100 off, Success/500 on).
-                      trailing: AppSwitch(
-                        value: Theme.of(context).brightness == Brightness.dark,
-                        onChanged: (isDark) => ThemeModeScope.of(
-                          context,
-                        ).setMode(isDark ? ThemeMode.dark : ThemeMode.light),
-                        activeTrackColor: GraviaColorConst.success500,
-                        inactiveTrackColor: GraviaColorConst.gray100,
-                      ),
-                    ),
-                    ProfileMenuTile(
-                      iconBuilder: (color, size) => AppSvgImage.asset(
-                        GraviaImageConst.shieldCheck,
-                        color: color,
-                        width: size,
-                        height: size,
-                      ),
-                      label: GraviaValueConst.privacyPolicyLabel,
-                      onTap: () => context.push(AppRoutes.privacyPolicy),
-                    ),
-                    ProfileMenuTile(
-                      iconBuilder: (color, size) => AppSvgImage.asset(
-                        GraviaImageConst.notes,
-                        color: color,
-                        width: size,
-                        height: size,
-                      ),
-                      label: GraviaValueConst.termsAndConditionsLabel,
-                      onTap: () => context.push(AppRoutes.termsAndConditions),
-                    ),
-                    ProfileMenuTile(
-                      iconBuilder: (color, size) => AppSvgImage.asset(
-                        GraviaImageConst.logout,
-                        color: color,
-                        width: size,
-                        height: size,
-                      ),
-                      label: GraviaValueConst.logoutLabel,
-                      danger: true,
-                      trailing: const SizedBox.shrink(),
-                      onTap: () => showGraviaConfirmSheet(
-                        context: context,
-                        title: GraviaValueConst.logoutTitle,
-                        message: GraviaValueConst.logoutConfirmMessage,
-                        confirmLabel: GraviaValueConst.logoutLabel,
-                        onConfirm: () => _signOut(context),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          },
-        ),
       ),
     );
   }

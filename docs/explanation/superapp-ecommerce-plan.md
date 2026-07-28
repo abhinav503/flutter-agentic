@@ -5,10 +5,11 @@
 > closed (all shopper routes now token-verified); checkout + per-store Razorpay
 > payments + cancel/refund done (both shopper and admin); `cordelia`
 > multi-template storefront **fully ported** (all storefront features + shell +
-> checkout, not just the Phase-1 Home slice) with the `dailymart` template
-> seams open, pre-dailymart bug sweep done, and admin-side template
+> checkout, not just the Phase-1 Home slice); admin-side template
 > management (validated `templateId`, `PUT /api/stores/{id}`, store-profile
-> settings UI) done. Not yet deployed** (last updated 2026-07-28). Turns the
+> settings UI) done; the `dailymart` template is now a **real second
+> template** (own design pack + shell + Home + Notifications), not just open
+> seams. Not yet deployed** (last updated 2026-07-29). Turns the
 > `gravia` exemplar into a multi-tenant "app of apps" ecommerce platform.
 > See also `docs/explanation/end-goal.md`.
 >
@@ -379,6 +380,67 @@ fork `presentation/templates/dailymart/` per feature (the template's actual
 screens); sample dailymart's real design pack (replace the `rocketWarm`
 placeholder); the `comingSoon` stubs above; and the platform-level items in
 "Missing flows".
+
+## dailymart template build — Home + Notifications DONE (2026-07-29)
+
+**The second template is real now.** `dailymart`'s design pack was sampled
+from its UI8 kit (Figma `kSTxkipKGeY8FrqWqibDLH`) into
+`docs/ai-rules/style-packs/dailymart.md` + the `dailyMart` core preset,
+replacing the `rocketWarm` placeholder. Built on it, under
+`presentation/templates/dailymart/`:
+
+- **Shell** — 4 tabs in the kit's own order (Home/Wishlist/Cart/Profile —
+  the cart is a tab here, unlike gravia's docked bar), stacked
+  `BottomNavBar`, coming-soon `EmptyState`s for the three unported tabs.
+- **Home** — mint full-bleed canvas (no app bar, nothing pinned), header
+  with avatar/address/bell + search bar, centred peeking promo carousel
+  (rests on page 1 when 2+ banners; skeleton is a real non-scrollable
+  `PageView` sharing the carousel's geometry + dot row), category rail,
+  2-column product grid with the kit's static `4.9 (345)` rating row
+  (placeholder — `ProductEntity` has no rating; documented in the pack
+  constants).
+- **Notifications** — pack header row (`DailyMartHeaderRow`), dated
+  sections, kit `Icon / solid /` glyphs (discount/card/profile recomposed
+  from Figma MCP layer fragments), per-kind tinting.
+
+**Per-template infrastructure this forced, reusable for template #3:**
+- `StorefrontTemplateSwitch` — pushed routes (Notifications today; Cart/
+  Search/details when their dailymart screens land) dispatch per template
+  off `ActiveStoreCubit` with `read` (not `watch`); shells keep dispatching
+  in `StorefrontPage.buildBody`.
+- Per-template assets keyed by `wireValue`: mock data moved to
+  `assets/data/templates/<id>/notifications.json` (template threaded as a
+  use-case call param, like `storeId`), theme-config path now derived the
+  same way (switch deleted). Notification mock rewritten per pack; shared
+  data carries semantic `NotificationKind`, each template maps kinds to its
+  own glyphs — the old asset-path-in-JSON approach was also silently 404ing
+  in gravia and is gone.
+
+**Two teardown races found live and fixed (regression-tested):**
+- "Track Your Order" crash-looped (`state!` null in the shell every frame):
+  `StorefrontPage`'s deferred dispose teardown ran *after* the replacement
+  storefront had mounted and cleared its freshly-opened store. Fixed with a
+  session token from `ActiveStoreCubit.open()`; teardown no-ops if another
+  session has opened since (`storefront_tab_jump_test.dart`, verified
+  failing without the fix).
+- Gravia Home's duplicate `Hero` tag: the `AnimatedSwitcher` built
+  `HomeHeroHeader` in both loading and loaded branches, so both copies were
+  mounted mid-crossfade — hard framework error. Header hoisted outside the
+  switcher (only the body swaps now); the search-field tag is additionally
+  **per-store** (`SearchFieldBar.heroTagFor(storeId)`, required) so two
+  same-template storefronts can't pair their bars across a tab jump.
+
+**Cross-template extractions promoted to core** (each with a design_gallery
+entry): `IconInfoRow` (notification-row silhouette), `ShimmerListRow` +
+`ShimmerSectionHeader` (skeleton silhouettes; `ShimmerBox` gained colour
+overrides), and `BaseScreenState.overlayStyle` (all 15 hand-rolled
+`AnnotatedRegion` wrappers replaced; new forbidden-pattern rule synced to
+every agent surface).
+
+**Remaining for dailymart parity**: Wishlist/Cart/Profile tab screens;
+dailymart's own Search/Product Details/Category Details (those routes still
+open gravia screens); per-store notifications from the backend (bundled
+per-template mock today).
 
 ## Missing flows (fill these or explicitly defer)
 

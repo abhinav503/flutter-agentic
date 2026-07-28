@@ -198,7 +198,21 @@ Two themes: complete the monorepo migration (done, shipped in v1.2.0), and add t
 - [x] Refund hardening — Razorpay `refund.processed`/`refund.failed` webhook (per-store, signature-verified; auto `PENDING→PROCESSED`) and refund idempotency (pre-create lookup of a payment's existing refunds, so a retry can't double-refund)
 - [ ] Post-delivery return/refund flow — refund is wired only to cancel today
 - [ ] Remaining `comingSoon` stubs — cart coupon-apply; Orders' Track Order / View Details / Write Review; Login's social buttons
-- [ ] A second style pack proven end-to-end — today only `gravia` has a real app behind it; `rocketWarm`/`oceanBreeze`/`forestWalk`/`dadJokes` are presets in the catalog without an exemplar app
+- [ ] A second style pack proven end-to-end — `dailyMart` is underway as `cordelia`'s second storefront template (spec sheet + shell + Home + Notifications shipped; see Phase 3.6); `rocketWarm`/`oceanBreeze`/`forestWalk`/`dadJokes` remain presets in the catalog without an exemplar app
+
+---
+
+### Phase 3.6 — Multi-tenant storefront platform (`cordelia`) 🚧 In progress *(the "super app": one shopper app, many stores)*
+
+`gravia` proved one branded store end-to-end; `cordelia` proves the **platform** version of the same architecture — a single shopper app that discovers admin-created stores and opens any of them, restyled per store at runtime. Every storefront feature keeps ONE shared `domain`/`data` layer (store-scoped via `storeId` call params, backed by the admin backend's API) while each template ships only its own `presentation/templates/<id>/` UI; a store's `template_id` selects the template and its theme config at runtime (`StorefrontPage` swaps the app theme per visit, `StorefrontTemplateSwitch` dispatches routes pushed over the shell).
+
+- [x] Store discovery → storefront session — `ActiveStoreCubit` seeded per visit and torn down via a session token, so replacing one storefront with another (tab jumps: "Track Your Order", "My Orders") can't clear the successor's state
+- [x] `gravia` template ported end-to-end on the shared storefront layers — shell + home, categories + details, product details, cart, checkout with per-store Razorpay, orders + cancel, address CRUD/selection, profile + edit/change-password, search (per-store-scoped Hero flight), favourites, notifications, legal, full Firebase auth
+- [x] `dailymart` — second template underway from its own UI8 kit spec sheet: nav shell (stacked bottom nav), Home (centred peeking promo carousel, category rail, product grid with static rating row), Notifications; pack-scoped icons, mock data (`assets/data/templates/<id>/`) and theme config
+- [x] Template-agnostic notification model — `NotificationKind` in shared data; each template maps kinds to its own pack glyphs
+- [x] Cross-template extractions promoted to `core` as they repeated — `IconInfoRow`, `ShimmerListRow`/`ShimmerSectionHeader`, `BaseScreenState.overlayStyle`
+- [ ] `dailymart` remaining surfaces — Wishlist/Cart/Profile tabs render a designed coming-soon state; Search, Product Details and Category Details still open the `gravia` screens
+- [ ] Per-store notifications from the backend — today a bundled per-template mock
 
 ---
 

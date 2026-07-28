@@ -22,6 +22,7 @@ Companion docs: `docs/ai-rules/design.md` (pack-agnostic screen rules),
 | App constants | `apps/ecommerce/cordelia/lib/templates/dailymart/constants/` — `dailymart_color_const.dart`, `dailymart_text_style_const.dart`, `dailymart_dimen_const.dart`, `dailymart_value_const.dart`, `dailymart_image_const.dart` |
 | Icon assets | `apps/ecommerce/cordelia/assets/icons/templates/dailymart/` (pack-scoped, registered in the app's `pubspec.yaml`) |
 | Theme config | `apps/ecommerce/cordelia/assets/theme/templates/dailymart_theme_config.json` (loaded at runtime by `StorefrontPage`, not at boot) |
+| Mock data | `apps/ecommerce/cordelia/assets/data/templates/dailymart/` — one folder per template, keyed by `StorefrontTemplate.wireValue`, so each pack's screens demo their own kit's copy. Threaded from the screen as a call param (`GetNotificationsParams.template`), the same way `storeId` is. Also needs its own `pubspec.yaml` line |
 
 **Sourcing note.** Every value below was sampled from the kit's **real
 screens** — `16 Home`, `17 Home Scroll`, `19 Search product`, `20 Search
@@ -64,14 +65,14 @@ brand green is the one thing held constant.
 |---|---|---|
 | `primary` | `#44BC28` | The kit's only brand hue ("Project Color"); it clears contrast on both white and the dark canvas, so flipping it would only weaken brand recognition |
 | `onPrimary` | `#FFFFFF` | Every green surface in the kit carries white text — the pairing is part of the brand, not a contrast calculation |
-| Rating star | `DailyMartColorConst.ratingStar` `#FFB800` | A product-photo overlay; amber must stay amber on a photo regardless of app theme |
+| Rating star | `DailyMartColorConst.ratingStar` `#F1B826` | A product-photo overlay; amber must stay amber on a photo regardless of app theme |
 
 **Fixed swatches** — pinned to one value in both modes, in
 `dailymart_color_const.dart`:
 
 | Constant | Value | Used by |
 |---|---|---|
-| `ratingStar` | `#FFB800` | The product card's rating star glyph |
+| `ratingStar` | `#F1B826` | The product card's rating star glyph. Matches the fill baked into `star.svg`, so tinting is a no-op — the swatch stays the source of truth for the number beside it |
 | `promoScrim` | `#33000000` | The 20 % black wash over a promo card's photo so white copy stays legible on any image |
 
 The mint canvas is deliberately **not** a fixed swatch: it's
@@ -210,9 +211,17 @@ uses:
   rather than by swapping fill. Same asset serves the Wishlist tab at 24 and
   the product card at 16.
 
+**One documented exception to the outline rule** — the Notification screen's
+row glyphs are the kit's `Icon / solid / …` family (`discount-solid.svg`,
+`profile-solid.svg`). The kit draws them solid there and nowhere else, so the
+outline rule still describes every other surface. Of the five
+`NotificationKind` values the kit exports only these two; the order and
+security kinds take a **filled** `_rounded` Material Symbol so the row set
+still reads as one family.
+
 **Still Material Symbols** (`_rounded`/`_outlined` only), pending an export:
 the location pin and its chevron in Home's header, the product card's
-**+** add button, the rating star, the avatar's person placeholder, and the
+**+** add button, the avatar's person placeholder, and the
 placeholder tabs' `EmptyState` glyphs. `_rounded`/`_outlined` are the one
 permitted family because DailyMart's glyphs are round-capped outlines — a
 `_sharp` or filled Material icon here is immediately visible and is a review
@@ -316,8 +325,13 @@ why they are field-shaped (10 px, bordered) rather than menu-shaped.
   padding. A 150 px image well (radius 14, on the cool `#EFF4FF` tint)
   carries a red discount pill top-left and a white 28 px favourite disc
   top-right. Below: name and price stacked at 14/600 on the left, a green
-  28 px circular **+** on the right, then a rating row (16 px amber star +
-  `4.9 (345)` at 12/500). It appears in a 2-column grid on Home and Search
+  28 px circular **+** on the right, then a rating row (14 px amber
+  `star.svg` + `4.9 (345)` at 12/500). **The rating row is static placeholder
+  copy and always renders** — `ProductEntity` carries no rating yet, and the
+  kit's card is laid out around the row, so it ships with the kit's own
+  numbers rather than being conditionally hidden (see
+  `DailyMartValueConst.staticRatingLabel`). Its height is part of
+  `DailyMartDimenConst.productCardChromeHeight`, which skeletons size against. It appears in a 2-column grid on Home and Search
   results, and in a rail on Search's "Recently viewed".
 - **The promo carousel.** 286 px cards, radius 16, peeking neighbours, a
   photo under a 20 % black scrim, headline at 24/700, two-line subtitle at
@@ -345,10 +359,19 @@ why they are field-shaped (10 px, bordered) rather than menu-shaped.
 ## 11. Recipes
 
 - **Peeking carousel.** The promo rail is a `PageView` with
-  `viewportFraction ≈ 0.79` (286 / 375 minus gutter) plus `padEnds: false`,
-  not a `ListView` — a `ListView` gets the peek right but loses page
-  snapping and the indicator's page index. Drive the `PageIndicator` from
-  the controller's `page`, rounded, so the dot settles with the card.
+  `viewportFraction ≈ 0.79` (286 / 375), not a `ListView` — a `ListView` gets
+  the peek right but loses page snapping and the indicator's page index.
+  Drive the `PageIndicator` from the controller's `page`, rounded, so the dot
+  settles with the card.
+  **The rail takes no screen gutter of its own** and **opens on page 1**
+  (`initialPage: 1` whenever there are 2+ banners; a lone banner stays on 0).
+  Those two go together: `padEnds` left at its default insets the viewport
+  equally on both sides, so the resting card is centred with its neighbours
+  peeking symmetrically. Wrapping the rail in the `AppSpacing.lg` gutter, or
+  setting `padEnds: false`, knocks that off-centre. Each page's own inset is
+  **symmetric** (`AppSpacing.xs2` per edge) for the same reason — a
+  right-only inset shifts every card off its slot. Everything else on the
+  screen keeps the gutter, including the section header above the rail.
 - **Bottom fade over a scroll view.** The Filter FAB's backdrop is a
   `DecoratedBox` with a `LinearGradient` from `cs.surface` (at ~24 % stop)
   to the same colour at zero alpha, `IgnorePointer`-wrapped and stacked over
@@ -417,10 +440,10 @@ App-level presets under
 | Promo banner | — | `DailyMartPromoCard` + `DailyMartPromoCarousel` |
 | Category tile | — | `DailyMartCategoryTile` |
 
-**Built today** (the shell + Home slice): `DailyMartIconDisc`,
-`DailyMartSectionHeader`, `DailyMartProductCard`, `DailyMartCategoryTile`,
-`DailyMartPromoCard`, `DailyMartSearchBar`, plus the `DailyMartElevation`
-shadow set.
+**Built today** (the shell + Home + Notifications slice): `DailyMartIconDisc`,
+`DailyMartSectionHeader`, `DailyMartHeaderRow`, `DailyMartProductCard`,
+`DailyMartCategoryTile`, `DailyMartPromoCard`, `DailyMartSearchBar`, plus the
+`DailyMartElevation` shadow set.
 
 Every other row above is the pack's **declared spec, not a shipped widget** —
 the name and the values are fixed here so the screen that first needs one

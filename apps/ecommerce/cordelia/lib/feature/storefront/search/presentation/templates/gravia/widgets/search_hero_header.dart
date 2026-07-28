@@ -13,6 +13,10 @@ import 'package:core/core/ui/blocks/header_canvas.dart';
 /// after the route transition settles, so the keyboard doesn't animate up
 /// mid-Hero-flight and fight the field's glide for attention.
 class SearchHeroHeader extends StatelessWidget {
+  /// Scopes the search bar's Hero tag — see [SearchFieldBar.heroTagFor]. Must
+  /// be the same store Home flew from, or the field lands without a flight.
+  final String storeId;
+
   final TextEditingController controller;
   final FocusNode? focusNode;
   final VoidCallback onBack;
@@ -21,6 +25,7 @@ class SearchHeroHeader extends StatelessWidget {
 
   const SearchHeroHeader({
     super.key,
+    required this.storeId,
     required this.controller,
     required this.onBack,
     this.focusNode,
@@ -40,6 +45,7 @@ class SearchHeroHeader extends StatelessWidget {
           const SizedBox(width: AppSpacing.base),
           Expanded(
             child: SearchFieldBar(
+              heroTag: SearchFieldBar.heroTagFor(storeId),
               controller: controller,
               focusNode: focusNode,
               onChanged: onChanged,
