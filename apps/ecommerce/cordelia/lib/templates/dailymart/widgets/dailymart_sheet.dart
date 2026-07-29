@@ -25,7 +25,7 @@ extension DailyMartSheetX<T extends BaseScreen> on BaseScreenState<T> {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
     final hairline =
-        Theme.of(context).extension<AppColorsExtension>()!.sheetHairline;
+        context.appColors.sheetHairline;
 
     return showAppBottomSheet<R>(
       title: title,

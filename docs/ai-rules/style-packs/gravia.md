@@ -514,17 +514,34 @@ route in `lib/app.dart`.
 
 From `core/ui/blocks/` (index in `design.md` §2): `header_canvas`,
 `hero_header`, `collapsing_header_sheet`, `docked_bar`, `docked_bar_overlap`,
-`bottom_nav_bar`, `section_header`, `quantity_stepper`, `chunked_grid`, and the
-`ecommerce/` subfolder (`product_card`, `category_tile`, `product_meta_row`).
+`bottom_nav_bar`, `section_header`, `section_rail` (the header + left-inset
+rail every "Popular Items"/"All Categories"/"Similar Products" section now
+renders), `quantity_stepper`, `chunked_grid`, and the `ecommerce/` subfolder
+(`product_card`, `category_tile`, `product_meta_row`, `price_breakdown` —
+the cart's coupon-slot + lines + divider + total panel).
 
-Every one of these was **contributed by gravia** and promoted out of the app
-once it had no pack-specific styling left. A future pack in the same category
-reuses `ecommerce/` unchanged; a pack in a different category gets its own
-sibling subfolder.
+Every one of these was **contributed by gravia** (or extracted once the
+second template repeated it) and promoted out of the app once it had no
+pack-specific styling left. A future pack in the same category reuses
+`ecommerce/` unchanged; a pack in a different category gets its own sibling
+subfolder. Also from core since the 2026-07-30 reusability sweep:
+`AppSwitcher` (every screen's 300ms skeleton/loaded/error crossfade —
+never a raw `AnimatedSwitcher`), `AppIconCircle` (notification rows, the
+cart status bar's disc), `IconInfoRow` (search suggestion rows, order line
+rows — extended with `trailing`/`onTap` instead of forked), and
+`ShimmerCircleTile` (Home's and Categories' circle-tile skeletons).
 
 ---
 
 ## 13. Wrapper roster (`apps/ecommerce/gravia/lib/widgets/`)
+
+> In `cordelia`'s port of this pack the same roster lives under
+> `lib/templates/gravia/widgets/` with the same `Gravia*` names (the four
+> that had drifted to app-level `Cordelia*` names — hero header, primary
+> button, glass icon button, form field — were moved back and renamed in the
+> 2026-07-30 sweep; only the genuinely template-agnostic
+> `CordeliaAvatarImage` and `HeroSearchFieldFlight` stay in `lib/widgets/`).
+> `GraviaProductGrid` exists in the cordelia port only.
 
 When a gravia screen needs one of these compositions, **render the preset;
 never re-style the underlying atom/block inline.**
@@ -550,6 +567,7 @@ never re-style the underlying atom/block inline.**
 | Profile avatar (any size) | `GraviaAvatarImage` |
 | List thumbnail (cart, order line, search suggestion) | `GraviaListThumbnail` |
 | Single-select option chip | `SelectorChip` |
+| Product grid (2-column, loaded) | `GraviaProductGrid` — the one `ChunkedGrid` + `GraviaProductCard` recipe (lg spacing, top-aligned, '% OFF' label); favourite affordance via optional `isFavourite`/`onFavouriteToggle` params (Favourites passes always-true, Category Details omits both) |
 | Product grid loading skeleton (2-column) | `GraviaProductGridSkeleton` (`padding` param) — never a re-typed `ChunkedGrid`-of-`ShimmerBox` |
 | Hairline / tinted-fill / sheet-text colours | `AppColorsExtension.dockedHairline` / `.sheetHairline` / `.tintedPrimaryFill` / `.onSheetMuted` |
 | Neutral icon-circle / tile fill | `cs.surfaceContainerLow` directly — no app-local swatch or getter |

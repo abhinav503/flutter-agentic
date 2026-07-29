@@ -2,14 +2,16 @@ import 'package:cordelia/constants/value_const.dart';
 import 'package:cordelia/enums/order_status.dart';
 import 'package:cordelia/enums/orders_tab.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_image_const.dart';
+import 'package:cordelia/templates/gravia/constants/gravia_dimen_const.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_value_const.dart';
 import 'package:cordelia/templates/gravia/widgets/gravia_sheet.dart';
-import 'package:cordelia/widgets/cordelia_glass_icon_button.dart';
-import 'package:cordelia/widgets/cordelia_hero_header.dart';
+import 'package:cordelia/templates/gravia/widgets/gravia_glass_icon_button.dart';
+import 'package:cordelia/templates/gravia/widgets/gravia_hero_header.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'package:core/core/ui/atoms/app_switcher.dart';
 import 'package:core/core/base/base_screen.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/blocks/collapsing_header_sheet.dart';
@@ -50,13 +52,12 @@ class _OrdersScreenState extends BaseScreenState<OrdersScreen> {
           showSnackBar(GraviaValueConst.cancelFailedMessage);
         }
       },
-      builder: (context, state) => AnimatedSwitcher(
-        duration: const Duration(milliseconds: 300),
+      builder: (context, state) => AppSwitcher(
         child: switch (state) {
           OrdersLoading() => CollapsingHeaderSheet(
             key: const ValueKey('loading'),
-            initialHeaderHeight: 190,
-            header: CordeliaHeroHeader.page(
+            initialHeaderHeight: GraviaDimenConst.headerHeightTabs,
+            header: GraviaHeroHeader.page(
               title: GraviaValueConst.ordersPageTitle,
               bottomGap: AppSpacing.lg,
               // Static Past tab — real selection/filter data doesn't exist
@@ -103,8 +104,8 @@ class _OrdersScreenState extends BaseScreenState<OrdersScreen> {
 
     return CollapsingHeaderSheet(
       key: const ValueKey('loaded'),
-      initialHeaderHeight: 190,
-      header: CordeliaHeroHeader.page(
+      initialHeaderHeight: GraviaDimenConst.headerHeightTabs,
+      header: GraviaHeroHeader.page(
         title: GraviaValueConst.ordersPageTitle,
         // Always laid out, faded on Upcoming — dropping it to null shrinks
         // the title row by the glass disc's height and the whole header
@@ -115,7 +116,7 @@ class _OrdersScreenState extends BaseScreenState<OrdersScreen> {
           child: AnimatedOpacity(
             opacity: isPast ? 1 : 0,
             duration: OrdersSegmentedTabBar.slideDuration,
-            child: CordeliaGlassIconButton(
+            child: GraviaGlassIconButton(
               asset: GraviaImageConst.filter,
               onTap: () => _showFilterSheet(context, orders, filter),
             ),

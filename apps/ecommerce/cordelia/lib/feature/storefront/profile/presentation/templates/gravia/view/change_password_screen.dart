@@ -1,7 +1,8 @@
+import 'package:cordelia/templates/gravia/constants/gravia_dimen_const.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_value_const.dart';
-import 'package:cordelia/widgets/cordelia_form_field.dart';
-import 'package:cordelia/widgets/cordelia_hero_header.dart';
-import 'package:cordelia/widgets/cordelia_primary_button.dart';
+import 'package:cordelia/templates/gravia/widgets/gravia_form_field.dart';
+import 'package:cordelia/templates/gravia/widgets/gravia_hero_header.dart';
+import 'package:cordelia/templates/gravia/widgets/gravia_primary_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -94,8 +95,8 @@ class _ChangePasswordScreenState extends BaseScreenState<ChangePasswordScreen>
           children: [
             Expanded(
               child: CollapsingHeaderSheet(
-                initialHeaderHeight: 110,
-                header: CordeliaHeroHeader(
+                initialHeaderHeight: GraviaDimenConst.headerHeightCompact,
+                header: GraviaHeroHeader(
                   title: GraviaValueConst.changePasswordTitle,
                   onBack: () => context.pop(),
                 ),
@@ -104,7 +105,7 @@ class _ChangePasswordScreenState extends BaseScreenState<ChangePasswordScreen>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      CordeliaFormField(
+                      GraviaFormField(
                         label: GraviaValueConst.currentPasswordLabel,
                         controller: _currentPasswordController,
                         hint: GraviaValueConst.currentPasswordHint,
@@ -114,7 +115,7 @@ class _ChangePasswordScreenState extends BaseScreenState<ChangePasswordScreen>
                             _clearError(_ChangePasswordField.current),
                       ),
                       const SizedBox(height: AppSpacing.lg),
-                      CordeliaFormField(
+                      GraviaFormField(
                         label: GraviaValueConst.newPasswordLabel,
                         controller: _newPasswordController,
                         hint: GraviaValueConst.newPasswordHint,
@@ -124,7 +125,7 @@ class _ChangePasswordScreenState extends BaseScreenState<ChangePasswordScreen>
                             _clearError(_ChangePasswordField.newPassword),
                       ),
                       const SizedBox(height: AppSpacing.lg),
-                      CordeliaFormField(
+                      GraviaFormField(
                         label: GraviaValueConst.confirmNewPasswordLabel,
                         controller: _confirmPasswordController,
                         hint: GraviaValueConst.confirmNewPasswordHint,
@@ -139,7 +140,7 @@ class _ChangePasswordScreenState extends BaseScreenState<ChangePasswordScreen>
               ),
             ),
             DockedBar(
-              child: CordeliaPrimaryButton(
+              child: GraviaPrimaryButton(
                 label: GraviaValueConst.updatePasswordButtonLabel,
                 state: isSaving ? AppButtonState.loading : AppButtonState.idle,
                 onTap: isSaving ? null : _submit,

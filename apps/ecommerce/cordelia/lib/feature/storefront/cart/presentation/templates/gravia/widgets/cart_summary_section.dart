@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:core/core/theme/app_radius.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/svg_image.dart';
+import 'package:core/core/ui/blocks/ecommerce/price_breakdown.dart';
 import '../../../../domain/entities/cart_item_entity.dart';
 
 /// Coupon row + the Item Total/Discount/Delivery/Grand Total breakdown,
@@ -28,10 +29,8 @@ class CartSummarySection extends StatelessWidget {
     final tt = Theme.of(context).textTheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        GestureDetector(
+    return PriceBreakdown(
+      leading: GestureDetector(
           onTap: onApplyCoupon,
           child: Container(
             padding: const EdgeInsets.symmetric(
@@ -69,8 +68,9 @@ class CartSummarySection extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(height: AppSpacing.xl2),
-        _SummaryRow(
+      leadingGap: AppSpacing.xl2,
+      lines: [
+        PriceLine(
           label: GraviaValueConst.itemTotalLabel,
           value: GraviaValueConst.formattedPrice(items.itemTotal),
           labelStyle: GraviaTextStyleConst.textSmRegular(
@@ -80,8 +80,7 @@ class CartSummarySection extends StatelessWidget {
             tt,
           ).copyWith(color: cs.onSurface),
         ),
-        const SizedBox(height: AppSpacing.base),
-        _SummaryRow(
+        PriceLine(
           label: GraviaValueConst.discountLabel,
           value: GraviaValueConst.formattedPrice(items.discountTotal),
           labelStyle: GraviaTextStyleConst.textSmRegular(
@@ -91,8 +90,7 @@ class CartSummarySection extends StatelessWidget {
             tt,
           ).copyWith(color: cs.primary),
         ),
-        const SizedBox(height: AppSpacing.base),
-        _SummaryRow(
+        PriceLine(
           label: GraviaValueConst.deliveryLabel,
           value: GraviaValueConst.deliveryFreeLabel,
           labelStyle: GraviaTextStyleConst.textSmRegular(
@@ -102,43 +100,18 @@ class CartSummarySection extends StatelessWidget {
             tt,
           ).copyWith(color: cs.primary),
         ),
-        const SizedBox(height: AppSpacing.lg),
-        Divider(color: cs.outlineVariant, height: 1, thickness: 1),
-        const SizedBox(height: AppSpacing.lg),
-        _SummaryRow(
-          label: GraviaValueConst.grandTotalLabel,
-          value: GraviaValueConst.formattedPrice(items.grandTotal),
-          labelStyle: GraviaTextStyleConst.textMdBold(
-            tt,
-          ).copyWith(color: cs.onSurface),
-          valueStyle: GraviaTextStyleConst.textMdBold(
-            tt,
-          ).copyWith(color: cs.onSurface),
-        ),
       ],
+      total: PriceLine(
+        label: GraviaValueConst.grandTotalLabel,
+        value: GraviaValueConst.formattedPrice(items.grandTotal),
+        labelStyle: GraviaTextStyleConst.textMdBold(
+          tt,
+        ).copyWith(color: cs.onSurface),
+        valueStyle: GraviaTextStyleConst.textMdBold(
+          tt,
+        ).copyWith(color: cs.onSurface),
+      ),
+      dividerColor: cs.outlineVariant,
     );
   }
-}
-
-class _SummaryRow extends StatelessWidget {
-  final String label;
-  final String value;
-  final TextStyle labelStyle;
-  final TextStyle valueStyle;
-
-  const _SummaryRow({
-    required this.label,
-    required this.value,
-    required this.labelStyle,
-    required this.valueStyle,
-  });
-
-  @override
-  Widget build(BuildContext context) => Row(
-    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    children: [
-      Text(label, style: labelStyle),
-      Text(value, style: valueStyle),
-    ],
-  );
 }

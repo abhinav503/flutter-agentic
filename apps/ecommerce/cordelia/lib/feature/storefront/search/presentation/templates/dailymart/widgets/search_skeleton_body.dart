@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
 
-import 'package:core/core/theme/app_shapes_extension.dart';
 import 'package:core/core/theme/app_spacing.dart';
-import 'package:core/core/ui/blocks/chunked_grid.dart';
-import 'package:core/core/ui/atoms/shimmer_box.dart';
 import 'package:core/core/ui/molecules/skeleton_rows.dart';
 
-import 'package:cordelia/templates/dailymart/constants/dailymart_dimen_const.dart';
+import 'package:cordelia/templates/dailymart/widgets/dailymart_product_grid_skeleton.dart';
 
 /// Mirrors the browse state's silhouette — recent-search rows, then the
 /// 2-column product grid — so nothing jumps when real data lands. The
@@ -17,9 +14,6 @@ class DailyMartSearchSkeletonBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final shapes =
-        Theme.of(context).extension<AppShapes>() ?? AppShapes.standard;
-    final cardRadius = BorderRadius.circular(shapes.cardRadius);
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
@@ -32,19 +26,7 @@ class DailyMartSearchSkeletonBody extends StatelessWidget {
           const SizedBox(height: AppSpacing.xl4),
           const ShimmerSectionHeader(),
           const SizedBox(height: AppSpacing.lg),
-          ChunkedGrid(
-            itemCount: 4,
-            columns: 2,
-            spacing: AppSpacing.base,
-            runSpacing: AppSpacing.lg,
-            itemBuilder: (context, index) => ShimmerBox(
-              width: double.infinity,
-              height:
-                  DailyMartDimenConst.productImageHeight +
-                  DailyMartDimenConst.productCardChromeHeight,
-              borderRadius: cardRadius,
-            ),
-          ),
+          const DailyMartProductGridSkeleton(itemCount: 4),
         ],
       ),
     );

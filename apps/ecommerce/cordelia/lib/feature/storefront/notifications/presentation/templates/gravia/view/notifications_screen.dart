@@ -1,12 +1,14 @@
 import 'package:cordelia/feature/storefront/template/storefront_template.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_text_style_const.dart';
+import 'package:cordelia/templates/gravia/constants/gravia_dimen_const.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_value_const.dart';
-import 'package:cordelia/widgets/cordelia_hero_header.dart';
+import 'package:cordelia/templates/gravia/widgets/gravia_hero_header.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:core/core/ui/atoms/app_switcher.dart';
 import 'package:core/core/base/base_screen.dart';
 import 'package:core/core/theme/app_colors_extension.dart';
 import 'package:core/core/theme/app_spacing.dart';
@@ -42,8 +44,7 @@ class _NotificationsScreenState extends BaseScreenState<NotificationsScreen> {
           showSnackBar(message);
         }
       },
-      builder: (context, state) => AnimatedSwitcher(
-        duration: const Duration(milliseconds: 300),
+      builder: (context, state) => AppSwitcher(
         child: switch (state) {
           NotificationsLoading() => Container(
             key: const ValueKey('loading'),
@@ -77,14 +78,14 @@ class _NotificationsScreenState extends BaseScreenState<NotificationsScreen> {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
     final sheetHairline =
-        Theme.of(context).extension<AppColorsExtension>()!.sheetHairline;
+        context.appColors.sheetHairline;
 
     return Column(
       children: [
         Expanded(
           child: CollapsingHeaderSheet(
-            initialHeaderHeight: 110,
-            header: CordeliaHeroHeader(
+            initialHeaderHeight: GraviaDimenConst.headerHeightCompact,
+            header: GraviaHeroHeader(
               title: GraviaValueConst.notificationsTitle,
               onBack: () => context.pop(),
             ),

@@ -2,12 +2,14 @@ import 'package:cordelia/constants/app_routes.dart';
 import 'package:cordelia/enums/recent_search_type.dart';
 import 'package:cordelia/feature/storefront/favourites/presentation/cubit/favourites_cubit.dart';
 import 'package:cordelia/feature/storefront/home/presentation/templates/gravia/widgets/home_popular_items_section.dart';
+import 'package:cordelia/templates/gravia/constants/gravia_dimen_const.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_value_const.dart';
 import 'package:cordelia/templates/gravia/widgets/gravia_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:core/core/ui/atoms/app_switcher.dart';
 import 'package:core/core/base/base_screen.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/loading_dots.dart';
@@ -156,16 +158,12 @@ class _SearchScreenState extends BaseScreenState<SearchScreen> {
       // loading → loaded, detaching the focus node and closing the keyboard
       // right after the screen opened. Only the sheet body animates now.
       builder: (context, state) => CollapsingHeaderSheet(
-        initialHeaderHeight: 120,
+        initialHeaderHeight: GraviaDimenConst.headerHeightSearch,
         header: _header(),
-        body: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 300),
-          // The default layout builder centers the child in the available
-          // height — short bodies (a few suggestions) would float mid-sheet.
-          layoutBuilder: (currentChild, previousChildren) => Stack(
-            alignment: Alignment.topCenter,
-            children: [...previousChildren, ?currentChild],
-          ),
+        body: AppSwitcher(
+          // The default layout centers the child in the available height —
+          // short bodies (a few suggestions) would float mid-sheet.
+          topAligned: true,
           child: switch (state) {
             SearchLoading() => const SearchSkeletonBody(
               key: ValueKey('loading'),

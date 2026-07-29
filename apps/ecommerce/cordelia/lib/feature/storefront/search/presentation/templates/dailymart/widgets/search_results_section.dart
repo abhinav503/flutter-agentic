@@ -4,11 +4,13 @@ import 'package:core/core/theme/app_colors_extension.dart';
 import 'package:core/core/theme/app_radius.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/network_image.dart';
+import 'package:core/core/ui/molecules/icon_info_row.dart';
 
 import 'package:cordelia/templates/dailymart/constants/dailymart_image_const.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_text_style_const.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_value_const.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_icon_disc.dart';
+import 'package:cordelia/templates/dailymart/widgets/dailymart_pill.dart';
 
 import '../../../../../home/domain/entities/category_entity.dart';
 import '../../../../../home/domain/entities/product_entity.dart';
@@ -120,54 +122,30 @@ class _ResultRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
+    final rowStyle = DailyMartTextStyleConst.bodySmSemibold(
+      tt,
+    ).copyWith(color: cs.onSurface);
 
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
-        child: Row(
-          children: [
-            ClipRRect(
-              // The pack's list-thumbnail corner (spec sheet §2).
-              borderRadius: AppRadius.sm,
-              child: Container(
-                width: _thumbSize,
-                height: _thumbSize,
-                color: cs.surfaceContainerHighest,
-                child: AppNetworkImage(url: imageUrl, fit: BoxFit.cover),
-              ),
-            ),
-            const SizedBox(width: AppSpacing.base),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    name,
-                    style: DailyMartTextStyleConst.bodySmSemibold(
-                      tt,
-                    ).copyWith(color: cs.onSurface),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  if (subtitle != null) ...[
-                    const SizedBox(height: AppSpacing.xs4),
-                    Text(
-                      subtitle!,
-                      style: DailyMartTextStyleConst.bodySmSemibold(
-                        tt,
-                      ).copyWith(color: cs.onSurface),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-            const SizedBox(width: AppSpacing.base),
-            trailing,
-          ],
+    return IconInfoRow(
+      leading: ClipRRect(
+        // The pack's list-thumbnail corner (spec sheet §2).
+        borderRadius: AppRadius.sm,
+        child: Container(
+          width: _thumbSize,
+          height: _thumbSize,
+          color: cs.surfaceContainerHighest,
+          child: AppNetworkImage(url: imageUrl, fit: BoxFit.cover),
         ),
       ),
+      title: name,
+      titleStyle: rowStyle,
+      titleMaxLines: 1,
+      subtitle: subtitle,
+      subtitleStyle: rowStyle,
+      lineGap: AppSpacing.xs4,
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+      trailing: trailing,
+      onTap: onTap,
     );
   }
 }
@@ -181,22 +159,13 @@ class _CategoryPill extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
-    final fill = Theme.of(
-      context,
-    ).extension<AppColorsExtension>()!.tintedPrimaryFill;
 
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.base,
-        vertical: AppSpacing.xs3,
-      ),
-      decoration: BoxDecoration(color: fill, borderRadius: AppRadius.full),
-      child: Text(
-        DailyMartValueConst.categoryBadge,
-        style: DailyMartTextStyleConst.bodyXsSemibold(
-          tt,
-        ).copyWith(color: cs.primary),
-      ),
+    return DailyMartPill(
+      label: DailyMartValueConst.categoryBadge,
+      color: context.appColors.tintedPrimaryFill,
+      style: DailyMartTextStyleConst.bodyXsSemibold(
+        tt,
+      ).copyWith(color: cs.primary),
     );
   }
 }

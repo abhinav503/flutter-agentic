@@ -1,3 +1,5 @@
+import 'package:core/core/extensions/num_extensions.dart';
+
 /// Copy used only by the `gravia` template's storefront screens — scoped
 /// here rather than the app-wide `ValueConst` so a second template can have
 /// its own wording without touching this one.
@@ -12,11 +14,11 @@ abstract final class GraviaValueConst {
   static const cancel = 'Cancel';
 
   // ── Product card (GraviaProductCard, shared across screens) ──────────────
-  static String formattedPrice(double price) => '\$${price.toStringAsFixed(2)}';
+  static String formattedPrice(double price) => price.asPrice;
   static String discountPercentLabel(double percentage) =>
-      '${percentage.toStringAsFixed(0)}%';
+      '${percentage.asPercent}%';
   static String discountPercentOffLabel(double percentage) =>
-      '${percentage.toStringAsFixed(0)}% OFF';
+      '${percentage.asPercent}% OFF';
   static const addToCart = 'Add To Cart';
   static const addToCartSheetTitle = 'Add to Cart';
 
@@ -67,7 +69,7 @@ abstract final class GraviaValueConst {
   static const productDetailsLoadErrorMessage =
       'Something went wrong loading this product.';
   static String addToCartWithPrice(double price) =>
-      'Add to Cart (\$${price.toStringAsFixed(2)})';
+      'Add to Cart (${price.asPrice})';
 
   // ── Categories ─────────────────────────────────────────────────────────────
   static const categoriesPageTitle = 'Categories';
@@ -194,7 +196,7 @@ abstract final class GraviaValueConst {
   static const exploreLabel = 'Explore';
   static const checkoutLabel = 'Checkout';
   static String cartSummaryLabel(int itemCount, double total) =>
-      '$itemCount item${itemCount > 1 ? 's' : ''} | \$${total.toStringAsFixed(2)}';
+      '$itemCount ${itemCount.plural('item')} | ${total.asPrice}';
 
   // ── Payment (provider-agnostic copy) ─────────────────────────────────────
   static const paymentCancelledMessage = 'Payment cancelled';

@@ -1,14 +1,16 @@
 import 'package:cordelia/constants/app_routes.dart';
 import 'package:cordelia/feature/storefront/active_store/presentation/cubit/active_store_cubit.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_image_const.dart';
+import 'package:cordelia/templates/gravia/constants/gravia_dimen_const.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_value_const.dart';
-import 'package:cordelia/widgets/cordelia_glass_icon_button.dart';
-import 'package:cordelia/widgets/cordelia_hero_header.dart';
+import 'package:cordelia/templates/gravia/widgets/gravia_glass_icon_button.dart';
+import 'package:cordelia/templates/gravia/widgets/gravia_hero_header.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:core/core/ui/atoms/app_switcher.dart';
 import 'package:core/core/base/base_screen.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/blocks/collapsing_header_sheet.dart';
@@ -32,9 +34,9 @@ class _CategoriesScreenState extends BaseScreenState<CategoriesScreen> {
     extra: context.read<ActiveStoreCubit>().state!.storeId,
   );
 
-  Widget _header() => CordeliaHeroHeader.page(
+  Widget _header() => GraviaHeroHeader.page(
     title: GraviaValueConst.categoriesPageTitle,
-    trailing: CordeliaGlassIconButton(
+    trailing: GraviaGlassIconButton(
       asset: GraviaImageConst.search,
       onTap: () => context.push(
         AppRoutes.search,
@@ -58,12 +60,11 @@ class _CategoriesScreenState extends BaseScreenState<CategoriesScreen> {
           showSnackBar(GraviaValueConst.categoriesRefreshFailedMessage);
         }
       },
-      builder: (context, state) => AnimatedSwitcher(
-        duration: const Duration(milliseconds: 300),
+      builder: (context, state) => AppSwitcher(
         child: switch (state) {
           CategoriesLoading() => CollapsingHeaderSheet(
             key: const ValueKey('loading'),
-            initialHeaderHeight: 130,
+            initialHeaderHeight: GraviaDimenConst.headerHeightRegular,
             header: _header(),
             body: const CategoriesSkeletonBody(),
           ),
@@ -78,7 +79,7 @@ class _CategoriesScreenState extends BaseScreenState<CategoriesScreen> {
           ),
           CategoriesLoaded(:final categories) => CollapsingHeaderSheet(
             key: const ValueKey('loaded'),
-            initialHeaderHeight: 130,
+            initialHeaderHeight: GraviaDimenConst.headerHeightRegular,
             header: _header(),
             body: Padding(
               padding: const EdgeInsets.symmetric(vertical: AppSpacing.xl4),

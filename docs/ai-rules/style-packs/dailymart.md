@@ -210,10 +210,13 @@ uses:
   tab is selected (its own `#44BC28` already equals `cs.primary`) and tinted
   only when inactive, which is a state the kit never draws. An outline
   `home` export would remove the special case entirely.
-- **The favourite heart has no filled counterpart** — `heart.svg` is a
-  stroke-only outline, so favouriting is marked by **tint** (`cs.error`)
-  rather than by swapping fill. Same asset serves the Wishlist tab at 24 and
-  the product card at 16.
+- **The favourite heart's filled counterpart is hand-derived, not a kit
+  export** — `heart_filled.svg` fills `heart.svg`'s exact path while keeping
+  the outline's stroke, so the two states share one silhouette and toggling
+  doesn't jump. Favourited renders the filled asset tinted **`cs.primary`**
+  (brand green, not the error red); unmarked stays the outline in ink. Same
+  pair serves the Wishlist tab at 24 (filled while the tab is selected) and
+  the product card / Product Details heart at 16.
 - **`plus.svg` / `minus.svg` are *bare glyphs*** — the disc is **not** baked
   into the export; the container is drawn in Flutter so it restyles with the
   theme: `DailyMartQuantityStepper` draws a radius-4 (`AppRadius.sm`) square
@@ -239,8 +242,9 @@ still reads as one family.
 the location pin and its chevron in Home's header, the static review row's
 person placeholder (Home's avatar falls back to the app-level default
 portrait via `CordeliaAvatarImage`, not a glyph), the placeholder tabs'
-`EmptyState` glyphs, the sheet chrome's close ×, the Filter pill's `tune`,
-the cart row's trash, and the coupon row's discount badge.
+`EmptyState` glyphs, the sheet chrome's close ×, the cart row's trash, and
+the coupon row's discount badge. (The Filter pill's `tune` left this list
+when the pill was removed from Search — see §10.)
 `_rounded`/`_outlined` are the one permitted family because DailyMart's
 glyphs are round-capped outlines — a `_sharp` or filled Material icon here
 is immediately visible and is a review finding.
@@ -274,9 +278,9 @@ rgba(87,111,133,.24)` for the floating Filter FAB. All three live on
 |---|---|---|---|
 | Micro (state flip) | 200 ms | `Curves.easeOut` | nav tab colour, favourite heart, chip selection |
 | Component | 250 ms | `Curves.easeInOut` | promo-carousel page settle, page-indicator dot |
-| Content swap | 300 ms | `Curves.easeInOut` | `AnimatedSwitcher` between skeleton / loaded / error |
+| Content swap | 300 ms | `Curves.easeInOut` | `DailyMartTopSwitcher` (a preset of core's `AppSwitcher`: eased curve + top-aligned in-flight children) between skeleton / loaded / error |
 | Route | 350 ms in, 300 ms out | `Curves.easeInOut` | page transitions (fade — matches cordelia's existing routes) |
-| Shared element | 350 ms in, 300 ms out (rides the route fade) | linear `RectTween` | the search bar's `Hero` flight, Home ↔ Search — both ends tag via `DailyMartSearchBar.heroTagFor(storeId)`; the flight shuttle is a non-interactive copy of `DailyMartSearchFieldBar` (same pattern as gravia §11) |
+| Shared element | 350 ms in, 300 ms out (rides the route fade) | linear `RectTween` | the search bar's `Hero` flight, Home ↔ Search — both ends tag via `DailyMartSearchBar.heroTagFor(storeId)`; the flight mechanics (plain `RectTween`, non-interactive shuttle copy) live once in the app-level `HeroSearchFieldFlight`, shared with gravia |
 | Ambient / looping | 1400 ms | linear | `ShimmerBox` sweep (core's own constant) |
 
 No bounces, no overshoot. The nav tab and its label share the 200 ms micro
@@ -294,7 +298,7 @@ Scaffold (backgroundColor: DailyMartColorConst.canvas(context))
         ├── section         (SectionHeader + rail or grid)
         ├── section
         └── …
-    ⋯ optional floating action pill over a bottom fade  (Search results' "Filter")
+    ⋯ optional floating control over a bottom fade  (the cart status pill)
 BottomNavBar (stacked variant)                    ← shell-owned, not per screen
 ```
 
@@ -303,7 +307,7 @@ BottomNavBar (stacked variant)                    ← shell-owned, not per scree
 | Chrome | **No `AppBar`, ever** | Every screen builds its own header row as the first item in the scroll view. `BasePageState.buildAppBar` returns `null` for all tabs |
 | Scroll behaviour | Everything scrolls away, including the header | This pack has no pinned or collapsing header; `CollapsingHeaderSheet` is not used |
 | Body | Sections separated by `AppSpacing.xl4` | |
-| Persistent action | Floating controls over a bottom `surface→transparent` fade (`DailyMartBottomFade`) | Search results floats the Filter pill; Product Details floats its cart-disc + Add To Cart row (the kit draws both). A full-width *docked bar* is still **not** part of this pack — the Cart screen's checkout CTA (`DailyMartCartCheckoutBar`) is the one docked surface, a slim sheet-cornered region of that screen; the coupon row + totals (`DailyMartCartSummarySection`) scroll with the item cards rather than docking |
+| Persistent action | Floating controls over a bottom `surface→transparent` fade (`DailyMartBottomFade`) | Search floats the cart status pill (both browse and results modes — the kit's Filter pill was removed from Search, see §10); Product Details floats its cart-disc + Add To Cart row. A full-width *docked bar* is still **not** part of this pack — the Cart screen's checkout CTA (`DailyMartCartCheckoutBar`) is the one docked surface, a slim sheet-cornered region of that screen; the coupon row + totals (`DailyMartCartSummarySection`) scroll with the item cards rather than docking |
 | Cart presence outside the shell | `DailyMartCartStatusBar` — the floating-pill signature (primary fill, `floatingAction` shadow) | Screens pushed *outside* the shell (Product Details, Search's browse state) float it while the cart is non-empty; inside the shell the Cart tab itself is the affordance, so the shell never docks it |
 | Global nav | `BottomNavBar(variant: stacked)` — Home / Wishlist / Cart / Profile | Four tabs; the cart **is** a tab here (unlike gravia, where it's a docked status bar). Home, Cart, Search and Product Details are ported; Wishlist and Profile still render an `EmptyState` rather than borrowing gravia's screens, which would put two packs' visual languages on one nav bar |
 
@@ -371,7 +375,12 @@ why they are field-shaped (10 px, bordered) rather than menu-shaped.
 - **The floating Filter pill.** A 120 px green pill with icon + label,
   radius 40, `0 12 12 rgba(87,111,133,.24)` shadow, floating over a
   `surface → transparent` bottom fade so scrolling content dissolves behind
-  it rather than colliding with it.
+  it rather than colliding with it. **Not currently shipped**: it was removed
+  from Search (filtering belongs to Category Details, which this pack hasn't
+  built yet — its dimens `filterPillHeight`/`filterPillRadius`, the
+  filter/sort copy in `DailyMartValueConst`, and `DailyMartRadioSheetContent`
+  are all kept for that screen). Search's floating slot now docks the cart
+  status pill in both browse and results modes.
 
 ---
 
@@ -406,9 +415,13 @@ why they are field-shaped (10 px, bordered) rather than menu-shaped.
 ## 12. Blocks used
 
 From `core/ui/blocks/` — `bottom_nav_bar.dart`, `section_header.dart`,
-`chunked_grid.dart` (the 2-column product grid). From `core/ui/molecules/` —
-`EmptyState`, `ErrorView`. From `core/ui/atoms/` — `AppNetworkImage`,
-`AppIconButton`, `PageIndicator`, `ShimmerBox`, `AppButton`.
+`section_rail.dart` (Home's category rail), `chunked_grid.dart` (via
+`DailyMartProductGrid`), `ecommerce/price_breakdown.dart` (the cart's totals
+panel). From `core/ui/molecules/` — `EmptyState`, `ErrorView`, `IconInfoRow`
+(notification rows, search result/recent rows), `ShimmerListRow` /
+`ShimmerSectionHeader`. From `core/ui/atoms/` — `AppNetworkImage`,
+`AppIconButton` (via `DailyMartIconDisc`), `AppIconCircle`, `AppSwitcher`
+(via `DailyMartTopSwitcher`), `PageIndicator`, `ShimmerBox`, `AppButton`.
 
 **Contributed back to core by this pack** (each defaulting to the prior
 behaviour, so no existing caller changed):
@@ -451,21 +464,29 @@ App-level presets under
 | Back + centered-title / page-title header | — | `DailyMartHeaderRow` — back disc + flexible middle + optional trailing. This pack has no `HeroHeader`/`HeaderCanvas` usage (§8) |
 | Glass / icon header control | `AppIconButton` | `DailyMartIconDisc` (neutral `surfaceContainer` fill) / `.outlined` (transparent + `cs.outline` ring, Home's bell); takes `asset` or `icon`, **no glass** in this pack |
 | Single-select option chip | `AppChip` | `DailyMartChip` |
-| Thumbnail / avatar / info badge | `AppNetworkImage` / `AppBadge` | `DailyMartAvatar` (52 circle), `DailyMartDiscountPill` (error fill, pill, 12/600) |
+| Thumbnail / avatar / info badge | `AppNetworkImage` / `AppBadge` | `DailyMartAvatar` (52 circle), `DailyMartPill` (the pack's one static label pill — radius-full fill, `base` side padding, optional leading glyph and fixed-height mode; instances: the card's error-fill discount badge, Search's tinted category badge, the Reviews frame's amber rating pill) |
 | Quantity or numeric stepper | core atoms (not `QuantityStepper` — that block draws a bordered tinted pill around the controls, and this kit draws no container at all; overriding the pill away would fight every style slot, same §12 reasoning as the product card) | `DailyMartQuantityStepper` — kit `minus.svg` / count at Heading/H5 / kit `plus.svg`, bare on the surface |
-| Loading skeleton body | `ShimmerBox` + a grid/rail | `DailyMartProductGridSkeleton`, `DailyMartCategoryRailSkeleton`, `DailyMartPromoSkeleton` |
+| Loading skeleton body | `ShimmerBox` + a grid/rail | `DailyMartProductGridSkeleton` (the one 2-column grid shimmer — Home, Search and Product Details render it instead of re-inlining `ChunkedGrid` + `ShimmerBox`), `DailyMartCategoryRailSkeleton`, `DailyMartPromoSkeleton` |
 | **Domain card** | core atoms (not `blocks/ecommerce/product_card.dart` — see §12) | `DailyMartProductCard` |
+| Product grid | `ChunkedGrid` | `DailyMartProductGrid` — the bare 2-column recipe (base/lg spacing, top-aligned, favourites watch baked in); Home/Search's popular grid and Product Details' related grid all render it. Headers and gutters stay with the caller |
+| Content-swap transition | `AppSwitcher` | `DailyMartTopSwitcher` — eased curve + top-aligned in-flight children (§7) |
 | Section header with chip action | `SectionHeader` | `DailyMartSectionHeader` — bakes the `bodyLgSemibold` title and the green radius-4 "See all" chip |
 | Promo banner | — | `DailyMartPromoCard` + `DailyMartPromoCarousel` |
 | Category tile | — | `DailyMartCategoryTile` |
 
 **Built today** (the shell + Home + Notifications + Search + Product Details
 + Cart slice): `DailyMartIconDisc`, `DailyMartSectionHeader`,
-`DailyMartHeaderRow`, `DailyMartProductCard`, `DailyMartCategoryTile`,
+`DailyMartHeaderRow`, `DailyMartProductCard`, `DailyMartProductGrid`,
+`DailyMartProductGridSkeleton`, `DailyMartPill`, `DailyMartCategoryTile`,
 `DailyMartPromoCard`, `DailyMartSearchBar`, `DailyMartPrimaryButton`,
-`DailyMartQuantityStepper`, `showDailyMartSheet` (+ the add-to-cart and
-order-placed sheets), `DailyMartRadioSheetContent`, `DailyMartBottomFade`,
-`DailyMartCartStatusBar`, plus the `DailyMartElevation` shadow set. The
+`DailyMartQuantityStepper`, `DailyMartTopSwitcher`, `showDailyMartSheet`
+(+ the add-to-cart and order-placed sheets), `DailyMartRadioSheetContent`
+(no consumer since the Filter sheet left Search — kept for Category
+Details), `DailyMartBottomFade`, `DailyMartCartStatusBar`, plus the
+`DailyMartElevation` shadow set. **Never re-implement `DailyMartIconDisc`
+inline** — three private forks of it (the card's favourite disc, Product
+Details' cart disc, the recent-search close button) have already been found
+and deleted; size/fill/ring are all parameters. The
 sheet chrome rides `AppBottomSheet` through `leading` / `centerTitle` /
 `handleSize` / `headerHeight` / `showCloseAction` params contributed back to
 core (each defaulting to the prior behaviour, per §12's table) —

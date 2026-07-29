@@ -42,6 +42,32 @@ WidgetbookCategory moleculesCategory() {
             ),
             width: 320,
           ),
+          Variant(
+            'Tappable list row',
+            Builder(
+              builder: (context) {
+                final cs = Theme.of(context).colorScheme;
+                return IconInfoRow(
+                  leading: Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: cs.surfaceContainerHighest,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    alignment: Alignment.center,
+                    child: Icon(Icons.image_outlined, color: cs.onSurfaceVariant),
+                  ),
+                  title: 'Fresh Avocado',
+                  titleMaxLines: 1,
+                  subtitle: r'$4.99',
+                  trailing: Icon(Icons.chevron_right, color: cs.onSurfaceVariant),
+                  onTap: () {},
+                );
+              },
+            ),
+            width: 320,
+          ),
         ]),
       ),
       allVariants(
@@ -65,6 +91,23 @@ WidgetbookCategory moleculesCategory() {
           Variant(
             'Title + action chip',
             const ShimmerSectionHeader(),
+            width: 320,
+          ),
+        ]),
+      ),
+      allVariants(
+        'ShimmerCircleTile',
+        (context) => showcase(context, [
+          Variant(
+            'Category-tile silhouette',
+            const Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ShimmerCircleTile(),
+                ShimmerCircleTile(labelWidth: 40),
+                ShimmerCircleTile(),
+              ],
+            ),
             width: 320,
           ),
         ]),

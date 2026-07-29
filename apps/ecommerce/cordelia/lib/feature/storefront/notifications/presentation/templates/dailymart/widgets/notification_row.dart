@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:core/core/theme/app_spacing.dart';
+import 'package:core/core/ui/atoms/icon_circle.dart';
 import 'package:core/core/ui/atoms/svg_image.dart';
 import 'package:core/core/ui/molecules/icon_info_row.dart';
 
@@ -78,14 +79,9 @@ class NotificationRow extends StatelessWidget {
 
     return IconInfoRow(
       gap: AppSpacing.lg,
-      leading: Container(
-        width: _discSize,
-        height: _discSize,
-        decoration: BoxDecoration(
-          color: cs.surfaceContainerHighest,
-          shape: BoxShape.circle,
-        ),
-        alignment: Alignment.center,
+      leading: AppIconCircle(
+        size: _discSize,
+        color: cs.surfaceContainerHighest,
         child: _glyph(glyphColor),
       ),
       title: notification.title,

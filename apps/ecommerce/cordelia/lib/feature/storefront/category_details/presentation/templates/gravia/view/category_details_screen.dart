@@ -4,8 +4,9 @@ import 'package:cordelia/enums/product_sort_option.dart';
 import 'package:cordelia/feature/storefront/cart/domain/entities/cart_item_entity.dart';
 import 'package:cordelia/feature/storefront/cart/presentation/cubit/cart_cubit.dart';
 import 'package:cordelia/feature/storefront/cart/presentation/templates/gravia/widgets/cart_status_bar.dart';
+import 'package:cordelia/templates/gravia/constants/gravia_dimen_const.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_value_const.dart';
-import 'package:cordelia/templates/gravia/widgets/gravia_product_card.dart';
+import 'package:cordelia/templates/gravia/widgets/gravia_product_grid.dart';
 import 'package:cordelia/templates/gravia/widgets/gravia_product_grid_skeleton.dart';
 import 'package:cordelia/templates/gravia/widgets/gravia_sheet.dart';
 import 'package:cordelia/templates/gravia/widgets/radio_options_sheet_content.dart';
@@ -14,9 +15,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:core/core/ui/atoms/app_switcher.dart';
 import 'package:core/core/base/base_screen.dart';
 import 'package:core/core/theme/app_spacing.dart';
-import 'package:core/core/ui/blocks/chunked_grid.dart';
 import 'package:core/core/ui/blocks/collapsing_header_sheet.dart';
 import 'package:core/core/ui/molecules/empty_state.dart';
 import 'package:core/core/ui/molecules/error_view.dart';
@@ -70,12 +71,11 @@ class _CategoryDetailsScreenState
           showSnackBar(message);
         }
       },
-      builder: (context, state) => AnimatedSwitcher(
-        duration: const Duration(milliseconds: 300),
+      builder: (context, state) => AppSwitcher(
         child: switch (state) {
           CategoryDetailsLoading() => CollapsingHeaderSheet(
             key: const ValueKey('loading'),
-            initialHeaderHeight: 165,
+            initialHeaderHeight: GraviaDimenConst.headerHeightChips,
             header: CategoryDetailsHeroHeader(
               categoryName: widget.categoryName,
               sort: ProductSortOption.relevance,
@@ -131,7 +131,7 @@ class _CategoryDetailsScreenState
       children: [
         Expanded(
           child: CollapsingHeaderSheet(
-            initialHeaderHeight: 165,
+            initialHeaderHeight: GraviaDimenConst.headerHeightChips,
             header: CategoryDetailsHeroHeader(
               categoryName: state.categoryName,
               sort: state.sort,
@@ -180,14 +180,11 @@ class _CategoryDetailsScreenState
                       iconData: Icons.filter_alt_off_outlined,
                       title: GraviaValueConst.categoryDetailsEmptyMessage,
                     )
-                  : ChunkedGrid(
-                      itemCount: products.length,
-                      columns: 2,
-                      spacing: AppSpacing.lg,
-                      runSpacing: AppSpacing.lg,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      itemBuilder: (context, index) =>
-                          _productCard(context, products[index]),
+                  : GraviaProductGrid(
+                      products: products,
+                      onAddToCart: _addToCart,
+                      onQuickAdd: _showAddToCartSheet,
+                      onProductTap: _openProductDetails,
                     ),
             ),
           ),
@@ -209,16 +206,4 @@ class _CategoryDetailsScreenState
       ],
     );
   }
-
-  Widget _productCard(BuildContext context, ProductEntity product) =>
-      GraviaProductCard(
-        product: product,
-        // '% OFF' per this screen's denser grid spec (rails use plain '%').
-        discountLabel: GraviaValueConst.discountPercentOffLabel(
-          product.discountPercentage,
-        ),
-        onAddToCart: () => _addToCart(product, 1),
-        onQuickAdd: () => _showAddToCartSheet(product),
-        onTap: () => _openProductDetails(product),
-      );
 }

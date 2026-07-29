@@ -1,8 +1,9 @@
+import 'package:cordelia/templates/gravia/constants/gravia_dimen_const.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_value_const.dart';
 import 'package:cordelia/templates/gravia/widgets/gravia_sheet.dart';
-import 'package:cordelia/widgets/cordelia_form_field.dart';
-import 'package:cordelia/widgets/cordelia_hero_header.dart';
-import 'package:cordelia/widgets/cordelia_primary_button.dart';
+import 'package:cordelia/templates/gravia/widgets/gravia_form_field.dart';
+import 'package:cordelia/templates/gravia/widgets/gravia_hero_header.dart';
+import 'package:cordelia/templates/gravia/widgets/gravia_primary_button.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -146,8 +147,8 @@ class _EditProfileScreenState extends BaseScreenState<EditProfileScreen>
           children: [
             Expanded(
               child: CollapsingHeaderSheet(
-                initialHeaderHeight: 110,
-                header: CordeliaHeroHeader(
+                initialHeaderHeight: GraviaDimenConst.headerHeightCompact,
+                header: GraviaHeroHeader(
                   title: GraviaValueConst.editProfileTitle,
                   onBack: () => context.pop(),
                 ),
@@ -197,7 +198,7 @@ class _EditProfileScreenState extends BaseScreenState<EditProfileScreen>
               ),
             ),
             DockedBar(
-              child: CordeliaPrimaryButton(
+              child: GraviaPrimaryButton(
                 label: GraviaValueConst.updateProfileButtonLabel,
                 state: isSaving
                     ? AppButtonState.loading
@@ -219,7 +220,7 @@ class _EditProfileScreenState extends BaseScreenState<EditProfileScreen>
     String? hint,
     bool enabled = true,
   }) {
-    return CordeliaFormField(
+    return GraviaFormField(
       label: label,
       controller: controller,
       hint: hint,

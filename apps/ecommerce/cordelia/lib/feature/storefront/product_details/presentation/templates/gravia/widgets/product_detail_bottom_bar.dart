@@ -4,7 +4,7 @@ import 'package:cordelia/feature/storefront/cart/presentation/cubit/cart_cubit.d
 import 'package:cordelia/feature/storefront/cart/presentation/templates/gravia/widgets/cart_status_bar.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_value_const.dart';
 import 'package:cordelia/templates/gravia/widgets/gravia_quantity_stepper.dart';
-import 'package:cordelia/widgets/cordelia_primary_button.dart';
+import 'package:cordelia/templates/gravia/widgets/gravia_primary_button.dart';
 import 'package:flutter/material.dart';
 
 import 'package:core/core/theme/app_spacing.dart';
@@ -51,13 +51,13 @@ class ProductDetailBottomBar extends StatelessWidget {
             children: [
               GraviaQuantityStepper(
                 value: quantity,
-                height: CordeliaPrimaryButton.barHeight,
+                height: GraviaPrimaryButton.barHeight,
                 onDecrement: onDecrement,
                 onIncrement: onIncrement,
               ),
               const SizedBox(width: AppSpacing.base),
               Expanded(
-                child: CordeliaPrimaryButton(
+                child: GraviaPrimaryButton(
                   label: GraviaValueConst.addToCartWithPrice(unitPrice * quantity),
                   onTap: onAddToCart,
                 ),

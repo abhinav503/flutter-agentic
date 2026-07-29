@@ -9,23 +9,14 @@ import '../../home/domain/entities/product_entity.dart';
 import 'bloc/product_details_bloc.dart';
 
 /// The screen logic every template's Product Details repeats identically —
-/// quantity selection, add-to-cart, self-push navigation, and load retry.
+/// add-to-cart, self-push navigation, and load retry. Quantity state lives
+/// in the separate `QuantitySelection` mixin (which the add-to-cart sheets
+/// also use), so hosts declare `with QuantitySelection, ProductDetailsActions`.
 /// Only the layouts differ per pack, so this lives once beside the shared
 /// bloc, same split as `SelectedAddressLabelState`.
 mixin ProductDetailsActions<T extends StatefulWidget> on State<T> {
   /// The store this details screen is scoped to — the host's routing param.
   String get storeId;
-
-  int quantity = 1;
-
-  void incrementQuantity() => setState(() => quantity++);
-
-  /// Null once [quantity] is at its floor of 1 — steppers take this directly
-  /// as their decrement callback, so the disabled state falls out for free.
-  VoidCallback? get decrementQuantity =>
-      quantity > 1 ? () => setState(() => quantity--) : null;
-
-  void resetQuantity() => setState(() => quantity = 1);
 
   void addToCart(ProductEntity product, int qty) =>
       context.read<CartCubit>().addToCart(product, qty);

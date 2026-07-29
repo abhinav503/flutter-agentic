@@ -8,7 +8,7 @@ import 'package:core/core/ui/blocks/collapsing_header_sheet.dart';
 
 import 'package:cordelia/templates/gravia/constants/gravia_color_const.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_text_style_const.dart';
-import 'package:cordelia/widgets/cordelia_hero_header.dart';
+import 'package:cordelia/templates/gravia/widgets/gravia_hero_header.dart';
 
 import 'legal_document_content.dart';
 
@@ -40,7 +40,7 @@ class _LegalDocumentScreenState extends BaseScreenState<LegalDocumentScreen> {
         Expanded(
           child: CollapsingHeaderSheet(
             initialHeaderHeight: 110,
-            header: CordeliaHeroHeader(
+            header: GraviaHeroHeader(
               title: widget.content.title,
               onBack: () => context.pop(),
             ),

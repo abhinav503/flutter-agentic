@@ -1,5 +1,6 @@
 import 'package:core/core/ui/atoms/icon_button.dart';
 import 'package:core/core/ui/blocks/ecommerce/category_tile.dart';
+import 'package:core/core/ui/blocks/ecommerce/price_breakdown.dart';
 import 'package:core/core/ui/blocks/ecommerce/product_card.dart';
 import 'package:flutter/material.dart';
 import 'package:widgetbook/widgetbook.dart';
@@ -10,6 +11,23 @@ WidgetbookFolder ecommerceBlocksFolder() {
   return WidgetbookFolder(
     name: 'Ecommerce',
     children: [
+      allVariants(
+        'PriceBreakdown',
+        (context) => showcase(context, [
+          Variant(
+            'Cart totals',
+            const PriceBreakdown(
+              lines: [
+                PriceLine(label: 'Item Total', value: r'$24.50'),
+                PriceLine(label: 'Discount', value: r'$3.20'),
+                PriceLine(label: 'Delivery', value: 'Free'),
+              ],
+              total: PriceLine(label: 'Grand Total', value: r'$21.30'),
+            ),
+            width: 320,
+          ),
+        ]),
+      ),
       allVariants(
         'ProductCard',
         (context) => showcaseGrid(context, [

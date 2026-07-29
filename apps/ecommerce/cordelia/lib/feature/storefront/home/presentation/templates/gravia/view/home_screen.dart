@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'package:core/core/ui/atoms/app_switcher.dart';
 import 'package:core/core/base/base_screen.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/blocks/collapsing_header_sheet.dart';
@@ -91,8 +92,7 @@ class _HomeScreenState extends BaseScreenState<HomeScreen>
           onNotificationTap: () => context.push(AppRoutes.notifications),
           onSearchTap: () => context.push(AppRoutes.search, extra: _storeId),
         ),
-        body: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 300),
+        body: AppSwitcher(
           child: switch (state) {
             HomeLoading() => const HomeSkeletonBody(
               key: ValueKey('loading'),

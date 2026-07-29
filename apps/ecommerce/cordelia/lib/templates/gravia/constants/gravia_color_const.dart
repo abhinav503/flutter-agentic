@@ -32,7 +32,7 @@ abstract final class GraviaColorConst {
 /// derived ternaries but are now real theme data on core's
 /// `AppColorsExtension` (set from this template's `gravia` preset in
 /// `app_theme_presets.dart`) — read them via
-/// `Theme.of(context).extension<AppColorsExtension>()!.dockedHairline` etc.,
+/// `context.appColors.dockedHairline` etc.,
 /// not from `ColorScheme`. `tintedErrorFill` stays here: it's a single-caller
 /// (Select Address's Delete pill), error-specific value, not a cross-cutting
 /// role other packs would need.

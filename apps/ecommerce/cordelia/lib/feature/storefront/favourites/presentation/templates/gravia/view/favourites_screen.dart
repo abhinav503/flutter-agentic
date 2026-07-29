@@ -1,11 +1,12 @@
 import 'package:cordelia/constants/app_routes.dart';
 import 'package:cordelia/feature/storefront/active_store/presentation/cubit/active_store_cubit.dart';
 import 'package:cordelia/feature/storefront/cart/presentation/cubit/cart_cubit.dart';
+import 'package:cordelia/templates/gravia/constants/gravia_dimen_const.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_value_const.dart';
-import 'package:cordelia/templates/gravia/widgets/gravia_product_card.dart';
+import 'package:cordelia/templates/gravia/widgets/gravia_product_grid.dart';
 import 'package:cordelia/templates/gravia/widgets/gravia_product_grid_skeleton.dart';
 import 'package:cordelia/templates/gravia/widgets/gravia_sheet.dart';
-import 'package:cordelia/widgets/cordelia_hero_header.dart';
+import 'package:cordelia/templates/gravia/widgets/gravia_hero_header.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -13,7 +14,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:core/core/base/base_screen.dart';
 import 'package:core/core/theme/app_spacing.dart';
-import 'package:core/core/ui/blocks/chunked_grid.dart';
+import 'package:core/core/ui/atoms/app_switcher.dart';
 import 'package:core/core/ui/blocks/collapsing_header_sheet.dart';
 import 'package:core/core/ui/molecules/empty_state.dart';
 
@@ -45,7 +46,7 @@ class _FavouritesScreenState extends BaseScreenState<FavouritesScreen> {
       showGraviaAddToCartSheet(product: product, onAddToCart: _addToCart);
 
   Widget _header() =>
-      CordeliaHeroHeader.page(title: GraviaValueConst.favouritePageTitle);
+      GraviaHeroHeader.page(title: GraviaValueConst.favouritePageTitle);
 
   @override
   SystemUiOverlayStyle? overlayStyle(BuildContext context) =>
@@ -55,8 +56,7 @@ class _FavouritesScreenState extends BaseScreenState<FavouritesScreen> {
   Widget body(BuildContext context) {
     final state = context.watch<FavouritesCubit>().state;
 
-    return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 300),
+    return AppSwitcher(
       // isLoading only ever reads true before ShellPage.initState's
       // hydrate resolves — there's no warm cache to seed from (unlike
       // HomeBloc/AddressBloc), so a shopper who opens this tab first sees
@@ -64,13 +64,13 @@ class _FavouritesScreenState extends BaseScreenState<FavouritesScreen> {
       child: state.isLoading
           ? CollapsingHeaderSheet(
               key: const ValueKey('loading'),
-              initialHeaderHeight: 130,
+              initialHeaderHeight: GraviaDimenConst.headerHeightRegular,
               header: _header(),
               body: const GraviaProductGridSkeleton(),
             )
           : CollapsingHeaderSheet(
               key: const ValueKey('loaded'),
-              initialHeaderHeight: 130,
+              initialHeaderHeight: GraviaDimenConst.headerHeightRegular,
               header: _header(),
               body: Padding(
                 padding: const EdgeInsets.all(AppSpacing.lg),
@@ -80,30 +80,19 @@ class _FavouritesScreenState extends BaseScreenState<FavouritesScreen> {
                         title: GraviaValueConst.favouriteEmptyTitle,
                         subtitle: GraviaValueConst.favouriteEmptySubtitle,
                       )
-                    : ChunkedGrid(
-                        itemCount: state.items.length,
-                        columns: 2,
-                        spacing: AppSpacing.lg,
-                        runSpacing: AppSpacing.lg,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        itemBuilder: (context, index) =>
-                            _productCard(state.items[index]),
+                    : GraviaProductGrid(
+                        products: state.items,
+                        onAddToCart: _addToCart,
+                        onQuickAdd: _showAddToCartSheet,
+                        onProductTap: _openProductDetails,
+                        // Every card here is a favourite by definition —
+                        // toggling always removes.
+                        isFavourite: (_) => true,
+                        onFavouriteToggle: (product) =>
+                            context.read<FavouritesCubit>().toggle(product),
                       ),
               ),
             ),
     );
   }
-
-  Widget _productCard(ProductEntity product) => GraviaProductCard(
-    product: product,
-    discountLabel: GraviaValueConst.discountPercentOffLabel(
-      product.discountPercentage,
-    ),
-    onAddToCart: () => _addToCart(product, 1),
-    onQuickAdd: () => _showAddToCartSheet(product),
-    onTap: () => _openProductDetails(product),
-    // Every card here is a favourite by definition — toggling always removes.
-    isFavourite: true,
-    onFavouriteToggle: () => context.read<FavouritesCubit>().toggle(product),
-  );
 }

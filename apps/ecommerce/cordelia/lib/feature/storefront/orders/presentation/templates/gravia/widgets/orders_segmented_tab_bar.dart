@@ -24,7 +24,7 @@ class OrdersSegmentedTabBar extends StatelessWidget {
   /// in sync with the pill's slide.
   static const slideDuration = Duration(milliseconds: 250);
 
-  // Matches the app's other fixed control heights (CordeliaGlassIconButton's
+  // Matches the app's other fixed control heights (GraviaGlassIconButton's
   // disc, GraviaTintedButton). Pinned explicitly rather than left to intrinsic
   // sizing: a Stack, unlike the Row this replaced, only sizes itself from its
   // non-positioned child (the Row) — nesting the pill-sliding Positioned.fill
@@ -120,9 +120,7 @@ class _SegmentLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
-    final onOverlay = Theme.of(
-      context,
-    ).extension<AppColorsExtension>()!.onOverlay;
+    final onOverlay = context.appColors.onOverlay;
 
     return GestureDetector(
       onTap: onTap,

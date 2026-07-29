@@ -3,7 +3,7 @@ import 'package:cordelia/templates/gravia/constants/gravia_image_const.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_text_style_const.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_value_const.dart';
 import 'package:cordelia/templates/gravia/widgets/search_field_bar.dart';
-import 'package:cordelia/widgets/cordelia_glass_icon_button.dart';
+import 'package:cordelia/templates/gravia/widgets/gravia_glass_icon_button.dart';
 import 'package:flutter/material.dart';
 
 import 'package:core/core/theme/app_spacing.dart';
@@ -61,7 +61,7 @@ class _HomeHeroHeaderState extends State<HomeHeroHeader> {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CordeliaGlassIconButton(
+              GraviaGlassIconButton(
                 asset: GraviaImageConst.locationIcon,
                 iconSize: _iconSize,
                 onTap: widget.onLocationTap,
@@ -106,7 +106,7 @@ class _HomeHeroHeaderState extends State<HomeHeroHeader> {
                   ),
                 ),
               ),
-              CordeliaGlassIconButton(
+              GraviaGlassIconButton(
                 asset: GraviaImageConst.notification,
                 iconSize: _iconSize,
                 onTap: widget.onNotificationTap,

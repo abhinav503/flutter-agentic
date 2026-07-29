@@ -5,6 +5,7 @@ import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/svg_image.dart';
 import 'package:core/core/ui/atoms/text_field.dart';
 
+import 'package:cordelia/widgets/hero_search_field_flight.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_dimen_const.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_image_const.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_value_const.dart';
@@ -39,35 +40,11 @@ class DailyMartSearchFieldBar extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    return Hero(
-      tag: heroTag,
-      createRectTween: (begin, end) => RectTween(begin: begin, end: end),
-      // The shuttle is a non-interactive copy: the live field's FocusNode
-      // must stay out of the overlay (Search requests focus the moment the
-      // route settles, mid-dismount of the shuttle), and a TextFormField in
-      // the overlay has no Material ancestor without the wrapper.
-      flightShuttleBuilder:
-          (
-            flightContext,
-            animation,
-            direction,
-            fromHeroContext,
-            toHeroContext,
-          ) => Material(
-            type: MaterialType.transparency,
-            child: ExcludeFocus(
-              child: AbsorbPointer(
-                child: _buildBar(flightContext, interactive: false),
-              ),
-            ),
-          ),
-      child: Material(
-        type: MaterialType.transparency,
-        child: _buildBar(context, interactive: true),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => HeroSearchFieldFlight(
+    tag: heroTag,
+    barBuilder: (context, {required interactive}) =>
+        _buildBar(context, interactive: interactive),
+  );
 
   Widget _buildBar(BuildContext context, {required bool interactive}) {
     final cs = Theme.of(context).colorScheme;

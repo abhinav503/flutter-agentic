@@ -6,6 +6,8 @@ import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/shimmer_box.dart';
 import 'package:core/core/ui/blocks/chunked_grid.dart';
 
+import '../constants/gravia_dimen_const.dart';
+
 /// Skeleton silhouette of a 2-column [ChunkedGrid] of [GraviaProductCard]s —
 /// shared by every gravia screen whose loading state IS a product grid
 /// (Favourites, Category Details) so the recipe can't drift between them.
@@ -36,7 +38,7 @@ class GraviaProductGridSkeleton extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         itemBuilder: (context, index) => ShimmerBox(
           width: double.infinity,
-          height: 260,
+          height: GraviaDimenConst.gridCardSkeletonHeight,
           borderRadius: cardRadius,
         ),
       ),

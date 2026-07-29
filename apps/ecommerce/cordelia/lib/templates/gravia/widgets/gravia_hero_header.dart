@@ -7,10 +7,10 @@ import 'package:core/core/ui/blocks/hero_header.dart';
 import 'package:cordelia/constants/image_const.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_text_style_const.dart';
 
-import 'cordelia_glass_icon_button.dart';
+import 'gravia_glass_icon_button.dart';
 
 /// Gravia's title styling on core's [HeroHeader] — the pack's specific
-/// leading control ([CordeliaGlassIconButton]) and title text styles
+/// leading control ([GraviaGlassIconButton]) and title text styles
 /// (`GraviaTextStyleConst.textLgBold`/`textXlBold`) baked in, so screens never
 /// re-supply them. The layout/centering/canvas mechanics (invisible spacer,
 /// `bottom` row, `HeaderCanvas` padding) live in core and are shared by any
@@ -18,7 +18,7 @@ import 'cordelia_glass_icon_button.dart';
 ///
 /// - default: glass back button + centered title (+ optional [trailing]
 ///   glass action).
-/// - [CordeliaHeroHeader.page]: left-aligned XL page title (+ optional
+/// - [GraviaHeroHeader.page]: left-aligned XL page title (+ optional
 ///   [trailing]) for tab roots that aren't pushed routes (Categories,
 ///   Profile) — no back button.
 ///
@@ -26,13 +26,13 @@ import 'cordelia_glass_icon_button.dart';
 /// (Category Details' filter chips, Profile's identity row).
 ///
 /// ```dart
-/// CordeliaHeroHeader(title: ValueConst.myCartTitle, onBack: () => context.pop())
-/// CordeliaHeroHeader.page(
+/// GraviaHeroHeader(title: ValueConst.myCartTitle, onBack: () => context.pop())
+/// GraviaHeroHeader.page(
 ///   title: ValueConst.categoriesPageTitle,
-///   trailing: CordeliaGlassIconButton(asset: ImageConst.search, onTap: ...),
+///   trailing: GraviaGlassIconButton(asset: ImageConst.search, onTap: ...),
 /// )
 /// ```
-class CordeliaHeroHeader extends StatelessWidget {
+class GraviaHeroHeader extends StatelessWidget {
   final String title;
   final VoidCallback? onBack;
   final Widget? trailing;
@@ -46,7 +46,7 @@ class CordeliaHeroHeader extends StatelessWidget {
 
   final bool _pageTitle;
 
-  const CordeliaHeroHeader({
+  const GraviaHeroHeader({
     super.key,
     required this.title,
     required VoidCallback this.onBack,
@@ -56,7 +56,7 @@ class CordeliaHeroHeader extends StatelessWidget {
     this.canvasBottomPadding = AppSpacing.xl2,
   }) : _pageTitle = false;
 
-  const CordeliaHeroHeader.page({
+  const GraviaHeroHeader.page({
     super.key,
     required this.title,
     this.trailing,
@@ -72,9 +72,7 @@ class CordeliaHeroHeader extends StatelessWidget {
     // Always white regardless of theme — this sits on the primary canvas, so
     // it must stay legible in both modes rather than following `onPrimary`,
     // which can flip dark in dark mode.
-    final onOverlay = Theme.of(
-      context,
-    ).extension<AppColorsExtension>()!.onOverlay;
+    final onOverlay = context.appColors.onOverlay;
 
     return _pageTitle
         ? HeroHeader.page(
@@ -88,11 +86,11 @@ class CordeliaHeroHeader extends StatelessWidget {
         : HeroHeader(
             title: title,
             titleStyle: GraviaTextStyleConst.textLgBold(tt).copyWith(color: onOverlay),
-            leading: CordeliaGlassIconButton(
+            leading: GraviaGlassIconButton(
               asset: ImageConst.arrowLeft,
               onTap: onBack,
             ),
-            leadingBalanceWidth: CordeliaGlassIconButton.containerSize,
+            leadingBalanceWidth: GraviaGlassIconButton.containerSize,
             trailing: trailing,
             bottom: bottom,
             bottomGap: bottomGap,

@@ -5,6 +5,8 @@ import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/network_image.dart';
 import 'package:core/core/ui/atoms/page_indicator.dart';
 
+import 'package:cordelia/templates/gravia/constants/gravia_dimen_const.dart';
+
 class ProductDetailImageCarousel extends StatefulWidget {
   final List<String> images;
 
@@ -37,7 +39,7 @@ class _ProductDetailImageCarouselState
         ClipRRect(
           borderRadius: BorderRadius.circular(shapes.cardRadius),
           child: SizedBox(
-            height: 300,
+            height: GraviaDimenConst.detailImageHeight,
             width: double.infinity,
             child: PageView.builder(
               controller: _pageController,

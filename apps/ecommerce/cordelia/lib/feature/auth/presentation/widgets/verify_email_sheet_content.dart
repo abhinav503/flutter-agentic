@@ -93,9 +93,7 @@ class _VerifyEmailSheetContentState extends State<VerifyEmailSheetContent> {
                   height: 3,
                   margin: const EdgeInsets.only(bottom: AppSpacing.xl4),
                   decoration: BoxDecoration(
-                    color: Theme.of(
-                      context,
-                    ).extension<AppColorsExtension>()!.sheetHairline,
+                    color: context.appColors.sheetHairline,
                     borderRadius: AppRadius.full,
                   ),
                 ),
@@ -112,11 +110,9 @@ class _VerifyEmailSheetContentState extends State<VerifyEmailSheetContent> {
                 Text(
                   ValueConst.verifyEmailSubtitle(widget.email),
                   textAlign: TextAlign.center,
-                  style: GraviaTextStyleConst.textSmRegular(tt).copyWith(
-                    color: Theme.of(context)
-                        .extension<AppColorsExtension>()!
-                        .onSheetMuted,
-                  ),
+                  style: GraviaTextStyleConst.textSmRegular(
+                    tt,
+                  ).copyWith(color: context.appColors.onSheetMuted),
                 ),
                 const SizedBox(height: AppSpacing.xl2),
                 Row(

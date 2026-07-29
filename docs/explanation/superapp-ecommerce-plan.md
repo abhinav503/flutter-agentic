@@ -437,10 +437,63 @@ overrides), and `BaseScreenState.overlayStyle` (all 15 hand-rolled
 `AnnotatedRegion` wrappers replaced; new forbidden-pattern rule synced to
 every agent surface).
 
-**Remaining for dailymart parity**: Wishlist/Cart/Profile tab screens;
-dailymart's own Search/Product Details/Category Details (those routes still
-open gravia screens); per-store notifications from the backend (bundled
-per-template mock today).
+**Remaining for dailymart parity** *(updated 2026-07-30)*: Wishlist/Profile
+tabs (designed coming-soon states today); dailymart's own Category Details
+and the checkout's Select Address / Address Form (those routes still open
+gravia screens); per-store notifications from the backend (bundled
+per-template mock today). Search, Product Details, and Cart shipped — see
+the next section for the reusability sweep that followed them.
+
+## Template reusability sweep + dailymart polish — DONE (2026-07-30)
+
+A full duplication/violation audit across both templates (per
+`docs/how-to/review-code.md`), then everything actioned with zero visual
+change. Workspace `flutter analyze` clean; cordelia + core tests green.
+
+**dailymart product decisions:**
+- **Filter removed from Search** — filtering belongs to Category Details
+  (unbuilt); Search's floating slot now docks the cart status pill in both
+  browse and results modes. The pill's dimens, the filter/sort copy, and
+  `DailyMartRadioSheetContent` are kept for that future screen (spec sheet
+  §10 records the decision).
+- **Filled favourite heart** — `heart_filled.svg` hand-derived from the
+  outline's exact path (same silhouette, no toggle jump). Favourited state
+  tints `cs.primary` (brand green) on the product card, Product Details'
+  header disc, and the Wishlist tab's active glyph.
+
+**Promoted to core** (each with a design_gallery entry): `SectionRail`
+(header + left-gutter-only horizontal rail — 4 hand-rolled copies deleted),
+`PriceBreakdown` + `PriceLine` (`blocks/ecommerce/` — both carts' totals
+panels and their byte-identical `_SummaryRow`s), `AppIconCircle`
+(non-interactive tinted disc; 5 sites incl. inside core's own
+`AppMenuTile`), `AppSwitcher` (standard 300ms fade with `curve`/`topAligned`
+— 11 raw `AnimatedSwitcher`s converted; `DailyMartTopSwitcher` is now a thin
+preset), `ShimmerCircleTile`, an extended `IconInfoRow`
+(`onTap`/`trailing`/optional subtitle — its 4 private forks deleted),
+`num_extensions.dart` (`asPrice`/`asPercent`/`plural` — fixed gravia's
+"0 item" cart label as a side effect), and a `context.appColors` accessor
+(34 hand-typed `Theme.of(context).extension<…>()!` lookups migrated).
+
+**Shared within cordelia:** `StorefrontShellPage` + `StorefrontShellState`
+(both shells' byte-identical tab state, `didUpdateWidget` reaction, and
+cart/favourites hydration; `svgNavIcon` helper), `QuantitySelection` mixin
+(floor-of-1 stepper state — Product Details + both add-to-cart sheets),
+`CartItemEntity.lineTotal`, `HeroSearchFieldFlight` (both packs' search-bar
+hero mechanics — rect tween + inert shuttle copy — with a `shuttleWrapper`
+slot for gravia's painted canvas), per-pack product grids
+(`GraviaProductGrid`, `DailyMartProductGrid`, `DailyMartProductGridSkeleton`
+— 7 inline grid recipes deleted), `DailyMartPill` (3 hand-rolled label
+pills), and 3 private re-implementations of `DailyMartIconDisc` deleted.
+
+**Structural fixes:** the four gravia-coupled widgets in the app-level
+`lib/widgets/` (`CordeliaHeroHeader`, `CordeliaPrimaryButton`,
+`CordeliaGlassIconButton`, `CordeliaFormField`) moved to
+`lib/templates/gravia/widgets/` as `Gravia*` — only `CordeliaAvatarImage`
+(genuinely both-pack) and `HeroSearchFieldFlight` stay app-level.
+`GraviaDimenConst` gained named header-height tiers (18 `initialHeaderHeight`
+literals), `detailImageHeight` (the carousel/skeleton duplicated 300), the
+grid-skeleton card height, and `hairlineWidth`; the `filterDateLabel`
+name collision resolved (`DateTime` formatter → `asFilterDate`).
 
 ## Missing flows (fill these or explicitly defer)
 

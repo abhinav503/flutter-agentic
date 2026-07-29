@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:core/core/ui/atoms/app_switcher.dart';
 import 'package:core/core/base/base_screen.dart';
 import 'package:core/core/theme/app_colors_extension.dart';
 import 'package:core/core/theme/app_spacing.dart';
@@ -47,10 +48,8 @@ class _NotificationsScreenState extends BaseScreenState<NotificationsScreen> {
               showSnackBar(message);
             }
           },
-          builder: (context, state) => AnimatedSwitcher(
-            duration: const Duration(milliseconds: 300),
-            switchInCurve: Curves.easeInOut,
-            switchOutCurve: Curves.easeInOut,
+          builder: (context, state) => AppSwitcher(
+            curve: Curves.easeInOut,
             child: switch (state) {
               NotificationsError() => KeyedSubtree(
                 key: const ValueKey('error'),
@@ -126,9 +125,7 @@ class _Sections extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
-    final hairline = Theme.of(
-      context,
-    ).extension<AppColorsExtension>()!.dockedHairline;
+    final hairline = context.appColors.dockedHairline;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

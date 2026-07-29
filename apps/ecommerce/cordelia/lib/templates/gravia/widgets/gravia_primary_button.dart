@@ -9,7 +9,7 @@ import 'package:cordelia/templates/gravia/constants/gravia_text_style_const.dart
 /// button spec baked in (large pill, 45px tall, textMd/medium on primary).
 /// Every docked bottom bar's confirm action renders this, never a re-typed
 /// [AppButton] param recipe.
-class CordeliaPrimaryButton extends StatelessWidget {
+class GraviaPrimaryButton extends StatelessWidget {
   /// The kit's CTA height — shorter than [AppButtonSize.large]'s default.
   static const double barHeight = GraviaDimenConst.controlHeight;
 
@@ -21,7 +21,7 @@ class CordeliaPrimaryButton extends StatelessWidget {
   /// caller is unaffected.
   final AppButtonState state;
 
-  const CordeliaPrimaryButton({
+  const GraviaPrimaryButton({
     super.key,
     required this.label,
     this.onTap,

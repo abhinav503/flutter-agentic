@@ -8,7 +8,9 @@ import 'package:core/core/ui/atoms/device_frame.dart';
 import 'package:core/core/ui/atoms/dropdown_menu.dart';
 import 'package:core/core/ui/atoms/glass_chip.dart';
 import 'package:core/core/ui/atoms/glass_surface.dart';
+import 'package:core/core/ui/atoms/app_switcher.dart';
 import 'package:core/core/ui/atoms/icon_button.dart';
+import 'package:core/core/ui/atoms/icon_circle.dart';
 import 'package:core/core/ui/atoms/inline_text_link.dart';
 import 'package:core/core/ui/atoms/labeled_divider.dart';
 import 'package:core/core/ui/atoms/loading_dots.dart';
@@ -234,6 +236,34 @@ WidgetbookCategory atomsCategory() {
               width: 200,
               height: 420,
               child: DeviceFrame(child: placeholderImage(context)),
+            ),
+          ),
+        ]),
+      ),
+      allVariants(
+        'AppSwitcher',
+        (context) => showcase(context, [
+          Variant(
+            'Fade between children',
+            const _AppSwitcherDemo(),
+            width: 320,
+          ),
+        ]),
+      ),
+      allVariants(
+        'AppIconCircle',
+        (context) => showcase(context, [
+          Variant(
+            'Decorative disc',
+            Builder(
+              builder: (context) {
+                final cs = Theme.of(context).colorScheme;
+                return AppIconCircle(
+                  size: 44,
+                  color: cs.surfaceContainerHighest,
+                  child: Icon(Icons.percent_rounded, color: cs.primary),
+                );
+              },
             ),
           ),
         ]),
@@ -688,4 +718,40 @@ WidgetbookCategory atomsCategory() {
       ),
     ],
   );
+}
+
+
+class _AppSwitcherDemo extends StatefulWidget {
+  const _AppSwitcherDemo();
+
+  @override
+  State<_AppSwitcherDemo> createState() => _AppSwitcherDemoState();
+}
+
+class _AppSwitcherDemoState extends State<_AppSwitcherDemo> {
+  bool _first = true;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        AppSwitcher(
+          child: Container(
+            key: ValueKey(_first),
+            height: 64,
+            alignment: Alignment.center,
+            color: _first ? cs.primaryContainer : cs.tertiaryContainer,
+            child: Text(_first ? 'First' : 'Second'),
+          ),
+        ),
+        const SizedBox(height: 12),
+        AppButton(
+          label: 'Swap',
+          onTap: () => setState(() => _first = !_first),
+        ),
+      ],
+    );
+  }
 }

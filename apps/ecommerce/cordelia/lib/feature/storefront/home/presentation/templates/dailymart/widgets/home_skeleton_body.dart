@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 
 import 'package:core/core/theme/app_radius.dart';
-import 'package:core/core/theme/app_shapes_extension.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/shimmer_box.dart';
-import 'package:core/core/ui/blocks/chunked_grid.dart';
 import 'package:core/core/ui/molecules/skeleton_rows.dart';
 
 import 'package:cordelia/templates/dailymart/constants/dailymart_dimen_const.dart';
+import 'package:cordelia/templates/dailymart/widgets/dailymart_product_grid_skeleton.dart';
 
 import 'home_promo_carousel.dart';
 
@@ -20,9 +19,6 @@ class DailyMartHomeSkeletonBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final shapes =
-        Theme.of(context).extension<AppShapes>() ?? AppShapes.standard;
-    final cardRadius = BorderRadius.circular(shapes.cardRadius);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -57,19 +53,7 @@ class DailyMartHomeSkeletonBody extends StatelessWidget {
         const SizedBox(height: AppSpacing.lg),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-          child: ChunkedGrid(
-            itemCount: 4,
-            columns: 2,
-            spacing: AppSpacing.base,
-            runSpacing: AppSpacing.lg,
-            itemBuilder: (context, index) => ShimmerBox(
-              width: double.infinity,
-              height:
-                  DailyMartDimenConst.productImageHeight +
-                  DailyMartDimenConst.productCardChromeHeight,
-              borderRadius: cardRadius,
-            ),
-          ),
+          child: const DailyMartProductGridSkeleton(itemCount: 4),
         ),
       ],
     );

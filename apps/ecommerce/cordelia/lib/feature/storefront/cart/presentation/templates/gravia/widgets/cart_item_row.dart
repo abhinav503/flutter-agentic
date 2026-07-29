@@ -58,7 +58,7 @@ class CartItemRow extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    GraviaValueConst.formattedPrice(product.price * item.quantity),
+                    GraviaValueConst.formattedPrice(item.lineTotal),
                     style: GraviaTextStyleConst.textMdBold(
                       tt,
                     ).copyWith(color: cs.onSurface),

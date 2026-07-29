@@ -8,6 +8,7 @@ import 'package:core/core/ui/blocks/header_canvas.dart';
 import 'package:core/core/ui/blocks/hero_header.dart';
 import 'package:core/core/ui/blocks/quantity_stepper.dart';
 import 'package:core/core/ui/blocks/section_header.dart';
+import 'package:core/core/ui/blocks/section_rail.dart';
 import 'package:flutter/material.dart';
 import 'package:widgetbook/widgetbook.dart';
 
@@ -17,6 +18,33 @@ WidgetbookFolder genericBlocksFolder() {
   return WidgetbookFolder(
     name: 'Generic',
     children: [
+      allVariants(
+        'SectionRail',
+        (context) => showcase(context, [
+          Variant(
+            'Header + scrolling rail',
+            SectionRail(
+              header: SectionHeader(
+                title: 'Shop by category',
+                actionLabel: 'See All',
+                onAction: () {},
+              ),
+              itemCount: 6,
+              itemBuilder: (context, i) => Container(
+                width: 72,
+                height: 72,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                  shape: BoxShape.circle,
+                ),
+                child: Text('${i + 1}'),
+              ),
+            ),
+            width: 320,
+          ),
+        ]),
+      ),
       allVariants(
         'SectionHeader',
         (context) => showcase(context, [

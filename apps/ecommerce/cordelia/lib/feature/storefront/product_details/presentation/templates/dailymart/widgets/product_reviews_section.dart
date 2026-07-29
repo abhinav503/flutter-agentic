@@ -6,6 +6,7 @@ import 'package:core/core/theme/app_colors_extension.dart';
 import 'package:core/core/theme/app_radius.dart';
 import 'package:core/core/theme/app_shapes_extension.dart';
 import 'package:core/core/theme/app_spacing.dart';
+import 'package:core/core/ui/atoms/icon_circle.dart';
 import 'package:core/core/ui/atoms/svg_image.dart';
 
 import 'package:cordelia/templates/dailymart/constants/dailymart_color_const.dart';
@@ -13,6 +14,7 @@ import 'package:cordelia/templates/dailymart/constants/dailymart_dimen_const.dar
 import 'package:cordelia/templates/dailymart/constants/dailymart_image_const.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_text_style_const.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_value_const.dart';
+import 'package:cordelia/templates/dailymart/widgets/dailymart_pill.dart';
 
 /// The Reviews tab — **entirely static** (kit frame `23 Review product`
 /// verbatim): the backend collects no reviews yet, so the summary card, the
@@ -33,7 +35,7 @@ class DailyMartProductReviewsSection extends StatelessWidget {
     final shapes =
         Theme.of(context).extension<AppShapes>() ?? AppShapes.standard;
     final hairline =
-        Theme.of(context).extension<AppColorsExtension>()!.dockedHairline;
+        context.appColors.dockedHairline;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -204,13 +206,9 @@ class _ReviewerRow extends StatelessWidget {
         // The kit's avatar photo isn't redistributable and the review is
         // placeholder copy anyway — the pack's documented person fallback
         // (spec sheet §5) stands in.
-        Container(
-          width: _avatarSize,
-          height: _avatarSize,
-          decoration: BoxDecoration(
-            color: cs.surfaceContainer,
-            shape: BoxShape.circle,
-          ),
+        AppIconCircle(
+          size: _avatarSize,
+          color: cs.surfaceContainer,
           child: Icon(
             Icons.person_rounded,
             size: AppSpacing.xl5,
@@ -239,30 +237,18 @@ class _ReviewerRow extends StatelessWidget {
           ),
         ),
         const SizedBox(width: AppSpacing.base),
-        Container(
+        DailyMartPill(
+          label: DailyMartValueConst.staticRatingLabel,
+          color: DailyMartColorConst.reviewAmber,
           height: DailyMartDimenConst.ratingPillHeight,
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.base),
-          decoration: const BoxDecoration(
-            color: DailyMartColorConst.reviewAmber,
-            borderRadius: AppRadius.full,
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              AppSvgImage.asset(
-                DailyMartImageConst.star,
-                width: AppSpacing.lg,
-                height: AppSpacing.lg,
-                color: DailyMartColorConst.onReviewAmber,
-              ),
-              const SizedBox(width: AppSpacing.xs3),
-              Text(
-                DailyMartValueConst.staticRatingLabel,
-                style: DailyMartTextStyleConst.bodyXsMedium(
-                  tt,
-                ).copyWith(color: DailyMartColorConst.onReviewAmber),
-              ),
-            ],
+          style: DailyMartTextStyleConst.bodyXsMedium(
+            tt,
+          ).copyWith(color: DailyMartColorConst.onReviewAmber),
+          leading: AppSvgImage.asset(
+            DailyMartImageConst.star,
+            width: AppSpacing.lg,
+            height: AppSpacing.lg,
+            color: DailyMartColorConst.onReviewAmber,
           ),
         ),
       ],

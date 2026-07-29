@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:core/core/theme/app_spacing.dart';
 
+import 'package:cordelia/feature/storefront/cart/presentation/quantity_selection.dart';
 import 'package:cordelia/feature/storefront/home/domain/entities/product_entity.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_value_const.dart';
 
@@ -30,9 +31,8 @@ class DailyMartAddToCartSheetContent extends StatefulWidget {
 }
 
 class _DailyMartAddToCartSheetContentState
-    extends State<DailyMartAddToCartSheetContent> {
-  int _quantity = 1;
-
+    extends State<DailyMartAddToCartSheetContent>
+    with QuantitySelection {
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -48,17 +48,15 @@ class _DailyMartAddToCartSheetContentState
         children: [
           DailyMartProductListTile(
             product: widget.product,
-            quantity: _quantity,
-            onDecrement: _quantity > 1
-                ? () => setState(() => _quantity--)
-                : null,
-            onIncrement: () => setState(() => _quantity++),
+            quantity: quantity,
+            onDecrement: decrementQuantity,
+            onIncrement: incrementQuantity,
           ),
           const SizedBox(height: AppSpacing.xl4),
           DailyMartPrimaryButton(
             label: DailyMartValueConst.addToCart,
             onTap: () {
-              widget.onAddToCart(_quantity);
+              widget.onAddToCart(quantity);
               Navigator.of(context).pop();
             },
           ),

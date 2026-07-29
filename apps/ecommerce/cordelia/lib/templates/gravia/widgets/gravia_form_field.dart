@@ -14,7 +14,7 @@ import 'package:cordelia/templates/gravia/constants/gravia_text_style_const.dart
 /// pack's shared pill input radius (`app_theme_presets.dart`'s gravia
 /// preset — that's for `SearchFieldBar`'s glass field, deliberately left
 /// untouched); a fixed 45px height matching the screen's other controls
-/// (`CordeliaPrimaryButton`, header glass discs); and a Text/sm/regular label
+/// (`GraviaPrimaryButton`, header glass discs); and a Text/sm/regular label
 /// in the fixed `GraviaColorConst.gray500` (identical in both themes, unlike
 /// `onSurfaceVariant`) with extra breathing room under it.
 ///
@@ -22,7 +22,7 @@ import 'package:cordelia/templates/gravia/constants/gravia_text_style_const.dart
 /// second caller, which is what moved it here out of that screen's own
 /// private `_field` helper. Every gravia form field renders this — never a
 /// re-typed `AppTextField` override recipe.
-class CordeliaFormField extends StatelessWidget {
+class GraviaFormField extends StatelessWidget {
   final String label;
   final TextEditingController controller;
   final String? hint;
@@ -42,7 +42,7 @@ class CordeliaFormField extends StatelessWidget {
   /// this just wires it through.
   final bool enabled;
 
-  const CordeliaFormField({
+  const GraviaFormField({
     super.key,
     required this.label,
     required this.controller,

@@ -7,6 +7,7 @@ import 'package:core/core/ui/atoms/common_glass_surface.dart';
 import 'package:core/core/ui/atoms/svg_image.dart';
 import 'package:core/core/ui/atoms/text_field.dart';
 
+import 'package:cordelia/widgets/hero_search_field_flight.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_image_const.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_value_const.dart';
 
@@ -42,9 +43,7 @@ class SearchFieldBar extends StatelessWidget {
 
   Widget _buildField(BuildContext context, {required bool interactive}) {
     final cs = Theme.of(context).colorScheme;
-    final onOverlay = Theme.of(
-      context,
-    ).extension<AppColorsExtension>()!.onOverlay;
+    final onOverlay = context.appColors.onOverlay;
     final shapes =
         Theme.of(context).extension<AppShapes>() ?? AppShapes.standard;
 
@@ -97,43 +96,23 @@ class SearchFieldBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
 
-    final hero = Hero(
+    final hero = HeroSearchFieldFlight(
       tag: heroTag,
-      createRectTween: (begin, end) => RectTween(begin: begin, end: end),
-      flightShuttleBuilder:
-          (
-            flightContext,
-            animation,
-            direction,
-            fromHeroContext,
-            toHeroContext,
-          ) {
-            final shapes =
-                Theme.of(flightContext).extension<AppShapes>() ??
-                AppShapes.standard;
-            return Material(
-              type: MaterialType.transparency,
-              // Clipped to the same pill radius as the field itself — an
-              // unclipped ColoredBox is a hard rectangle, so its corners
-              // would peek out past the glass surface's rounded corners for
-              // the whole flight.
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(shapes.inputRadius),
-                child: ColoredBox(
-                  color: cs.primary,
-                  child: ExcludeFocus(
-                    child: AbsorbPointer(
-                      child: _buildField(flightContext, interactive: false),
-                    ),
-                  ),
-                ),
-              ),
-            );
-          },
-      child: Material(
-        type: MaterialType.transparency,
-        child: _buildField(context, interactive: true),
-      ),
+      barBuilder: (context, {required interactive}) =>
+          _buildField(context, interactive: interactive),
+      shuttleWrapper: (flightContext, child) {
+        final shapes =
+            Theme.of(flightContext).extension<AppShapes>() ??
+            AppShapes.standard;
+        // Clipped to the same pill radius as the field itself — an
+        // unclipped ColoredBox is a hard rectangle, so its corners would
+        // peek out past the glass surface's rounded corners for the whole
+        // flight.
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(shapes.inputRadius),
+          child: ColoredBox(color: cs.primary, child: child),
+        );
+      },
     );
 
     if (onTap == null) return hero;

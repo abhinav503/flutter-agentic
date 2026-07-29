@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 ///
 /// Registered on [ThemeData] in [AppTheme] and accessed anywhere via:
 /// ```dart
-/// final ext = Theme.of(context).extension<AppColorsExtension>()!;
+/// final ext = context.appColors;
 /// ext.successContainer   // background for success badges / banners
 /// ext.onSuccessContainer // foreground text / icons on successContainer
 /// ext.warningContainer
@@ -129,4 +129,11 @@ class AppColorsExtension extends ThemeExtension<AppColorsExtension> {
         sheetHairline:      Color.lerp(sheetHairline,      other.sheetHairline,      t)!,
         onSheetMuted:       Color.lerp(onSheetMuted,       other.onSheetMuted,       t)!,
       );
+}
+
+/// Sugar for the lookup every call site was already spelling by hand —
+/// `Theme.of(context).extension<AppColorsExtension>()!`.
+extension AppColorsContextX on BuildContext {
+  AppColorsExtension get appColors =>
+      Theme.of(this).extension<AppColorsExtension>()!;
 }

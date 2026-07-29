@@ -17,6 +17,7 @@ import 'package:cordelia/feature/storefront/home/domain/entities/banner_entity.d
 import 'package:cordelia/feature/storefront/home/domain/entities/category_entity.dart';
 import 'package:cordelia/feature/storefront/home/domain/entities/product_entity.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_color_const.dart';
+import 'package:cordelia/templates/dailymart/constants/dailymart_dimen_const.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_value_const.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_section_header.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_sheet.dart';
@@ -282,7 +283,7 @@ class _HomeContent extends StatelessWidget {
           onFavouriteToggle: onFavouriteToggle,
           onSeeAll: () => _openBrowse(context),
         ),
-        SizedBox(height: 100),
+        const SizedBox(height: DailyMartDimenConst.homeScrollBottomInset),
       ],
     );
   }

@@ -5,8 +5,8 @@ import 'package:cordelia/templates/gravia/widgets/gravia_product_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/blocks/section_header.dart';
+import 'package:core/core/ui/blocks/section_rail.dart';
 
 import '../../../../../home/domain/entities/product_entity.dart';
 
@@ -32,45 +32,31 @@ class ProductDetailSimilarProducts extends StatelessWidget {
     final tt = Theme.of(context).textTheme;
     final favourites = context.watch<FavouritesCubit>().state.items;
 
-    return Column(
+    return SectionRail(
+      header: SectionHeader(
+        title: GraviaValueConst.similarProductsTitle,
+        titleStyle: GraviaTextStyleConst.textLgBold(
+          tt,
+        ).copyWith(color: cs.onSurface),
+      ),
+      // Zero — this section already sits inside the page's padded body.
+      gutter: 0,
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SectionHeader(
-          title: GraviaValueConst.similarProductsTitle,
-          titleStyle: GraviaTextStyleConst.textLgBold(
-            tt,
-          ).copyWith(color: cs.onSurface),
-        ),
-        // Matches the gap used before Home's horizontal product scroller
-        // (HomePopularItemsSection) — the grid's mainAxisExtent previously
-        // made this look larger than intended.
-        const SizedBox(height: AppSpacing.base),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              for (var i = 0; i < products.length; i++) ...[
-                if (i > 0) const SizedBox(width: AppSpacing.base),
-                GraviaProductCard(
-                  product: products[i],
-                  width: GraviaProductCard.railWidth,
-                  // Kit's Similar Products cards carry only the prep-time
-                  // meta, not the discount chip.
-                  showDiscount: false,
-                  onAddToCart: () => onAddToCart(products[i], 1),
-                  onQuickAdd: () => onQuickAdd(products[i]),
-                  onTap: () => onProductTap(products[i]),
-                  isFavourite: favourites.any((p) => p.id == products[i].id),
-                  onFavouriteToggle: () => context
-                      .read<FavouritesCubit>()
-                      .toggle(products[i]),
-                ),
-              ],
-            ],
-          ),
-        ),
-      ],
+      itemCount: products.length,
+      itemBuilder: (context, i) => GraviaProductCard(
+        product: products[i],
+        width: GraviaProductCard.railWidth,
+        // Kit's Similar Products cards carry only the prep-time
+        // meta, not the discount chip.
+        showDiscount: false,
+        onAddToCart: () => onAddToCart(products[i], 1),
+        onQuickAdd: () => onQuickAdd(products[i]),
+        onTap: () => onProductTap(products[i]),
+        isFavourite: favourites.any((p) => p.id == products[i].id),
+        onFavouriteToggle: () => context
+            .read<FavouritesCubit>()
+            .toggle(products[i]),
+      ),
     );
   }
 }

@@ -2,8 +2,8 @@ import 'package:cordelia/constants/value_const.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_image_const.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_text_style_const.dart';
 import 'package:cordelia/widgets/cordelia_avatar_image.dart';
-import 'package:cordelia/widgets/cordelia_glass_icon_button.dart';
-import 'package:cordelia/widgets/cordelia_hero_header.dart';
+import 'package:cordelia/templates/gravia/widgets/gravia_glass_icon_button.dart';
+import 'package:cordelia/templates/gravia/widgets/gravia_hero_header.dart';
 import 'package:flutter/material.dart';
 
 import 'package:core/core/theme/app_colors_extension.dart';
@@ -11,7 +11,7 @@ import 'package:core/core/theme/app_spacing.dart';
 
 import '../../../../domain/entities/profile_entity.dart';
 
-/// [CordeliaHeroHeader.page] for Profile: the bold page title over an identity
+/// [GraviaHeroHeader.page] for Profile: the bold page title over an identity
 /// row — avatar, name, email, and a glass edit trigger.
 class ProfileHeroHeader extends StatelessWidget {
   final ProfileEntity profile;
@@ -28,11 +28,9 @@ class ProfileHeroHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tt = Theme.of(context).textTheme;
-    final onOverlay = Theme.of(
-      context,
-    ).extension<AppColorsExtension>()!.onOverlay;
+    final onOverlay = context.appColors.onOverlay;
 
-    return CordeliaHeroHeader.page(
+    return GraviaHeroHeader.page(
       title: ValueConst.profilePageTitle,
       bottomGap: AppSpacing.lg,
       bottom: Row(
@@ -64,7 +62,7 @@ class ProfileHeroHeader extends StatelessWidget {
               ],
             ),
           ),
-          CordeliaGlassIconButton(
+          GraviaGlassIconButton(
             asset: GraviaImageConst.editRectangle,
             onTap: onEditTap,
           ),

@@ -72,17 +72,26 @@ them for free — **no new block is needed just because a new pack shows up.**
 
 - **atoms** (`core/ui/atoms/`) — single widget, no BLoC reads: `AppButton`,
   `AppTextField`, `AppBadge`, `AppChip`, `AppCheckbox`, `AppSwitch`,
-  `AppRadioDot`, `AppTopBar`, `AppIconButton`, `AppDropdownMenu`,
+  `AppRadioDot`, `AppTopBar`, `AppIconButton`, `AppIconCircle` (the
+  *non-interactive* tinted disc + centred glyph — notification rows, menu
+  tiles; `AppIconButton` is its tappable sibling), `AppSwitcher` (the
+  design-system content-swap fade: standard 300ms `AnimatedSwitcher` with
+  optional `curve`/`topAligned` — use it instead of a raw `AnimatedSwitcher`
+  so durations can't drift per screen), `AppDropdownMenu`,
   `AppNetworkImage`, `AppSvgImage`, `AppGlassSurface`, `CommonGlassSurface`,
   `AppGlassChip`, `AppConcentricCircles`, `PageIndicator`, `ShimmerBox`,
   `LoadingIndicator`, `LoadingDots`, `DeviceFrame`, `ThemeModeToggle`
 - **molecules** (`core/ui/molecules/`) — composed atoms: `AppBottomSheet`,
   `AppDialog`, `EmptyState`, `ErrorView`, `AppMenuTile`, `AppRadioGroup`,
-  `IconInfoRow` (leading block + title over subtitle — the notification /
-  activity-feed row; the pack supplies the styled leading disc),
-  `ShimmerListRow` + `ShimmerSectionHeader` (the two common skeleton
-  silhouettes — disc + two lines with `itemCount`, and title + action chip —
-  compose these before hand-rolling a `ShimmerBox` layout)
+  `IconInfoRow` (leading block beside a title, optional subtitle, optional
+  `trailing` control and whole-row `onTap` — the notification / activity-feed
+  / tappable-list-result row; the pack supplies the styled leading and
+  trailing widgets. Don't fork this silhouette into a private `_Row` —
+  extend it here),
+  `ShimmerListRow` + `ShimmerSectionHeader` + `ShimmerCircleTile` (the
+  common skeleton silhouettes — disc + two lines with `itemCount`, title +
+  action chip, and circle-over-label category tile — compose these before
+  hand-rolling a `ShimmerBox` layout)
 - **blocks** (`core/ui/blocks/`) — larger compositions, split by scope:
 
 **Root — cross-domain, any style pack can use as-is:**
@@ -96,6 +105,7 @@ them for free — **no new block is needed just because a new pack shows up.**
 | `docked_bar_overlap.dart` | bottom-docked bar whose rounded top corners float over content extending `overlap` px underneath — a plain `Column` would show the scaffold background through the corner cut-outs |
 | `bottom_nav_bar.dart` | `BottomNavBar` — `variant:` picks the pack's look: `pill` (active tab is a filled pill, inactive are icon circles — `gravia`) or `stacked` (icon over label on every tab, colour marks active — `dailyMart`) |
 | `section_header.dart` | `SectionHeader` — bold title + action. The action is a text link by default (`actionLabel`) or any widget (`action:`) when a pack renders it as a chip/icon instead |
+| `section_rail.dart` | `SectionRail` — a section header over a horizontally scrolling item rail. Owns the one rule every hand-rolled copy re-derived: the rail takes a **left inset only** (matching the header's gutter) so items scroll to the true screen edge. Params for gutter/spacing/trailing gap/shadow padding |
 | `quantity_stepper.dart` | `QuantityStepper` |
 | `chunked_grid.dart` | `ChunkedGrid` — a fixed-column grid inside a scrollable that isn't sliver-composed, laid out with manual `Row`/`Expanded` chunking rather than `GridView` |
 
@@ -110,7 +120,11 @@ them for free — **no new block is needed just because a new pack shows up.**
 **`blocks/<category>/` — compositions encoding domain-specific data.** Today:
 `ecommerce/` (`product_card.dart`, `category_tile.dart`, `product_meta_row.dart`
 — the icon+label meta row, extracted once a second surface needed the same row
-outside a full card, so the two can't drift into hand-copied `Row`s again). A
+outside a full card, so the two can't drift into hand-copied `Row`s again —
+and `price_breakdown.dart` — `PriceBreakdown` + `PriceLine`: the cart/checkout
+totals panel (optional coupon-row `leading` slot → label/value lines →
+hairline → total), extracted after both storefront templates shipped a
+byte-identical private `_SummaryRow`; styles stay with the caller per line). A
 future pack in the *same* category reuses these unchanged; a pack in a
 *different* category (finance, health, social, …) gets its own sibling
 subfolder.

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/shimmer_box.dart';
+import 'package:core/core/ui/molecules/skeleton_rows.dart';
 
 /// Mirrors [CategoryGroupSection]'s silhouette — a title bar above a
 /// 4-column grid of circle tiles — repeated for two groups, matching a
@@ -38,13 +39,7 @@ class CategoriesSkeletonBody extends StatelessWidget {
               for (var col = 0; col < _kColumns; col++) ...[
                 if (col > 0) const SizedBox(width: AppSpacing.xs),
                 const Expanded(
-                  child: Column(
-                    children: [
-                      ShimmerBox.circle(size: 64),
-                      SizedBox(height: AppSpacing.xs),
-                      ShimmerBox(width: 40, height: 12),
-                    ],
-                  ),
+                  child: ShimmerCircleTile(labelWidth: 40),
                 ),
               ],
             ],

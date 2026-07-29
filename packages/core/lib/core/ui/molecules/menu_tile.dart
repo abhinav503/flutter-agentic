@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../atoms/icon_circle.dart';
+
 import '../../theme/app_spacing.dart';
 
 /// One row of a settings/profile menu: an icon on a circle, a label, and a
@@ -69,14 +71,9 @@ class AppMenuTile extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
         child: Row(
           children: [
-            Container(
-              width: iconCircleSize,
-              height: iconCircleSize,
-              decoration: BoxDecoration(
-                color: circleColor,
-                shape: BoxShape.circle,
-              ),
-              alignment: Alignment.center,
+            AppIconCircle(
+              size: iconCircleSize,
+              color: circleColor,
               child: iconBuilder(foregroundColor, iconSize),
             ),
             const SizedBox(width: AppSpacing.base),

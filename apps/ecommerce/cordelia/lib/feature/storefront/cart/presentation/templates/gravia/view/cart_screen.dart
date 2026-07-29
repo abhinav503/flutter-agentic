@@ -6,11 +6,12 @@ import 'package:cordelia/feature/storefront/home/domain/entities/product_entity.
 import 'package:cordelia/feature/storefront/presentation/view/storefront_page.dart';
 import 'package:cordelia/feature/storefront/shell/presentation/templates/gravia/view/shell_page.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_text_style_const.dart';
+import 'package:cordelia/templates/gravia/constants/gravia_dimen_const.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_value_const.dart';
 import 'package:cordelia/templates/gravia/widgets/gravia_product_card.dart';
 import 'package:cordelia/templates/gravia/widgets/gravia_sheet.dart';
-import 'package:cordelia/widgets/cordelia_hero_header.dart';
-import 'package:cordelia/widgets/cordelia_primary_button.dart';
+import 'package:cordelia/templates/gravia/widgets/gravia_hero_header.dart';
+import 'package:cordelia/templates/gravia/widgets/gravia_primary_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -107,7 +108,7 @@ class _CartScreenState extends BaseScreenState<CartScreen> {
       child: cartItems.isEmpty
         ? Column(
             children: [
-              CordeliaHeroHeader(
+              GraviaHeroHeader(
                 title: GraviaValueConst.myCartTitle,
                 onBack: () => context.pop(),
               ),
@@ -127,8 +128,8 @@ class _CartScreenState extends BaseScreenState<CartScreen> {
             children: [
               Expanded(
                 child: CollapsingHeaderSheet(
-                  initialHeaderHeight: 110,
-                  header: CordeliaHeroHeader(
+                  initialHeaderHeight: GraviaDimenConst.headerHeightCompact,
+                  header: GraviaHeroHeader(
                     title: GraviaValueConst.myCartTitle,
                     onBack: () => context.pop(),
                   ),
@@ -180,7 +181,7 @@ class _CartScreenState extends BaseScreenState<CartScreen> {
                     // Submitting spans the whole flow (payment + placement),
                     // so the CTA stays loading and un-tappable throughout.
                     final busy = state is CheckoutSubmitting;
-                    return CordeliaPrimaryButton(
+                    return GraviaPrimaryButton(
                       label: GraviaValueConst.proceedToCheckoutLabel,
                       state: busy
                           ? AppButtonState.loading

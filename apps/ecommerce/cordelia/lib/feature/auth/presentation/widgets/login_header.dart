@@ -14,9 +14,7 @@ class LoginHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tt = Theme.of(context).textTheme;
-    final onOverlay = Theme.of(
-      context,
-    ).extension<AppColorsExtension>()!.onOverlay;
+    final onOverlay = context.appColors.onOverlay;
 
     return HeaderCanvas(
       child: Column(

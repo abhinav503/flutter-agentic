@@ -1,3 +1,5 @@
+import 'package:core/core/extensions/num_extensions.dart';
+
 /// Copy used only by the `dailymart` template's storefront screens — scoped
 /// here rather than the app-wide `ValueConst` so each template words its own
 /// screens (same split as `GraviaValueConst`).
@@ -22,12 +24,12 @@ abstract final class DailyMartValueConst {
   // ── Promo card ───────────────────────────────────────────────────────────
   static const orderNow = 'Order Now';
   static String promoSubtitle(double discountPercentage) =>
-      'Enjoy discounts of up to ${discountPercentage.toStringAsFixed(0)}%\non your order today';
+      'Enjoy discounts of up to ${discountPercentage.asPercent}%\non your order today';
 
   // ── Product card ─────────────────────────────────────────────────────────
-  static String formattedPrice(double price) => '\$${price.toStringAsFixed(2)}';
+  static String formattedPrice(double price) => price.asPrice;
   static String discountPercentOffLabel(double percentage) =>
-      '${percentage.toStringAsFixed(0)}% off';
+      '${percentage.asPercent}% off';
 
   /// **Placeholder.** The kit shows a rating + review count on every card and
   /// the layout is built around that row, but neither value exists on
@@ -117,7 +119,7 @@ abstract final class DailyMartValueConst {
   /// The docked cart status pill on screens pushed outside the shell (the
   /// cart tab itself is the in-shell affordance).
   static String cartSummaryLabel(int count, double total) =>
-      '$count item${count == 1 ? '' : 's'} | ${formattedPrice(total)}';
+      '$count ${count.plural('item')} | ${formattedPrice(total)}';
   static const viewCartLabel = 'View Cart';
 
   // ── Tabs not yet ported to this template ─────────────────────────────────

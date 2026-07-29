@@ -92,9 +92,7 @@ class GraviaProductCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
-    final onOverlay = Theme.of(
-      context,
-    ).extension<AppColorsExtension>()!.onOverlay;
+    final onOverlay = context.appColors.onOverlay;
 
     final card = ProductCard(
       image: AppNetworkImage(url: product.imageUrl, fit: BoxFit.cover),

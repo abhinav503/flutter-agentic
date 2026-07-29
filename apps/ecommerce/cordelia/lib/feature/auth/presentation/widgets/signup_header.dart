@@ -7,7 +7,7 @@ import 'package:core/core/ui/blocks/header_canvas.dart';
 import 'package:cordelia/constants/image_const.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_text_style_const.dart';
 import 'package:cordelia/constants/value_const.dart';
-import 'package:cordelia/widgets/cordelia_glass_icon_button.dart';
+import 'package:cordelia/templates/gravia/widgets/gravia_glass_icon_button.dart';
 
 /// Signup screen's coloured header: back button, title, and subtitle on
 /// [HeaderCanvas].
@@ -19,16 +19,14 @@ class SignupHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tt = Theme.of(context).textTheme;
-    final onOverlay = Theme.of(
-      context,
-    ).extension<AppColorsExtension>()!.onOverlay;
+    final onOverlay = context.appColors.onOverlay;
 
     return HeaderCanvas(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          CordeliaGlassIconButton(asset: ImageConst.arrowLeft, onTap: onBack),
+          GraviaGlassIconButton(asset: ImageConst.arrowLeft, onTap: onBack),
           const SizedBox(height: AppSpacing.base),
           Text(
             ValueConst.signupTitle,

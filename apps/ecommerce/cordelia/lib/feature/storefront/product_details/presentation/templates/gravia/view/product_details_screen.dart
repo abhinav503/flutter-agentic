@@ -1,18 +1,21 @@
 import 'package:cordelia/enums/product_unit_type.dart';
+import 'package:cordelia/feature/storefront/cart/presentation/quantity_selection.dart';
 import 'package:cordelia/feature/storefront/favourites/presentation/cubit/favourites_cubit.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_image_const.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_text_style_const.dart';
+import 'package:cordelia/templates/gravia/constants/gravia_dimen_const.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_value_const.dart';
 import 'package:cordelia/templates/gravia/widgets/gravia_product_card.dart';
 import 'package:cordelia/templates/gravia/widgets/gravia_sheet.dart';
 import 'package:cordelia/templates/gravia/widgets/selector_chip.dart';
-import 'package:cordelia/widgets/cordelia_glass_icon_button.dart';
-import 'package:cordelia/widgets/cordelia_hero_header.dart';
+import 'package:cordelia/templates/gravia/widgets/gravia_glass_icon_button.dart';
+import 'package:cordelia/templates/gravia/widgets/gravia_hero_header.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:core/core/ui/atoms/app_switcher.dart';
 import 'package:core/core/base/base_screen.dart';
 import 'package:core/core/theme/app_colors_extension.dart';
 import 'package:core/core/theme/app_spacing.dart';
@@ -40,7 +43,7 @@ class ProductDetailsScreen extends BaseScreen {
 }
 
 class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
-    with ProductDetailsActions {
+    with QuantitySelection, ProductDetailsActions {
   int _selectedSizeIndex = 0;
 
   @override
@@ -63,16 +66,15 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
           showSnackBar(message);
         }
       },
-      builder: (context, state) => AnimatedSwitcher(
-        duration: const Duration(milliseconds: 300),
+      builder: (context, state) => AppSwitcher(
         child: switch (state) {
           ProductDetailsLoading() => CollapsingHeaderSheet(
             key: const ValueKey('loading'),
-            initialHeaderHeight: 130,
-            header: CordeliaHeroHeader(
+            initialHeaderHeight: GraviaDimenConst.headerHeightRegular,
+            header: GraviaHeroHeader(
               title: GraviaValueConst.productDetailsTitle,
               onBack: () => context.pop(),
-              trailing: CordeliaGlassIconButton(
+              trailing: GraviaGlassIconButton(
                 asset: GraviaImageConst.navFavourite,
                 onTap: () {},
               ),
@@ -111,22 +113,22 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
     // — so the hairlines in this screen match the bar rather than the
     // generic Gray/200 hairline.
     final hairlineColor =
-        Theme.of(context).extension<AppColorsExtension>()!.dockedHairline;
+        context.appColors.dockedHairline;
 
     return Column(
       children: [
         Expanded(
           child: CollapsingHeaderSheet(
-            initialHeaderHeight: 130,
+            initialHeaderHeight: GraviaDimenConst.headerHeightRegular,
             // Header controls match SearchHeroHeader's back button exactly
-            // (same CordeliaGlassIconButton size + canvas padding) so the glass
+            // (same GraviaGlassIconButton size + canvas padding) so the glass
             // circle sits in the identical spot on both screens — the
             // productDetails route fades rather than slides in (app.dart),
             // and a size/position mismatch would make that crossfade "jump."
-            header: CordeliaHeroHeader(
+            header: GraviaHeroHeader(
               title: GraviaValueConst.productDetailsTitle,
               onBack: () => context.pop(),
-              trailing: CordeliaGlassIconButton(
+              trailing: GraviaGlassIconButton(
                 asset: isFavourite
                     ? GraviaImageConst.favouriteFilled
                     : GraviaImageConst.navFavourite,

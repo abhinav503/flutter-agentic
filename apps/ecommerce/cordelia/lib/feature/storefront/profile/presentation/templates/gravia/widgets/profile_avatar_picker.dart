@@ -31,7 +31,7 @@ class ProfileAvatarPicker extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final onOverlay = Theme.of(context).extension<AppColorsExtension>()!.onOverlay;
+    final onOverlay = context.appColors.onOverlay;
     final previewProfile = pickedAvatarBytes == null
         ? profile
         : ProfileEntity(

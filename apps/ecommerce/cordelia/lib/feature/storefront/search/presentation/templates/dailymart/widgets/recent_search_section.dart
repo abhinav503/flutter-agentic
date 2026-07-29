@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/svg_image.dart';
+import 'package:core/core/ui/molecules/icon_info_row.dart';
 
 import 'package:cordelia/templates/dailymart/constants/dailymart_image_const.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_text_style_const.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_value_const.dart';
+import 'package:cordelia/templates/dailymart/widgets/dailymart_icon_disc.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_section_header.dart';
 
 import '../../../../domain/entities/recent_search_entity.dart';
@@ -31,77 +33,43 @@ class DailyMartRecentSearchSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         DailyMartSectionHeader(title: DailyMartValueConst.recentSearchTitle),
         const SizedBox(height: AppSpacing.xs),
         for (final item in items)
-          _RecentSearchRow(
-            item: item,
-            onTap: () => onItemTap(item),
-            onRemove: () => onRemove(item),
-          ),
-      ],
-    );
-  }
-}
-
-class _RecentSearchRow extends StatelessWidget {
-  final RecentSearchEntity item;
-  final VoidCallback onTap;
-  final VoidCallback onRemove;
-
-  const _RecentSearchRow({
-    required this.item,
-    required this.onTap,
-    required this.onRemove,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
-
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
-        child: Row(
-          children: [
-            AppSvgImage.asset(
+          IconInfoRow(
+            leading: AppSvgImage.asset(
               DailyMartImageConst.searchSmall,
               color: cs.onSurface,
               width: AppSpacing.xl2,
               height: AppSpacing.xl2,
             ),
-            const SizedBox(width: AppSpacing.xs),
-            Expanded(
-              child: Text(
-                item.name,
-                style: DailyMartTextStyleConst.bodySmRegular(
-                  tt,
-                ).copyWith(color: cs.onSurface),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
+            title: item.name,
+            titleStyle: DailyMartTextStyleConst.bodySmRegular(
+              tt,
+            ).copyWith(color: cs.onSurface),
+            titleMaxLines: 1,
+            padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+            gap: AppSpacing.xs,
+            trailingGap: 0,
+            trailing: DailyMartIconDisc(
+              icon: Icons.close_rounded,
+              onTap: () => onRemove(item),
+              // Bare glyph with a 4px tap inset — no disc fill, unlike the
+              // header discs.
+              size: AppSpacing.xl4,
+              iconSize: AppSpacing.lg,
+              backgroundColor: Colors.transparent,
+              foregroundColor: cs.onSurfaceVariant,
             ),
-            InkWell(
-              onTap: onRemove,
-              customBorder: const CircleBorder(),
-              child: Padding(
-                padding: const EdgeInsets.all(AppSpacing.xs3),
-                child: Icon(
-                  Icons.close_rounded,
-                  size: AppSpacing.lg,
-                  color: cs.onSurfaceVariant,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
+            onTap: () => onItemTap(item),
+          ),
+      ],
     );
   }
 }

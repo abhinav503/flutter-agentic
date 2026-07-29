@@ -9,6 +9,7 @@ import 'package:cordelia/services/firebase_auth_service.dart';
 import 'package:cordelia/services/user_profile_cache_service.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_color_const.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_image_const.dart';
+import 'package:cordelia/templates/gravia/constants/gravia_dimen_const.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_value_const.dart';
 import 'package:cordelia/templates/gravia/widgets/gravia_sheet.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +17,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:core/core/ui/atoms/app_switcher.dart';
 import 'package:core/core/base/base_screen.dart';
 import 'package:core/core/services/shared_pref_service/shared_preference_service.dart';
 import 'package:core/core/theme/app_spacing.dart';
@@ -62,8 +64,7 @@ class _ProfileScreenState extends BaseScreenState<ProfileScreen> {
       listener: (context, state) {
         if (state case ProfileError(:final message)) showSnackBar(message);
       },
-      builder: (context, state) => AnimatedSwitcher(
-        duration: const Duration(milliseconds: 300),
+      builder: (context, state) => AppSwitcher(
         child: switch (state) {
           ProfileLoading() => Container(
             key: const ValueKey('loading'),
@@ -81,7 +82,7 @@ class _ProfileScreenState extends BaseScreenState<ProfileScreen> {
           ),
           ProfileLoaded(:final profile) => CollapsingHeaderSheet(
             key: const ValueKey('loaded'),
-            initialHeaderHeight: 195,
+            initialHeaderHeight: GraviaDimenConst.headerHeightIdentity,
             header: ProfileHeroHeader(
               profile: profile,
               onEditTap: () => _openEditProfile(profile),

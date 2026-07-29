@@ -85,6 +85,10 @@ core/
 ├── error/
 │   └── failure.dart             sealed Failure class; add variants only here
 ├── extensions/
+│   ├── num_extensions.dart      PriceFormatX (asPrice → '$12.50', asPercent) +
+│   │                             PluralX (1.plural('item') → 'item', 0 → 'items') —
+│   │                             app ValueConst formatters compose these instead of
+│   │                             re-inlining toStringAsFixed
 │   └── string_extensions.dart   generic String helpers (isSvgUrl) + FieldValidationX
 │                                 predicates (isValidEmail, digitCount)
 ├── mixins/
@@ -102,7 +106,9 @@ core/
 ├── theme/
 │   ├── app_colors_extension.dart  ThemeExtension for success/warning colours,
 │   │                               onOverlay, and per-preset theme data
-│   │                               (dockedHairline/sheetHairline/tintedPrimaryFill)
+│   │                               (dockedHairline/sheetHairline/tintedPrimaryFill);
+│   │                               access via the `context.appColors` accessor it
+│   │                               ships, not a hand-typed Theme.of(...) lookup
 │   ├── app_shapes_extension.dart  ThemeExtension for brand radii (button/chip/card/input/sheet)
 │   ├── app_radius.dart            border-radius token scale (defaults behind AppShapes)
 │   ├── app_spacing.dart           spacing token scale
@@ -121,9 +127,14 @@ core/
 │   │   ├── chip.dart            AppChip
 │   │   ├── device_frame.dart    DeviceFrame (decorative phone bezel — notch + side
 │   │   │                        buttons — for framing a screenshot/image)
+│   │   ├── app_switcher.dart    AppSwitcher (the standard 300ms content-swap fade;
+│   │   │                        optional curve/topAligned — use instead of a raw
+│   │   │                        AnimatedSwitcher so durations can't drift)
 │   │   ├── dropdown_menu.dart   AppDropdownMenu (themed PopupMenuButton + AppDropdownItem)
 │   │   ├── file_thumbnail.dart  AppFileThumbnail (local image file thumbnail, rounded)
 │   │   ├── icon_button.dart     AppIconButton (icon-only circular action; filled / translucent)
+│   │   ├── icon_circle.dart     AppIconCircle (non-interactive tinted disc + centred
+│   │   │                        glyph — the decorative sibling of AppIconButton)
 │   │   ├── loading_dots.dart    LoadingDots (pulsing "working…" dots)
 │   │   ├── loading_indicator.dart
 │   │   ├── network_image.dart   AppNetworkImage (built-in loading/error states;
@@ -138,13 +149,16 @@ core/
 │   │   ├── dialog.dart          AppDialog (static show())
 │   │   ├── empty_state.dart     EmptyState (icon + title + subtitle + actions)
 │   │   ├── error_view.dart      ErrorView
-│   │   ├── icon_info_row.dart   IconInfoRow (leading block + title over subtitle —
-│   │   │                        the notification/activity-feed row silhouette)
+│   │   ├── icon_info_row.dart   IconInfoRow (leading block + title, optional
+│   │   │                        subtitle/trailing/onTap — the notification, activity-
+│   │   │                        feed, and tappable-list-result row silhouette; extend
+│   │   │                        it rather than forking a private _Row)
 │   │   ├── menu_tile.dart       AppMenuTile (settings/profile row: icon circle +
 │   │   │                        label + chevron/trailing; danger variant)
 │   │   ├── radio_group.dart     AppRadioGroup<T> + AppRadioRow (single-select list)
 │   │   └── skeleton_rows.dart   ShimmerListRow (disc + two lines, itemCount) +
-│   │                            ShimmerSectionHeader — common skeleton silhouettes
+│   │                            ShimmerSectionHeader + ShimmerCircleTile — common
+│   │                            skeleton silhouettes
 │   └── blocks/                  larger domain compositions (root = cross-domain,
 │                                 `blocks/<category>/` = domain-specific data, e.g.
 │                                 `ecommerce/`); indexed in `docs/ai-rules/design.md`

@@ -1,6 +1,6 @@
 import 'package:cordelia/constants/image_const.dart';
 import 'package:cordelia/templates/gravia/widgets/search_field_bar.dart';
-import 'package:cordelia/widgets/cordelia_glass_icon_button.dart';
+import 'package:cordelia/templates/gravia/widgets/gravia_glass_icon_button.dart';
 import 'package:flutter/material.dart';
 
 import 'package:core/core/theme/app_spacing.dart';
@@ -41,7 +41,7 @@ class SearchHeroHeader extends StatelessWidget {
           // Same glass-circle treatment as Home's header controls; the fade
           // route has no iOS swipe-back edge gesture, so this is the only
           // on-screen way back on iOS.
-          CordeliaGlassIconButton(asset: ImageConst.arrowLeft, onTap: onBack),
+          GraviaGlassIconButton(asset: ImageConst.arrowLeft, onTap: onBack),
           const SizedBox(width: AppSpacing.base),
           Expanded(
             child: SearchFieldBar(

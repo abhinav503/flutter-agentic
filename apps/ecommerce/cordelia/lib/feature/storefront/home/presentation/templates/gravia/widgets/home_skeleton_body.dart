@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/shimmer_box.dart';
+import 'package:core/core/ui/molecules/skeleton_rows.dart';
 
 import 'package:cordelia/templates/gravia/widgets/gravia_product_rail_skeleton.dart';
 
@@ -34,13 +35,7 @@ class HomeSkeletonBody extends StatelessWidget {
               itemCount: 6,
               separatorBuilder: (context, index) =>
                   const SizedBox(width: AppSpacing.lg),
-              itemBuilder: (context, index) => const Column(
-                children: [
-                  ShimmerBox.circle(size: 64),
-                  SizedBox(height: AppSpacing.xs),
-                  ShimmerBox(width: 48, height: 12),
-                ],
-              ),
+              itemBuilder: (context, index) => const ShimmerCircleTile(),
             ),
           ),
           const SizedBox(height: AppSpacing.xl4),

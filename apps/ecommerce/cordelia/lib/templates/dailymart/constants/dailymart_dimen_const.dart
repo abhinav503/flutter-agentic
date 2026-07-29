@@ -67,6 +67,10 @@ abstract final class DailyMartDimenConst {
   static const double bottomFadeHeight = 120;
   static const double detailBottomFadeHeight = 160;
 
+  /// Bottom spacer under Home's scroll content so the last grid row clears
+  /// the floating cart pill docked over the fade.
+  static const double homeScrollBottomInset = 100;
+
   /// The floating Filter pill on Search results — 52px tall at radius 40,
   /// the pack's one recorded off-token radius (spec sheet §2).
   static const double filterPillHeight = 52;

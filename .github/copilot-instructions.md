@@ -119,6 +119,10 @@ Run `make gen` after changing any `@freezed` or `@JsonSerializable` file. Never 
 - Using a raw `PopupMenuButton` / `DropdownButton` for a menu/select — use `AppDropdownMenu` (themed, with `AppDropdownItem`)
 - Inline `CircularProgressIndicator` in screens — use `LoadingIndicator` (spinner) or `LoadingDots` (inline "working…") from `package:core/core/ui/atoms/`
 - A hand-rolled empty/placeholder view — use the `EmptyState` molecule
+- Hand-typing `Theme.of(context).extension<AppColorsExtension>()!` — use the `context.appColors` accessor it ships
+- Raw `AnimatedSwitcher` for a skeleton/loaded/error content swap — use `AppSwitcher` (or the pack's preset over it), so the standard duration can't drift per screen
+- Forking `IconInfoRow`'s row silhouette into a private `_Row` — it takes `subtitle`/`trailing`/`onTap`; if a variant is missing, extend it in core
+- Inline `toStringAsFixed` price/percent formatting or `count > 1 ? 's' : ''` pluralization — use core's `num`/`int` extensions (`asPrice`, `asPercent`, `plural`; the `> 1` form renders "0 item" and has shipped as a bug)
 - Error states that omit the data needed to retry — every `*Error` state must carry enough context (e.g. `searchTerm`, `page`) for the BLoC to re-dispatch without reading prior state; screens must never inspect preceding states for retry inputs
 - Creating a new entity that is structurally identical to an existing one — reuse the existing entity; a single entity works for both single-result and list-result use cases
 - Adding constructor parameters to data source impls for infrastructure — data sources are `const` no-arg; they reach infrastructure through static singleton `.instance` calls
@@ -162,6 +166,14 @@ Use these shared components rather than their raw Flutter equivalents:
 | `AppDropdownMenu` with `AppDropdownItem` | raw `PopupMenuButton` / `DropdownButton` |
 | `LoadingIndicator` / `LoadingDots` | `CircularProgressIndicator` inline |
 | `EmptyState` | hand-rolled empty/placeholder view |
+| `IconInfoRow` (supports `subtitle`/`trailing`/`onTap`) | hand-rolled leading + title + trailing list rows — extend it, don't fork a private `_Row` |
+| `AppIconCircle` | hand-rolled `Container(shape: BoxShape.circle)` icon discs (non-interactive; `AppIconButton` is the tappable one) |
+| `AppSwitcher` | raw `AnimatedSwitcher` for skeleton/loaded/error content swaps |
+| `SectionRail` | hand-rolled section-header + horizontal scroll rails |
+| `PriceBreakdown` (`blocks/ecommerce/`) | hand-rolled cart/checkout totals columns |
+| `ShimmerListRow` / `ShimmerSectionHeader` / `ShimmerCircleTile` | hand-rolled `ShimmerBox` skeleton layouts |
+| `context.appColors` | `Theme.of(context).extension<AppColorsExtension>()!` |
+| core `num` extensions (`asPrice` / `asPercent` / `int.plural`) | inline `toStringAsFixed` price/percent formatting and `> 1 ? 's' : ''` pluralization |
 
 ---
 

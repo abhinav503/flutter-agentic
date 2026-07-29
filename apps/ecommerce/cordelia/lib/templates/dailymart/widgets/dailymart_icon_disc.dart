@@ -17,7 +17,7 @@ import 'package:cordelia/templates/dailymart/constants/dailymart_dimen_const.dar
 ///
 /// Pass exactly one of [asset] (a kit SVG — the usual case) or [icon] (a
 /// Material fallback for a glyph the kit hasn't exported yet), same
-/// convention as [CordeliaGlassIconButton].
+/// convention as [GraviaGlassIconButton].
 ///
 /// The pack has no glass variant (spec sheet §6), which is why this wrapper
 /// never reaches for [AppIconButtonVariant.glass].

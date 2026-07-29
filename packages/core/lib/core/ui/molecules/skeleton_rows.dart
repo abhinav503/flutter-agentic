@@ -152,3 +152,33 @@ class ShimmerSectionHeader extends StatelessWidget {
     ],
   );
 }
+
+/// Skeleton of a circular category tile — a disc over a short label bar,
+/// the silhouette of `CategoryTile` and its pack variants. Railed or
+/// gridded by the caller.
+class ShimmerCircleTile extends StatelessWidget {
+  final double size;
+  final double labelWidth;
+  final double labelHeight;
+
+  /// Gap between the disc and the label bar.
+  final double labelGap;
+
+  const ShimmerCircleTile({
+    super.key,
+    this.size = 64,
+    this.labelWidth = 48,
+    this.labelHeight = 12,
+    this.labelGap = AppSpacing.xs,
+  });
+
+  @override
+  Widget build(BuildContext context) => Column(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      ShimmerBox.circle(size: size),
+      SizedBox(height: labelGap),
+      ShimmerBox(width: labelWidth, height: labelHeight),
+    ],
+  );
+}

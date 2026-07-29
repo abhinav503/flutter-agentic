@@ -49,7 +49,7 @@ class SelectorChip extends StatelessWidget {
       selectedBorderColor: Colors.transparent,
       backgroundColor: Colors.transparent,
       selectedBackgroundColor:
-          Theme.of(context).extension<AppColorsExtension>()!.tintedPrimaryFill,
+          context.appColors.tintedPrimaryFill,
       // Same base style for both states — only the colour differs — so the
       // chip's footprint doesn't change size when selection toggles.
       labelStyle: GraviaTextStyleConst.badgeLabel(

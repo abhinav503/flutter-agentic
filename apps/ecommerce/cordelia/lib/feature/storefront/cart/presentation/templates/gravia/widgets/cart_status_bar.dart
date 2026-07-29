@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:core/core/theme/app_colors_extension.dart';
 import 'package:core/core/theme/app_shapes_extension.dart';
 import 'package:core/core/theme/app_spacing.dart';
+import 'package:core/core/ui/atoms/icon_circle.dart';
 import 'package:core/core/ui/atoms/svg_image.dart';
 
 /// Persistent "cart isn't empty" indicator docked above the bottom nav on
@@ -41,9 +42,7 @@ class CartStatusBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
-    final onOverlay = Theme.of(
-      context,
-    ).extension<AppColorsExtension>()!.onOverlay;
+    final onOverlay = context.appColors.onOverlay;
     final shapes =
         Theme.of(context).extension<AppShapes>() ?? AppShapes.standard;
     // Same icon-circle convention as ProfileMenuTile — not a primary-tinted
@@ -75,14 +74,9 @@ class CartStatusBar extends StatelessWidget {
 
         child: Row(
           children: [
-            Container(
-              width: _iconCircleSize,
-              height: _iconCircleSize,
-              decoration: BoxDecoration(
-                color: iconCircleColor,
-                shape: BoxShape.circle,
-              ),
-              alignment: Alignment.center,
+            AppIconCircle(
+              size: _iconCircleSize,
+              color: iconCircleColor,
               child: AppSvgImage.asset(
                 GraviaImageConst.cart,
                 color: cs.onSurface,

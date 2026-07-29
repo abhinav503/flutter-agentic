@@ -5,6 +5,8 @@ import 'package:core/core/theme/app_shapes_extension.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/shimmer_box.dart';
 
+import 'package:cordelia/templates/gravia/constants/gravia_dimen_const.dart';
+
 /// Mirrors the loaded body's silhouette top-to-bottom: image carousel,
 /// title, meta row, price row, quantity chips, description block.
 class ProductDetailsSkeletonBody extends StatelessWidget {
@@ -22,7 +24,7 @@ class ProductDetailsSkeletonBody extends StatelessWidget {
         children: [
           ShimmerBox(
             width: double.infinity,
-            height: 300,
+            height: GraviaDimenConst.detailImageHeight,
             borderRadius: cardRadius,
           ),
           const SizedBox(height: AppSpacing.base),

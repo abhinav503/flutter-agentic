@@ -5,6 +5,7 @@ import 'package:core/core/theme/app_radius.dart';
 import 'package:core/core/theme/app_shapes_extension.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/button.dart';
+import 'package:core/core/ui/blocks/ecommerce/price_breakdown.dart';
 
 import 'package:cordelia/templates/dailymart/constants/dailymart_color_const.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_dimen_const.dart';
@@ -32,7 +33,7 @@ class DailyMartCartSummarySection extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
-    final colors = Theme.of(context).extension<AppColorsExtension>()!;
+    final colors = context.appColors;
 
     final mutedLabel = DailyMartTextStyleConst.bodyMdRegular(
       tt,
@@ -44,45 +45,40 @@ class DailyMartCartSummarySection extends StatelessWidget {
       tt,
     ).copyWith(color: cs.primary);
 
-    return Column(
+    return PriceBreakdown(
       crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        _CouponRow(onTap: onApplyCoupon),
-        const SizedBox(height: AppSpacing.lg),
-        _SummaryRow(
+      leading: _CouponRow(onTap: onApplyCoupon),
+      lines: [
+        PriceLine(
           label: DailyMartValueConst.subTotalLabel,
           value: DailyMartValueConst.formattedPrice(items.itemTotal),
           labelStyle: mutedLabel,
           valueStyle: inkValue,
         ),
-        const SizedBox(height: AppSpacing.base),
-        _SummaryRow(
+        PriceLine(
           label: DailyMartValueConst.deliveryLabel,
           value: DailyMartValueConst.deliveryFreeLabel,
           labelStyle: mutedLabel,
           valueStyle: primaryValue,
         ),
-        const SizedBox(height: AppSpacing.base),
-        _SummaryRow(
+        PriceLine(
           label: DailyMartValueConst.discountLabel,
           value: DailyMartValueConst.formattedPrice(items.discountTotal),
           labelStyle: mutedLabel,
           valueStyle: primaryValue,
         ),
-        const SizedBox(height: AppSpacing.lg),
-        Divider(height: 1, thickness: 1, color: colors.dockedHairline),
-        const SizedBox(height: AppSpacing.lg),
-        _SummaryRow(
-          label: DailyMartValueConst.totalCostLabel,
-          value: DailyMartValueConst.formattedPrice(items.grandTotal),
-          labelStyle: DailyMartTextStyleConst.bodyMdSemibold(
-            tt,
-          ).copyWith(color: cs.onSurface),
-          valueStyle: DailyMartTextStyleConst.bodyLgSemibold(
-            tt,
-          ).copyWith(color: cs.onSurface),
-        ),
       ],
+      total: PriceLine(
+        label: DailyMartValueConst.totalCostLabel,
+        value: DailyMartValueConst.formattedPrice(items.grandTotal),
+        labelStyle: DailyMartTextStyleConst.bodyMdSemibold(
+          tt,
+        ).copyWith(color: cs.onSurface),
+        valueStyle: DailyMartTextStyleConst.bodyLgSemibold(
+          tt,
+        ).copyWith(color: cs.onSurface),
+      ),
+      dividerColor: colors.dockedHairline,
     );
   }
 }
@@ -179,27 +175,4 @@ class _CouponRow extends StatelessWidget {
       ),
     );
   }
-}
-
-class _SummaryRow extends StatelessWidget {
-  final String label;
-  final String value;
-  final TextStyle labelStyle;
-  final TextStyle valueStyle;
-
-  const _SummaryRow({
-    required this.label,
-    required this.value,
-    required this.labelStyle,
-    required this.valueStyle,
-  });
-
-  @override
-  Widget build(BuildContext context) => Row(
-    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    children: [
-      Text(label, style: labelStyle),
-      Text(value, style: valueStyle),
-    ],
-  );
 }

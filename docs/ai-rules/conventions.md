@@ -50,6 +50,10 @@ The pre-commit hook formats staged Dart files and runs `flutter analyze` at the 
 - Using a raw `PopupMenuButton` / `DropdownButton` for a menu/select — use `AppDropdownMenu` (themed, with `AppDropdownItem`)
 - Inline `CircularProgressIndicator` in screens — use `LoadingIndicator` (spinner) or `LoadingDots` (inline "working…") from `package:core/core/ui/atoms/`
 - A hand-rolled empty/placeholder view — use the `EmptyState` molecule
+- Hand-typing `Theme.of(context).extension<AppColorsExtension>()!` — use the `context.appColors` accessor it ships
+- Raw `AnimatedSwitcher` for a skeleton/loaded/error content swap — use `AppSwitcher` (or the pack's preset over it), so the standard duration can't drift per screen
+- Forking `IconInfoRow`'s row silhouette into a private `_Row` — it takes `subtitle`/`trailing`/`onTap`; if a variant is missing, extend it in core
+- Inline `toStringAsFixed` price/percent formatting or `count > 1 ? 's' : ''` pluralization — use core's `num`/`int` extensions (`asPrice`, `asPercent`, `plural`; the `> 1` form renders "0 item" and has shipped as a bug)
 - Error states that omit the data needed to retry — every `*Error` state must carry enough context (e.g. `searchTerm`, `page`) for the BLoC to re-dispatch without reading prior state; screens must never inspect preceding states for retry inputs
 - Creating a new entity that is structurally identical to an existing one — reuse the existing entity; a single `JokeEntity` works for both single-result and list-result use cases
 - Adding constructor parameters to data source impls for infrastructure — data sources are `const` no-arg; they reach infrastructure through static singleton `.instance` calls

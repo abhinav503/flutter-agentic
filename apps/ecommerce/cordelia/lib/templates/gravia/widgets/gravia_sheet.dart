@@ -29,7 +29,7 @@ Future<void> showGraviaConfirmSheet({
   final cs = Theme.of(context).colorScheme;
   final tt = Theme.of(context).textTheme;
   final hairline =
-      Theme.of(context).extension<AppColorsExtension>()!.sheetHairline;
+      context.appColors.sheetHairline;
 
   return AppBottomSheet.show<void>(
     context,
@@ -60,7 +60,7 @@ extension GraviaSheetX<T extends BaseScreen> on BaseScreenState<T> {
   }) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
-    final hairline = Theme.of(context).extension<AppColorsExtension>()!.sheetHairline;
+    final hairline = context.appColors.sheetHairline;
 
     return showAppBottomSheet<R>(
       title: title,

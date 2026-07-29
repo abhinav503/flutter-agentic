@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 
-import 'package:core/core/theme/app_radius.dart';
 import 'package:core/core/theme/app_spacing.dart';
-import 'package:core/core/ui/atoms/network_image.dart';
 
 import 'package:cordelia/enums/product_unit_type.dart';
+import 'package:cordelia/feature/storefront/cart/presentation/quantity_selection.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_text_style_const.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_value_const.dart';
 import 'package:cordelia/feature/storefront/home/domain/entities/product_entity.dart';
 
 import 'gravia_action_pair.dart';
+import 'gravia_list_thumbnail.dart';
 import 'gravia_quantity_stepper.dart';
 
 /// Body of the "Add to Cart" sheet opened from a product card's quick-add
@@ -30,9 +30,8 @@ class AddToCartSheetContent extends StatefulWidget {
   State<AddToCartSheetContent> createState() => _AddToCartSheetContentState();
 }
 
-class _AddToCartSheetContentState extends State<AddToCartSheetContent> {
-  int _quantity = 1;
-
+class _AddToCartSheetContentState extends State<AddToCartSheetContent>
+    with QuantitySelection {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
@@ -52,16 +51,9 @@ class _AddToCartSheetContentState extends State<AddToCartSheetContent> {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ClipRRect(
-                borderRadius: AppRadius.lg,
-                child: SizedBox(
-                  width: AppSpacing.xl13,
-                  height: AppSpacing.xl13,
-                  child: AppNetworkImage(
-                    url: widget.product.imageUrl,
-                    fit: BoxFit.cover,
-                  ),
-                ),
+              GraviaListThumbnail(
+                url: widget.product.imageUrl,
+                size: AppSpacing.xl13,
               ),
               const SizedBox(width: AppSpacing.base),
               Expanded(
@@ -77,7 +69,7 @@ class _AddToCartSheetContentState extends State<AddToCartSheetContent> {
                     const SizedBox(height: AppSpacing.xs3),
                     Text(
                       widget.product.unitType.format(
-                        widget.product.unitValue * _quantity,
+                        widget.product.unitValue * quantity,
                       ),
                       style: GraviaTextStyleConst.textSmRegular(
                         tt,
@@ -91,18 +83,16 @@ class _AddToCartSheetContentState extends State<AddToCartSheetContent> {
                           // Line total for the chosen quantity, not the flat
                           // unit price — updates live as the stepper changes.
                           GraviaValueConst.formattedPrice(
-                            widget.product.price * _quantity,
+                            widget.product.price * quantity,
                           ),
                           style: GraviaTextStyleConst.textMdBold(
                             tt,
                           ).copyWith(color: cs.onSurface),
                         ),
                         GraviaQuantityStepper(
-                          value: _quantity,
-                          onDecrement: _quantity > 1
-                              ? () => setState(() => _quantity--)
-                              : null,
-                          onIncrement: () => setState(() => _quantity++),
+                          value: quantity,
+                          onDecrement: decrementQuantity,
+                          onIncrement: incrementQuantity,
                         ),
                       ],
                     ),
@@ -125,7 +115,7 @@ class _AddToCartSheetContentState extends State<AddToCartSheetContent> {
               label: GraviaValueConst.addToCart,
               kind: GraviaActionKind.primary,
               onTap: () {
-                widget.onAddToCart(_quantity);
+                widget.onAddToCart(quantity);
                 Navigator.of(context).pop();
               },
             ),

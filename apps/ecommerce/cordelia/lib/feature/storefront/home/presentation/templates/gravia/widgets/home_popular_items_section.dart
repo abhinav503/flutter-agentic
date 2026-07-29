@@ -6,8 +6,8 @@ import 'package:cordelia/templates/gravia/widgets/gravia_product_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/blocks/section_header.dart';
+import 'package:core/core/ui/blocks/section_rail.dart';
 
 
 class HomePopularItemsSection extends StatelessWidget {
@@ -32,44 +32,24 @@ class HomePopularItemsSection extends StatelessWidget {
     final tt = Theme.of(context).textTheme;
     final favourites = context.watch<FavouritesCubit>().state.items;
 
-    return Column(
+    return SectionRail(
+      header: SectionHeader(
+        title: GraviaValueConst.popularItemsTitle,
+        titleStyle: GraviaTextStyleConst.textLgBold(
+          tt,
+        ).copyWith(color: cs.onSurface),
+      ),
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-          child: SectionHeader(
-            title: GraviaValueConst.popularItemsTitle,
-            titleStyle: GraviaTextStyleConst.textLgBold(
-              tt,
-            ).copyWith(color: cs.onSurface),
-          ),
-        ),
-        const SizedBox(height: AppSpacing.base),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          // Left inset only, matching the header above — no right inset, so
-          // the row can scroll all the way to the true screen edge instead
-          // of stopping AppSpacing.lg short of it.
-          padding: const EdgeInsets.only(left: AppSpacing.lg),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              for (var i = 0; i < products.length; i++) ...[
-                if (i > 0) const SizedBox(width: AppSpacing.base),
-                GraviaProductCard(
-                  product: products[i],
-                  width: GraviaProductCard.railWidth,
-                  onAddToCart: () => onAddToCart(products[i], 1),
-                  onQuickAdd: () => onQuickAdd(products[i]),
-                  onTap: () => onProductTap(products[i]),
-                  isFavourite: favourites.any((p) => p.id == products[i].id),
-                  onFavouriteToggle: () => onFavouriteToggle(products[i]),
-                ),
-              ],
-            ],
-          ),
-        ),
-      ],
+      itemCount: products.length,
+      itemBuilder: (context, i) => GraviaProductCard(
+        product: products[i],
+        width: GraviaProductCard.railWidth,
+        onAddToCart: () => onAddToCart(products[i], 1),
+        onQuickAdd: () => onQuickAdd(products[i]),
+        onTap: () => onProductTap(products[i]),
+        isFavourite: favourites.any((p) => p.id == products[i].id),
+        onFavouriteToggle: () => onFavouriteToggle(products[i]),
+      ),
     );
   }
 }

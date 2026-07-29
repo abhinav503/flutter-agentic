@@ -4,6 +4,7 @@ import 'package:cordelia/templates/gravia/widgets/gravia_list_thumbnail.dart';
 import 'package:cordelia/templates/gravia/widgets/gravia_tint_badge.dart';
 import 'package:flutter/material.dart';
 import 'package:core/core/theme/app_spacing.dart';
+import 'package:core/core/ui/molecules/icon_info_row.dart';
 import '../../../../../home/domain/entities/category_entity.dart';
 import '../../../../../home/domain/entities/product_entity.dart';
 
@@ -25,16 +26,29 @@ class SearchSuggestionsSection extends StatelessWidget {
     required this.onCategoryTap,
   });
 
+  static const double _thumbSize = 44;
+
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
       child: Column(
         children: [
           for (final category in categories)
-            _SuggestionTile(
-              imageUrl: category.imageUrl,
-              name: category.name,
+            IconInfoRow(
+              leading: GraviaListThumbnail(
+                url: category.imageUrl,
+                size: _thumbSize,
+              ),
+              title: category.name,
+              titleStyle: GraviaTextStyleConst.textMdMedium(
+                tt,
+              ).copyWith(color: cs.onSurface),
+              titleMaxLines: 1,
+              padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
               // The pack's tinted-primary badge — same recipe as the order
               // card's status badge and the address tag, correct in both
               // light and dark.
@@ -44,65 +58,26 @@ class SearchSuggestionsSection extends StatelessWidget {
               onTap: () => onCategoryTap(category),
             ),
           for (final product in products)
-            _SuggestionTile(
-              imageUrl: product.imageUrl,
-              name: product.name,
+            IconInfoRow(
+              leading: GraviaListThumbnail(
+                url: product.imageUrl,
+                size: _thumbSize,
+              ),
+              title: product.name,
+              titleStyle: GraviaTextStyleConst.textMdMedium(
+                tt,
+              ).copyWith(color: cs.onSurface),
+              titleMaxLines: 1,
+              padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
               trailing: Text(
                 GraviaValueConst.formattedPrice(product.price),
                 style: GraviaTextStyleConst.textSmBold(
-                  Theme.of(context).textTheme,
-                ).copyWith(color: Theme.of(context).colorScheme.onSurface),
+                  tt,
+                ).copyWith(color: cs.onSurface),
               ),
               onTap: () => onProductTap(product),
             ),
         ],
-      ),
-    );
-  }
-}
-
-class _SuggestionTile extends StatelessWidget {
-  final String imageUrl;
-  final String name;
-  final Widget trailing;
-  final VoidCallback onTap;
-  static const double _thumbSize = 44;
-
-  const _SuggestionTile({
-    required this.imageUrl,
-    required this.name,
-    required this.trailing,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
-
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
-        child: Row(
-          children: [
-            GraviaListThumbnail(url: imageUrl, size: _thumbSize),
-            const SizedBox(width: AppSpacing.base),
-            Expanded(
-              child: Text(
-                name,
-                style: GraviaTextStyleConst.textMdMedium(
-                  tt,
-                ).copyWith(color: cs.onSurface),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-            const SizedBox(width: AppSpacing.base),
-            trailing,
-          ],
-        ),
       ),
     );
   }

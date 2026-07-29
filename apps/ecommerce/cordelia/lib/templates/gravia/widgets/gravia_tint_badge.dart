@@ -25,9 +25,7 @@ class GraviaTintBadge extends StatelessWidget {
     return GraviaTextStyleConst.badgeLabel(tt).copyWith(color: cs.primary);
   }
 
-  static Color backgroundColor(BuildContext context) => Theme.of(
-    context,
-  ).extension<AppColorsExtension>()!.tintedPrimaryFill;
+  static Color backgroundColor(BuildContext context) => context.appColors.tintedPrimaryFill;
 
   @override
   Widget build(BuildContext context) => AppBadge(

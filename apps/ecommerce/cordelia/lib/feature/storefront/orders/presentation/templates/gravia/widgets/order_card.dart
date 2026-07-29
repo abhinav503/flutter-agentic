@@ -39,9 +39,7 @@ class OrderCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
-    final sheetHairline = Theme.of(
-      context,
-    ).extension<AppColorsExtension>()!.sheetHairline;
+    final sheetHairline = context.appColors.sheetHairline;
     final isUpcoming = order.status.isUpcoming;
 
     return Column(
@@ -225,9 +223,7 @@ class _OtpDigitBox extends StatelessWidget {
       height: _size,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: Theme.of(
-          context,
-        ).extension<AppColorsExtension>()!.tintedPrimaryFill,
+        color: context.appColors.tintedPrimaryFill,
         border: Border.all(color: cs.primary),
       ),
       alignment: Alignment.center,

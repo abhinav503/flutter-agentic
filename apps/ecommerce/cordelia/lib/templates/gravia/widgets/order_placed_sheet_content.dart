@@ -10,7 +10,7 @@ import 'package:core/core/ui/atoms/svg_image.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_image_const.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_text_style_const.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_value_const.dart';
-import 'package:cordelia/widgets/cordelia_primary_button.dart';
+import 'package:cordelia/templates/gravia/widgets/gravia_primary_button.dart';
 
 /// The Cart screen's "Proceed to Checkout" confirmation. Unlike every other
 /// gravia sheet, the kit's spec has no title row and no close control — just
@@ -53,9 +53,7 @@ class OrderPlacedSheetContent extends StatelessWidget {
                 height: 3,
                 margin: const EdgeInsets.only(bottom: AppSpacing.xl4),
                 decoration: BoxDecoration(
-                  color: Theme.of(
-                    context,
-                  ).extension<AppColorsExtension>()!.sheetHairline,
+                  color: context.appColors.sheetHairline,
                   borderRadius: AppRadius.full,
                 ),
               ),
@@ -72,14 +70,12 @@ class OrderPlacedSheetContent extends StatelessWidget {
               Text(
                 GraviaValueConst.orderPlacedSubtitle,
                 textAlign: TextAlign.center,
-                style: GraviaTextStyleConst.textSmRegular(tt).copyWith(
-                  color: Theme.of(context)
-                      .extension<AppColorsExtension>()!
-                      .onSheetMuted,
-                ),
+                style: GraviaTextStyleConst.textSmRegular(
+                  tt,
+                ).copyWith(color: context.appColors.onSheetMuted),
               ),
               const SizedBox(height: AppSpacing.xl4),
-              CordeliaPrimaryButton(
+              GraviaPrimaryButton(
                 label: GraviaValueConst.trackYourOrderLabel,
                 onTap: onTrackOrder,
               ),
@@ -109,6 +105,9 @@ class _SuccessIcon extends StatelessWidget {
   Widget build(BuildContext context) => AppConcentricCircles(
     radii: const [_outerSize, _middleSize, _innerSize],
     colors: [
+      // Not tintedPrimaryFill: the rings must stay translucent so the
+      // middle circle compositing over the outer one reads darker — an
+      // opaque pastel would flatten both rings to one tone.
       cs.primary.withValues(alpha: 0.1),
       cs.primary.withValues(alpha: 0.1),
       cs.primary,

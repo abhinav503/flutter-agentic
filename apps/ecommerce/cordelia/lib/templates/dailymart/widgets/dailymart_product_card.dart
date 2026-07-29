@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'package:core/core/theme/app_radius.dart';
 import 'package:core/core/theme/app_shapes_extension.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/network_image.dart';
@@ -13,6 +12,7 @@ import 'package:cordelia/templates/dailymart/constants/dailymart_image_const.dar
 import 'package:cordelia/templates/dailymart/constants/dailymart_text_style_const.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_value_const.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_icon_disc.dart';
+import 'package:cordelia/templates/dailymart/widgets/dailymart_pill.dart';
 
 /// DailyMart's one true product card. Every surface that shows a product
 /// renders THIS widget, never a hand-styled composition — four call sites
@@ -177,77 +177,33 @@ class _ImageWell extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if (product.discountPercentage > 0)
-                    _DiscountPill(percentage: product.discountPercentage),
+                    DailyMartPill(
+                      label: DailyMartValueConst.discountPercentOffLabel(
+                        product.discountPercentage,
+                      ),
+                      color: cs.error,
+                      style: DailyMartTextStyleConst.bodyXsSemibold(
+                        Theme.of(context).textTheme,
+                      ).copyWith(color: cs.onError),
+                    ),
                   const Spacer(),
                   if (onFavouriteToggle != null)
-                    _FavouriteDisc(
-                      isFavourite: isFavourite,
-                      onTap: onFavouriteToggle!,
+                    DailyMartIconDisc(
+                      asset: isFavourite
+                          ? DailyMartImageConst.heartFilled
+                          : DailyMartImageConst.heart,
+                      onTap: onFavouriteToggle,
+                      size: DailyMartDimenConst.cardActionSize,
+                      iconSize: AppSpacing.lg,
+                      backgroundColor: cs.surface,
+                      foregroundColor: isFavourite
+                          ? cs.primary
+                          : cs.onSurface,
                     ),
                 ],
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class _DiscountPill extends StatelessWidget {
-  final double percentage;
-
-  const _DiscountPill({required this.percentage});
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.base,
-        vertical: AppSpacing.xs3,
-      ),
-      decoration: BoxDecoration(color: cs.error, borderRadius: AppRadius.full),
-      child: Text(
-        DailyMartValueConst.discountPercentOffLabel(percentage),
-        style: DailyMartTextStyleConst.bodyXsSemibold(
-          tt,
-        ).copyWith(color: cs.onError),
-      ),
-    );
-  }
-}
-
-class _FavouriteDisc extends StatelessWidget {
-  final bool isFavourite;
-  final VoidCallback onTap;
-
-  const _FavouriteDisc({required this.isFavourite, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-
-    return Material(
-      color: cs.surface,
-      shape: const CircleBorder(),
-      child: InkWell(
-        onTap: onTap,
-        customBorder: const CircleBorder(),
-        child: SizedBox.square(
-          dimension: DailyMartDimenConst.cardActionSize,
-          child: Center(
-            child: AppSvgImage.asset(
-              isFavourite
-                  ? DailyMartImageConst.heartFilled
-                  : DailyMartImageConst.heart,
-              width: AppSpacing.lg,
-              height: AppSpacing.lg,
-              color: isFavourite ? cs.primary : cs.onSurface,
-            ),
-          ),
         ),
       ),
     );

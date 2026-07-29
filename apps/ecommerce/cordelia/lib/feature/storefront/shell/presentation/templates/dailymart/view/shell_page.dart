@@ -16,10 +16,10 @@ import 'package:cordelia/feature/storefront/cart/presentation/bloc/checkout_bloc
 import 'package:cordelia/feature/storefront/cart/presentation/cubit/cart_cubit.dart';
 import 'package:cordelia/feature/storefront/cart/presentation/templates/dailymart/view/cart_screen.dart';
 import 'package:cordelia/feature/storefront/cart/presentation/templates/dailymart/widgets/cart_status_bar.dart';
-import 'package:cordelia/feature/storefront/favourites/presentation/cubit/favourites_cubit.dart';
 import 'package:cordelia/feature/storefront/home/presentation/bloc/home_bloc.dart';
 import 'package:cordelia/feature/storefront/home/presentation/templates/dailymart/view/home_screen.dart';
 import 'package:cordelia/feature/storefront/profile/presentation/bloc/profile_bloc.dart';
+import 'package:cordelia/feature/storefront/shell/presentation/storefront_shell.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_color_const.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_image_const.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_value_const.dart';
@@ -33,7 +33,7 @@ import 'package:cordelia/templates/dailymart/widgets/dailymart_bottom_fade.dart'
 /// than borrowing gravia's screens, which would mix two packs' visual
 /// languages on one nav bar. Each lands with its own
 /// `presentation/templates/dailymart/` screen.
-class ShellPage extends BasePage {
+class ShellPage extends StorefrontShellPage {
   // Nav-tab indices — public so a route outside the shell can request a tab
   // by name instead of a magic number. Order matches _tabs.
   static const homeTabIndex = 0;
@@ -41,39 +41,14 @@ class ShellPage extends BasePage {
   static const cartTabIndex = 2;
   static const profileTabIndex = 3;
 
-  /// Which tab to select, threaded from `StorefrontRouteArgs.initialTab`.
-  /// See gravia's `ShellPage.initialTab` for why `didUpdateWidget` (not
-  /// `initState`) is what reacts to it.
-  final int initialTab;
-
-  const ShellPage({super.key, this.initialTab = homeTabIndex});
+  const ShellPage({super.key, super.initialTab = homeTabIndex});
 
   @override
   State<ShellPage> createState() => _ShellPageState();
 }
 
-class _ShellPageState extends BasePageState<ShellPage> {
-  late int _currentTab = widget.initialTab;
-
-  @override
-  void initState() {
-    super.initState();
-    // Earliest safe point to load the signed-in shopper's persisted cart and
-    // favourites — once per store visit (a fresh ShellPage per StorefrontPage
-    // mount), not on every tab switch.
-    final storeId = context.read<ActiveStoreCubit>().state!.storeId;
-    context.read<CartCubit>().hydrate(storeId);
-    context.read<FavouritesCubit>().hydrate(storeId);
-  }
-
-  @override
-  void didUpdateWidget(covariant ShellPage oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.initialTab != oldWidget.initialTab) {
-      setState(() => _currentTab = widget.initialTab);
-    }
-  }
-
+class _ShellPageState extends BasePageState<ShellPage>
+    with StorefrontShellState {
   /// Built per frame rather than held `static const`: the Home glyph needs
   /// to know whether its own tab is selected (see below), which a const list
   /// can't see.
@@ -87,40 +62,29 @@ class _ShellPageState extends BasePageState<ShellPage> {
         // renders untinted (its own brand green already matches
         // `cs.primary`) and only the inactive state — which the kit never
         // draws — takes the nav's grey.
-        color: _currentTab == ShellPage.homeTabIndex ? null : color,
+        color: currentTab == ShellPage.homeTabIndex ? null : color,
         width: size,
         height: size,
       ),
       label: DailyMartValueConst.navHome,
     ),
     BottomNavBarItem(
-      iconBuilder: _navIcon(
-        _currentTab == ShellPage.wishlistTabIndex
+      iconBuilder: svgNavIcon(
+        currentTab == ShellPage.wishlistTabIndex
             ? DailyMartImageConst.heartFilled
             : DailyMartImageConst.navWishlist,
       ),
       label: DailyMartValueConst.navWishlist,
     ),
     BottomNavBarItem(
-      iconBuilder: _navIcon(DailyMartImageConst.navCart),
+      iconBuilder: svgNavIcon(DailyMartImageConst.navCart),
       label: DailyMartValueConst.navCart,
     ),
     BottomNavBarItem(
-      iconBuilder: _navIcon(DailyMartImageConst.navProfile),
+      iconBuilder: svgNavIcon(DailyMartImageConst.navProfile),
       label: DailyMartValueConst.navProfile,
     ),
   ];
-
-  static Widget Function(Color, double) _navIcon(String asset) =>
-      (color, size) =>
-          AppSvgImage.asset(asset, color: color, width: size, height: size);
-
-  /// Explicit rather than Scaffold's implicit default — each tab paints its
-  /// own canvas, and this is the colour behind them (and behind an
-  /// overscroll).
-  @override
-  Color? backgroundColor(BuildContext context) =>
-      Theme.of(context).colorScheme.surface;
 
   /// This pack has no app bar on any screen: every screen builds its own
   /// header row as the first item of its scroll view (spec sheet §8).
@@ -160,11 +124,9 @@ class _ShellPageState extends BasePageState<ShellPage> {
   Widget? buildBottomNav(BuildContext context) => BottomNavBar(
     variant: BottomNavBarVariant.stacked,
     items: _tabs(),
-    currentIndex: _currentTab,
-    onTap: (index) => setState(() => _currentTab = index),
-    topBorderColor: Theme.of(
-      context,
-    ).extension<AppColorsExtension>()!.dockedHairline,
+    currentIndex: currentTab,
+    onTap: onTabSelected,
+    topBorderColor: context.appColors.dockedHairline,
     // The kit's bar lifts off the content with a soft upward shadow as well
     // as the hairline — both, not either.
     shadows: DailyMartElevation.nav,
@@ -176,7 +138,7 @@ class _ShellPageState extends BasePageState<ShellPage> {
     // seeds the cubit before its first build.
     final storeId = context.read<ActiveStoreCubit>().state!.storeId;
 
-    final content = switch (_currentTab) {
+    final content = switch (currentTab) {
       ShellPage.homeTabIndex => BlocProvider(
         create: (_) =>
             HomeBloc(getHomeUseCase: sl(), storeId: storeId)
@@ -201,7 +163,7 @@ class _ShellPageState extends BasePageState<ShellPage> {
       ),
     };
 
-    if (_currentTab != ShellPage.homeTabIndex) return content;
+    if (currentTab != ShellPage.homeTabIndex) return content;
 
     // Same idea as gravia's shell-level CartStatusBar: the pill lives in the
     // shell body, so pushed routes cover it and it reappears on pop with no
@@ -233,7 +195,7 @@ class _ShellPageState extends BasePageState<ShellPage> {
                           itemCount: items.itemCount,
                           grandTotal: items.grandTotal,
                           onTap: () => setState(
-                            () => _currentTab = ShellPage.cartTabIndex,
+                            () => currentTab = ShellPage.cartTabIndex,
                           ),
                         ),
                       ),
@@ -245,7 +207,7 @@ class _ShellPageState extends BasePageState<ShellPage> {
     );
   }
 
-  void _goHome() => setState(() => _currentTab = ShellPage.homeTabIndex);
+  void _goHome() => setState(() => currentTab = ShellPage.homeTabIndex);
 }
 
 /// Placeholder for a tab whose `dailymart` screen hasn't been built. A

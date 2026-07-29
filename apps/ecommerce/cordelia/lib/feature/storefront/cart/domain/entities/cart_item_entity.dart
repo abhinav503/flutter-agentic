@@ -10,6 +10,10 @@ class CartItemEntity {
       CartItemEntity(product: product, quantity: quantity ?? this.quantity);
 }
 
+extension CartItemX on CartItemEntity {
+  double get lineTotal => product.price * quantity;
+}
+
 extension CartItemsX on List<CartItemEntity> {
   int get itemCount => fold(0, (sum, item) => sum + item.quantity);
 

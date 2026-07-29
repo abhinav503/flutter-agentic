@@ -14,8 +14,8 @@ import 'package:core/core/ui/blocks/collapsing_header_sheet.dart';
 import 'package:cordelia/constants/app_routes.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_text_style_const.dart';
 import 'package:cordelia/constants/value_const.dart';
-import 'package:cordelia/widgets/cordelia_form_field.dart';
-import 'package:cordelia/widgets/cordelia_primary_button.dart';
+import 'package:cordelia/templates/gravia/widgets/gravia_form_field.dart';
+import 'package:cordelia/templates/gravia/widgets/gravia_primary_button.dart';
 import 'package:cordelia/widgets/cordelia_sheet.dart';
 
 import '../bloc/auth_bloc.dart';
@@ -110,7 +110,7 @@ class _SignupScreenState extends BaseScreenState<SignupScreen>
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  CordeliaFormField(
+                  GraviaFormField(
                     label: ValueConst.nameLabel,
                     controller: _nameController,
                     hint: ValueConst.nameHint,
@@ -119,7 +119,7 @@ class _SignupScreenState extends BaseScreenState<SignupScreen>
                     onChanged: (_) => _clearError(_SignupField.name),
                   ),
                   const SizedBox(height: AppSpacing.lg),
-                  CordeliaFormField(
+                  GraviaFormField(
                     label: ValueConst.emailLabel,
                     controller: _emailController,
                     hint: ValueConst.emailHint,
@@ -128,7 +128,7 @@ class _SignupScreenState extends BaseScreenState<SignupScreen>
                     onChanged: (_) => _clearError(_SignupField.email),
                   ),
                   const SizedBox(height: AppSpacing.lg),
-                  CordeliaFormField(
+                  GraviaFormField(
                     label: ValueConst.mobileLabel,
                     controller: _mobileController,
                     hint: ValueConst.mobileHint,
@@ -137,7 +137,7 @@ class _SignupScreenState extends BaseScreenState<SignupScreen>
                     onChanged: (_) => _clearError(_SignupField.mobile),
                   ),
                   const SizedBox(height: AppSpacing.lg),
-                  CordeliaFormField(
+                  GraviaFormField(
                     label: ValueConst.passwordLabel,
                     controller: _passwordController,
                     hint: ValueConst.passwordHint,
@@ -191,7 +191,7 @@ class _SignupScreenState extends BaseScreenState<SignupScreen>
                     ),
                   ),
                   const SizedBox(height: AppSpacing.xl2),
-                  CordeliaPrimaryButton(
+                  GraviaPrimaryButton(
                     label: ValueConst.signupButtonLabel,
                     state: isLoading
                         ? AppButtonState.loading

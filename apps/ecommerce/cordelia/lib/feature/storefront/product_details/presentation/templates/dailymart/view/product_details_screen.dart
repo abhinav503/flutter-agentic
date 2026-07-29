@@ -9,11 +9,11 @@ import 'package:core/core/theme/app_radius.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/network_image.dart';
 import 'package:core/core/ui/atoms/svg_image.dart';
-import 'package:core/core/ui/blocks/chunked_grid.dart';
 import 'package:core/core/ui/molecules/error_view.dart';
 
 import 'package:cordelia/constants/app_routes.dart';
 import 'package:cordelia/enums/product_unit_type.dart';
+import 'package:cordelia/feature/storefront/cart/presentation/quantity_selection.dart';
 import 'package:cordelia/feature/storefront/favourites/presentation/cubit/favourites_cubit.dart';
 import 'package:cordelia/feature/storefront/home/domain/entities/product_entity.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_color_const.dart';
@@ -24,7 +24,7 @@ import 'package:cordelia/templates/dailymart/constants/dailymart_value_const.dar
 import 'package:cordelia/templates/dailymart/widgets/dailymart_bottom_fade.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_header_row.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_icon_disc.dart';
-import 'package:cordelia/templates/dailymart/widgets/dailymart_product_card.dart';
+import 'package:cordelia/templates/dailymart/widgets/dailymart_product_grid.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_quantity_stepper.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_section_header.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_top_switcher.dart';
@@ -52,7 +52,7 @@ class ProductDetailsScreen extends BaseScreen {
 }
 
 class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
-    with ProductDetailsActions {
+    with QuantitySelection, ProductDetailsActions {
   @override
   String get storeId => widget.storeId;
 
@@ -115,7 +115,7 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
   Widget _loaded(ProductDetailEntity detail) {
     final cs = Theme.of(context).colorScheme;
     final hairline =
-        Theme.of(context).extension<AppColorsExtension>()!.dockedHairline;
+        context.appColors.dockedHairline;
     final product = detail.product;
     final favouritesCubit = context.watch<FavouritesCubit>();
     final isFavourite = favouritesCubit.isFavourite(product.id);
@@ -199,23 +199,12 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
                   onSeeAll: _openBrowse,
                 ),
                 const SizedBox(height: AppSpacing.lg),
-                ChunkedGrid(
-                  itemCount: detail.similarProducts.length,
-                  columns: 2,
-                  spacing: AppSpacing.base,
-                  runSpacing: AppSpacing.lg,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  itemBuilder: (context, index) {
-                    final related = detail.similarProducts[index];
-                    return DailyMartProductCard(
-                      product: related,
-                      onAdd: () => _addToCart(related, 1),
-                      onTap: () => openProductDetails(related),
-                      isFavourite: favouritesCubit.isFavourite(related.id),
-                      onFavouriteToggle: () =>
-                          context.read<FavouritesCubit>().toggle(related),
-                    );
-                  },
+                DailyMartProductGrid(
+                  products: detail.similarProducts,
+                  onAdd: (related) => _addToCart(related, 1),
+                  onProductTap: openProductDetails,
+                  onFavouriteToggle: (related) =>
+                      context.read<FavouritesCubit>().toggle(related),
                 ),
               ],
             ],
@@ -429,7 +418,7 @@ class _Tab extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
     final hairline =
-        Theme.of(context).extension<AppColorsExtension>()!.dockedHairline;
+        context.appColors.dockedHairline;
 
     return InkWell(
       onTap: onTap,

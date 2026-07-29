@@ -18,7 +18,7 @@ class GraviaQuantityStepper extends StatelessWidget {
   final VoidCallback? onDecrement;
 
   /// Pins the pill to an exact height — for docking next to a fixed-height
-  /// sibling (e.g. [CordeliaPrimaryButton] in a docked bar). Omit to keep the
+  /// sibling (e.g. [GraviaPrimaryButton] in a docked bar). Omit to keep the
   /// default content-driven height.
   final double? height;
 

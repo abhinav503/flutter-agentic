@@ -4,7 +4,7 @@ import 'package:cordelia/templates/gravia/constants/gravia_text_style_const.dart
 import 'package:cordelia/templates/gravia/constants/gravia_value_const.dart';
 import 'package:cordelia/templates/gravia/widgets/gravia_dropdown_field.dart';
 import 'package:cordelia/templates/gravia/widgets/radio_options_sheet_content.dart';
-import 'package:cordelia/widgets/cordelia_primary_button.dart';
+import 'package:cordelia/templates/gravia/widgets/gravia_primary_button.dart';
 import 'package:flutter/material.dart';
 import 'package:core/core/theme/app_spacing.dart';
 
@@ -126,14 +126,14 @@ class _OrdersFilterSheetContentState extends State<OrdersFilterSheetContent> {
           GraviaDropdownField(
             label: GraviaValueConst.filterDateLabel,
             value: GraviaValueConst.filterDateRangeLabel(
-              _from.filterDateLabel,
-              _to.filterDateLabel,
+              _from.asFilterDate,
+              _to.asFilterDate,
             ),
             trailingIcon: Icons.calendar_today_outlined,
             onTap: _pickDateRange,
           ),
           const SizedBox(height: AppSpacing.xl2),
-          CordeliaPrimaryButton(
+          GraviaPrimaryButton(
             label: GraviaValueConst.applyFilterLabel,
             onTap: () => widget.onApply(
               OrdersFilter(

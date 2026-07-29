@@ -75,8 +75,10 @@ extension OrderPlacedAtX on DateTime {
   }
 
   /// The filter sheet's date-field format ("Mar 01, 2026") — zero-padded day,
-  /// no weekday/time, per the kit's Order Filter screen.
-  String get filterDateLabel {
+  /// no weekday/time, per the kit's Order Filter screen. `as*` naming (like
+  /// core's `asPrice`) keeps it from colliding with the sheet's
+  /// `GraviaValueConst.filterDateLabel` copy const.
+  String get asFilterDate {
     final month = _months[this.month - 1];
     final paddedDay = day.toString().padLeft(2, '0');
     return '$month $paddedDay, $year';

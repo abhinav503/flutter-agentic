@@ -52,8 +52,10 @@ Read the **Forbidden Patterns** list in `docs/ai-rules/conventions.md`. Check th
 Before accepting new widgets, utilities, or services, check whether the capability already exists or should be shared. This is the easiest thing for generated code to get wrong — it tends to reinvent rather than reuse.
 
 **Reuse what core already provides.** Skim `packages/core/lib/core/ui/`, `base/`, `network/`, and `usecase/` before judging new code. Flag ❌ when the change reimplements something core already has:
-- molecules: `EmptyState`, `ErrorView`, `AppBottomSheet`, `AppDialog`
-- atoms: `AppButton`, `AppTextField`, `AppBadge`, `AppChip`, `AppTopBar`, `AppCheckbox`, `LoadingIndicator`, `LoadingDots`, `AppDropdownMenu`
+- molecules: `EmptyState`, `ErrorView`, `AppBottomSheet`, `AppDialog`, `AppMenuTile`, `AppRadioGroup`, `IconInfoRow` (takes `subtitle`/`trailing`/`onTap` — flag private forks of its row silhouette), `ShimmerListRow` / `ShimmerSectionHeader` / `ShimmerCircleTile`
+- atoms: `AppButton`, `AppTextField`, `AppBadge`, `AppChip`, `AppTopBar`, `AppCheckbox`, `AppIconButton`, `AppIconCircle`, `AppSwitcher` (flag raw `AnimatedSwitcher` content swaps), `LoadingIndicator`, `LoadingDots`, `AppDropdownMenu`
+- blocks: `SectionRail` (flag hand-rolled header + horizontal rail compositions), `PriceBreakdown` (`blocks/ecommerce/` — flag hand-rolled totals panels), plus the rest of the `design.md` §2 index
+- extensions: `context.appColors` (flag hand-typed `Theme.of(context).extension<AppColorsExtension>()!`), `num`/`int` formatting (`asPrice`, `asPercent`, `plural` — flag inline `toStringAsFixed` price/percent recipes)
 - logic: `BaseRepository` (`handleRequest` / `handleStream`), `UseCase` / `StreamUseCase`, `HttpService` (`get` / `post` / `put` / `delete` / `postStream`)
 
 **No raw Material widgets where a design-system equivalent exists.** Flag direct use of `PopupMenuButton` / `DropdownButton` (→ `AppDropdownMenu`), `TextField` (→ `AppTextField`), `ElevatedButton` / `TextButton` / `OutlinedButton` / `FilledButton` (→ `AppButton`), `CircularProgressIndicator` (→ `LoadingIndicator`), or a hand-rolled empty/error view (→ `EmptyState` / `ErrorView`). If no atom fits, the fix is to add one to core (next point) — not to inline raw Material.

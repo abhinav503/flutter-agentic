@@ -16,8 +16,8 @@ import 'package:cordelia/templates/gravia/constants/gravia_dimen_const.dart';
 import 'package:cordelia/constants/image_const.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_text_style_const.dart';
 import 'package:cordelia/constants/value_const.dart';
-import 'package:cordelia/widgets/cordelia_form_field.dart';
-import 'package:cordelia/widgets/cordelia_primary_button.dart';
+import 'package:cordelia/templates/gravia/widgets/gravia_form_field.dart';
+import 'package:cordelia/templates/gravia/widgets/gravia_primary_button.dart';
 import 'package:cordelia/widgets/cordelia_sheet.dart';
 
 import '../bloc/auth_bloc.dart';
@@ -126,7 +126,7 @@ class _LoginScreenState extends BaseScreenState<LoginScreen>
                     return Column(
                       // crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        CordeliaFormField(
+                        GraviaFormField(
                           label: ValueConst.emailLabel,
                           controller: _emailController,
                           hint: ValueConst.emailHint,
@@ -135,7 +135,7 @@ class _LoginScreenState extends BaseScreenState<LoginScreen>
                           onChanged: (_) => _clearError(_LoginField.email),
                         ),
                         const SizedBox(height: AppSpacing.lg),
-                        CordeliaFormField(
+                        GraviaFormField(
                           label: ValueConst.passwordLabel,
                           controller: _passwordController,
                           hint: ValueConst.passwordHint,
@@ -155,7 +155,7 @@ class _LoginScreenState extends BaseScreenState<LoginScreen>
                           ],
                         ),
                         const SizedBox(height: AppSpacing.lg),
-                        CordeliaPrimaryButton(
+                        GraviaPrimaryButton(
                           label: ValueConst.continueLabel,
                           state: isLoading
                               ? AppButtonState.loading

@@ -4,13 +4,14 @@ import 'package:cordelia/templates/gravia/constants/gravia_image_const.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_text_style_const.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_value_const.dart';
 import 'package:cordelia/templates/gravia/widgets/gravia_sheet.dart';
-import 'package:cordelia/widgets/cordelia_hero_header.dart';
-import 'package:cordelia/widgets/cordelia_primary_button.dart';
+import 'package:cordelia/templates/gravia/widgets/gravia_hero_header.dart';
+import 'package:cordelia/templates/gravia/widgets/gravia_primary_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:core/core/ui/atoms/app_switcher.dart';
 import 'package:core/core/base/base_screen.dart';
 import 'package:core/core/services/shared_pref_service/shared_preference_service.dart';
 import 'package:core/core/theme/app_spacing.dart';
@@ -91,13 +92,12 @@ class _AddressScreenState extends BaseScreenState<AddressScreen> {
           showSnackBar(GraviaValueConst.addressDeleteFailedMessage);
         }
       },
-      builder: (context, state) => AnimatedSwitcher(
-        duration: const Duration(milliseconds: 300),
+      builder: (context, state) => AppSwitcher(
         child: switch (state) {
           AddressLoading() => CollapsingHeaderSheet(
             key: const ValueKey('loading'),
-            initialHeaderHeight: 110,
-            header: CordeliaHeroHeader(
+            initialHeaderHeight: GraviaDimenConst.headerHeightCompact,
+            header: GraviaHeroHeader(
               title: GraviaValueConst.selectAddressTitle,
               onBack: () => context.pop(),
             ),
@@ -151,8 +151,8 @@ class _AddressScreenState extends BaseScreenState<AddressScreen> {
     // no docked select bar, since there's nothing to select yet.
     if (addresses.isEmpty) {
       return CollapsingHeaderSheet(
-        initialHeaderHeight: 110,
-        header: CordeliaHeroHeader(
+        initialHeaderHeight: GraviaDimenConst.headerHeightCompact,
+        header: GraviaHeroHeader(
           title: GraviaValueConst.selectAddressTitle,
           onBack: () => context.pop(),
         ),
@@ -191,8 +191,8 @@ class _AddressScreenState extends BaseScreenState<AddressScreen> {
       children: [
         Expanded(
           child: CollapsingHeaderSheet(
-            initialHeaderHeight: 110,
-            header: CordeliaHeroHeader(
+            initialHeaderHeight: GraviaDimenConst.headerHeightCompact,
+            header: GraviaHeroHeader(
               title: GraviaValueConst.selectAddressTitle,
               onBack: () => context.pop(),
             ),
@@ -242,7 +242,7 @@ class _AddressScreenState extends BaseScreenState<AddressScreen> {
           ),
         ),
         DockedBar(
-          child: CordeliaPrimaryButton(
+          child: GraviaPrimaryButton(
             label: GraviaValueConst.selectAddressTitle,
             onTap: () => _confirmSelection(addresses, selectedAddressId),
           ),

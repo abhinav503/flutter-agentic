@@ -13,11 +13,11 @@ import 'package:cordelia/templates/gravia/constants/gravia_dimen_const.dart';
 /// [iconSize]).
 ///
 /// ```dart
-/// CordeliaGlassIconButton(asset: ImageConst.arrowLeft, onTap: onBack)
-/// CordeliaGlassIconButton(icon: Icons.tune_rounded, onTap: onFilterTap)
+/// GraviaGlassIconButton(asset: ImageConst.arrowLeft, onTap: onBack)
+/// GraviaGlassIconButton(icon: Icons.tune_rounded, onTap: onFilterTap)
 /// ```
-class CordeliaGlassIconButton extends StatelessWidget {
-  /// Header-control disc diameter — also what [CordeliaHeroHeader] uses to
+class GraviaGlassIconButton extends StatelessWidget {
+  /// Header-control disc diameter — also what [GraviaHeroHeader] uses to
   /// mirror an invisible spacer opposite the back button.
   static const double containerSize = GraviaDimenConst.controlHeight;
 
@@ -33,7 +33,7 @@ class CordeliaGlassIconButton extends StatelessWidget {
   final VoidCallback? onTap;
   final double iconSize;
 
-  const CordeliaGlassIconButton({
+  const GraviaGlassIconButton({
     super.key,
     this.asset,
     this.icon,
@@ -41,7 +41,7 @@ class CordeliaGlassIconButton extends StatelessWidget {
     this.iconSize = 20,
   }) : assert(
          (asset == null) != (icon == null),
-         'CordeliaGlassIconButton requires exactly one of asset or icon',
+         'GraviaGlassIconButton requires exactly one of asset or icon',
        );
 
   @override
