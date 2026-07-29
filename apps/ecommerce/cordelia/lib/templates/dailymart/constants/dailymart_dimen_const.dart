@@ -39,4 +39,36 @@ abstract final class DailyMartDimenConst {
   /// fraction of the viewport rather than a hard width — 286/375 in the kit.
   static const double promoViewportFraction = 0.79;
   static const double promoCardHeight = 156;
+
+  /// Product Details' single image well — taller than the card's
+  /// [productImageHeight] because it is the screen's hero surface.
+  static const double detailImageHeight = 226;
+
+  /// The bordered rating pill beside the product name on Product Details,
+  /// and the yellow rating pill on a review row — same 32px pill.
+  static const double ratingPillHeight = 32;
+
+  /// The cart row's square photo thumbnail.
+  static const double cartThumbSize = 90;
+
+  /// The sheet chrome's drag handle (64 × 5 in the kit — wider and thicker
+  /// than core's default so it reads on the 24px-radius sheet).
+  static const double sheetHandleWidth = 64;
+  static const double sheetHandleHeight = 5;
+
+  /// The sheet chrome's pinned header: the handle band (6 + 5 + 6) + the
+  /// 48px close-disc row with breathing room, no divider — re-derive if the
+  /// disc or handle sizes change.
+  static const double sheetHeaderHeight = 84;
+
+  /// The `surface → transparent` fade under a floating control
+  /// (`DailyMartBottomFade`); the taller value clears Product Details' two
+  /// stacked rows (status pill + action row).
+  static const double bottomFadeHeight = 120;
+  static const double detailBottomFadeHeight = 160;
+
+  /// The floating Filter pill on Search results — 52px tall at radius 40,
+  /// the pack's one recorded off-token radius (spec sheet §2).
+  static const double filterPillHeight = 52;
+  static const double filterPillRadius = 40;
 }

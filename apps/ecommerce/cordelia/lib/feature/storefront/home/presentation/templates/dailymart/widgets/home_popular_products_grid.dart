@@ -22,7 +22,10 @@ class DailyMartHomePopularProductsGrid extends StatelessWidget {
   final ValueChanged<ProductEntity> onAddToCart;
   final ValueChanged<ProductEntity> onProductTap;
   final ValueChanged<ProductEntity> onFavouriteToggle;
-  final VoidCallback onSeeAll;
+
+  /// Null hides the "See all" chip — the Search screen reuses this grid and
+  /// is already the place every "See all" lands on.
+  final VoidCallback? onSeeAll;
 
   const DailyMartHomePopularProductsGrid({
     super.key,
@@ -30,7 +33,7 @@ class DailyMartHomePopularProductsGrid extends StatelessWidget {
     required this.onAddToCart,
     required this.onProductTap,
     required this.onFavouriteToggle,
-    required this.onSeeAll,
+    this.onSeeAll,
   });
 
   @override

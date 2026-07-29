@@ -20,10 +20,33 @@ import 'package:cordelia/templates/dailymart/constants/dailymart_value_const.dar
 class DailyMartSearchBar extends StatelessWidget {
   final VoidCallback? onTap;
 
-  const DailyMartSearchBar({super.key, this.onTap});
+  /// The Home <-> Search flight tag, scoped to one store — same reasoning as
+  /// gravia's `SearchFieldBar.heroTagFor`: a fixed tag would let two
+  /// different storefronts running this pack pair their bars during a
+  /// storefront-to-storefront transition. Both ends of the intended flight
+  /// (this bar and `DailyMartSearchFieldBar`) derive the tag through this one
+  /// factory, so they cannot drift apart and silently stop flying.
+  static Object heroTagFor(String storeId) =>
+      'dailymart-search-bar-hero-$storeId';
+
+  /// When set, the bar participates in the Home <-> Search Hero flight.
+  /// Null (e.g. in a context with no Search counterpart) renders it plain.
+  final Object? heroTag;
+
+  const DailyMartSearchBar({super.key, this.onTap, this.heroTag});
 
   @override
   Widget build(BuildContext context) {
+    final bar = _buildBar(context);
+    if (heroTag == null) return bar;
+    return Hero(
+      tag: heroTag!,
+      createRectTween: (begin, end) => RectTween(begin: begin, end: end),
+      child: bar,
+    );
+  }
+
+  Widget _buildBar(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
 

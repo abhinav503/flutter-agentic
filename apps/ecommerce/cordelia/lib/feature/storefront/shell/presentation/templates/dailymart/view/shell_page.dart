@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:core/core/base/base_page.dart';
 import 'package:core/core/theme/app_colors_extension.dart';
+import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/button.dart';
 import 'package:core/core/ui/atoms/svg_image.dart';
 import 'package:core/core/ui/blocks/bottom_nav_bar.dart';
@@ -10,7 +11,11 @@ import 'package:core/core/ui/molecules/empty_state.dart';
 
 import 'package:cordelia/di/injection_container.dart';
 import 'package:cordelia/feature/storefront/active_store/presentation/cubit/active_store_cubit.dart';
+import 'package:cordelia/feature/storefront/cart/domain/entities/cart_item_entity.dart';
+import 'package:cordelia/feature/storefront/cart/presentation/bloc/checkout_bloc.dart';
 import 'package:cordelia/feature/storefront/cart/presentation/cubit/cart_cubit.dart';
+import 'package:cordelia/feature/storefront/cart/presentation/templates/dailymart/view/cart_screen.dart';
+import 'package:cordelia/feature/storefront/cart/presentation/templates/dailymart/widgets/cart_status_bar.dart';
 import 'package:cordelia/feature/storefront/favourites/presentation/cubit/favourites_cubit.dart';
 import 'package:cordelia/feature/storefront/home/presentation/bloc/home_bloc.dart';
 import 'package:cordelia/feature/storefront/home/presentation/templates/dailymart/view/home_screen.dart';
@@ -18,6 +23,7 @@ import 'package:cordelia/feature/storefront/profile/presentation/bloc/profile_bl
 import 'package:cordelia/templates/dailymart/constants/dailymart_color_const.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_image_const.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_value_const.dart';
+import 'package:cordelia/templates/dailymart/widgets/dailymart_bottom_fade.dart';
 
 /// `dailymart` template's nav shell. Four tabs — Home, Wishlist, Cart,
 /// Profile — in the kit's own order; note the cart **is** a tab here, unlike
@@ -88,7 +94,11 @@ class _ShellPageState extends BasePageState<ShellPage> {
       label: DailyMartValueConst.navHome,
     ),
     BottomNavBarItem(
-      iconBuilder: _navIcon(DailyMartImageConst.navWishlist),
+      iconBuilder: _navIcon(
+        _currentTab == ShellPage.wishlistTabIndex
+            ? DailyMartImageConst.heartFilled
+            : DailyMartImageConst.navWishlist,
+      ),
       label: DailyMartValueConst.navWishlist,
     ),
     BottomNavBarItem(
@@ -120,10 +130,29 @@ class _ShellPageState extends BasePageState<ShellPage> {
   /// Shared above the tabs because Home's header renders the shopper's name
   /// and avatar, and the Profile tab will read the same profile — one fetch,
   /// cache-first, instead of one per screen.
+  ///
+  /// CheckoutBloc sits here too, not inside the Cart tab's own subtree: the
+  /// shell rebuilds each tab's providers fresh on every switch, so a bloc
+  /// created per-tab would be disposed — success listener and all — if the
+  /// shopper switched tabs while an order was mid-flight. It's lazy, so it
+  /// only instantiates when the Cart tab first reads it.
   @override
-  Widget buildBlocProviders(Widget child) => BlocProvider(
-    create: (_) =>
-        ProfileBloc(getProfileUseCase: sl())..add(const ProfileEvent.started()),
+  Widget buildBlocProviders(Widget child) => MultiBlocProvider(
+    providers: [
+      BlocProvider(
+        create: (_) =>
+            ProfileBloc(getProfileUseCase: sl())
+              ..add(const ProfileEvent.started()),
+      ),
+      BlocProvider(
+        create: (context) => CheckoutBloc(
+          createPaymentUseCase: sl(),
+          processPaymentUseCase: sl(),
+          createOrderUseCase: sl(),
+          storeId: context.read<ActiveStoreCubit>().state!.storeId,
+        ),
+      ),
+    ],
     child: child,
   );
 
@@ -147,7 +176,7 @@ class _ShellPageState extends BasePageState<ShellPage> {
     // seeds the cubit before its first build.
     final storeId = context.read<ActiveStoreCubit>().state!.storeId;
 
-    return switch (_currentTab) {
+    final content = switch (_currentTab) {
       ShellPage.homeTabIndex => BlocProvider(
         create: (_) =>
             HomeBloc(getHomeUseCase: sl(), storeId: storeId)
@@ -159,17 +188,61 @@ class _ShellPageState extends BasePageState<ShellPage> {
         tab: DailyMartValueConst.navWishlist,
         onBackToHome: _goHome,
       ),
-      ShellPage.cartTabIndex => _NotPortedYet(
-        icon: Icons.shopping_bag_outlined,
-        tab: DailyMartValueConst.navCart,
-        onBackToHome: _goHome,
-      ),
+      // The cart's items live in the app-root CartCubit and checkout in the
+      // shell-level CheckoutBloc (see buildBlocProviders) — nothing to
+      // provide per-tab.
+      // showBack: false — a tab root has nowhere to pop; onBack still serves
+      // the empty state's Explore action and the order-placed continue.
+      ShellPage.cartTabIndex => CartScreen(onBack: _goHome, showBack: false),
       _ => _NotPortedYet(
         icon: Icons.person_outline_rounded,
         tab: DailyMartValueConst.navProfile,
         onBackToHome: _goHome,
       ),
     };
+
+    if (_currentTab != ShellPage.homeTabIndex) return content;
+
+    // Same idea as gravia's shell-level CartStatusBar: the pill lives in the
+    // shell body, so pushed routes cover it and it reappears on pop with no
+    // show/hide bookkeeping. The tab content keeps its slot (index 0) while
+    // the overlay children toggle, so flipping the cart between empty and
+    // non-empty never remounts Home's BlocProvider mid-session. Tapping it
+    // switches to the Cart tab — dailymart's cart is a tab, not a route.
+    return Stack(
+      children: [
+        Positioned.fill(child: content),
+        Positioned(
+          left: 0,
+          right: 0,
+          bottom: 0,
+          child: BlocBuilder<CartCubit, List<CartItemEntity>>(
+            builder: (context, items) => items.isEmpty
+                ? const SizedBox.shrink()
+                : Stack(
+                    alignment: Alignment.bottomCenter,
+                    children: [
+                      // Home scrolls on the mint canvas, not surface — the
+                      // fade must dissolve into the colour actually behind it.
+                      DailyMartBottomFade(
+                        color: Theme.of(context).colorScheme.canvas,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(AppSpacing.lg),
+                        child: DailyMartCartStatusBar(
+                          itemCount: items.itemCount,
+                          grandTotal: items.grandTotal,
+                          onTap: () => setState(
+                            () => _currentTab = ShellPage.cartTabIndex,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+          ),
+        ),
+      ],
+    );
   }
 
   void _goHome() => setState(() => _currentTab = ShellPage.homeTabIndex);

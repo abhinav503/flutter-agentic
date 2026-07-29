@@ -23,6 +23,14 @@ abstract final class DailyMartColorConst {
   /// `AppColorsExtension.warning`: the `dailyMart` preset declares no warning
   /// role, so that would resolve to a seed-derived tone, not this swatch.
   static const paymentIcon = Color(0xFFFF9C44);
+
+  /// The static Reviews tab's amber (kit `warning/400`) — summary stars,
+  /// star bars, and the review row's rating pill, with the kit's ink on the
+  /// pill. Pinned for the same reason as [paymentIcon]: the preset declares
+  /// no warning role, and review amber must stay amber in both modes, like
+  /// [ratingStar].
+  static const reviewAmber = Color(0xFFFACC15);
+  static const onReviewAmber = Color(0xFF0D121C);
 }
 
 /// The pack's canvas role, which no `ColorScheme` member expresses on its

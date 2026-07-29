@@ -1,7 +1,7 @@
 import 'package:cordelia/constants/value_const.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_image_const.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_text_style_const.dart';
-import 'package:cordelia/templates/gravia/widgets/gravia_avatar_image.dart';
+import 'package:cordelia/widgets/cordelia_avatar_image.dart';
 import 'package:cordelia/widgets/cordelia_glass_icon_button.dart';
 import 'package:cordelia/widgets/cordelia_hero_header.dart';
 import 'package:flutter/material.dart';
@@ -37,7 +37,7 @@ class ProfileHeroHeader extends StatelessWidget {
       bottomGap: AppSpacing.lg,
       bottom: Row(
         children: [
-          GraviaAvatarImage(profile: profile, size: _avatarSize),
+          CordeliaAvatarImage(profile: profile, size: _avatarSize),
           const SizedBox(width: AppSpacing.base),
           Expanded(
             child: Column(

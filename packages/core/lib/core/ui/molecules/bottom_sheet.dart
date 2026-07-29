@@ -47,6 +47,33 @@ class AppBottomSheet extends StatelessWidget {
   /// calls out an exact shade rather than the theme's `onSurfaceVariant`
   /// role. Omit (default) to use the role.
   final Color? handleColor;
+
+  /// Overrides the drag-handle bar's size — for a caller whose spec calls
+  /// out exact geometry (e.g. `dailymart`'s 64 × 5) rather than the default
+  /// 44 × 3. Omit (default) to keep the default.
+  final Size? handleSize;
+
+  /// A widget docked at the header row's leading edge (e.g. `dailymart`'s
+  /// close disc). Omit (default) for the classic title-first header.
+  final Widget? leading;
+
+  /// Centres the title against the whole sheet (drawn under [leading] and
+  /// the close action in a stack) instead of the default start-aligned
+  /// title — for packs whose sheets centre their title between a leading
+  /// disc and an empty trailing slot.
+  final bool centerTitle;
+
+  /// Overrides the pinned header's height — for a header whose [leading]
+  /// control is taller than the default 56 leaves room for. Omit (default)
+  /// to keep the default.
+  final double? headerHeight;
+
+  /// Set false to suppress the trailing close control entirely — for packs
+  /// whose sheets close through [leading] instead (a sheet with both reads
+  /// as two competing exits). [AppBottomSheet.show] still synthesizes its
+  /// pop-on-close [onClose], so this flag, not a null [onClose], is how a
+  /// caller opts out of the trailing X.
+  final bool showCloseAction;
   final List<Widget>? actions;
   final bool isScrollable;
   final double maxHeightFraction;
@@ -61,6 +88,11 @@ class AppBottomSheet extends StatelessWidget {
     this.closeLabelStyle,
     this.dividerColor,
     this.handleColor,
+    this.handleSize,
+    this.leading,
+    this.centerTitle = false,
+    this.headerHeight,
+    this.showCloseAction = true,
     this.actions,
     this.isScrollable = true,
     this.maxHeightFraction = 0.9,
@@ -76,6 +108,11 @@ class AppBottomSheet extends StatelessWidget {
     TextStyle? closeLabelStyle,
     Color? dividerColor,
     Color? handleColor,
+    Size? handleSize,
+    Widget? leading,
+    bool centerTitle = false,
+    double? headerHeight,
+    bool showCloseAction = true,
     List<Widget>? actions,
     bool isScrollable = true,
     double maxHeightFraction = 0.9,
@@ -99,6 +136,11 @@ class AppBottomSheet extends StatelessWidget {
         closeLabelStyle: closeLabelStyle,
         dividerColor: dividerColor,
         handleColor: handleColor,
+        handleSize: handleSize,
+        leading: leading,
+        centerTitle: centerTitle,
+        headerHeight: headerHeight,
+        showCloseAction: showCloseAction,
         actions: actions,
         isScrollable: isScrollable,
         maxHeightFraction: maxHeightFraction,
@@ -144,6 +186,11 @@ class AppBottomSheet extends StatelessWidget {
                 closeLabelStyle: closeLabelStyle,
                 dividerColor: dividerColor,
                 handleColor: handleColor,
+                handleSize: handleSize,
+                leading: leading,
+                centerTitle: centerTitle,
+                headerHeight: headerHeight,
+                showCloseAction: showCloseAction,
               ),
             ),
             SliverToBoxAdapter(child: child),
@@ -179,8 +226,13 @@ class _HeaderDelegate extends SliverPersistentHeaderDelegate {
   final TextStyle? closeLabelStyle;
   final Color? dividerColor;
   final Color? handleColor;
+  final Size? handleSize;
+  final Widget? leading;
+  final bool centerTitle;
+  final double? headerHeight;
+  final bool showCloseAction;
 
-  static const double _height = 56;
+  static const double _defaultHeight = 56;
 
   _HeaderDelegate({
     this.title,
@@ -190,12 +242,41 @@ class _HeaderDelegate extends SliverPersistentHeaderDelegate {
     this.closeLabelStyle,
     this.dividerColor,
     this.handleColor,
+    this.handleSize,
+    this.leading,
+    this.centerTitle = false,
+    this.headerHeight,
+    this.showCloseAction = true,
   });
 
   @override
   Widget build(
       BuildContext context, double shrinkOffset, bool overlapsContent) {
     final cs = Theme.of(context).colorScheme;
+    // The handle bar above already gives every sheet a drag affordance, so
+    // an untitled sheet just leaves the title slot blank rather than
+    // rendering a second handle here.
+    final titleText = title != null
+        ? Text(
+            title!,
+            style: titleStyle ?? Theme.of(context).textTheme.titleMedium,
+            overflow: TextOverflow.ellipsis,
+          )
+        : const SizedBox.shrink();
+    final closeAction = onClose == null || !showCloseAction
+        ? null
+        : closeLabel != null
+            ? TextButton(
+                onPressed: onClose,
+                style: TextButton.styleFrom(foregroundColor: cs.primary),
+                child: Text(closeLabel!, style: closeLabelStyle),
+              )
+            : IconButton(
+                icon: const Icon(Icons.close),
+                onPressed: onClose,
+                color: cs.onSurfaceVariant,
+              );
+
     return Material(
       elevation: overlapsContent ? 2 : 0,
       color: cs.surface,
@@ -205,8 +286,8 @@ class _HeaderDelegate extends SliverPersistentHeaderDelegate {
           Padding(
             padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs2),
             child: Container(
-              width: 44,
-              height: 3,
+              width: handleSize?.width ?? 44,
+              height: handleSize?.height ?? 3,
               decoration: BoxDecoration(
                 color: handleColor ?? cs.onSurfaceVariant.withValues(alpha: 0.4),
                 borderRadius: AppRadius.full,
@@ -216,34 +297,33 @@ class _HeaderDelegate extends SliverPersistentHeaderDelegate {
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-              child: Row(
-                children: [
-                  Expanded(
-                    // The handle bar above already gives every sheet a drag
-                    // affordance, so an untitled sheet just leaves this row
-                    // blank rather than rendering a second handle here.
-                    child: title != null
-                        ? Text(
-                            title!,
-                            style: titleStyle ?? Theme.of(context).textTheme.titleMedium,
-                            overflow: TextOverflow.ellipsis,
-                          )
-                        : const SizedBox.shrink(),
-                  ),
-                  if (onClose != null)
-                    closeLabel != null
-                        ? TextButton(
-                            onPressed: onClose,
-                            style: TextButton.styleFrom(foregroundColor: cs.primary),
-                            child: Text(closeLabel!, style: closeLabelStyle),
-                          )
-                        : IconButton(
-                            icon: const Icon(Icons.close),
-                            onPressed: onClose,
-                            color: cs.onSurfaceVariant,
+              // A stack, not a row, when the title is centred: the title
+              // centres against the sheet itself, so a lone leading disc
+              // doesn't push it off-centre.
+              child: centerTitle
+                  ? Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        titleText,
+                        if (leading != null)
+                          Align(alignment: Alignment.centerLeft, child: leading),
+                        if (closeAction != null)
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: closeAction,
                           ),
-                ],
-              ),
+                      ],
+                    )
+                  : Row(
+                      children: [
+                        if (leading != null) ...[
+                          leading!,
+                          const SizedBox(width: AppSpacing.base),
+                        ],
+                        Expanded(child: titleText),
+                        ?closeAction,
+                      ],
+                    ),
             ),
           ),
           Divider(
@@ -259,10 +339,10 @@ class _HeaderDelegate extends SliverPersistentHeaderDelegate {
   }
 
   @override
-  double get maxExtent => _height;
+  double get maxExtent => headerHeight ?? _defaultHeight;
 
   @override
-  double get minExtent => _height;
+  double get minExtent => headerHeight ?? _defaultHeight;
 
   @override
   bool shouldRebuild(covariant _HeaderDelegate old) =>
@@ -272,5 +352,10 @@ class _HeaderDelegate extends SliverPersistentHeaderDelegate {
       closeLabel != old.closeLabel ||
       closeLabelStyle != old.closeLabelStyle ||
       dividerColor != old.dividerColor ||
-      handleColor != old.handleColor;
+      handleColor != old.handleColor ||
+      handleSize != old.handleSize ||
+      leading != old.leading ||
+      centerTitle != old.centerTitle ||
+      headerHeight != old.headerHeight ||
+      showCloseAction != old.showCloseAction;
 }

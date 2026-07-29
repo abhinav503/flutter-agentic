@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 import 'package:cordelia/templates/gravia/constants/gravia_image_const.dart';
-import 'package:cordelia/templates/gravia/widgets/gravia_avatar_image.dart';
+import 'package:cordelia/widgets/cordelia_avatar_image.dart';
 import 'package:flutter/material.dart';
 
 import 'package:core/core/theme/app_colors_extension.dart';
@@ -11,7 +11,7 @@ import '../../../../domain/entities/profile_entity.dart';
 /// Edit Profile's tappable avatar — the current (or freshly-picked) photo
 /// with a small dark camera badge on top. [pickedAvatarBytes] previews a
 /// photo picked this session, winning over [profile]'s existing `avatarUrl`
-/// (see `GraviaAvatarImage`) without needing to round-trip through the
+/// (see `CordeliaAvatarImage`) without needing to round-trip through the
 /// backend yet.
 class ProfileAvatarPicker extends StatelessWidget {
   final ProfileEntity profile;
@@ -47,7 +47,7 @@ class ProfileAvatarPicker extends StatelessWidget {
       child: Stack(
         alignment: Alignment.center,
         children: [
-          GraviaAvatarImage(profile: previewProfile, size: _avatarSize),
+          CordeliaAvatarImage(profile: previewProfile, size: _avatarSize),
           Container(
             width: _cameraBadgeSize,
             height: _cameraBadgeSize,

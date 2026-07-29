@@ -1,16 +1,16 @@
 /// Icon/image assets the `gravia` template's storefront screens use.
 ///
-/// The files live under `assets/icons/templates/gravia/` (and
-/// `assets/images/templates/gravia/`), not the app-wide `assets/icons/` —
-/// pack-scoped the same way `assets/theme/templates/` already scopes each
-/// template's theme config. A pack owns its own artwork, so `dailymart` can
-/// ship its own `search.svg` / `cart.svg` without colliding with these.
+/// The files live under `assets/icons/templates/gravia/`, not the app-wide
+/// `assets/icons/` — pack-scoped the same way `assets/theme/templates/`
+/// already scopes each template's theme config. A pack owns its own artwork,
+/// so `dailymart` can ship its own `search.svg` / `cart.svg` without
+/// colliding with these.
 ///
 /// Genuinely app-level assets (Cordelia's brand marks, the auth providers'
-/// logos, the shared back arrow) stay in `ImageConst` / `assets/icons/`.
+/// logos, the shared back arrow, the default avatar photo) stay in
+/// `ImageConst` / `assets/icons/` + `assets/images/`.
 abstract final class GraviaImageConst {
   static const _icons = 'assets/icons/templates/gravia';
-  static const _images = 'assets/images/templates/gravia';
 
   static const locationIcon = '$_icons/location_icon.svg';
   static const notification = '$_icons/notification.svg';
@@ -51,5 +51,4 @@ abstract final class GraviaImageConst {
   static const eye = '$_icons/eye.svg';
   static const lock = '$_icons/lock.svg';
 
-  static const profileDefault = '$_images/profile_default.png';
 }

@@ -9,8 +9,8 @@
 ///
 /// Not yet exported from the kit, so those call sites still render a
 /// Material Symbol (see docs/ai-rules/style-packs/dailymart.md §5): the
-/// location pin, the chevron, the product card's **+**, the rating star, and
-/// a filled heart for the favourited state.
+/// location pin, the chevron, the avatar's person placeholder, the cart
+/// row's trash, and the coupon row's discount badge.
 abstract final class DailyMartImageConst {
   static const _icons = 'assets/icons/templates/dailymart';
 
@@ -18,10 +18,30 @@ abstract final class DailyMartImageConst {
   static const search = '$_icons/search-normal.svg';
   static const scanner = '$_icons/scaner.svg';
 
+  /// The recent-search rows' smaller, thinner search glyph — the kit draws
+  /// it distinct from the search bar's [search], not a scaled-down copy.
+  static const searchSmall = '$_icons/search-small.svg';
+
+  /// The **+** add control's and stepper **−**'s bare glyphs — unlike
+  /// [navHome], no disc is baked in: the container (the stepper's
+  /// `AppRadius.sm` square, the add button's circle, both `cs.primary`) is
+  /// drawn in Flutter so it restyles with the theme, and the glyph takes an
+  /// `srcIn` `cs.onPrimary` tint.
+  static const plus = '$_icons/plus.svg';
+  static const minus = '$_icons/minus.svg';
+
+  /// The Reviews tab's thumbs-up. The kit has no thumbs-down export — the
+  /// call site renders this rotated 180° instead, exactly as the kit's own
+  /// frame does.
+  static const like = '$_icons/like.svg';
+
   /// The product card's rating star. Ships 14 × 13, not square — render it
   /// inside a square box and let `BoxFit.contain` letterbox it rather than
   /// stretching it to fit.
   static const star = '$_icons/star.svg';
+
+
+  static const delete = '$_icons/delete.svg';
 
   /// The Notification screen's row glyphs. Unlike everything else in this
   /// pack these two are **solid**, not outline — the kit draws its
@@ -44,8 +64,11 @@ abstract final class DailyMartImageConst {
   static const navCart = '$_icons/cart.svg';
   static const navProfile = '$_icons/user.svg';
 
-  /// Same outline heart as the Wishlist tab, at the card's smaller size. The
-  /// kit's filled counterpart isn't exported, so the favourited state is
-  /// marked by tint (`cs.error`) rather than by fill.
+  /// Same outline heart as the Wishlist tab, at the card's smaller size.
   static const heart = navWishlist;
+
+  /// [heart]'s exact path with a fill added (hand-derived, not a kit
+  /// export) — keeps the outline's stroke so the two states share one
+  /// silhouette and toggling doesn't jump.
+  static const heartFilled = '$_icons/heart_filled.svg';
 }

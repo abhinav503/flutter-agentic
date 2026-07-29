@@ -45,6 +45,81 @@ abstract final class DailyMartValueConst {
   static const navCart = 'Cart';
   static const navProfile = 'Profile';
 
+  // ── Search ───────────────────────────────────────────────────────────────
+  static const recentSearchTitle = 'Recent Search';
+  static const recentlyViewedTitle = 'Recently viewed';
+  static String resultsForLabel(String query) => 'Result for "$query"';
+
+  /// The kit's own wording — "founds", not "found" (screen `20 Search
+  /// product [result]`). Reproduced verbatim so the screen matches the pack.
+  static String resultsCountLabel(int count) => '$count founds';
+  static const searchLoadErrorMessage = "Couldn't load search.";
+  static const searchResultsErrorMessage = "Couldn't search this store.";
+  static const searchNoResultsTitle = 'No results';
+  static String searchNoResultsSubtitle(String query) =>
+      'Nothing in this store matches "$query" yet.';
+  static const categoryBadge = 'Category';
+  static const filterLabel = 'Filter';
+  static const sortSheetTitle = 'Sort by';
+  static const sortRelevance = 'Recommended';
+  static const sortPriceLowToHigh = 'Price: Low to High';
+  static const sortPriceHighToLow = 'Price: High to Low';
+  static const sortNameAtoZ = 'Name: A to Z';
+
+  // ── Product details ──────────────────────────────────────────────────────
+  static const productDetailsTitle = 'Product Details';
+  static const descriptionsTabLabel = 'Descriptions';
+  static const reviewsTabLabel = 'Reviews';
+  static const relatedProductsTitle = 'Related Products';
+  static const productDetailsLoadErrorMessage =
+      "Couldn't load this product's details.";
+  static String perUnitSuffix(String unit) => '/$unit';
+
+  // ── Add to cart ──────────────────────────────────────────────────────────
+  static const addToCart = 'Add To Cart';
+  static const addToCartSheetTitle = 'Add To Cart';
+  static String addedToCartMessage(String name, int quantity) =>
+      'Added $quantity × $name to your cart.';
+
+  /// The static Reviews tab (kit screen `23 Review product`) — the store
+  /// backend collects no reviews yet, so the whole tab renders the kit's own
+  /// copy verbatim, same policy as [staticRatingLabel].
+  static const staticReviewScore = '5.0/5.0';
+  static const staticReviewCount = '1.53K Reviews';
+  static String starRowLabel(int stars) => '$stars Star';
+  static const staticReviewerName = 'Shane Watson';
+  static const staticReviewAge = '1 day ago';
+  static const staticReviewText =
+      'It is a long established fact that a reader will be distracted by the '
+      'readable content of a page when looking at its layout.';
+  static const staticReviewLikes = '135';
+  static const staticReviewDislikes = '10';
+
+  // ── Cart ─────────────────────────────────────────────────────────────────
+  static const myCartTitle = 'My Cart';
+  static const couponLabel = 'BLACKFRIDAY';
+  static const subTotalLabel = 'Sub total';
+  static const deliveryLabel = 'Delivery';
+  static const deliveryFreeLabel = 'Free';
+  static const discountLabel = 'Discount';
+  static const totalCostLabel = 'Total cost';
+  static const proceedToCheckoutLabel = 'Proceed to Checkout';
+  static const cartEmptyTitle = 'Your cart is empty';
+  static const cartEmptySubtitle =
+      'Products you add will show up here, ready to check out.';
+  static const cartExploreAction = 'Start shopping';
+  static const removedFromCartMessage = 'Removed from your cart.';
+  static const orderPlacedTitle = 'Order placed';
+  static const orderPlacedMessage =
+      "Your order is confirmed — this store is getting it ready.";
+  static const orderPlacedAction = 'Continue Shopping';
+
+  /// The docked cart status pill on screens pushed outside the shell (the
+  /// cart tab itself is the in-shell affordance).
+  static String cartSummaryLabel(int count, double total) =>
+      '$count item${count == 1 ? '' : 's'} | ${formattedPrice(total)}';
+  static const viewCartLabel = 'View Cart';
+
   // ── Tabs not yet ported to this template ─────────────────────────────────
   static const comingSoonTitle = 'Coming soon';
   static String comingSoonSubtitle(String tab) =>

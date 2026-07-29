@@ -27,6 +27,15 @@ class DailyMartIconDisc extends StatelessWidget {
   final VoidCallback? onTap;
   final double size;
   final double iconSize;
+
+  /// Overrides the glyph's default ink tint — for a stateful glyph (e.g.
+  /// the favourite heart taking `cs.error` while favourited).
+  final Color? foregroundColor;
+
+  /// Overrides the default disc fill — the preset maps the *sheet* close
+  /// disc one ramp step lighter (`surfaceContainerLow`) than the back
+  /// disc's `surfaceContainer`.
+  final Color? backgroundColor;
   final bool _outlined;
 
   const DailyMartIconDisc({
@@ -36,6 +45,8 @@ class DailyMartIconDisc extends StatelessWidget {
     this.onTap,
     this.size = DailyMartDimenConst.controlHeight,
     this.iconSize = 24,
+    this.foregroundColor,
+    this.backgroundColor,
   }) : _outlined = false,
        assert(
          (asset == null) != (icon == null),
@@ -49,6 +60,8 @@ class DailyMartIconDisc extends StatelessWidget {
     this.onTap,
     this.size = DailyMartDimenConst.headerControlHeight,
     this.iconSize = 24,
+    this.foregroundColor,
+    this.backgroundColor,
   }) : _outlined = true,
        assert(
          (asset == null) != (icon == null),
@@ -72,10 +85,12 @@ class DailyMartIconDisc extends StatelessWidget {
       onTap: onTap,
       containerSize: size,
       iconSize: iconSize,
-      backgroundColor: _outlined ? Colors.transparent : cs.surfaceContainer,
+      backgroundColor:
+          backgroundColor ??
+          (_outlined ? Colors.transparent : cs.surfaceContainer),
       // Both discs sit on a light surface, so the atom's default white
       // `onOverlay` foreground would vanish — the glyph takes the ink role.
-      foregroundColor: cs.onSurface,
+      foregroundColor: foregroundColor ?? cs.onSurface,
       borderColor: _outlined ? cs.outline : null,
     );
   }

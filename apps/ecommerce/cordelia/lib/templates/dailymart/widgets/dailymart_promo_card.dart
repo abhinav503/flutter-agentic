@@ -67,11 +67,14 @@ class DailyMartPromoCard extends StatelessWidget {
                       ).copyWith(color: cs.onPrimary),
                     ),
                     const SizedBox(height: AppSpacing.xs3),
-                    Text(
-                      subtitle,
-                      style: DailyMartTextStyleConst.bodyXsMedium(
-                        tt,
-                      ).copyWith(color: cs.onPrimary),
+                    SizedBox(
+                      width: 160,
+                      child: Text(
+                        subtitle,
+                        style: DailyMartTextStyleConst.bodyXsMedium(
+                          tt,
+                        ).copyWith(color: cs.onPrimary),
+                      ),
                     ),
                     const SizedBox(height: AppSpacing.base),
                     _OrderNowPill(onTap: onTap),

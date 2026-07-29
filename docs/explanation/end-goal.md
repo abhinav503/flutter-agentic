@@ -211,7 +211,8 @@ Two themes: complete the monorepo migration (done, shipped in v1.2.0), and add t
 - [x] `dailymart` — second template underway from its own UI8 kit spec sheet: nav shell (stacked bottom nav), Home (centred peeking promo carousel, category rail, product grid with static rating row), Notifications; pack-scoped icons, mock data (`assets/data/templates/<id>/`) and theme config
 - [x] Template-agnostic notification model — `NotificationKind` in shared data; each template maps kinds to its own pack glyphs
 - [x] Cross-template extractions promoted to `core` as they repeated — `IconInfoRow`, `ShimmerListRow`/`ShimmerSectionHeader`, `BaseScreenState.overlayStyle`
-- [ ] `dailymart` remaining surfaces — Wishlist/Cart/Profile tabs render a designed coming-soon state; Search, Product Details and Category Details still open the `gravia` screens
+- [x] `dailymart` Search, Product Details and Cart — Search (recent searches + product grid idle state; categories-and-products vertical result list with a floating Filter/sort pill), Product Details (hero well, bare kit stepper, Descriptions/Reviews underline tabs with the kit's static Reviews frame, related grid, floating cart-disc + Add To Cart row), Cart (shell tab *and* routed page: swipe-to-delete rows, coupon stub, totals panel, checkout through the shared `CheckoutBloc`), plus the pack's sheet chrome (`showDailyMartSheet` on `AppBottomSheet`'s new `leading`/`centerTitle`/`handleSize`/`headerHeight` params) and a floating cart status pill on outside-shell screens
+- [ ] `dailymart` remaining surfaces — Wishlist/Profile tabs render a designed coming-soon state; Category Details and the checkout's Select Address / Address Form still open the `gravia` screens
 - [ ] Per-store notifications from the backend — today a bundled per-template mock
 
 ---

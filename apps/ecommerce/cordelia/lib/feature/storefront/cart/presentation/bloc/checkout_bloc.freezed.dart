@@ -14,68 +14,36 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$CheckoutEvent implements DiagnosticableTreeMixin {
 
- List<CartItemEntity> get items; String get addressId;
-/// Create a copy of CheckoutEvent
-/// with the given fields replaced by the non-null parameter values.
-@JsonKey(includeFromJson: false, includeToJson: false)
-@pragma('vm:prefer-inline')
-$CheckoutEventCopyWith<CheckoutEvent> get copyWith => _$CheckoutEventCopyWithImpl<CheckoutEvent>(this as CheckoutEvent, _$identity);
+
 
 
 @override
 void debugFillProperties(DiagnosticPropertiesBuilder properties) {
   properties
     ..add(DiagnosticsProperty('type', 'CheckoutEvent'))
-    ..add(DiagnosticsProperty('items', items))..add(DiagnosticsProperty('addressId', addressId));
+    ;
 }
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is CheckoutEvent&&const DeepCollectionEquality().equals(other.items, items)&&(identical(other.addressId, addressId) || other.addressId == addressId));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CheckoutEvent);
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(items),addressId);
+int get hashCode => runtimeType.hashCode;
 
 @override
 String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
-  return 'CheckoutEvent(items: $items, addressId: $addressId)';
+  return 'CheckoutEvent()';
 }
 
 
 }
 
 /// @nodoc
-abstract mixin class $CheckoutEventCopyWith<$Res>  {
-  factory $CheckoutEventCopyWith(CheckoutEvent value, $Res Function(CheckoutEvent) _then) = _$CheckoutEventCopyWithImpl;
-@useResult
-$Res call({
- List<CartItemEntity> items, String addressId
-});
-
-
-
-
-}
-/// @nodoc
-class _$CheckoutEventCopyWithImpl<$Res>
-    implements $CheckoutEventCopyWith<$Res> {
-  _$CheckoutEventCopyWithImpl(this._self, this._then);
-
-  final CheckoutEvent _self;
-  final $Res Function(CheckoutEvent) _then;
-
-/// Create a copy of CheckoutEvent
-/// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? items = null,Object? addressId = null,}) {
-  return _then(_self.copyWith(
-items: null == items ? _self.items : items // ignore: cast_nullable_to_non_nullable
-as List<CartItemEntity>,addressId: null == addressId ? _self.addressId : addressId // ignore: cast_nullable_to_non_nullable
-as String,
-  ));
-}
-
+class $CheckoutEventCopyWith<$Res>  {
+$CheckoutEventCopyWith(CheckoutEvent _, $Res Function(CheckoutEvent) __);
 }
 
 
@@ -93,11 +61,12 @@ extension CheckoutEventPatterns on CheckoutEvent {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( CheckoutSubmitted value)?  submitted,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( CheckoutSubmitted value)?  submitted,TResult Function( CheckoutAcknowledged value)?  acknowledged,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case CheckoutSubmitted() when submitted != null:
-return submitted(_that);case _:
+return submitted(_that);case CheckoutAcknowledged() when acknowledged != null:
+return acknowledged(_that);case _:
   return orElse();
 
 }
@@ -115,11 +84,12 @@ return submitted(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( CheckoutSubmitted value)  submitted,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( CheckoutSubmitted value)  submitted,required TResult Function( CheckoutAcknowledged value)  acknowledged,}){
 final _that = this;
 switch (_that) {
 case CheckoutSubmitted():
-return submitted(_that);}
+return submitted(_that);case CheckoutAcknowledged():
+return acknowledged(_that);}
 }
 /// A variant of `map` that fallback to returning `null`.
 ///
@@ -133,11 +103,12 @@ return submitted(_that);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( CheckoutSubmitted value)?  submitted,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( CheckoutSubmitted value)?  submitted,TResult? Function( CheckoutAcknowledged value)?  acknowledged,}){
 final _that = this;
 switch (_that) {
 case CheckoutSubmitted() when submitted != null:
-return submitted(_that);case _:
+return submitted(_that);case CheckoutAcknowledged() when acknowledged != null:
+return acknowledged(_that);case _:
   return null;
 
 }
@@ -154,10 +125,11 @@ return submitted(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( List<CartItemEntity> items,  String addressId)?  submitted,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( List<CartItemEntity> items,  String addressId)?  submitted,TResult Function()?  acknowledged,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case CheckoutSubmitted() when submitted != null:
-return submitted(_that.items,_that.addressId);case _:
+return submitted(_that.items,_that.addressId);case CheckoutAcknowledged() when acknowledged != null:
+return acknowledged();case _:
   return orElse();
 
 }
@@ -175,10 +147,11 @@ return submitted(_that.items,_that.addressId);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( List<CartItemEntity> items,  String addressId)  submitted,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( List<CartItemEntity> items,  String addressId)  submitted,required TResult Function()  acknowledged,}) {final _that = this;
 switch (_that) {
 case CheckoutSubmitted():
-return submitted(_that.items,_that.addressId);}
+return submitted(_that.items,_that.addressId);case CheckoutAcknowledged():
+return acknowledged();}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -192,10 +165,11 @@ return submitted(_that.items,_that.addressId);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( List<CartItemEntity> items,  String addressId)?  submitted,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( List<CartItemEntity> items,  String addressId)?  submitted,TResult? Function()?  acknowledged,}) {final _that = this;
 switch (_that) {
 case CheckoutSubmitted() when submitted != null:
-return submitted(_that.items,_that.addressId);case _:
+return submitted(_that.items,_that.addressId);case CheckoutAcknowledged() when acknowledged != null:
+return acknowledged();case _:
   return null;
 
 }
@@ -211,17 +185,17 @@ class CheckoutSubmitted with DiagnosticableTreeMixin implements CheckoutEvent {
   
 
  final  List<CartItemEntity> _items;
-@override List<CartItemEntity> get items {
+ List<CartItemEntity> get items {
   if (_items is EqualUnmodifiableListView) return _items;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableListView(_items);
 }
 
-@override final  String addressId;
+ final  String addressId;
 
 /// Create a copy of CheckoutEvent
 /// with the given fields replaced by the non-null parameter values.
-@override @JsonKey(includeFromJson: false, includeToJson: false)
+@JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
 $CheckoutSubmittedCopyWith<CheckoutSubmitted> get copyWith => _$CheckoutSubmittedCopyWithImpl<CheckoutSubmitted>(this, _$identity);
 
@@ -253,7 +227,7 @@ String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
 /// @nodoc
 abstract mixin class $CheckoutSubmittedCopyWith<$Res> implements $CheckoutEventCopyWith<$Res> {
   factory $CheckoutSubmittedCopyWith(CheckoutSubmitted value, $Res Function(CheckoutSubmitted) _then) = _$CheckoutSubmittedCopyWithImpl;
-@override @useResult
+@useResult
 $Res call({
  List<CartItemEntity> items, String addressId
 });
@@ -272,7 +246,7 @@ class _$CheckoutSubmittedCopyWithImpl<$Res>
 
 /// Create a copy of CheckoutEvent
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? items = null,Object? addressId = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? items = null,Object? addressId = null,}) {
   return _then(CheckoutSubmitted(
 items: null == items ? _self._items : items // ignore: cast_nullable_to_non_nullable
 as List<CartItemEntity>,addressId: null == addressId ? _self.addressId : addressId // ignore: cast_nullable_to_non_nullable
@@ -282,6 +256,44 @@ as String,
 
 
 }
+
+/// @nodoc
+
+
+class CheckoutAcknowledged with DiagnosticableTreeMixin implements CheckoutEvent {
+  const CheckoutAcknowledged();
+  
+
+
+
+
+
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'CheckoutEvent.acknowledged'))
+    ;
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CheckoutAcknowledged);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'CheckoutEvent.acknowledged()';
+}
+
+
+}
+
+
+
 
 /// @nodoc
 mixin _$CheckoutState implements DiagnosticableTreeMixin {

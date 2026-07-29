@@ -15,16 +15,17 @@ import 'package:cordelia/templates/dailymart/widgets/dailymart_icon_disc.dart';
 /// over, so an empty [trailing] still reserves a disc-sized slot rather than
 /// letting the title drift right. The kit does this with an invisible copy of
 /// the back button; a sized box is the same geometry without the second
-/// tappable target.
+/// tappable target. A null [onBack] (a shell-tab root, which has nowhere to
+/// go back to) reserves the same slot on the leading side.
 class DailyMartHeaderRow extends StatelessWidget {
   final String title;
-  final VoidCallback onBack;
+  final VoidCallback? onBack;
   final Widget? trailing;
 
   const DailyMartHeaderRow({
     super.key,
     required this.title,
-    required this.onBack,
+    this.onBack,
     this.trailing,
   });
 
@@ -35,11 +36,14 @@ class DailyMartHeaderRow extends StatelessWidget {
 
     return Row(
       children: [
-        DailyMartIconDisc(
-          asset: ImageConst.arrowLeft,
-          iconSize: AppSpacing.xl2,
-          onTap: onBack,
-        ),
+        if (onBack != null)
+          DailyMartIconDisc(
+            asset: ImageConst.arrowLeft,
+            iconSize: AppSpacing.xl2,
+            onTap: onBack,
+          )
+        else
+          const SizedBox.square(dimension: DailyMartDimenConst.controlHeight),
         Expanded(
           child: Text(
             title,

@@ -2,21 +2,25 @@ import 'package:flutter/material.dart';
 
 import 'package:core/core/ui/atoms/network_image.dart';
 
-import 'package:cordelia/templates/gravia/constants/gravia_image_const.dart';
+import 'package:cordelia/constants/image_const.dart';
 import 'package:cordelia/feature/storefront/profile/domain/entities/profile_entity.dart';
 
-/// Gravia's avatar circle — [ProfileEntity.avatarBytes] (a photo picked this
-/// session, not yet "uploaded" anywhere) takes priority over
+/// The shopper's avatar circle — [ProfileEntity.avatarBytes] (a photo picked
+/// this session, not yet "uploaded" anywhere) takes priority over
 /// [ProfileEntity.avatarUrl] when both are set, since it's the most recent
 /// choice; falls back to the bundled default photo when neither is set (via
-/// [AppNetworkImage]'s `assetPlaceholder`). Used by both the profile hero
-/// header (56px) and the edit-profile screen (large preview).
-class GraviaAvatarImage extends StatelessWidget {
+/// [AppNetworkImage]'s `assetPlaceholder`).
+///
+/// App-level, not per-pack: the shopper is the same person in every
+/// storefront, so gravia's profile header/picker and dailymart's Home header
+/// all branch through this one widget instead of each re-deriving the
+/// bytes → url → default priority.
+class CordeliaAvatarImage extends StatelessWidget {
   final ProfileEntity profile;
   final double size;
   final BoxFit fit;
 
-  const GraviaAvatarImage({
+  const CordeliaAvatarImage({
     super.key,
     required this.profile,
     required this.size,
@@ -38,7 +42,7 @@ class GraviaAvatarImage extends StatelessWidget {
                 width: size,
                 height: size,
                 fit: fit,
-                assetPlaceholder: GraviaImageConst.profileDefault,
+                assetPlaceholder: ImageConst.profileDefault,
               ),
       ),
     );

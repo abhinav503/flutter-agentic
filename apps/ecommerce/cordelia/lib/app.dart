@@ -3,7 +3,13 @@ import 'package:cordelia/feature/storefront/address/domain/entities/address_enti
 import 'package:cordelia/feature/storefront/address/presentation/templates/gravia/view/address_form_page.dart';
 import 'package:cordelia/feature/storefront/address/presentation/templates/gravia/view/address_page.dart';
 import 'package:cordelia/feature/storefront/cart/presentation/cubit/cart_cubit.dart';
-import 'package:cordelia/feature/storefront/cart/presentation/templates/gravia/view/cart_page.dart';
+// Cart/Search/Product Details follow the Notifications pattern below: every
+// template names the entry class the same, so each needs a prefix to be
+// dispatched from one StorefrontTemplateSwitch.
+import 'package:cordelia/feature/storefront/cart/presentation/templates/dailymart/view/cart_page.dart'
+    as dailymart_cart;
+import 'package:cordelia/feature/storefront/cart/presentation/templates/gravia/view/cart_page.dart'
+    as gravia_cart;
 import 'package:cordelia/feature/storefront/category_details/presentation/templates/gravia/view/category_details_page.dart';
 import 'package:cordelia/feature/storefront/favourites/presentation/cubit/favourites_cubit.dart';
 // Every template names its Notifications entry `NotificationsPage` (the class
@@ -13,11 +19,17 @@ import 'package:cordelia/feature/storefront/notifications/presentation/templates
     as dailymart_notifications;
 import 'package:cordelia/feature/storefront/notifications/presentation/templates/gravia/view/notifications_page.dart'
     as gravia_notifications;
-import 'package:cordelia/feature/storefront/product_details/presentation/templates/gravia/view/product_details_page.dart';
+import 'package:cordelia/feature/storefront/product_details/presentation/templates/dailymart/view/product_details_page.dart'
+    as dailymart_product_details;
+import 'package:cordelia/feature/storefront/product_details/presentation/templates/gravia/view/product_details_page.dart'
+    as gravia_product_details;
 import 'package:cordelia/feature/storefront/profile/domain/entities/profile_entity.dart';
 import 'package:cordelia/feature/storefront/profile/presentation/templates/gravia/view/change_password_page.dart';
 import 'package:cordelia/feature/storefront/profile/presentation/templates/gravia/view/edit_profile_page.dart';
-import 'package:cordelia/feature/storefront/search/presentation/templates/gravia/view/search_page.dart';
+import 'package:cordelia/feature/storefront/search/presentation/templates/dailymart/view/search_page.dart'
+    as dailymart_search;
+import 'package:cordelia/feature/storefront/search/presentation/templates/gravia/view/search_page.dart'
+    as gravia_search;
 import 'package:cordelia/feature/storefront/template/storefront_template_switch.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -136,7 +148,14 @@ final _router = GoRouter(
               opacity: CurveTween(curve: Curves.easeInOut).animate(animation),
               child: child,
             ),
-        child: SearchPage(storeId: state.extra as String),
+        child: StorefrontTemplateSwitch(
+          gravia: (_) => gravia_search.SearchPage(
+            storeId: state.extra as String,
+          ),
+          dailymart: (_) => dailymart_search.SearchPage(
+            storeId: state.extra as String,
+          ),
+        ),
       ),
     ),
     GoRoute(
@@ -154,9 +173,15 @@ final _router = GoRouter(
               opacity: CurveTween(curve: Curves.easeInOut).animate(animation),
               child: child,
             ),
-        child: ProductDetailsPage(
-          storeId: state.extra as String,
-          productId: state.pathParameters['id']!,
+        child: StorefrontTemplateSwitch(
+          gravia: (_) => gravia_product_details.ProductDetailsPage(
+            storeId: state.extra as String,
+            productId: state.pathParameters['id']!,
+          ),
+          dailymart: (_) => dailymart_product_details.ProductDetailsPage(
+            storeId: state.extra as String,
+            productId: state.pathParameters['id']!,
+          ),
         ),
       ),
     ),
@@ -256,7 +281,12 @@ final _router = GoRouter(
               opacity: CurveTween(curve: Curves.easeInOut).animate(animation),
               child: child,
             ),
-        child: CartPage(storeId: state.extra as String),
+        child: StorefrontTemplateSwitch(
+          gravia: (_) => gravia_cart.CartPage(storeId: state.extra as String),
+          dailymart: (_) => dailymart_cart.CartPage(
+            storeId: state.extra as String,
+          ),
+        ),
       ),
     ),
     GoRoute(

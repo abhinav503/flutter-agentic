@@ -54,7 +54,7 @@ class _EditProfileScreenState extends BaseScreenState<EditProfileScreen>
 
   /// A photo picked this session, previewed immediately and carried into the
   /// popped result — null until the user picks one, in which case it wins
-  /// over the existing `avatarUrl` (see `GraviaAvatarImage`).
+  /// over the existing `avatarUrl` (see `CordeliaAvatarImage`).
   Uint8List? _pickedAvatarBytes;
 
   final Map<_ProfileField, String> _errors = {};

@@ -72,7 +72,6 @@ flutter:
     - assets/icons/
     - assets/images/
     - assets/icons/templates/gravia/
-    - assets/images/templates/gravia/
     - assets/data/templates/gravia/
     # dailymart ships no pack images yet — icons and mock data only.
     - assets/icons/templates/dailymart/

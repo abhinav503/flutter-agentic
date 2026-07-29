@@ -1,6 +1,4 @@
-import 'package:cordelia/constants/app_routes.dart';
 import 'package:cordelia/enums/product_unit_type.dart';
-import 'package:cordelia/feature/storefront/cart/presentation/cubit/cart_cubit.dart';
 import 'package:cordelia/feature/storefront/favourites/presentation/cubit/favourites_cubit.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_image_const.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_text_style_const.dart';
@@ -25,6 +23,7 @@ import 'package:core/core/ui/molecules/error_view.dart';
 import '../../../../../home/domain/entities/product_entity.dart';
 import '../../../../domain/entities/product_detail_entity.dart';
 import '../../../bloc/product_details_bloc.dart';
+import '../../../product_details_actions.dart';
 import '../widgets/product_detail_bottom_bar.dart';
 import '../widgets/product_detail_image_carousel.dart';
 import '../widgets/product_detail_key_info.dart';
@@ -40,25 +39,15 @@ class ProductDetailsScreen extends BaseScreen {
   State<ProductDetailsScreen> createState() => _ProductDetailsScreenState();
 }
 
-class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen> {
-  int _quantity = 1;
+class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
+    with ProductDetailsActions {
   int _selectedSizeIndex = 0;
 
-  void _addToCart(ProductEntity product, int quantity) {
-    context.read<CartCubit>().addToCart(product, quantity);
-  }
-
-  // Pushes a new copy of this same route for the tapped similar product —
-  // each detail screen owns its own quantity/size selection, so a fresh
-  // route (not a replace) is the correct navigation, same as any other
-  // "product card in a list -> its own detail page" flow in this app.
-  void _openProductDetails(ProductEntity product) => context.push(
-    AppRoutes.productDetailsPath(product.id),
-    extra: widget.storeId,
-  );
+  @override
+  String get storeId => widget.storeId;
 
   void _showAddToCartSheet(ProductEntity product) =>
-      showGraviaAddToCartSheet(product: product, onAddToCart: _addToCart);
+      showGraviaAddToCartSheet(product: product, onAddToCart: addToCart);
 
   @override
   SystemUiOverlayStyle? overlayStyle(BuildContext context) =>
@@ -98,12 +87,8 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen> {
             key: const ValueKey('error'),
             child: ErrorView(
               message: message,
-              onRetry: () => context.read<ProductDetailsBloc>().add(
-                ProductDetailsEvent.started(
-                  storeId: storeId,
-                  productId: productId,
-                ),
-              ),
+              onRetry: () =>
+                  retryLoad(storeId: storeId, productId: productId),
             ),
           ),
           ProductDetailsLoaded(:final detail) => KeyedSubtree(
@@ -119,8 +104,8 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen> {
     final product = detail.product;
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
-    final favourites = context.watch<FavouritesCubit>().state.items;
-    final isFavourite = favourites.any((p) => p.id == product.id);
+    final isFavourite =
+        context.watch<FavouritesCubit>().isFavourite(product.id);
     // Same divider colour as the bottom nav bar's top border (ShellPage uses
     // AppColorsExtension.dockedHairline for both its top and bottom borders)
     // — so the hairlines in this screen match the bar rather than the
@@ -239,9 +224,9 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen> {
                   const SizedBox(height: AppSpacing.xl2),
                   ProductDetailSimilarProducts(
                     products: detail.similarProducts,
-                    onAddToCart: _addToCart,
+                    onAddToCart: addToCart,
                     onQuickAdd: _showAddToCartSheet,
-                    onProductTap: _openProductDetails,
+                    onProductTap: openProductDetails,
                   ),
                 ],
               ),
@@ -250,13 +235,13 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen> {
         ),
         ProductDetailBottomBar(
           storeId: widget.storeId,
-          quantity: _quantity,
+          quantity: quantity,
           unitPrice: product.price,
-          onIncrement: () => setState(() => _quantity++),
-          onDecrement: _quantity > 1 ? () => setState(() => _quantity--) : null,
+          onIncrement: incrementQuantity,
+          onDecrement: decrementQuantity,
           onAddToCart: () {
-            _addToCart(product, _quantity);
-            setState(() => _quantity = 1);
+            addToCart(product, quantity);
+            resetQuantity();
           },
         ),
       ],

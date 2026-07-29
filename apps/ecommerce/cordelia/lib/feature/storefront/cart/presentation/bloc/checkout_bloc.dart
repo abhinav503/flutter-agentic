@@ -41,6 +41,9 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
        _createOrder = createOrderUseCase,
        super(const CheckoutState.idle()) {
     on<CheckoutSubmitted>(_onSubmitted);
+    on<CheckoutAcknowledged>(
+      (event, emit) => emit(const CheckoutState.idle()),
+    );
   }
 
   Future<void> _onSubmitted(

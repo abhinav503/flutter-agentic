@@ -12,6 +12,7 @@ import 'package:cordelia/templates/dailymart/constants/dailymart_dimen_const.dar
 import 'package:cordelia/templates/dailymart/constants/dailymart_image_const.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_text_style_const.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_value_const.dart';
+import 'package:cordelia/templates/dailymart/widgets/dailymart_icon_disc.dart';
 
 /// DailyMart's one true product card. Every surface that shows a product
 /// renders THIS widget, never a hand-styled composition — four call sites
@@ -238,14 +239,13 @@ class _FavouriteDisc extends StatelessWidget {
         child: SizedBox.square(
           dimension: DailyMartDimenConst.cardActionSize,
           child: Center(
-            // One glyph for both states, tinted: the kit exports only the
-            // outline heart, so favouriting is marked by colour rather than
-            // by swapping in a filled counterpart that doesn't exist.
             child: AppSvgImage.asset(
-              DailyMartImageConst.heart,
+              isFavourite
+                  ? DailyMartImageConst.heartFilled
+                  : DailyMartImageConst.heart,
               width: AppSpacing.lg,
               height: AppSpacing.lg,
-              color: isFavourite ? cs.error : cs.onSurface,
+              color: isFavourite ? cs.primary : cs.onSurface,
             ),
           ),
         ),
@@ -259,25 +259,21 @@ class _AddButton extends StatelessWidget {
 
   const _AddButton({required this.onTap});
 
+  /// Matches the composed kit export this replaced: a 16-span glyph in the
+  /// 28 disc (the kit's 14/24 glyph-to-disc ratio).
+  static const double _glyphSize = 16;
+
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
 
-    return Material(
-      color: cs.primary,
-      shape: const CircleBorder(),
-      child: InkWell(
-        onTap: onTap,
-        customBorder: const CircleBorder(),
-        child: SizedBox.square(
-          dimension: DailyMartDimenConst.cardActionSize,
-          child: Icon(
-            Icons.add_rounded,
-            size: AppSpacing.xl2,
-            color: cs.onPrimary,
-          ),
-        ),
-      ),
+    return DailyMartIconDisc(
+      asset: DailyMartImageConst.plus,
+      onTap: onTap,
+      size: DailyMartDimenConst.cardActionSize,
+      iconSize: _glyphSize,
+      backgroundColor: cs.primary,
+      foregroundColor: cs.onPrimary,
     );
   }
 }

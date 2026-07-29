@@ -19,6 +19,7 @@ import 'package:cordelia/feature/storefront/home/domain/entities/product_entity.
 import 'package:cordelia/templates/dailymart/constants/dailymart_color_const.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_value_const.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_section_header.dart';
+import 'package:cordelia/templates/dailymart/widgets/dailymart_sheet.dart';
 
 import '../../../../domain/entities/home_entity.dart';
 import '../../../bloc/home_bloc.dart';
@@ -76,10 +77,18 @@ class _HomeScreenState extends BaseScreenState<HomeScreen>
     }
   }
 
-  /// The card's **+** adds one unit outright — this pack has no quantity
-  /// sheet on the card (spec sheet §10).
-  void _addToCart(ProductEntity product) =>
-      context.read<CartCubit>().addToCart(product, 1);
+  void _addToCart(ProductEntity product, int quantity) {
+    context.read<CartCubit>().addToCart(product, quantity);
+    showSnackBar(
+      DailyMartValueConst.addedToCartMessage(product.name, quantity),
+    );
+  }
+
+  /// The card's **+** opens the quantity sheet — same entry as Search's
+  /// result rows and Product Details, so "add to cart" is one gesture
+  /// everywhere in this pack.
+  void _showAddToCartSheet(ProductEntity product) =>
+      showDailyMartAddToCartSheet(product: product, onAddToCart: _addToCart);
 
   @override
   SystemUiOverlayStyle? overlayStyle(BuildContext context) =>
@@ -115,6 +124,7 @@ class _HomeScreenState extends BaseScreenState<HomeScreen>
               onLocationTap: openSelectAddress,
               onNotificationTap: _openNotifications,
               onSearchTap: _openSearch,
+              storeId: _storeId,
               body: const DailyMartHomeSkeletonBody(),
             ),
             HomeLoaded(:final home) => _Page(
@@ -122,12 +132,13 @@ class _HomeScreenState extends BaseScreenState<HomeScreen>
               onLocationTap: openSelectAddress,
               onNotificationTap: _openNotifications,
               onSearchTap: _openSearch,
+              storeId: _storeId,
               body: _HomeContent(
                 home: home,
                 onProductTap: _openProductDetails,
                 onCategoryTap: _openCategoryDetails,
                 onBannerTap: (banner) => _openBanner(banner, home),
-                onAddToCart: _addToCart,
+                onAddToCart: _showAddToCartSheet,
                 onFavouriteToggle: (product) =>
                     context.read<FavouritesCubit>().toggle(product),
               ),
@@ -152,6 +163,7 @@ class _Page extends StatelessWidget {
   final VoidCallback onLocationTap;
   final VoidCallback onNotificationTap;
   final VoidCallback onSearchTap;
+  final String storeId;
   final Widget body;
 
   const _Page({
@@ -159,6 +171,7 @@ class _Page extends StatelessWidget {
     required this.onLocationTap,
     required this.onNotificationTap,
     required this.onSearchTap,
+    required this.storeId,
     required this.body,
   });
 
@@ -180,6 +193,7 @@ class _Page extends StatelessWidget {
             onLocationTap: onLocationTap,
             onNotificationTap: onNotificationTap,
             onSearchTap: onSearchTap,
+            storeId: storeId,
           ),
         ),
         const SizedBox(height: AppSpacing.xl4),
@@ -252,10 +266,7 @@ class _HomeContent extends StatelessWidget {
             ),
           ),
           const SizedBox(height: AppSpacing.xl),
-          DailyMartHomePromoCarousel(
-            banners: promos,
-            onBannerTap: onBannerTap,
-          ),
+          DailyMartHomePromoCarousel(banners: promos, onBannerTap: onBannerTap),
           const SizedBox(height: AppSpacing.xl4),
         ],
         DailyMartHomeCategoryRail(
@@ -271,6 +282,7 @@ class _HomeContent extends StatelessWidget {
           onFavouriteToggle: onFavouriteToggle,
           onSeeAll: () => _openBrowse(context),
         ),
+        SizedBox(height: 100),
       ],
     );
   }

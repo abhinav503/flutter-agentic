@@ -10,4 +10,8 @@ abstract final class ImageConst {
   static const googleIcon = 'assets/icons/google_icon.svg';
   static const appleIcon = 'assets/icons/apple_icon.svg';
   static const cordeliaWordmarkIcon = 'assets/icons/cordelia-wordmark.svg';
+
+  /// The shopper's fallback avatar photo — the shopper is the same person in
+  /// every storefront, so the default portrait is app-level, not per-pack.
+  static const profileDefault = 'assets/images/profile_default.png';
 }
