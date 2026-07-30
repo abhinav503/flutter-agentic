@@ -1,7 +1,10 @@
+import 'package:flutter/foundation.dart';
+
 import 'package:core/core/network/http_service.dart';
 
 import 'package:cordelia/constants/api_constants.dart';
 import 'package:cordelia/services/firebase_auth_service.dart';
+import 'package:cordelia/services/firebase_storage_service.dart';
 
 import '../models/user_model.dart';
 import 'auth_remote_data_source.dart';
@@ -59,10 +62,29 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<UserModel> updateProfile({
     required String name,
     required String mobile,
+    Uint8List? avatarBytes,
   }) async {
     await FirebaseAuthService.instance.updateDisplayName(name);
+
+    // Upload before the profile write, not after: the API stores the URL,
+    // so a failed upload must abort the whole save rather than leave the
+    // doc pointing at an object that was never written.
+    String? avatarUrl;
+    if (avatarBytes != null) {
+      final uid = FirebaseAuthService.instance.currentUser!.uid;
+      avatarUrl = await FirebaseStorageService.instance.uploadAvatar(
+        uid: uid,
+        bytes: avatarBytes,
+      );
+    }
+
     final idToken = await FirebaseAuthService.instance.idToken();
-    return _saveUserProfile(idToken: idToken!, name: name, mobile: mobile);
+    return _saveUserProfile(
+      idToken: idToken!,
+      name: name,
+      mobile: mobile,
+      avatarUrl: avatarUrl,
+    );
   }
 
   @override
@@ -80,17 +102,19 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<void> sendPasswordResetEmail({required String email}) =>
       FirebaseAuthService.instance.sendPasswordResetEmail(email);
 
-  /// Upserts the caller's `users/{uid}` profile on the admin API. `name`/
-  /// `mobile` are optional — omit both to just re-sync `emailVerified` off a
-  /// freshly-refreshed token without touching the rest of the profile.
+  /// Upserts the caller's `users/{uid}` profile on the admin API. Every
+  /// field is optional — omit them all to just re-sync `emailVerified` off a
+  /// freshly-refreshed token without touching the rest of the profile, and
+  /// omit [avatarUrl] alone to keep the existing photo.
   Future<UserModel> _saveUserProfile({
     required String idToken,
     String? name,
     String? mobile,
+    String? avatarUrl,
   }) async {
     final response = await HttpService.instance.post<Map<String, dynamic>>(
       ApiConstants.usersPath,
-      data: {'name': ?name, 'mobile': ?mobile},
+      data: {'name': ?name, 'mobile': ?mobile, 'avatar_url': ?avatarUrl},
       headers: {'Authorization': 'Bearer $idToken'},
     );
     return UserModel.fromJson(response.data!);

@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:fpdart/fpdart.dart';
 
 import 'package:core/core/base/base_repository.dart';
@@ -86,9 +87,14 @@ class AuthRepositoryImpl with BaseRepository implements AuthRepository {
   Future<Either<Failure, UserEntity>> updateProfile({
     required String name,
     required String mobile,
+    Uint8List? avatarBytes,
   }) => handleRequest(() async {
     try {
-      final model = await _dataSource.updateProfile(name: name, mobile: mobile);
+      final model = await _dataSource.updateProfile(
+        name: name,
+        mobile: mobile,
+        avatarBytes: avatarBytes,
+      );
       await UserProfileCacheService.instance.save(model.toJson());
       return right(model.toEntity());
     } on FirebaseAuthException catch (e) {

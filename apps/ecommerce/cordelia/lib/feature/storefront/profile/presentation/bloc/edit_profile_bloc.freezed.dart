@@ -12,9 +12,12 @@ part of 'edit_profile_bloc.dart';
 // dart format off
 T _$identity<T>(T value) => value;
 /// @nodoc
-mixin _$EditProfileEvent {
+mixin _$EditProfileEvent implements DiagnosticableTreeMixin {
 
- String get name; String get mobile;
+ String get name; String get mobile;/// Set only when the shopper picked a new photo this session — the
+/// upload and the `avatar_url` write are both skipped when null, so
+/// saving a name change never re-uploads the existing avatar.
+ Uint8List? get avatarBytes;
 /// Create a copy of EditProfileEvent
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -22,19 +25,25 @@ mixin _$EditProfileEvent {
 $EditProfileEventCopyWith<EditProfileEvent> get copyWith => _$EditProfileEventCopyWithImpl<EditProfileEvent>(this as EditProfileEvent, _$identity);
 
 
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'EditProfileEvent'))
+    ..add(DiagnosticsProperty('name', name))..add(DiagnosticsProperty('mobile', mobile))..add(DiagnosticsProperty('avatarBytes', avatarBytes));
+}
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is EditProfileEvent&&(identical(other.name, name) || other.name == name)&&(identical(other.mobile, mobile) || other.mobile == mobile));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is EditProfileEvent&&(identical(other.name, name) || other.name == name)&&(identical(other.mobile, mobile) || other.mobile == mobile)&&const DeepCollectionEquality().equals(other.avatarBytes, avatarBytes));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,name,mobile);
+int get hashCode => Object.hash(runtimeType,name,mobile,const DeepCollectionEquality().hash(avatarBytes));
 
 @override
-String toString() {
-  return 'EditProfileEvent(name: $name, mobile: $mobile)';
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'EditProfileEvent(name: $name, mobile: $mobile, avatarBytes: $avatarBytes)';
 }
 
 
@@ -45,7 +54,7 @@ abstract mixin class $EditProfileEventCopyWith<$Res>  {
   factory $EditProfileEventCopyWith(EditProfileEvent value, $Res Function(EditProfileEvent) _then) = _$EditProfileEventCopyWithImpl;
 @useResult
 $Res call({
- String name, String mobile
+ String name, String mobile, Uint8List? avatarBytes
 });
 
 
@@ -62,11 +71,12 @@ class _$EditProfileEventCopyWithImpl<$Res>
 
 /// Create a copy of EditProfileEvent
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? name = null,Object? mobile = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? name = null,Object? mobile = null,Object? avatarBytes = freezed,}) {
   return _then(_self.copyWith(
 name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,mobile: null == mobile ? _self.mobile : mobile // ignore: cast_nullable_to_non_nullable
-as String,
+as String,avatarBytes: freezed == avatarBytes ? _self.avatarBytes : avatarBytes // ignore: cast_nullable_to_non_nullable
+as Uint8List?,
   ));
 }
 
@@ -148,10 +158,10 @@ return submitted(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String name,  String mobile)?  submitted,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String name,  String mobile,  Uint8List? avatarBytes)?  submitted,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case EditProfileSubmitted() when submitted != null:
-return submitted(_that.name,_that.mobile);case _:
+return submitted(_that.name,_that.mobile,_that.avatarBytes);case _:
   return orElse();
 
 }
@@ -169,10 +179,10 @@ return submitted(_that.name,_that.mobile);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String name,  String mobile)  submitted,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String name,  String mobile,  Uint8List? avatarBytes)  submitted,}) {final _that = this;
 switch (_that) {
 case EditProfileSubmitted():
-return submitted(_that.name,_that.mobile);}
+return submitted(_that.name,_that.mobile,_that.avatarBytes);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -186,10 +196,10 @@ return submitted(_that.name,_that.mobile);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String name,  String mobile)?  submitted,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String name,  String mobile,  Uint8List? avatarBytes)?  submitted,}) {final _that = this;
 switch (_that) {
 case EditProfileSubmitted() when submitted != null:
-return submitted(_that.name,_that.mobile);case _:
+return submitted(_that.name,_that.mobile,_that.avatarBytes);case _:
   return null;
 
 }
@@ -200,12 +210,16 @@ return submitted(_that.name,_that.mobile);case _:
 /// @nodoc
 
 
-class EditProfileSubmitted implements EditProfileEvent {
-  const EditProfileSubmitted({required this.name, required this.mobile});
+class EditProfileSubmitted with DiagnosticableTreeMixin implements EditProfileEvent {
+  const EditProfileSubmitted({required this.name, required this.mobile, this.avatarBytes});
   
 
 @override final  String name;
 @override final  String mobile;
+/// Set only when the shopper picked a new photo this session — the
+/// upload and the `avatar_url` write are both skipped when null, so
+/// saving a name change never re-uploads the existing avatar.
+@override final  Uint8List? avatarBytes;
 
 /// Create a copy of EditProfileEvent
 /// with the given fields replaced by the non-null parameter values.
@@ -214,19 +228,25 @@ class EditProfileSubmitted implements EditProfileEvent {
 $EditProfileSubmittedCopyWith<EditProfileSubmitted> get copyWith => _$EditProfileSubmittedCopyWithImpl<EditProfileSubmitted>(this, _$identity);
 
 
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'EditProfileEvent.submitted'))
+    ..add(DiagnosticsProperty('name', name))..add(DiagnosticsProperty('mobile', mobile))..add(DiagnosticsProperty('avatarBytes', avatarBytes));
+}
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is EditProfileSubmitted&&(identical(other.name, name) || other.name == name)&&(identical(other.mobile, mobile) || other.mobile == mobile));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is EditProfileSubmitted&&(identical(other.name, name) || other.name == name)&&(identical(other.mobile, mobile) || other.mobile == mobile)&&const DeepCollectionEquality().equals(other.avatarBytes, avatarBytes));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,name,mobile);
+int get hashCode => Object.hash(runtimeType,name,mobile,const DeepCollectionEquality().hash(avatarBytes));
 
 @override
-String toString() {
-  return 'EditProfileEvent.submitted(name: $name, mobile: $mobile)';
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'EditProfileEvent.submitted(name: $name, mobile: $mobile, avatarBytes: $avatarBytes)';
 }
 
 
@@ -237,7 +257,7 @@ abstract mixin class $EditProfileSubmittedCopyWith<$Res> implements $EditProfile
   factory $EditProfileSubmittedCopyWith(EditProfileSubmitted value, $Res Function(EditProfileSubmitted) _then) = _$EditProfileSubmittedCopyWithImpl;
 @override @useResult
 $Res call({
- String name, String mobile
+ String name, String mobile, Uint8List? avatarBytes
 });
 
 
@@ -254,11 +274,12 @@ class _$EditProfileSubmittedCopyWithImpl<$Res>
 
 /// Create a copy of EditProfileEvent
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? name = null,Object? mobile = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? name = null,Object? mobile = null,Object? avatarBytes = freezed,}) {
   return _then(EditProfileSubmitted(
 name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,mobile: null == mobile ? _self.mobile : mobile // ignore: cast_nullable_to_non_nullable
-as String,
+as String,avatarBytes: freezed == avatarBytes ? _self.avatarBytes : avatarBytes // ignore: cast_nullable_to_non_nullable
+as Uint8List?,
   ));
 }
 
@@ -266,11 +287,17 @@ as String,
 }
 
 /// @nodoc
-mixin _$EditProfileState {
+mixin _$EditProfileState implements DiagnosticableTreeMixin {
 
 
 
 
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'EditProfileState'))
+    ;
+}
 
 @override
 bool operator ==(Object other) {
@@ -282,7 +309,7 @@ bool operator ==(Object other) {
 int get hashCode => runtimeType.hashCode;
 
 @override
-String toString() {
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
   return 'EditProfileState()';
 }
 
@@ -440,7 +467,7 @@ return error(_that.message);case _:
 /// @nodoc
 
 
-class EditProfileInitial implements EditProfileState {
+class EditProfileInitial with DiagnosticableTreeMixin implements EditProfileState {
   const EditProfileInitial();
   
 
@@ -448,6 +475,12 @@ class EditProfileInitial implements EditProfileState {
 
 
 
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'EditProfileState.initial'))
+    ;
+}
 
 @override
 bool operator ==(Object other) {
@@ -459,7 +492,7 @@ bool operator ==(Object other) {
 int get hashCode => runtimeType.hashCode;
 
 @override
-String toString() {
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
   return 'EditProfileState.initial()';
 }
 
@@ -472,7 +505,7 @@ String toString() {
 /// @nodoc
 
 
-class EditProfileSaving implements EditProfileState {
+class EditProfileSaving with DiagnosticableTreeMixin implements EditProfileState {
   const EditProfileSaving();
   
 
@@ -480,6 +513,12 @@ class EditProfileSaving implements EditProfileState {
 
 
 
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'EditProfileState.saving'))
+    ;
+}
 
 @override
 bool operator ==(Object other) {
@@ -491,7 +530,7 @@ bool operator ==(Object other) {
 int get hashCode => runtimeType.hashCode;
 
 @override
-String toString() {
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
   return 'EditProfileState.saving()';
 }
 
@@ -504,7 +543,7 @@ String toString() {
 /// @nodoc
 
 
-class EditProfileSuccess implements EditProfileState {
+class EditProfileSuccess with DiagnosticableTreeMixin implements EditProfileState {
   const EditProfileSuccess({required this.user});
   
 
@@ -517,6 +556,12 @@ class EditProfileSuccess implements EditProfileState {
 $EditProfileSuccessCopyWith<EditProfileSuccess> get copyWith => _$EditProfileSuccessCopyWithImpl<EditProfileSuccess>(this, _$identity);
 
 
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'EditProfileState.success'))
+    ..add(DiagnosticsProperty('user', user));
+}
 
 @override
 bool operator ==(Object other) {
@@ -528,7 +573,7 @@ bool operator ==(Object other) {
 int get hashCode => Object.hash(runtimeType,user);
 
 @override
-String toString() {
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
   return 'EditProfileState.success(user: $user)';
 }
 
@@ -570,7 +615,7 @@ as UserEntity,
 /// @nodoc
 
 
-class EditProfileError implements EditProfileState {
+class EditProfileError with DiagnosticableTreeMixin implements EditProfileState {
   const EditProfileError({required this.message});
   
 
@@ -583,6 +628,12 @@ class EditProfileError implements EditProfileState {
 $EditProfileErrorCopyWith<EditProfileError> get copyWith => _$EditProfileErrorCopyWithImpl<EditProfileError>(this, _$identity);
 
 
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'EditProfileState.error'))
+    ..add(DiagnosticsProperty('message', message));
+}
 
 @override
 bool operator ==(Object other) {
@@ -594,7 +645,7 @@ bool operator ==(Object other) {
 int get hashCode => Object.hash(runtimeType,message);
 
 @override
-String toString() {
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
   return 'EditProfileState.error(message: $message)';
 }
 

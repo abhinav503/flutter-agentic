@@ -121,7 +121,11 @@ class _EditProfileScreenState extends BaseScreenState<EditProfileScreen>
     }
 
     context.read<EditProfileBloc>().add(
-      EditProfileEvent.submitted(name: name, mobile: phone),
+      EditProfileEvent.submitted(
+        name: name,
+        mobile: phone,
+        avatarBytes: _pickedAvatarBytes,
+      ),
     );
   }
 
@@ -142,7 +146,11 @@ class _EditProfileScreenState extends BaseScreenState<EditProfileScreen>
                 name: user.name,
                 email: user.email,
                 phone: user.mobile,
-                avatarUrl: widget.profile.avatarUrl,
+                // Server's copy — the URL of the photo just uploaded, or the
+                // existing one when this save didn't touch the avatar.
+                avatarUrl: user.avatarUrl,
+                // Kept alongside it so the new photo paints immediately;
+                // fetching the fresh URL would flash the placeholder first.
                 avatarBytes: _pickedAvatarBytes ?? widget.profile.avatarBytes,
               ),
             ),

@@ -1,4 +1,5 @@
 import 'package:core/core/error/failure.dart';
+import 'package:flutter/foundation.dart';
 import 'package:fpdart/fpdart.dart';
 
 import '../entities/user_entity.dart';
@@ -28,11 +29,12 @@ abstract interface class AuthRepository {
   Future<Either<Failure, UserEntity?>> checkEmailVerified();
 
   /// Updates the Firebase Auth display name and the Firestore profile doc
-  /// (name + mobile). Email is not editable here — see
-  /// `AuthRemoteDataSource.updateProfile`.
+  /// (name + mobile, plus the avatar when [avatarBytes] is present). Email
+  /// is not editable here — see `AuthRemoteDataSource.updateProfile`.
   Future<Either<Failure, UserEntity>> updateProfile({
     required String name,
     required String mobile,
+    Uint8List? avatarBytes,
   });
 
   /// Re-authenticates with [currentPassword] (also verifies it's correct),

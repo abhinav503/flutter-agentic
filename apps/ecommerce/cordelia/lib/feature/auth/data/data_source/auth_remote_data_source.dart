@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 import '../models/user_model.dart';
 
 /// Owns every remote auth operation — both the Firebase Auth SDK calls
@@ -29,9 +31,15 @@ abstract interface class AuthRemoteDataSource {
   /// Updates both the Firebase Auth user's display name and the Firestore
   /// profile doc (name + mobile) — email is untouched here; changing it
   /// needs Firebase's own re-verification flow, out of scope for this call.
+  ///
+  /// [avatarBytes], when present, is uploaded to Firebase Storage first and
+  /// its download URL persisted alongside the rest of the profile; omit it
+  /// to leave the existing photo untouched (the API only overwrites
+  /// `avatar_url` when it's sent).
   Future<UserModel> updateProfile({
     required String name,
     required String mobile,
+    Uint8List? avatarBytes,
   });
 
   /// Re-authenticates with [currentPassword], then sets [newPassword] on

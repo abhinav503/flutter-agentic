@@ -1,5 +1,6 @@
 import 'package:core/core/error/failure.dart';
 import 'package:core/core/usecase/usecase.dart';
+import 'package:flutter/foundation.dart';
 import 'package:fpdart/fpdart.dart';
 
 import '../entities/user_entity.dart';
@@ -9,7 +10,14 @@ class UpdateProfileParams {
   final String name;
   final String mobile;
 
-  const UpdateProfileParams({required this.name, required this.mobile});
+  /// A photo picked this session, or null to keep the existing avatar.
+  final Uint8List? avatarBytes;
+
+  const UpdateProfileParams({
+    required this.name,
+    required this.mobile,
+    this.avatarBytes,
+  });
 }
 
 class UpdateProfileUseCase
@@ -20,5 +28,9 @@ class UpdateProfileUseCase
 
   @override
   Future<Either<Failure, UserEntity>> call(UpdateProfileParams params) =>
-      _repository.updateProfile(name: params.name, mobile: params.mobile);
+      _repository.updateProfile(
+        name: params.name,
+        mobile: params.mobile,
+        avatarBytes: params.avatarBytes,
+      );
 }

@@ -15,6 +15,8 @@ abstract class UserModel with _$UserModel {
     required String email,
     required String mobile,
     required bool emailVerified,
+    @JsonKey(name: 'avatar_url', defaultValue: '')
+    required String avatarUrl,
   }) = _UserModel;
 
   factory UserModel.fromJson(Map<String, dynamic> json) =>
@@ -26,6 +28,7 @@ abstract class UserModel with _$UserModel {
     email: e.email,
     mobile: e.mobile,
     emailVerified: e.emailVerified,
+    avatarUrl: e.avatarUrl,
   );
 
   UserEntity toEntity() => UserEntity(
@@ -34,5 +37,6 @@ abstract class UserModel with _$UserModel {
     email: email,
     mobile: mobile,
     emailVerified: emailVerified,
+    avatarUrl: avatarUrl,
   );
 }

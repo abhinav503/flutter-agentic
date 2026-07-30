@@ -19,6 +19,11 @@ dependencies:
   firebase_core: ^4.1.1
   firebase_auth: ^6.1.0
 
+  # Shopper avatars — Edit Profile uploads the picked photo to
+  # users/{uid}/avatar.jpg and sends the download URL to the admin API,
+  # which stores it on the Firestore profile doc as `avatar_url`.
+  firebase_storage: ^13.0.5
+
   # feature/auth's remote data source builds a Dio Options object directly
   # (Authorization header) — HttpService (core) doesn't expose that shape.
   dio: ^5.8.0+1

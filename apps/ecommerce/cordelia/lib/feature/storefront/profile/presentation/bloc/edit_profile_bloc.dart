@@ -1,5 +1,6 @@
 import 'package:cordelia/feature/auth/domain/entities/user_entity.dart';
 import 'package:cordelia/feature/auth/domain/usecase/update_profile_usecase.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 part 'edit_profile_bloc.freezed.dart';
@@ -21,7 +22,11 @@ class EditProfileBloc extends Bloc<EditProfileEvent, EditProfileState> {
   ) async {
     emit(const EditProfileState.saving());
     final result = await _updateProfile(
-      UpdateProfileParams(name: event.name, mobile: event.mobile),
+      UpdateProfileParams(
+        name: event.name,
+        mobile: event.mobile,
+        avatarBytes: event.avatarBytes,
+      ),
     );
     result.fold(
       (failure) => emit(EditProfileState.error(message: failure.message)),

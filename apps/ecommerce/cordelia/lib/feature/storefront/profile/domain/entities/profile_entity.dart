@@ -7,12 +7,14 @@ class ProfileEntity {
   final String avatarUrl;
 
   /// A photo picked from the device this session (Edit Profile's camera
-  /// picker) but never uploaded anywhere — there's no backend for this
-  /// mocked app to host it at a URL. `Uint8List` rather than a `File`/path
-  /// so every avatar consumer stays web-safe (`dart:io` doesn't compile for
-  /// web; `image_picker`'s `XFile.readAsBytes()` works on every platform).
+  /// picker). It *is* uploaded on save — [avatarUrl] then points at it in
+  /// Firebase Storage — but the bytes ride along so the new photo paints
+  /// immediately instead of flashing the placeholder while the fresh URL
+  /// downloads. `Uint8List` rather than a `File`/path so every avatar
+  /// consumer stays web-safe (`dart:io` doesn't compile for web;
+  /// `image_picker`'s `XFile.readAsBytes()` works on every platform).
   /// Never round-trips through `ProfileModel` — a profile loaded from the
-  /// repository never has one, only a screen-local pick does.
+  /// repository has only [avatarUrl]; only a screen-local pick has bytes.
   final Uint8List? avatarBytes;
 
   const ProfileEntity({
