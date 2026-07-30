@@ -10,7 +10,7 @@ import 'package:cordelia/templates/gravia/constants/gravia_color_const.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_text_style_const.dart';
 import 'package:cordelia/templates/gravia/widgets/gravia_hero_header.dart';
 
-import 'legal_document_content.dart';
+import '../../../view/legal_document_content.dart';
 
 /// Static, no-BLoC screen for a legal document (Terms & Conditions, Privacy
 /// Policy) — same coloured-header + white-sheet shape as every other pushed
@@ -62,20 +62,22 @@ class _LegalDocumentScreenState extends BaseScreenState<LegalDocumentScreen> {
                       tt,
                     ).copyWith(color: cs.onSurface),
                   ),
-                  const SizedBox(height: AppSpacing.xl2),
-                  Text(
-                    widget.content.heading,
-                    style: GraviaTextStyleConst.textMdBold(
-                      tt,
-                    ).copyWith(color: cs.primary),
-                  ),
-                  const SizedBox(height: AppSpacing.base),
-                  Text(
-                    widget.content.body,
-                    style: GraviaTextStyleConst.textMdRegular(
-                      tt,
-                    ).copyWith(color: cs.onSurfaceVariant),
-                  ),
+                  for (final section in widget.content.sections) ...[
+                    const SizedBox(height: AppSpacing.xl2),
+                    Text(
+                      section.heading,
+                      style: GraviaTextStyleConst.textMdBold(
+                        tt,
+                      ).copyWith(color: cs.primary),
+                    ),
+                    const SizedBox(height: AppSpacing.base),
+                    Text(
+                      section.body,
+                      style: GraviaTextStyleConst.textMdRegular(
+                        tt,
+                      ).copyWith(color: cs.onSurfaceVariant),
+                    ),
+                  ],
                 ],
               ),
             ),

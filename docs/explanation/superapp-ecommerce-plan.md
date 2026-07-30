@@ -437,12 +437,14 @@ overrides), and `BaseScreenState.overlayStyle` (all 15 hand-rolled
 `AnnotatedRegion` wrappers replaced; new forbidden-pattern rule synced to
 every agent surface).
 
-**Remaining for dailymart parity** *(updated 2026-07-30)*: Wishlist/Profile
-tabs (designed coming-soon states today); dailymart's own Category Details
-and the checkout's Select Address / Address Form (those routes still open
-gravia screens); per-store notifications from the backend (bundled
-per-template mock today). Search, Product Details, and Cart shipped — see
-the next section for the reusability sweep that followed them.
+**Remaining for dailymart parity** *(updated 2026-07-30)*: the Wishlist tab
+(designed coming-soon state today); dailymart's own Category Details and
+Address Form (those routes still open gravia screens);
+My Orders (no Orders tab and no Orders screen in this template — the Profile
+row says so instead of opening gravia's); per-store notifications from the
+backend (bundled per-template mock today). Search, Product Details, Cart,
+Profile, Edit Profile, Change Password, Select Address and the legal document
+shipped.
 
 ## Template reusability sweep + dailymart polish — DONE (2026-07-30)
 
@@ -494,6 +496,58 @@ pills), and 3 private re-implementations of `DailyMartIconDisc` deleted.
 literals), `detailImageHeight` (the carousel/skeleton duplicated 300), the
 grid-skeleton card height, and `hairlineWidth`; the `filterDateLabel`
 name collision resolved (`DateTime` formatter → `asFilterDate`).
+
+## dailymart Profile slice — DONE (2026-07-30)
+
+Four kit frames ported into the `dailymart` template: `42 My Account`,
+`43 Personal Data`, `50 Privacy & Policy`, and `30 Checkout - Shipping
+Address`. Per the brief, **the row set is gravia's** (same titles, same
+actions) and only the UI is the kit's — the kit's own list offers Security /
+Language / Help & Support, none of which this app has.
+
+**Screens** (`feature/*/presentation/templates/dailymart/`):
+- **Profile** — now the shell's 4th tab instead of a coming-soon state.
+  Identity row (64 avatar + 18/700 name + email), then General and
+  Preferences groups of bordered 52 px rows. Reads the shell-level
+  `ProfileBloc`, so switching tabs never re-fetches.
+- **Edit Profile** — 140 px avatar with the kit's green pencil badge, Name /
+  Email (disabled) / Phone, floating Save Changes over the pack's bottom
+  fade. The kit's Date of Birth and Gender fields are **not** reproduced:
+  `ProfileEntity` carries neither, and inventing storage for two fields the
+  backend never returns would put dead controls on a live form.
+- **Privacy & Policy / Terms** — the app-level `LegalDocumentContent`
+  rendered in this pack: bold effective-date line, section heading + body,
+  and a permanently-visible `RawScrollbar` with a green thumb (the kit draws
+  the scrollbar as page furniture, not an overlay). The legal feature was
+  restructured into `presentation/templates/<id>/view/` to match every other
+  templated screen.
+- **Select Address** — tinted radius-16 cards with a trailing selection
+  disc. **Selecting is committing**: the kit gives this screen one CTA (Add
+  New Address) and no confirm button, so a tap persists the choice and pops
+  the chosen `AddressEntity` — the same contract the checkout gate awaits,
+  reached in one tap instead of two. Per-card Edit/Delete aren't drawn (the
+  kit's frame has neither yet).
+
+**New pack wrappers:** `DailyMartMenuTile` (bordered strip; takes `asset`
+**or** `icon`, plus a `trailing` slot for the Dark Mode switch),
+`DailyMartFormField` (56 px at radius 12), `DailyMartOutlineButton`,
+`DailyMartActionPair`, `showDailyMartConfirmSheet` +
+`DailyMartConfirmSheetContent` (the roster's declared confirm sheet, now
+shipped for Logout). Eight kit SVGs added to the pack's icon folder; three
+rows the kit never draws (My Orders, Dark Mode, Terms) take a `_outlined`
+Material fallback, visible at the call site.
+
+**Structural fix:** the two `selected_address_*` pref keys moved out of
+gravia's `address_page.dart` into `address/presentation/address_pref_keys.dart`
+— the shared `AddressBloc` and `SelectedAddressLabelState` mixin were both
+importing a *template* file for them, and dailymart's screen would have been
+the third.
+
+**Routing:** `selectAddress`, `editProfile`, `privacyPolicy` and
+`termsAndConditions` now dispatch through `StorefrontTemplateSwitch`. The
+two legal routes are also reachable from Signup, i.e. outside any
+storefront, where the switch's documented `null` fallback lands on gravia —
+the same default an unknown `template_id` takes.
 
 ## Missing flows (fill these or explicitly defer)
 

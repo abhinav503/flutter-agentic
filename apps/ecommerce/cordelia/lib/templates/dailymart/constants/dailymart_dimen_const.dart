@@ -67,12 +67,38 @@ abstract final class DailyMartDimenConst {
   static const double bottomFadeHeight = 120;
   static const double detailBottomFadeHeight = 160;
 
-  /// Bottom spacer under Home's scroll content so the last grid row clears
-  /// the floating cart pill docked over the fade.
-  static const double homeScrollBottomInset = 100;
+  /// Bottom spacer under any scroll view that floats a control over
+  /// [bottomFadeHeight] — Home's cart pill, Edit Profile's Save Changes,
+  /// Select Address's Add New Address — so the last row clears it.
+  static const double floatingActionScrollInset = 100;
 
   /// The floating Filter pill on Search results — 52px tall at radius 40,
   /// the pack's one recorded off-token radius (spec sheet §2).
   static const double filterPillHeight = 52;
   static const double filterPillRadius = 40;
+
+  /// Profile's bordered menu rows. Shorter than [controlHeight] because a
+  /// row is a full-width strip, not a tappable disc — the kit sizes the two
+  /// independently.
+  static const double menuRowHeight = 52;
+
+  /// Profile's identity avatar, beside the name/email block.
+  static const double profileAvatarSize = 64;
+
+  /// Edit Profile's hero avatar and the green pencil badge overlapping its
+  /// bottom-right corner.
+  static const double editAvatarSize = 140;
+  static const double editAvatarBadgeSize = 38;
+
+  /// Edit Profile's form fields — taller than [controlHeight] so a typed
+  /// value has the same breathing room as the [ctaHeight] button below them.
+  static const double formFieldHeight = 56;
+
+  /// Select Address's per-row radio disc (a filled tick when selected, a
+  /// bare ring when not).
+  static const double addressCheckSize = 20;
+
+  /// The legal document's right-edge scroll rail — the kit draws the
+  /// scrollbar as part of the page rather than as an overlay.
+  static const double scrollRailWidth = 4;
 }

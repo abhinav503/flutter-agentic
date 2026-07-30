@@ -96,21 +96,29 @@ abstract final class ValueConst {
   static const privacyPolicyIntro =
       'Please read these privacy policy, carefully before using our app '
       'operated by us.';
-  static const privacyPolicyHeading = 'Privacy Policy';
-  static const privacyPolicyBody =
-      'There are many variations of passages of Lorem Ipsum available, but '
-      'the majority have suffered alteration in some form, by injected '
-      "humour, or randomised words which don't look even slightly "
-      'believable.\n\n'
-      'If you are going to use a passage of Lorem Ipsum, you need to be sure '
-      "there isn't anything embarrassing hidden in the middle of text. All "
-      'the Lorem Ipsum generators on the Internet tend to repeat predefined '
-      'chunks as necessary, making this the first true generator on the '
-      'Internet. It uses a dictionary of over 200 Latin words, combined with '
-      'a handful of model sentence structures, to generate Lorem Ipsum which '
-      'looks reasonable.\n\n'
-      'The generated Lorem Ipsum is therefore always free from repetition, '
-      'injected humour, or non-characteristic words etc.';
+  // Real copy (not lorem) — the DailyMart kit's Privacy & Policy frame is a
+  // run of numbered sections, so the document needs enough of them to read
+  // as one; gravia renders the same list under its own header.
+  static const privacyPolicySection1Heading = '1. Information Collection';
+  static const privacyPolicySection1Body =
+      'We collect essential information to enhance your experience. This '
+      'includes details you provide directly, such as account data, as well '
+      'as information gathered through usage analytics and cookies.';
+  static const privacyPolicySection2Heading = '2. Information Usage';
+  static const privacyPolicySection2Body =
+      'The information collected is used to improve our services, provide '
+      'personalized recommendations, and ensure a seamless experience. We do '
+      'not share your data without your explicit consent.';
+  static const privacyPolicySection3Heading = '3. Information Setting';
+  static const privacyPolicySection3Body =
+      'You have full control over your data. Manage your privacy '
+      'preferences, update personal details, and customize your settings to '
+      'match your needs.';
+  static const privacyPolicySection4Heading = '4. Security Measures';
+  static const privacyPolicySection4Body =
+      "We prioritize your data's safety with advanced security protocols, "
+      'encryption methods, and regular audits to protect against '
+      'unauthorized access or breaches.';
 
   // ── Store discovery (feature/home) ─────────────────────────────────────
   static const discoveryTitle = 'Find your store';

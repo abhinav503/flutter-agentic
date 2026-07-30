@@ -19,6 +19,7 @@ import 'package:cordelia/feature/storefront/cart/presentation/templates/dailymar
 import 'package:cordelia/feature/storefront/home/presentation/bloc/home_bloc.dart';
 import 'package:cordelia/feature/storefront/home/presentation/templates/dailymart/view/home_screen.dart';
 import 'package:cordelia/feature/storefront/profile/presentation/bloc/profile_bloc.dart';
+import 'package:cordelia/feature/storefront/profile/presentation/templates/dailymart/view/profile_screen.dart';
 import 'package:cordelia/feature/storefront/shell/presentation/storefront_shell.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_color_const.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_image_const.dart';
@@ -29,9 +30,9 @@ import 'package:cordelia/templates/dailymart/widgets/dailymart_bottom_fade.dart'
 /// Profile — in the kit's own order; note the cart **is** a tab here, unlike
 /// `gravia`, where it's a docked status bar above a five-tab set.
 ///
-/// Only Home is ported so far; the other three render an [EmptyState] rather
-/// than borrowing gravia's screens, which would mix two packs' visual
-/// languages on one nav bar. Each lands with its own
+/// Wishlist is the last tab still unported: it renders an [EmptyState]
+/// rather than borrowing gravia's screen, which would mix two packs' visual
+/// languages on one nav bar. It lands with its own
 /// `presentation/templates/dailymart/` screen.
 class ShellPage extends StorefrontShellPage {
   // Nav-tab indices — public so a route outside the shell can request a tab
@@ -156,11 +157,9 @@ class _ShellPageState extends BasePageState<ShellPage>
       // showBack: false — a tab root has nowhere to pop; onBack still serves
       // the empty state's Explore action and the order-placed continue.
       ShellPage.cartTabIndex => CartScreen(onBack: _goHome, showBack: false),
-      _ => _NotPortedYet(
-        icon: Icons.person_outline_rounded,
-        tab: DailyMartValueConst.navProfile,
-        onBackToHome: _goHome,
-      ),
+      // ProfileBloc is shell-level (see buildBlocProviders) — Home's header
+      // reads the same profile, so there's nothing to provide per-tab.
+      _ => const ProfileScreen(),
     };
 
     if (currentTab != ShellPage.homeTabIndex) return content;

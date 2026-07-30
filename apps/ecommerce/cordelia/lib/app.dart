@@ -1,7 +1,13 @@
 import 'package:cordelia/feature/home/presentation/view/discovery_page.dart';
 import 'package:cordelia/feature/storefront/address/domain/entities/address_entity.dart';
 import 'package:cordelia/feature/storefront/address/presentation/templates/gravia/view/address_form_page.dart';
-import 'package:cordelia/feature/storefront/address/presentation/templates/gravia/view/address_page.dart';
+// Every template names its Select Address entry `AddressPage` (the class
+// name belongs to the role, not the pack), so both need a prefix to be
+// dispatched from one StorefrontTemplateSwitch — same as Notifications below.
+import 'package:cordelia/feature/storefront/address/presentation/templates/dailymart/view/address_page.dart'
+    as dailymart_address;
+import 'package:cordelia/feature/storefront/address/presentation/templates/gravia/view/address_page.dart'
+    as gravia_address;
 import 'package:cordelia/feature/storefront/cart/presentation/cubit/cart_cubit.dart';
 // Cart/Search/Product Details follow the Notifications pattern below: every
 // template names the entry class the same, so each needs a prefix to be
@@ -24,8 +30,14 @@ import 'package:cordelia/feature/storefront/product_details/presentation/templat
 import 'package:cordelia/feature/storefront/product_details/presentation/templates/gravia/view/product_details_page.dart'
     as gravia_product_details;
 import 'package:cordelia/feature/storefront/profile/domain/entities/profile_entity.dart';
-import 'package:cordelia/feature/storefront/profile/presentation/templates/gravia/view/change_password_page.dart';
-import 'package:cordelia/feature/storefront/profile/presentation/templates/gravia/view/edit_profile_page.dart';
+import 'package:cordelia/feature/storefront/profile/presentation/templates/dailymart/view/change_password_page.dart'
+    as dailymart_change_password;
+import 'package:cordelia/feature/storefront/profile/presentation/templates/gravia/view/change_password_page.dart'
+    as gravia_change_password;
+import 'package:cordelia/feature/storefront/profile/presentation/templates/dailymart/view/edit_profile_page.dart'
+    as dailymart_edit_profile;
+import 'package:cordelia/feature/storefront/profile/presentation/templates/gravia/view/edit_profile_page.dart'
+    as gravia_edit_profile;
 import 'package:cordelia/feature/storefront/search/presentation/templates/dailymart/view/search_page.dart'
     as dailymart_search;
 import 'package:cordelia/feature/storefront/search/presentation/templates/gravia/view/search_page.dart'
@@ -48,7 +60,12 @@ import 'feature/auth/presentation/bloc/auth_bloc.dart'
 import 'feature/auth/presentation/view/login_page.dart';
 import 'feature/auth/presentation/view/signup_page.dart';
 import 'feature/legal/presentation/view/legal_document_content.dart';
-import 'feature/legal/presentation/view/legal_document_page.dart';
+// Same per-template prefixing as Notifications/Cart above — the legal
+// document screen is app-level copy rendered in the active store's pack.
+import 'feature/legal/presentation/templates/dailymart/view/legal_document_page.dart'
+    as dailymart_legal;
+import 'feature/legal/presentation/templates/gravia/view/legal_document_page.dart'
+    as gravia_legal;
 import 'feature/onboarding/presentation/view/onboarding_page.dart';
 import 'feature/splash/presentation/view/splash_page.dart';
 import 'feature/storefront/active_store/presentation/cubit/active_store_cubit.dart';
@@ -117,8 +134,16 @@ final _router = GoRouter(
               opacity: CurveTween(curve: Curves.easeInOut).animate(animation),
               child: child,
             ),
-        child: LegalDocumentPage(
-          content: LegalDocumentContent.termsAndConditions(),
+        // Also reachable from Signup, i.e. outside any storefront — the
+        // switch's documented `null` fallback lands on gravia there, the
+        // same default an unknown `template_id` takes.
+        child: StorefrontTemplateSwitch(
+          gravia: (_) => gravia_legal.LegalDocumentPage(
+            content: LegalDocumentContent.termsAndConditions(),
+          ),
+          dailymart: (_) => dailymart_legal.LegalDocumentPage(
+            content: LegalDocumentContent.termsAndConditions(),
+          ),
         ),
       ),
     ),
@@ -133,7 +158,14 @@ final _router = GoRouter(
               opacity: CurveTween(curve: Curves.easeInOut).animate(animation),
               child: child,
             ),
-        child: LegalDocumentPage(content: LegalDocumentContent.privacyPolicy()),
+        child: StorefrontTemplateSwitch(
+          gravia: (_) => gravia_legal.LegalDocumentPage(
+            content: LegalDocumentContent.privacyPolicy(),
+          ),
+          dailymart: (_) => dailymart_legal.LegalDocumentPage(
+            content: LegalDocumentContent.privacyPolicy(),
+          ),
+        ),
       ),
     ),
 
@@ -149,12 +181,10 @@ final _router = GoRouter(
               child: child,
             ),
         child: StorefrontTemplateSwitch(
-          gravia: (_) => gravia_search.SearchPage(
-            storeId: state.extra as String,
-          ),
-          dailymart: (_) => dailymart_search.SearchPage(
-            storeId: state.extra as String,
-          ),
+          gravia: (_) =>
+              gravia_search.SearchPage(storeId: state.extra as String),
+          dailymart: (_) =>
+              dailymart_search.SearchPage(storeId: state.extra as String),
         ),
       ),
     ),
@@ -199,7 +229,10 @@ final _router = GoRouter(
               opacity: CurveTween(curve: Curves.easeInOut).animate(animation),
               child: child,
             ),
-        child: const AddressPage(),
+        child: StorefrontTemplateSwitch(
+          gravia: (_) => const gravia_address.AddressPage(),
+          dailymart: (_) => const dailymart_address.AddressPage(),
+        ),
       ),
     ),
     GoRoute(
@@ -230,7 +263,14 @@ final _router = GoRouter(
               opacity: CurveTween(curve: Curves.easeInOut).animate(animation),
               child: child,
             ),
-        child: EditProfilePage(profile: state.extra as ProfileEntity),
+        child: StorefrontTemplateSwitch(
+          gravia: (_) => gravia_edit_profile.EditProfilePage(
+            profile: state.extra as ProfileEntity,
+          ),
+          dailymart: (_) => dailymart_edit_profile.EditProfilePage(
+            profile: state.extra as ProfileEntity,
+          ),
+        ),
       ),
     ),
     GoRoute(
@@ -245,7 +285,11 @@ final _router = GoRouter(
               opacity: CurveTween(curve: Curves.easeInOut).animate(animation),
               child: child,
             ),
-        child: const ChangePasswordPage(),
+        child: StorefrontTemplateSwitch(
+          gravia: (_) => const gravia_change_password.ChangePasswordPage(),
+          dailymart: (_) =>
+              const dailymart_change_password.ChangePasswordPage(),
+        ),
       ),
     ),
     GoRoute(
@@ -283,9 +327,8 @@ final _router = GoRouter(
             ),
         child: StorefrontTemplateSwitch(
           gravia: (_) => gravia_cart.CartPage(storeId: state.extra as String),
-          dailymart: (_) => dailymart_cart.CartPage(
-            storeId: state.extra as String,
-          ),
+          dailymart: (_) =>
+              dailymart_cart.CartPage(storeId: state.extra as String),
         ),
       ),
     ),
@@ -430,8 +473,7 @@ class _AppState extends State<App> {
                 darkTheme: AppTheme.fromConfig(themeConfig, dark: true),
                 themeMode: mode,
                 scaffoldMessengerKey: _scaffoldMessengerKey,
-                builder: (context, child) =>
-                    _SessionExpiredGuard(child: child),
+                builder: (context, child) => _SessionExpiredGuard(child: child),
               ),
             ),
           ),

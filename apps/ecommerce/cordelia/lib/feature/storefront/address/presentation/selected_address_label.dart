@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:core/core/services/shared_pref_service/shared_preference_service.dart';
 
 import 'package:cordelia/constants/app_routes.dart';
-import 'package:cordelia/feature/storefront/address/presentation/templates/gravia/view/address_page.dart';
+import 'package:cordelia/feature/storefront/address/presentation/address_pref_keys.dart';
 
 /// The "selected delivery address" label a storefront Home header shows —
 /// read from prefs on mount, refreshed after the Select Address screen pops.

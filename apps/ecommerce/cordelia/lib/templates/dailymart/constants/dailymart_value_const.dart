@@ -16,7 +16,8 @@ abstract final class DailyMartValueConst {
   // ── Notifications ────────────────────────────────────────────────────────
   /// Singular, as the kit titles it.
   static const notificationsTitle = 'Notification';
-  static const notificationsLoadErrorMessage = "Couldn't load your notifications.";
+  static const notificationsLoadErrorMessage =
+      "Couldn't load your notifications.";
   static const notificationsEmptyTitle = 'No notifications yet';
   static const notificationsEmptySubtitle =
       'Deals and order updates from this store will show up here.';
@@ -121,6 +122,71 @@ abstract final class DailyMartValueConst {
   static String cartSummaryLabel(int count, double total) =>
       '$count ${count.plural('item')} | ${formattedPrice(total)}';
   static const viewCartLabel = 'View Cart';
+
+  // ── Profile ──────────────────────────────────────────────────────────────
+  /// The kit groups the rows under "General" and "Preferencess" — the second
+  /// is a kit typo and is not reproduced.
+  static const generalSectionTitle = 'General';
+  static const preferencesSectionTitle = 'Preferences';
+
+  /// The row set is gravia's, not the kit's — same titles, same actions,
+  /// only the row silhouette is this pack's (the kit's own list offers
+  /// Security / Language / Help & Support, none of which this app has).
+  static const editProfileLabel = 'Edit Profile';
+  static const changePasswordLabel = 'Change Password';
+  static const myOrdersLabel = 'My Orders';
+  static const myAddressLabel = 'My Address';
+  static const darkModeLabel = 'Dark Mode';
+  static const privacyPolicyLabel = 'Privacy Policy';
+  static const termsAndConditionsLabel = 'Terms & Conditions';
+  static const logoutLabel = 'Logout';
+  static const logoutTitle = 'Log out?';
+  static const logoutConfirmMessage =
+      "You'll need to sign in again to place an order or track one.";
+  static const profileLoadErrorMessage = "Couldn't load your profile.";
+
+  // ── Edit Profile ─────────────────────────────────────────────────────────
+  static const editProfileTitle = 'Edit Profile';
+  static const fullNameLabel = 'Full Name';
+  static const fullNameHint = 'Enter your full name';
+  static const emailLabel = 'Email';
+  static const emailHint = 'you@example.com';
+  static const phoneNumberLabel = 'Phone Number';
+  static const phoneNumberHint = 'Enter your phone number';
+
+  /// The kit's own CTA wording on this screen.
+  static const saveChangesLabel = 'Save Changes';
+  static const changePhotoTitle = 'Change Photo';
+  static const takePhotoLabel = 'Take Photo';
+  static const chooseFromGalleryLabel = 'Choose from Gallery';
+  static const avatarPickerMobileOnlyMessage =
+      'Choosing a photo is only available on mobile.';
+
+  // ── Change Password ──────────────────────────────────────────────────────
+  /// The kit's Profile list has no Change Password screen behind its
+  /// Security row, so this reuses gravia's wording — only the silhouette
+  /// (header row, bordered fields, floating CTA) is this pack's.
+  static const changePasswordTitle = 'Change Password';
+  static const currentPasswordLabel = 'Current Password';
+  static const currentPasswordHint = 'Enter your current password';
+  static const newPasswordLabel = 'New Password';
+  static const newPasswordHint = 'Enter your new password';
+  static const confirmNewPasswordLabel = 'Confirm New Password';
+  static const confirmNewPasswordHint = 'Re-enter your new password';
+  static const updatePasswordButtonLabel = 'Update Password';
+  static const passwordUpdatedMessage = 'Your password has been updated.';
+
+  // ── Select Address ───────────────────────────────────────────────────────
+  static const selectAddressTitle = 'Select Address';
+  static const addNewAddressLabel = 'Add New Address';
+  static const addressLoadErrorMessage = "Couldn't load your addresses.";
+  static const addressSaveFailedMessage = "Couldn't save that address.";
+  static const addressEmptyTitle = 'No saved addresses';
+  static const addressEmptySubtitle =
+      'Add one to get this store delivering to your door.';
+
+  // ── Cancel / confirm ─────────────────────────────────────────────────────
+  static const cancelLabel = 'Cancel';
 
   // ── Tabs not yet ported to this template ─────────────────────────────────
   static const comingSoonTitle = 'Coming soon';

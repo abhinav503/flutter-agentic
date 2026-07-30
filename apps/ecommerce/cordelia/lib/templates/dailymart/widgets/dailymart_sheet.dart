@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:core/core/base/base_screen.dart';
 import 'package:core/core/theme/app_colors_extension.dart';
+import 'package:core/core/theme/app_shapes_extension.dart';
 
 import 'package:cordelia/feature/storefront/home/domain/entities/product_entity.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_dimen_const.dart';
@@ -9,8 +10,46 @@ import 'package:cordelia/templates/dailymart/constants/dailymart_text_style_cons
 import 'package:cordelia/templates/dailymart/constants/dailymart_value_const.dart';
 
 import 'dailymart_add_to_cart_sheet_content.dart';
+import 'dailymart_confirm_sheet_content.dart';
 import 'dailymart_icon_disc.dart';
 import 'dailymart_order_placed_sheet_content.dart';
+
+/// DailyMart's destructive-confirmation sheet — [DailyMartConfirmSheetContent]
+/// presented chrome-free, bypassing [DailyMartSheetX.showDailyMartSheet]
+/// because the content carries its own centred title and its two CTAs are
+/// the only exits (spec sheet §9/§13).
+///
+/// A top-level function rather than another [DailyMartSheetX] method so a
+/// `BasePageState` host can open it too, same reasoning as
+/// `showGraviaConfirmSheet`. [onConfirm] runs the action; the sheet only
+/// gates the tap.
+Future<void> showDailyMartConfirmSheet({
+  required BuildContext context,
+  required String title,
+  required String message,
+  required String confirmLabel,
+  required VoidCallback onConfirm,
+}) {
+  final cs = Theme.of(context).colorScheme;
+  final sheetRadius =
+      (Theme.of(context).extension<AppShapes>() ?? AppShapes.standard)
+          .sheetRadius;
+
+  return showModalBottomSheet<void>(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: cs.surface,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(sheetRadius)),
+    ),
+    builder: (_) => DailyMartConfirmSheetContent(
+      title: title,
+      message: message,
+      confirmLabel: confirmLabel,
+      onConfirm: onConfirm,
+    ),
+  );
+}
 
 /// The DailyMart sheet chrome (kit Filter frame `21`): 24px top radius from
 /// the theme's sheet shape, a 64 × 5 hairline drag handle, a 48px close
@@ -24,8 +63,7 @@ extension DailyMartSheetX<T extends BaseScreen> on BaseScreenState<T> {
   }) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
-    final hairline =
-        context.appColors.sheetHairline;
+    final hairline = context.appColors.sheetHairline;
 
     return showAppBottomSheet<R>(
       title: title,

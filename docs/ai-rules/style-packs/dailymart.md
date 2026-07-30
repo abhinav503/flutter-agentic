@@ -132,6 +132,9 @@ instead of a seed-derived tone. An in-between shade a screen needs goes to
 | Filter FAB | 40 | Effectively a pill at its 52 px height; recorded because it is a literal 40 in the kit, not the 999 token |
 | Product Details' hero image well | 12 | The screen's one photo frame (`detailImageHeight` 226) — a step outside the 16 card family on purpose, so the hero doesn't read as an oversized product card |
 | Cart-row / add-to-cart-sheet thumbnails | 12 (`AppRadius.lg`) | A 90 px photo at the list-thumbnail 4 reads sharp-cornered inside its 16-radius card; 12 keeps the concentric look. The *result-row* thumbnails on Search stay at 4 — they are list thumbnails, not card insets |
+| Edit Profile's form fields (`DailyMartFormField`) | 12 (`AppRadius.lg`) | The pill `shape.input` belongs to the **search** field, the pack's one round input; a stack of pilled form rows reads as a stack of search bars. The kit draws these square-rounded for the same reason |
+| Profile's menu rows (`DailyMartMenuTile`) | 12 (`AppRadius.lg`) | Matches the form field it sits a screen away from — the two are one "bordered strip" family, distinct from both the 16 card and the pill CTA |
+| Edit Profile's avatar badge | 12 (`AppRadius.lg`) | A rounded **square** against the circular portrait — the contrast is what makes it read as a button rather than part of the photo. (The kit measures 12.7; the token is the nearest value and no one can tell them apart on device) |
 
 ---
 
@@ -141,7 +144,9 @@ instead of a seed-derived tone. An in-between shade a screen needs goes to
 |---|---|---|
 | `DailyMartDimenConst.controlHeight` | **48** | back disc, Filter-sheet close disc, all three Filter select fields, the Search screens' search bar |
 | `DailyMartDimenConst.headerControlHeight` | 52 | Home's header row only — avatar, bell disc, and the search bar share this taller size so the row reads as one band |
-| `DailyMartDimenConst.ctaHeight` | 56 | Filter sheet's Reset / Apply pair |
+| `DailyMartDimenConst.ctaHeight` | 56 | Filter sheet's Reset / Apply pair; every full-width CTA (`DailyMartPrimaryButton` / `DailyMartOutlineButton`) |
+| `DailyMartDimenConst.formFieldHeight` | 56 | Edit Profile's form fields — deliberately the CTA height, so a form and its submit button read as one column |
+| `DailyMartDimenConst.menuRowHeight` | 52 | Profile's bordered menu rows. Shares `headerControlHeight`'s number but not its meaning: a full-width strip, not a disc |
 | Icon-circle diameter (header control) | 52 | bell, avatar |
 | Icon-circle diameter (back / sheet close) | 48 | |
 | Icon-circle diameter (card overlay) | 28 | favourite heart, add button |
@@ -151,6 +156,10 @@ instead of a seed-derived tone. An in-between shade a screen needs goes to
 | Category tile | 78 × 92 (image 70 × 63) | |
 | Promo card | 286 wide | horizontal carousel, peeking neighbours |
 | Avatar — header | 52 | |
+| Avatar — Profile identity row | 64 | |
+| Avatar — Edit Profile hero | 140, with a 38 badge overlapping its bottom-right | |
+| Address-row selection disc | 20 | filled + white tick when selected, bare `outline` ring when not |
+| Legal document's scroll rail | 4 wide, inset one gutter from the right edge | |
 | Screen gutter | `AppSpacing.lg` (16) — the kit measures 20 on a 375 frame; 16 is the token nearest it and keeps the pack on the shared scale | |
 | Between sections | `AppSpacing.xl4` (24) | |
 | Inside a card | `AppSpacing.base` (12) | |
@@ -168,7 +177,7 @@ instead of a seed-derived tone. An in-between shade a screen needs goes to
 |---|---|
 | Family | Plus Jakarta Sans (**not** the foundation page's Inter Tight — see §0) |
 | Letter-spacing | −2 % below 18 px (`−0.32` @16, `−0.28` @14, `−0.24` @12); **0** at 18 px and above. The H5 token is the lone positive (+0.5) |
-| Weights in use | 400 Regular, 500 Medium, 600 SemiBold, 700 Bold. No light weights; 700 appears only on promo-card headlines and the "See all" chip |
+| Weights in use | 400 Regular, 500 Medium, 600 SemiBold, 700 Bold. No light weights; 700 appears only on promo-card headlines, the "See all" chip, and the shopper's name on Profile |
 | Scale source | The kit's `Heading/H5` + `Body/{Large,Medium,Small,XSmall}` × `{Semibold, Medium, Regular}` groups |
 
 `core`'s 13-role M3 scale is shared by every preset — never edited for one
@@ -178,12 +187,14 @@ uses:
 | Token | M3 role it wraps | Used for |
 |---|---|---|
 | `headingH5(tt)` | `titleLarge` (20/600, lh 28, ls +0.5) | Filter sheet's centered title |
-| `bodyLgSemibold(tt)` | `titleMedium` (18/600, lh 1.55, ls 0) | every section header ("Top Seller🔥", "Shop by category", "Result for …") |
-| `bodyMdMedium(tt)` | `titleMedium` (16/500, lh 1.6, ls −0.32) | "See all" link text, "4 founds", Filter CTA labels |
-| `bodyMdSemibold(tt)` | `titleMedium` (16/600, lh 1.55, ls −0.32) | user name in the Home header |
-| `bodyMdRegular(tt)` | `bodyLarge` (16/400, lh 1.6, ls −0.32) | Filter select-field values |
+| `bodyLgSemibold(tt)` | `titleMedium` (18/600, lh 1.55, ls 0) | every section header ("Top Seller🔥", "Shop by category", "Result for …"); Profile's General / Preferences group labels; the legal document's effective-date line |
+| `bodyLgBold(tt)` | `titleMedium` (18/700, lh 1.4, ls 0) | the shopper's name on Profile — the pack's third and last use of Bold |
+| `bodyMdMedium(tt)` | `titleMedium` (16/500, lh 1.6, ls −0.32) | "See all" link text, "4 founds", every CTA label, the legal document's section headings |
+| `bodyMdSemibold(tt)` | `titleMedium` (16/600, lh 1.55, ls −0.32) | user name in the Home header; an address card's tag line |
+| `bodyMdRegular(tt)` | `bodyLarge` (16/400, lh 1.6, ls −0.32) | Filter select-field values; form-field values; sheet action-list rows |
 | `bodySmSemibold(tt)` | `bodyMedium` (14/600, lh 1.55, ls −0.28) | product name, product price, Filter field labels |
-| `bodySmRegular(tt)` | `bodyMedium` (14/400, lh 1.55, ls −0.28) | search placeholder, location line, recent-search terms |
+| `bodySmMedium(tt)` | `bodyMedium` (14/500, lh 1.55, ls −0.28) | Profile menu-row labels, form-field labels |
+| `bodySmRegular(tt)` | `bodyMedium` (14/400, lh 1.55, ls −0.28) | search placeholder, location line, recent-search terms, address lines, legal body copy |
 | `bodyXsMedium(tt)` | `bodySmall` (12/500, lh 1.55, ls −0.24) | category label, rating, nav labels, promo subtitle |
 | `bodyXsSemibold(tt)` | `bodySmall` (12/600, lh 1.55, ls −0.24) | discount pill, "Order Now" |
 | `promoTitle(tt)` | `headlineSmall` (24/700, lh 1.36) | promo-card headline — the pack's single largest type |
@@ -202,7 +213,7 @@ uses:
 | Colour policy | Every glyph is tinted at the call site: nav takes `cs.primary` active / `cs.onSurfaceVariant` inactive, header discs take `cs.onSurface`. The rating star is the one fixed swatch (`DailyMartColorConst.ratingStar`) |
 | Sizes | see §3 |
 
-**Four glyphs behave specially, and all are asset facts, not choices:**
+**Six glyphs behave specially, and all are asset facts, not choices:**
 
 - **`home.svg` is the *active* state only** — a filled green house with a
   white smile cut into it. An `srcIn` tint repaints the smile as well and
@@ -229,6 +240,20 @@ uses:
   explicit width × height box.
 - **The thumbs-down is `like.svg` rotated 180°** — the kit draws its own
   Reviews frame that way and exports no separate down glyph.
+- **`logout.svg` is mirrored at the call site** — the export's arrow points
+  *into* the door; the kit's own Profile frame flips it horizontally so the
+  arrow exits rightwards, which `DailyMartMenuTile.flipIconHorizontally`
+  reproduces rather than the asset being re-authored by hand.
+- **`check.svg` and `location.svg` ship non-square** (11.3 × 8.4 and
+  14 × 20) — same hazard as `star.svg`: give them a square box and let
+  `BoxFit.contain` letterbox, never an explicit width × height that
+  stretches them. `check.svg` is also a *bare* glyph like `plus`/`minus`:
+  the green disc behind the selected address is drawn in Flutter.
+
+**`user-linear.svg` is not `user.svg`.** The kit draws the nav tab's person
+with a shoulder arc and the Profile row's with a rounded-rectangle body, so
+they are two exports rather than one glyph at two sizes. Reusing either for
+the other is a review finding.
 
 **One documented exception to the outline rule** — the Notification screen's
 row glyphs are the kit's `Icon / solid / …` family (`discount-solid.svg`,
@@ -243,8 +268,11 @@ the location pin and its chevron in Home's header, the static review row's
 person placeholder (Home's avatar falls back to the app-level default
 portrait via `CordeliaAvatarImage`, not a glyph), the placeholder tabs'
 `EmptyState` glyphs, the sheet chrome's close ×, the cart row's trash, and
-the coupon row's discount badge. (The Filter pill's `tune` left this list
-when the pill was removed from Search — see §10.)
+the coupon row's discount badge, and three Profile rows the kit's own list
+never offers — My Orders (`shopping_bag_outlined`), Dark Mode
+(`dark_mode_outlined`) and Terms & Conditions (`article_outlined`).
+(The Filter pill's `tune` left this list when the pill was removed from
+Search — see §10.)
 `_rounded`/`_outlined` are the one permitted family because DailyMart's
 glyphs are round-capped outlines — a `_sharp` or filled Material icon here
 is immediately visible and is a review finding.
@@ -307,9 +335,9 @@ BottomNavBar (stacked variant)                    ← shell-owned, not per scree
 | Chrome | **No `AppBar`, ever** | Every screen builds its own header row as the first item in the scroll view. `BasePageState.buildAppBar` returns `null` for all tabs |
 | Scroll behaviour | Everything scrolls away, including the header | This pack has no pinned or collapsing header; `CollapsingHeaderSheet` is not used |
 | Body | Sections separated by `AppSpacing.xl4` | |
-| Persistent action | Floating controls over a bottom `surface→transparent` fade (`DailyMartBottomFade`) | Search floats the cart status pill (both browse and results modes — the kit's Filter pill was removed from Search, see §10); Product Details floats its cart-disc + Add To Cart row. A full-width *docked bar* is still **not** part of this pack — the Cart screen's checkout CTA (`DailyMartCartCheckoutBar`) is the one docked surface, a slim sheet-cornered region of that screen; the coupon row + totals (`DailyMartCartSummarySection`) scroll with the item cards rather than docking |
+| Persistent action | Floating controls over a bottom `surface→transparent` fade (`DailyMartBottomFade`) | Search floats the cart status pill (both browse and results modes — the kit's Filter pill was removed from Search, see §10); Product Details floats its cart-disc + Add To Cart row; Edit Profile floats Save Changes, Change Password floats Update Password, and Select Address floats Add New Address, all over the same fade with a `floatingActionScrollInset` spacer under the scroll content. A full-width *docked bar* is still **not** part of this pack — the Cart screen's checkout CTA (`DailyMartCartCheckoutBar`) is the one docked surface, a slim sheet-cornered region of that screen; the coupon row + totals (`DailyMartCartSummarySection`) scroll with the item cards rather than docking |
 | Cart presence outside the shell | `DailyMartCartStatusBar` — the floating-pill signature (primary fill, `floatingAction` shadow) | Screens pushed *outside* the shell (Product Details, Search's browse state) float it while the cart is non-empty; inside the shell the Cart tab itself is the affordance, so the shell never docks it |
-| Global nav | `BottomNavBar(variant: stacked)` — Home / Wishlist / Cart / Profile | Four tabs; the cart **is** a tab here (unlike gravia, where it's a docked status bar). Home, Cart, Search and Product Details are ported; Wishlist and Profile still render an `EmptyState` rather than borrowing gravia's screens, which would put two packs' visual languages on one nav bar |
+| Global nav | `BottomNavBar(variant: stacked)` — Home / Wishlist / Cart / Profile | Four tabs; the cart **is** a tab here (unlike gravia, where it's a docked status bar). Home, Cart, Profile, Search, Product Details, Edit Profile, Change Password, Select Address and the legal document are ported; **Wishlist** is the last tab still rendering an `EmptyState` rather than borrowing gravia's screen, which would put two packs' visual languages on one nav bar |
 
 **Screens that deviate:** none within the storefront. Cordelia's own
 app-level screens (Splash, Onboarding, Login, Discovery) are not part of this
@@ -326,7 +354,7 @@ template is open.
 | Interaction | Overlay | Entry point |
 |---|---|---|
 | Bounded picklist (category, sort, price) | bottom sheet | `showDailyMartSheet` → `AppRadioGroup` body |
-| Confirm / destructive | bottom sheet, two 56 px pills side by side (outlined Reset-style + filled Apply-style) | `showDailyMartConfirmSheet` |
+| Confirm / destructive | bottom sheet, centred title + message over two 56 px pills side by side (outlined Cancel + filled confirm) | `showDailyMartConfirmSheet` — chrome-free: the two buttons *are* the exits, so it carries no handle and no close disc |
 | Terminal confirmation | bottom sheet, single full-width pill | `showDailyMartSheet` |
 | Contextual action list | bottom sheet | — |
 | Transient feedback | snackbar | `showSnackBar` from `BaseScreenState` |
@@ -372,6 +400,20 @@ why they are field-shaped (10 px, bordered) rather than menu-shaped.
   fill, 48 tall. Active with a query — `#F5F8FF` fill with a **1 px primary
   border**. That green border is the only place a form control turns brand
   green.
+- **The bordered strip.** Profile's menu rows and Edit Profile's form
+  fields are the same silhouette at two heights — a `cs.outline` hairline at
+  radius 12 on the plain surface, with no fill and no shadow. It is the
+  pack's third container family after the shadowed white card and the pill,
+  and it exists to mark *inert* surfaces: a strip is something you fill in
+  or step through, never something you tap for an action (that's a pill) and
+  never a piece of content (that's a card).
+- **The selectable address card.** A radius-16 `surfaceContainer` block —
+  pin, tag, address lines, trailing 20 px disc. Selected lifts to
+  `surfaceContainerLow` behind a 1 px **primary** border and the disc fills
+  green with a white tick; unselected keeps a bare `outline` ring. That
+  green border is the pack's only one outside the active search field, and
+  it carries real weight here: the kit gives this screen no confirm button,
+  so **selecting is committing** — the tap persists the choice and pops.
 - **The floating Filter pill.** A 120 px green pill with icon + label,
   radius 40, `0 12 12 rgba(87,111,133,.24)` shadow, floating over a
   `surface → transparent` bottom fade so scrolling content dissolves behind
@@ -441,8 +483,10 @@ shape both differ; bending one into the other would need overrides for
 every slot. `DailyMartProductCard` composes core **atoms** directly instead
 — recorded here so nobody "fixes" it back to the block. Same reasoning for
 `blocks/ecommerce/category_tile.dart` (circular; DailyMart's is a rounded
-rectangle) and `blocks/header_canvas.dart` / `collapsing_header_sheet.dart`
-(this pack has no coloured header — see §8).
+rectangle), `molecules/menu_tile.dart` (`AppMenuTile` is a tinted icon
+circle on a bare surface; DailyMart's row is an outlined strip with no
+circle — see `DailyMartMenuTile` in §13) and `blocks/header_canvas.dart` /
+`collapsing_header_sheet.dart` (this pack has no coloured header — see §8).
 
 ---
 
@@ -454,12 +498,13 @@ App-level presets under
 | Wrapper role | Wraps | This pack's instance |
 |---|---|---|
 | Full-width primary CTA | `AppButton` | `DailyMartPrimaryButton` — 56 px, pill, `bodyMdMedium` label |
-| Destructive / tinted inline pill | `AppButton` | `DailyMartOutlineButton` — 56 px pill, 1 px `cs.primary` border, primary label (the Filter sheet's Reset) |
+| Destructive / tinted inline pill | `AppButton` | `DailyMartOutlineButton` — 56 px pill, 1 px `cs.primary` border, primary label (the Filter sheet's Reset; the confirmation sheet's Cancel) |
 | Two half-width actions side by side | two buttons | `DailyMartActionPair` — outline + filled, `AppSpacing.lg` gap |
-| Form text field | `AppTextField` | `DailyMartFormField` — pill, `cs.outline` border |
+| Form text field | `AppTextField` | `DailyMartFormField` — 56 px at **radius 12**, `cs.outline` border, 14/500 ink label (§2 deviations — the pill belongs to the search field alone) |
+| Settings / profile row | core atoms (**not** `AppMenuTile` — that molecule's silhouette is a tinted icon *circle* on a bare surface, and this kit draws no circle and an explicit outline instead; every slot would need an override, same §12 reasoning as the product card) | `DailyMartMenuTile` — 52 px bordered strip at radius 12, 20 px glyph, 14/500 label, kit chevron; takes `asset` **or** `icon`, and a `trailing` slot for the Dark Mode switch |
 | Bounded-picklist trigger field | field-styled box | `DailyMartSelectField` — 48 px, radius **10**, `cs.outline` border, trailing chevron |
 | Styled bottom-sheet chrome | `AppBottomSheet` | `showDailyMartSheet` — 24 px top radius, 64 × 5 drag handle, close disc left + centred `headingH5` title |
-| Chrome-free confirmation sheet | `showModalBottomSheet` | `showDailyMartConfirmSheet` |
+| Chrome-free confirmation sheet | `showModalBottomSheet` | `showDailyMartConfirmSheet` + `DailyMartConfirmSheetContent` |
 | Bounded-picklist selection sheet | sheet body | `DailyMartRadioSheetContent` → `AppRadioGroup` |
 | Back + centered-title / page-title header | — | `DailyMartHeaderRow` — back disc + flexible middle + optional trailing. This pack has no `HeroHeader`/`HeaderCanvas` usage (§8) |
 | Glass / icon header control | `AppIconButton` | `DailyMartIconDisc` (neutral `surfaceContainer` fill) / `.outlined` (transparent + `cs.outline` ring, Home's bell); takes `asset` or `icon`, **no glass** in this pack |
@@ -475,12 +520,14 @@ App-level presets under
 | Category tile | — | `DailyMartCategoryTile` |
 
 **Built today** (the shell + Home + Notifications + Search + Product Details
-+ Cart slice): `DailyMartIconDisc`, `DailyMartSectionHeader`,
++ Cart + Profile slice): `DailyMartIconDisc`, `DailyMartSectionHeader`,
 `DailyMartHeaderRow`, `DailyMartProductCard`, `DailyMartProductGrid`,
 `DailyMartProductGridSkeleton`, `DailyMartPill`, `DailyMartCategoryTile`,
 `DailyMartPromoCard`, `DailyMartSearchBar`, `DailyMartPrimaryButton`,
-`DailyMartQuantityStepper`, `DailyMartTopSwitcher`, `showDailyMartSheet`
-(+ the add-to-cart and order-placed sheets), `DailyMartRadioSheetContent`
+`DailyMartOutlineButton`, `DailyMartActionPair`, `DailyMartMenuTile`,
+`DailyMartFormField`, `DailyMartQuantityStepper`, `DailyMartTopSwitcher`,
+`showDailyMartSheet` (+ the add-to-cart and order-placed sheets),
+`showDailyMartConfirmSheet`, `DailyMartRadioSheetContent`
 (no consumer since the Filter sheet left Search — kept for Category
 Details), `DailyMartBottomFade`, `DailyMartCartStatusBar`, plus the
 `DailyMartElevation` shadow set. **Never re-implement `DailyMartIconDisc`
@@ -504,7 +551,7 @@ the second screen that repeats a styled composition, not the third.
 
 | State | Treatment |
 |---|---|
-| First load | `DailyMartHomeSkeletonBody` — the same header row, then a promo-card block, a category rail, and a 2-column card grid in `ShimmerBox`. Never a spinner |
+| First load | A `*SkeletonBody` mirroring that screen's loaded layout inside the same scroll view and padding — `DailyMartHomeSkeletonBody` (promo block, category rail, 2-column grid), `DailyMartProfileSkeletonBody` (identity row + two groups of 52 px radius-12 rows), `DailyMartAddressSkeletonBody` (three tinted radius-16 cards). Never a spinner, and never a differently-structured body that makes the page jump when data lands |
 | Warm revisit (nav tab) | `HomeBloc`'s `BlocCache` seeds `loaded` straight from cache; the refetch runs silently underneath. Switching tabs and back must not re-shimmer |
 | Empty | `EmptyState` — icon + one-line title + one-line subtitle + a next-step action |
 | Error | `ErrorView` + retry; the retry inputs (`storeId`) ride on the error state |

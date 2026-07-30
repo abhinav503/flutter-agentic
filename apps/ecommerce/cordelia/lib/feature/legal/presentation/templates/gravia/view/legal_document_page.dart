@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:core/core/base/base_page.dart';
 
-import 'legal_document_content.dart';
+import '../../../view/legal_document_content.dart';
 import 'legal_document_screen.dart';
 
 class LegalDocumentPage extends BasePage {

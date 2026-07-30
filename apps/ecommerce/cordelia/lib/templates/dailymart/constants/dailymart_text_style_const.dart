@@ -22,6 +22,16 @@ abstract final class DailyMartTextStyleConst {
     letterSpacing: 0,
   );
 
+  /// Body/Large/Bold — 18/700, lh 1.4. The shopper's name on Profile. The
+  /// pack's third and last use of Bold, alongside the promo headline and the
+  /// "See all" chip.
+  static TextStyle bodyLgBold(TextTheme tt) => tt.titleMedium!.copyWith(
+    fontSize: 18,
+    fontWeight: FontWeight.w700,
+    height: 1.4,
+    letterSpacing: 0,
+  );
+
   /// Body/Medium/Semibold — 16/600. The shopper's name in Home's header.
   static TextStyle bodyMdSemibold(TextTheme tt) => tt.titleMedium!.copyWith(
     fontSize: 16,
@@ -45,6 +55,13 @@ abstract final class DailyMartTextStyleConst {
   /// Body/Small/Semibold — 14/600. Product name, price, field labels.
   static TextStyle bodySmSemibold(TextTheme tt) => tt.bodyMedium!.copyWith(
     fontWeight: FontWeight.w600,
+    height: 1.55,
+    letterSpacing: -0.28,
+  );
+
+  /// Body/Small/Medium — 14/500. Profile menu-row labels, form field labels.
+  static TextStyle bodySmMedium(TextTheme tt) => tt.bodyMedium!.copyWith(
+    fontWeight: FontWeight.w500,
     height: 1.55,
     letterSpacing: -0.28,
   );

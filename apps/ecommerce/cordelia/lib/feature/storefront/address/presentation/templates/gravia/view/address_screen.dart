@@ -27,7 +27,7 @@ import '../../../../domain/entities/address_entity.dart';
 import '../../../bloc/address_bloc.dart';
 import '../widgets/address_card.dart';
 import '../widgets/address_skeleton_body.dart';
-import 'address_page.dart';
+import '../../../address_pref_keys.dart';
 
 class AddressScreen extends BaseScreen {
   const AddressScreen({super.key});
@@ -107,9 +107,8 @@ class _AddressScreenState extends BaseScreenState<AddressScreen> {
             key: const ValueKey('error'),
             child: ErrorView(
               message: GraviaValueConst.addressLoadErrorMessage,
-              onRetry: () => context.read<AddressBloc>().add(
-                const AddressEvent.started(),
-              ),
+              onRetry: () =>
+                  context.read<AddressBloc>().add(const AddressEvent.started()),
             ),
           ),
           AddressLoaded(:final addresses, :final selectedAddressId) =>
@@ -128,7 +127,9 @@ class _AddressScreenState extends BaseScreenState<AddressScreen> {
     fullWidth: true,
     borderColor: cs.primary,
     height: GraviaDimenConst.controlHeight,
-    labelStyle: GraviaTextStyleConst.textSmMedium(tt).copyWith(color: cs.primary),
+    labelStyle: GraviaTextStyleConst.textSmMedium(
+      tt,
+    ).copyWith(color: cs.primary),
     leadingIcon: AppSvgImage.asset(
       GraviaImageConst.plus,
       color: cs.primary,

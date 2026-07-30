@@ -283,7 +283,7 @@ class _HomeContent extends StatelessWidget {
           onFavouriteToggle: onFavouriteToggle,
           onSeeAll: () => _openBrowse(context),
         ),
-        const SizedBox(height: DailyMartDimenConst.homeScrollBottomInset),
+        const SizedBox(height: DailyMartDimenConst.floatingActionScrollInset),
       ],
     );
   }

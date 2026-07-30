@@ -8,9 +8,11 @@
 /// [ImageConst].
 ///
 /// Not yet exported from the kit, so those call sites still render a
-/// Material Symbol (see docs/ai-rules/style-packs/dailymart.md §5): the
-/// location pin, the chevron, the avatar's person placeholder, the cart
-/// row's trash, and the coupon row's discount badge.
+/// Material Symbol (see docs/ai-rules/style-packs/dailymart.md §5): Home
+/// header's location pin and its chevron (a different glyph from the
+/// address row's [location]), the avatar's person placeholder, the cart
+/// row's trash, the coupon row's discount badge, and Profile's My Orders /
+/// Dark Mode / Terms rows, which the kit's own list never draws.
 abstract final class DailyMartImageConst {
   static const _icons = 'assets/icons/templates/dailymart';
 
@@ -40,7 +42,6 @@ abstract final class DailyMartImageConst {
   /// stretching it to fit.
   static const star = '$_icons/star.svg';
 
-
   static const delete = '$_icons/delete.svg';
 
   /// The Notification screen's row glyphs. Unlike everything else in this
@@ -66,6 +67,37 @@ abstract final class DailyMartImageConst {
 
   /// Same outline heart as the Wishlist tab, at the card's smaller size.
   static const heart = navWishlist;
+
+  /// Profile's bordered menu rows — the kit's `vuesax/linear/*` 20px family.
+  ///
+  /// [menuUser] is **not** [navProfile]: the kit draws the nav tab's person
+  /// with a shoulder arc and this one with a rounded-rectangle body, so the
+  /// two are separate exports rather than one glyph at two sizes.
+  static const menuUser = '$_icons/user-linear.svg';
+  static const menuLock = '$_icons/lock.svg';
+  static const menuShieldCheck = '$_icons/shield-check.svg';
+
+  /// The Logout row's glyph. The kit's own frame mirrors this export
+  /// horizontally so the arrow exits the door rightwards — see
+  /// `DailyMartMenuTile`'s call site, which reproduces that flip.
+  static const menuLogout = '$_icons/logout.svg';
+
+  /// A menu row's trailing chevron (18) — the kit's `arrow-right`, also
+  /// rotated 90° for a select field's down-chevron.
+  static const chevronRight = '$_icons/arrow-right.svg';
+
+  /// Edit Profile's avatar badge — a white pencil on the green disc, which
+  /// is drawn in Flutter (the export is the bare glyph).
+  static const pencil = '$_icons/pencil.svg';
+
+  /// Select Address's row pin. Ships 14 × 20, not square — give it a square
+  /// box and let `BoxFit.contain` letterbox it rather than stretching.
+  static const location = '$_icons/location.svg';
+
+  /// The selected address's tick. Ships 11.3 × 8.4 (bare glyph, no disc):
+  /// the green circle behind it is drawn in Flutter, same convention as
+  /// [plus] / [minus].
+  static const check = '$_icons/check.svg';
 
   /// [heart]'s exact path with a fill added (hand-derived, not a kit
   /// export) — keeps the outline's stroke so the two states share one

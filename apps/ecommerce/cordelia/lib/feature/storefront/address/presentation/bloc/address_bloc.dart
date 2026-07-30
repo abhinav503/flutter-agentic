@@ -10,8 +10,7 @@ import '../../domain/usecase/create_address_usecase.dart';
 import '../../domain/usecase/delete_address_usecase.dart';
 import '../../domain/usecase/get_addresses_usecase.dart';
 import '../../domain/usecase/update_address_usecase.dart';
-import '../templates/gravia/view/address_page.dart'
-    show kSelectedAddressIdPrefKey, kSelectedAddressLabelPrefKey;
+import '../address_pref_keys.dart';
 
 part 'address_bloc.freezed.dart';
 part 'address_event.dart';
@@ -90,7 +89,10 @@ class AddressBloc extends Bloc<AddressEvent, AddressState> {
   /// Single emit path for fetched/saved lists — keeps the warm cache in
   /// step, and keeps the current in-session selection when it survives the
   /// new list (falling back to prefs/default resolution otherwise).
-  void _emitAddresses(List<AddressEntity> addresses, Emitter<AddressState> emit) {
+  void _emitAddresses(
+    List<AddressEntity> addresses,
+    Emitter<AddressState> emit,
+  ) {
     _cache.save(addresses);
     final currentSelectedId = switch (state) {
       AddressLoaded(:final selectedAddressId) => selectedAddressId,
