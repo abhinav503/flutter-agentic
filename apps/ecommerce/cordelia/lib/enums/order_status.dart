@@ -1,5 +1,3 @@
-import 'package:cordelia/templates/gravia/constants/gravia_value_const.dart';
-
 /// An order's lifecycle stage. Drives which tab it appears under
 /// (`pending`/`inProcess` → Upcoming; delivered/cancelled → Past) and
 /// which parts of `OrderItemCard` render (OTP + Cancel/Track Order are
@@ -26,13 +24,6 @@ extension OrderStatusX on OrderStatus {
     OrderStatus.delivered => 'DELIVERED',
     OrderStatus.cancelled => 'CANCELLED',
   };
-
-  String get label => switch (this) {
-    OrderStatus.pending => GraviaValueConst.pendingStatusLabel,
-    OrderStatus.inProcess => GraviaValueConst.inProcessStatusLabel,
-    OrderStatus.delivered => GraviaValueConst.deliveredStatusLabel,
-    OrderStatus.cancelled => GraviaValueConst.cancelledStatusLabel,
-  };
 }
 
 extension OrderStatusParse on String {
@@ -51,17 +42,6 @@ extension OrderStatusParse on String {
 /// accepted the refund, still settling; [processed] = settled; [failed] = the
 /// refund call errored (order is still cancelled — retriable).
 enum RefundStatus { none, pending, processed, failed }
-
-extension RefundStatusX on RefundStatus {
-  /// The shopper-facing note; null for [none] — nothing to show when no money
-  /// was ever taken.
-  String? get label => switch (this) {
-    RefundStatus.none => null,
-    RefundStatus.pending => GraviaValueConst.refundPendingLabel,
-    RefundStatus.processed => GraviaValueConst.refundProcessedLabel,
-    RefundStatus.failed => GraviaValueConst.refundFailedLabel,
-  };
-}
 
 extension RefundStatusParse on String {
   RefundStatus toRefundStatus() => switch (this) {

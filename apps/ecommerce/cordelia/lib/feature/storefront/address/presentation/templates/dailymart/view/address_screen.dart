@@ -14,8 +14,8 @@ import 'package:cordelia/feature/storefront/address/presentation/address_pref_ke
 import 'package:cordelia/templates/dailymart/constants/dailymart_dimen_const.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_value_const.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_bottom_fade.dart';
-import 'package:cordelia/templates/dailymart/widgets/dailymart_header_row.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_primary_button.dart';
+import 'package:cordelia/templates/dailymart/widgets/dailymart_screen_body.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_top_switcher.dart';
 
 import '../../../../domain/entities/address_entity.dart';
@@ -179,33 +179,21 @@ class _AddressScreenState extends BaseScreenState<AddressScreen> {
   }
 }
 
-/// The scroll view every state sits in — header row pinned to the top of the
-/// content (this pack scrolls its header away rather than docking it), one
-/// padding recipe so a state swap never shifts the list sideways.
+/// The page shell every state sits in. The floating "Add New Address" CTA
+/// lives *outside* the state switcher (it persists across swaps), so each
+/// page pays the CTA clearance directly instead of passing the shell a
+/// `floatingAction`.
 class _Page extends StatelessWidget {
   final Widget body;
 
   const _Page({super.key, required this.body});
 
   @override
-  Widget build(BuildContext context) => SingleChildScrollView(
-    padding: const EdgeInsets.fromLTRB(
-      AppSpacing.lg,
-      AppSpacing.base,
-      AppSpacing.lg,
-      // Clears the floating CTA docked over the fade.
-      DailyMartDimenConst.floatingActionScrollInset,
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        DailyMartHeaderRow(
-          title: DailyMartValueConst.selectAddressTitle,
-          onBack: () => context.pop(),
-        ),
-        const SizedBox(height: AppSpacing.xl2),
-        body,
-      ],
-    ),
+  Widget build(BuildContext context) => DailyMartScreenBody(
+    title: DailyMartValueConst.selectAddressTitle,
+    onBack: () => context.pop(),
+    gap: AppSpacing.xl2,
+    bottomInset: DailyMartDimenConst.floatingActionScrollInset(context),
+    body: body,
   );
 }

@@ -9,6 +9,10 @@ import 'package:cordelia/templates/gravia/constants/gravia_text_style_const.dart
 /// pack's spec baked in: Text/md/regular labels and the sheet's LTRB content
 /// padding. Used for e.g. Category Details' "Sort by"/"Price" filter
 /// content and the Add/Edit Address form's City/Country pickers.
+///
+/// Selecting an option pops the sheet and then reports it — the same
+/// contract as `DailyMartRadioSheetContent`, so callers never re-type the
+/// pop-then-apply dance (and the two packs can't drift apart on it).
 class RadioOptionsSheetContent<T> extends StatelessWidget {
   final List<T> options;
   final String Function(T) labelOf;
@@ -36,7 +40,10 @@ class RadioOptionsSheetContent<T> extends StatelessWidget {
         options: options,
         labelOf: labelOf,
         selected: selected,
-        onSelected: onSelected,
+        onSelected: (option) {
+          Navigator.of(context).pop();
+          onSelected(option);
+        },
         labelStyle: RadioOptionRow.labelStyle(context),
       ),
     );

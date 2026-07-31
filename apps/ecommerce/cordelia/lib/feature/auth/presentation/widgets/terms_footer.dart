@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:cordelia/constants/app_routes.dart';
-import 'package:cordelia/templates/gravia/constants/gravia_text_style_const.dart';
+import 'package:cordelia/constants/cordelia_text_style_const.dart';
 import 'package:cordelia/constants/value_const.dart';
 
 /// "By continuing, you agree to our Terms of Service & Privacy Policy" —
@@ -19,7 +19,7 @@ class TermsFooter extends StatelessWidget {
         Text(
           ValueConst.byContinuingAgree,
           textAlign: TextAlign.center,
-          style: GraviaTextStyleConst.textSmRegular(
+          style: CordeliaTextStyleConst.textSmRegular(
             tt,
           ).copyWith(color: cs.onSurfaceVariant),
         ),
@@ -28,7 +28,7 @@ class TermsFooter extends StatelessWidget {
           child: Text(
             ValueConst.termsOfServiceAndPrivacyPolicy,
             textAlign: TextAlign.center,
-            style: GraviaTextStyleConst.textSmBold(tt).copyWith(color: cs.onSurface),
+            style: CordeliaTextStyleConst.textSmBold(tt).copyWith(color: cs.onSurface),
           ),
         ),
       ],

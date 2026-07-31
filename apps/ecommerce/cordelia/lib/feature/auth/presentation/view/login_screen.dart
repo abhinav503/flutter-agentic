@@ -12,12 +12,12 @@ import 'package:core/core/ui/atoms/svg_image.dart';
 import 'package:core/core/ui/blocks/collapsing_header_sheet.dart';
 
 import 'package:cordelia/constants/app_routes.dart';
-import 'package:cordelia/templates/gravia/constants/gravia_dimen_const.dart';
+import 'package:cordelia/constants/cordelia_dimen_const.dart';
 import 'package:cordelia/constants/image_const.dart';
-import 'package:cordelia/templates/gravia/constants/gravia_text_style_const.dart';
+import 'package:cordelia/constants/cordelia_text_style_const.dart';
 import 'package:cordelia/constants/value_const.dart';
-import 'package:cordelia/templates/gravia/widgets/gravia_form_field.dart';
-import 'package:cordelia/templates/gravia/widgets/gravia_primary_button.dart';
+import 'package:cordelia/widgets/cordelia_form_field.dart';
+import 'package:cordelia/widgets/cordelia_primary_button.dart';
 import 'package:cordelia/widgets/cordelia_sheet.dart';
 
 import '../bloc/auth_bloc.dart';
@@ -111,7 +111,7 @@ class _LoginScreenState extends BaseScreenState<LoginScreen>
         children: [
           Expanded(
             child: CollapsingHeaderSheet(
-              initialHeaderHeight: 210,
+              initialHeaderHeight: CordeliaDimenConst.authHeaderHeightLogin,
               header: const LoginHeader(),
               body: Padding(
                 padding: const EdgeInsets.fromLTRB(
@@ -122,11 +122,14 @@ class _LoginScreenState extends BaseScreenState<LoginScreen>
                 ),
                 child: BlocBuilder<AuthBloc, AuthState>(
                   builder: (context, state) {
-                    final isLoading = state is AuthLoading;
+                    final isLoading = switch (state) {
+                      AuthLoading() => true,
+                      _ => false,
+                    };
                     return Column(
                       // crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        GraviaFormField(
+                        CordeliaFormField(
                           label: ValueConst.emailLabel,
                           controller: _emailController,
                           hint: ValueConst.emailHint,
@@ -135,7 +138,7 @@ class _LoginScreenState extends BaseScreenState<LoginScreen>
                           onChanged: (_) => _clearError(_LoginField.email),
                         ),
                         const SizedBox(height: AppSpacing.lg),
-                        GraviaFormField(
+                        CordeliaFormField(
                           label: ValueConst.passwordLabel,
                           controller: _passwordController,
                           hint: ValueConst.passwordHint,
@@ -155,7 +158,7 @@ class _LoginScreenState extends BaseScreenState<LoginScreen>
                           ],
                         ),
                         const SizedBox(height: AppSpacing.lg),
-                        GraviaPrimaryButton(
+                        CordeliaPrimaryButton(
                           label: ValueConst.continueLabel,
                           state: isLoading
                               ? AppButtonState.loading
@@ -166,7 +169,7 @@ class _LoginScreenState extends BaseScreenState<LoginScreen>
                         AppLabeledDivider(
                           label: ValueConst.orLoginWith,
                           textStyle:
-                              GraviaTextStyleConst.textSmRegular(
+                              CordeliaTextStyleConst.textSmRegular(
                                 Theme.of(context).textTheme,
                               ).copyWith(
                                 color: Theme.of(
@@ -185,10 +188,10 @@ class _LoginScreenState extends BaseScreenState<LoginScreen>
                             height: 20,
                           ),
 
-                          labelStyle: GraviaTextStyleConst.textMdMedium(
+                          labelStyle: CordeliaTextStyleConst.textMdMedium(
                             Theme.of(context).textTheme,
                           ),
-                          height: GraviaDimenConst.controlHeight,
+                          height: CordeliaDimenConst.controlHeight,
                           onTap: () =>
                               showSnackBar(ValueConst.comingSoonMessage),
                         ),
@@ -203,10 +206,10 @@ class _LoginScreenState extends BaseScreenState<LoginScreen>
                             height: 20,
                             color: Theme.of(context).colorScheme.onSurface,
                           ),
-                          labelStyle: GraviaTextStyleConst.textMdMedium(
+                          labelStyle: CordeliaTextStyleConst.textMdMedium(
                             Theme.of(context).textTheme,
                           ),
-                          height: GraviaDimenConst.controlHeight,
+                          height: CordeliaDimenConst.controlHeight,
                           onTap: () =>
                               showSnackBar(ValueConst.comingSoonMessage),
                         ),
@@ -240,14 +243,14 @@ class _LoginScreenState extends BaseScreenState<LoginScreen>
                       linkText: ValueConst.signupLink,
                       onTap: () => context.push(AppRoutes.signup),
                       textStyle:
-                          GraviaTextStyleConst.textSmRegular(
+                          CordeliaTextStyleConst.textSmRegular(
                             Theme.of(context).textTheme,
                           ).copyWith(
                             color: Theme.of(
                               context,
                             ).colorScheme.onSurfaceVariant,
                           ),
-                      linkStyle: GraviaTextStyleConst.textSmMedium(
+                      linkStyle: CordeliaTextStyleConst.textSmMedium(
                         Theme.of(context).textTheme,
                       ).copyWith(color: Theme.of(context).colorScheme.primary),
                     ),

@@ -237,6 +237,21 @@ WidgetbookCategory moleculesCategory() {
         ]),
       ),
       allVariants(
+        'AppRadioRow',
+        (context) => showcase(context, [
+          Variant(
+            'Selected',
+            AppRadioRow(label: 'Last Week', selected: true, onTap: () {}),
+            width: 320,
+          ),
+          Variant(
+            'Unselected',
+            AppRadioRow(label: 'Last Month', selected: false, onTap: () {}),
+            width: 320,
+          ),
+        ]),
+      ),
+      allVariants(
         'AppMenuTile',
         (context) => showcase(context, [
           Variant(

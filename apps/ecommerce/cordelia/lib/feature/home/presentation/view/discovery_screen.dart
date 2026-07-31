@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 import 'package:core/core/base/base_screen.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/text_field.dart';
-import 'package:core/core/ui/atoms/loading_indicator.dart';
 import 'package:core/core/ui/molecules/empty_state.dart';
 import 'package:core/core/ui/molecules/error_view.dart';
 
@@ -17,6 +16,7 @@ import 'package:cordelia/feature/storefront/template/storefront_template.dart';
 
 import '../bloc/discovery_bloc.dart';
 import '../widgets/store_card.dart';
+import '../widgets/store_list_skeleton.dart';
 
 class DiscoveryScreen extends BaseScreen {
   const DiscoveryScreen({super.key});
@@ -86,7 +86,7 @@ class _DiscoveryScreenState extends BaseScreenState<DiscoveryScreen> {
             Expanded(
               child: BlocBuilder<DiscoveryBloc, DiscoveryState>(
                 builder: (context, state) => switch (state) {
-                  DiscoveryLoading() => const LoadingIndicator(),
+                  DiscoveryLoading() => const StoreListSkeleton(),
                   DiscoveryError(:final message, :final query) => ErrorView(
                     message: message,
                     onRetry: () => context.read<DiscoveryBloc>().add(

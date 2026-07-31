@@ -3,10 +3,9 @@ import 'package:go_router/go_router.dart';
 
 import 'package:core/core/theme/app_spacing.dart';
 
+import 'package:cordelia/enums/avatar_source.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_text_style_const.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_value_const.dart';
-
-enum AvatarSource { camera, gallery }
 
 /// Two-row action sheet — "Take Photo" / "Choose from Gallery" — opened from
 /// Edit Profile's pencil badge. An action list, not a selection list, so it

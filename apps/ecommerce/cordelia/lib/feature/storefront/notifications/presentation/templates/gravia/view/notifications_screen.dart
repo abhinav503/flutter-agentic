@@ -1,4 +1,3 @@
-import 'package:cordelia/feature/storefront/template/storefront_template.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_text_style_const.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_dimen_const.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_value_const.dart';
@@ -12,7 +11,6 @@ import 'package:core/core/ui/atoms/app_switcher.dart';
 import 'package:core/core/base/base_screen.dart';
 import 'package:core/core/theme/app_colors_extension.dart';
 import 'package:core/core/theme/app_spacing.dart';
-import 'package:core/core/ui/atoms/loading_indicator.dart';
 import 'package:core/core/ui/blocks/collapsing_header_sheet.dart';
 import 'package:core/core/ui/blocks/section_header.dart';
 import 'package:core/core/ui/molecules/empty_state.dart';
@@ -21,6 +19,7 @@ import 'package:core/core/ui/molecules/error_view.dart';
 import '../../../../domain/entities/notification_section_entity.dart';
 import '../../../bloc/notifications_bloc.dart';
 import '../widgets/notification_row.dart';
+import '../widgets/notifications_skeleton_body.dart';
 
 class NotificationsScreen extends BaseScreen {
   const NotificationsScreen({super.key});
@@ -36,8 +35,6 @@ class _NotificationsScreenState extends BaseScreenState<NotificationsScreen> {
 
   @override
   Widget body(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-
     return BlocConsumer<NotificationsBloc, NotificationsState>(
       listener: (context, state) {
         if (state case NotificationsError(:final message)) {
@@ -46,19 +43,21 @@ class _NotificationsScreenState extends BaseScreenState<NotificationsScreen> {
       },
       builder: (context, state) => AppSwitcher(
         child: switch (state) {
-          NotificationsLoading() => Container(
+          NotificationsLoading() => CollapsingHeaderSheet(
             key: const ValueKey('loading'),
-            color: cs.primary,
-            child: const SafeArea(child: Center(child: LoadingIndicator())),
+            initialHeaderHeight: GraviaDimenConst.headerHeightCompact,
+            header: GraviaHeroHeader(
+              title: GraviaValueConst.notificationsTitle,
+              onBack: () => context.pop(),
+            ),
+            body: const NotificationsSkeletonBody(),
           ),
-          NotificationsError() => SafeArea(
+          NotificationsError(:final template) => SafeArea(
             key: const ValueKey('error'),
             child: ErrorView(
               message: GraviaValueConst.notificationsLoadErrorMessage,
               onRetry: () => context.read<NotificationsBloc>().add(
-                const NotificationsEvent.started(
-                  template: StorefrontTemplate.gravia,
-                ),
+                NotificationsEvent.started(template: template),
               ),
             ),
           ),

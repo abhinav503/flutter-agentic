@@ -1,10 +1,10 @@
+import 'package:cordelia/enums/avatar_source.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_dimen_const.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_value_const.dart';
 import 'package:cordelia/templates/gravia/widgets/gravia_sheet.dart';
 import 'package:cordelia/templates/gravia/widgets/gravia_form_field.dart';
 import 'package:cordelia/templates/gravia/widgets/gravia_hero_header.dart';
 import 'package:cordelia/templates/gravia/widgets/gravia_primary_button.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -12,7 +12,6 @@ import 'package:go_router/go_router.dart';
 
 import 'package:core/core/base/base_screen.dart';
 import 'package:core/core/mixins/textfield_validations.dart';
-import 'package:core/core/services/image_picker/image_picker_service.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/button.dart';
 import 'package:core/core/ui/blocks/collapsing_header_sheet.dart';
@@ -20,20 +19,17 @@ import 'package:core/core/ui/blocks/docked_bar.dart';
 
 import '../../../../domain/entities/profile_entity.dart';
 import '../../../bloc/edit_profile_bloc.dart';
+import '../../../edit_profile_form.dart';
 import '../widgets/avatar_source_sheet_content.dart';
 import '../widgets/profile_avatar_picker.dart';
-
-enum _ProfileField { name, email, phone }
 
 /// Edit Profile form, reached from ProfileHeroHeader's glass edit trigger.
 /// Always in edit mode (a profile always exists — no "add" case, unlike
 /// Address). On a successful save, pops back to the caller as a
 /// [ProfileEntity] — ProfileScreen dispatches it into the shared ProfileBloc
 /// via `ProfileEvent.saved`, the same "push, await the pop, react" shape as
-/// AddressScreen's own edit flow. Typed field values and the picked avatar
-/// preview stay screen-local UI state (same carve-out AddressFormScreen
-/// uses); only the actual Update submit goes through `EditProfileBloc`,
-/// which owns the real network call (Firebase Auth + Firestore).
+/// AddressScreen's own edit flow. All form behaviour lives in
+/// [EditProfileForm]; this screen renders only the pack's chrome.
 class EditProfileScreen extends BaseScreen {
   final ProfileEntity profile;
 
@@ -44,86 +40,19 @@ class EditProfileScreen extends BaseScreen {
 }
 
 class _EditProfileScreenState extends BaseScreenState<EditProfileScreen>
-    with TextfieldValidations {
-  late final _nameController = TextEditingController(text: widget.profile.name);
-  late final _emailController = TextEditingController(
-    text: widget.profile.email,
-  );
-  late final _phoneController = TextEditingController(
-    text: widget.profile.phone,
-  );
-
-  /// A photo picked this session, previewed immediately and carried into the
-  /// popped result — null until the user picks one, in which case it wins
-  /// over the existing `avatarUrl` (see `CordeliaAvatarImage`).
-  Uint8List? _pickedAvatarBytes;
-
-  final Map<_ProfileField, String> _errors = {};
+    with TextfieldValidations, EditProfileForm {
+  @override
+  ProfileEntity get profile => widget.profile;
 
   @override
-  void dispose() {
-    _nameController.dispose();
-    _emailController.dispose();
-    _phoneController.dispose();
-    super.dispose();
-  }
+  String get avatarPickerMobileOnlyMessage =>
+      GraviaValueConst.avatarPickerMobileOnlyMessage;
 
-  void _clearError(_ProfileField field) {
-    if (_errors.containsKey(field)) setState(() => _errors.remove(field));
-  }
-
-  // Camera/gallery capture is mobile-only; on the web preview there's no
-  // capture pipeline, so surface a snackbar and skip the picker instead of
-  // opening a browser file dialog that goes nowhere (same guard doc_scanner
-  // uses around its own ImagePickerService calls).
-  Future<void> _pickAvatar() async {
-    if (kIsWeb) {
-      showSnackBar(GraviaValueConst.avatarPickerMobileOnlyMessage);
-      return;
-    }
-
-    final source = await showGraviaSheet<AvatarSource>(
-      title: GraviaValueConst.changePhotoTitle,
-      child: const AvatarSourceSheetContent(),
-    );
-    if (source == null) return;
-
-    final files = source == AvatarSource.camera
-        ? await ImagePickerService.instance.fromCamera()
-        : await ImagePickerService.instance.fromGallery();
-    if (files.isEmpty || !mounted) return;
-
-    final bytes = await files.first.readAsBytes();
-    if (!mounted) return;
-    setState(() => _pickedAvatarBytes = bytes);
-  }
-
-  void _submit() {
-    final name = _nameController.text.trim();
-    final phone = _phoneController.text.trim();
-
-    final errors = <_ProfileField, String>{
-      _ProfileField.name: ?validateName(name),
-      _ProfileField.phone: ?validateMobile(phone),
-    };
-
-    if (errors.isNotEmpty) {
-      setState(() {
-        _errors
-          ..clear()
-          ..addAll(errors);
-      });
-      return;
-    }
-
-    context.read<EditProfileBloc>().add(
-      EditProfileEvent.submitted(
-        name: name,
-        mobile: phone,
-        avatarBytes: _pickedAvatarBytes,
-      ),
-    );
-  }
+  @override
+  Future<AvatarSource?> showAvatarSourceSheet() => showGraviaSheet(
+    title: GraviaValueConst.changePhotoTitle,
+    child: const AvatarSourceSheetContent(),
+  );
 
   @override
   SystemUiOverlayStyle? overlayStyle(BuildContext context) =>
@@ -132,25 +61,12 @@ class _EditProfileScreenState extends BaseScreenState<EditProfileScreen>
   @override
   Widget body(BuildContext context) {
     return BlocConsumer<EditProfileBloc, EditProfileState>(
-      listener: (context, state) => switch (state) {
-        EditProfileSuccess(:final user) => context.pop(
-          ProfileEntity(
-            name: user.name,
-            email: user.email,
-            phone: user.mobile,
-            // Server's copy — the URL of the photo just uploaded, or the
-            // existing one when this save didn't touch the avatar.
-            avatarUrl: user.avatarUrl,
-            // Kept alongside it so the new photo paints immediately;
-            // fetching the fresh URL would flash the placeholder first.
-            avatarBytes: _pickedAvatarBytes ?? widget.profile.avatarBytes,
-          ),
-        ),
-        EditProfileError(:final message) => showSnackBar(message),
-        _ => null,
-      },
+      listener: handleEditProfileState,
       builder: (context, state) {
-        final isSaving = state is EditProfileSaving;
+        final isSaving = switch (state) {
+          EditProfileSaving() => true,
+          _ => false,
+        };
         return Column(
           children: [
             Expanded(
@@ -168,23 +84,23 @@ class _EditProfileScreenState extends BaseScreenState<EditProfileScreen>
                       Center(
                         child: ProfileAvatarPicker(
                           profile: widget.profile,
-                          pickedAvatarBytes: _pickedAvatarBytes,
-                          onTap: _pickAvatar,
+                          pickedAvatarBytes: pickedAvatarBytes,
+                          onTap: pickAvatar,
                         ),
                       ),
                       const SizedBox(height: AppSpacing.xl2),
                       _field(
                         GraviaValueConst.nameLabel,
-                        _nameController,
-                        field: _ProfileField.name,
+                        nameController,
+                        field: ProfileField.name,
                         keyboardType: TextInputType.name,
                         hint: GraviaValueConst.nameHint,
                       ),
                       const SizedBox(height: AppSpacing.lg),
                       _field(
                         GraviaValueConst.emailAddressLabel,
-                        _emailController,
-                        field: _ProfileField.email,
+                        emailController,
+                        field: ProfileField.email,
                         keyboardType: TextInputType.emailAddress,
                         hint: GraviaValueConst.emailAddressHint,
                         // Can't change here — Firebase's own re-verification
@@ -195,8 +111,8 @@ class _EditProfileScreenState extends BaseScreenState<EditProfileScreen>
                       const SizedBox(height: AppSpacing.lg),
                       _field(
                         GraviaValueConst.mobileNumberLabel,
-                        _phoneController,
-                        field: _ProfileField.phone,
+                        phoneController,
+                        field: ProfileField.phone,
                         keyboardType: TextInputType.phone,
                         hint: GraviaValueConst.phoneNumberHint,
                       ),
@@ -211,7 +127,7 @@ class _EditProfileScreenState extends BaseScreenState<EditProfileScreen>
                 state: isSaving
                     ? AppButtonState.loading
                     : AppButtonState.idle,
-                onTap: isSaving ? null : _submit,
+                onTap: isSaving ? null : submitProfile,
               ),
             ),
           ],
@@ -223,7 +139,7 @@ class _EditProfileScreenState extends BaseScreenState<EditProfileScreen>
   Widget _field(
     String label,
     TextEditingController controller, {
-    required _ProfileField field,
+    required ProfileField field,
     TextInputType keyboardType = TextInputType.text,
     String? hint,
     bool enabled = true,
@@ -233,8 +149,8 @@ class _EditProfileScreenState extends BaseScreenState<EditProfileScreen>
       controller: controller,
       hint: hint,
       keyboardType: keyboardType,
-      errorText: _errors[field],
-      onChanged: (_) => _clearError(field),
+      errorText: fieldErrors[field],
+      onChanged: (_) => clearFieldError(field),
       enabled: enabled,
     );
   }

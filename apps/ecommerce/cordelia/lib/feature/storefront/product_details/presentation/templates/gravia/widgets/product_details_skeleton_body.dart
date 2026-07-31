@@ -15,7 +15,7 @@ class ProductDetailsSkeletonBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cardRadius = BorderRadius.circular(
-      Theme.of(context).extension<AppShapes>()?.cardRadius ?? AppRadius.xlValue,
+      context.appShapes.cardRadius,
     );
     return Padding(
       padding: const EdgeInsets.all(AppSpacing.lg),

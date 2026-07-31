@@ -10,10 +10,9 @@ import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/molecules/empty_state.dart';
 import 'package:core/core/ui/molecules/error_view.dart';
 
-import 'package:cordelia/feature/storefront/template/storefront_template.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_text_style_const.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_value_const.dart';
-import 'package:cordelia/templates/dailymart/widgets/dailymart_header_row.dart';
+import 'package:cordelia/templates/dailymart/widgets/dailymart_screen_body.dart';
 
 import '../../../../domain/entities/notification_section_entity.dart';
 import '../../../bloc/notifications_bloc.dart';
@@ -36,6 +35,15 @@ class _NotificationsScreenState extends BaseScreenState<NotificationsScreen> {
   SystemUiOverlayStyle? overlayStyle(BuildContext context) =>
       BaseScreenState.themedStatusIcons(context);
 
+  /// The page shell every state sits in — the skeleton, the error view and
+  /// the list share one header + padding recipe.
+  Widget _page({required Key key, required Widget body}) => DailyMartScreenBody(
+    key: key,
+    title: DailyMartValueConst.notificationsTitle,
+    onBack: () => context.pop(),
+    body: body,
+  );
+
   @override
   Widget body(BuildContext context) {
     return ColoredBox(
@@ -51,25 +59,25 @@ class _NotificationsScreenState extends BaseScreenState<NotificationsScreen> {
           builder: (context, state) => AppSwitcher(
             curve: Curves.easeInOut,
             child: switch (state) {
-              NotificationsError() => KeyedSubtree(
+              // Error keeps the same page shell as loading/loaded so the
+              // header stays put and the branch pays its own bottom inset.
+              NotificationsError(:final template) => _page(
                 key: const ValueKey('error'),
-                child: ErrorView(
+                body: ErrorView(
                   message: DailyMartValueConst.notificationsLoadErrorMessage,
                   onRetry: () => context.read<NotificationsBloc>().add(
-                    const NotificationsEvent.started(
-                      template: StorefrontTemplate.dailymart,
-                    ),
+                    NotificationsEvent.started(template: template),
                   ),
                 ),
               ),
               // Loading and loaded share the header and the scroll view, so
               // only the body swaps — a differently-structured loading
               // state makes the whole page jump when data lands.
-              NotificationsLoading() => const _Page(
-                key: ValueKey('loading'),
-                body: DailyMartNotificationsSkeletonBody(),
+              NotificationsLoading() => _page(
+                key: const ValueKey('loading'),
+                body: const DailyMartNotificationsSkeletonBody(),
               ),
-              NotificationsLoaded(:final sections) => _Page(
+              NotificationsLoaded(:final sections) => _page(
                 key: const ValueKey('loaded'),
                 body: sections.isEmpty
                     ? const EmptyState(
@@ -88,33 +96,7 @@ class _NotificationsScreenState extends BaseScreenState<NotificationsScreen> {
   }
 }
 
-/// The page shell the skeleton, the empty state and the list all sit in.
-class _Page extends StatelessWidget {
-  final Widget body;
 
-  const _Page({super.key, required this.body});
-
-  @override
-  Widget build(BuildContext context) => SingleChildScrollView(
-    padding: const EdgeInsets.fromLTRB(
-      AppSpacing.lg,
-      AppSpacing.base,
-      AppSpacing.lg,
-      AppSpacing.xl10,
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        DailyMartHeaderRow(
-          title: DailyMartValueConst.notificationsTitle,
-          onBack: () => context.pop(),
-        ),
-        const SizedBox(height: AppSpacing.lg),
-        body,
-      ],
-    ),
-  );
-}
 
 class _Sections extends StatelessWidget {
   final List<NotificationSectionEntity> sections;

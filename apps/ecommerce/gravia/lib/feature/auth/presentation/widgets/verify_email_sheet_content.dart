@@ -64,7 +64,7 @@ class _VerifyEmailSheetContentState extends State<VerifyEmailSheetContent> {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
     final shapes =
-        Theme.of(context).extension<AppShapes>() ?? AppShapes.standard;
+        context.appShapes;
 
     return PopScope(
       canPop: false,

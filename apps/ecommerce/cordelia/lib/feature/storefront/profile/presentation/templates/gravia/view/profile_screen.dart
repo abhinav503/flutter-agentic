@@ -1,12 +1,8 @@
 import 'package:cordelia/constants/app_routes.dart';
-import 'package:cordelia/feature/auth/presentation/bloc/auth_bloc.dart' show kPendingEmailVerificationPrefKey;
+import 'package:cordelia/feature/auth/presentation/sign_out.dart';
 import 'package:cordelia/feature/storefront/active_store/presentation/cubit/active_store_cubit.dart';
-import 'package:cordelia/feature/storefront/cart/presentation/cubit/cart_cubit.dart';
-import 'package:cordelia/feature/storefront/favourites/presentation/cubit/favourites_cubit.dart';
 import 'package:cordelia/feature/storefront/presentation/view/storefront_page.dart';
 import 'package:cordelia/feature/storefront/shell/presentation/templates/gravia/view/shell_page.dart';
-import 'package:cordelia/services/firebase_auth_service.dart';
-import 'package:cordelia/services/user_profile_cache_service.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_color_const.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_image_const.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_dimen_const.dart';
@@ -19,10 +15,8 @@ import 'package:go_router/go_router.dart';
 
 import 'package:core/core/ui/atoms/app_switcher.dart';
 import 'package:core/core/base/base_screen.dart';
-import 'package:core/core/services/shared_pref_service/shared_preference_service.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/theme/theme_mode_scope.dart';
-import 'package:core/core/ui/atoms/loading_indicator.dart';
 import 'package:core/core/ui/atoms/svg_image.dart';
 import 'package:core/core/ui/atoms/switch.dart';
 import 'package:core/core/ui/blocks/collapsing_header_sheet.dart';
@@ -31,6 +25,7 @@ import '../../../../domain/entities/profile_entity.dart';
 import '../../../bloc/profile_bloc.dart';
 import '../widgets/profile_hero_header.dart';
 import '../widgets/profile_menu_tile.dart';
+import '../widgets/profile_skeleton_body.dart';
 
 class ProfileScreen extends BaseScreen {
   const ProfileScreen({super.key});
@@ -58,18 +53,17 @@ class _ProfileScreenState extends BaseScreenState<ProfileScreen> {
 
   @override
   Widget body(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-
     return BlocConsumer<ProfileBloc, ProfileState>(
       listener: (context, state) {
         if (state case ProfileError(:final message)) showSnackBar(message);
       },
       builder: (context, state) => AppSwitcher(
         child: switch (state) {
-          ProfileLoading() => Container(
-            key: const ValueKey('loading'),
-            color: cs.primary,
-            child: const SafeArea(child: Center(child: LoadingIndicator())),
+          ProfileLoading() => const CollapsingHeaderSheet(
+            key: ValueKey('loading'),
+            initialHeaderHeight: GraviaDimenConst.headerHeightIdentity,
+            header: ProfileSkeletonHeader(),
+            body: ProfileSkeletonBody(),
           ),
           ProfileError() => SafeArea(
             key: const ValueKey('error'),
@@ -191,7 +185,7 @@ class _ProfileScreenState extends BaseScreenState<ProfileScreen> {
                       title: GraviaValueConst.logoutTitle,
                       message: GraviaValueConst.logoutConfirmMessage,
                       confirmLabel: GraviaValueConst.logoutLabel,
-                      onConfirm: () => _signOut(context),
+                      onConfirm: () => signOutAndReturnToLogin(context),
                     ),
                   ),
                 ],
@@ -203,20 +197,4 @@ class _ProfileScreenState extends BaseScreenState<ProfileScreen> {
     );
   }
 
-  Future<void> _signOut(BuildContext context) async {
-    await FirebaseAuthService.instance.signOut();
-    await UserProfileCacheService.instance.clear();
-    // Defensive — Profile is only reachable once AuthAuthenticated has fired,
-    // which already clears this key, but a stale flag here would wrongly
-    // reopen the verify sheet for the next account signing in on this device.
-    await SharedPreferenceService.instance.setBool(
-      kPendingEmailVerificationPrefKey,
-      false,
-    );
-    if (context.mounted) {
-      context.read<CartCubit>().reset();
-      context.read<FavouritesCubit>().reset();
-      context.go(AppRoutes.login);
-    }
-  }
 }

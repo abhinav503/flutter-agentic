@@ -74,6 +74,14 @@ class AppBottomSheet extends StatelessWidget {
   /// pop-on-close [onClose], so this flag, not a null [onClose], is how a
   /// caller opts out of the trailing X.
   final bool showCloseAction;
+
+  /// Set false for a **chromeless** sheet: the rounded surface container,
+  /// keyboard padding, and bottom device inset stay, but no pinned header —
+  /// no handle, title, or close control — is drawn. For content whose spec
+  /// has no title row (a confirmation pair, a success card); such content
+  /// draws its own handle if it wants one. This replaces hand-rolled
+  /// `showModalBottomSheet` recipes that re-implement the sheet container.
+  final bool showHeader;
   final List<Widget>? actions;
   final bool isScrollable;
   final double maxHeightFraction;
@@ -93,6 +101,7 @@ class AppBottomSheet extends StatelessWidget {
     this.centerTitle = false,
     this.headerHeight,
     this.showCloseAction = true,
+    this.showHeader = true,
     this.actions,
     this.isScrollable = true,
     this.maxHeightFraction = 0.9,
@@ -113,6 +122,7 @@ class AppBottomSheet extends StatelessWidget {
     bool centerTitle = false,
     double? headerHeight,
     bool showCloseAction = true,
+    bool showHeader = true,
     List<Widget>? actions,
     bool isScrollable = true,
     double maxHeightFraction = 0.9,
@@ -141,6 +151,7 @@ class AppBottomSheet extends StatelessWidget {
         centerTitle: centerTitle,
         headerHeight: headerHeight,
         showCloseAction: showCloseAction,
+        showHeader: showHeader,
         actions: actions,
         isScrollable: isScrollable,
         maxHeightFraction: maxHeightFraction,
@@ -152,9 +163,7 @@ class AppBottomSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final sheetRadius =
-        Theme.of(context).extension<AppShapes>()?.sheetRadius ??
-            AppShapes.standard.sheetRadius;
+    final sheetRadius = context.appShapes.sheetRadius;
 
     return Padding(
       padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
@@ -176,9 +185,10 @@ class AppBottomSheet extends StatelessWidget {
               ? const ClampingScrollPhysics()
               : const NeverScrollableScrollPhysics(),
           slivers: [
-            SliverPersistentHeader(
-              pinned: true,
-              delegate: _HeaderDelegate(
+            if (showHeader)
+              SliverPersistentHeader(
+                pinned: true,
+                delegate: _HeaderDelegate(
                 title: title,
                 titleStyle: titleStyle,
                 onClose: onClose,

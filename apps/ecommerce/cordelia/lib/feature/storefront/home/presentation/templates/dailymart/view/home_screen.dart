@@ -19,6 +19,7 @@ import 'package:cordelia/feature/storefront/home/domain/entities/product_entity.
 import 'package:cordelia/templates/dailymart/constants/dailymart_color_const.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_dimen_const.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_value_const.dart';
+import 'package:cordelia/templates/dailymart/widgets/dailymart_screen_body.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_section_header.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_sheet.dart';
 
@@ -110,31 +111,35 @@ class _HomeScreenState extends BaseScreenState<HomeScreen>
               showSnackBar(DailyMartValueConst.homeLoadErrorMessage);
             }
           },
-          builder: (context, state) => switch (state) {
-            HomeError() => ErrorView(
-              message: DailyMartValueConst.homeLoadErrorMessage,
-              onRetry: () => context.read<HomeBloc>().add(
-                HomeEvent.started(storeId: _storeId),
+          // Every state shares the header and the scroll shell, so only the
+          // body swaps — a differently-structured loading (or error) state
+          // makes the whole page jump when data lands, and an error outside
+          // the shell would lose the header and its bottom inset.
+          builder: (context, state) => DailyMartScreenBody(
+            headerRow: DailyMartHomeHeader(
+              addressLabel: _addressLabel,
+              onLocationTap: openSelectAddress,
+              onNotificationTap: _openNotifications,
+              onSearchTap: _openSearch,
+              storeId: _storeId,
+            ),
+            gap: AppSpacing.xl4,
+            // The shell's nav bar owns the bottom edge; this is breathing
+            // room above it, not a device inset.
+            bottomInset: AppSpacing.xl10,
+            fullBleedBody: true,
+            body: switch (state) {
+              HomeError() => Padding(
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                child: ErrorView(
+                  message: DailyMartValueConst.homeLoadErrorMessage,
+                  onRetry: () => context.read<HomeBloc>().add(
+                    HomeEvent.started(storeId: _storeId),
+                  ),
+                ),
               ),
-            ),
-            // Loading and loaded share the header and the scroll view, so
-            // only the body swaps — a differently-structured loading state
-            // makes the whole page jump when data lands.
-            HomeLoading() => _Page(
-              addressLabel: _addressLabel,
-              onLocationTap: openSelectAddress,
-              onNotificationTap: _openNotifications,
-              onSearchTap: _openSearch,
-              storeId: _storeId,
-              body: const DailyMartHomeSkeletonBody(),
-            ),
-            HomeLoaded(:final home) => _Page(
-              addressLabel: _addressLabel,
-              onLocationTap: openSelectAddress,
-              onNotificationTap: _openNotifications,
-              onSearchTap: _openSearch,
-              storeId: _storeId,
-              body: _HomeContent(
+              HomeLoading() => const DailyMartHomeSkeletonBody(),
+              HomeLoaded(:final home) => _HomeContent(
                 home: home,
                 onProductTap: _openProductDetails,
                 onCategoryTap: _openCategoryDetails,
@@ -143,8 +148,8 @@ class _HomeScreenState extends BaseScreenState<HomeScreen>
                 onFavouriteToggle: (product) =>
                     context.read<FavouritesCubit>().toggle(product),
               ),
-            ),
-          },
+            },
+          ),
         ),
       ),
     );
@@ -156,52 +161,6 @@ class _HomeScreenState extends BaseScreenState<HomeScreen>
   void _openNotifications() => context.push(AppRoutes.notifications);
 
   void _openSearch() => context.push(AppRoutes.search, extra: _storeId);
-}
-
-/// The page shell both the skeleton and the loaded body sit in.
-class _Page extends StatelessWidget {
-  final String addressLabel;
-  final VoidCallback onLocationTap;
-  final VoidCallback onNotificationTap;
-  final VoidCallback onSearchTap;
-  final String storeId;
-  final Widget body;
-
-  const _Page({
-    required this.addressLabel,
-    required this.onLocationTap,
-    required this.onNotificationTap,
-    required this.onSearchTap,
-    required this.storeId,
-    required this.body,
-  });
-
-  @override
-  Widget build(BuildContext context) => SingleChildScrollView(
-    padding: const EdgeInsets.only(bottom: AppSpacing.xl10),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.lg,
-            AppSpacing.base,
-            AppSpacing.lg,
-            0,
-          ),
-          child: DailyMartHomeHeader(
-            addressLabel: addressLabel,
-            onLocationTap: onLocationTap,
-            onNotificationTap: onNotificationTap,
-            onSearchTap: onSearchTap,
-            storeId: storeId,
-          ),
-        ),
-        const SizedBox(height: AppSpacing.xl4),
-        body,
-      ],
-    ),
-  );
 }
 
 class _HomeContent extends StatelessWidget {
@@ -283,7 +242,7 @@ class _HomeContent extends StatelessWidget {
           onFavouriteToggle: onFavouriteToggle,
           onSeeAll: () => _openBrowse(context),
         ),
-        const SizedBox(height: DailyMartDimenConst.floatingActionScrollInset),
+        SizedBox(height: DailyMartDimenConst.floatingActionScrollInset(context)),
       ],
     );
   }

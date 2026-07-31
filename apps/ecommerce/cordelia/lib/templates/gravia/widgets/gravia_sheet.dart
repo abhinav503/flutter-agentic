@@ -101,19 +101,14 @@ extension GraviaSheetX<T extends BaseScreen> on BaseScreenState<T> {
         onConfirm: onConfirm,
       );
 
-  /// The checkout confirmation sheet — bypasses [showGraviaSheet] since
-  /// [OrderPlacedSheetContent] has no title row or close control to render;
-  /// presented directly via `showModalBottomSheet` instead.
+  /// The checkout confirmation sheet — [OrderPlacedSheetContent] has no
+  /// title row or close control, so it rides [AppBottomSheet]'s chromeless
+  /// mode (`showHeader: false`): the sheet container and bottom inset come
+  /// from core, the content draws its own handle.
   Future<void> showOrderPlacedSheet({required VoidCallback onTrackOrder}) =>
-      showModalBottomSheet<void>(
-        context: context,
-        isScrollControlled: true,
-        backgroundColor: Colors.transparent,
-        builder: (sheetContext) => OrderPlacedSheetContent(
-          onTrackOrder: () {
-            Navigator.of(sheetContext).pop();
-            onTrackOrder();
-          },
-        ),
+      AppBottomSheet.show<void>(
+        context,
+        showHeader: false,
+        child: OrderPlacedSheetContent(onTrackOrder: onTrackOrder),
       );
 }

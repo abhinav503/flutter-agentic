@@ -4,23 +4,18 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:core/core/base/base_screen.dart';
-import 'package:core/core/services/shared_pref_service/shared_preference_service.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/theme/theme_mode_scope.dart';
 import 'package:core/core/ui/atoms/switch.dart';
 import 'package:core/core/ui/molecules/error_view.dart';
 
 import 'package:cordelia/constants/app_routes.dart';
-import 'package:cordelia/feature/auth/presentation/bloc/auth_bloc.dart'
-    show kPendingEmailVerificationPrefKey;
-import 'package:cordelia/feature/storefront/cart/presentation/cubit/cart_cubit.dart';
-import 'package:cordelia/feature/storefront/favourites/presentation/cubit/favourites_cubit.dart';
-import 'package:cordelia/services/firebase_auth_service.dart';
-import 'package:cordelia/services/user_profile_cache_service.dart';
+import 'package:cordelia/feature/auth/presentation/sign_out.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_text_style_const.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_image_const.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_value_const.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_menu_tile.dart';
+import 'package:cordelia/templates/dailymart/widgets/dailymart_screen_body.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_sheet.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_top_switcher.dart';
 
@@ -54,22 +49,6 @@ class _ProfileScreenState extends BaseScreenState<ProfileScreen> {
     context.read<ProfileBloc>().add(ProfileEvent.saved(profile: result));
   }
 
-  Future<void> _signOut() async {
-    await FirebaseAuthService.instance.signOut();
-    await UserProfileCacheService.instance.clear();
-    // Defensive — Profile is only reachable once AuthAuthenticated has fired,
-    // which already clears this key, but a stale flag here would wrongly
-    // reopen the verify sheet for the next account signing in on this device.
-    await SharedPreferenceService.instance.setBool(
-      kPendingEmailVerificationPrefKey,
-      false,
-    );
-    if (!mounted) return;
-    context.read<CartCubit>().reset();
-    context.read<FavouritesCubit>().reset();
-    context.go(AppRoutes.login);
-  }
-
   @override
   SystemUiOverlayStyle? overlayStyle(BuildContext context) =>
       BaseScreenState.themedStatusIcons(context);
@@ -90,9 +69,11 @@ class _ProfileScreenState extends BaseScreenState<ProfileScreen> {
                 key: ValueKey('loading'),
                 body: DailyMartProfileSkeletonBody(),
               ),
-              ProfileError() => KeyedSubtree(
+              // Error shares the page shell so the branch pays the same
+              // padding as the others.
+              ProfileError() => _Page(
                 key: const ValueKey('error'),
-                child: ErrorView(
+                body: ErrorView(
                   message: DailyMartValueConst.profileLoadErrorMessage,
                   onRetry: () => context.read<ProfileBloc>().add(
                     const ProfileEvent.started(),
@@ -188,7 +169,8 @@ class _ProfileScreenState extends BaseScreenState<ProfileScreen> {
                             title: DailyMartValueConst.logoutTitle,
                             message: DailyMartValueConst.logoutConfirmMessage,
                             confirmLabel: DailyMartValueConst.logoutLabel,
-                            onConfirm: _signOut,
+                            onConfirm: () =>
+                                signOutAndReturnToLogin(context),
                           ),
                         ),
                       ],
@@ -205,21 +187,20 @@ class _ProfileScreenState extends BaseScreenState<ProfileScreen> {
 }
 
 /// The scroll view the skeleton, the error and the loaded body all sit in —
-/// one padding recipe, so a state swap never shifts the content sideways.
+/// the pack shell with no header row (this tab draws its identity header in
+/// the body) and the nav bar owning the bottom edge.
 class _Page extends StatelessWidget {
   final Widget body;
 
   const _Page({super.key, required this.body});
 
   @override
-  Widget build(BuildContext context) => SingleChildScrollView(
-    padding: const EdgeInsets.fromLTRB(
-      AppSpacing.lg,
-      AppSpacing.xl2,
-      AppSpacing.lg,
-      AppSpacing.xl10,
-    ),
-    child: body,
+  Widget build(BuildContext context) => DailyMartScreenBody(
+    topPadding: AppSpacing.xl2,
+    // The shell's nav bar owns the bottom edge; this is breathing room
+    // above it, not a device inset.
+    bottomInset: AppSpacing.xl10,
+    body: body,
   );
 }
 

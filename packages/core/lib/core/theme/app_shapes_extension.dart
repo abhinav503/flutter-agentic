@@ -9,9 +9,11 @@ double _lerp(double a, double b, double t) => a + (b - a) * t;
 /// Registered on [ThemeData] in [AppTheme] and read by atoms so their shape is
 /// theme-driven per app:
 /// ```dart
-/// final shapes = Theme.of(context).extension<AppShapes>()!;
-/// borderRadius: BorderRadius.circular(shapes.buttonRadius),
+/// borderRadius: BorderRadius.circular(context.appShapes.buttonRadius),
 /// ```
+/// Always read it through the [AppShapesContextX.appShapes] accessor — a
+/// hand-typed `Theme.of(context).extension<AppShapes>()` invites divergent
+/// fallback spellings across call sites.
 /// The **same** values also drive [ThemeData]'s built-in component themes
 /// (`elevatedButtonTheme`, `chipTheme`, `cardTheme`, …), so raw Material widgets
 /// and our atoms share one source of truth and re-skin together per theme.
@@ -68,4 +70,11 @@ class AppShapes extends ThemeExtension<AppShapes> {
         inputRadius: _lerp(inputRadius, other.inputRadius, t),
         sheetRadius: _lerp(sheetRadius, other.sheetRadius, t),
       );
+}
+
+/// The one way to read the theme's shapes — with the [AppShapes.standard]
+/// fallback baked in, mirroring `context.appColors`.
+extension AppShapesContextX on BuildContext {
+  AppShapes get appShapes =>
+      Theme.of(this).extension<AppShapes>() ?? AppShapes.standard;
 }

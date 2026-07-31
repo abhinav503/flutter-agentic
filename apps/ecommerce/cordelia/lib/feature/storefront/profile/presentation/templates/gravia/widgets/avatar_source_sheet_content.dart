@@ -1,3 +1,4 @@
+import 'package:cordelia/enums/avatar_source.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_image_const.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_value_const.dart';
 import 'package:flutter/material.dart';
@@ -5,8 +6,6 @@ import 'package:go_router/go_router.dart';
 
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/svg_image.dart';
-
-enum AvatarSource { camera, gallery }
 
 /// Two-row action sheet — "Take Photo" / "Choose from Gallery" — opened from
 /// Edit Profile's avatar camera badge. An action list, not a selection list,

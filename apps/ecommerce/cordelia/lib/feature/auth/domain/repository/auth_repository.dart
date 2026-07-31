@@ -1,5 +1,6 @@
+import 'dart:typed_data';
+
 import 'package:core/core/error/failure.dart';
-import 'package:flutter/foundation.dart';
 import 'package:fpdart/fpdart.dart';
 
 import '../entities/user_entity.dart';

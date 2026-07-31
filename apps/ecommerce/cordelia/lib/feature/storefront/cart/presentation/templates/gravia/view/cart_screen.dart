@@ -115,10 +115,16 @@ class _CartScreenState extends BaseScreenState<CartScreen> {
               Expanded(
                 child: Container(
                   color: cs.surface,
-                  child: const EmptyState(
-                    iconData: Icons.shopping_bag_outlined,
-                    title: GraviaValueConst.cartEmptyTitle,
-                    subtitle: GraviaValueConst.cartEmptySubtitle,
+                  // The loaded branch gets its bottom inset from DockedBar's
+                  // SafeArea; this branch has no docked bar, so it owns the
+                  // inset itself (the surface still bleeds to the edge).
+                  child: const SafeArea(
+                    top: false,
+                    child: EmptyState(
+                      iconData: Icons.shopping_bag_outlined,
+                      title: GraviaValueConst.cartEmptyTitle,
+                      subtitle: GraviaValueConst.cartEmptySubtitle,
+                    ),
                   ),
                 ),
               ),
@@ -180,7 +186,10 @@ class _CartScreenState extends BaseScreenState<CartScreen> {
                   builder: (context, state) {
                     // Submitting spans the whole flow (payment + placement),
                     // so the CTA stays loading and un-tappable throughout.
-                    final busy = state is CheckoutSubmitting;
+                    final busy = switch (state) {
+                      CheckoutSubmitting() => true,
+                      _ => false,
+                    };
                     return GraviaPrimaryButton(
                       label: GraviaValueConst.proceedToCheckoutLabel,
                       state: busy

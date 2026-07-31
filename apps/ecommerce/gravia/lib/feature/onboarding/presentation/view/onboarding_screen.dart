@@ -181,7 +181,7 @@ class _OnboardingScreenState extends BaseScreenState<OnboardingScreen> {
   Widget body(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final shapes =
-        Theme.of(context).extension<AppShapes>() ?? AppShapes.standard;
+        context.appShapes;
 
     return ColoredBox(
       color: cs.primary,

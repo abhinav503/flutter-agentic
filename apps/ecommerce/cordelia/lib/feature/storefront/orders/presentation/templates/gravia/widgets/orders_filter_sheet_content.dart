@@ -2,6 +2,7 @@ import 'package:cordelia/enums/order_status.dart';
 import 'package:cordelia/enums/orders_filter_period.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_text_style_const.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_value_const.dart';
+import 'package:cordelia/templates/gravia/extensions/gravia_order_labels.dart';
 import 'package:cordelia/templates/gravia/widgets/gravia_dropdown_field.dart';
 import 'package:cordelia/templates/gravia/widgets/radio_options_sheet_content.dart';
 import 'package:cordelia/templates/gravia/widgets/gravia_primary_button.dart';
@@ -64,10 +65,7 @@ class _OrdersFilterSheetContentState extends State<OrdersFilterSheetContent> {
         options: [null, ...OrderStatus.values],
         labelOf: (status) => status?.label ?? GraviaValueConst.filterAllStatusesLabel,
         selected: _status,
-        onSelected: (status) {
-          setState(() => _status = status);
-          Navigator.pop(context);
-        },
+        onSelected: (status) => setState(() => _status = status),
       ),
     );
   }

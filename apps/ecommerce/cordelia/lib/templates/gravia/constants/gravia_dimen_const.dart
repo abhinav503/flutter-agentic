@@ -1,10 +1,14 @@
+import 'package:cordelia/constants/cordelia_dimen_const.dart';
+
 abstract final class GraviaDimenConst {
   /// The kit's fixed height for pill buttons, glass icon discs, form fields,
   /// and segmented tab bars — one shared source instead of several
   /// independently-named constants (`GraviaPrimaryButton.barHeight`,
   /// `GraviaTintedButton.height`, `GraviaGlassIconButton.containerSize`, …)
-  /// that happen to agree on the same number.
-  static const double controlHeight = 45;
+  /// that happen to agree on the same number. The value lives app-level
+  /// (`CordeliaDimenConst`) because the shared auth screens size their
+  /// controls to it too.
+  static const double controlHeight = CordeliaDimenConst.controlHeight;
 
   // ── CollapsingHeaderSheet `initialHeaderHeight` tiers ────────────────────
   // Named tiers instead of per-screen literals: every screen repeats its

@@ -97,13 +97,9 @@ class _ShellPageState extends BasePageState<ShellPage>
 
   /// Shared above the tabs because Home's header renders the shopper's name
   /// and avatar, and the Profile tab will read the same profile — one fetch,
-  /// cache-first, instead of one per screen.
-  ///
-  /// CheckoutBloc sits here too, not inside the Cart tab's own subtree: the
-  /// shell rebuilds each tab's providers fresh on every switch, so a bloc
-  /// created per-tab would be disposed — success listener and all — if the
-  /// shopper switched tabs while an order was mid-flight. It's lazy, so it
-  /// only instantiates when the Cart tab first reads it.
+  /// cache-first, instead of one per screen. (CheckoutBloc used to live here
+  /// too; it moved to `checkout/…/dailymart/view/checkout_page.dart` when
+  /// checkout became its own routed page.)
   @override
   Widget buildBlocProviders(Widget child) => MultiBlocProvider(
     providers: [
@@ -144,9 +140,8 @@ class _ShellPageState extends BasePageState<ShellPage>
       // The favourites live in the app-root FavouritesCubit, hydrated by
       // StorefrontShellState — nothing to provide per-tab.
       ShellPage.wishlistTabIndex => FavouritesScreen(onExplore: _goHome),
-      // The cart's items live in the app-root CartCubit and checkout in the
-      // shell-level CheckoutBloc (see buildBlocProviders) — nothing to
-      // provide per-tab.
+      // The cart's items live in the app-root CartCubit — nothing to provide
+      // per-tab (checkout runs on its own routed page with its own bloc).
       // showBack: false — a tab root has nowhere to pop; onBack still serves
       // the empty state's Explore action and the order-placed continue.
       ShellPage.cartTabIndex => CartScreen(onBack: _goHome, showBack: false),

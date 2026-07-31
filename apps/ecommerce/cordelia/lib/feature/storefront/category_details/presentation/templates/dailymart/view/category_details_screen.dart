@@ -154,9 +154,16 @@ class _CategoryDetailsScreenState
                   children: [
                     DailyMartTopSwitcher(
                       child: switch (state) {
-                        CategoryDetailsLoading() => const SingleChildScrollView(
-                          key: ValueKey('loading'),
-                          child: DailyMartCategoryDetailsSkeletonBody(),
+                        // Same bottom clearance as the loaded grid, so the
+                        // skeleton scrolls clear of the pill and the device
+                        // inset like the content it stands in for.
+                        CategoryDetailsLoading() => SingleChildScrollView(
+                          key: const ValueKey('loading'),
+                          padding: EdgeInsets.only(
+                            bottom: DailyMartDimenConst
+                                .floatingActionScrollInset(context),
+                          ),
+                          child: const DailyMartCategoryDetailsSkeletonBody(),
                         ),
                         CategoryDetailsError(
                           :final storeId,
@@ -165,8 +172,15 @@ class _CategoryDetailsScreenState
                         ) =>
                           Padding(
                             key: const ValueKey('error'),
-                            padding: const EdgeInsets.symmetric(
-                              vertical: AppSpacing.xl4,
+                            // Bottom re-adds the device inset — this branch
+                            // sits in the same SafeArea(bottom: false) as the
+                            // others, so it owns its own bottom edge.
+                            padding: EdgeInsets.fromLTRB(
+                              0,
+                              AppSpacing.xl4,
+                              0,
+                              AppSpacing.xl4 +
+                                  MediaQuery.paddingOf(context).bottom,
                             ),
                             child: ErrorView(
                               message: DailyMartValueConst
@@ -285,7 +299,7 @@ class _LoadedBody extends StatelessWidget {
         AppSpacing.lg,
         0,
         AppSpacing.lg,
-        DailyMartDimenConst.floatingActionScrollInset +
+        DailyMartDimenConst.floatingActionScrollInset(context) +
             (cartDocked
                 ? DailyMartDimenConst.controlHeight + AppSpacing.base
                 : 0),

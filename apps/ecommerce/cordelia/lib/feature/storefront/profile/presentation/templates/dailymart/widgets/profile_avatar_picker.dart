@@ -35,15 +35,6 @@ class ProfileAvatarPicker extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final previewProfile = pickedAvatarBytes == null
-        ? profile
-        : ProfileEntity(
-            name: profile.name,
-            email: profile.email,
-            phone: profile.phone,
-            avatarUrl: profile.avatarUrl,
-            avatarBytes: pickedAvatarBytes,
-          );
 
     return GestureDetector(
       onTap: onTap,
@@ -52,7 +43,8 @@ class ProfileAvatarPicker extends StatelessWidget {
         child: Stack(
           children: [
             CordeliaAvatarImage(
-              profile: previewProfile,
+              profile: profile,
+              pickedBytes: pickedAvatarBytes,
               size: DailyMartDimenConst.editAvatarSize,
             ),
             Positioned(

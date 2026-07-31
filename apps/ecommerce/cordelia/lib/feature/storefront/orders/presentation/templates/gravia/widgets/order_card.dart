@@ -2,6 +2,7 @@ import 'package:cordelia/enums/order_status.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_color_const.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_text_style_const.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_value_const.dart';
+import 'package:cordelia/templates/gravia/extensions/gravia_order_labels.dart';
 import 'package:cordelia/templates/gravia/widgets/gravia_action_pair.dart';
 import 'package:cordelia/templates/gravia/widgets/gravia_tint_badge.dart';
 import 'package:flutter/material.dart';

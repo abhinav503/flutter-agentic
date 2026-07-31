@@ -76,7 +76,7 @@ class ProductCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
-    final shapes = Theme.of(context).extension<AppShapes>() ?? AppShapes.standard;
+    final shapes = context.appShapes;
 
     return GestureDetector(
       onTap: onTap,

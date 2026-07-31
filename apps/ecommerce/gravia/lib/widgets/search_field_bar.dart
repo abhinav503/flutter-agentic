@@ -36,7 +36,7 @@ class SearchFieldBar extends StatelessWidget {
       context,
     ).extension<AppColorsExtension>()!.onOverlay;
     final shapes =
-        Theme.of(context).extension<AppShapes>() ?? AppShapes.standard;
+        context.appShapes;
 
     return CommonGlassSurface(
       borderRadius: BorderRadius.circular(shapes.inputRadius),
@@ -99,8 +99,7 @@ class SearchFieldBar extends StatelessWidget {
             toHeroContext,
           ) {
             final shapes =
-                Theme.of(flightContext).extension<AppShapes>() ??
-                AppShapes.standard;
+                flightContext.appShapes;
             return Material(
               type: MaterialType.transparency,
               // Clipped to the same pill radius as the field itself — an

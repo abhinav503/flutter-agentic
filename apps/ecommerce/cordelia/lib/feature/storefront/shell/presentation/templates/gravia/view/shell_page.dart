@@ -160,7 +160,7 @@ class _ShellPageState extends BasePageState<ShellPage>
     }
 
     final shapes =
-        Theme.of(context).extension<AppShapes>() ?? AppShapes.standard;
+        context.appShapes;
 
     // The bar always stays in the tree (empty cart → zero-height bar) so the
     // content subtree never moves to a different slot when the cart toggles

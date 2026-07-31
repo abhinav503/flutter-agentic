@@ -145,10 +145,8 @@ class _CategoryDetailsScreenState
                   options: ProductSortOption.values,
                   labelOf: (o) => o.label,
                   selected: state.sort,
-                  onSelected: (sort) {
-                    bloc.add(CategoryDetailsEvent.sortChanged(sort: sort));
-                    context.pop();
-                  },
+                  onSelected: (sort) =>
+                      bloc.add(CategoryDetailsEvent.sortChanged(sort: sort)),
                 ),
               ),
               onPriceTap: () => _showFilterSheet(
@@ -157,14 +155,11 @@ class _CategoryDetailsScreenState
                   options: ProductPriceFilter.values,
                   labelOf: (o) => o.label,
                   selected: state.priceFilter,
-                  onSelected: (priceFilter) {
-                    bloc.add(
-                      CategoryDetailsEvent.priceFilterChanged(
-                        priceFilter: priceFilter,
-                      ),
-                    );
-                    context.pop();
-                  },
+                  onSelected: (priceFilter) => bloc.add(
+                    CategoryDetailsEvent.priceFilterChanged(
+                      priceFilter: priceFilter,
+                    ),
+                  ),
                 ),
               ),
             ),

@@ -164,7 +164,7 @@ class _DailyMartHomePromoCarouselSkeletonState
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final shapes =
-        Theme.of(context).extension<AppShapes>() ?? AppShapes.standard;
+        context.appShapes;
 
     return Column(
       mainAxisSize: MainAxisSize.min,

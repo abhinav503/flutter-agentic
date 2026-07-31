@@ -51,7 +51,7 @@ class DailyMartProductCard extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
     final shapes =
-        Theme.of(context).extension<AppShapes>() ?? AppShapes.standard;
+        context.appShapes;
 
     // Shadow on the outer box, surface inside it: a `boxShadow` declared on a
     // child of the Material paints *after* the white fill, so the two have to

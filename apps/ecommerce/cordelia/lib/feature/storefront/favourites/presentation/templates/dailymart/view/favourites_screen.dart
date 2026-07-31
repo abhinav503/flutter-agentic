@@ -15,6 +15,7 @@ import 'package:cordelia/templates/dailymart/constants/dailymart_value_const.dar
 import 'package:cordelia/templates/dailymart/widgets/dailymart_header_row.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_product_grid.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_product_grid_skeleton.dart';
+import 'package:cordelia/templates/dailymart/widgets/dailymart_screen_body.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_sheet.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_top_switcher.dart';
 
@@ -97,8 +98,10 @@ class _FavouritesScreenState extends BaseScreenState<FavouritesScreen> {
                 // opening this tab first gets the skeleton rather than a
                 // premature "nothing saved yet".
                 child: state.isLoading
-                    ? const _Page(
+                    ? const DailyMartScreenBody(
                         key: ValueKey('loading'),
+                        topPadding: 0,
+                        bottomInset: AppSpacing.xl10,
                         body: DailyMartProductGridSkeleton(),
                       )
                     : state.items.isEmpty
@@ -106,8 +109,12 @@ class _FavouritesScreenState extends BaseScreenState<FavouritesScreen> {
                         key: const ValueKey('empty'),
                         onExplore: widget.onExplore,
                       )
-                    : _Page(
+                    : DailyMartScreenBody(
                         key: const ValueKey('loaded'),
+                        topPadding: 0,
+                        // The shell's nav bar owns the bottom edge; this is
+                        // breathing room above it, not a device inset.
+                        bottomInset: AppSpacing.xl10,
                         body: DailyMartProductGrid(
                           products: state.items,
                           onAdd: _showAddToCartSheet,
@@ -145,21 +152,3 @@ class _Empty extends StatelessWidget {
   );
 }
 
-/// The scroll view the grid and its skeleton share, so the state swap can't
-/// shift the cards sideways or change their gutters.
-class _Page extends StatelessWidget {
-  final Widget body;
-
-  const _Page({super.key, required this.body});
-
-  @override
-  Widget build(BuildContext context) => SingleChildScrollView(
-    padding: const EdgeInsets.fromLTRB(
-      AppSpacing.lg,
-      0,
-      AppSpacing.lg,
-      AppSpacing.xl10,
-    ),
-    child: body,
-  );
-}

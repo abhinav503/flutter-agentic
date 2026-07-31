@@ -20,7 +20,7 @@ class DailyMartProductGridSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final shapes =
-        Theme.of(context).extension<AppShapes>() ?? AppShapes.standard;
+        context.appShapes;
     final cardRadius = BorderRadius.circular(shapes.cardRadius);
 
     return ChunkedGrid(

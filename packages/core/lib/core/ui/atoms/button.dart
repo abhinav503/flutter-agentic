@@ -81,7 +81,7 @@ class AppButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final shapes = Theme.of(context).extension<AppShapes>() ?? AppShapes.standard;
+    final shapes = context.appShapes;
     final isDisabled = state == AppButtonState.disabled;
     final isLoading = state == AppButtonState.loading;
 

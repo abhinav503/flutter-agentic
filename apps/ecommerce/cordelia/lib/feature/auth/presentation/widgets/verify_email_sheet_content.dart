@@ -10,7 +10,7 @@ import 'package:core/core/ui/atoms/button.dart';
 import 'package:core/core/ui/atoms/concentric_circles.dart';
 import 'package:core/core/ui/atoms/loading_dots.dart';
 
-import 'package:cordelia/templates/gravia/constants/gravia_text_style_const.dart';
+import 'package:cordelia/constants/cordelia_text_style_const.dart';
 import 'package:cordelia/constants/value_const.dart';
 
 /// The persistent, zero-exit verification step after signup/an
@@ -65,7 +65,7 @@ class _VerifyEmailSheetContentState extends State<VerifyEmailSheetContent> {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
     final shapes =
-        Theme.of(context).extension<AppShapes>() ?? AppShapes.standard;
+        context.appShapes;
 
     return PopScope(
       canPop: false,
@@ -102,7 +102,7 @@ class _VerifyEmailSheetContentState extends State<VerifyEmailSheetContent> {
                 Text(
                   ValueConst.verifyEmailTitle,
                   textAlign: TextAlign.center,
-                  style: GraviaTextStyleConst.displayXsBold(
+                  style: CordeliaTextStyleConst.displayXsBold(
                     tt,
                   ).copyWith(color: cs.onSurface),
                 ),
@@ -110,7 +110,7 @@ class _VerifyEmailSheetContentState extends State<VerifyEmailSheetContent> {
                 Text(
                   ValueConst.verifyEmailSubtitle(widget.email),
                   textAlign: TextAlign.center,
-                  style: GraviaTextStyleConst.textSmRegular(
+                  style: CordeliaTextStyleConst.textSmRegular(
                     tt,
                   ).copyWith(color: context.appColors.onSheetMuted),
                 ),
@@ -122,7 +122,7 @@ class _VerifyEmailSheetContentState extends State<VerifyEmailSheetContent> {
                     const SizedBox(width: AppSpacing.xs2),
                     Text(
                       ValueConst.verifyEmailChecking,
-                      style: GraviaTextStyleConst.textSmRegular(
+                      style: CordeliaTextStyleConst.textSmRegular(
                         tt,
                       ).copyWith(color: cs.onSurfaceVariant),
                     ),
@@ -136,7 +136,7 @@ class _VerifyEmailSheetContentState extends State<VerifyEmailSheetContent> {
                   variant: AppButtonVariant.text,
                   size: AppButtonSize.small,
                   onTap: _cooldownSeconds > 0 ? null : _handleResend,
-                  labelStyle: GraviaTextStyleConst.textSmMedium(
+                  labelStyle: CordeliaTextStyleConst.textSmMedium(
                     tt,
                   ).copyWith(color: cs.primary),
                 ),

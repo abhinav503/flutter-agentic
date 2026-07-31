@@ -79,7 +79,19 @@ class OrdersBloc extends Bloc<OrdersEvent, OrdersState> {
         case OrdersError():
           emit(OrdersState.error(message: failure.message));
       }
-    }, (orders) => _emitLoaded(orders, OrdersTab.past, emit));
+    }, (orders) {
+      switch (state) {
+        // Warm start: the refresh landed under an already-visible list —
+        // swap in the fresh orders without discarding the shopper's
+        // tab/filter/search selections made while the fetch was in flight.
+        case final OrdersLoaded loaded:
+          _cache.save(orders);
+          _emitView(loaded.copyWith(orders: orders), emit);
+        case OrdersLoading():
+        case OrdersError():
+          _emitLoaded(orders, OrdersTab.past, emit);
+      }
+    });
   }
 
   void _onTabChanged(OrdersTabChanged event, Emitter<OrdersState> emit) {

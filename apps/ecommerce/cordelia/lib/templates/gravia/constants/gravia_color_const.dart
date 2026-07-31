@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
 
+import 'package:cordelia/constants/cordelia_color_const.dart';
+
 /// Raw kit swatches that don't map to a `ColorScheme`/`AppColorsExtension`
 /// role — used when a design spec calls out an exact shade (e.g. "Gray/500")
 /// rather than a semantic role like `onSurfaceVariant`.
 abstract final class GraviaColorConst {
   static const gray100 = Color(0xFFEDEDED);
   static const gray200 = Color(0xFFDFDFDF);
-  static const gray500 = Color(0xFFA1A1A1);
+
+  /// Lives app-level (`CordeliaColorConst`) — the shared form field's label
+  /// gray, rendered by the auth screens too.
+  static const gray500 = CordeliaColorConst.gray500;
   static const gray900 = Color(0xFF3A3B3F);
 
   /// Same shade in both light and dark — unlike `onSurfaceVariant`, which

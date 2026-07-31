@@ -12,14 +12,12 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:core/core/base/base_screen.dart';
+import 'package:core/core/mixins/textfield_validations.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/blocks/collapsing_header_sheet.dart';
 
 import '../../../../domain/entities/address_entity.dart';
-
-/// Only the fields with free-text validation — City/Country are bounded
-/// picklists defaulted to their first option, so they can never be empty.
-enum _AddressField { name, phone, addressLine1, postalCode, tag }
+import '../../../address_form_fields.dart';
 
 /// Add/Edit Address form, reached from AddressScreen's "Add New Address"
 /// button and each AddressCard's Edit action. [address] decides the mode:
@@ -27,9 +25,8 @@ enum _AddressField { name, phone, addressLine1, postalCode, tag }
 /// result is popped back to the caller as an [AddressEntity] — AddressScreen
 /// dispatches it into the shared AddressBloc via `AddressEvent.saved`, the
 /// same "push, await the pop, react" shape as
-/// `HomeScreen._openSelectAddress`. No BLoC of its own: every field here is
-/// screen-local typed/selected UI state until Save, the same carve-out
-/// `ProductDetailsScreen` uses for its quantity/size selection.
+/// `HomeScreen._openSelectAddress`. All form behaviour lives in
+/// [AddressFormFields]; this screen renders only the pack's chrome.
 class AddressFormScreen extends BaseScreen {
   final AddressEntity? address;
 
@@ -39,53 +36,20 @@ class AddressFormScreen extends BaseScreen {
   State<AddressFormScreen> createState() => _AddressFormScreenState();
 }
 
-class _AddressFormScreenState extends BaseScreenState<AddressFormScreen> {
-  late final _nameController = TextEditingController(
-    text: widget.address?.name ?? '',
-  );
-  late final _phoneController = TextEditingController(
-    text: widget.address?.phone ?? '',
-  );
-  late final _addressLine1Controller = TextEditingController(
-    text: widget.address?.addressLine1 ?? '',
-  );
-  late final _addressLine2Controller = TextEditingController(
-    text: widget.address?.addressLine2 ?? '',
-  );
-  late final _landmarkController = TextEditingController(
-    text: widget.address?.landmark ?? '',
-  );
-  late final _postalCodeController = TextEditingController(
-    text: widget.address?.postalCode ?? '',
-  );
-  late final _tagController = TextEditingController(
-    text: widget.address?.tag ?? '',
-  );
-
-  late String _city =
-      widget.address?.city ?? GraviaValueConst.addressFormCities.first;
-  late String _country =
-      widget.address?.country ?? GraviaValueConst.addressFormCountries.first;
-
-  final Map<_AddressField, String> _errors = {};
-
-  bool get _isEditing => widget.address != null;
+class _AddressFormScreenState extends BaseScreenState<AddressFormScreen>
+    with TextfieldValidations, AddressFormFields {
+  @override
+  AddressEntity? get address => widget.address;
 
   @override
-  void dispose() {
-    _nameController.dispose();
-    _phoneController.dispose();
-    _addressLine1Controller.dispose();
-    _addressLine2Controller.dispose();
-    _landmarkController.dispose();
-    _postalCodeController.dispose();
-    _tagController.dispose();
-    super.dispose();
-  }
+  String get requiredFieldErrorMessage =>
+      GraviaValueConst.requiredFieldErrorMessage;
 
-  void _clearError(_AddressField field) {
-    if (_errors.containsKey(field)) setState(() => _errors.remove(field));
-  }
+  @override
+  List<String> get cityOptions => GraviaValueConst.addressFormCities;
+
+  @override
+  List<String> get countryOptions => GraviaValueConst.addressFormCountries;
 
   /// Opens a radio-list bottom sheet for a bounded picklist field — same
   /// "chip opens a sheet" shape as Category Details' Sort/Price filters.
@@ -101,60 +65,7 @@ class _AddressFormScreenState extends BaseScreenState<AddressFormScreen> {
         options: options,
         labelOf: (option) => option,
         selected: selected,
-        onSelected: (option) {
-          onSelected(option);
-          context.pop();
-        },
-      ),
-    );
-  }
-
-  void _submit() {
-    final name = _nameController.text.trim();
-    final phone = _phoneController.text.trim();
-    final addressLine1 = _addressLine1Controller.text.trim();
-    final postalCode = _postalCodeController.text.trim();
-    final tag = _tagController.text.trim();
-
-    final errors = <_AddressField, String>{
-      if (name.isEmpty)
-        _AddressField.name: GraviaValueConst.requiredFieldErrorMessage,
-      if (phone.isEmpty)
-        _AddressField.phone: GraviaValueConst.requiredFieldErrorMessage,
-      if (addressLine1.isEmpty)
-        _AddressField.addressLine1: GraviaValueConst.requiredFieldErrorMessage,
-      if (postalCode.isEmpty)
-        _AddressField.postalCode: GraviaValueConst.requiredFieldErrorMessage,
-      if (tag.isEmpty) _AddressField.tag: GraviaValueConst.requiredFieldErrorMessage,
-    };
-
-    if (errors.isNotEmpty) {
-      setState(() {
-        _errors
-          ..clear()
-          ..addAll(errors);
-      });
-      return;
-    }
-
-    context.pop(
-      AddressEntity(
-        // Empty for a new address — the server assigns the real id; the
-        // existing id when editing, so the bloc updates in place.
-        id: widget.address?.id ?? '',
-        name: name,
-        phone: phone,
-        addressLine1: addressLine1,
-        addressLine2: _addressLine2Controller.text.trim(),
-        landmark: _landmarkController.text.trim(),
-        city: _city,
-        country: _country,
-        postalCode: postalCode,
-        tag: tag,
-        // Not editable from this form (no spec for a "set as default"
-        // toggle) — a new address starts non-default; an edited one keeps
-        // whatever it already was.
-        isDefault: widget.address?.isDefault ?? false,
+        onSelected: onSelected,
       ),
     );
   }
@@ -171,7 +82,7 @@ class _AddressFormScreenState extends BaseScreenState<AddressFormScreen> {
           child: CollapsingHeaderSheet(
             initialHeaderHeight: GraviaDimenConst.headerHeightCompact,
             header: GraviaHeroHeader(
-              title: _isEditing
+              title: isEditing
                   ? GraviaValueConst.editAddressTitle
                   : GraviaValueConst.addNewAddressLabel,
               onBack: () => context.pop(),
@@ -183,74 +94,73 @@ class _AddressFormScreenState extends BaseScreenState<AddressFormScreen> {
                 children: [
                   _field(
                     GraviaValueConst.nameLabel,
-                    _nameController,
-                    field: _AddressField.name,
+                    nameController,
+                    field: AddressField.name,
                     keyboardType: TextInputType.name,
                     hint: GraviaValueConst.nameHint,
                   ),
                   const SizedBox(height: AppSpacing.lg),
                   _field(
                     GraviaValueConst.phoneNumberLabel,
-                    _phoneController,
-                    field: _AddressField.phone,
+                    phoneController,
+                    field: AddressField.phone,
                     keyboardType: TextInputType.phone,
                     hint: GraviaValueConst.phoneNumberHint,
                   ),
                   const SizedBox(height: AppSpacing.lg),
                   _field(
                     GraviaValueConst.addressLine1Label,
-                    _addressLine1Controller,
-                    field: _AddressField.addressLine1,
+                    addressLine1Controller,
+                    field: AddressField.addressLine1,
                     hint: GraviaValueConst.addressLine1Hint,
                   ),
                   const SizedBox(height: AppSpacing.lg),
                   _field(
                     GraviaValueConst.addressLine2Label,
-                    _addressLine2Controller,
+                    addressLine2Controller,
                     hint: GraviaValueConst.addressLine2Hint,
                   ),
                   const SizedBox(height: AppSpacing.lg),
                   _field(
                     GraviaValueConst.landmarkLabel,
-                    _landmarkController,
+                    landmarkController,
                     hint: GraviaValueConst.landmarkHint,
                   ),
                   const SizedBox(height: AppSpacing.lg),
                   GraviaDropdownField(
                     label: GraviaValueConst.cityLabel,
-                    value: _city,
+                    value: city,
                     onTap: () => _showOptionPicker(
                       title: GraviaValueConst.selectCityTitle,
-                      options: GraviaValueConst.addressFormCities,
-                      selected: _city,
-                      onSelected: (city) => setState(() => _city = city),
+                      options: cityOptions,
+                      selected: city,
+                      onSelected: selectCity,
                     ),
                   ),
                   const SizedBox(height: AppSpacing.lg),
                   GraviaDropdownField(
                     label: GraviaValueConst.countryLabel,
-                    value: _country,
+                    value: country,
                     onTap: () => _showOptionPicker(
                       title: GraviaValueConst.selectCountryTitle,
-                      options: GraviaValueConst.addressFormCountries,
-                      selected: _country,
-                      onSelected: (country) =>
-                          setState(() => _country = country),
+                      options: countryOptions,
+                      selected: country,
+                      onSelected: selectCountry,
                     ),
                   ),
                   const SizedBox(height: AppSpacing.lg),
                   _field(
                     GraviaValueConst.postalCodeLabel,
-                    _postalCodeController,
-                    field: _AddressField.postalCode,
+                    postalCodeController,
+                    field: AddressField.postalCode,
                     keyboardType: TextInputType.number,
                     hint: GraviaValueConst.postalCodeHint,
                   ),
                   const SizedBox(height: AppSpacing.lg),
                   _field(
                     GraviaValueConst.addressTagLabel,
-                    _tagController,
-                    field: _AddressField.tag,
+                    tagController,
+                    field: AddressField.tag,
                     hint: GraviaValueConst.addressTagHint,
                   ),
                 ],
@@ -260,10 +170,10 @@ class _AddressFormScreenState extends BaseScreenState<AddressFormScreen> {
         ),
         DockedBar(
           child: GraviaPrimaryButton(
-            label: _isEditing
+            label: isEditing
                 ? GraviaValueConst.updateAddressButtonLabel
                 : GraviaValueConst.addAddressButtonLabel,
-            onTap: _submit,
+            onTap: submitAddress,
           ),
         ),
       ],
@@ -273,18 +183,18 @@ class _AddressFormScreenState extends BaseScreenState<AddressFormScreen> {
   Widget _field(
     String label,
     TextEditingController controller, {
-    _AddressField? field,
+    AddressField? field,
     TextInputType keyboardType = TextInputType.text,
     String? hint,
   }) {
-    final error = field == null ? null : _errors[field];
+    final error = field == null ? null : fieldErrors[field];
     return GraviaFormField(
       label: label,
       controller: controller,
       hint: hint,
       keyboardType: keyboardType,
       errorText: error,
-      onChanged: field == null ? null : (_) => _clearError(field),
+      onChanged: field == null ? null : (_) => clearFieldError(field),
     );
   }
 }

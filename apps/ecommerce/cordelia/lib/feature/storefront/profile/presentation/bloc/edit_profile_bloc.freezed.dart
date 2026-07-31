@@ -406,13 +406,13 @@ return error(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  saving,TResult Function( UserEntity user)?  success,TResult Function( String message)?  error,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  saving,TResult Function( UserEntity user)?  success,TResult Function( String message,  String name,  String mobile,  Uint8List? avatarBytes)?  error,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case EditProfileInitial() when initial != null:
 return initial();case EditProfileSaving() when saving != null:
 return saving();case EditProfileSuccess() when success != null:
 return success(_that.user);case EditProfileError() when error != null:
-return error(_that.message);case _:
+return error(_that.message,_that.name,_that.mobile,_that.avatarBytes);case _:
   return orElse();
 
 }
@@ -430,13 +430,13 @@ return error(_that.message);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  saving,required TResult Function( UserEntity user)  success,required TResult Function( String message)  error,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  saving,required TResult Function( UserEntity user)  success,required TResult Function( String message,  String name,  String mobile,  Uint8List? avatarBytes)  error,}) {final _that = this;
 switch (_that) {
 case EditProfileInitial():
 return initial();case EditProfileSaving():
 return saving();case EditProfileSuccess():
 return success(_that.user);case EditProfileError():
-return error(_that.message);}
+return error(_that.message,_that.name,_that.mobile,_that.avatarBytes);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -450,13 +450,13 @@ return error(_that.message);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  saving,TResult? Function( UserEntity user)?  success,TResult? Function( String message)?  error,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  saving,TResult? Function( UserEntity user)?  success,TResult? Function( String message,  String name,  String mobile,  Uint8List? avatarBytes)?  error,}) {final _that = this;
 switch (_that) {
 case EditProfileInitial() when initial != null:
 return initial();case EditProfileSaving() when saving != null:
 return saving();case EditProfileSuccess() when success != null:
 return success(_that.user);case EditProfileError() when error != null:
-return error(_that.message);case _:
+return error(_that.message,_that.name,_that.mobile,_that.avatarBytes);case _:
   return null;
 
 }
@@ -616,10 +616,15 @@ as UserEntity,
 
 
 class EditProfileError with DiagnosticableTreeMixin implements EditProfileState {
-  const EditProfileError({required this.message});
+  const EditProfileError({required this.message, required this.name, required this.mobile, this.avatarBytes});
   
 
  final  String message;
+/// Retry context — the submitted values, so a retry can re-dispatch
+/// without reading the screen's controllers.
+ final  String name;
+ final  String mobile;
+ final  Uint8List? avatarBytes;
 
 /// Create a copy of EditProfileState
 /// with the given fields replaced by the non-null parameter values.
@@ -632,21 +637,21 @@ $EditProfileErrorCopyWith<EditProfileError> get copyWith => _$EditProfileErrorCo
 void debugFillProperties(DiagnosticPropertiesBuilder properties) {
   properties
     ..add(DiagnosticsProperty('type', 'EditProfileState.error'))
-    ..add(DiagnosticsProperty('message', message));
+    ..add(DiagnosticsProperty('message', message))..add(DiagnosticsProperty('name', name))..add(DiagnosticsProperty('mobile', mobile))..add(DiagnosticsProperty('avatarBytes', avatarBytes));
 }
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is EditProfileError&&(identical(other.message, message) || other.message == message));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is EditProfileError&&(identical(other.message, message) || other.message == message)&&(identical(other.name, name) || other.name == name)&&(identical(other.mobile, mobile) || other.mobile == mobile)&&const DeepCollectionEquality().equals(other.avatarBytes, avatarBytes));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,message);
+int get hashCode => Object.hash(runtimeType,message,name,mobile,const DeepCollectionEquality().hash(avatarBytes));
 
 @override
 String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
-  return 'EditProfileState.error(message: $message)';
+  return 'EditProfileState.error(message: $message, name: $name, mobile: $mobile, avatarBytes: $avatarBytes)';
 }
 
 
@@ -657,7 +662,7 @@ abstract mixin class $EditProfileErrorCopyWith<$Res> implements $EditProfileStat
   factory $EditProfileErrorCopyWith(EditProfileError value, $Res Function(EditProfileError) _then) = _$EditProfileErrorCopyWithImpl;
 @useResult
 $Res call({
- String message
+ String message, String name, String mobile, Uint8List? avatarBytes
 });
 
 
@@ -674,10 +679,13 @@ class _$EditProfileErrorCopyWithImpl<$Res>
 
 /// Create a copy of EditProfileState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? message = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? message = null,Object? name = null,Object? mobile = null,Object? avatarBytes = freezed,}) {
   return _then(EditProfileError(
 message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
-as String,
+as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,mobile: null == mobile ? _self.mobile : mobile // ignore: cast_nullable_to_non_nullable
+as String,avatarBytes: freezed == avatarBytes ? _self.avatarBytes : avatarBytes // ignore: cast_nullable_to_non_nullable
+as Uint8List?,
   ));
 }
 

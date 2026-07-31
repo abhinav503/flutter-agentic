@@ -101,7 +101,7 @@ class DailyMartCartCheckoutBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final shapes =
-        Theme.of(context).extension<AppShapes>() ?? AppShapes.standard;
+        context.appShapes;
 
     return DecoratedBox(
       decoration: BoxDecoration(

@@ -373,12 +373,12 @@ return error(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loading,TResult Function( List<NotificationSectionEntity> sections)?  loaded,TResult Function( String message)?  error,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loading,TResult Function( List<NotificationSectionEntity> sections)?  loaded,TResult Function( String message,  StorefrontTemplate template)?  error,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case NotificationsLoading() when loading != null:
 return loading();case NotificationsLoaded() when loaded != null:
 return loaded(_that.sections);case NotificationsError() when error != null:
-return error(_that.message);case _:
+return error(_that.message,_that.template);case _:
   return orElse();
 
 }
@@ -396,12 +396,12 @@ return error(_that.message);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loading,required TResult Function( List<NotificationSectionEntity> sections)  loaded,required TResult Function( String message)  error,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loading,required TResult Function( List<NotificationSectionEntity> sections)  loaded,required TResult Function( String message,  StorefrontTemplate template)  error,}) {final _that = this;
 switch (_that) {
 case NotificationsLoading():
 return loading();case NotificationsLoaded():
 return loaded(_that.sections);case NotificationsError():
-return error(_that.message);}
+return error(_that.message,_that.template);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -415,12 +415,12 @@ return error(_that.message);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loading,TResult? Function( List<NotificationSectionEntity> sections)?  loaded,TResult? Function( String message)?  error,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loading,TResult? Function( List<NotificationSectionEntity> sections)?  loaded,TResult? Function( String message,  StorefrontTemplate template)?  error,}) {final _that = this;
 switch (_that) {
 case NotificationsLoading() when loading != null:
 return loading();case NotificationsLoaded() when loaded != null:
 return loaded(_that.sections);case NotificationsError() when error != null:
-return error(_that.message);case _:
+return error(_that.message,_that.template);case _:
   return null;
 
 }
@@ -536,10 +536,13 @@ as List<NotificationSectionEntity>,
 
 
 class NotificationsError implements NotificationsState {
-  const NotificationsError({required this.message});
+  const NotificationsError({required this.message, required this.template});
   
 
  final  String message;
+/// Retry context — enough to re-dispatch [NotificationsStarted] without
+/// the screen reaching back into prior state.
+ final  StorefrontTemplate template;
 
 /// Create a copy of NotificationsState
 /// with the given fields replaced by the non-null parameter values.
@@ -551,16 +554,16 @@ $NotificationsErrorCopyWith<NotificationsError> get copyWith => _$NotificationsE
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is NotificationsError&&(identical(other.message, message) || other.message == message));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is NotificationsError&&(identical(other.message, message) || other.message == message)&&(identical(other.template, template) || other.template == template));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,message);
+int get hashCode => Object.hash(runtimeType,message,template);
 
 @override
 String toString() {
-  return 'NotificationsState.error(message: $message)';
+  return 'NotificationsState.error(message: $message, template: $template)';
 }
 
 
@@ -571,7 +574,7 @@ abstract mixin class $NotificationsErrorCopyWith<$Res> implements $Notifications
   factory $NotificationsErrorCopyWith(NotificationsError value, $Res Function(NotificationsError) _then) = _$NotificationsErrorCopyWithImpl;
 @useResult
 $Res call({
- String message
+ String message, StorefrontTemplate template
 });
 
 
@@ -588,10 +591,11 @@ class _$NotificationsErrorCopyWithImpl<$Res>
 
 /// Create a copy of NotificationsState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? message = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? message = null,Object? template = null,}) {
   return _then(NotificationsError(
 message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
-as String,
+as String,template: null == template ? _self.template : template // ignore: cast_nullable_to_non_nullable
+as StorefrontTemplate,
   ));
 }
 

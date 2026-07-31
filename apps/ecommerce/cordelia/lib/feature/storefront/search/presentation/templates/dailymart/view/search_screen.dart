@@ -19,6 +19,7 @@ import 'package:cordelia/feature/storefront/favourites/presentation/cubit/favour
 // Cross-feature reuse, not duplication — Search's product grid is the same
 // composition and data shape as Home's Popular Products.
 import 'package:cordelia/feature/storefront/home/presentation/templates/dailymart/widgets/home_popular_products_grid.dart';
+import 'package:cordelia/templates/dailymart/constants/dailymart_dimen_const.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_value_const.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_bottom_fade.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_icon_disc.dart';
@@ -216,14 +217,27 @@ class _SearchScreenState extends BaseScreenState<SearchScreen> {
                     children: [
                       DailyMartTopSwitcher(
                         child: switch (state) {
-                          SearchLoading() => const SingleChildScrollView(
-                            key: ValueKey('loading'),
-                            child: DailyMartSearchSkeletonBody(),
+                          // Same bottom clearance as the loaded results, so
+                          // the skeleton scrolls clear of the device inset.
+                          SearchLoading() => SingleChildScrollView(
+                            key: const ValueKey('loading'),
+                            padding: EdgeInsets.only(
+                              bottom: DailyMartDimenConst
+                                  .floatingActionScrollInset(context),
+                            ),
+                            child: const DailyMartSearchSkeletonBody(),
                           ),
                           SearchError() => Padding(
                             key: const ValueKey('error'),
-                            padding: const EdgeInsets.symmetric(
-                              vertical: AppSpacing.xl4,
+                            // Bottom re-adds the device inset — this branch
+                            // sits in the same SafeArea(bottom: false) as the
+                            // others, so it owns its own bottom edge.
+                            padding: EdgeInsets.fromLTRB(
+                              0,
+                              AppSpacing.xl4,
+                              0,
+                              AppSpacing.xl4 +
+                                  MediaQuery.paddingOf(context).bottom,
                             ),
                             child: ErrorView(
                               message:

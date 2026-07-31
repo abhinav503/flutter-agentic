@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -227,8 +229,11 @@ class AddressBloc extends Bloc<AddressEvent, AddressState> {
                 // none is left) rather than waiting for an explicit "Confirm"
                 // tap, so Home's header stops showing the deleted address the
                 // moment the user backs out of this screen.
+                // Deliberately not awaited — fold's callback is sync and the
+                // emit below must not wait on disk; a failed prefs write only
+                // leaves Home's header one visit stale.
                 if (!stillSelected) {
-                  _persistSelection(remaining, newSelectedId);
+                  unawaited(_persistSelection(remaining, newSelectedId));
                 }
                 emit(
                   AddressState.loaded(

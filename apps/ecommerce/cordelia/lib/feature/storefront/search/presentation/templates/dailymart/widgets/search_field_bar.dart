@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:core/core/theme/app_radius.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/svg_image.dart';
-import 'package:core/core/ui/atoms/text_field.dart';
 
-import 'package:cordelia/widgets/hero_search_field_flight.dart';
+import 'package:core/core/ui/blocks/hero_search_field_flight.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_dimen_const.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_image_const.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_value_const.dart';
+import 'package:cordelia/templates/dailymart/widgets/dailymart_search_input.dart';
 
 /// The Search screen's live search field — the kit's two on-screen states
 /// (spec sheet §10): idle is a borderless 48px pill on a soft
@@ -16,6 +16,10 @@ import 'package:cordelia/templates/dailymart/constants/dailymart_value_const.dar
 /// `surfaceContainerLow` and a 1px **primary** border appears — the only
 /// place a form control turns brand green. (Home's third, taller state is
 /// `DailyMartSearchBar`, which never holds a controller.)
+///
+/// The row itself (glyph + dense field + scanner) is [DailyMartSearchInput]
+/// in `bare` mode — only the animated fill/border container is this
+/// widget's own, since the plain input never animates.
 ///
 /// The border listens to the controller directly rather than the bloc:
 /// `SearchBloc` debounces `queryChanged` by 300ms, and a border that lags
@@ -62,7 +66,7 @@ class DailyMartSearchFieldBar extends StatelessWidget {
           decoration: BoxDecoration(
             color: hasQuery
                 ? cs.surfaceContainerLow
-                : cs.surfaceContainer.withValues(alpha: 0.7),
+                : DailyMartSearchInput.idleFill(cs),
             borderRadius: AppRadius.full,
             // Transparent instead of absent so the border never changes the
             // pill's size mid-animation.
@@ -70,40 +74,22 @@ class DailyMartSearchFieldBar extends StatelessWidget {
               color: hasQuery ? cs.primary : Colors.transparent,
             ),
           ),
-          child: Row(
-            children: [
-              AppSvgImage.asset(
-                DailyMartImageConst.search,
-                color: cs.onSurfaceVariant,
-                width: AppSpacing.xl3,
-                height: AppSpacing.xl3,
-              ),
-              const SizedBox(width: AppSpacing.xs),
-              Expanded(
-                child: AppTextField(
-                  controller: controller,
-                  hint: DailyMartValueConst.searchHint,
-                  hintColor: cs.onSurfaceVariant,
-                  textColor: cs.onSurface,
-                  cursorColor: cs.primary,
-                  dense: true,
-                  showBorder: false,
-                  focusNode: interactive ? focusNode : null,
-                  textInputAction: TextInputAction.search,
-                  onChanged: interactive ? onChanged : null,
-                  onSubmitted: interactive ? onSubmitted : null,
-                ),
-              ),
-              const SizedBox(width: AppSpacing.xs),
-              // Decorative in the kit as well — scanning isn't a storefront
-              // capability, so this stays a glyph rather than a dead button.
-              AppSvgImage.asset(
-                DailyMartImageConst.scanner,
-                color: cs.onSurfaceVariant,
-                width: AppSpacing.xl3,
-                height: AppSpacing.xl3,
-              ),
-            ],
+          child: DailyMartSearchInput(
+            bare: true,
+            controller: controller,
+            hint: DailyMartValueConst.searchHint,
+            focusNode: focusNode,
+            interactive: interactive,
+            onChanged: onChanged,
+            onSubmitted: onSubmitted,
+            // Decorative in the kit as well — scanning isn't a storefront
+            // capability, so this stays a glyph rather than a dead button.
+            trailing: AppSvgImage.asset(
+              DailyMartImageConst.scanner,
+              color: cs.onSurfaceVariant,
+              width: AppSpacing.xl3,
+              height: AppSpacing.xl3,
+            ),
           ),
         );
       },

@@ -75,7 +75,7 @@ class _CollapsingHeaderSheetState extends State<CollapsingHeaderSheet> {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final shapes = Theme.of(context).extension<AppShapes>() ?? AppShapes.standard;
+    final shapes = context.appShapes;
 
     return SizedBox.expand(
       child: ColoredBox(

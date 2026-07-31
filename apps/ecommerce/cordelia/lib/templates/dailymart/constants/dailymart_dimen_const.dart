@@ -1,3 +1,6 @@
+import 'package:core/core/theme/app_spacing.dart';
+import 'package:flutter/widgets.dart';
+
 /// The DailyMart pack's fixed sizes (spec sheet §3). `controlHeight` is the
 /// one to reach for; the other two are the pack's only declared exceptions,
 /// so a fourth height sharing their value is drift, not a decision.
@@ -67,10 +70,19 @@ abstract final class DailyMartDimenConst {
   static const double bottomFadeHeight = 120;
   static const double detailBottomFadeHeight = 160;
 
-  /// Bottom spacer under any scroll view that floats a control over
+  /// Bottom clearance for any scroll view that floats a control over
   /// [bottomFadeHeight] — Home's cart pill, Edit Profile's Save Changes,
   /// Select Address's Add New Address — so the last row clears it.
-  static const double floatingActionScrollInset = 100;
+  ///
+  /// Derived, not a constant: the floating CTA sits at
+  /// `paddingOf(context).bottom + lg` above the device edge, so a static
+  /// clearance runs short by exactly the home-indicator inset on notched
+  /// devices (the old fixed 100 was ~2px under on a 34px-inset phone).
+  static double floatingActionScrollInset(BuildContext context) =>
+      MediaQuery.paddingOf(context).bottom +
+      AppSpacing.lg +
+      ctaHeight +
+      AppSpacing.xl2;
 
   /// The floating Filter pill on Search results — 52px tall at radius 40,
   /// the pack's one recorded off-token radius (spec sheet §2).

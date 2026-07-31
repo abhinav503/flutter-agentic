@@ -33,9 +33,9 @@ class DailyMartConfirmSheetContent extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
 
-    return SafeArea(
-      top: false,
-      child: Padding(
+    // No SafeArea — the chromeless AppBottomSheet presenting this
+    // (`showDailyMartConfirmSheet`) already pads the bottom device inset.
+    return Padding(
         padding: const EdgeInsets.fromLTRB(
           AppSpacing.lg,
           AppSpacing.xl4,
@@ -72,7 +72,6 @@ class DailyMartConfirmSheetContent extends StatelessWidget {
             ),
           ],
         ),
-      ),
     );
   }
 }

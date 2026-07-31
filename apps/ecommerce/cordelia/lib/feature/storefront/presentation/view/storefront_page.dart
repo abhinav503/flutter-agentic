@@ -79,6 +79,11 @@ class _StorefrontPageState extends BasePageState<StorefrontPage> {
 
   Future<void> _applyTemplateTheme() async {
     final config = await _templateThemeConfig(widget.store.templateId);
+    // Session-guarded like dispose(): if this visit was replaced (tab jump
+    // to another store) or popped while the asset load was in flight, the
+    // stale config must not land on the successor's — or the app default's —
+    // theme.
+    if (!_activeStore.isCurrentSession(_storeSession)) return;
     _activeTheme?.apply(config);
   }
 

@@ -6,11 +6,9 @@ import 'package:core/core/base/base_screen.dart';
 import 'package:core/core/theme/app_spacing.dart';
 
 import 'package:cordelia/enums/order_status.dart';
-import 'package:cordelia/templates/dailymart/constants/dailymart_dimen_const.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_text_style_const.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_value_const.dart';
-import 'package:cordelia/templates/dailymart/widgets/dailymart_bottom_fade.dart';
-import 'package:cordelia/templates/dailymart/widgets/dailymart_header_row.dart';
+import 'package:cordelia/templates/dailymart/widgets/dailymart_screen_body.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_outline_button.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_section_header.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_sheet.dart';
@@ -94,34 +92,29 @@ class _TrackOrderScreenState extends BaseScreenState<TrackOrderScreen> {
     return ColoredBox(
       color: Theme.of(context).colorScheme.surface,
       child: SafeArea(
-        // The Cancel CTA re-adds the device inset itself (see below), so the
-        // fade behind it can bleed to the edge.
+        // The bottom edge belongs to the shell (its CTA clearance or device
+        // inset), so the fade behind the CTA can bleed to the edge.
         bottom: false,
-        child: Stack(
-          // The scroll view shrink-wraps its content; without expanding, a
-          // short order ends the stack early and the positioned fade + CTA
-          // pin to the content's bottom edge, not the device's.
-          fit: StackFit.expand,
-          children: [
-            SingleChildScrollView(
-              padding: EdgeInsets.fromLTRB(
-                AppSpacing.lg,
-                AppSpacing.base,
-                AppSpacing.lg,
-                // Clears the floating CTA when there is one; otherwise just
-                // the device inset, since nothing is docked over the content.
-                canCancel
-                    ? DailyMartDimenConst.floatingActionScrollInset
-                    : MediaQuery.paddingOf(context).bottom + AppSpacing.lg,
-              ),
-              child: Column(
+        child: DailyMartScreenBody(
+          title: DailyMartValueConst.trackOrderTitle,
+          onBack: () => context.pop(),
+          gap: AppSpacing.xl2,
+          // Not in the kit's frame, which gives this screen no action at
+          // all — but the shopper self-cancel is a shipped capability and
+          // this pack's order card has no room for it, so dropping it
+          // would cost dailymart shoppers a feature rather than reproduce
+          // a design decision. Floating over the fade, not a full-width
+          // docked bar: this pack has exactly one docked surface (the Cart
+          // screen's checkout bar) and this isn't it (spec sheet §8).
+          floatingAction: canCancel
+              ? DailyMartOutlineButton(
+                  label: DailyMartValueConst.cancelOrderLabel,
+                  onTap: _confirmCancel,
+                )
+              : null,
+          body: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  DailyMartHeaderRow(
-                    title: DailyMartValueConst.trackOrderTitle,
-                    onBack: () => context.pop(),
-                  ),
-                  const SizedBox(height: AppSpacing.xl2),
                   const DailyMartSectionHeader(
                     title: DailyMartValueConst.orderListLabel,
                   ),
@@ -185,32 +178,6 @@ class _TrackOrderScreenState extends BaseScreenState<TrackOrderScreen> {
                   DailyMartOrderStatusTimeline(order: order),
                 ],
               ),
-            ),
-            // Not in the kit's frame, which gives this screen no action at
-            // all — but the shopper self-cancel is a shipped capability and
-            // this pack's order card has no room for it, so dropping it
-            // would cost dailymart shoppers a feature rather than reproduce
-            // a design decision. Floating over the fade, not a full-width
-            // docked bar: this pack has exactly one docked surface (the Cart
-            // screen's checkout bar) and this isn't it (spec sheet §8).
-            if (canCancel) ...[
-              const Positioned(
-                left: 0,
-                right: 0,
-                bottom: 0,
-                child: DailyMartBottomFade(),
-              ),
-              Positioned(
-                left: AppSpacing.lg,
-                right: AppSpacing.lg,
-                bottom: MediaQuery.paddingOf(context).bottom + AppSpacing.lg,
-                child: DailyMartOutlineButton(
-                  label: DailyMartValueConst.cancelOrderLabel,
-                  onTap: _confirmCancel,
-                ),
-              ),
-            ],
-          ],
         ),
       ),
     );

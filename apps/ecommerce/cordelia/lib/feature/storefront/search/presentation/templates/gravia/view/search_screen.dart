@@ -149,6 +149,11 @@ class _SearchScreenState extends BaseScreenState<SearchScreen> {
 
   @override
   Widget body(BuildContext context) {
+    // The sheet's scroll content bleeds to the device edge — every state
+    // branch re-adds the bottom inset itself, or the last row sits under the
+    // home indicator / gesture bar.
+    final bottomInset = MediaQuery.paddingOf(context).bottom;
+
     return BlocConsumer<SearchBloc, SearchState>(
       listener: (context, state) {
         if (state case SearchError(:final message)) showSnackBar(message);
@@ -165,12 +170,19 @@ class _SearchScreenState extends BaseScreenState<SearchScreen> {
           // short bodies (a few suggestions) would float mid-sheet.
           topAligned: true,
           child: switch (state) {
-            SearchLoading() => const SearchSkeletonBody(
-              key: ValueKey('loading'),
+            SearchLoading() => Padding(
+              key: const ValueKey('loading'),
+              padding: EdgeInsets.only(bottom: bottomInset),
+              child: const SearchSkeletonBody(),
             ),
             SearchError() => Padding(
               key: const ValueKey('error'),
-              padding: const EdgeInsets.symmetric(vertical: AppSpacing.xl4),
+              padding: EdgeInsets.fromLTRB(
+                0,
+                AppSpacing.xl4,
+                0,
+                AppSpacing.xl4 + bottomInset,
+              ),
               child: ErrorView(
                 message: GraviaValueConst.searchLoadErrorMessage,
                 onRetry: () =>
@@ -186,7 +198,12 @@ class _SearchScreenState extends BaseScreenState<SearchScreen> {
             ) =>
               Padding(
                 key: const ValueKey('loaded'),
-                padding: const EdgeInsets.symmetric(vertical: AppSpacing.xl4),
+                padding: EdgeInsets.fromLTRB(
+                  0,
+                  AppSpacing.xl4,
+                  0,
+                  AppSpacing.xl4 + bottomInset,
+                ),
                 child: query.isEmpty
                     ? _browseBody(search)
                     : _resultsBody(query, searching, results, resultsError),

@@ -33,7 +33,7 @@ class DailyMartProductReviewsSection extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
     final shapes =
-        Theme.of(context).extension<AppShapes>() ?? AppShapes.standard;
+        context.appShapes;
     final hairline =
         context.appColors.dockedHairline;
 

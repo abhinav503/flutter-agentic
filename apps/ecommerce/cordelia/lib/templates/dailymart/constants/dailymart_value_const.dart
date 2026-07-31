@@ -74,9 +74,9 @@ abstract final class DailyMartValueConst {
 
   /// The filter sheet's two field labels, each doubling as the title of the
   /// picklist sheet that field opens. The options themselves are
-  /// `ProductSortOption.label` / `ProductPriceFilter.label` — shared with
-  /// gravia, since they name a sort model both templates run rather than
-  /// anything this pack draws differently.
+  /// `ProductSortOption.label` / `ProductPriceFilter.label` (app-wide
+  /// `ValueConst` copy) — shared with gravia, since they name a sort model
+  /// both templates run rather than anything this pack draws differently.
   static const sortSheetTitle = 'Sort by';
   static const priceSheetTitle = 'Price';
   static const categoryDetailsEmptyTitle = 'Nothing here';
@@ -296,10 +296,10 @@ abstract final class DailyMartValueConst {
   static String orderSummaryLabel(int count, DateTime placedAt) =>
       '$count ${count.plural('item')} · ${placedAt.asFilterDate}';
 
-  /// The order card's status pill. Its own copy rather than
-  /// `OrderStatusX.label`, which reads from `GraviaValueConst` — and the
-  /// same four words this pack's timeline steps use, so a card and the
-  /// Track Order screen behind it can't name one status two ways.
+  /// The order card's status pill. Its own copy rather than gravia's
+  /// `GraviaOrderStatusLabelX` wording — and the same four words this
+  /// pack's timeline steps use, so a card and the Track Order screen behind
+  /// it can't name one status two ways.
   static String orderStatusLabel(OrderStatus status) => switch (status) {
     OrderStatus.pending => orderStepPlacedLabel,
     OrderStatus.inProcess => orderStepOnTheWayLabel,
@@ -351,7 +351,7 @@ abstract final class DailyMartValueConst {
 
   /// The shopper-facing refund note; null for [RefundStatus.none], where no
   /// money was ever taken back. This pack's own wording rather than
-  /// `RefundStatusX.label`, which reads from `GraviaValueConst`.
+  /// gravia's `GraviaRefundStatusLabelX`.
   static String? refundStatusLabel(RefundStatus status) => switch (status) {
     RefundStatus.none => null,
     RefundStatus.pending => 'Processing',

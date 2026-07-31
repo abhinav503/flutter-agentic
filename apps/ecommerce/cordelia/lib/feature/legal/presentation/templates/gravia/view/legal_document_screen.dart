@@ -7,6 +7,7 @@ import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/blocks/collapsing_header_sheet.dart';
 
 import 'package:cordelia/templates/gravia/constants/gravia_color_const.dart';
+import 'package:cordelia/templates/gravia/constants/gravia_dimen_const.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_text_style_const.dart';
 import 'package:cordelia/templates/gravia/widgets/gravia_hero_header.dart';
 
@@ -39,13 +40,20 @@ class _LegalDocumentScreenState extends BaseScreenState<LegalDocumentScreen> {
       children: [
         Expanded(
           child: CollapsingHeaderSheet(
-            initialHeaderHeight: 110,
+            initialHeaderHeight: GraviaDimenConst.headerHeightCompact,
             header: GraviaHeroHeader(
               title: widget.content.title,
               onBack: () => context.pop(),
             ),
             body: Padding(
-              padding: const EdgeInsets.all(AppSpacing.lg),
+              // The sheet scrolls to the device edge — the last paragraph
+              // re-adds the bottom inset itself.
+              padding: EdgeInsets.fromLTRB(
+                AppSpacing.lg,
+                AppSpacing.lg,
+                AppSpacing.lg,
+                AppSpacing.lg + MediaQuery.paddingOf(context).bottom,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

@@ -58,7 +58,7 @@ class AppChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final shapes = Theme.of(context).extension<AppShapes>() ?? AppShapes.standard;
+    final shapes = context.appShapes;
     final bg = selected
         ? (selectedBackgroundColor ?? cs.primaryContainer)
         : (backgroundColor ?? cs.surfaceContainerHighest);

@@ -12,12 +12,11 @@ import 'package:cordelia/constants/app_routes.dart';
 import 'package:cordelia/feature/storefront/address/domain/entities/address_entity.dart';
 import 'package:cordelia/feature/storefront/cart/domain/entities/cart_item_entity.dart';
 import 'package:cordelia/feature/storefront/cart/presentation/cubit/cart_cubit.dart';
-import 'package:cordelia/templates/dailymart/constants/dailymart_dimen_const.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_text_style_const.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_value_const.dart';
-import 'package:cordelia/templates/dailymart/widgets/dailymart_bottom_fade.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_header_row.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_primary_button.dart';
+import 'package:cordelia/templates/dailymart/widgets/dailymart_screen_body.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_product_list_tile.dart';
 
 import '../../../bloc/checkout_bloc.dart';
@@ -110,15 +109,23 @@ class _CheckoutScreenState extends BaseScreenState<CheckoutScreen> {
               ),
               Expanded(
                 child: AppSwitcher(
-                  child: state is CheckoutSuccess
-                      ? OrderSuccessBody(onTrackOrder: _trackOrder)
-                      : _Form(
-                          address: _address,
-                          items: items,
-                          busy: state is CheckoutSubmitting,
-                          onChangeAddress: _changeAddress,
-                          onSubmit: () => _submit(items),
-                        ),
+                  child: switch (state) {
+                    CheckoutSuccess() => OrderSuccessBody(
+                      onTrackOrder: _trackOrder,
+                    ),
+                    CheckoutIdle() ||
+                    CheckoutSubmitting() ||
+                    CheckoutFailure() => _Form(
+                      address: _address,
+                      items: items,
+                      busy: switch (state) {
+                        CheckoutSubmitting() => true,
+                        _ => false,
+                      },
+                      onChangeAddress: _changeAddress,
+                      onSubmit: () => _submit(items),
+                    ),
+                  },
                 ),
               ),
             ],
@@ -149,59 +156,39 @@ class _Form extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
 
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.lg,
-            AppSpacing.xl4,
-            AppSpacing.lg,
-            // Clears the CTA floating over the fade.
-            DailyMartDimenConst.floatingActionScrollInset,
+    // Headerless shell — the checkout header row stays pinned above the
+    // success/form switcher, so this body renders under it.
+    return DailyMartScreenBody(
+      topPadding: AppSpacing.xl4,
+      floatingAction: DailyMartPrimaryButton(
+        label: DailyMartValueConst.continueToPaymentLabel,
+        // Submitting spans the whole flow (payment intent, provider
+        // checkout, order placement), so the CTA stays loading throughout.
+        state: busy ? AppButtonState.loading : AppButtonState.idle,
+        onTap: busy ? null : onSubmit,
+      ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CheckoutAddressCard(address: address, onChange: onChangeAddress),
+          const SizedBox(height: AppSpacing.xl5),
+          Text(
+            DailyMartValueConst.orderListLabel,
+            style: DailyMartTextStyleConst.bodyLgSemibold(
+              tt,
+            ).copyWith(color: cs.onSurface),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              CheckoutAddressCard(address: address, onChange: onChangeAddress),
-              const SizedBox(height: AppSpacing.xl5),
-              Text(
-                DailyMartValueConst.orderListLabel,
-                style: DailyMartTextStyleConst.bodyLgSemibold(
-                  tt,
-                ).copyWith(color: cs.onSurface),
-              ),
-              const SizedBox(height: AppSpacing.xl2),
-              for (var i = 0; i < items.length; i++) ...[
-                if (i > 0) const SizedBox(height: AppSpacing.base),
-                DailyMartProductListTile(
-                  product: items[i].product,
-                  quantity: items[i].quantity,
-                  showStepper: false,
-                ),
-              ],
-            ],
-          ),
-        ),
-        const Positioned(
-          left: 0,
-          right: 0,
-          bottom: 0,
-          child: DailyMartBottomFade(),
-        ),
-        Positioned(
-          left: AppSpacing.lg,
-          right: AppSpacing.lg,
-          bottom: MediaQuery.paddingOf(context).bottom + AppSpacing.lg,
-          child: DailyMartPrimaryButton(
-            label: DailyMartValueConst.continueToPaymentLabel,
-            // Submitting spans the whole flow (payment intent, provider
-            // checkout, order placement), so the CTA stays loading throughout.
-            state: busy ? AppButtonState.loading : AppButtonState.idle,
-            onTap: busy ? null : onSubmit,
-          ),
-        ),
-      ],
+          const SizedBox(height: AppSpacing.xl2),
+          for (var i = 0; i < items.length; i++) ...[
+            if (i > 0) const SizedBox(height: AppSpacing.base),
+            DailyMartProductListTile(
+              product: items[i].product,
+              quantity: items[i].quantity,
+              showStepper: false,
+            ),
+          ],
+        ],
+      ),
     );
   }
 }

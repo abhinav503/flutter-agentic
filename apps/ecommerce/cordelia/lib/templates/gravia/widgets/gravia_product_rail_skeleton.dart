@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'package:core/core/theme/app_radius.dart';
 import 'package:core/core/theme/app_shapes_extension.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/shimmer_box.dart';
@@ -23,7 +22,7 @@ class GraviaProductRailSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cardRadius = BorderRadius.circular(
-      Theme.of(context).extension<AppShapes>()?.cardRadius ?? AppRadius.xlValue,
+      context.appShapes.cardRadius,
     );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

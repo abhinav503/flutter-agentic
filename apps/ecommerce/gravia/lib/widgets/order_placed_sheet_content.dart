@@ -29,7 +29,7 @@ class OrderPlacedSheetContent extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
     final shapes =
-        Theme.of(context).extension<AppShapes>() ?? AppShapes.standard;
+        context.appShapes;
 
     return Container(
       decoration: BoxDecoration(

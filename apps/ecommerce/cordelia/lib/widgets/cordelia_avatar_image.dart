@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show Uint8List;
 import 'package:flutter/material.dart';
 
 import 'package:core/core/ui/atoms/network_image.dart';
@@ -21,16 +22,22 @@ class CordeliaAvatarImage extends StatelessWidget {
   final double size;
   final BoxFit fit;
 
+  /// A photo picked this session but not yet saved — wins over everything on
+  /// [profile], so Edit Profile's picker previews it without composing a
+  /// throwaway entity copy.
+  final Uint8List? pickedBytes;
+
   const CordeliaAvatarImage({
     super.key,
     required this.profile,
     required this.size,
     this.fit = BoxFit.cover,
+    this.pickedBytes,
   });
 
   @override
   Widget build(BuildContext context) {
-    final bytes = profile.avatarBytes;
+    final bytes = pickedBytes ?? profile.avatarBytes;
 
     return ClipOval(
       child: SizedBox(

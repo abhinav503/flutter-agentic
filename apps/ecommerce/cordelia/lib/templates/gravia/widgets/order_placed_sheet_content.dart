@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import 'package:core/core/theme/app_colors_extension.dart';
 import 'package:core/core/theme/app_radius.dart';
-import 'package:core/core/theme/app_shapes_extension.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/concentric_circles.dart';
 import 'package:core/core/ui/atoms/svg_image.dart';
@@ -14,9 +13,9 @@ import 'package:cordelia/templates/gravia/widgets/gravia_primary_button.dart';
 
 /// The Cart screen's "Proceed to Checkout" confirmation. Unlike every other
 /// gravia sheet, the kit's spec has no title row and no close control — just
-/// a handle, the success graphic, copy, and the CTA — so this is built
-/// directly (`showOrderPlacedSheet` in `gravia_sheet.dart` calls
-/// `showModalBottomSheet` itself) rather than through `showGraviaSheet`.
+/// a handle, the success graphic, copy, and the CTA — so
+/// `showOrderPlacedSheet` presents it through `AppBottomSheet`'s chromeless
+/// mode rather than through `showGraviaSheet`.
 class OrderPlacedSheetContent extends StatelessWidget {
   final VoidCallback onTrackOrder;
 
@@ -26,62 +25,55 @@ class OrderPlacedSheetContent extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
-    final shapes =
-        Theme.of(context).extension<AppShapes>() ?? AppShapes.standard;
 
-    return Container(
-      decoration: BoxDecoration(
-        color: cs.surface,
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(shapes.sheetRadius),
-        ),
+    // The surface container and bottom device inset come from the chromeless
+    // AppBottomSheet presenting this (`showOrderPlacedSheet`); only the
+    // handle is drawn here, since the chromeless mode has no header.
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.xl4,
+        AppSpacing.xs2,
+        AppSpacing.xl4,
+        AppSpacing.xl2,
       ),
-      child: SafeArea(
-        top: false,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.xl4,
-            AppSpacing.xs2,
-            AppSpacing.xl4,
-            AppSpacing.xl2,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 44,
+            height: 3,
+            margin: const EdgeInsets.only(bottom: AppSpacing.xl4),
+            decoration: BoxDecoration(
+              color: context.appColors.sheetHairline,
+              borderRadius: AppRadius.full,
+            ),
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 44,
-                height: 3,
-                margin: const EdgeInsets.only(bottom: AppSpacing.xl4),
-                decoration: BoxDecoration(
-                  color: context.appColors.sheetHairline,
-                  borderRadius: AppRadius.full,
-                ),
-              ),
-              _SuccessIcon(cs: cs),
-              const SizedBox(height: AppSpacing.xl4),
-              Text(
-                GraviaValueConst.orderPlacedTitle,
-                textAlign: TextAlign.center,
-                style: GraviaTextStyleConst.displayXsBold(
-                  tt,
-                ).copyWith(color: cs.onSurface),
-              ),
-              const SizedBox(height: AppSpacing.base),
-              Text(
-                GraviaValueConst.orderPlacedSubtitle,
-                textAlign: TextAlign.center,
-                style: GraviaTextStyleConst.textSmRegular(
-                  tt,
-                ).copyWith(color: context.appColors.onSheetMuted),
-              ),
-              const SizedBox(height: AppSpacing.xl4),
-              GraviaPrimaryButton(
-                label: GraviaValueConst.trackYourOrderLabel,
-                onTap: onTrackOrder,
-              ),
-            ],
+          _SuccessIcon(cs: cs),
+          const SizedBox(height: AppSpacing.xl4),
+          Text(
+            GraviaValueConst.orderPlacedTitle,
+            textAlign: TextAlign.center,
+            style: GraviaTextStyleConst.displayXsBold(
+              tt,
+            ).copyWith(color: cs.onSurface),
           ),
-        ),
+          const SizedBox(height: AppSpacing.base),
+          Text(
+            GraviaValueConst.orderPlacedSubtitle,
+            textAlign: TextAlign.center,
+            style: GraviaTextStyleConst.textSmRegular(
+              tt,
+            ).copyWith(color: context.appColors.onSheetMuted),
+          ),
+          const SizedBox(height: AppSpacing.xl4),
+          GraviaPrimaryButton(
+            label: GraviaValueConst.trackYourOrderLabel,
+            onTap: () {
+              Navigator.of(context).pop();
+              onTrackOrder();
+            },
+          ),
+        ],
       ),
     );
   }

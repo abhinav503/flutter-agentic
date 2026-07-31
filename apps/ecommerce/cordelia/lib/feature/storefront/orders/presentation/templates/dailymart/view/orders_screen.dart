@@ -15,7 +15,7 @@ import 'package:cordelia/templates/dailymart/constants/dailymart_value_const.dar
 import 'package:cordelia/templates/dailymart/widgets/dailymart_bottom_fade.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_filter_chip.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_filter_pill.dart';
-import 'package:cordelia/templates/dailymart/widgets/dailymart_header_row.dart';
+import 'package:cordelia/templates/dailymart/widgets/dailymart_screen_body.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_search_input.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_sheet.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_top_switcher.dart';
@@ -277,17 +277,16 @@ class _List extends StatelessWidget {
   }
 }
 
-/// The scroll view every state sits in — header row pinned to the top of the
-/// content (this pack scrolls its header away rather than docking it), one
-/// padding recipe so a state swap never shifts the list sideways.
+/// The page shell every state sits in. The floating Filter pill lives
+/// *outside* the state switcher (only the loaded state shows it), so the
+/// loaded page pays the CTA clearance directly; the others clear the device
+/// inset alone via the shell's default.
 class _Page extends StatelessWidget {
   final Widget? controls;
   final Widget body;
 
   /// Only the loaded state floats the Filter pill, so only it needs the
-  /// taller bottom inset; the others clear the device inset alone. The
-  /// screen opts out of `SafeArea`'s bottom edge, so every branch has to
-  /// re-add it — a state that forgets ends under the home indicator.
+  /// taller bottom inset.
   final bool floatsFilterPill;
 
   const _Page({
@@ -298,29 +297,21 @@ class _Page extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) => SingleChildScrollView(
-    padding: EdgeInsets.fromLTRB(
-      AppSpacing.lg,
-      AppSpacing.base,
-      AppSpacing.lg,
-      floatsFilterPill
-          ? DailyMartDimenConst.floatingActionScrollInset
-          : MediaQuery.paddingOf(context).bottom + AppSpacing.lg,
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        DailyMartHeaderRow(
-          title: DailyMartValueConst.myOrdersTitle,
-          onBack: () => context.pop(),
-        ),
-        const SizedBox(height: AppSpacing.lg),
-        if (controls != null) ...[
-          controls!,
-          const SizedBox(height: AppSpacing.xl4),
-        ],
-        body,
-      ],
-    ),
+  Widget build(BuildContext context) => DailyMartScreenBody(
+    title: DailyMartValueConst.myOrdersTitle,
+    onBack: () => context.pop(),
+    bottomInset: floatsFilterPill
+        ? DailyMartDimenConst.floatingActionScrollInset(context)
+        : null,
+    body: controls == null
+        ? body
+        : Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              controls!,
+              const SizedBox(height: AppSpacing.xl4),
+              body,
+            ],
+          ),
   );
 }

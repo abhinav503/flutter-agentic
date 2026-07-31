@@ -147,4 +147,18 @@ abstract final class ValueConst {
   static const logoutConfirmMessage = 'Are you sure you want to log out?';
   static const profileLoadErrorMessage =
       'Something went wrong loading your profile.';
+
+  // ── Category Details filters — app-wide, not per-pack: both templates run
+  // the same sort model, so the option wording is shared (each pack still
+  // titles its own sheet).
+  static const sortRelevanceLabel = 'Relevance';
+  static const sortPriceLowToHighLabel = 'Price (Low to High)';
+  static const sortPriceHighToLowLabel = 'Price (High to Low)';
+  static const sortRatingHighToLowLabel = 'Rating (High to Low)';
+  static const sortDiscountHighToLowLabel = 'Discount (High to Low)';
+  static const priceFilterAllLabel = 'All Prices';
+  static const priceFilterUnder5Label = 'Under \$5';
+  static const priceFilter5To10Label = '\$5 - \$10';
+  static const priceFilter10To20Label = '\$10 - \$20';
+  static const priceFilterOver20Label = 'Over \$20';
 }

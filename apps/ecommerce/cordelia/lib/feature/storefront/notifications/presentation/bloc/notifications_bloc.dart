@@ -27,7 +27,12 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
       GetNotificationsParams(template: event.template),
     );
     result.fold(
-      (failure) => emit(NotificationsState.error(message: failure.message)),
+      (failure) => emit(
+        NotificationsState.error(
+          message: failure.message,
+          template: event.template,
+        ),
+      ),
       (sections) => emit(NotificationsState.loaded(sections: sections)),
     );
   }

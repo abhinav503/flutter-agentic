@@ -162,7 +162,7 @@ class _AppTextFieldState extends State<AppTextField> {
         : cs.outline;
 
     final shapes =
-        Theme.of(context).extension<AppShapes>() ?? AppShapes.standard;
+        context.appShapes;
     final radius =
         widget.borderRadius ?? BorderRadius.circular(shapes.inputRadius);
 

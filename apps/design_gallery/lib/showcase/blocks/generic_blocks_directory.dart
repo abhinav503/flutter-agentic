@@ -6,6 +6,7 @@ import 'package:core/core/ui/blocks/docked_bar.dart';
 import 'package:core/core/ui/blocks/docked_bar_overlap.dart';
 import 'package:core/core/ui/blocks/header_canvas.dart';
 import 'package:core/core/ui/blocks/hero_header.dart';
+import 'package:core/core/ui/blocks/hero_search_field_flight.dart';
 import 'package:core/core/ui/blocks/quantity_stepper.dart';
 import 'package:core/core/ui/blocks/section_header.dart';
 import 'package:core/core/ui/blocks/section_rail.dart';
@@ -152,8 +153,7 @@ WidgetbookFolder genericBlocksFolder() {
               builder: (context) {
                 final cs = Theme.of(context).colorScheme;
                 final shapes =
-                    Theme.of(context).extension<AppShapes>() ??
-                    AppShapes.standard;
+                    context.appShapes;
                 return DockedBarOverlap(
                   overlap: shapes.sheetRadius,
                   bar: DecoratedBox(
@@ -306,8 +306,7 @@ WidgetbookFolder genericBlocksFolder() {
               builder: (context) {
                 final cs = Theme.of(context).colorScheme;
                 final shapes =
-                    Theme.of(context).extension<AppShapes>() ??
-                    AppShapes.standard;
+                    context.appShapes;
                 return DockedBar(
                   child: Container(
                     height: 45,
@@ -476,6 +475,45 @@ WidgetbookFolder genericBlocksFolder() {
                 BottomNavBarItem(icon: Icons.person_outline, label: 'Profile'),
               ],
             ),
+          ),
+        ]),
+      ),
+      allVariants(
+        'HeroSearchFieldFlight',
+        // A Hero only animates during a route transition, so the showcase
+        // shows the wrapped bar at rest — the flight mechanics (straight
+        // RectTween, inert shuttle copy) only matter mid-navigation.
+        (context) => showcase(context, [
+          Variant(
+            'Wrapped search bar (at rest)',
+            HeroSearchFieldFlight(
+              tag: 'gallery-search-flight',
+              barBuilder: (context, {required bool interactive}) => Container(
+                height: 48,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                alignment: Alignment.centerLeft,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.search,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Search products',
+                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            width: 320,
           ),
         ]),
       ),

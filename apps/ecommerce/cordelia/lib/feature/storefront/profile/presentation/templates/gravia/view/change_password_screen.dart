@@ -13,14 +13,16 @@ import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/button.dart';
 import 'package:core/core/ui/blocks/collapsing_header_sheet.dart';
 import 'package:core/core/ui/blocks/docked_bar.dart';
-import '../../../bloc/change_password_bloc.dart';
 
-enum _ChangePasswordField { current, newPassword, confirm }
+import '../../../bloc/change_password_bloc.dart';
+import '../../../change_password_form.dart';
 
 /// Change Password form, reached from ProfileScreen's "Change Password"
 /// menu tile. Reauthenticates with the current password, then sets the new
 /// one — see `FirebaseAuthService.reauthenticate`/`updatePassword`. On
-/// success, shows a confirmation snackbar and pops back to Profile.
+/// success, shows a confirmation snackbar and pops back to Profile. All form
+/// behaviour lives in [ChangePasswordForm]; this screen renders only the
+/// pack's chrome.
 class ChangePasswordScreen extends BaseScreen {
   const ChangePasswordScreen({super.key});
 
@@ -29,68 +31,19 @@ class ChangePasswordScreen extends BaseScreen {
 }
 
 class _ChangePasswordScreenState extends BaseScreenState<ChangePasswordScreen>
-    with TextfieldValidations {
-  final _currentPasswordController = TextEditingController();
-  final _newPasswordController = TextEditingController();
-  final _confirmPasswordController = TextEditingController();
-
-  final Map<_ChangePasswordField, String> _errors = {};
-
+    with TextfieldValidations, ChangePasswordForm {
   @override
-  void dispose() {
-    _currentPasswordController.dispose();
-    _newPasswordController.dispose();
-    _confirmPasswordController.dispose();
-    super.dispose();
-  }
-
-  void _clearError(_ChangePasswordField field) {
-    if (_errors.containsKey(field)) setState(() => _errors.remove(field));
-  }
-
-  bool _validate() {
-    final errors = <_ChangePasswordField, String>{
-      _ChangePasswordField.current: ?validatePassword(
-        _currentPasswordController.text,
-      ),
-      _ChangePasswordField.newPassword: ?validatePassword(
-        _newPasswordController.text,
-      ),
-      _ChangePasswordField.confirm: ?validateConfirmPassword(
-        _confirmPasswordController.text,
-        _newPasswordController.text,
-      ),
-    };
-    if (errors.isNotEmpty) {
-      setState(() {
-        _errors
-          ..clear()
-          ..addAll(errors);
-      });
-    }
-    return errors.isEmpty;
-  }
-
-  void _submit() {
-    if (!_validate()) return;
-    context.read<ChangePasswordBloc>().add(
-      ChangePasswordEvent.submitted(
-        currentPassword: _currentPasswordController.text,
-        newPassword: _newPasswordController.text,
-      ),
-    );
-  }
+  String get passwordUpdatedMessage => GraviaValueConst.passwordUpdatedMessage;
 
   @override
   Widget body(BuildContext context) {
     return BlocConsumer<ChangePasswordBloc, ChangePasswordState>(
-      listener: (context, state) => switch (state) {
-        ChangePasswordSuccess() => _handleSuccess(),
-        ChangePasswordError(:final message) => showSnackBar(message),
-        _ => null,
-      },
+      listener: handleChangePasswordState,
       builder: (context, state) {
-        final isSaving = state is ChangePasswordSaving;
+        final isSaving = switch (state) {
+          ChangePasswordSaving() => true,
+          _ => false,
+        };
         return Column(
           children: [
             Expanded(
@@ -107,32 +60,32 @@ class _ChangePasswordScreenState extends BaseScreenState<ChangePasswordScreen>
                     children: [
                       GraviaFormField(
                         label: GraviaValueConst.currentPasswordLabel,
-                        controller: _currentPasswordController,
+                        controller: currentPasswordController,
                         hint: GraviaValueConst.currentPasswordHint,
                         obscureText: true,
-                        errorText: _errors[_ChangePasswordField.current],
+                        errorText: fieldErrors[ChangePasswordField.current],
                         onChanged: (_) =>
-                            _clearError(_ChangePasswordField.current),
+                            clearFieldError(ChangePasswordField.current),
                       ),
                       const SizedBox(height: AppSpacing.lg),
                       GraviaFormField(
                         label: GraviaValueConst.newPasswordLabel,
-                        controller: _newPasswordController,
+                        controller: newPasswordController,
                         hint: GraviaValueConst.newPasswordHint,
                         obscureText: true,
-                        errorText: _errors[_ChangePasswordField.newPassword],
+                        errorText: fieldErrors[ChangePasswordField.newPassword],
                         onChanged: (_) =>
-                            _clearError(_ChangePasswordField.newPassword),
+                            clearFieldError(ChangePasswordField.newPassword),
                       ),
                       const SizedBox(height: AppSpacing.lg),
                       GraviaFormField(
                         label: GraviaValueConst.confirmNewPasswordLabel,
-                        controller: _confirmPasswordController,
+                        controller: confirmPasswordController,
                         hint: GraviaValueConst.confirmNewPasswordHint,
                         obscureText: true,
-                        errorText: _errors[_ChangePasswordField.confirm],
+                        errorText: fieldErrors[ChangePasswordField.confirm],
                         onChanged: (_) =>
-                            _clearError(_ChangePasswordField.confirm),
+                            clearFieldError(ChangePasswordField.confirm),
                       ),
                     ],
                   ),
@@ -143,17 +96,12 @@ class _ChangePasswordScreenState extends BaseScreenState<ChangePasswordScreen>
               child: GraviaPrimaryButton(
                 label: GraviaValueConst.updatePasswordButtonLabel,
                 state: isSaving ? AppButtonState.loading : AppButtonState.idle,
-                onTap: isSaving ? null : _submit,
+                onTap: isSaving ? null : submitPassword,
               ),
             ),
           ],
         );
       },
     );
-  }
-
-  void _handleSuccess() {
-    showSnackBar(GraviaValueConst.passwordUpdatedMessage);
-    context.pop();
   }
 }

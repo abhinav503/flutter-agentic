@@ -7,7 +7,7 @@ import 'package:core/core/ui/atoms/common_glass_surface.dart';
 import 'package:core/core/ui/atoms/svg_image.dart';
 import 'package:core/core/ui/atoms/text_field.dart';
 
-import 'package:cordelia/widgets/hero_search_field_flight.dart';
+import 'package:core/core/ui/blocks/hero_search_field_flight.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_image_const.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_value_const.dart';
 
@@ -45,7 +45,7 @@ class SearchFieldBar extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final onOverlay = context.appColors.onOverlay;
     final shapes =
-        Theme.of(context).extension<AppShapes>() ?? AppShapes.standard;
+        context.appShapes;
 
     return CommonGlassSurface(
       borderRadius: BorderRadius.circular(shapes.inputRadius),
@@ -102,8 +102,7 @@ class SearchFieldBar extends StatelessWidget {
           _buildField(context, interactive: interactive),
       shuttleWrapper: (flightContext, child) {
         final shapes =
-            Theme.of(flightContext).extension<AppShapes>() ??
-            AppShapes.standard;
+            flightContext.appShapes;
         // Clipped to the same pill radius as the field itself — an
         // unclipped ColoredBox is a hard rectangle, so its corners would
         // peek out past the glass surface's rounded corners for the whole
