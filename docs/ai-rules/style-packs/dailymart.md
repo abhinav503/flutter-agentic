@@ -335,7 +335,7 @@ BottomNavBar (stacked variant)                    ← shell-owned, not per scree
 | Chrome | **No `AppBar`, ever** | Every screen builds its own header row as the first item in the scroll view. `BasePageState.buildAppBar` returns `null` for all tabs |
 | Scroll behaviour | Everything scrolls away, including the header | This pack has no pinned or collapsing header; `CollapsingHeaderSheet` is not used |
 | Body | Sections separated by `AppSpacing.xl4` | |
-| Persistent action | Floating controls over a bottom `surface→transparent` fade (`DailyMartBottomFade`) | Search floats the cart status pill (both browse and results modes — the kit's Filter pill was removed from Search, see §10); Product Details floats its cart-disc + Add To Cart row; Edit Profile floats Save Changes, Change Password floats Update Password, Checkout floats Continue to Payment, Add/Edit Address floats Add Address / Update Address, and Select Address floats Add New Address, all over the same fade with a `floatingActionScrollInset` spacer under the scroll content. A full-width *docked bar* is still **not** part of this pack — the Cart screen's checkout CTA (`DailyMartCartCheckoutBar`) is the one docked surface, a slim sheet-cornered region of that screen; the coupon row + totals (`DailyMartCartSummarySection`) scroll with the item cards rather than docking |
+| Persistent action | Floating controls over a bottom `surface→transparent` fade (`DailyMartBottomFade`) | Search floats the cart status pill (both browse and results modes — the kit's Filter pill was removed from Search, see §10); Product Details floats its cart-disc + Add To Cart row; Edit Profile floats Save Changes, Change Password floats Update Password, Checkout floats Continue to Payment, Add/Edit Address floats Add Address / Update Address, and Select Address floats Add New Address, all over the same fade with `floatingActionScrollInset(context)` — derived from the device inset, since the CTA sits at `paddingOf.bottom + lg` and a static clearance runs short on notched devices — under the scroll content (all via `DailyMartScreenBody`'s `floatingAction` slot, §13). A full-width *docked bar* is still **not** part of this pack — the Cart screen's checkout CTA (`DailyMartCartCheckoutBar`) is the one docked surface, a slim sheet-cornered region of that screen; the coupon row + totals (`DailyMartCartSummarySection`) scroll with the item cards rather than docking |
 | Cart presence outside the shell | `DailyMartCartStatusBar` — the floating-pill signature (primary fill, `floatingAction` shadow) | Screens pushed *outside* the shell (Product Details, Search's browse state) float it while the cart is non-empty; inside the shell the Cart tab itself is the affordance, so the shell never docks it |
 | Global nav | `BottomNavBar(variant: stacked)` — Home / Wishlist / Cart / Profile | Four tabs; the cart **is** a tab here (unlike gravia, where it's a docked status bar). Every storefront surface is now ported to this pack — the four tabs plus Checkout, Search, Category Details, Product Details, Edit Profile, Change Password, Select Address, Add/Edit Address, My Orders, Track Order and the legal document. Nothing falls through to a gravia screen, so two packs' visual languages never meet on one nav bar |
 
@@ -607,6 +607,7 @@ App-level presets under
 
 | Wrapper role | Wraps | This pack's instance |
 |---|---|---|
+| Screen shell | `SingleChildScrollView` (+ `Stack` when a CTA floats) | `DailyMartScreenBody` — the one `lg / base / lg` scroll-and-padding recipe every state of a screen swaps through (loading / loaded / error must share it, so a swap never shifts content or drops the bottom inset). Slots: `title`/`onBack`/`trailing` → `DailyMartHeaderRow` (or a `headerRow` override, or headerless for a tab root / body under a pinned header), `gap`, `topPadding`, `floatingAction` (docked over `DailyMartBottomFade` at `paddingOf.bottom + lg`, the scroll content clearing it via `floatingActionScrollInset(context)`), `bottomInset` override for tab roots whose nav bar owns the bottom edge, `fullBleedBody` for Home's peeking carousel. Every dailymart screen renders through it — never a re-typed private `_Page` (seven of those were deleted when it shipped) |
 | Full-width primary CTA | `AppButton` | `DailyMartPrimaryButton` — 56 px, pill, `bodyMdMedium` label |
 | Destructive / tinted inline pill | `AppButton` | `DailyMartOutlineButton` — 56 px pill, 1 px `cs.primary` border, primary label (the Filter sheet's Reset; the confirmation sheet's Cancel) |
 | Two half-width actions side by side | two buttons | `DailyMartActionPair` — outline + filled, `AppSpacing.lg` gap |
@@ -614,13 +615,13 @@ App-level presets under
 | Settings / profile row | core atoms (**not** `AppMenuTile` — that molecule's silhouette is a tinted icon *circle* on a bare surface, and this kit draws no circle and an explicit outline instead; every slot would need an override, same §12 reasoning as the product card) | `DailyMartMenuTile` — 52 px bordered strip at radius 12, 20 px glyph, 14/500 label, kit chevron; takes `asset` **or** `icon`, and a `trailing` slot for the Dark Mode switch |
 | Bounded-picklist trigger field | field-styled box | `DailyMartDropdownField` — `DailyMartFormField`'s exact chrome (56 px, radius 12, `cs.outline` border, 14/500 label) with the kit's `arrow-right` under a quarter turn, so a form mixing typed and picked values reads as one stack. Built for Add/Edit Address's City/Country, and reused by both filter sheets. The kit's *Filter sheet* draws its own shorter select (48 px, radius **10**); that variant is deliberately **not** built — one field silhouette across the pack beat a second control differing by 8 px and 2 px of radius, so the filter sheets take this one as-is |
 | Styled bottom-sheet chrome | `AppBottomSheet` | `showDailyMartSheet` — 24 px top radius, 64 × 5 drag handle, close disc left + centred `headingH5` title |
-| Chrome-free confirmation sheet | `showModalBottomSheet` | `showDailyMartConfirmSheet` + `DailyMartConfirmSheetContent` |
+| Chrome-free confirmation sheet | `AppBottomSheet` (chromeless — `showHeader: false`) | `showDailyMartConfirmSheet` + `DailyMartConfirmSheetContent` — the sheet container and bottom device inset come from core; the content carries its own centred title, and its two CTAs are the only exits |
 | Bounded-picklist selection sheet | sheet body | `DailyMartRadioSheetContent` → `AppRadioGroup` |
 | Back + centered-title / page-title header | — | `DailyMartHeaderRow` — back disc + flexible middle + optional trailing. This pack has no `HeroHeader`/`HeaderCanvas` usage (§8) |
 | Glass / icon header control | `AppIconButton` | `DailyMartIconDisc` (neutral `surfaceContainer` fill) / `.outlined` (transparent + `cs.outline` ring, Home's bell); takes `asset` or `icon`, **no glass** in this pack |
 | Single-select option chip | `AppChip` | `DailyMartChip` |
 | Selectable filter chip | `AppChip` (its selected state is a *tinted* fill with an ink label, and its radius comes from the theme's chip shape — which this pack pins to a pill; every slot would need an override, same §12 reasoning as the product card) | `DailyMartFilterChip` — 36 px at radius 16, primary fill + `onPrimary` label when selected, plain surface + `cs.outline` hairline when not (My Orders' status row) |
-| Typed search field that filters in place | `AppTextField` | `DailyMartSearchInput` — 48 px pill on `surfaceContainer @ .7`, leading kit glyph, no Hero and no has-query border (that's Search's own `DailyMartSearchFieldBar`; the taller tap-to-navigate one is `DailyMartSearchBar`) |
+| Typed search field that filters in place | `AppTextField` | `DailyMartSearchInput` — 48 px pill on `surfaceContainer @ .7` (`idleFill`), leading kit glyph. The row recipe lives only here: Search's `DailyMartSearchFieldBar` composes it in `bare` mode inside its own animated has-query container (fill lift + 1 px primary border), so the two can't drift; the taller tap-to-navigate one is `DailyMartSearchBar` |
 | Thumbnail / avatar / info badge | `AppNetworkImage` / `AppBadge` | `DailyMartAvatar` (52 circle), `DailyMartPill` (the pack's one static label pill — radius-full fill, `base` side padding, optional leading glyph and fixed-height mode; instances: the card's error-fill discount badge, Search's tinted category badge, the Reviews frame's amber rating pill) |
 | Quantity or numeric stepper | core atoms (not `QuantityStepper` — that block draws a bordered tinted pill around the controls, and this kit draws no container at all; overriding the pill away would fight every style slot, same §12 reasoning as the product card) | `DailyMartQuantityStepper` — kit `minus.svg` / count at Heading/H5 / kit `plus.svg`, bare on the surface |
 | Loading skeleton body | `ShimmerBox` + a grid/rail | `DailyMartProductGridSkeleton` (the one 2-column grid shimmer — Home, Search and Product Details render it instead of re-inlining `ChunkedGrid` + `ShimmerBox`), `DailyMartCategoryRailSkeleton`, `DailyMartPromoSkeleton` |
@@ -642,15 +643,16 @@ App-level presets under
 `showDailyMartConfirmSheet`, `DailyMartRadioSheetContent`
 (the Filter sheet left Search, but Add/Edit Address's City/Country pickers
 picked it up), `DailyMartDropdownField`, `DailyMartFilterChip`,
-`DailyMartSearchInput`,
+`DailyMartSearchInput`, `DailyMartScreenBody`,
 `DailyMartBottomFade`, `DailyMartCartStatusBar`, plus the
 `DailyMartElevation` shadow set. **Never re-implement `DailyMartIconDisc`
 inline** — three private forks of it (the card's favourite disc, Product
 Details' cart disc, the recent-search close button) have already been found
 and deleted; size/fill/ring are all parameters. The
 sheet chrome rides `AppBottomSheet` through `leading` / `centerTitle` /
-`handleSize` / `headerHeight` / `showCloseAction` params contributed back to
-core (each defaulting to the prior behaviour, per §12's table) —
+`handleSize` / `headerHeight` / `showCloseAction` / `showHeader` params
+contributed back to core (each defaulting to the prior behaviour, per §12's
+table) —
 `showCloseAction: false` because the pack closes through the leading disc,
 and a sheet with a trailing X as well reads as two competing exits.
 

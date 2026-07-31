@@ -554,6 +554,74 @@ two legal routes are also reachable from Signup, i.e. outside any
 storefront, where the switch's documented `null` fallback lands on gravia —
 the same default an unknown `template_id` takes.
 
+## Template audit — violations fixed + cross-pack promotions — DONE (2026-07-31)
+
+With both templates complete end-to-end, a four-track audit (duplication /
+forbidden patterns / shared-layer template-agnosticism / dispatch coverage)
+ran over cordelia, and everything it found was fixed in one sweep.
+`flutter analyze` clean workspace-wide; all tests pass except two
+pre-existing failures outside cordelia (doc_scanner's boot widget test and
+gravia-standalone's shell test, which makes real network calls).
+
+**Shared layers de-templated:**
+- `lib/enums/` no longer imports the gravia pack — order/refund/filter-period
+  `label` extensions moved to `templates/gravia/extensions/gravia_order_labels.dart`
+  (dailymart already had its own wording); sort/price-filter copy moved to the
+  app-wide `ValueConst`. The shared orders stack (entity → model → bloc) is
+  template-neutral again.
+- **Auth keeps the gravia look by design** (only kit available when it was
+  built) but no longer imports `templates/gravia/`: the widgets it uses are
+  now app-level `CordeliaFormField` / `CordeliaPrimaryButton` /
+  `CordeliaGlassIconButton` (`lib/widgets/`) with `CordeliaTextStyleConst` /
+  `CordeliaDimenConst` / `CordeliaColorConst` (`lib/constants/`); the gravia
+  pack consumes them via `typedef GraviaFormField = CordeliaFormField;`-style
+  aliases — zero gravia template churn, one implementation.
+- `StorefrontPage._applyTemplateTheme` is now session-guarded like `dispose`:
+  a visit replaced mid-asset-load (tab jump to another store) can no longer
+  stamp its theme onto its successor.
+
+**Cross-template duplication promoted** (the `QuantitySelection` shape):
+`EditProfileForm`, `ChangePasswordForm`, `AddressFormFields` (which also
+fixed gravia's address form accepting a 3-digit phone — both packs now run
+`validateName`/`validateMobile`), `signOutAndReturnToLogin`, one
+`AvatarSource` enum, `CordeliaAvatarImage.pickedBytes` (both avatar pickers
+stopped composing throwaway entities).
+
+**Dailymart layout promoted:** `DailyMartScreenBody` replaced seven private
+`_Page` copies and eight hand-built floating-CTA stacks;
+`floatingActionScrollInset` became a context method derived from the device
+inset (the static 100 ran ~2 px short on notched phones);
+`DailyMartSearchFieldBar` now composes `DailyMartSearchInput` (`bare` mode).
+
+**Core additions:** `context.appShapes` accessor (23 hand-typed
+`extension<AppShapes>()` lookups with three fallback spellings swept,
+including core atoms and gravia-standalone); `AppBottomSheet` chromeless mode
+(`showHeader: false` — the order-placed sheet and dailymart's confirm sheet
+ride it instead of raw `showModalBottomSheet`, and the hand-drawn drag handle
+recipe died); `HeroSearchFieldFlight` promoted to `core/ui/blocks/` with a
+Widgetbook entry; the missing `AppRadioRow` gallery entry; one
+pop-then-report contract across both packs' radio sheets.
+
+**Violations fixed:** all nine `state is X` checks → exhaustive switches;
+bottom insets on every state branch (ten screens' loading/error/empty
+branches, plus three pushed routes with none at all: signup, gravia legal,
+gravia search); gravia Profile + Notifications got skeleton bodies mirroring
+their loaded layouts (spinners deleted) and Discovery a store-list skeleton;
+`EditProfileBloc` got the `kIsWeb` short-circuit its siblings had;
+`EditProfileError`/`NotificationsError` now carry retry context;
+`OrdersBloc` no longer resets tab/filter/search when a warm-start refresh
+lands; header-height literals became tokens
+(`CordeliaDimenConst.authHeaderHeight*`, legal's `headerHeightCompact`).
+
+**New skill (2026-08-01):** `/add-storefront-template`
+(`docs/how-to/add-storefront-template.md`, both skill trees + Amazon Q) —
+the whole dailymart-proven process as a repeatable recipe: Figma-MCP kit
+sampling → theme preset + pack constants + spec-sheet contracts, frame
+inventory against the implemented surface table (discard-and-record for
+frames with no feature behind them), full end-to-end implementation over the
+unchanged shared layers, the review + cross-pack promotion sweep, and the
+doc/progress updates.
+
 ## Missing flows (fill these or explicitly defer)
 
 1. **Store onboarding** — how a creator signs up, creates a store, becomes its admin (roles/claims).
