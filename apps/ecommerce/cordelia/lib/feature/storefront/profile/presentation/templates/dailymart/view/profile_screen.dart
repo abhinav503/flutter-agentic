@@ -120,19 +120,14 @@ class _ProfileScreenState extends BaseScreenState<ProfileScreen> {
                           onTap: () => context.push(AppRoutes.changePassword),
                         ),
                         DailyMartMenuTile(
-                          // No kit export for an orders glyph — this pack
-                          // draws no Orders surface at all yet (see onTap).
+                          // No kit export for an orders glyph — the kit's own
+                          // list never draws this row.
                           icon: Icons.shopping_bag_outlined,
                           label: DailyMartValueConst.myOrdersLabel,
-                          // Unlike gravia, this template's shell has no
-                          // Orders tab and no Orders screen to push, so the
-                          // row states that plainly instead of opening
-                          // gravia's and mixing two packs on one nav bar.
-                          onTap: () => showSnackBar(
-                            DailyMartValueConst.comingSoonSubtitle(
-                              DailyMartValueConst.myOrdersLabel,
-                            ),
-                          ),
+                          // This template's shell has no Orders tab (gravia
+                          // reaches the same list through one), so the row is
+                          // the way in — a pushed screen, not a tab jump.
+                          onTap: () => context.push(AppRoutes.orders),
                         ),
                         DailyMartMenuTile(
                           asset: DailyMartImageConst.location,

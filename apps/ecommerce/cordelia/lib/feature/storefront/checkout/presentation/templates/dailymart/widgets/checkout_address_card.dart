@@ -115,10 +115,7 @@ class _TagPill extends StatelessWidget {
         horizontal: AppSpacing.xs,
         vertical: AppSpacing.xs4,
       ),
-      decoration: BoxDecoration(
-        color: cs.surface,
-        borderRadius: AppRadius.xl,
-      ),
+      decoration: BoxDecoration(color: cs.surface, borderRadius: AppRadius.xl),
       child: Text(
         label,
         style: DailyMartTextStyleConst.bodyXsMedium(

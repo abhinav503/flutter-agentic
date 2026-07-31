@@ -41,6 +41,16 @@ abstract final class AppRoutes {
   static const checkout = '/checkout';
   static const notifications = '/notifications';
 
+  /// `dailymart` only, same reasoning as [checkout]: gravia reaches its
+  /// orders through a shell tab, so there is no gravia page to switch to
+  /// until that changes.
+  static const orders = '/orders';
+
+  /// The order being tracked travels via GoRouter's `extra` — My Orders
+  /// already holds the whole list in memory, so re-fetching one by id would
+  /// be redundant. `dailymart` only, same as [orders].
+  static const trackOrder = '/track-order';
+
   /// Route pattern registered with GoRouter (`:id` path param).
   static const productDetails = '/product-details/:id';
 

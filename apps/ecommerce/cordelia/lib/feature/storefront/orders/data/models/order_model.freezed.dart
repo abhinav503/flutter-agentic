@@ -14,322 +14,623 @@ T _$identity<T>(T value) => value;
 
 /// @nodoc
 mixin _$OrderModel {
-
- String get id; String get status;// Defaulted: orders placed before the refund axis existed (and the
+  String get id;
+  String
+      get status; // Defaulted: orders placed before the refund axis existed (and the
 // fromEntity path) omit it — parsed to RefundStatus.none in toEntity.
-@JsonKey(name: 'refund_status') String get refundStatus;@JsonKey(name: 'placed_at') String get placedAt;@JsonKey(name: 'delivery_otp') String get deliveryOtp; List<OrderLineItemModel> get items;// Reuses AddressModel — the server serializes the snapshot through the
+  @JsonKey(name: 'refund_status')
+  String get refundStatus;
+  @JsonKey(name: 'placed_at')
+  String
+      get placedAt; // Defaulted: the bundled mock orders carry no timeline, and neither does
+// the fromEntity path.
+  @JsonKey(name: 'status_history')
+  List<OrderStatusChangeModel> get statusHistory;
+  @JsonKey(name: 'delivery_otp')
+  String
+      get deliveryOtp; // Defaulted: empty on the payment-less path, and absent from the mock
+// orders and from orders serialized before the field existed.
+  @JsonKey(name: 'payment_id')
+  String get paymentId;
+  List<OrderLineItemModel>
+      get items; // Reuses AddressModel — the server serializes the snapshot through the
 // same shape the /users/addresses endpoints use. Nullable: legacy orders
 // predate the field.
-@JsonKey(name: 'delivery_address') AddressModel? get deliveryAddress;
-/// Create a copy of OrderModel
-/// with the given fields replaced by the non-null parameter values.
-@JsonKey(includeFromJson: false, includeToJson: false)
-@pragma('vm:prefer-inline')
-$OrderModelCopyWith<OrderModel> get copyWith => _$OrderModelCopyWithImpl<OrderModel>(this as OrderModel, _$identity);
+  @JsonKey(name: 'delivery_address')
+  AddressModel? get deliveryAddress;
+
+  /// Create a copy of OrderModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @pragma('vm:prefer-inline')
+  $OrderModelCopyWith<OrderModel> get copyWith =>
+      _$OrderModelCopyWithImpl<OrderModel>(this as OrderModel, _$identity);
 
   /// Serializes this OrderModel to a JSON map.
   Map<String, dynamic> toJson();
 
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is OrderModel &&
+            (identical(other.id, id) || other.id == id) &&
+            (identical(other.status, status) || other.status == status) &&
+            (identical(other.refundStatus, refundStatus) ||
+                other.refundStatus == refundStatus) &&
+            (identical(other.placedAt, placedAt) ||
+                other.placedAt == placedAt) &&
+            const DeepCollectionEquality()
+                .equals(other.statusHistory, statusHistory) &&
+            (identical(other.deliveryOtp, deliveryOtp) ||
+                other.deliveryOtp == deliveryOtp) &&
+            (identical(other.paymentId, paymentId) ||
+                other.paymentId == paymentId) &&
+            const DeepCollectionEquality().equals(other.items, items) &&
+            (identical(other.deliveryAddress, deliveryAddress) ||
+                other.deliveryAddress == deliveryAddress));
+  }
 
-@override
-bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is OrderModel&&(identical(other.id, id) || other.id == id)&&(identical(other.status, status) || other.status == status)&&(identical(other.refundStatus, refundStatus) || other.refundStatus == refundStatus)&&(identical(other.placedAt, placedAt) || other.placedAt == placedAt)&&(identical(other.deliveryOtp, deliveryOtp) || other.deliveryOtp == deliveryOtp)&&const DeepCollectionEquality().equals(other.items, items)&&(identical(other.deliveryAddress, deliveryAddress) || other.deliveryAddress == deliveryAddress));
-}
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(
+      runtimeType,
+      id,
+      status,
+      refundStatus,
+      placedAt,
+      const DeepCollectionEquality().hash(statusHistory),
+      deliveryOtp,
+      paymentId,
+      const DeepCollectionEquality().hash(items),
+      deliveryAddress);
 
-@JsonKey(includeFromJson: false, includeToJson: false)
-@override
-int get hashCode => Object.hash(runtimeType,id,status,refundStatus,placedAt,deliveryOtp,const DeepCollectionEquality().hash(items),deliveryAddress);
-
-@override
-String toString() {
-  return 'OrderModel(id: $id, status: $status, refundStatus: $refundStatus, placedAt: $placedAt, deliveryOtp: $deliveryOtp, items: $items, deliveryAddress: $deliveryAddress)';
-}
-
-
+  @override
+  String toString() {
+    return 'OrderModel(id: $id, status: $status, refundStatus: $refundStatus, placedAt: $placedAt, statusHistory: $statusHistory, deliveryOtp: $deliveryOtp, paymentId: $paymentId, items: $items, deliveryAddress: $deliveryAddress)';
+  }
 }
 
 /// @nodoc
-abstract mixin class $OrderModelCopyWith<$Res>  {
-  factory $OrderModelCopyWith(OrderModel value, $Res Function(OrderModel) _then) = _$OrderModelCopyWithImpl;
-@useResult
-$Res call({
- String id, String status,@JsonKey(name: 'refund_status') String refundStatus,@JsonKey(name: 'placed_at') String placedAt,@JsonKey(name: 'delivery_otp') String deliveryOtp, List<OrderLineItemModel> items,@JsonKey(name: 'delivery_address') AddressModel? deliveryAddress
-});
+abstract mixin class $OrderModelCopyWith<$Res> {
+  factory $OrderModelCopyWith(
+          OrderModel value, $Res Function(OrderModel) _then) =
+      _$OrderModelCopyWithImpl;
+  @useResult
+  $Res call(
+      {String id,
+      String status,
+      @JsonKey(name: 'refund_status') String refundStatus,
+      @JsonKey(name: 'placed_at') String placedAt,
+      @JsonKey(name: 'status_history')
+      List<OrderStatusChangeModel> statusHistory,
+      @JsonKey(name: 'delivery_otp') String deliveryOtp,
+      @JsonKey(name: 'payment_id') String paymentId,
+      List<OrderLineItemModel> items,
+      @JsonKey(name: 'delivery_address') AddressModel? deliveryAddress});
 
-
-$AddressModelCopyWith<$Res>? get deliveryAddress;
-
+  $AddressModelCopyWith<$Res>? get deliveryAddress;
 }
+
 /// @nodoc
-class _$OrderModelCopyWithImpl<$Res>
-    implements $OrderModelCopyWith<$Res> {
+class _$OrderModelCopyWithImpl<$Res> implements $OrderModelCopyWith<$Res> {
   _$OrderModelCopyWithImpl(this._self, this._then);
 
   final OrderModel _self;
   final $Res Function(OrderModel) _then;
 
-/// Create a copy of OrderModel
-/// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? status = null,Object? refundStatus = null,Object? placedAt = null,Object? deliveryOtp = null,Object? items = null,Object? deliveryAddress = freezed,}) {
-  return _then(_self.copyWith(
-id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as String,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
-as String,refundStatus: null == refundStatus ? _self.refundStatus : refundStatus // ignore: cast_nullable_to_non_nullable
-as String,placedAt: null == placedAt ? _self.placedAt : placedAt // ignore: cast_nullable_to_non_nullable
-as String,deliveryOtp: null == deliveryOtp ? _self.deliveryOtp : deliveryOtp // ignore: cast_nullable_to_non_nullable
-as String,items: null == items ? _self.items : items // ignore: cast_nullable_to_non_nullable
-as List<OrderLineItemModel>,deliveryAddress: freezed == deliveryAddress ? _self.deliveryAddress : deliveryAddress // ignore: cast_nullable_to_non_nullable
-as AddressModel?,
-  ));
-}
-/// Create a copy of OrderModel
-/// with the given fields replaced by the non-null parameter values.
-@override
-@pragma('vm:prefer-inline')
-$AddressModelCopyWith<$Res>? get deliveryAddress {
-    if (_self.deliveryAddress == null) {
-    return null;
+  /// Create a copy of OrderModel
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? id = null,
+    Object? status = null,
+    Object? refundStatus = null,
+    Object? placedAt = null,
+    Object? statusHistory = null,
+    Object? deliveryOtp = null,
+    Object? paymentId = null,
+    Object? items = null,
+    Object? deliveryAddress = freezed,
+  }) {
+    return _then(_self.copyWith(
+      id: null == id
+          ? _self.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
+      status: null == status
+          ? _self.status
+          : status // ignore: cast_nullable_to_non_nullable
+              as String,
+      refundStatus: null == refundStatus
+          ? _self.refundStatus
+          : refundStatus // ignore: cast_nullable_to_non_nullable
+              as String,
+      placedAt: null == placedAt
+          ? _self.placedAt
+          : placedAt // ignore: cast_nullable_to_non_nullable
+              as String,
+      statusHistory: null == statusHistory
+          ? _self.statusHistory
+          : statusHistory // ignore: cast_nullable_to_non_nullable
+              as List<OrderStatusChangeModel>,
+      deliveryOtp: null == deliveryOtp
+          ? _self.deliveryOtp
+          : deliveryOtp // ignore: cast_nullable_to_non_nullable
+              as String,
+      paymentId: null == paymentId
+          ? _self.paymentId
+          : paymentId // ignore: cast_nullable_to_non_nullable
+              as String,
+      items: null == items
+          ? _self.items
+          : items // ignore: cast_nullable_to_non_nullable
+              as List<OrderLineItemModel>,
+      deliveryAddress: freezed == deliveryAddress
+          ? _self.deliveryAddress
+          : deliveryAddress // ignore: cast_nullable_to_non_nullable
+              as AddressModel?,
+    ));
   }
 
-  return $AddressModelCopyWith<$Res>(_self.deliveryAddress!, (value) {
-    return _then(_self.copyWith(deliveryAddress: value));
-  });
-}
-}
+  /// Create a copy of OrderModel
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $AddressModelCopyWith<$Res>? get deliveryAddress {
+    if (_self.deliveryAddress == null) {
+      return null;
+    }
 
+    return $AddressModelCopyWith<$Res>(_self.deliveryAddress!, (value) {
+      return _then(_self.copyWith(deliveryAddress: value));
+    });
+  }
+}
 
 /// Adds pattern-matching-related methods to [OrderModel].
 extension OrderModelPatterns on OrderModel {
-/// A variant of `map` that fallback to returning `orElse`.
-///
-/// It is equivalent to doing:
-/// ```dart
-/// switch (sealedClass) {
-///   case final Subclass value:
-///     return ...;
-///   case _:
-///     return orElse();
-/// }
-/// ```
+  /// A variant of `map` that fallback to returning `orElse`.
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case final Subclass value:
+  ///     return ...;
+  ///   case _:
+  ///     return orElse();
+  /// }
+  /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _OrderModel value)?  $default,{required TResult orElse(),}){
-final _that = this;
-switch (_that) {
-case _OrderModel() when $default != null:
-return $default(_that);case _:
-  return orElse();
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>(
+    TResult Function(_OrderModel value)? $default, {
+    required TResult orElse(),
+  }) {
+    final _that = this;
+    switch (_that) {
+      case _OrderModel() when $default != null:
+        return $default(_that);
+      case _:
+        return orElse();
+    }
+  }
 
-}
-}
-/// A `switch`-like method, using callbacks.
-///
-/// Callbacks receives the raw object, upcasted.
-/// It is equivalent to doing:
-/// ```dart
-/// switch (sealedClass) {
-///   case final Subclass value:
-///     return ...;
-///   case final Subclass2 value:
-///     return ...;
-/// }
-/// ```
+  /// A `switch`-like method, using callbacks.
+  ///
+  /// Callbacks receives the raw object, upcasted.
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case final Subclass value:
+  ///     return ...;
+  ///   case final Subclass2 value:
+  ///     return ...;
+  /// }
+  /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _OrderModel value)  $default,){
-final _that = this;
-switch (_that) {
-case _OrderModel():
-return $default(_that);case _:
-  throw StateError('Unexpected subclass');
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>(
+    TResult Function(_OrderModel value) $default,
+  ) {
+    final _that = this;
+    switch (_that) {
+      case _OrderModel():
+        return $default(_that);
+      case _:
+        throw StateError('Unexpected subclass');
+    }
+  }
 
-}
-}
-/// A variant of `map` that fallback to returning `null`.
-///
-/// It is equivalent to doing:
-/// ```dart
-/// switch (sealedClass) {
-///   case final Subclass value:
-///     return ...;
-///   case _:
-///     return null;
-/// }
-/// ```
+  /// A variant of `map` that fallback to returning `null`.
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case final Subclass value:
+  ///     return ...;
+  ///   case _:
+  ///     return null;
+  /// }
+  /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _OrderModel value)?  $default,){
-final _that = this;
-switch (_that) {
-case _OrderModel() when $default != null:
-return $default(_that);case _:
-  return null;
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>(
+    TResult? Function(_OrderModel value)? $default,
+  ) {
+    final _that = this;
+    switch (_that) {
+      case _OrderModel() when $default != null:
+        return $default(_that);
+      case _:
+        return null;
+    }
+  }
 
-}
-}
-/// A variant of `when` that fallback to an `orElse` callback.
-///
-/// It is equivalent to doing:
-/// ```dart
-/// switch (sealedClass) {
-///   case Subclass(:final field):
-///     return ...;
-///   case _:
-///     return orElse();
-/// }
-/// ```
+  /// A variant of `when` that fallback to an `orElse` callback.
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case Subclass(:final field):
+  ///     return ...;
+  ///   case _:
+  ///     return orElse();
+  /// }
+  /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String status, @JsonKey(name: 'refund_status')  String refundStatus, @JsonKey(name: 'placed_at')  String placedAt, @JsonKey(name: 'delivery_otp')  String deliveryOtp,  List<OrderLineItemModel> items, @JsonKey(name: 'delivery_address')  AddressModel? deliveryAddress)?  $default,{required TResult orElse(),}) {final _that = this;
-switch (_that) {
-case _OrderModel() when $default != null:
-return $default(_that.id,_that.status,_that.refundStatus,_that.placedAt,_that.deliveryOtp,_that.items,_that.deliveryAddress);case _:
-  return orElse();
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>(
+    TResult Function(
+            String id,
+            String status,
+            @JsonKey(name: 'refund_status') String refundStatus,
+            @JsonKey(name: 'placed_at') String placedAt,
+            @JsonKey(name: 'status_history')
+            List<OrderStatusChangeModel> statusHistory,
+            @JsonKey(name: 'delivery_otp') String deliveryOtp,
+            @JsonKey(name: 'payment_id') String paymentId,
+            List<OrderLineItemModel> items,
+            @JsonKey(name: 'delivery_address') AddressModel? deliveryAddress)?
+        $default, {
+    required TResult orElse(),
+  }) {
+    final _that = this;
+    switch (_that) {
+      case _OrderModel() when $default != null:
+        return $default(
+            _that.id,
+            _that.status,
+            _that.refundStatus,
+            _that.placedAt,
+            _that.statusHistory,
+            _that.deliveryOtp,
+            _that.paymentId,
+            _that.items,
+            _that.deliveryAddress);
+      case _:
+        return orElse();
+    }
+  }
 
-}
-}
-/// A `switch`-like method, using callbacks.
-///
-/// As opposed to `map`, this offers destructuring.
-/// It is equivalent to doing:
-/// ```dart
-/// switch (sealedClass) {
-///   case Subclass(:final field):
-///     return ...;
-///   case Subclass2(:final field2):
-///     return ...;
-/// }
-/// ```
+  /// A `switch`-like method, using callbacks.
+  ///
+  /// As opposed to `map`, this offers destructuring.
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case Subclass(:final field):
+  ///     return ...;
+  ///   case Subclass2(:final field2):
+  ///     return ...;
+  /// }
+  /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String status, @JsonKey(name: 'refund_status')  String refundStatus, @JsonKey(name: 'placed_at')  String placedAt, @JsonKey(name: 'delivery_otp')  String deliveryOtp,  List<OrderLineItemModel> items, @JsonKey(name: 'delivery_address')  AddressModel? deliveryAddress)  $default,) {final _that = this;
-switch (_that) {
-case _OrderModel():
-return $default(_that.id,_that.status,_that.refundStatus,_that.placedAt,_that.deliveryOtp,_that.items,_that.deliveryAddress);case _:
-  throw StateError('Unexpected subclass');
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>(
+    TResult Function(
+            String id,
+            String status,
+            @JsonKey(name: 'refund_status') String refundStatus,
+            @JsonKey(name: 'placed_at') String placedAt,
+            @JsonKey(name: 'status_history')
+            List<OrderStatusChangeModel> statusHistory,
+            @JsonKey(name: 'delivery_otp') String deliveryOtp,
+            @JsonKey(name: 'payment_id') String paymentId,
+            List<OrderLineItemModel> items,
+            @JsonKey(name: 'delivery_address') AddressModel? deliveryAddress)
+        $default,
+  ) {
+    final _that = this;
+    switch (_that) {
+      case _OrderModel():
+        return $default(
+            _that.id,
+            _that.status,
+            _that.refundStatus,
+            _that.placedAt,
+            _that.statusHistory,
+            _that.deliveryOtp,
+            _that.paymentId,
+            _that.items,
+            _that.deliveryAddress);
+      case _:
+        throw StateError('Unexpected subclass');
+    }
+  }
 
-}
-}
-/// A variant of `when` that fallback to returning `null`
-///
-/// It is equivalent to doing:
-/// ```dart
-/// switch (sealedClass) {
-///   case Subclass(:final field):
-///     return ...;
-///   case _:
-///     return null;
-/// }
-/// ```
+  /// A variant of `when` that fallback to returning `null`
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case Subclass(:final field):
+  ///     return ...;
+  ///   case _:
+  ///     return null;
+  /// }
+  /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String status, @JsonKey(name: 'refund_status')  String refundStatus, @JsonKey(name: 'placed_at')  String placedAt, @JsonKey(name: 'delivery_otp')  String deliveryOtp,  List<OrderLineItemModel> items, @JsonKey(name: 'delivery_address')  AddressModel? deliveryAddress)?  $default,) {final _that = this;
-switch (_that) {
-case _OrderModel() when $default != null:
-return $default(_that.id,_that.status,_that.refundStatus,_that.placedAt,_that.deliveryOtp,_that.items,_that.deliveryAddress);case _:
-  return null;
-
-}
-}
-
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>(
+    TResult? Function(
+            String id,
+            String status,
+            @JsonKey(name: 'refund_status') String refundStatus,
+            @JsonKey(name: 'placed_at') String placedAt,
+            @JsonKey(name: 'status_history')
+            List<OrderStatusChangeModel> statusHistory,
+            @JsonKey(name: 'delivery_otp') String deliveryOtp,
+            @JsonKey(name: 'payment_id') String paymentId,
+            List<OrderLineItemModel> items,
+            @JsonKey(name: 'delivery_address') AddressModel? deliveryAddress)?
+        $default,
+  ) {
+    final _that = this;
+    switch (_that) {
+      case _OrderModel() when $default != null:
+        return $default(
+            _that.id,
+            _that.status,
+            _that.refundStatus,
+            _that.placedAt,
+            _that.statusHistory,
+            _that.deliveryOtp,
+            _that.paymentId,
+            _that.items,
+            _that.deliveryAddress);
+      case _:
+        return null;
+    }
+  }
 }
 
 /// @nodoc
 @JsonSerializable()
-
 class _OrderModel extends OrderModel {
-  const _OrderModel({required this.id, required this.status, @JsonKey(name: 'refund_status') this.refundStatus = 'NONE', @JsonKey(name: 'placed_at') required this.placedAt, @JsonKey(name: 'delivery_otp') required this.deliveryOtp, required final  List<OrderLineItemModel> items, @JsonKey(name: 'delivery_address') this.deliveryAddress}): _items = items,super._();
-  factory _OrderModel.fromJson(Map<String, dynamic> json) => _$OrderModelFromJson(json);
+  const _OrderModel(
+      {required this.id,
+      required this.status,
+      @JsonKey(name: 'refund_status') this.refundStatus = 'NONE',
+      @JsonKey(name: 'placed_at') required this.placedAt,
+      @JsonKey(name: 'status_history')
+      final List<OrderStatusChangeModel> statusHistory =
+          const <OrderStatusChangeModel>[],
+      @JsonKey(name: 'delivery_otp') required this.deliveryOtp,
+      @JsonKey(name: 'payment_id') this.paymentId = '',
+      required final List<OrderLineItemModel> items,
+      @JsonKey(name: 'delivery_address') this.deliveryAddress})
+      : _statusHistory = statusHistory,
+        _items = items,
+        super._();
+  factory _OrderModel.fromJson(Map<String, dynamic> json) =>
+      _$OrderModelFromJson(json);
 
-@override final  String id;
-@override final  String status;
+  @override
+  final String id;
+  @override
+  final String status;
 // Defaulted: orders placed before the refund axis existed (and the
 // fromEntity path) omit it — parsed to RefundStatus.none in toEntity.
-@override@JsonKey(name: 'refund_status') final  String refundStatus;
-@override@JsonKey(name: 'placed_at') final  String placedAt;
-@override@JsonKey(name: 'delivery_otp') final  String deliveryOtp;
- final  List<OrderLineItemModel> _items;
-@override List<OrderLineItemModel> get items {
-  if (_items is EqualUnmodifiableListView) return _items;
-  // ignore: implicit_dynamic_type
-  return EqualUnmodifiableListView(_items);
-}
+  @override
+  @JsonKey(name: 'refund_status')
+  final String refundStatus;
+  @override
+  @JsonKey(name: 'placed_at')
+  final String placedAt;
+// Defaulted: the bundled mock orders carry no timeline, and neither does
+// the fromEntity path.
+  final List<OrderStatusChangeModel> _statusHistory;
+// Defaulted: the bundled mock orders carry no timeline, and neither does
+// the fromEntity path.
+  @override
+  @JsonKey(name: 'status_history')
+  List<OrderStatusChangeModel> get statusHistory {
+    if (_statusHistory is EqualUnmodifiableListView) return _statusHistory;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_statusHistory);
+  }
+
+  @override
+  @JsonKey(name: 'delivery_otp')
+  final String deliveryOtp;
+// Defaulted: empty on the payment-less path, and absent from the mock
+// orders and from orders serialized before the field existed.
+  @override
+  @JsonKey(name: 'payment_id')
+  final String paymentId;
+  final List<OrderLineItemModel> _items;
+  @override
+  List<OrderLineItemModel> get items {
+    if (_items is EqualUnmodifiableListView) return _items;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_items);
+  }
 
 // Reuses AddressModel — the server serializes the snapshot through the
 // same shape the /users/addresses endpoints use. Nullable: legacy orders
 // predate the field.
-@override@JsonKey(name: 'delivery_address') final  AddressModel? deliveryAddress;
+  @override
+  @JsonKey(name: 'delivery_address')
+  final AddressModel? deliveryAddress;
 
-/// Create a copy of OrderModel
-/// with the given fields replaced by the non-null parameter values.
-@override @JsonKey(includeFromJson: false, includeToJson: false)
-@pragma('vm:prefer-inline')
-_$OrderModelCopyWith<_OrderModel> get copyWith => __$OrderModelCopyWithImpl<_OrderModel>(this, _$identity);
+  /// Create a copy of OrderModel
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @pragma('vm:prefer-inline')
+  _$OrderModelCopyWith<_OrderModel> get copyWith =>
+      __$OrderModelCopyWithImpl<_OrderModel>(this, _$identity);
 
-@override
-Map<String, dynamic> toJson() {
-  return _$OrderModelToJson(this, );
-}
+  @override
+  Map<String, dynamic> toJson() {
+    return _$OrderModelToJson(
+      this,
+    );
+  }
 
-@override
-bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _OrderModel&&(identical(other.id, id) || other.id == id)&&(identical(other.status, status) || other.status == status)&&(identical(other.refundStatus, refundStatus) || other.refundStatus == refundStatus)&&(identical(other.placedAt, placedAt) || other.placedAt == placedAt)&&(identical(other.deliveryOtp, deliveryOtp) || other.deliveryOtp == deliveryOtp)&&const DeepCollectionEquality().equals(other._items, _items)&&(identical(other.deliveryAddress, deliveryAddress) || other.deliveryAddress == deliveryAddress));
-}
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _OrderModel &&
+            (identical(other.id, id) || other.id == id) &&
+            (identical(other.status, status) || other.status == status) &&
+            (identical(other.refundStatus, refundStatus) ||
+                other.refundStatus == refundStatus) &&
+            (identical(other.placedAt, placedAt) ||
+                other.placedAt == placedAt) &&
+            const DeepCollectionEquality()
+                .equals(other._statusHistory, _statusHistory) &&
+            (identical(other.deliveryOtp, deliveryOtp) ||
+                other.deliveryOtp == deliveryOtp) &&
+            (identical(other.paymentId, paymentId) ||
+                other.paymentId == paymentId) &&
+            const DeepCollectionEquality().equals(other._items, _items) &&
+            (identical(other.deliveryAddress, deliveryAddress) ||
+                other.deliveryAddress == deliveryAddress));
+  }
 
-@JsonKey(includeFromJson: false, includeToJson: false)
-@override
-int get hashCode => Object.hash(runtimeType,id,status,refundStatus,placedAt,deliveryOtp,const DeepCollectionEquality().hash(_items),deliveryAddress);
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(
+      runtimeType,
+      id,
+      status,
+      refundStatus,
+      placedAt,
+      const DeepCollectionEquality().hash(_statusHistory),
+      deliveryOtp,
+      paymentId,
+      const DeepCollectionEquality().hash(_items),
+      deliveryAddress);
 
-@override
-String toString() {
-  return 'OrderModel(id: $id, status: $status, refundStatus: $refundStatus, placedAt: $placedAt, deliveryOtp: $deliveryOtp, items: $items, deliveryAddress: $deliveryAddress)';
-}
-
-
+  @override
+  String toString() {
+    return 'OrderModel(id: $id, status: $status, refundStatus: $refundStatus, placedAt: $placedAt, statusHistory: $statusHistory, deliveryOtp: $deliveryOtp, paymentId: $paymentId, items: $items, deliveryAddress: $deliveryAddress)';
+  }
 }
 
 /// @nodoc
-abstract mixin class _$OrderModelCopyWith<$Res> implements $OrderModelCopyWith<$Res> {
-  factory _$OrderModelCopyWith(_OrderModel value, $Res Function(_OrderModel) _then) = __$OrderModelCopyWithImpl;
-@override @useResult
-$Res call({
- String id, String status,@JsonKey(name: 'refund_status') String refundStatus,@JsonKey(name: 'placed_at') String placedAt,@JsonKey(name: 'delivery_otp') String deliveryOtp, List<OrderLineItemModel> items,@JsonKey(name: 'delivery_address') AddressModel? deliveryAddress
-});
+abstract mixin class _$OrderModelCopyWith<$Res>
+    implements $OrderModelCopyWith<$Res> {
+  factory _$OrderModelCopyWith(
+          _OrderModel value, $Res Function(_OrderModel) _then) =
+      __$OrderModelCopyWithImpl;
+  @override
+  @useResult
+  $Res call(
+      {String id,
+      String status,
+      @JsonKey(name: 'refund_status') String refundStatus,
+      @JsonKey(name: 'placed_at') String placedAt,
+      @JsonKey(name: 'status_history')
+      List<OrderStatusChangeModel> statusHistory,
+      @JsonKey(name: 'delivery_otp') String deliveryOtp,
+      @JsonKey(name: 'payment_id') String paymentId,
+      List<OrderLineItemModel> items,
+      @JsonKey(name: 'delivery_address') AddressModel? deliveryAddress});
 
-
-@override $AddressModelCopyWith<$Res>? get deliveryAddress;
-
+  @override
+  $AddressModelCopyWith<$Res>? get deliveryAddress;
 }
+
 /// @nodoc
-class __$OrderModelCopyWithImpl<$Res>
-    implements _$OrderModelCopyWith<$Res> {
+class __$OrderModelCopyWithImpl<$Res> implements _$OrderModelCopyWith<$Res> {
   __$OrderModelCopyWithImpl(this._self, this._then);
 
   final _OrderModel _self;
   final $Res Function(_OrderModel) _then;
 
-/// Create a copy of OrderModel
-/// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? status = null,Object? refundStatus = null,Object? placedAt = null,Object? deliveryOtp = null,Object? items = null,Object? deliveryAddress = freezed,}) {
-  return _then(_OrderModel(
-id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as String,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
-as String,refundStatus: null == refundStatus ? _self.refundStatus : refundStatus // ignore: cast_nullable_to_non_nullable
-as String,placedAt: null == placedAt ? _self.placedAt : placedAt // ignore: cast_nullable_to_non_nullable
-as String,deliveryOtp: null == deliveryOtp ? _self.deliveryOtp : deliveryOtp // ignore: cast_nullable_to_non_nullable
-as String,items: null == items ? _self._items : items // ignore: cast_nullable_to_non_nullable
-as List<OrderLineItemModel>,deliveryAddress: freezed == deliveryAddress ? _self.deliveryAddress : deliveryAddress // ignore: cast_nullable_to_non_nullable
-as AddressModel?,
-  ));
-}
-
-/// Create a copy of OrderModel
-/// with the given fields replaced by the non-null parameter values.
-@override
-@pragma('vm:prefer-inline')
-$AddressModelCopyWith<$Res>? get deliveryAddress {
-    if (_self.deliveryAddress == null) {
-    return null;
+  /// Create a copy of OrderModel
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $Res call({
+    Object? id = null,
+    Object? status = null,
+    Object? refundStatus = null,
+    Object? placedAt = null,
+    Object? statusHistory = null,
+    Object? deliveryOtp = null,
+    Object? paymentId = null,
+    Object? items = null,
+    Object? deliveryAddress = freezed,
+  }) {
+    return _then(_OrderModel(
+      id: null == id
+          ? _self.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
+      status: null == status
+          ? _self.status
+          : status // ignore: cast_nullable_to_non_nullable
+              as String,
+      refundStatus: null == refundStatus
+          ? _self.refundStatus
+          : refundStatus // ignore: cast_nullable_to_non_nullable
+              as String,
+      placedAt: null == placedAt
+          ? _self.placedAt
+          : placedAt // ignore: cast_nullable_to_non_nullable
+              as String,
+      statusHistory: null == statusHistory
+          ? _self._statusHistory
+          : statusHistory // ignore: cast_nullable_to_non_nullable
+              as List<OrderStatusChangeModel>,
+      deliveryOtp: null == deliveryOtp
+          ? _self.deliveryOtp
+          : deliveryOtp // ignore: cast_nullable_to_non_nullable
+              as String,
+      paymentId: null == paymentId
+          ? _self.paymentId
+          : paymentId // ignore: cast_nullable_to_non_nullable
+              as String,
+      items: null == items
+          ? _self._items
+          : items // ignore: cast_nullable_to_non_nullable
+              as List<OrderLineItemModel>,
+      deliveryAddress: freezed == deliveryAddress
+          ? _self.deliveryAddress
+          : deliveryAddress // ignore: cast_nullable_to_non_nullable
+              as AddressModel?,
+    ));
   }
 
-  return $AddressModelCopyWith<$Res>(_self.deliveryAddress!, (value) {
-    return _then(_self.copyWith(deliveryAddress: value));
-  });
-}
+  /// Create a copy of OrderModel
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $AddressModelCopyWith<$Res>? get deliveryAddress {
+    if (_self.deliveryAddress == null) {
+      return null;
+    }
+
+    return $AddressModelCopyWith<$Res>(_self.deliveryAddress!, (value) {
+      return _then(_self.copyWith(deliveryAddress: value));
+    });
+  }
 }
 
 // dart format on

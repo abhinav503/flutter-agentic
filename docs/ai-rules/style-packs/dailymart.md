@@ -271,8 +271,8 @@ portrait via `CordeliaAvatarImage`, not a glyph), the placeholder tabs'
 the coupon row's discount badge, and three Profile rows the kit's own list
 never offers — My Orders (`shopping_bag_outlined`), Dark Mode
 (`dark_mode_outlined`) and Terms & Conditions (`article_outlined`).
-(The Filter pill's `tune` left this list when the pill was removed from
-Search — see §10.)
+(The Filter pill needs no Material stand-in — the kit exports its funnel,
+shipped as `DailyMartImageConst.filterSolid`; see §10.)
 `_rounded`/`_outlined` are the one permitted family because DailyMart's
 glyphs are round-capped outlines — a `_sharp` or filled Material icon here
 is immediately visible and is a review finding.
@@ -337,7 +337,7 @@ BottomNavBar (stacked variant)                    ← shell-owned, not per scree
 | Body | Sections separated by `AppSpacing.xl4` | |
 | Persistent action | Floating controls over a bottom `surface→transparent` fade (`DailyMartBottomFade`) | Search floats the cart status pill (both browse and results modes — the kit's Filter pill was removed from Search, see §10); Product Details floats its cart-disc + Add To Cart row; Edit Profile floats Save Changes, Change Password floats Update Password, Checkout floats Continue to Payment, Add/Edit Address floats Add Address / Update Address, and Select Address floats Add New Address, all over the same fade with a `floatingActionScrollInset` spacer under the scroll content. A full-width *docked bar* is still **not** part of this pack — the Cart screen's checkout CTA (`DailyMartCartCheckoutBar`) is the one docked surface, a slim sheet-cornered region of that screen; the coupon row + totals (`DailyMartCartSummarySection`) scroll with the item cards rather than docking |
 | Cart presence outside the shell | `DailyMartCartStatusBar` — the floating-pill signature (primary fill, `floatingAction` shadow) | Screens pushed *outside* the shell (Product Details, Search's browse state) float it while the cart is non-empty; inside the shell the Cart tab itself is the affordance, so the shell never docks it |
-| Global nav | `BottomNavBar(variant: stacked)` — Home / Wishlist / Cart / Profile | Four tabs; the cart **is** a tab here (unlike gravia, where it's a docked status bar). Home, Cart, Checkout, Profile, Search, Product Details, Edit Profile, Change Password, Select Address, Add/Edit Address and the legal document are ported; **Wishlist** is the last tab still rendering an `EmptyState` rather than borrowing gravia's screen, which would put two packs' visual languages on one nav bar |
+| Global nav | `BottomNavBar(variant: stacked)` — Home / Wishlist / Cart / Profile | Four tabs; the cart **is** a tab here (unlike gravia, where it's a docked status bar). Every storefront surface is now ported to this pack — the four tabs plus Checkout, Search, Category Details, Product Details, Edit Profile, Change Password, Select Address, Add/Edit Address, My Orders, Track Order and the legal document. Nothing falls through to a gravia screen, so two packs' visual languages never meet on one nav bar |
 
 **Screens that deviate:** none within the storefront. Cordelia's own
 app-level screens (Splash, Onboarding, Login, Discovery) are not part of this
@@ -423,16 +423,116 @@ why they are field-shaped (10 px, bordered) rather than menu-shaped.
   so the row leaves when the new list lands and survives a failed delete
   (returning `true` would rebuild a `Dismissible` Flutter thinks it already
   dismissed).
-- **The floating Filter pill.** A 120 px green pill with icon + label,
-  radius 40, `0 12 12 rgba(87,111,133,.24)` shadow, floating over a
-  `surface → transparent` bottom fade so scrolling content dissolves behind
-  it rather than colliding with it. **Not currently shipped**: it was removed
-  from Search (filtering belongs to Category Details, which this pack hasn't
-  built yet — its dimens `filterPillHeight`/`filterPillRadius` and the
-  filter/sort copy in `DailyMartValueConst` are kept for that screen;
-  `DailyMartRadioSheetContent` found a consumer sooner, in Add/Edit
-  Address's City/Country pickers). Search's floating slot now docks the cart
-  status pill in both browse and results modes.
+- **The order card + status timeline** (frames `35`/`36`). The card is a
+  radius-16 `surfaceContainer @ .8` block — 88 px thumbnail, name, size,
+  total, and a compact 32 px "Track Order" (radius 8; the kit's 6 rounded to
+  the nearest token) filled with `surface` under its primary border. The kit
+  leaves that button unfilled, but the card's own `surfaceContainer @ .8`
+  sits within a few percent of white over the light canvas, so a transparent
+  button all but vanished into it; `surface` is a step off the card's fill
+  in both modes (white on light, the near-black canvas on dark), which a
+  literal white would not be. The kit draws a *product* in the card (image,
+  name, **category**, price); an order is a basket, so it renders its first
+  line item's photo and name with the category slot carrying the basket's
+  size **and placed date** on one line ("3 items · Mar 09, 2026" — the
+  compact `asFilterDate` form, since a second line would push the text block
+  past the 88 px thumbnail). A **status pill** (`DailyMartPill`) sits at the
+  end of the name line while the chip row is on **All**, and only then —
+  under Active / Completed / Cancelled the chip above the list already says
+  it, and repeating it per card costs the name its width. Its three fills
+  are preset roles, not new colours: `tintedPrimaryFill` for Delivered,
+  `errorContainer` for Cancelled, and the kit's reserved blue Action ramp
+  (`tertiaryContainer` / `tertiary`) for an order still moving — the first
+  screen in this pack to paint that ramp, which the preset holds precisely
+  for an accent like this. That stand-in only works where a
+  card *is* one row of a list — the kit repeats the card atop Track Order,
+  where it hid every line item but the first, so **that screen itemises the
+  order instead**: an "Order List" of Checkout's read-only row
+  (`DailyMartOrderItemRow`, `× quantity` in the stepper slot), with the
+  order's identity and total already covered by the Order Details and
+  Payment blocks below it. The timeline is a 24 px checked disc per step
+  over a 2 px connector, green as far as the order has got and
+  `outlineVariant` after.
+- **Frames `35`/`36` deviations**, all for the same reason — no data behind
+  them: the timeline shows **three** steps (Placed / On the way / Delivered,
+  or Placed / Cancelled), not the kit's six, because `OrderStatus` has no
+  Confirmed / Preparing / Shipped / Out-for-delivery; **Expected Delivery**
+  is dropped (no order carries an ETA); **Tracking ID** becomes the order id
+  plus, while the order is out, the delivery OTP. The frame's "Trending
+  product" heading over those rows is kit boilerplate from Home and is
+  titled "Order Details" instead, and frame `35`'s bottom nav (with the Cart
+  tab lit) isn't reproduced — My Orders is pushed from Profile, since this
+  template's shell has no Orders tab. Two *additions* to frame `36`, neither
+  in the kit: a **Payment** block (amount paid, payment id, and the refund
+  state on a cancelled order — an order screen that can't say where a refund
+  got to sends the shopper to support for something the app knows), and a
+  **Cancel Order** CTA for pre-dispatch orders, floating over the standard
+  `DailyMartBottomFade` rather than docking, since the Cart screen's
+  checkout bar remains this pack's only docked surface. Rows carrying an id
+  (order, payment) get a tap-to-copy Material glyph before the value — the
+  kit exports none.
+- **The floating Filter pill** (`DailyMartFilterPill`, kit node `6007:3304`).
+  A green pill with the solid funnel glyph + a 16/500 `onPrimary` label,
+  52 px at radius 40 under `DailyMartElevation.floatingAction`, shrink-wrapped
+  and centred over a `surface → transparent` bottom fade so scrolling content
+  dissolves behind it rather than colliding with it. The kit draws it on
+  Search; this pack **removed it from there** (Search's floating slot docks
+  the cart status pill in both modes) and ships it on **Category Details**,
+  where the kit's own gridded frame puts it, and on **My Orders** — the two
+  screens with a fixed result set to narrow. One addition to the kit's pill: a small
+  `onPrimary` dot after the label while a filter is applied — collapsed, the
+  pill is otherwise identical whether or not it's hiding orders, which
+  leaves a shopper looking at four of twenty with nothing explaining why.
+- **The Wishlist tab.** The kit ships **no** wishlist frame (its sourced
+  screens stop at Home, Search, Filter, the cart pair, checkout and the
+  order pair), so the tab is composed from recipes the pack already owns
+  rather than invented chrome: the tab root's back-less
+  `DailyMartHeaderRow` titled from the nav tab itself, `DailyMartProductGrid`
+  below it, and the Cart tab's empty-state-with-a-way-out. Every card's
+  heart is filled here by definition and tapping it removes the product —
+  the grid reads that straight off `FavouritesCubit`, so no `isFavourite`
+  override is needed (gravia's screen passes one). Like Cart, it has no bloc
+  of its own.
+- **Category Details** (kit frames `20`/`21`). The kit draws frame `20` as
+  its *Search results* screen — back disc + field, a `Result for "…"` /
+  "N founds" row, the 2-column card grid, Filter pill floating over the
+  fade. This pack gave Search a different body (a vertical list mixing
+  categories and products) and reserved the gridded frame for Category
+  Details, which is the screen that actually has a fixed result set to sort.
+  Two departures follow from reusing a search frame: the editable field
+  becomes the pack's idle tap-to-navigate `DailyMartSearchBar` (typing
+  belongs to Search, which this pushes, and it carries **no** hero tag —
+  the flight pairs Home's bar with Search's field, and a third claimant
+  would make the tag ambiguous), and the `Result for "Fruits"` heading
+  becomes the category's own name, since this screen is a category and not a
+  query. The count keeps the kit's "N founds". This is also the one screen
+  in the pack that floats **two** controls: the Filter pill with the cart
+  status pill stacked under it (§8 gives every out-of-shell screen that
+  pill), over one fade grown by the extra control's height.
+- **The filter sheets** (`DailyMartCategoryFilterSheetContent`,
+  `DailyMartOrdersFilterSheetContent`). Both wear kit frame `21`'s chrome —
+  centred title over a left close disc, bordered radius-10 select fields,
+  the `DailyMartActionPair` Reset / Apply at 56 px — and both commit on
+  Reset rather than only clearing the draft, since a Reset that needs a
+  second tap on Apply reads as a control that didn't work. Category Details
+  offers **Sort by** and **Price** (gravia's two axes, sharing
+  `ProductSortOption` / `ProductPriceFilter`); frame `21`'s third field,
+  Category, isn't reproduced — this screen is already scoped to the category
+  it was pushed with, and changing that is a different fetch, i.e.
+  navigation, not a filter over the loaded list. Each field opens its
+  picklist as a second sheet over the first (`DailyMartRadioSheetContent`),
+  which is why both sheet bodies take the screen's `showDailyMartSheet` as a
+  parameter — the extension lives on `BaseScreenState`.
+- **My Orders' Filter sheet** (`DailyMartOrdersFilterSheetContent`). The kit
+  frame `21` chrome over **dates only**: quick-pick chips (Last week / Last
+  month, re-tap to clear), one bordered `DailyMartDropdownField` opening the
+  Material range picker, and the `DailyMartActionPair` Reset / Apply. No
+  status control, unlike gravia's version — this template puts status on the
+  screen as the chip row, and a second status control in the sheet would let
+  the two disagree. Reset commits the cleared filter immediately rather than
+  only clearing the draft (`OrdersEvent.filterApplied` takes a nullable
+  filter for this); Reset that needs a second tap on Apply reads as a
+  control that didn't work.
 
 ---
 
@@ -512,13 +612,15 @@ App-level presets under
 | Two half-width actions side by side | two buttons | `DailyMartActionPair` — outline + filled, `AppSpacing.lg` gap |
 | Form text field | `AppTextField` | `DailyMartFormField` — 56 px at **radius 12**, `cs.outline` border, 14/500 ink label (§2 deviations — the pill belongs to the search field alone) |
 | Settings / profile row | core atoms (**not** `AppMenuTile` — that molecule's silhouette is a tinted icon *circle* on a bare surface, and this kit draws no circle and an explicit outline instead; every slot would need an override, same §12 reasoning as the product card) | `DailyMartMenuTile` — 52 px bordered strip at radius 12, 20 px glyph, 14/500 label, kit chevron; takes `asset` **or** `icon`, and a `trailing` slot for the Dark Mode switch |
-| Bounded-picklist trigger field | field-styled box | `DailyMartDropdownField` — `DailyMartFormField`'s exact chrome (56 px, radius 12, `cs.outline` border, 14/500 label) with the kit's `arrow-right` under a quarter turn, so a form mixing typed and picked values reads as one stack. Built for Add/Edit Address's City/Country. The kit's *Filter sheet* draws its own shorter select (48 px, radius **10**) — that one is still unbuilt, and lands with Category Details rather than being forced onto this control |
+| Bounded-picklist trigger field | field-styled box | `DailyMartDropdownField` — `DailyMartFormField`'s exact chrome (56 px, radius 12, `cs.outline` border, 14/500 label) with the kit's `arrow-right` under a quarter turn, so a form mixing typed and picked values reads as one stack. Built for Add/Edit Address's City/Country, and reused by both filter sheets. The kit's *Filter sheet* draws its own shorter select (48 px, radius **10**); that variant is deliberately **not** built — one field silhouette across the pack beat a second control differing by 8 px and 2 px of radius, so the filter sheets take this one as-is |
 | Styled bottom-sheet chrome | `AppBottomSheet` | `showDailyMartSheet` — 24 px top radius, 64 × 5 drag handle, close disc left + centred `headingH5` title |
 | Chrome-free confirmation sheet | `showModalBottomSheet` | `showDailyMartConfirmSheet` + `DailyMartConfirmSheetContent` |
 | Bounded-picklist selection sheet | sheet body | `DailyMartRadioSheetContent` → `AppRadioGroup` |
 | Back + centered-title / page-title header | — | `DailyMartHeaderRow` — back disc + flexible middle + optional trailing. This pack has no `HeroHeader`/`HeaderCanvas` usage (§8) |
 | Glass / icon header control | `AppIconButton` | `DailyMartIconDisc` (neutral `surfaceContainer` fill) / `.outlined` (transparent + `cs.outline` ring, Home's bell); takes `asset` or `icon`, **no glass** in this pack |
 | Single-select option chip | `AppChip` | `DailyMartChip` |
+| Selectable filter chip | `AppChip` (its selected state is a *tinted* fill with an ink label, and its radius comes from the theme's chip shape — which this pack pins to a pill; every slot would need an override, same §12 reasoning as the product card) | `DailyMartFilterChip` — 36 px at radius 16, primary fill + `onPrimary` label when selected, plain surface + `cs.outline` hairline when not (My Orders' status row) |
+| Typed search field that filters in place | `AppTextField` | `DailyMartSearchInput` — 48 px pill on `surfaceContainer @ .7`, leading kit glyph, no Hero and no has-query border (that's Search's own `DailyMartSearchFieldBar`; the taller tap-to-navigate one is `DailyMartSearchBar`) |
 | Thumbnail / avatar / info badge | `AppNetworkImage` / `AppBadge` | `DailyMartAvatar` (52 circle), `DailyMartPill` (the pack's one static label pill — radius-full fill, `base` side padding, optional leading glyph and fixed-height mode; instances: the card's error-fill discount badge, Search's tinted category badge, the Reviews frame's amber rating pill) |
 | Quantity or numeric stepper | core atoms (not `QuantityStepper` — that block draws a bordered tinted pill around the controls, and this kit draws no container at all; overriding the pill away would fight every style slot, same §12 reasoning as the product card) | `DailyMartQuantityStepper` — kit `minus.svg` / count at Heading/H5 / kit `plus.svg`, bare on the surface |
 | Loading skeleton body | `ShimmerBox` + a grid/rail | `DailyMartProductGridSkeleton` (the one 2-column grid shimmer — Home, Search and Product Details render it instead of re-inlining `ChunkedGrid` + `ShimmerBox`), `DailyMartCategoryRailSkeleton`, `DailyMartPromoSkeleton` |
@@ -539,7 +641,8 @@ App-level presets under
 `showDailyMartSheet` (+ the add-to-cart and order-placed sheets),
 `showDailyMartConfirmSheet`, `DailyMartRadioSheetContent`
 (the Filter sheet left Search, but Add/Edit Address's City/Country pickers
-picked it up), `DailyMartDropdownField`,
+picked it up), `DailyMartDropdownField`, `DailyMartFilterChip`,
+`DailyMartSearchInput`,
 `DailyMartBottomFade`, `DailyMartCartStatusBar`, plus the
 `DailyMartElevation` shadow set. **Never re-implement `DailyMartIconDisc`
 inline** — three private forks of it (the card's favourite disc, Product

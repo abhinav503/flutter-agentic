@@ -15,6 +15,18 @@ extension OrderStatusX on OrderStatus {
   bool get isUpcoming =>
       this == OrderStatus.pending || this == OrderStatus.inProcess;
 
+  /// The wire value [OrderStatusParse] reads back — `OrderStatus` in
+  /// `admin/src/lib/types.ts`. Only the mock-data write path needs it (the
+  /// server owns every real status change), but both `OrderModel` and
+  /// `OrderStatusChangeModel` serialize through it, so it lives here rather
+  /// than inline in one of them.
+  String get wireValue => switch (this) {
+    OrderStatus.pending => 'PENDING',
+    OrderStatus.inProcess => 'IN_PROCESS',
+    OrderStatus.delivered => 'DELIVERED',
+    OrderStatus.cancelled => 'CANCELLED',
+  };
+
   String get label => switch (this) {
     OrderStatus.pending => GraviaValueConst.pendingStatusLabel,
     OrderStatus.inProcess => GraviaValueConst.inProcessStatusLabel,

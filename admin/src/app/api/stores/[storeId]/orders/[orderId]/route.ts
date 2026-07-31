@@ -45,6 +45,8 @@ export async function PATCH(
     return NextResponse.json({ error: "Invalid status" }, { status: 400 });
   }
 
-  await updateOrderStatus(orderId, status);
-  return NextResponse.json({ order: serializeOrder({ ...order, status }) });
+  // Serialize what the update actually wrote — the pre-read `order` above is
+  // missing the timeline entry this transition just appended.
+  const updated = await updateOrderStatus(orderId, status);
+  return NextResponse.json({ order: serializeOrder(updated) });
 }

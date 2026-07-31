@@ -103,6 +103,19 @@ abstract final class DailyMartDimenConst {
   /// but stays its own constant because the two sit in unrelated components.
   static const double addressActionSize = 28;
 
+  /// My Orders / Track Order (kit frames `35`/`36`): the order card's square
+  /// thumbnail, the status chip row, the card's inline Track Order button,
+  /// and the timeline's step disc + connector.
+  ///
+  /// The chip is deliberately not [controlHeight] and the button is not
+  /// [ctaHeight] — both are secondary controls the kit sizes down, the same
+  /// way [cardActionSize] sits below the touch floor inside a card.
+  static const double orderThumbSize = 88;
+  static const double orderFilterChipHeight = 36;
+  static const double orderTrackButtonHeight = 32;
+  static const double orderStepDiscSize = 24;
+  static const double orderStepLineWidth = 2;
+
   /// The legal document's right-edge scroll rail — the kit draws the
   /// scrollbar as part of the page rather than as an overlay.
   static const double scrollRailWidth = 4;

@@ -6,6 +6,7 @@ import type {
   Order,
   OrderLineItem,
   OrderStatus,
+  OrderStatusChange,
   RefundStatus,
   UnitType,
 } from "./types";
@@ -55,6 +56,7 @@ function formatWeight(unitValue: number, unitType: UnitType): string {
 }
 
 function toOrder(id: string, data: FirebaseFirestore.DocumentData): Order {
+  const placedAt = (data.placedAt as string) ?? "";
   return {
     id,
     uid: data.uid as string,
@@ -66,7 +68,14 @@ function toOrder(id: string, data: FirebaseFirestore.DocumentData): Order {
     status: (data.status as OrderStatus) ?? "PENDING",
     total: (data.total as number) ?? 0,
     deliveryOtp: (data.deliveryOtp as string) ?? "",
-    placedAt: (data.placedAt as string) ?? "",
+    placedAt,
+    // Orders placed before the timeline existed have no history — synthesize
+    // the one entry we can date honestly. Their later transitions went
+    // unrecorded and can't be reconstructed, so the timeline shows those
+    // steps reached but undated.
+    statusHistory: (data.statusHistory as OrderStatusChange[]) ?? [
+      { status: "PENDING", at: placedAt },
+    ],
     razorpayPaymentId: (data.razorpayPaymentId as string) ?? "",
     razorpayOrderId: (data.razorpayOrderId as string) ?? "",
     // Orders placed before the refund axis existed have no field — default to
@@ -205,6 +214,8 @@ export async function createOrder(
       tx.update(productRefs[i], { stock: stock - quantity });
     }
 
+    const placedAt = new Date().toISOString();
+
     const newOrder: Omit<Order, "id"> = {
       uid,
       storeId,
@@ -213,7 +224,10 @@ export async function createOrder(
       status: "PENDING",
       total,
       deliveryOtp: generateOtp(),
-      placedAt: new Date().toISOString(),
+      placedAt,
+      // Placement is the timeline's first entry, sharing placedAt's exact
+      // value so the two can never disagree.
+      statusHistory: [{ status: "PENDING", at: placedAt }],
       razorpayPaymentId,
       razorpayOrderId,
       refundStatus: "NONE",
@@ -263,11 +277,42 @@ export async function getOrderForStore(
   return order.storeId === storeId ? order : null;
 }
 
+// Moves an order to [status] and appends the transition to its timeline,
+// returning the updated order so the caller serializes what was actually
+// written rather than patching its own pre-read copy.
+//
+// Transactional for the no-op guard, not for the write: re-picking the
+// current status must not append a second dated entry, and `arrayUnion`
+// can't dedupe that for us — the two entries differ by their timestamp, so
+// both would land and the timeline would show a step the order never took.
 export async function updateOrderStatus(
   orderId: string,
   status: OrderStatus,
-): Promise<void> {
-  await ordersRef().doc(orderId).update({ status });
+): Promise<Order> {
+  const orderRef = ordersRef().doc(orderId);
+
+  return adminDb.runTransaction(async (tx) => {
+    const snap = await tx.get(orderRef);
+    // Callers 404 on a missing order before reaching here, so this only
+    // fires if the doc was deleted mid-request.
+    if (!snap.exists) throw new Error(`Order not found: ${orderId}`);
+    const order = toOrder(snap.id, snap.data()!);
+    if (order.status === status) return order;
+
+    const change: OrderStatusChange = {
+      status,
+      at: new Date().toISOString(),
+    };
+    tx.update(orderRef, {
+      status,
+      statusHistory: FieldValue.arrayUnion(change),
+    });
+    return {
+      ...order,
+      status,
+      statusHistory: [...order.statusHistory, change],
+    };
+  });
 }
 
 export async function getOrderById(orderId: string): Promise<Order | null> {
@@ -331,8 +376,16 @@ export async function cancelOrder(orderId: string): Promise<Order> {
 
     const paid = order.razorpayPaymentId !== "";
     const refundStatus: RefundStatus = paid ? "PENDING" : "NONE";
+    const change: OrderStatusChange = {
+      status: "CANCELLED",
+      at: new Date().toISOString(),
+    };
 
-    tx.update(orderRef, { status: "CANCELLED", refundStatus });
+    tx.update(orderRef, {
+      status: "CANCELLED",
+      refundStatus,
+      statusHistory: FieldValue.arrayUnion(change),
+    });
     for (let i = 0; i < order.items.length; i++) {
       const productSnap = productSnaps[i];
       // A product deleted since the order was placed simply isn't restocked —
@@ -342,7 +395,12 @@ export async function cancelOrder(orderId: string): Promise<Order> {
       tx.update(productRefs[i], { stock: stock + order.items[i].quantity });
     }
 
-    return { ...order, status: "CANCELLED", refundStatus };
+    return {
+      ...order,
+      status: "CANCELLED",
+      refundStatus,
+      statusHistory: [...order.statusHistory, change],
+    };
   });
 }
 

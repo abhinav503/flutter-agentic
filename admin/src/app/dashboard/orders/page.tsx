@@ -126,7 +126,7 @@ export default function OrdersPage() {
       return;
     }
     try {
-      await setOrderStatus(order.id, status);
+      await setOrderStatus(order, status);
       toast.success("Order status updated");
     } catch {
       toast.error("Could not update order status");

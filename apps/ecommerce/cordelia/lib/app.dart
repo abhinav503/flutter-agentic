@@ -19,9 +19,17 @@ import 'package:cordelia/feature/storefront/cart/presentation/templates/dailymar
     as dailymart_cart;
 import 'package:cordelia/feature/storefront/cart/presentation/templates/gravia/view/cart_page.dart'
     as gravia_cart;
-import 'package:cordelia/feature/storefront/category_details/presentation/templates/gravia/view/category_details_page.dart';
+import 'package:cordelia/feature/storefront/category_details/presentation/templates/dailymart/view/category_details_page.dart'
+    as dailymart_category_details;
+import 'package:cordelia/feature/storefront/category_details/presentation/templates/gravia/view/category_details_page.dart'
+    as gravia_category_details;
 import 'package:cordelia/feature/storefront/checkout/presentation/templates/dailymart/view/checkout_page.dart'
     as dailymart_checkout;
+import 'package:cordelia/feature/storefront/orders/domain/entities/order_entity.dart';
+import 'package:cordelia/feature/storefront/orders/presentation/templates/dailymart/view/orders_page.dart'
+    as dailymart_orders;
+import 'package:cordelia/feature/storefront/orders/presentation/templates/dailymart/view/track_order_page.dart'
+    as dailymart_track_order;
 import 'package:cordelia/feature/storefront/favourites/presentation/cubit/favourites_cubit.dart';
 // Every template names its Notifications entry `NotificationsPage` (the class
 // name belongs to the role, not the pack), so both need a prefix to be
@@ -316,10 +324,17 @@ final _router = GoRouter(
               opacity: CurveTween(curve: Curves.easeInOut).animate(animation),
               child: child,
             ),
-        child: CategoryDetailsPage(
-          storeId: state.extra as String,
-          categoryId: state.pathParameters['id']!,
-          categoryName: state.uri.queryParameters['name'] ?? '',
+        child: StorefrontTemplateSwitch(
+          gravia: (_) => gravia_category_details.CategoryDetailsPage(
+            storeId: state.extra as String,
+            categoryId: state.pathParameters['id']!,
+            categoryName: state.uri.queryParameters['name'] ?? '',
+          ),
+          dailymart: (_) => dailymart_category_details.CategoryDetailsPage(
+            storeId: state.extra as String,
+            categoryId: state.pathParameters['id']!,
+            categoryName: state.uri.queryParameters['name'] ?? '',
+          ),
         ),
       ),
     ),
@@ -383,6 +398,42 @@ final _router = GoRouter(
         child: StorefrontTemplateSwitch(
           gravia: (_) => const gravia_notifications.NotificationsPage(),
           dailymart: (_) => const dailymart_notifications.NotificationsPage(),
+        ),
+      ),
+    ),
+    // My Orders and Track Order carry no template switch: gravia reaches the
+    // same list through a shell tab and has no Track Order screen at all, so
+    // both of these are `dailymart` pages until that changes (same shape as
+    // the checkout route).
+    GoRoute(
+      path: AppRoutes.orders,
+      // Fade, same reasoning as Select Address — pushed from a screen that
+      // puts its back disc in the same place.
+      pageBuilder: (context, state) => CustomTransitionPage<void>(
+        key: state.pageKey,
+        transitionDuration: const Duration(milliseconds: 350),
+        reverseTransitionDuration: const Duration(milliseconds: 300),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+            FadeTransition(
+              opacity: CurveTween(curve: Curves.easeInOut).animate(animation),
+              child: child,
+            ),
+        child: const dailymart_orders.OrdersPage(),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.trackOrder,
+      pageBuilder: (context, state) => CustomTransitionPage<void>(
+        key: state.pageKey,
+        transitionDuration: const Duration(milliseconds: 350),
+        reverseTransitionDuration: const Duration(milliseconds: 300),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+            FadeTransition(
+              opacity: CurveTween(curve: Curves.easeInOut).animate(animation),
+              child: child,
+            ),
+        child: dailymart_track_order.TrackOrderPage(
+          order: state.extra as OrderEntity,
         ),
       ),
     ),

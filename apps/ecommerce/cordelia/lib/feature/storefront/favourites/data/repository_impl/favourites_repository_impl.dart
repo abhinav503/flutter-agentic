@@ -14,12 +14,11 @@ class FavouritesRepositoryImpl
   const FavouritesRepositoryImpl(this._dataSource);
 
   @override
-  Future<Either<Failure, List<ProductEntity>>> getFavourites(
-    String storeId,
-  ) => handleRequest(() async {
-    final models = await _dataSource.getFavourites(storeId);
-    return right(models.map((m) => m.toEntity()).toList());
-  });
+  Future<Either<Failure, List<ProductEntity>>> getFavourites(String storeId) =>
+      handleRequest(() async {
+        final models = await _dataSource.getFavourites(storeId);
+        return right(models.map((m) => m.toEntity()).toList());
+      });
 
   @override
   Future<Either<Failure, void>> addFavourite(

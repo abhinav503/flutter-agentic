@@ -57,6 +57,12 @@ abstract final class DailyMartImageConst {
   static const cardSolid = '$_icons/card-solid.svg';
   static const profileSolid = '$_icons/profile-solid.svg';
 
+  /// The floating Filter pill's funnel — the kit's `Icon / solid / filter`,
+  /// so also solid rather than the §5 outline family. Ships 19.5 × 17.8 (a
+  /// bare glyph, no disc): give it a square box and let `BoxFit.contain`
+  /// letterbox it, same as [star] / [location].
+  static const filterSolid = '$_icons/filter-solid.svg';
+
   /// The **active** home tab — a filled house with a white smile cut into
   /// it, drawn in the brand green. Unlike every other icon here it must NOT
   /// be recoloured while active: an `srcIn` filter repaints the smile too

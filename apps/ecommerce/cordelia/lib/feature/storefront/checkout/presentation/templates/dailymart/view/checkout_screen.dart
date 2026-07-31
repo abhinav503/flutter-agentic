@@ -64,13 +64,10 @@ class _CheckoutScreenState extends BaseScreenState<CheckoutScreen> {
   /// optimistically on tap.
   void _onOrderPlaced() => context.read<CartCubit>().clear();
 
-  /// This template's shell has no Orders tab and no Orders screen yet, so the
-  /// success CTA says so instead of opening gravia's and putting two packs on
-  /// one nav bar — the same answer Profile's My Orders row gives. Re-point
-  /// this at the Orders route once the screen lands.
-  void _trackOrder() => showSnackBar(
-    DailyMartValueConst.comingSoonSubtitle(DailyMartValueConst.myOrdersLabel),
-  );
+  /// This template's shell has no Orders tab, so the success CTA pushes the
+  /// same routed My Orders screen Profile's row opens rather than switching
+  /// to one.
+  void _trackOrder() => context.push(AppRoutes.orders);
 
   @override
   SystemUiOverlayStyle? overlayStyle(BuildContext context) =>
@@ -105,9 +102,9 @@ class _CheckoutScreenState extends BaseScreenState<CheckoutScreen> {
                   title: DailyMartValueConst.checkoutTitle,
                   // Pops the whole route in both states, so from the success
                   // body this leaves checkout rather than returning to a form
-                  // whose order is already placed. It stays visible there (as
-                  // the kit draws it) because Track My Order has nowhere to go
-                  // yet — without it the shopper would be stranded.
+                  // whose order is already placed. It stays visible there, as
+                  // the kit draws it — Track My Order pushes My Orders on top
+                  // of this screen, so the back disc is still the way out.
                   onBack: () => context.pop(),
                 ),
               ),
@@ -166,10 +163,7 @@ class _Form extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CheckoutAddressCard(
-                address: address,
-                onChange: onChangeAddress,
-              ),
+              CheckoutAddressCard(address: address, onChange: onChangeAddress),
               const SizedBox(height: AppSpacing.xl5),
               Text(
                 DailyMartValueConst.orderListLabel,

@@ -1,5 +1,6 @@
 import 'package:cordelia/enums/order_status.dart';
 import 'package:cordelia/enums/orders_filter_period.dart';
+import 'package:cordelia/enums/orders_status_filter.dart';
 import 'package:cordelia/enums/orders_tab.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -47,6 +48,8 @@ class OrdersBloc extends Bloc<OrdersEvent, OrdersState> {
     on<OrdersTabChanged>(_onTabChanged);
     on<OrdersCancelled>(_onCancelled);
     on<OrdersFilterApplied>(_onFilterApplied);
+    on<OrdersStatusFilterChanged>(_onStatusFilterChanged);
+    on<OrdersSearched>(_onSearched);
   }
 
   static OrdersState _seed(String storeId) {
@@ -82,7 +85,7 @@ class OrdersBloc extends Bloc<OrdersEvent, OrdersState> {
   void _onTabChanged(OrdersTabChanged event, Emitter<OrdersState> emit) {
     switch (state) {
       case final OrdersLoaded loaded:
-        emit(loaded.copyWith(selectedTab: event.tab, cancelFailed: false));
+        _emitView(loaded.copyWith(selectedTab: event.tab), emit);
       case OrdersLoading():
       case OrdersError():
         break;
@@ -107,7 +110,7 @@ class OrdersBloc extends Bloc<OrdersEvent, OrdersState> {
         RefundStatus.pending,
       );
       _cache.save(optimistic);
-      emit(loaded.copyWith(orders: optimistic, cancelFailed: false));
+      _emitView(loaded.copyWith(orders: optimistic), emit);
 
       final result = await _cancelOrder(
         CancelOrderParams(storeId: _storeId, orderId: event.orderId),
@@ -116,13 +119,13 @@ class OrdersBloc extends Bloc<OrdersEvent, OrdersState> {
         (failure) {
           // Roll back to the pre-cancel list; the listener toasts the failure.
           _cache.save(loaded.orders);
-          emit(loaded.copyWith(cancelFailed: true));
+          emit(loaded.copyWith(cancelFailed: true, refreshFailed: false));
         },
         (serverOrder) {
           final reconciled = [...loaded.orders];
           reconciled[index] = serverOrder;
           _cache.save(reconciled);
-          emit(loaded.copyWith(orders: reconciled));
+          _emitView(loaded.copyWith(orders: reconciled), emit);
         },
       );
     }
@@ -137,17 +140,54 @@ class OrdersBloc extends Bloc<OrdersEvent, OrdersState> {
         deliveryOtp: order.deliveryOtp,
         items: order.items,
         deliveryAddress: order.deliveryAddress,
+        // Carried through so Track Order keeps its dated steps during the
+        // optimistic window; the server's reconciled order then brings the
+        // real CANCELLED entry.
+        statusHistory: order.statusHistory,
       );
 
-  void _onFilterApplied(OrdersFilterApplied event, Emitter<OrdersState> emit) {
+  void _onStatusFilterChanged(
+    OrdersStatusFilterChanged event,
+    Emitter<OrdersState> emit,
+  ) {
     switch (state) {
       case final OrdersLoaded loaded:
-        emit(loaded.copyWith(filter: event.filter, cancelFailed: false));
+        _emitView(loaded.copyWith(statusFilter: event.filter), emit);
       case OrdersLoading():
       case OrdersError():
         break;
     }
   }
+
+  void _onSearched(OrdersSearched event, Emitter<OrdersState> emit) {
+    switch (state) {
+      case final OrdersLoaded loaded:
+        _emitView(loaded.copyWith(searchTerm: event.term), emit);
+      case OrdersLoading():
+      case OrdersError():
+        break;
+    }
+  }
+
+  void _onFilterApplied(OrdersFilterApplied event, Emitter<OrdersState> emit) {
+    switch (state) {
+      case final OrdersLoaded loaded:
+        _emitView(loaded.copyWith(filter: event.filter), emit);
+      case OrdersLoading():
+      case OrdersError():
+        break;
+    }
+  }
+
+  /// Emits a view update with both one-shot flags cleared.
+  ///
+  /// The screen's listener consumes [OrdersLoaded.refreshFailed] and
+  /// [OrdersLoaded.cancelFailed] the moment they arrive, so any later
+  /// emission has to drop them — carried forward by `copyWith` they toast
+  /// again on every chip tap and, on `dailymart`'s Orders, on every
+  /// keystroke in the search field.
+  void _emitView(OrdersLoaded next, Emitter<OrdersState> emit) =>
+      emit(next.copyWith(cancelFailed: false, refreshFailed: false));
 
   void _emitLoaded(
     List<OrderEntity> orders,

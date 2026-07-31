@@ -1,5 +1,10 @@
 import 'package:core/core/extensions/num_extensions.dart';
 
+import 'package:cordelia/enums/order_status.dart';
+// For OrderPlacedAtX.asFilterDate — the order's own compact date form, so
+// the card and the filter sheet can't drift into two date formats.
+import 'package:cordelia/feature/storefront/orders/domain/entities/order_entity.dart';
+
 /// Copy used only by the `dailymart` template's storefront screens — scoped
 /// here rather than the app-wide `ValueConst` so each template words its own
 /// screens (same split as `GraviaValueConst`).
@@ -62,12 +67,31 @@ abstract final class DailyMartValueConst {
   static String searchNoResultsSubtitle(String query) =>
       'Nothing in this store matches "$query" yet.';
   static const categoryBadge = 'Category';
+
+  // ── Category details (kit frames `20`/`21`) ──────────────────────────────
+  /// The floating pill, and the title of the sheet it opens.
   static const filterLabel = 'Filter';
+
+  /// The filter sheet's two field labels, each doubling as the title of the
+  /// picklist sheet that field opens. The options themselves are
+  /// `ProductSortOption.label` / `ProductPriceFilter.label` — shared with
+  /// gravia, since they name a sort model both templates run rather than
+  /// anything this pack draws differently.
   static const sortSheetTitle = 'Sort by';
-  static const sortRelevance = 'Recommended';
-  static const sortPriceLowToHigh = 'Price: Low to High';
-  static const sortPriceHighToLow = 'Price: High to Low';
-  static const sortNameAtoZ = 'Name: A to Z';
+  static const priceSheetTitle = 'Price';
+  static const categoryDetailsEmptyTitle = 'Nothing here';
+  static const categoryDetailsEmptySubtitle =
+      'No products in this category match those filters.';
+  static const categoryDetailsErrorMessage = "Couldn't load this category.";
+
+  // ── Wishlist ─────────────────────────────────────────────────────────────
+  /// Titled from the nav tab ([navWishlist]) rather than its own const — the
+  /// kit ships no wishlist frame, and a screen whose header disagreed with
+  /// the tab that opened it would read as two different places.
+  static const wishlistEmptyTitle = 'Nothing saved yet';
+  static const wishlistEmptySubtitle =
+      'Tap the heart on a product and it will wait for you here.';
+  static const wishlistExploreAction = 'Start shopping';
 
   // ── Product details ──────────────────────────────────────────────────────
   static const productDetailsTitle = 'Product Details';
@@ -129,6 +153,7 @@ abstract final class DailyMartValueConst {
   static const orderPlacedMessage =
       "Thank you for your purchase! We're excited to let you know that your "
       'payment has been successfully processed. 🎉';
+
   /// The success frame's one CTA. The kit stacks this over an "E-Receipt"
   /// outline button; that half is dropped — there is no receipt document to
   /// open, and a second CTA that only apologises weakens the real one.
@@ -251,12 +276,131 @@ abstract final class DailyMartValueConst {
     'India',
   ];
 
+  // ── My Orders (kit frame `35`) ───────────────────────────────────────────
+  static const myOrdersTitle = 'My Orders';
+  static const ordersSearchHint = 'What are you looking for...';
+  static const ordersFilterAllLabel = 'All';
+  static const ordersFilterActiveLabel = 'Active';
+  static const ordersFilterCompletedLabel = 'Completed';
+  static const ordersFilterCancelledLabel = 'Cancelled';
+
+  /// The card's second line. The kit shows a product *category* there, which
+  /// an order doesn't have — an order is a basket, not a product — so it
+  /// carries the basket's size and the day it was placed instead: the two
+  /// facts that tell two orders of the same store apart at a glance.
+  ///
+  /// One line rather than two, so the card's three text rows still sit
+  /// against its 88 px thumbnail. The compact date form (no weekday, no
+  /// time) for the same reason — Track Order's timeline carries the full
+  /// stamp for anyone who needs the hour.
+  static String orderSummaryLabel(int count, DateTime placedAt) =>
+      '$count ${count.plural('item')} · ${placedAt.asFilterDate}';
+
+  /// The order card's status pill. Its own copy rather than
+  /// `OrderStatusX.label`, which reads from `GraviaValueConst` — and the
+  /// same four words this pack's timeline steps use, so a card and the
+  /// Track Order screen behind it can't name one status two ways.
+  static String orderStatusLabel(OrderStatus status) => switch (status) {
+    OrderStatus.pending => orderStepPlacedLabel,
+    OrderStatus.inProcess => orderStepOnTheWayLabel,
+    OrderStatus.delivered => orderStepDeliveredLabel,
+    OrderStatus.cancelled => orderStepCancelledLabel,
+  };
+
+  /// The floating Filter pill's sheet. Dates only — the status axis is
+  /// already on the screen as the chip row, and asking for it twice lets the
+  /// two disagree.
+  static const ordersDateRangeLabel = 'Date Range';
+  static const ordersAllTimeLabel = 'All time';
+  static String ordersDateRangeValue(DateTime from, DateTime to) =>
+      '${from.asFilterDate} - ${to.asFilterDate}';
+  static const ordersFilterLastWeekLabel = 'Last week';
+  static const ordersFilterLastMonthLabel = 'Last month';
+
+  /// Shared by both filter sheets (My Orders' and Category Details'), and
+  /// the kit's own wording on frame `21` — "Apply", not gravia's "Apply
+  /// Filter".
+  static const resetLabel = 'Reset';
+  static const applyLabel = 'Apply';
+
+  static const ordersLoadErrorMessage = "Couldn't load your orders.";
+  static const ordersEmptyTitle = 'No orders yet';
+  static const ordersEmptySubtitle =
+      'Your orders from this store will show up here.';
+  static const ordersNoResultsTitle = 'Nothing here';
+  static const ordersNoResultsSubtitle =
+      'No orders match that search or filter.';
+  static const orderCancelFailedMessage = "Couldn't cancel that order.";
+  static const ordersRefreshFailedMessage = "Couldn't refresh your orders.";
+
+  // ── Track Order (kit frame `36`) ─────────────────────────────────────────
+  static const trackOrderTitle = 'Track Order';
+  static const trackOrderAction = 'Track Order';
+  static const orderDetailsTitle = 'Order Details';
+  static const orderIdLabel = 'Order ID';
+  static const deliveryOtpLabel = 'Delivery OTP';
+  static const paymentTitle = 'Payment';
+  static const amountPaidLabel = 'Amount Paid';
+  static const paymentIdLabel = 'Payment ID';
+  static const refundLabel = 'Refund';
+  static const copiedMessage = 'Copied';
+
+  /// Shown in place of a payment id when the order went through the
+  /// test-mode payment-less path — there is no gateway reference to quote.
+  static const noOnlinePaymentLabel = 'Not paid online';
+
+  /// The shopper-facing refund note; null for [RefundStatus.none], where no
+  /// money was ever taken back. This pack's own wording rather than
+  /// `RefundStatusX.label`, which reads from `GraviaValueConst`.
+  static String? refundStatusLabel(RefundStatus status) => switch (status) {
+    RefundStatus.none => null,
+    RefundStatus.pending => 'Processing',
+    RefundStatus.processed => 'Refunded',
+    RefundStatus.failed => 'Refund failed',
+  };
+  static const orderStatusTitle = 'Order Status';
+  static const orderStepPlacedLabel = 'Order Placed';
+  static const orderStepOnTheWayLabel = 'On the way';
+  static const orderStepDeliveredLabel = 'Delivered';
+  static const orderStepCancelledLabel = 'Cancelled';
+
+  /// Shown under a step the order has reached but that predates the server
+  /// recording transition times — see `Order.statusHistory` in
+  /// `admin/src/lib/types.ts`.
+  static const orderStepUndatedLabel = 'Time not recorded';
+  static const orderStepPendingLabel = 'Pending';
+  static const cancelOrderLabel = 'Cancel Order';
+  static const cancelOrderTitle = 'Cancel this order?';
+  static const cancelOrderMessage =
+      "You'll be refunded if the order was paid for.";
+  static const cancelOrderConfirmLabel = 'Cancel Order';
+
+  /// The kit's timeline stamp — "Dec, 20 2025 - 9.30 AM". Its own formatter
+  /// rather than `OrderPlacedAtX`, which renders gravia's card format
+  /// ("Mon, Mar 9, 2026 at 10:15 AM"); the two packs date the same value
+  /// differently, so the format belongs with the pack's copy.
+  static String orderStepAt(DateTime at) {
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+    final hour = at.hour % 12 == 0 ? 12 : at.hour % 12;
+    final minute = at.minute.toString().padLeft(2, '0');
+    final period = at.hour < 12 ? 'AM' : 'PM';
+    return '${months[at.month - 1]}, ${at.day} ${at.year} - '
+        '$hour.$minute $period';
+  }
+
   // ── Cancel / confirm ─────────────────────────────────────────────────────
   static const cancelLabel = 'Cancel';
-
-  // ── Tabs not yet ported to this template ─────────────────────────────────
-  static const comingSoonTitle = 'Coming soon';
-  static String comingSoonSubtitle(String tab) =>
-      "$tab hasn't been built for the DailyMart storefront yet.";
-  static const comingSoonAction = 'Back to Home';
 }

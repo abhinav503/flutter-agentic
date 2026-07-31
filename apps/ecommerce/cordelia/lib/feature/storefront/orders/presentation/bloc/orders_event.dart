@@ -13,6 +13,16 @@ sealed class OrdersEvent with _$OrdersEvent {
   const factory OrdersEvent.cancelled({required String orderId}) =
       OrdersCancelled;
 
-  const factory OrdersEvent.filterApplied({required OrdersFilter filter}) =
+  /// A null [filter] clears the date constraint — what `dailymart`'s filter
+  /// sheet sends from Reset, and from Apply with no range picked. gravia's
+  /// sheet has no Reset and always passes one.
+  const factory OrdersEvent.filterApplied({OrdersFilter? filter}) =
       OrdersFilterApplied;
+
+  /// `dailymart`'s chip row and search field (kit frame `35`). Both narrow
+  /// the already-fetched list — neither re-queries the backend.
+  const factory OrdersEvent.statusFilterChanged({
+    required OrdersStatusFilter filter,
+  }) = OrdersStatusFilterChanged;
+  const factory OrdersEvent.searched({required String term}) = OrdersSearched;
 }

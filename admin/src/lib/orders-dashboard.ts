@@ -1,4 +1,5 @@
 import {
+  arrayUnion,
   collection,
   doc,
   onSnapshot,
@@ -8,7 +9,7 @@ import {
   where,
 } from "firebase/firestore";
 import { db } from "./firebase";
-import type { Order, OrderStatus } from "./types";
+import type { Order, OrderStatus, OrderStatusChange } from "./types";
 
 // Plain client SDK, not firebase-admin (server-only, can't run in the
 // browser) — gated by firestore.rules' `isStoreOwner(storeId)` check on
@@ -39,8 +40,23 @@ export function watchOrdersForStore(
   });
 }
 
-export async function setOrderStatus(orderId: string, status: OrderStatus) {
-  await updateDoc(doc(db, "orders", orderId), { status });
+// Writes the transition's date alongside the status. This is the path the
+// dashboard's status dropdown actually takes — updateOrderStatus() in
+// orders.ts appends the same entry, but only for callers coming through the
+// REST route, so a status changed here would otherwise land dated nowhere
+// and the shopper's Track Order timeline shows "Time not recorded" forever.
+// The two must stay in step: same field, same ISO `at`.
+export async function setOrderStatus(order: Order, status: OrderStatus) {
+  const change: OrderStatusChange = { status, at: new Date().toISOString() };
+  await updateDoc(doc(db, "orders", order.id), {
+    status,
+    // An order placed before the timeline existed has no history to append
+    // to — seed the one entry that can be dated honestly (placement) so
+    // arrayUnion doesn't leave the array holding this transition alone.
+    statusHistory: order.statusHistory?.length
+      ? arrayUnion(change)
+      : [{ status: "PENDING", at: order.placedAt }, change],
+  });
 }
 
 // Cancelling can't go through the client SDK like the other status changes:

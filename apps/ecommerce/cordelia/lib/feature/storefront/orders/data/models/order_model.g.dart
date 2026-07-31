@@ -11,7 +11,15 @@ _OrderModel _$OrderModelFromJson(Map<String, dynamic> json) => _OrderModel(
   status: json['status'] as String,
   refundStatus: json['refund_status'] as String? ?? 'NONE',
   placedAt: json['placed_at'] as String,
+  statusHistory:
+      (json['status_history'] as List<dynamic>?)
+          ?.map(
+            (e) => OrderStatusChangeModel.fromJson(e as Map<String, dynamic>),
+          )
+          .toList() ??
+      const <OrderStatusChangeModel>[],
   deliveryOtp: json['delivery_otp'] as String,
+  paymentId: json['payment_id'] as String? ?? '',
   items: (json['items'] as List<dynamic>)
       .map((e) => OrderLineItemModel.fromJson(e as Map<String, dynamic>))
       .toList(),
@@ -26,7 +34,9 @@ Map<String, dynamic> _$OrderModelToJson(_OrderModel instance) =>
       'status': instance.status,
       'refund_status': instance.refundStatus,
       'placed_at': instance.placedAt,
+      'status_history': instance.statusHistory,
       'delivery_otp': instance.deliveryOtp,
+      'payment_id': instance.paymentId,
       'items': instance.items,
       'delivery_address': instance.deliveryAddress,
     };

@@ -69,7 +69,16 @@ export function serializeOrder(o: Order) {
     // reconciliation-only (support/dashboard) and isn't sent to the client.
     refund_status: o.refundStatus,
     placed_at: o.placedAt,
+    // The order's timeline, oldest first — what a Track Order screen dates
+    // its steps from. Already flat and snake-free, so it passes through as-is.
+    status_history: o.statusHistory,
     delivery_otp: o.deliveryOtp,
+    // The shopper's own payment reference, shown on Track Order as the id
+    // they'd quote to support. Empty on the test-mode payment-less path.
+    // refundId stays server-side — it identifies a reconciliation record the
+    // shopper can't act on, and refund_status already tells them where their
+    // money is.
+    payment_id: o.razorpayPaymentId,
     total: o.total,
     // Reuses serializeAddress so the order's snapshot round-trips through
     // gravia's existing AddressModel.fromJson (feature/address) unchanged.

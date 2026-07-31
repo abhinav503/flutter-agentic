@@ -8,10 +8,7 @@ class RemoveFavouriteParams {
   final String storeId;
   final String productId;
 
-  const RemoveFavouriteParams({
-    required this.storeId,
-    required this.productId,
-  });
+  const RemoveFavouriteParams({required this.storeId, required this.productId});
 }
 
 class RemoveFavouriteUseCase

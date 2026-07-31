@@ -152,6 +152,17 @@ export type RecentSearch = {
 // existing order doc needs migrating.
 export type OrderStatus = "PENDING" | "IN_PROCESS" | "DELIVERED" | "CANCELLED";
 
+// One dated entry per status transition — the order's timeline, which is the
+// only place a "moved to On the way at 11:04" is recorded: `status` holds the
+// current value and overwrites the previous one on every update.
+//
+// Append-only, including corrections: an admin who marks DELIVERED by mistake
+// and walks it back leaves [.., DELIVERED, IN_PROCESS, DELIVERED] behind.
+// That's deliberate — this is the audit trail, and collapsing it at write
+// time destroys information no later read can recover. A timeline UI takes
+// the *last* entry per status.
+export type OrderStatusChange = { status: OrderStatus; at: string };
+
 // The refund lifecycle — an axis orthogonal to OrderStatus, so a cancelled
 // order records separately whether its money has been returned. NONE for an
 // order that was never paid (test-mode/web) or isn't cancelled; PENDING once
@@ -189,6 +200,11 @@ export type Order = {
   total: number;
   deliveryOtp: string;
   placedAt: string;
+  // Every status this order has been through, oldest first (see
+  // OrderStatusChange). Orders placed before this field existed read back as
+  // a single PENDING entry dated `placedAt` — the only transition time we
+  // can honestly reconstruct, so their later steps are undated.
+  statusHistory: OrderStatusChange[];
   // The verified Razorpay payment this order was placed against. Empty for
   // orders placed through the test-mode payment-less path (the web preview,
   // which can't run the native checkout SDK) — never empty for a live store.

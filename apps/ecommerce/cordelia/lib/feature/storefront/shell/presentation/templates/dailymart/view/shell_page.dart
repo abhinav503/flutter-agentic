@@ -4,10 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:core/core/base/base_page.dart';
 import 'package:core/core/theme/app_colors_extension.dart';
 import 'package:core/core/theme/app_spacing.dart';
-import 'package:core/core/ui/atoms/button.dart';
 import 'package:core/core/ui/atoms/svg_image.dart';
 import 'package:core/core/ui/blocks/bottom_nav_bar.dart';
-import 'package:core/core/ui/molecules/empty_state.dart';
 
 import 'package:cordelia/di/injection_container.dart';
 import 'package:cordelia/feature/storefront/active_store/presentation/cubit/active_store_cubit.dart';
@@ -15,6 +13,7 @@ import 'package:cordelia/feature/storefront/cart/domain/entities/cart_item_entit
 import 'package:cordelia/feature/storefront/cart/presentation/cubit/cart_cubit.dart';
 import 'package:cordelia/feature/storefront/cart/presentation/templates/dailymart/view/cart_screen.dart';
 import 'package:cordelia/feature/storefront/cart/presentation/templates/dailymart/widgets/cart_status_bar.dart';
+import 'package:cordelia/feature/storefront/favourites/presentation/templates/dailymart/view/favourites_screen.dart';
 import 'package:cordelia/feature/storefront/home/presentation/bloc/home_bloc.dart';
 import 'package:cordelia/feature/storefront/home/presentation/templates/dailymart/view/home_screen.dart';
 import 'package:cordelia/feature/storefront/profile/presentation/bloc/profile_bloc.dart';
@@ -27,12 +26,8 @@ import 'package:cordelia/templates/dailymart/widgets/dailymart_bottom_fade.dart'
 
 /// `dailymart` template's nav shell. Four tabs — Home, Wishlist, Cart,
 /// Profile — in the kit's own order; note the cart **is** a tab here, unlike
-/// `gravia`, where it's a docked status bar above a five-tab set.
-///
-/// Wishlist is the last tab still unported: it renders an [EmptyState]
-/// rather than borrowing gravia's screen, which would mix two packs' visual
-/// languages on one nav bar. It lands with its own
-/// `presentation/templates/dailymart/` screen.
+/// `gravia`, where it's a docked status bar above a five-tab set. Every tab
+/// renders this pack's own screen.
 class ShellPage extends StorefrontShellPage {
   // Nav-tab indices — public so a route outside the shell can request a tab
   // by name instead of a magic number. Order matches _tabs.
@@ -146,11 +141,9 @@ class _ShellPageState extends BasePageState<ShellPage>
               ..add(HomeEvent.started(storeId: storeId)),
         child: const HomeScreen(),
       ),
-      ShellPage.wishlistTabIndex => _NotPortedYet(
-        icon: Icons.favorite_border_rounded,
-        tab: DailyMartValueConst.navWishlist,
-        onBackToHome: _goHome,
-      ),
+      // The favourites live in the app-root FavouritesCubit, hydrated by
+      // StorefrontShellState — nothing to provide per-tab.
+      ShellPage.wishlistTabIndex => FavouritesScreen(onExplore: _goHome),
       // The cart's items live in the app-root CartCubit and checkout in the
       // shell-level CheckoutBloc (see buildBlocProviders) — nothing to
       // provide per-tab.
@@ -207,33 +200,4 @@ class _ShellPageState extends BasePageState<ShellPage>
   }
 
   void _goHome() => setState(() => currentTab = ShellPage.homeTabIndex);
-}
-
-/// Placeholder for a tab whose `dailymart` screen hasn't been built. A
-/// designed empty state with a way out, not a blank tab — a dead end here
-/// reads as a broken app rather than an unfinished one.
-class _NotPortedYet extends StatelessWidget {
-  final IconData icon;
-  final String tab;
-  final VoidCallback onBackToHome;
-
-  const _NotPortedYet({
-    required this.icon,
-    required this.tab,
-    required this.onBackToHome,
-  });
-
-  @override
-  Widget build(BuildContext context) => EmptyState(
-    iconData: icon,
-    title: DailyMartValueConst.comingSoonTitle,
-    subtitle: DailyMartValueConst.comingSoonSubtitle(tab),
-    actions: [
-      AppButton(
-        label: DailyMartValueConst.comingSoonAction,
-        variant: AppButtonVariant.secondary,
-        onTap: onBackToHome,
-      ),
-    ],
-  );
 }

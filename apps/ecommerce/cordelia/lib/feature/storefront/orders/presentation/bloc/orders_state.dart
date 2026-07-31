@@ -1,5 +1,8 @@
 part of 'orders_bloc.dart';
 
+/// [OrdersLoaded.refreshFailed] and [OrdersLoaded.cancelFailed] are one-shot
+/// signals to the screen's listener, not state the screen renders — every
+/// later emission clears them through `OrdersBloc._emitView`.
 @freezed
 sealed class OrdersState with _$OrdersState {
   const factory OrdersState.loading() = OrdersLoading;
@@ -11,15 +14,21 @@ sealed class OrdersState with _$OrdersState {
     /// every order in the selected tab shows.
     OrdersFilter? filter,
 
-    /// True only when a silent background refresh (a warm start seeded from
-    /// OrdersBloc's cached data) fails — the already-visible cached content
-    /// stays on screen; the listener surfaces this via a snackbar instead of
-    /// replacing it with the error view.
+    /// `dailymart`'s chip row and search field. Both are view selections the
+    /// same way [selectedTab] and [filter] are — the screen renders them, it
+    /// doesn't own them. gravia leaves both at their defaults, which match
+    /// everything, so its list is unaffected.
+    @Default(OrdersStatusFilter.all) OrdersStatusFilter statusFilter,
+    @Default('') String searchTerm,
+
+    /// True for one emission when a silent background refresh (a warm start
+    /// seeded from OrdersBloc's cached data) fails — the already-visible
+    /// cached content stays on screen; the listener surfaces this via a
+    /// snackbar instead of replacing it with the error view.
     @Default(false) bool refreshFailed,
 
     /// True for one emission after a cancel request fails and its optimistic
-    /// update is rolled back — the listener surfaces a snackbar, and any
-    /// later event (tab/filter change) clears it so it can't re-fire.
+    /// update is rolled back — the listener surfaces a snackbar.
     @Default(false) bool cancelFailed,
   }) = OrdersLoaded;
   const factory OrdersState.error({required String message}) = OrdersError;
@@ -36,6 +45,18 @@ abstract class OrdersFilter with _$OrdersFilter {
     OrdersFilterPeriod? period,
     OrderStatus? status,
   }) = _OrdersFilter;
+}
+
+extension OrdersStatusFilterX on OrdersStatusFilter {
+  /// Active bundles `pending` *and* `inProcess` — the chip asks "is this
+  /// order still coming?", which is exactly what [OrderStatusX.isUpcoming]
+  /// already answers.
+  bool matches(OrderEntity order) => switch (this) {
+    OrdersStatusFilter.all => true,
+    OrdersStatusFilter.active => order.status.isUpcoming,
+    OrdersStatusFilter.completed => order.status == OrderStatus.delivered,
+    OrdersStatusFilter.cancelled => order.status == OrderStatus.cancelled,
+  };
 }
 
 extension OrdersFilterX on OrdersFilter {

@@ -2,6 +2,7 @@ import 'package:cordelia/enums/order_status.dart';
 import 'package:cordelia/feature/storefront/address/domain/entities/address_entity.dart';
 
 import 'order_line_item_entity.dart';
+import 'order_status_change_entity.dart';
 
 class OrderEntity {
   final String id;
@@ -12,6 +13,21 @@ class OrderEntity {
   final RefundStatus refundStatus;
 
   final DateTime placedAt;
+
+  /// Every status this order has been through, oldest first — the only
+  /// record of *when* it moved, since [status] holds just the current value.
+  /// Read it through [statusReachedAt] rather than scanning it directly.
+  ///
+  /// Empty only for mock-data orders; the server always sends at least the
+  /// placement entry, synthesizing one for orders that predate the field
+  /// (their later steps are then undated).
+  final List<OrderStatusChangeEntity> statusHistory;
+
+  /// The gateway payment this order was placed against — the reference a
+  /// shopper quotes to support. Empty when the order went through the
+  /// test-mode payment-less path (the web preview, which can't run the
+  /// native checkout SDK).
+  final String paymentId;
 
   /// 4-digit code the delivery agent verifies on handoff for the whole
   /// order — only meaningful while [status] is [OrderStatus.inProcess];
@@ -36,11 +52,36 @@ class OrderEntity {
     required this.items,
     this.refundStatus = RefundStatus.none,
     this.deliveryAddress,
+    this.statusHistory = const [],
+    this.paymentId = '',
   });
 }
 
 extension OrderEntityX on OrderEntity {
   double get totalPrice => items.total;
+
+  /// Whether any line item's product name contains [term], case-insensitively
+  /// — an order is searchable by what's *in* it, since it has no name of its
+  /// own. An empty term matches everything, so the caller needn't special-case
+  /// "nothing typed yet".
+  bool matchesSearch(String term) {
+    final query = term.trim().toLowerCase();
+    if (query.isEmpty) return true;
+    return items.any((item) => item.productName.toLowerCase().contains(query));
+  }
+
+  /// When this order reached [status], or null if it never did — or did
+  /// before the server recorded transition times.
+  ///
+  /// The **last** matching entry, not the first: the history is append-only,
+  /// so an admin correcting a mistaken status leaves the same status in it
+  /// twice, and the later one is when the order actually settled there.
+  DateTime? statusReachedAt(OrderStatus status) {
+    for (final change in statusHistory.reversed) {
+      if (change.status == status) return change.at;
+    }
+    return null;
+  }
 }
 
 /// A domain-specific display format ("Mon, Mar 9, 2026 at 10:15 AM"), not a
@@ -74,9 +115,11 @@ extension OrderPlacedAtX on DateTime {
     return '$weekday, $month $day, $year at $hour12:$minute $period';
   }
 
-  /// The filter sheet's date-field format ("Mar 01, 2026") — zero-padded day,
-  /// no weekday/time, per the kit's Order Filter screen. `as*` naming (like
-  /// core's `asPrice`) keeps it from colliding with the sheet's
+  /// The compact date form ("Mar 01, 2026") — zero-padded day, no
+  /// weekday/time, per the kit's Order Filter screen. Used by gravia's filter
+  /// sheet date fields and by dailymart's order card, which has room for a
+  /// date only if it drops the weekday and time. `as*` naming (like core's
+  /// `asPrice`) keeps it from colliding with the sheet's
   /// `GraviaValueConst.filterDateLabel` copy const.
   String get asFilterDate {
     final month = _months[this.month - 1];
