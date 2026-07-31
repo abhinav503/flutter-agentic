@@ -335,9 +335,9 @@ BottomNavBar (stacked variant)                    ← shell-owned, not per scree
 | Chrome | **No `AppBar`, ever** | Every screen builds its own header row as the first item in the scroll view. `BasePageState.buildAppBar` returns `null` for all tabs |
 | Scroll behaviour | Everything scrolls away, including the header | This pack has no pinned or collapsing header; `CollapsingHeaderSheet` is not used |
 | Body | Sections separated by `AppSpacing.xl4` | |
-| Persistent action | Floating controls over a bottom `surface→transparent` fade (`DailyMartBottomFade`) | Search floats the cart status pill (both browse and results modes — the kit's Filter pill was removed from Search, see §10); Product Details floats its cart-disc + Add To Cart row; Edit Profile floats Save Changes, Change Password floats Update Password, Checkout floats Continue to Payment, and Select Address floats Add New Address, all over the same fade with a `floatingActionScrollInset` spacer under the scroll content. A full-width *docked bar* is still **not** part of this pack — the Cart screen's checkout CTA (`DailyMartCartCheckoutBar`) is the one docked surface, a slim sheet-cornered region of that screen; the coupon row + totals (`DailyMartCartSummarySection`) scroll with the item cards rather than docking |
+| Persistent action | Floating controls over a bottom `surface→transparent` fade (`DailyMartBottomFade`) | Search floats the cart status pill (both browse and results modes — the kit's Filter pill was removed from Search, see §10); Product Details floats its cart-disc + Add To Cart row; Edit Profile floats Save Changes, Change Password floats Update Password, Checkout floats Continue to Payment, Add/Edit Address floats Add Address / Update Address, and Select Address floats Add New Address, all over the same fade with a `floatingActionScrollInset` spacer under the scroll content. A full-width *docked bar* is still **not** part of this pack — the Cart screen's checkout CTA (`DailyMartCartCheckoutBar`) is the one docked surface, a slim sheet-cornered region of that screen; the coupon row + totals (`DailyMartCartSummarySection`) scroll with the item cards rather than docking |
 | Cart presence outside the shell | `DailyMartCartStatusBar` — the floating-pill signature (primary fill, `floatingAction` shadow) | Screens pushed *outside* the shell (Product Details, Search's browse state) float it while the cart is non-empty; inside the shell the Cart tab itself is the affordance, so the shell never docks it |
-| Global nav | `BottomNavBar(variant: stacked)` — Home / Wishlist / Cart / Profile | Four tabs; the cart **is** a tab here (unlike gravia, where it's a docked status bar). Home, Cart, Checkout, Profile, Search, Product Details, Edit Profile, Change Password, Select Address and the legal document are ported; **Wishlist** is the last tab still rendering an `EmptyState` rather than borrowing gravia's screen, which would put two packs' visual languages on one nav bar |
+| Global nav | `BottomNavBar(variant: stacked)` — Home / Wishlist / Cart / Profile | Four tabs; the cart **is** a tab here (unlike gravia, where it's a docked status bar). Home, Cart, Checkout, Profile, Search, Product Details, Edit Profile, Change Password, Select Address, Add/Edit Address and the legal document are ported; **Wishlist** is the last tab still rendering an `EmptyState` rather than borrowing gravia's screen, which would put two packs' visual languages on one nav bar |
 
 **Screens that deviate:** none within the storefront. Cordelia's own
 app-level screens (Splash, Onboarding, Login, Discovery) are not part of this
@@ -414,14 +414,24 @@ why they are field-shaped (10 px, bordered) rather than menu-shaped.
   green border is the pack's only one outside the active search field, and
   it carries real weight here: the kit gives this screen no confirm button,
   so **selecting is committing** — the tap persists the choice and pops.
+  The kit frame draws no edit or delete, so the row carries three actions
+  under three affordances: the body selects, a 28 px pencil disc
+  (`addressActionSize`, `cs.surface` fill) opens the Add/Edit form, and a
+  left swipe reveals the Cart row's `errorContainer` + trash and gates the
+  delete behind `showDailyMartConfirmSheet`. That swipe's `confirmDismiss`
+  always returns `false`: the delete is a server round-trip the bloc awaits,
+  so the row leaves when the new list lands and survives a failed delete
+  (returning `true` would rebuild a `Dismissible` Flutter thinks it already
+  dismissed).
 - **The floating Filter pill.** A 120 px green pill with icon + label,
   radius 40, `0 12 12 rgba(87,111,133,.24)` shadow, floating over a
   `surface → transparent` bottom fade so scrolling content dissolves behind
   it rather than colliding with it. **Not currently shipped**: it was removed
   from Search (filtering belongs to Category Details, which this pack hasn't
-  built yet — its dimens `filterPillHeight`/`filterPillRadius`, the
-  filter/sort copy in `DailyMartValueConst`, and `DailyMartRadioSheetContent`
-  are all kept for that screen). Search's floating slot now docks the cart
+  built yet — its dimens `filterPillHeight`/`filterPillRadius` and the
+  filter/sort copy in `DailyMartValueConst` are kept for that screen;
+  `DailyMartRadioSheetContent` found a consumer sooner, in Add/Edit
+  Address's City/Country pickers). Search's floating slot now docks the cart
   status pill in both browse and results modes.
 
 ---
@@ -502,7 +512,7 @@ App-level presets under
 | Two half-width actions side by side | two buttons | `DailyMartActionPair` — outline + filled, `AppSpacing.lg` gap |
 | Form text field | `AppTextField` | `DailyMartFormField` — 56 px at **radius 12**, `cs.outline` border, 14/500 ink label (§2 deviations — the pill belongs to the search field alone) |
 | Settings / profile row | core atoms (**not** `AppMenuTile` — that molecule's silhouette is a tinted icon *circle* on a bare surface, and this kit draws no circle and an explicit outline instead; every slot would need an override, same §12 reasoning as the product card) | `DailyMartMenuTile` — 52 px bordered strip at radius 12, 20 px glyph, 14/500 label, kit chevron; takes `asset` **or** `icon`, and a `trailing` slot for the Dark Mode switch |
-| Bounded-picklist trigger field | field-styled box | `DailyMartSelectField` — 48 px, radius **10**, `cs.outline` border, trailing chevron |
+| Bounded-picklist trigger field | field-styled box | `DailyMartDropdownField` — `DailyMartFormField`'s exact chrome (56 px, radius 12, `cs.outline` border, 14/500 label) with the kit's `arrow-right` under a quarter turn, so a form mixing typed and picked values reads as one stack. Built for Add/Edit Address's City/Country. The kit's *Filter sheet* draws its own shorter select (48 px, radius **10**) — that one is still unbuilt, and lands with Category Details rather than being forced onto this control |
 | Styled bottom-sheet chrome | `AppBottomSheet` | `showDailyMartSheet` — 24 px top radius, 64 × 5 drag handle, close disc left + centred `headingH5` title |
 | Chrome-free confirmation sheet | `showModalBottomSheet` | `showDailyMartConfirmSheet` + `DailyMartConfirmSheetContent` |
 | Bounded-picklist selection sheet | sheet body | `DailyMartRadioSheetContent` → `AppRadioGroup` |
@@ -528,8 +538,9 @@ App-level presets under
 `DailyMartFormField`, `DailyMartQuantityStepper`, `DailyMartTopSwitcher`,
 `showDailyMartSheet` (+ the add-to-cart and order-placed sheets),
 `showDailyMartConfirmSheet`, `DailyMartRadioSheetContent`
-(no consumer since the Filter sheet left Search — kept for Category
-Details), `DailyMartBottomFade`, `DailyMartCartStatusBar`, plus the
+(the Filter sheet left Search, but Add/Edit Address's City/Country pickers
+picked it up), `DailyMartDropdownField`,
+`DailyMartBottomFade`, `DailyMartCartStatusBar`, plus the
 `DailyMartElevation` shadow set. **Never re-implement `DailyMartIconDisc`
 inline** — three private forks of it (the card's favourite disc, Product
 Details' cart disc, the recent-search close button) have already been found

@@ -201,6 +201,55 @@ abstract final class DailyMartValueConst {
   static const addressEmptyTitle = 'No saved addresses';
   static const addressEmptySubtitle =
       'Add one to get this store delivering to your door.';
+  static const addressDeleteFailedMessage = "Couldn't delete that address.";
+  static const editAddressTooltip = 'Edit address';
+  static const deleteAddressTitle = 'Delete this address?';
+  static const deleteAddressMessage =
+      "It'll be removed from your saved addresses.";
+  static const deleteLabel = 'Delete';
+
+  // ── Add / Edit Address ───────────────────────────────────────────────────
+  // Deliberately a second copy of gravia's labels rather than a shared set:
+  // pack copy lives with the pack, so this template can reword a field
+  // without editing gravia's screens (spec sheet §13).
+  static const addAddressTitle = 'Add New Address';
+  static const editAddressTitle = 'Edit Address';
+  static const addressNameLabel = 'Name';
+  static const addressNameHint = 'e.g. Mark Shelby';
+  static const addressLine1Label = 'Address Line 1';
+  static const addressLine1Hint = 'House no., street name';
+  static const addressLine2Label = 'Address Line 2';
+  static const addressLine2Hint = 'Apartment, suite, etc. (optional)';
+  static const landmarkLabel = 'Landmark';
+  static const landmarkHint = 'Nearby landmark (optional)';
+  static const cityLabel = 'City';
+  static const selectCityTitle = 'Select City';
+  static const countryLabel = 'Country';
+  static const selectCountryTitle = 'Select Country';
+  static const postalCodeLabel = 'Postal Code';
+  static const postalCodeHint = 'e.g. 62639';
+  static const addressTagLabel = 'Tag';
+  static const addressTagHint = 'e.g. Home, Office';
+  static const addAddressButtonLabel = 'Add Address';
+  static const updateAddressButtonLabel = 'Update Address';
+  static const requiredFieldErrorMessage = 'This field is required';
+
+  static const addressFormCities = <String>[
+    'Richardson',
+    'Allentown',
+    'San Jose',
+    'New York',
+    'Los Angeles',
+    'Chicago',
+    'Houston',
+  ];
+  static const addressFormCountries = <String>[
+    'United States',
+    'Canada',
+    'United Kingdom',
+    'Australia',
+    'India',
+  ];
 
   // ── Cancel / confirm ─────────────────────────────────────────────────────
   static const cancelLabel = 'Cancel';

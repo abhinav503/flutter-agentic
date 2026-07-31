@@ -1,6 +1,9 @@
 import 'package:cordelia/feature/home/presentation/view/discovery_page.dart';
 import 'package:cordelia/feature/storefront/address/domain/entities/address_entity.dart';
-import 'package:cordelia/feature/storefront/address/presentation/templates/gravia/view/address_form_page.dart';
+import 'package:cordelia/feature/storefront/address/presentation/templates/dailymart/view/address_form_page.dart'
+    as dailymart_address_form;
+import 'package:cordelia/feature/storefront/address/presentation/templates/gravia/view/address_form_page.dart'
+    as gravia_address_form;
 // Every template names its Select Address entry `AddressPage` (the class
 // name belongs to the role, not the pack), so both need a prefix to be
 // dispatched from one StorefrontTemplateSwitch — same as Notifications below.
@@ -250,7 +253,14 @@ final _router = GoRouter(
               opacity: CurveTween(curve: Curves.easeInOut).animate(animation),
               child: child,
             ),
-        child: AddressFormPage(address: state.extra as AddressEntity?),
+        child: StorefrontTemplateSwitch(
+          gravia: (_) => gravia_address_form.AddressFormPage(
+            address: state.extra as AddressEntity?,
+          ),
+          dailymart: (_) => dailymart_address_form.AddressFormPage(
+            address: state.extra as AddressEntity?,
+          ),
+        ),
       ),
     ),
     GoRoute(

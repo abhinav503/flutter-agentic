@@ -7,31 +7,124 @@ import 'package:core/core/ui/atoms/svg_image.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_dimen_const.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_image_const.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_text_style_const.dart';
+import 'package:cordelia/templates/dailymart/constants/dailymart_value_const.dart';
+import 'package:cordelia/templates/dailymart/widgets/dailymart_icon_disc.dart';
+import 'package:cordelia/templates/dailymart/widgets/dailymart_sheet.dart';
 
 import '../../../../domain/entities/address_entity.dart';
 
 /// One saved address (kit frame `30 Checkout - Shipping Address`) — a
 /// radius-16 card holding the kit's pin, the address tag, the composed
-/// address line, and a trailing selection disc.
+/// address line, an edit pencil and a trailing selection disc, swiped left
+/// to reveal delete.
 ///
-/// The whole card is the tap target and selecting *is* confirming: the kit
+/// The card body is the tap target and selecting *is* confirming: the kit
 /// gives this screen a single CTA ("Add New Address") and no confirm button,
 /// so a two-step select-then-commit would leave the commit with nowhere to
 /// live. Selected lifts to `surfaceContainerLow` behind a 1px primary
 /// border — the same "this control is live" treatment the search field's
 /// active state uses, and this pack's only other green border.
 ///
-/// Edit and delete actions aren't drawn here: the kit's frame has none yet.
+/// The kit's frame draws neither edit nor delete, so both are composed from
+/// recipes the pack already owns rather than invented: the pencil is a
+/// [DailyMartIconDisc] (Edit Profile's avatar-badge glyph at row scale), and
+/// the swipe reuses the Cart row's `errorContainer` + trash reveal, so a
+/// shopper who has removed a cart line already knows this gesture. Three
+/// actions on one row, each with its own affordance: body taps select, the
+/// pencil edits, a left swipe deletes.
 class AddressCard extends StatelessWidget {
   final AddressEntity address;
   final bool selected;
   final VoidCallback onTap;
+  final VoidCallback onEdit;
+  final VoidCallback onDelete;
 
   const AddressCard({
     super.key,
     required this.address,
     required this.selected,
     required this.onTap,
+    required this.onEdit,
+    required this.onDelete,
+  });
+
+  /// Gates the swipe behind the pack's destructive-confirm sheet, then always
+  /// answers `false`.
+  ///
+  /// The delete is a server round-trip the bloc awaits, so the row has to
+  /// leave when the new list lands, not when the finger lifts: answering
+  /// `true` would drop it optimistically, and a *failed* delete re-emits the
+  /// same list — rebuilding a `Dismissible` the framework believes it already
+  /// dismissed, which throws. Giving up the fling animation is what buys the
+  /// row surviving a failed delete.
+  Future<bool> _confirmDelete(BuildContext context) async {
+    var confirmed = false;
+    await showDailyMartConfirmSheet(
+      context: context,
+      title: DailyMartValueConst.deleteAddressTitle,
+      message: DailyMartValueConst.deleteAddressMessage,
+      confirmLabel: DailyMartValueConst.deleteLabel,
+      onConfirm: () => confirmed = true,
+    );
+    if (confirmed) onDelete();
+    return false;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: cs.errorContainer,
+        borderRadius: AppRadius.xl,
+      ),
+      child: ClipRRect(
+        borderRadius: AppRadius.xl,
+        child: Stack(
+          children: [
+            // The revealed layer is painted by the Stack rather than handed
+            // to Dismissible as `background`, so the trash sits still while
+            // the card slides off it — same recipe as DailyMartCartItemCard.
+            Positioned.fill(
+              child: Container(
+                alignment: Alignment.centerRight,
+                padding: const EdgeInsets.only(right: AppSpacing.lg),
+                child: AppSvgImage.asset(DailyMartImageConst.delete),
+              ),
+            ),
+            Dismissible(
+              key: ValueKey(address.id),
+              direction: DismissDirection.endToStart,
+              confirmDismiss: (_) => _confirmDelete(context),
+              background: const SizedBox.shrink(),
+              child: _AddressCardBody(
+                address: address,
+                selected: selected,
+                onTap: onTap,
+                onEdit: onEdit,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// The card face itself, split out so the [Dismissible] above wraps a widget
+/// that owns no gesture of its own beyond its two taps.
+class _AddressCardBody extends StatelessWidget {
+  final AddressEntity address;
+  final bool selected;
+  final VoidCallback onTap;
+  final VoidCallback onEdit;
+
+  const _AddressCardBody({
+    required this.address,
+    required this.selected,
+    required this.onTap,
+    required this.onEdit,
   });
 
   @override
@@ -53,8 +146,10 @@ class AddressCard extends StatelessWidget {
               color: selected ? cs.primary : Colors.transparent,
             ),
           ),
+          // Centred, not top-aligned as before the pencil landed: two
+          // trailing controls of different diameters read as crooked when
+          // hung from the top of a two-line text block.
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               AppSvgImage.asset(
                 DailyMartImageConst.location,
@@ -86,6 +181,24 @@ class AddressCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: AppSpacing.xs),
+              Tooltip(
+                message: DailyMartValueConst.editAddressTooltip,
+                child: DailyMartIconDisc(
+                  asset: DailyMartImageConst.pencil,
+                  // Smaller than the pack's 48px back disc, for the same
+                  // reason the product card's overlay controls are: this is
+                  // a secondary action riding a row whose whole body is
+                  // already the primary target.
+                  size: DailyMartDimenConst.addressActionSize,
+                  iconSize: AppSpacing.base,
+                  // A step lighter than the card it sits on, so the disc
+                  // reads as a control rather than dissolving into the card.
+                  backgroundColor: cs.surface,
+                  foregroundColor: cs.onSurfaceVariant,
+                  onTap: onEdit,
+                ),
+              ),
+              const SizedBox(width: AppSpacing.sm),
               _SelectionDisc(selected: selected),
             ],
           ),

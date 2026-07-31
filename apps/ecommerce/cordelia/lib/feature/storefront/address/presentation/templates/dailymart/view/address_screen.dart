@@ -33,9 +33,10 @@ import '../widgets/address_skeleton_body.dart';
 /// Callers are unaffected — this still pops the chosen [AddressEntity], the
 /// same contract the Cart's checkout gate awaits.
 ///
-/// Per-card Edit/Delete are not drawn yet: the kit's frame has no affordance
-/// for either, and inventing one would be this pack guessing at a screen the
-/// kit will supply.
+/// Edit and delete hang off the card itself rather than the screen: the kit
+/// frame has no slot for either, and a second CTA beside "Add New Address"
+/// would put a list-wide button on a per-row action. See [AddressCard] —
+/// pencil to edit, swipe to delete.
 class AddressScreen extends BaseScreen {
   const AddressScreen({super.key});
 
@@ -65,15 +66,22 @@ class _AddressScreenState extends BaseScreenState<AddressScreen> {
     context.pop(address);
   }
 
-  /// Pushes the Add/Edit Address form — this pack has no form screen of its
-  /// own yet, so that route still resolves to gravia's — then, if it
-  /// returned a result, dispatches it into this screen's own `AddressBloc`
-  /// so the list updates without a re-fetch.
-  Future<void> _openAddressForm() async {
-    final result = await context.push<AddressEntity>(AppRoutes.addressForm);
+  /// Pushes the Add/Edit Address form — [address] null opens it in Add mode,
+  /// non-null in Edit mode prefilled from it — then, if the form returned a
+  /// result (back pops with none), dispatches it into this screen's own
+  /// `AddressBloc` so the list updates without a re-fetch.
+  Future<void> _openAddressForm(AddressEntity? address) async {
+    final result = await context.push<AddressEntity>(
+      AppRoutes.addressForm,
+      extra: address,
+    );
     if (result == null || !mounted) return;
     context.read<AddressBloc>().add(AddressEvent.saved(address: result));
   }
+
+  void _delete(AddressEntity address) => context.read<AddressBloc>().add(
+    AddressEvent.deleted(addressId: address.id),
+  );
 
   @override
   SystemUiOverlayStyle? overlayStyle(BuildContext context) =>
@@ -98,6 +106,9 @@ class _AddressScreenState extends BaseScreenState<AddressScreen> {
                 }
                 if (state case AddressLoaded(saveFailed: true)) {
                   showSnackBar(DailyMartValueConst.addressSaveFailedMessage);
+                }
+                if (state case AddressLoaded(deleteFailed: true)) {
+                  showSnackBar(DailyMartValueConst.addressDeleteFailedMessage);
                 }
               },
               builder: (context, state) => DailyMartTopSwitcher(
@@ -135,6 +146,9 @@ class _AddressScreenState extends BaseScreenState<AddressScreen> {
                                     selected:
                                         addresses[i].id == selectedAddressId,
                                     onTap: () => _select(addresses[i]),
+                                    onEdit: () =>
+                                        _openAddressForm(addresses[i]),
+                                    onDelete: () => _delete(addresses[i]),
                                   ),
                                 ],
                               ],
@@ -155,7 +169,7 @@ class _AddressScreenState extends BaseScreenState<AddressScreen> {
               bottom: MediaQuery.paddingOf(context).bottom + AppSpacing.lg,
               child: DailyMartPrimaryButton(
                 label: DailyMartValueConst.addNewAddressLabel,
-                onTap: _openAddressForm,
+                onTap: () => _openAddressForm(null),
               ),
             ),
           ],

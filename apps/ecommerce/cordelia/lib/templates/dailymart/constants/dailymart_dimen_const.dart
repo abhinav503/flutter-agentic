@@ -98,6 +98,11 @@ abstract final class DailyMartDimenConst {
   /// bare ring when not).
   static const double addressCheckSize = 20;
 
+  /// The edit pencil on an address row. Shares [cardActionSize]'s reasoning
+  /// — a secondary control on top of a row that is itself the large target —
+  /// but stays its own constant because the two sit in unrelated components.
+  static const double addressActionSize = 28;
+
   /// The legal document's right-edge scroll rail — the kit draws the
   /// scrollbar as part of the page rather than as an overlay.
   static const double scrollRailWidth = 4;
