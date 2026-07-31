@@ -292,10 +292,14 @@ export default function SettingsPage() {
       <div>
         <h1 className="text-lg font-semibold">Settings</h1>
         <p className="text-sm text-muted-foreground">
-          Your store&apos;s public profile, storefront template, and Razorpay
-          account.
+          This store&apos;s public profile, storefront template, and Razorpay
+          account — plus the account you sign in with.
         </p>
       </div>
+
+      <h2 className="-mb-2 text-sm font-semibold text-muted-foreground">
+        Store
+      </h2>
 
       <StoreProfileCard storeId={storeId} />
 
@@ -423,6 +427,56 @@ export default function SettingsPage() {
           </form>
         </CardContent>
       </Card>
+
+      <h2 className="-mb-2 text-sm font-semibold text-muted-foreground">
+        Account
+      </h2>
+
+      <AccountCard />
     </div>
+  );
+}
+
+// The signed-in admin's own details — account-level, not per-store, which
+// is why the email no longer sits under the sidebar's store name (that
+// corner is the store switcher now). Read-only: email/password changes go
+// through Firebase's own flows, none of which this dashboard wires yet.
+function AccountCard() {
+  const { user } = useAuth();
+  if (!user) return null;
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Your account</CardTitle>
+        <CardDescription>
+          The sign-in behind every store you own.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <dl className="flex flex-col gap-3 text-sm">
+          <div className="flex flex-col gap-0.5">
+            <dt className="text-xs text-muted-foreground">Email</dt>
+            <dd>{user.email}</dd>
+          </div>
+          <div className="flex flex-col gap-0.5">
+            <dt className="text-xs text-muted-foreground">User ID</dt>
+            <dd>
+              <code className="rounded bg-muted px-1.5 py-0.5 text-xs">
+                {user.uid}
+              </code>
+            </dd>
+          </div>
+          {user.metadata.creationTime && (
+            <div className="flex flex-col gap-0.5">
+              <dt className="text-xs text-muted-foreground">Member since</dt>
+              <dd>
+                {new Date(user.metadata.creationTime).toLocaleDateString()}
+              </dd>
+            </div>
+          )}
+        </dl>
+      </CardContent>
+    </Card>
   );
 }

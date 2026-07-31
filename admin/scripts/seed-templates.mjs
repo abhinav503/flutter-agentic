@@ -25,6 +25,7 @@ db.settings({ preferRest: true });
 const TEMPLATES = [
   { id: "gravia", name: "Gravia" },
   { id: "dailymart", name: "Dailymart" },
+  { id: "grofast", name: "Grofast" },
 ];
 
 for (const { id, name } of TEMPLATES) {

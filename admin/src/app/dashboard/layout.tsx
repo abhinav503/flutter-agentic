@@ -1,24 +1,13 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { useStore } from "@/lib/store-context";
-import { getTemplates } from "@/lib/templates";
-import type { Template } from "@/lib/types";
+import { StoreSwitcher, CreateStoreForm } from "@/components/store-switcher";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { toast } from "sonner";
 
 const NAV_ITEMS = [
   { href: "/dashboard", label: "Overview" },
@@ -37,7 +26,7 @@ export default function DashboardLayout({
   const router = useRouter();
   const pathname = usePathname();
   const { user, loading: authLoading, signOutUser } = useAuth();
-  const { storeId, storeName, loading: storeLoading } = useStore();
+  const { storeId, loading: storeLoading } = useStore();
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -60,9 +49,10 @@ export default function DashboardLayout({
   return (
     <div className="flex flex-1">
       <aside className="flex w-56 shrink-0 flex-col border-r border-border bg-muted/30 p-4">
-        <div className="mb-6">
-          <p className="text-sm font-semibold">{storeName ?? "Your store"}</p>
-          <p className="text-xs text-muted-foreground">{user.email}</p>
+        {/* The signed-in email lives in Settings → Account now; up here it
+            crowded the store identity this corner is actually for. */}
+        <div className="mb-6 -mx-2">
+          <StoreSwitcher />
         </div>
         <nav className="flex flex-1 flex-col gap-1">
           {NAV_ITEMS.map((item) => (
@@ -83,40 +73,17 @@ export default function DashboardLayout({
           Sign out
         </Button>
       </aside>
-      <main className="flex-1 overflow-auto p-8">{children}</main>
+      {/* Remount every page on a store switch: pages fetch on mount keyed by
+          the storeId they read at that moment, so without this a switch would
+          keep showing the previous store's rows until a manual refresh. */}
+      <main key={storeId} className="flex-1 overflow-auto p-8">
+        {children}
+      </main>
     </div>
   );
 }
 
 function CreateStoreGate() {
-  const { createStore } = useStore();
-  const [name, setName] = useState("");
-  const [templates, setTemplates] = useState<Template[]>([]);
-  const [templateId, setTemplateId] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-
-  useEffect(() => {
-    getTemplates()
-      .then((fetched) => {
-        setTemplates(fetched);
-        setTemplateId((current) => current || fetched[0]?.id || "");
-      })
-      .catch(() => toast.error("Could not load templates"));
-  }, []);
-
-  async function handleSubmit(event: FormEvent) {
-    event.preventDefault();
-    setSubmitting(true);
-    try {
-      await createStore(name.trim(), templateId);
-      toast.success("Store created");
-    } catch {
-      toast.error("Could not create store. Please try again.");
-    } finally {
-      setSubmitting(false);
-    }
-  }
-
   return (
     <div className="flex flex-1 items-center justify-center px-4">
       <Card className="w-full max-w-sm">
@@ -127,39 +94,7 @@ function CreateStoreGate() {
           <p className="mb-4 text-sm text-muted-foreground">
             You&apos;ll manage its products and categories from here.
           </p>
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="store-name">Store name</Label>
-              <Input
-                id="store-name"
-                required
-                value={name}
-                onChange={(event) => setName(event.target.value)}
-                placeholder="e.g. Gravia Grocers"
-              />
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="store-template">Template</Label>
-              <Select value={templateId} onValueChange={setTemplateId}>
-                <SelectTrigger id="store-template" className="w-full">
-                  <SelectValue placeholder="Choose a template" />
-                </SelectTrigger>
-                <SelectContent>
-                  {templates.map((t) => (
-                    <SelectItem key={t.id} value={t.id}>
-                      {t.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <Button
-              type="submit"
-              disabled={submitting || !name.trim() || !templateId}
-            >
-              {submitting ? "Creating…" : "Create store"}
-            </Button>
-          </form>
+          <CreateStoreForm />
         </CardContent>
       </Card>
     </div>
