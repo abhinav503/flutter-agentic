@@ -198,11 +198,6 @@ abstract final class GraviaValueConst {
   static String cartSummaryLabel(int itemCount, double total) =>
       '$itemCount ${itemCount.plural('item')} | ${total.asPrice}';
 
-  // ── Payment (provider-agnostic copy) ─────────────────────────────────────
-  static const paymentCancelledMessage = 'Payment cancelled';
-  static const paymentFailedMessage =
-      'Payment could not be completed. Please try again.';
-
   // ── Orders ─────────────────────────────────────────────────────────────────
   static const ordersPageTitle = 'Orders';
   static const upcomingTabLabel = 'Upcoming';

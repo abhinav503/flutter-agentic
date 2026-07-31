@@ -193,6 +193,12 @@ export type Order = {
   // orders placed through the test-mode payment-less path (the web preview,
   // which can't run the native checkout SDK) — never empty for a live store.
   razorpayPaymentId: string;
+  // The Razorpay *order* (`order_...`) the payment was made against — created
+  // by POST /payments one step before this order doc existed. Stored so a
+  // Razorpay-side record can be traced back here directly; without it the only
+  // route in is via razorpayPaymentId. Empty on the payment-less path, and on
+  // orders placed before this field was added.
+  razorpayOrderId: string;
   // The refund axis (see RefundStatus). NONE on every freshly-placed order;
   // set only when the order is cancelled and a refund is attempted.
   refundStatus: RefundStatus;

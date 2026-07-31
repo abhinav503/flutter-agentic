@@ -65,6 +65,15 @@ abstract final class ValueConst {
   static const loginLink = 'Login';
   static const comingSoonMessage = 'Coming soon';
 
+  // ── Payment ────────────────────────────────────────────────────────────
+  // App-level, not per-template: the payment gateway sits below the template
+  // split (one shared data source serves every storefront), so this copy
+  // can't live in a pack's constants without that pack's wording leaking
+  // into the others' checkouts.
+  static const paymentCancelledMessage = 'Payment cancelled';
+  static const paymentFailedMessage =
+      'Payment could not be completed. Please try again.';
+
   // ── Auth: verify-email sheet ───────────────────────────────────────────
   static const verifyEmailTitle = 'Verify Your Email';
   static String verifyEmailSubtitle(String email) =>

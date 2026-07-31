@@ -106,7 +106,12 @@ stores/{storeId}    name, logoUrl, description, ownerUid, status, themeConfig
 stores/{storeId}/categories/{catId}  { name, imageUrl }
 stores/{storeId}/products/{prodId}   ProductEntity fields + categoryIds[] + stock
 users/{uid}/carts/{storeId}          persisted per-store cart (a user shops many stores)
-orders/{orderId}                     { uid, storeId, items[], status, total, paymentRef, otp, placedAt }
+orders/{orderId}                     { uid, storeId, items[], deliveryAddress, status, total,
+                                       razorpayPaymentId, razorpayOrderId, refundStatus, refundId,
+                                       deliveryOtp, placedAt }
+                                     auto-id, NOT composed from storeId/uid — a shopper places many
+                                     orders at one store, so a composed id isn't unique, and the
+                                     pairing is already indexed as fields (see firestore.indexes.json)
 ```
 
 - **Roles**: one Firebase Auth pool. A plain shopper has only `users/{uid}`. A store
@@ -443,8 +448,8 @@ Address Form (those routes still open gravia screens);
 My Orders (no Orders tab and no Orders screen in this template — the Profile
 row says so instead of opening gravia's); per-store notifications from the
 backend (bundled per-template mock today). Search, Product Details, Cart,
-Profile, Edit Profile, Change Password, Select Address and the legal document
-shipped.
+Profile, Edit Profile, Change Password, Checkout, Select Address and the legal
+document shipped.
 
 ## Template reusability sweep + dailymart polish — DONE (2026-07-30)
 

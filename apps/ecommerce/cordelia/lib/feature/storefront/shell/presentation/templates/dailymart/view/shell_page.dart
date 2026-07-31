@@ -12,7 +12,6 @@ import 'package:core/core/ui/molecules/empty_state.dart';
 import 'package:cordelia/di/injection_container.dart';
 import 'package:cordelia/feature/storefront/active_store/presentation/cubit/active_store_cubit.dart';
 import 'package:cordelia/feature/storefront/cart/domain/entities/cart_item_entity.dart';
-import 'package:cordelia/feature/storefront/cart/presentation/bloc/checkout_bloc.dart';
 import 'package:cordelia/feature/storefront/cart/presentation/cubit/cart_cubit.dart';
 import 'package:cordelia/feature/storefront/cart/presentation/templates/dailymart/view/cart_screen.dart';
 import 'package:cordelia/feature/storefront/cart/presentation/templates/dailymart/widgets/cart_status_bar.dart';
@@ -55,18 +54,19 @@ class _ShellPageState extends BasePageState<ShellPage>
   /// can't see.
   List<BottomNavBarItem> _tabs() => [
     BottomNavBarItem(
-      iconBuilder: (color, size) => AppSvgImage.asset(
-        DailyMartImageConst.navHome,
-        // The kit only ships home's *active* glyph: a filled green house
-        // with a white smile cut into it. An `srcIn` tint repaints the
-        // smile too and flattens it into a solid block, so while active it
-        // renders untinted (its own brand green already matches
-        // `cs.primary`) and only the inactive state — which the kit never
-        // draws — takes the nav's grey.
-        color: currentTab == ShellPage.homeTabIndex ? null : color,
-        width: size,
-        height: size,
-      ),
+      // The kit only ships home's *active* glyph: a filled green house with
+      // a white smile cut into it. An `srcIn` tint repaints the smile too
+      // and flattens it into a solid block, so active renders that export
+      // untinted (its own brand green already matches `cs.primary`) and
+      // inactive swaps to the stroke-only redraw, which takes the nav's grey
+      // like every other tab. Same filled/outline pair as Wishlist below.
+      iconBuilder: currentTab == ShellPage.homeTabIndex
+          ? (color, size) => AppSvgImage.asset(
+              DailyMartImageConst.navHome,
+              width: size,
+              height: size,
+            )
+          : svgNavIcon(DailyMartImageConst.navHomeOutline),
       label: DailyMartValueConst.navHome,
     ),
     BottomNavBarItem(
@@ -78,11 +78,19 @@ class _ShellPageState extends BasePageState<ShellPage>
       label: DailyMartValueConst.navWishlist,
     ),
     BottomNavBarItem(
-      iconBuilder: svgNavIcon(DailyMartImageConst.navCart),
+      iconBuilder: svgNavIcon(
+        currentTab == ShellPage.cartTabIndex
+            ? DailyMartImageConst.navCartSolid
+            : DailyMartImageConst.navCart,
+      ),
       label: DailyMartValueConst.navCart,
     ),
     BottomNavBarItem(
-      iconBuilder: svgNavIcon(DailyMartImageConst.navProfile),
+      iconBuilder: svgNavIcon(
+        currentTab == ShellPage.profileTabIndex
+            ? DailyMartImageConst.navProfileSolid
+            : DailyMartImageConst.navProfile,
+      ),
       label: DailyMartValueConst.navProfile,
     ),
   ];
@@ -108,14 +116,6 @@ class _ShellPageState extends BasePageState<ShellPage>
         create: (_) =>
             ProfileBloc(getProfileUseCase: sl())
               ..add(const ProfileEvent.started()),
-      ),
-      BlocProvider(
-        create: (context) => CheckoutBloc(
-          createPaymentUseCase: sl(),
-          processPaymentUseCase: sl(),
-          createOrderUseCase: sl(),
-          storeId: context.read<ActiveStoreCubit>().state!.storeId,
-        ),
       ),
     ],
     child: child,

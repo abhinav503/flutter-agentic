@@ -112,10 +112,27 @@ abstract final class DailyMartValueConst {
       'Products you add will show up here, ready to check out.';
   static const cartExploreAction = 'Start shopping';
   static const removedFromCartMessage = 'Removed from your cart.';
-  static const orderPlacedTitle = 'Order placed';
+
+  // ── Checkout (kit frames `29 Checkout` / `34 Order Successfully`) ─────────
+  /// One title for both states — the kit keeps the header row identical
+  /// across the form and the success frame.
+  static const checkoutTitle = 'Checkout';
+  static const shippingAddressLabel = 'Shipping Address';
+  static const orderListLabel = 'Order List';
+  static const continueToPaymentLabel = 'Continue to Payment';
+
+  /// Beside each order line, in the slot the Cart's stepper occupies — the
+  /// quantity is fixed by this point, so it reads rather than adjusts.
+  static String orderLineQuantity(int quantity) => '× $quantity';
+
+  static const orderPlacedTitle = 'Payment Successful!';
   static const orderPlacedMessage =
-      "Your order is confirmed — this store is getting it ready.";
-  static const orderPlacedAction = 'Continue Shopping';
+      "Thank you for your purchase! We're excited to let you know that your "
+      'payment has been successfully processed. 🎉';
+  /// The success frame's one CTA. The kit stacks this over an "E-Receipt"
+  /// outline button; that half is dropped — there is no receipt document to
+  /// open, and a second CTA that only apologises weakens the real one.
+  static const trackOrderLabel = 'Track My Order';
 
   /// The docked cart status pill on screens pushed outside the shell (the
   /// cart tab itself is the in-shell affordance).

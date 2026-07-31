@@ -68,6 +68,7 @@ function toOrder(id: string, data: FirebaseFirestore.DocumentData): Order {
     deliveryOtp: (data.deliveryOtp as string) ?? "",
     placedAt: (data.placedAt as string) ?? "",
     razorpayPaymentId: (data.razorpayPaymentId as string) ?? "",
+    razorpayOrderId: (data.razorpayOrderId as string) ?? "",
     // Orders placed before the refund axis existed have no field — default to
     // NONE so an un-refunded past order reads correctly.
     refundStatus: (data.refundStatus as RefundStatus) ?? "NONE",
@@ -140,6 +141,7 @@ export async function createOrder(
   requestedItems: CreateOrderItemInput[],
   addressId: string,
   razorpayPaymentId = "",
+  razorpayOrderId = "",
 ): Promise<Order> {
   if (requestedItems.length === 0) {
     throw new OrderCreationError("Order must contain at least one item");
@@ -213,6 +215,7 @@ export async function createOrder(
       deliveryOtp: generateOtp(),
       placedAt: new Date().toISOString(),
       razorpayPaymentId,
+      razorpayOrderId,
       refundStatus: "NONE",
       refundId: "",
     };

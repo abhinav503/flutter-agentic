@@ -186,7 +186,10 @@ Get the shape right before touching a `TextStyle` or a colour.
    scrolling (Add to Cart, Checkout, Submit), give it its own `SafeArea`-wrapped
    bar pinned **outside** the scroll view — never a button living at the bottom
    of scrollable content, where it disappears as soon as there's enough content
-   to scroll past it.
+   to scroll past it. A pack that *floats* the action over a bleed-to-edge fade
+   instead of docking it opts out of the bottom `SafeArea`, and then owes the
+   inset by hand on every body it swaps into that slot — see the safe-area
+   rules in `docs/ai-rules/conventions.md`.
 4. **One divider colour per app, computed once and reused everywhere.** Don't
    invent a hairline shade per screen. Use the pack's `dockedHairline` for the
    docked bar's top border, the bottom nav's top border, and every in-content

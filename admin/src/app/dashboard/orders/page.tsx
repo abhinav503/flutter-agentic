@@ -428,6 +428,10 @@ function OrderDetail({ order, paid }: { order: Order; paid: boolean }) {
               <Badge variant="success">Paid</Badge>
               <span className="font-mono text-xs text-muted-foreground">
                 {order.razorpayPaymentId}
+                {/* The Razorpay order behind the payment — what a dashboard
+                    search there keys on. Absent on orders placed before this
+                    was recorded, so it's rendered only when present. */}
+                {order.razorpayOrderId ? ` · ${order.razorpayOrderId}` : ""}
               </span>
             </>
           ) : (

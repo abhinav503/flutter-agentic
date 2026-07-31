@@ -17,6 +17,8 @@ import 'package:cordelia/feature/storefront/cart/presentation/templates/dailymar
 import 'package:cordelia/feature/storefront/cart/presentation/templates/gravia/view/cart_page.dart'
     as gravia_cart;
 import 'package:cordelia/feature/storefront/category_details/presentation/templates/gravia/view/category_details_page.dart';
+import 'package:cordelia/feature/storefront/checkout/presentation/templates/dailymart/view/checkout_page.dart'
+    as dailymart_checkout;
 import 'package:cordelia/feature/storefront/favourites/presentation/cubit/favourites_cubit.dart';
 // Every template names its Notifications entry `NotificationsPage` (the class
 // name belongs to the role, not the pack), so both need a prefix to be
@@ -327,8 +329,30 @@ final _router = GoRouter(
             ),
         child: StorefrontTemplateSwitch(
           gravia: (_) => gravia_cart.CartPage(storeId: state.extra as String),
-          dailymart: (_) =>
-              dailymart_cart.CartPage(storeId: state.extra as String),
+          // No storeId: this template's Cart places no order, so it needs
+          // nothing store-scoped — Checkout resolves the store itself.
+          dailymart: (_) => const dailymart_cart.CartPage(),
+        ),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.checkout,
+      // Fade, same reasoning as the Cart route it's pushed from — both sit
+      // on the same surface canvas.
+      pageBuilder: (context, state) => CustomTransitionPage<void>(
+        key: state.pageKey,
+        transitionDuration: const Duration(milliseconds: 350),
+        reverseTransitionDuration: const Duration(milliseconds: 300),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+            FadeTransition(
+              opacity: CurveTween(curve: Curves.easeInOut).animate(animation),
+              child: child,
+            ),
+        // No StorefrontTemplateSwitch: only `dailymart` has a checkout frame
+        // in its kit. `gravia`'s Cart still runs the flow inline and never
+        // pushes here, so a gravia branch would be an unreachable screen.
+        child: dailymart_checkout.CheckoutPage(
+          address: state.extra as AddressEntity,
         ),
       ),
     ),

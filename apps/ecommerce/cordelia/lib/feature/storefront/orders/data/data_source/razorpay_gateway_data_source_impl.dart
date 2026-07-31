@@ -1,7 +1,6 @@
 import 'package:cordelia/constants/value_const.dart';
 import 'package:cordelia/services/firebase_auth_service.dart';
 import 'package:cordelia/services/razorpay/razorpay_service.dart';
-import 'package:cordelia/templates/gravia/constants/gravia_value_const.dart';
 
 import '../../domain/entities/payment_intent_entity.dart';
 import '../../domain/entities/payment_result_entity.dart';
@@ -21,14 +20,19 @@ class RazorpayGatewayDataSourceImpl implements PaymentGatewayDataSource {
     try {
       return await RazorpayService.instance.open(
         intent,
-        name: ValueConst.appTitle,
+        // The store the shopper is buying from — its Razorpay account is the
+        // one being paid, so its name is what the sheet must show. Falls back
+        // to the app name only when the server sent none.
+        name: intent.storeName.isNotEmpty
+            ? intent.storeName
+            : ValueConst.appTitle,
         email: FirebaseAuthService.instance.currentUser?.email,
       );
     } on RazorpayFailure catch (e) {
       throw PaymentGatewayException(
         message: e.isCancelled
-            ? GraviaValueConst.paymentCancelledMessage
-            : (e.message.isNotEmpty ? e.message : GraviaValueConst.paymentFailedMessage),
+            ? ValueConst.paymentCancelledMessage
+            : (e.message.isNotEmpty ? e.message : ValueConst.paymentFailedMessage),
         cancelled: e.isCancelled,
       );
     }

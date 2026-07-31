@@ -12,6 +12,7 @@ _PaymentIntentModel _$PaymentIntentModelFromJson(Map<String, dynamic> json) =>
       razorpayKeyId: json['razorpayKeyId'] as String,
       amount: (json['amount'] as num).toInt(),
       currency: json['currency'] as String,
+      storeName: json['storeName'] as String? ?? '',
     );
 
 Map<String, dynamic> _$PaymentIntentModelToJson(_PaymentIntentModel instance) =>
@@ -20,4 +21,5 @@ Map<String, dynamic> _$PaymentIntentModelToJson(_PaymentIntentModel instance) =>
       'razorpayKeyId': instance.razorpayKeyId,
       'amount': instance.amount,
       'currency': instance.currency,
+      'storeName': instance.storeName,
     };

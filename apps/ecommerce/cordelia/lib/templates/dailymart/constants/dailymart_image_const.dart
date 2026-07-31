@@ -51,7 +51,8 @@ abstract final class DailyMartImageConst {
   ///
   /// The kit exports these three of the kinds [NotificationKind] carries;
   /// the order and security glyphs fall back to a filled Material Symbol at
-  /// the call site (see `NotificationRow`).
+  /// the call site (see `NotificationRow`). [profileSolid] does double duty
+  /// as the nav's active Profile tab — see [navProfileSolid].
   static const discountSolid = '$_icons/discount-solid.svg';
   static const cardSolid = '$_icons/card-solid.svg';
   static const profileSolid = '$_icons/profile-solid.svg';
@@ -61,9 +62,23 @@ abstract final class DailyMartImageConst {
   /// be recoloured while active: an `srcIn` filter repaints the smile too
   /// and flattens the glyph into a solid block. See `ShellPage._tabs`.
   static const navHome = '$_icons/home.svg';
+
+  /// The inactive home tab. The kit only draws the filled state, so this is
+  /// that same house redrawn stroke-only in the pack's 1.5 outline family
+  /// (like [navCart]/[navProfile]) — tinting the filled one grey loses the
+  /// white smile and leaves a solid blob.
+  static const navHomeOutline = '$_icons/home-outline.svg';
   static const navWishlist = '$_icons/heart.svg';
   static const navCart = '$_icons/cart.svg';
   static const navProfile = '$_icons/user.svg';
+
+  /// Active-tab counterparts to [navCart] / [navProfile]. Every tab in this
+  /// pack reads outline-when-inactive, filled-when-active (the kit only
+  /// draws that pair for Home and Wishlist), so the bag is redrawn filled
+  /// with its handle left as a stroke, and Profile reuses the kit's own
+  /// solid person from [profileSolid].
+  static const navCartSolid = '$_icons/cart-solid.svg';
+  static const navProfileSolid = profileSolid;
 
   /// Same outline heart as the Wishlist tab, at the card's smaller size.
   static const heart = navWishlist;

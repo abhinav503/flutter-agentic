@@ -30,6 +30,15 @@ abstract final class AppRoutes {
   static const editProfile = '/edit-profile';
   static const changePassword = '/change-password';
   static const cart = '/cart';
+
+  /// The chosen delivery address travels via GoRouter's `extra` — the Cart
+  /// gates on Select Address before pushing, so Checkout never opens without
+  /// one and never has to re-fetch the list to find it.
+  ///
+  /// `dailymart` only: `gravia` has no checkout frame yet and still runs the
+  /// flow inline from its Cart screen, so this route needs no template
+  /// switch until that changes.
+  static const checkout = '/checkout';
   static const notifications = '/notifications';
 
   /// Route pattern registered with GoRouter (`:id` path param).

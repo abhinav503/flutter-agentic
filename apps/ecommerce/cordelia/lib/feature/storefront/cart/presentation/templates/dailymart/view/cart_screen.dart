@@ -13,10 +13,7 @@ import 'package:cordelia/constants/value_const.dart';
 import 'package:cordelia/feature/storefront/address/domain/entities/address_entity.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_value_const.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_header_row.dart';
-import 'package:cordelia/templates/dailymart/widgets/dailymart_sheet.dart';
 
-import '../../../../domain/entities/cart_item_entity.dart';
-import '../../../bloc/checkout_bloc.dart';
 import '../../../cubit/cart_cubit.dart';
 import '../widgets/cart_item_card.dart';
 import '../widgets/cart_summary_panel.dart';
@@ -29,8 +26,9 @@ import '../widgets/cart_summary_panel.dart';
 /// nowhere to pop to. Coupon + totals scroll with the items; only the
 /// checkout CTA docks.
 ///
-/// Cart state is the app-root [CartCubit]; a [CheckoutBloc] must be
-/// provided above this screen by whichever host mounts it.
+/// Cart state is the app-root `CartCubit`. Placing the order is *not* this
+/// screen's job in this template — the CTA gates on an address and hands off
+/// to the Checkout route, which owns the `CheckoutBloc` and the confirmation.
 class CartScreen extends BaseScreen {
   final VoidCallback onBack;
   final bool showBack;
@@ -42,41 +40,17 @@ class CartScreen extends BaseScreen {
 }
 
 class _CartScreenState extends BaseScreenState<CartScreen> {
-  @override
-  void initState() {
-    super.initState();
-    // The CheckoutBloc outlives this screen (shell-level in the tab host),
-    // so a success that landed while the tab was unmounted had no listener
-    // to react — reconcile on mount. `acknowledged` in _onOrderPlaced
-    // resets the bloc so this can't re-fire on a later remount.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      if (context.read<CheckoutBloc>().state case CheckoutSuccess()) {
-        _onOrderPlaced();
-      }
-    });
-  }
-
   void _showComingSoon() => showSnackBar(ValueConst.comingSoonMessage);
 
-  // Checkout first gates on picking a delivery address — reuses the Select
+  // Checkout gates on picking a delivery address first — reuses the Select
   // Address screen, which pops with the chosen address (null if the shopper
-  // backs out). The cart clears only once the server confirms the order
-  // (see the CheckoutBloc listener), never optimistically here.
-  Future<void> _startCheckout(List<CartItemEntity> items) async {
+  // backs out) — then hands off to the Checkout route, which owns the order
+  // from there (its own CheckoutBloc, its own success state).
+  Future<void> _startCheckout() async {
     final address = await context.push<AddressEntity>(AppRoutes.selectAddress);
     if (address == null || !mounted) return;
-    context.read<CheckoutBloc>().add(
-      CheckoutEvent.submitted(items: items, addressId: address.id),
-    );
-  }
-
-  void _onOrderPlaced() {
-    context.read<CartCubit>().clear();
-    context.read<CheckoutBloc>().add(const CheckoutEvent.acknowledged());
-    // No Orders tab in this template's shell — the one exit resumes
-    // shopping wherever the cart was opened from.
-    showDailyMartOrderPlacedSheet(onContinue: widget.onBack);
+    if (!context.mounted) return;
+    await context.push(AppRoutes.checkout, extra: address);
   }
 
   @override
@@ -94,18 +68,7 @@ class _CartScreenState extends BaseScreenState<CartScreen> {
         // The summary panel handles the bottom inset itself so its surface
         // runs to the screen's edge.
         bottom: false,
-        child: BlocListener<CheckoutBloc, CheckoutState>(
-          listener: (context, state) {
-            switch (state) {
-              case CheckoutSuccess():
-                _onOrderPlaced();
-              case CheckoutFailure(:final message):
-                showSnackBar(message);
-              case CheckoutIdle() || CheckoutSubmitting():
-                break;
-            }
-          },
-          child: Column(
+        child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
@@ -176,18 +139,15 @@ class _CartScreenState extends BaseScreenState<CartScreen> {
                     ),
                   ),
                 ),
-                BlocBuilder<CheckoutBloc, CheckoutState>(
-                  builder: (context, state) => DailyMartCartCheckoutBar(
-                    // Submitting spans the whole flow (payment + placement),
-                    // so the CTA stays loading and un-tappable throughout.
-                    busy: state is CheckoutSubmitting,
-                    onCheckout: () => _startCheckout(cartItems),
-                  ),
+                // Never busy: this CTA only navigates now — the Checkout
+                // screen's own CTA carries the order's loading state.
+                DailyMartCartCheckoutBar(
+                  busy: false,
+                  onCheckout: _startCheckout,
                 ),
               ],
             ],
           ),
-        ),
       ),
     );
   }

@@ -27,7 +27,7 @@ import 'package:core/core/ui/blocks/docked_bar.dart';
 
 import '../../../../domain/entities/cart_item_entity.dart';
 import '../../../bloc/cart_bloc.dart';
-import '../../../bloc/checkout_bloc.dart';
+import 'package:cordelia/feature/storefront/checkout/presentation/bloc/checkout_bloc.dart';
 import '../../../cubit/cart_cubit.dart';
 import '../widgets/cart_item_row.dart';
 import '../widgets/cart_summary_section.dart';

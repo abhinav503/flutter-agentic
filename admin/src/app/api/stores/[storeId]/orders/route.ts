@@ -120,6 +120,7 @@ export async function POST(
       items,
       addressId,
       paymentProvided ? razorpayPaymentId! : "",
+      paymentProvided ? razorpayOrderId! : "",
     );
     return NextResponse.json({ order: serializeOrder(order) }, { status: 201 });
   } catch (err) {

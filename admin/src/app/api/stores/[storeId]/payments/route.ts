@@ -6,6 +6,7 @@ import {
   RazorpayError,
 } from "@/lib/payments";
 import { requireAuthedUser, UnauthorizedError } from "@/lib/api/admin-guard";
+import { adminDb } from "@/lib/firebase-admin";
 import type { CreateOrderItemInput } from "@/lib/orders";
 
 // Step 1 of the secure checkout: the shopper asks the server to create a
@@ -49,6 +50,14 @@ export async function POST(
     );
   }
 
+  // The merchant name the checkout sheet shows. It has to be the store's, not
+  // the app's: each store settles into its own Razorpay account, so billing
+  // the shopper under the app's name would name a party that never receives
+  // the money. Empty if the store doc somehow has no name — the client falls
+  // back to the app name rather than opening a nameless sheet.
+  const storeSnap = await adminDb.collection("stores").doc(storeId).get();
+  const storeName = (storeSnap.data()?.name as string | undefined) ?? "";
+
   let total: number;
   try {
     total = await priceCart(storeId, items);
@@ -77,6 +86,7 @@ export async function POST(
         razorpayKeyId: config.keyId,
         amount: order.amount,
         currency: order.currency,
+        storeName,
       },
       { status: 201 },
     );

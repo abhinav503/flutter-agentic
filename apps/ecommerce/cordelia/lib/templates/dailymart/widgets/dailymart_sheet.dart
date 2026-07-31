@@ -12,7 +12,6 @@ import 'package:cordelia/templates/dailymart/constants/dailymart_value_const.dar
 import 'dailymart_add_to_cart_sheet_content.dart';
 import 'dailymart_confirm_sheet_content.dart';
 import 'dailymart_icon_disc.dart';
-import 'dailymart_order_placed_sheet_content.dart';
 
 /// DailyMart's destructive-confirmation sheet — [DailyMartConfirmSheetContent]
 /// presented chrome-free, bypassing [DailyMartSheetX.showDailyMartSheet]
@@ -110,21 +109,4 @@ extension DailyMartSheetX<T extends BaseScreen> on BaseScreenState<T> {
       onAddToCart: (quantity) => onAddToCart(product, quantity),
     ),
   );
-
-  /// The checkout-success sheet. [onContinue] runs once the sheet has
-  /// closed — through the CTA, the close disc, the barrier, or a drag —
-  /// so no dismissal path strands the shopper on the now-empty cart.
-  Future<void> showDailyMartOrderPlacedSheet({
-    required VoidCallback onContinue,
-  }) async {
-    await showDailyMartSheet<void>(
-      title: DailyMartValueConst.orderPlacedTitle,
-      child: Builder(
-        builder: (sheetContext) => DailyMartOrderPlacedSheetContent(
-          onContinue: () => Navigator.of(sheetContext).pop(),
-        ),
-      ),
-    );
-    if (context.mounted) onContinue();
-  }
 }

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:core/core/base/base_page.dart';
 import '../../../bloc/cart_bloc.dart';
-import '../../../bloc/checkout_bloc.dart';
+import 'package:cordelia/feature/storefront/checkout/presentation/bloc/checkout_bloc.dart';
 import 'cart_screen.dart';
 
 class CartPage extends BasePage {

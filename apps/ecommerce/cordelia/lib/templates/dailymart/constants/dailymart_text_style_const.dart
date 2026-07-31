@@ -92,11 +92,21 @@ abstract final class DailyMartTextStyleConst {
     letterSpacing: 0,
   );
 
-  /// Promo-card headline — 24/700. The pack's largest type.
+  /// Promo-card headline — 24/700.
   static TextStyle promoTitle(TextTheme tt) => tt.headlineSmall!.copyWith(
     fontSize: 24,
     fontWeight: FontWeight.w700,
     height: 1.36,
+    letterSpacing: 0,
+  );
+
+  /// Checkout success headline — 28/700, the pack's largest type and its
+  /// only use above 24. One screen renders it (kit frame `34 Order
+  /// Successfully`), which is why it isn't folded into [promoTitle].
+  static TextStyle successTitle(TextTheme tt) => tt.headlineMedium!.copyWith(
+    fontSize: 28,
+    fontWeight: FontWeight.w700,
+    height: 1.55,
     letterSpacing: 0,
   );
 }

@@ -24,12 +24,18 @@ class DailyMartProductListTile extends StatelessWidget {
   final VoidCallback? onIncrement;
   final VoidCallback? onDecrement;
 
+  /// False on Checkout's Order List, where the basket is already fixed — the
+  /// kit's row there carries no stepper, so the slot shows the quantity as
+  /// text instead of a control that would reopen a settled decision.
+  final bool showStepper;
+
   const DailyMartProductListTile({
     super.key,
     required this.product,
     required this.quantity,
     this.onIncrement,
     this.onDecrement,
+    this.showStepper = true,
   });
 
   @override
@@ -91,12 +97,20 @@ class DailyMartProductListTile extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    DailyMartQuantityStepper(
-                      value: quantity,
-                      controlSize: AppSpacing.xl2,
-                      onDecrement: onDecrement,
-                      onIncrement: onIncrement,
-                    ),
+                    if (showStepper)
+                      DailyMartQuantityStepper(
+                        value: quantity,
+                        controlSize: AppSpacing.xl2,
+                        onDecrement: onDecrement,
+                        onIncrement: onIncrement,
+                      )
+                    else
+                      Text(
+                        DailyMartValueConst.orderLineQuantity(quantity),
+                        style: DailyMartTextStyleConst.bodyMdSemibold(
+                          tt,
+                        ).copyWith(color: cs.onSurfaceVariant),
+                      ),
                   ],
                 ),
               ],

@@ -7,16 +7,21 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import '../../domain/entities/cart_item_entity.dart';
+import 'package:cordelia/feature/storefront/cart/domain/entities/cart_item_entity.dart';
 
 part 'checkout_bloc.freezed.dart';
 part 'checkout_event.dart';
 part 'checkout_state.dart';
 
-/// Drives the Cart screen's "Proceed to Checkout" CTA — deliberately separate
-/// from [CartBloc] (which only loads the "Before you Checkout" suggestions
-/// rail): checkout is a distinct request/response concern with its own
-/// states, not something that fits [CartBloc]'s 3-state shape.
+/// Places the order. Its own feature rather than part of `cart/`: checkout is
+/// a distinct request/response concern with its own states, it now has its own
+/// screen and route in the `dailymart` template, and one BLoC per feature is
+/// the rule. The domain/data it drives stay in `orders/` — this is
+/// presentation only.
+///
+/// Hosted two ways, because the templates differ: `dailymart` scopes it to its
+/// pushed Checkout route, while `gravia` (which has no checkout screen yet)
+/// still provides it above its Cart screen and runs the flow inline.
 ///
 /// On **mobile** it's the full secure flow, orchestrated end to end here:
 /// create a payment intent → run it through the payment provider
@@ -41,9 +46,6 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
        _createOrder = createOrderUseCase,
        super(const CheckoutState.idle()) {
     on<CheckoutSubmitted>(_onSubmitted);
-    on<CheckoutAcknowledged>(
-      (event, emit) => emit(const CheckoutState.idle()),
-    );
   }
 
   Future<void> _onSubmitted(

@@ -12,10 +12,18 @@ class PaymentIntentEntity {
   final int amount;
   final String currency;
 
+  /// The merchant name the checkout sheet shows, straight from the store doc.
+  /// It comes from the server rather than the client's active store so it
+  /// can't disagree with the account the money actually settles into. Empty
+  /// when the store has no name (or the server predates this field) — the
+  /// gateway falls back to the app name rather than opening a nameless sheet.
+  final String storeName;
+
   const PaymentIntentEntity({
     required this.razorpayOrderId,
     required this.razorpayKeyId,
     required this.amount,
     required this.currency,
+    this.storeName = '',
   });
 }

@@ -14,6 +14,9 @@ abstract class PaymentIntentModel with _$PaymentIntentModel {
     @JsonKey(name: 'razorpayKeyId') required String razorpayKeyId,
     required int amount,
     required String currency,
+    // Defaulted, not required: a server that predates this field simply omits
+    // it, and checkout must keep working against that deployment.
+    @JsonKey(name: 'storeName', defaultValue: '') required String storeName,
   }) = _PaymentIntentModel;
 
   factory PaymentIntentModel.fromJson(Map<String, dynamic> json) =>
@@ -25,6 +28,7 @@ abstract class PaymentIntentModel with _$PaymentIntentModel {
         razorpayKeyId: e.razorpayKeyId,
         amount: e.amount,
         currency: e.currency,
+        storeName: e.storeName,
       );
 
   PaymentIntentEntity toEntity() => PaymentIntentEntity(
@@ -32,5 +36,6 @@ abstract class PaymentIntentModel with _$PaymentIntentModel {
     razorpayKeyId: razorpayKeyId,
     amount: amount,
     currency: currency,
+    storeName: storeName,
   );
 }
