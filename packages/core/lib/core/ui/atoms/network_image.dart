@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
 
+import '../../extensions/string_extensions.dart';
 import 'loading_indicator.dart';
+import 'svg_image.dart';
 
 /// Network image with a built-in loading and error state, so screens never
 /// hand-roll `Image.network`'s `loadingBuilder`/`errorBuilder`.
+///
+/// Handles **either** raster or vector URLs: an `.svg` [url] renders through
+/// [AppSvgImage.network], so a screen showing a Storage-backed catalog image
+/// never has to know which kind the admin uploaded.
 ///
 /// ```dart
 /// AppNetworkImage(url: product.imageUrl, fit: BoxFit.cover)
@@ -58,6 +64,19 @@ class AppNetworkImage extends StatelessWidget {
       return Image.asset(placeholder, width: width, height: height, fit: fit);
     }
 
+    // A catalog image field (category icon, product photo, banner) can hold
+    // either kind — the admin dashboard accepts any `image/*` upload, and
+    // `Image.network` can't decode SVG. Dispatch here so no call site has to.
+    if (url.isSvgUrl) {
+      return AppSvgImage.network(
+        url,
+        width: width,
+        height: height,
+        fit: fit,
+        assetPlaceholder: placeholder,
+      );
+    }
+
     return Image.network(
       url,
       width: width,
@@ -79,8 +98,10 @@ class AppNetworkImage extends StatelessWidget {
               height: height,
               color: cs.surfaceContainerHighest,
               alignment: Alignment.center,
-              child: Icon(Icons.image_not_supported_outlined,
-                  color: cs.onSurfaceVariant),
+              child: Icon(
+                Icons.image_not_supported_outlined,
+                color: cs.onSurfaceVariant,
+              ),
             ),
     );
   }

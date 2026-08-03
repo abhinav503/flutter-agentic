@@ -529,6 +529,16 @@ WidgetbookCategory atomsCategory() {
               height: 160,
             ),
           ),
+          const Variant(
+            'SVG url (renders as vector)',
+            AppNetworkImage(
+              url:
+                  'https://cdn.jsdelivr.net/npm/simple-icons@13/icons/flutter.svg',
+              width: 160,
+              height: 160,
+              fit: BoxFit.contain,
+            ),
+          ),
         ]),
       ),
       allVariants(
@@ -720,7 +730,6 @@ WidgetbookCategory atomsCategory() {
   );
 }
 
-
 class _AppSwitcherDemo extends StatefulWidget {
   const _AppSwitcherDemo();
 
@@ -747,10 +756,7 @@ class _AppSwitcherDemoState extends State<_AppSwitcherDemo> {
           ),
         ),
         const SizedBox(height: 12),
-        AppButton(
-          label: 'Swap',
-          onTap: () => setState(() => _first = !_first),
-        ),
+        AppButton(label: 'Swap', onTap: () => setState(() => _first = !_first)),
       ],
     );
   }
