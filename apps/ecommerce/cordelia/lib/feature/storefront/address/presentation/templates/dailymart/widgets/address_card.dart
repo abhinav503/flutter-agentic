@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:core/core/theme/app_radius.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/svg_image.dart';
+import 'package:core/core/ui/molecules/swipe_to_delete_row.dart';
 
 import 'package:cordelia/templates/dailymart/constants/dailymart_dimen_const.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_image_const.dart';
@@ -28,7 +29,7 @@ import '../../../../domain/entities/address_entity.dart';
 /// The kit's frame draws neither edit nor delete, so both are composed from
 /// recipes the pack already owns rather than invented: the pencil is a
 /// [DailyMartIconDisc] (Edit Profile's avatar-badge glyph at row scale), and
-/// the swipe reuses the Cart row's `errorContainer` + trash reveal, so a
+/// the swipe is core's [SwipeToDeleteRow] — the Cart row's reveal, so a
 /// shopper who has removed a cart line already knows this gesture. Three
 /// actions on one row, each with its own affordance: body taps select, the
 /// pencil edits, a left swipe deletes.
@@ -72,41 +73,16 @@ class AddressCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-
-    return Container(
-      decoration: BoxDecoration(
-        color: cs.errorContainer,
-        borderRadius: AppRadius.xl,
-      ),
-      child: ClipRRect(
-        borderRadius: AppRadius.xl,
-        child: Stack(
-          children: [
-            // The revealed layer is painted by the Stack rather than handed
-            // to Dismissible as `background`, so the trash sits still while
-            // the card slides off it — same recipe as DailyMartCartItemCard.
-            Positioned.fill(
-              child: Container(
-                alignment: Alignment.centerRight,
-                padding: const EdgeInsets.only(right: AppSpacing.lg),
-                child: AppSvgImage.asset(DailyMartImageConst.delete),
-              ),
-            ),
-            Dismissible(
-              key: ValueKey(address.id),
-              direction: DismissDirection.endToStart,
-              confirmDismiss: (_) => _confirmDelete(context),
-              background: const SizedBox.shrink(),
-              child: _AddressCardBody(
-                address: address,
-                selected: selected,
-                onTap: onTap,
-                onEdit: onEdit,
-              ),
-            ),
-          ],
-        ),
+    return SwipeToDeleteRow(
+      itemKey: address.id,
+      confirmDismiss: () => _confirmDelete(context),
+      borderRadius: AppRadius.xl,
+      icon: AppSvgImage.asset(DailyMartImageConst.delete),
+      child: _AddressCardBody(
+        address: address,
+        selected: selected,
+        onTap: onTap,
+        onEdit: onEdit,
       ),
     );
   }

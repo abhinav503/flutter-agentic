@@ -183,6 +183,13 @@ instead of a seed-derived tone. An in-between shade a screen needs goes to
 `core`'s 13-role M3 scale is shared by every preset — never edited for one
 pack. `dailymart_text_style_const.dart` wraps only the tokens a real screen
 uses:
+**A token sets its weight with `atWeight`, never `copyWith(fontWeight:)`.**
+google_fonts binds a style to one font *file* when the family resolves, and
+the preset resolves each M3 role at that role's own weight — so copying a
+heavier weight onto it keeps the regular file and fake-bolds it, and every
+weight above the role's renders identically. `TextStyle.atWeight`
+(`core/extensions/text_style_extensions.dart`) re-resolves the real cut.
+
 
 | Token | M3 role it wraps | Used for |
 |---|---|---|
@@ -417,7 +424,8 @@ why they are field-shaped (10 px, bordered) rather than menu-shaped.
   The kit frame draws no edit or delete, so the row carries three actions
   under three affordances: the body selects, a 28 px pencil disc
   (`addressActionSize`, `cs.surface` fill) opens the Add/Edit form, and a
-  left swipe reveals the Cart row's `errorContainer` + trash and gates the
+  left swipe reveals the Cart row's `errorContainer` + trash (both rows sit
+  on core's `SwipeToDeleteRow`) and gates the
   delete behind `showDailyMartConfirmSheet`. That swipe's `confirmDismiss`
   always returns `false`: the delete is a server round-trip the bloc awaits,
   so the row leaves when the new list lands and survives a failed delete

@@ -50,11 +50,11 @@ abstract final class GrofastColorConst {
     Color(0xFFE9F1F7), // sky
   ];
 
-  /// Black wash between a promo banner's photo and the white copy over it, so
-  /// the headline stays legible against any image the store uploads. The kit
-  /// draws its banners with the copy on flat artwork; a real uploaded photo
-  /// needs the scrim.
-  static const promoScrim = Color(0x40000000);
+  /// The rating star on Product Details' badge — the kit's one amber, and the
+  /// only warm accent in a pack that is otherwise green. Not a scheme role:
+  /// `AppColorsExtension.warning` is a semantic state colour, and a star is
+  /// not a warning.
+  static const ratingStar = Color(0xFFF0C334);
 }
 
 /// Roles the pack needs that no `ColorScheme` member expresses on its own —
@@ -80,8 +80,31 @@ extension GrofastColorSchemeX on ColorScheme {
 /// the page: the nav's raised disc, the floating filter pill, the success
 /// sheet's icon. Cards do **not** use it; they separate by fill alone.
 ///
-/// A second shadow recipe in this pack is drift.
+/// The nav bar takes [navBar] instead — same green ink, but a wash rather
+/// than a lift. A third shadow recipe in this pack is drift.
 abstract final class GrofastElevation {
+  /// The bar's separation from the page. Bar and canvas are both `cs.surface`,
+  /// so with no shadow the silhouette only reads where content happens to sit
+  /// behind the dome — and a Material `elevation` this wide is invisible at
+  /// the alpha `Canvas.drawShadow` derives for it.
+  ///
+  /// Two layers for what the kit draws as one 318-tall gradient above the bar
+  /// (measured: ~10% of the ink at the bar's edge, gone ~230 above it): the
+  /// tight layer defines the dome's outline, the wide one is that wash, cut
+  /// to a blur that is affordable to redraw every frame of a tab change.
+  static const navBar = [
+    BoxShadow(
+      color: Color(0x1F369246),
+      blurRadius: 18,
+      offset: Offset(0, -2),
+    ),
+    BoxShadow(
+      color: Color(0x1A369246),
+      blurRadius: 55,
+      offset: Offset(0, -16),
+    ),
+  ];
+
   static const raised = [
     BoxShadow(
       color: Color(0x0F369246),

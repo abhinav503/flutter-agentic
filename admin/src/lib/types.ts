@@ -77,6 +77,11 @@ export type Banner = {
   // Lets a store stage a seasonal banner, or retire one, without deleting
   // the doc and re-uploading its image.
   isActive: boolean;
+  // "#RRGGBB" for the copy panel beside the artwork, or "" to let the
+  // storefront's own surface colour stand in. Only templates that lay the
+  // copy out *next to* the image read it — one that prints the copy over the
+  // photo ignores it.
+  backgroundColor: string;
 };
 
 export type CartItem = {

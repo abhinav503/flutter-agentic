@@ -1,28 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 
 import 'package:core/core/base/base_screen.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/network_image.dart';
 import 'package:core/core/ui/atoms/shimmer_box.dart';
 
-import 'package:cordelia/constants/app_routes.dart';
 import 'package:cordelia/enums/product_unit_type.dart';
 import 'package:cordelia/feature/storefront/cart/presentation/quantity_selection.dart';
 import 'package:cordelia/feature/storefront/favourites/presentation/cubit/favourites_cubit.dart';
 import 'package:cordelia/feature/storefront/home/domain/entities/product_entity.dart';
 import 'package:cordelia/feature/storefront/product_details/domain/entities/product_detail_entity.dart';
 import 'package:cordelia/feature/storefront/product_details/presentation/product_details_actions.dart';
+import 'package:cordelia/templates/grofast/constants/grofast_color_const.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_dimen_const.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_text_style_const.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_value_const.dart';
+import 'package:cordelia/templates/grofast/widgets/grofast_chip.dart';
 import 'package:cordelia/templates/grofast/widgets/grofast_dome.dart';
 import 'package:cordelia/templates/grofast/widgets/grofast_header_row.dart';
 import 'package:cordelia/templates/grofast/widgets/grofast_line_item_row.dart';
 import 'package:cordelia/templates/grofast/widgets/grofast_price.dart';
-import 'package:cordelia/templates/grofast/widgets/grofast_primary_button.dart';
 import 'package:cordelia/templates/grofast/widgets/grofast_product_card.dart';
 import 'package:cordelia/templates/grofast/widgets/grofast_product_grid.dart';
 import 'package:cordelia/templates/grofast/widgets/grofast_screen_body.dart';
@@ -36,8 +35,8 @@ import '../../../bloc/product_details_bloc.dart';
 ///
 /// The composition: a tall tinted hero well whose **bottom** edge is the
 /// pack's dome (the only place the arc is flipped), the back and bag controls
-/// floating over it, the favourite disc overlapping the arc on the right, and
-/// the copy below. The stepper and the gradient "Add to bag" pill share the
+/// floating over it, the favourite disc inside the well clear of the arc, and
+/// the copy below. The stepper and the gradient "Add to bag" panel share the
 /// docked row at the bottom, exactly as the kit draws them.
 class ProductDetailsScreen extends BaseScreen {
   final String storeId;
@@ -141,7 +140,7 @@ class _DetailsContent extends StatelessWidget {
       children: [
         SingleChildScrollView(
           padding: EdgeInsets.only(
-            bottom: GrofastDimenConst.floatingActionScrollInset(context),
+            bottom: GrofastDimenConst.detailScrollInset(context),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -163,29 +162,53 @@ class _DetailsContent extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    Text(
+                      product.name,
+                      style: GrofastTextStyleConst.displayBold(tt),
+                    ),
+                    const SizedBox(height: AppSpacing.lg),
+                    // The kit's one row: what the product *is* on the left,
+                    // what it costs on the right. The price carries the pack
+                    // size in its suffix ("/kg", "/500 g"), which is why no
+                    // separate size line sits under the title.
                     Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Expanded(
-                          child: Text(
-                            product.name,
-                            style: GrofastTextStyleConst.displayBold(tt),
+                          child: Wrap(
+                            spacing: AppSpacing.xs,
+                            runSpacing: AppSpacing.xs,
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            children: [
+                              GrofastBadge.outlined(
+                                label: GrofastValueConst.staticRatingLabel,
+                                leading: const Icon(
+                                  Icons.star_rounded,
+                                  size: GrofastDimenConst.badgeLeadingSize,
+                                  color: GrofastColorConst.ratingStar,
+                                ),
+                              ),
+                              if (detail.category case final category?)
+                                GrofastBadge.tinted(
+                                  label: category.name,
+                                  leading: ClipOval(
+                                    child: AppNetworkImage(
+                                      url: category.imageUrl,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                ),
+                            ],
                           ),
                         ),
                         const SizedBox(width: AppSpacing.lg),
                         GrofastPrice(
                           value: product.price,
-                          unit: product.unitType.unitLabel(product.unitValue),
-                          scale: 1.3,
+                          unit: product.unitType.pricePerLabel(
+                            product.unitValue,
+                          ),
+                          scale: GrofastDimenConst.detailPriceScale,
                         ),
                       ],
-                    ),
-                    const SizedBox(height: AppSpacing.xs),
-                    Text(
-                      product.unitType.format(product.unitValue),
-                      style: GrofastTextStyleConst.meta(
-                        tt,
-                      ).copyWith(color: cs.onSurfaceVariant),
                     ),
                     const SizedBox(height: AppSpacing.xl4),
                     Text(
@@ -225,34 +248,111 @@ class _DetailsContent extends StatelessWidget {
             ],
           ),
         ),
-        const Positioned(
+        Positioned(
+          left: 0,
+          right: 0,
+          bottom: GrofastDimenConst.detailDockHeight(context),
+          child: const GrofastBottomFade.overDock(),
+        ),
+        Positioned(
           left: 0,
           right: 0,
           bottom: 0,
-          child: GrofastBottomFade(),
+          child: _AddToBagDock(
+            quantity: quantity,
+            onIncrement: onIncrement,
+            onDecrement: onDecrement,
+            onAddToBag: onAddToBag,
+          ),
         ),
-        Positioned(
-          left: GrofastDimenConst.screenGutter,
-          right: GrofastDimenConst.screenGutter,
-          bottom: MediaQuery.paddingOf(context).bottom + AppSpacing.lg,
-          child: Row(
-            children: [
-              GrofastQuantityStepper(
+      ],
+    );
+  }
+}
+
+/// The kit's docked row (`27:316` + `101:1254`), which is not the pack's
+/// usual floating-CTA-over-a-fade at all: the "Add to bag" gradient is a
+/// **panel** welded into the bottom-right corner — one 28 radius on its
+/// top-left, no others, and no safe-area inset, so it runs behind the home
+/// indicator — while the stepper beside it rests on that inset. The band
+/// itself is opaque `cs.surface`; the fade sits above it, not under it, so
+/// nothing scrolls through the row.
+class _AddToBagDock extends StatelessWidget {
+  final int quantity;
+  final VoidCallback onIncrement;
+  final VoidCallback? onDecrement;
+  final VoidCallback onAddToBag;
+
+  const _AddToBagDock({
+    required this.quantity,
+    required this.onIncrement,
+    required this.onDecrement,
+    required this.onAddToBag,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+    final bottomInset = GrofastDimenConst.detailStepperBottomInset(context);
+
+    return ColoredBox(
+      color: cs.surface,
+      child: SizedBox(
+        height: GrofastDimenConst.detailDockHeight(context),
+        child: Stack(
+          children: [
+            Align(
+              alignment: Alignment.bottomRight,
+              child: FractionallySizedBox(
+                widthFactor: GrofastDimenConst.detailDockPanelWidthFraction,
+                heightFactor: 1,
+                child: Semantics(
+                  button: true,
+                  child: GestureDetector(
+                    onTap: onAddToBag,
+                    child: Container(
+                      decoration: const BoxDecoration(
+                        gradient: GrofastColorConst.brandGradient,
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(
+                            GrofastDimenConst.detailDockPanelRadius,
+                          ),
+                        ),
+                      ),
+                      // The label centres on the stepper's line, not on the
+                      // panel's — the panel is taller than the row it joins
+                      // because it swallows the device inset.
+                      alignment: Alignment.bottomCenter,
+                      padding: EdgeInsets.only(bottom: bottomInset),
+                      child: SizedBox(
+                        height: GrofastDimenConst.detailStepperButtonSize,
+                        child: Center(
+                          child: Text(
+                            GrofastValueConst.addToBag,
+                            style: GrofastTextStyleConst.labelSemibold(
+                              tt,
+                            ).copyWith(color: cs.onPrimary),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              left: GrofastDimenConst.screenGutter,
+              bottom: bottomInset,
+              child: GrofastQuantityStepper.large(
                 quantity: quantity,
                 onIncrement: onIncrement,
                 onDecrement: onDecrement,
               ),
-              const SizedBox(width: AppSpacing.lg),
-              Expanded(
-                child: GrofastPrimaryButton(
-                  label: GrofastValueConst.addToBag,
-                  onTap: onAddToBag,
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }
@@ -277,63 +377,52 @@ class _HeroWell extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final topInset = MediaQuery.paddingOf(context).top;
 
-    return SizedBox(
-      // The favourite disc hangs half outside the well, so the stack has to
-      // be taller than the clipped surface by that overhang.
-      height:
-          GrofastDimenConst.detailImageHeight +
-          GrofastDimenConst.detailFavouriteSize / 2,
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          ClipPath(
-            clipper: const GrofastBottomDomeClipper(),
-            child: Container(
-              height: GrofastDimenConst.detailImageHeight,
-              width: double.infinity,
-              color: cs.surfaceContainerLow,
-              padding: EdgeInsets.only(
-                top: topInset + AppSpacing.xl8,
-                bottom: AppSpacing.xl6,
-                left: GrofastDimenConst.screenGutter,
-                right: GrofastDimenConst.screenGutter,
-              ),
-              child: AppNetworkImage(url: imageUrl, fit: BoxFit.contain),
-            ),
-          ),
-          Positioned(
-            top: topInset + AppSpacing.base,
-            left: GrofastDimenConst.screenGutter,
-            right: GrofastDimenConst.screenGutter,
-            child: GrofastHeaderRow(
-              trailing: GrofastHeaderAction(
-                icon: Icons.shopping_bag_rounded,
-                onTap: () => context.push(AppRoutes.cart, extra: storeId),
-                tooltip: GrofastValueConst.bagTitle,
-              ),
-            ),
-          ),
-          Positioned(
-            right: GrofastDimenConst.screenGutter,
-            bottom: 0,
-            child: DecoratedBox(
-              // The disc sits half on the arc and half on the page, so it
-              // needs its own white ring to stay legible over both.
-              decoration: BoxDecoration(
-                color: cs.surface,
-                shape: BoxShape.circle,
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(AppSpacing.xs3),
-                child: GrofastFavouriteHeart(
-                  isFavourite: isFavourite,
-                  onTap: onFavouriteToggle,
-                  size: GrofastDimenConst.detailFavouriteSize,
+    return ClipPath(
+      clipper: const GrofastBottomDomeClipper(),
+      child: SizedBox(
+        height: GrofastDimenConst.detailImageHeight(context),
+        width: double.infinity,
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: ColoredBox(
+                color: cs.surfaceContainerLow,
+                child: Padding(
+                  padding: EdgeInsets.only(
+                    top: topInset + AppSpacing.xl8,
+                    // The artwork clears the favourite disc *and* the arc the
+                    // dome cuts out of the well's bottom.
+                    bottom:
+                        GrofastDimenConst.detailFavouriteBottomInset +
+                        GrofastDimenConst.detailFavouriteSize,
+                    left: GrofastDimenConst.screenGutter,
+                    right: GrofastDimenConst.screenGutter,
+                  ),
+                  child: AppNetworkImage(url: imageUrl, fit: BoxFit.contain),
                 ),
               ),
             ),
-          ),
-        ],
+            Positioned(
+              top: topInset + AppSpacing.base,
+              left: GrofastDimenConst.screenGutter,
+              right: GrofastDimenConst.screenGutter,
+              child: GrofastHeaderRow(
+                trailing: GrofastBagAction(storeId: storeId),
+              ),
+            ),
+            // Inside the well, clear of the arc — the kit never lets this
+            // disc straddle the dome's edge.
+            Positioned(
+              right: GrofastDimenConst.screenGutter,
+              bottom: GrofastDimenConst.detailFavouriteBottomInset,
+              child: GrofastFavouriteHeart(
+                isFavourite: isFavourite,
+                onTap: onFavouriteToggle,
+                size: GrofastDimenConst.detailFavouriteSize,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -346,9 +435,9 @@ class _DetailsSkeletonBody extends StatelessWidget {
   Widget build(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      const ShimmerBox(
+      ShimmerBox(
         width: double.infinity,
-        height: GrofastDimenConst.detailImageHeight,
+        height: GrofastDimenConst.detailImageHeight(context),
         borderRadius: BorderRadius.zero,
       ),
       const SizedBox(height: AppSpacing.xl4),

@@ -28,11 +28,16 @@ class GrofastNavItem {
 /// The pack's bottom navigation (spec sheet §10) — and, with the domed sheet,
 /// one of its two signature shapes.
 ///
-/// The bar is white with a **circular notch cut out of its top edge**, and
-/// the active tab's gradient disc drops into that hole, rising above the bar
-/// with the label beneath it inside the bar. Notch and disc are concentric
-/// and animate together as one movement; animating them separately makes the
-/// disc visibly leave its hole mid-flight (spec sheet §7).
+/// The bar is white and its top edge **lifts into a dome** around the active
+/// tab, with the tab's gradient disc sitting in the dome and the label beneath
+/// it inside the bar. Dome and disc are concentric and animate as one
+/// movement, off a single driver — running two animations of the same
+/// duration would still let the disc drift out of its dome the moment either
+/// curve is touched (spec sheet §7).
+///
+/// The dome only reads with content behind it, so the shell's `Scaffold`
+/// runs `extendBody` and everything outside the dome in the widget's top
+/// [GrofastDimenConst.navBumpDiameter] / 2 is transparent.
 ///
 /// Inactive tabs are bare glyphs — no disc, no label.
 class GrofastNavBar extends StatelessWidget {
@@ -65,102 +70,91 @@ class GrofastNavBar extends StatelessWidget {
 
     const discSize = GrofastDimenConst.navDiscSize;
     const barHeight = GrofastDimenConst.navBarHeight;
+    // The dome is a half-circle above the bar's top edge, so its rise is the
+    // radius — and that rise is the widget's headroom above the bar.
+    const rise = GrofastDimenConst.navBumpDiameter / 2;
     final activeCenter = _slotCenter(currentIndex, width);
 
-    return SizedBox(
-      width: width,
-      // The disc rises a full radius above the bar, so the widget is taller
-      // than the bar itself; the device inset is paid inside the bar, below
-      // the labels.
-      height: barHeight + discSize / 2 + bottomInset,
-      child: Stack(
-        clipBehavior: Clip.none,
-        alignment: Alignment.bottomCenter,
-        children: [
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: TweenAnimationBuilder<double>(
-              tween: Tween(begin: activeCenter, end: activeCenter),
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeOutCubic,
-              builder: (context, notchX, child) => ClipPath(
-                clipper: GrofastNavBarClipper(notchCenterX: notchX),
-                child: child,
-              ),
-              child: Container(
-                height: barHeight + bottomInset,
-                color: cs.surface,
-                padding: EdgeInsets.only(bottom: bottomInset),
-                child: Stack(
-                  children: [
-                    for (var i = 0; i < items.length; i++)
-                      if (i != currentIndex)
-                        Positioned(
-                          left: _slotCenter(i, width) - AppSpacing.xl9 / 2,
-                          top:
-                              GrofastDimenConst.navGlyphTop -
-                              (AppSpacing.xl9 -
-                                      GrofastDimenConst.navGlyphSize) /
-                                  2,
-                          child: _NavSlot(
-                            item: items[i],
-                            color: cs.onSurfaceVariant,
-                            onTap: () => onTap(i),
-                          ),
-                        ),
-                    Positioned(
-                      left: 0,
-                      right: 0,
-                      top: GrofastDimenConst.navLabelTop,
-                      child: IgnorePointer(
-                        child: Align(
-                          alignment: Alignment(
-                            // Alignment.x runs −1…1 across the bar.
-                            (activeCenter / width) * 2 - 1,
-                            0,
-                          ),
-                          child: Text(
-                            items[currentIndex].label,
-                            style: GrofastTextStyleConst.labelSemibold(
-                              tt,
-                            ).copyWith(color: cs.onSurfaceVariant),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+    // One driver for the dome, the disc and the label. The tween's `begin` is
+    // ignored after the first build, so re-targeting `end` mid-flight resumes
+    // from wherever the value currently is.
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: activeCenter, end: activeCenter),
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOutCubic,
+      builder: (context, centerX, _) => SizedBox(
+        width: width,
+        // The device inset is paid inside the bar, below the labels.
+        height: rise + barHeight + bottomInset,
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: CustomPaint(
+                painter: GrofastNavBarSurface(
+                  bumpCenterX: centerX,
+                  color: cs.surface,
                 ),
               ),
             ),
-          ),
-          AnimatedPositioned(
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeOutCubic,
-            left: activeCenter - discSize / 2,
-            bottom: barHeight + bottomInset - discSize / 2,
-            child: GestureDetector(
-              onTap: () => onTap(currentIndex),
-              child: Container(
-                width: discSize,
-                height: discSize,
-                decoration: BoxDecoration(
-                  gradient: GrofastColorConst.brandGradient,
-                  shape: BoxShape.circle,
-                  boxShadow: GrofastElevation.raised,
+            for (var i = 0; i < items.length; i++)
+              if (i != currentIndex)
+                Positioned(
+                  left: _slotCenter(i, width) - AppSpacing.xl9 / 2,
+                  top:
+                      rise +
+                      GrofastDimenConst.navGlyphTop -
+                      (AppSpacing.xl9 - GrofastDimenConst.navGlyphSize) / 2,
+                  child: _NavSlot(
+                    item: items[i],
+                    color: cs.onSurfaceVariant,
+                    onTap: () => onTap(i),
+                  ),
                 ),
-                alignment: Alignment.center,
-                child: AppSvgImage.asset(
-                  items[currentIndex].asset,
-                  width: GrofastDimenConst.navGlyphSize,
-                  height: GrofastDimenConst.navGlyphSize,
-                  color: cs.onPrimary,
+            // A slot centred on the tab, not an Alignment: Alignment.x places
+            // a child by its *edges*, so it can only put the label's centre on
+            // the tab's centre when the label has zero width — every real
+            // label lands short, pulled toward the bar's middle.
+            Positioned(
+              left: centerX - GrofastDimenConst.navLabelSlotWidth / 2,
+              width: GrofastDimenConst.navLabelSlotWidth,
+              top: rise + GrofastDimenConst.navLabelTop,
+              child: IgnorePointer(
+                child: Text(
+                  items[currentIndex].label,
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: GrofastTextStyleConst.labelSemibold(
+                    tt,
+                  ).copyWith(color: cs.onSurfaceVariant),
                 ),
               ),
             ),
-          ),
-        ],
+            Positioned(
+              left: centerX - discSize / 2,
+              top: rise - discSize / 2,
+              child: GestureDetector(
+                onTap: () => onTap(currentIndex),
+                child: Container(
+                  width: discSize,
+                  height: discSize,
+                  decoration: BoxDecoration(
+                    gradient: GrofastColorConst.brandGradient,
+                    shape: BoxShape.circle,
+                    boxShadow: GrofastElevation.raised,
+                  ),
+                  alignment: Alignment.center,
+                  child: AppSvgImage.asset(
+                    items[currentIndex].asset,
+                    width: GrofastDimenConst.navGlyphSize,
+                    height: GrofastDimenConst.navGlyphSize,
+                    color: cs.onPrimary,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

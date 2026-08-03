@@ -123,6 +123,7 @@ class GrofastHomeSkeletonBody extends StatelessWidget {
             itemBuilder: (context, index) => const GrofastCardSkeleton(
               width: GrofastDimenConst.categoryRailTileSize,
               height: GrofastDimenConst.categoryRailTileSize,
+              radius: GrofastDimenConst.tileRadius,
             ),
           ),
         ),

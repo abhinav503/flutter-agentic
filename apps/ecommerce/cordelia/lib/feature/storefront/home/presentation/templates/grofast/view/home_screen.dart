@@ -131,9 +131,10 @@ class _HomeScreenState extends BaseScreenState<HomeScreen>
           ),
           gap: AppSpacing.xl4,
           fullBleedBody: true,
-          // The nav bar below reserves its own height (and the device
-          // inset with it), so this is breathing room only.
-          bottomInset: AppSpacing.xl2,
+          // The shell runs `extendBody`, so this scroll view reaches under
+          // the nav: clear the bar, and let the last row pass behind the
+          // dome — that content is what makes the dome visible.
+          bottomInset: GrofastDimenConst.navScrollInset(context),
           body: GrofastSwitcher(
             child: switch (state) {
               HomeLoading() => const GrofastHomeSkeletonBody(),

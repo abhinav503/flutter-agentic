@@ -52,7 +52,7 @@ system = picking a **style pack** from the catalog below.
 |---|---|---|---|---|
 | `gravia` | ecommerce, grocery, retail, marketplace, food delivery | fresh, clean, premium | product-grid, cart, categories, checkout patterns | [`style-packs/gravia.md`](style-packs/gravia.md) — full profile, exemplar app `apps/ecommerce/gravia` |
 | `dailyMart` | ecommerce, grocery, quick-commerce, retail | fresh, bright, friendly, photo-led | product-grid, promo carousel, category rail, search + filter | [`style-packs/dailymart.md`](style-packs/dailymart.md) — full profile, exemplar `apps/ecommerce/cordelia`'s `dailymart` storefront template |
-| `grofast` | ecommerce, grocery | fresh, generous, soft, unhurried | staggered product grid, promo carousel, category grid + rail, domed sheets, notched nav | [`style-packs/grofast.md`](style-packs/grofast.md) — full profile, exemplar `apps/ecommerce/cordelia`'s `grofast` storefront template |
+| `grofast` | ecommerce, grocery | fresh, generous, soft, unhurried | staggered product grid, promo carousel, category grid + rail, domed sheets, domed nav | [`style-packs/grofast.md`](style-packs/grofast.md) — full profile, exemplar `apps/ecommerce/cordelia`'s `grofast` storefront template |
 | `rocketWarm` | utility, productivity, tools | warm, minimal, editorial | generic | — preset only (ink + amber, pill buttons); no exemplar app yet |
 | `oceanBreeze` | productivity, finance, reading | calm, clean, cool | generic | — preset only (sky blue + navy) |
 | `forestWalk` | health, wellness, outdoors | grounded, natural | generic | — preset only (forest green) |
@@ -89,6 +89,10 @@ them for free — **no new block is needed just because a new pack shows up.**
   / tappable-list-result row; the pack supplies the styled leading and
   trailing widgets. Don't fork this silhouette into a private `_Row` —
   extend it here),
+  `SwipeToDeleteRow` (row swiped left to reveal a delete panel — the panel is
+  painted under the row inside one clip so the glyph holds still, with
+  `onDelete` for an optimistic commit or `confirmDismiss` for a gated one;
+  don't hand-roll a `Dismissible` + `Stack` for this),
   `ShimmerListRow` + `ShimmerSectionHeader` + `ShimmerCircleTile` (the
   common skeleton silhouettes — disc + two lines with `itemCount`, title +
   action chip, and circle-over-label category tile — compose these before

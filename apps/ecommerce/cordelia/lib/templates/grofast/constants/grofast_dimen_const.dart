@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:flutter/widgets.dart';
 
@@ -26,6 +28,14 @@ abstract final class GrofastDimenConst {
   /// close control.
   static const double headerIconSize = 25;
 
+  /// The kit's **second** corner radius, for the surfaces that hold an image
+  /// rather than a whole card: a category tile's tinted well and a cart /
+  /// checkout / order line-item row. Everything card-sized — product card,
+  /// promo banner, menu tile, promo-code row — stays on the theme's
+  /// `cardRadius` (28), which is where a radius should come from; this is the
+  /// declared exception, not a second default.
+  static const double tileRadius = 23;
+
   // ---------------------------------------------------------------- product
 
   /// The product card's two heights. The grid is staggered by giving the
@@ -41,6 +51,15 @@ abstract final class GrofastDimenConst {
   /// short card's well shrinks and its chrome stays put.
   static const double productCardChromeHeight = 71;
 
+  /// Breathing room around the photo inside the image well.
+  ///
+  /// The kit's well is edge-to-edge and needs no padding, because its artwork
+  /// is a cut-out on transparency that carries ~20 of margin in the file
+  /// itself. A store uploads a rectangular photograph, which `contain` then
+  /// runs to the card's own edges — so the margin the kit bakes into its
+  /// assets is added here instead, at the same measured value.
+  static const double productImageInset = 20;
+
   /// The card's corner add-to-bag button, welded into the bottom-right: it
   /// shares the card's 28 radius on that corner and rounds its top-left by
   /// [productAddButtonNotchRadius].
@@ -53,6 +72,12 @@ abstract final class GrofastDimenConst {
   /// the large target, the heart is a secondary action on top of it.
   static const double productHeartSize = 25;
   static const double productHeartInset = 17;
+
+  /// The saved heart's outer ring. Measured off the kit rather than chosen:
+  /// its ring lays down ~15% of the ink a solid hairline would, which is why
+  /// it reads as a halo. At full strength it becomes a second outline and the
+  /// control starts competing with the price.
+  static const double favouriteRingOpacity = 0.15;
 
   /// Gaps between grid cells. Horizontal and vertical differ by a pixel in
   /// the kit; both are kept because the grid's stagger makes the vertical one
@@ -76,21 +101,58 @@ abstract final class GrofastDimenConst {
 
   // ------------------------------------------------------------------ promo
 
-  /// Home's promo carousel. Neighbours peek by design, so the width is a
-  /// fraction of the viewport rather than a hard number — 291/375 in the kit.
-  static const double promoViewportFraction = 0.776;
+  /// Home's promo carousel. Neighbours peek by design, so the card width is a
+  /// fraction of the screen rather than a hard number — 291/375 in the kit,
+  /// with an 18 gap to the next card.
+  static const double promoCardWidthFraction = 0.776;
+  static const double promoCardGap = 18;
   static const double promoCardHeight = 150;
+
+  /// The carousel's `PageController.viewportFraction`.
+  ///
+  /// Derived, not a constant, and this is the whole reason the first card
+  /// used to sit inset well past the gutter: a page is `card + gap`, but it
+  /// is measured against a viewport already narrowed by the leading
+  /// [screenGutter] — one absolute inset among proportional widths, so the
+  /// ratio moves with the screen. Clamped because a narrow web window can
+  /// make the page wider than the viewport, which `PageController` asserts
+  /// on.
+  static double promoPageFraction(double screenWidth) =>
+      ((screenWidth * promoCardWidthFraction + promoCardGap) /
+              (screenWidth - screenGutter))
+          .clamp(0.1, 1);
+
+  /// The banner splits into a copy column and an artwork column. Flex weights
+  /// rather than widths, so the split holds at every card width the carousel
+  /// hands out.
+  static const int promoCopyFlex = 43;
+  static const int promoImageFlex = 57;
 
   // -------------------------------------------------------------------- nav
 
-  /// The bottom bar, its notch, and the raised disc that sits in it. The
-  /// notch is a circle centred **on** the bar's top edge, and the disc is
-  /// concentric with it — the 9px difference in radius is the white ring
-  /// around the disc.
+  /// The bottom bar, the dome that rises out of it, and the raised disc that
+  /// sits in the dome. The dome is a circle centred **on** the bar's top edge
+  /// — the bar's white *bulges up* around the active tab, it is not a hole
+  /// cut through it — and the disc is concentric with it, so the 9px
+  /// difference in radius reads as a white ring around the disc.
   static const double navBarHeight = 90;
-  static const double navNotchDiameter = 82;
+  static const double navBumpDiameter = 82;
   static const double navDiscSize = 64;
   static const double navGlyphSize = 25;
+
+  /// The dome's shoulders, measured off the kit's own vector. The bar's flat
+  /// top edge starts lifting [navBumpShoulderSpan] out from the dome's centre
+  /// and meets the circle at [navBumpTangentDegrees] off its peak; the curve
+  /// between the two is tangent to both, which is what stops the shoulder
+  /// reading as a cusp. A plain rectangle-∪-circle leaves two corners there.
+  static const double navBumpShoulderSpan = 60.5;
+  static const double navBumpTangentDegrees = 59;
+
+  /// Width of the box the active tab's label is centred in. The label is the
+  /// one nav element whose width is its own, so it needs a slot to centre in
+  /// rather than an alignment (only ever one is on screen, so a slot wider
+  /// than the gap between tabs is harmless).
+  static const double navLabelSlotWidth = 120;
 
   /// Distance from the bar's top edge to an inactive glyph's top, and to the
   /// active tab's label.
@@ -125,15 +187,32 @@ abstract final class GrofastDimenConst {
   static const double lineItemThumbSize = 76;
 
   /// The promo-code row on Cart and Checkout — taller than a form field
-  /// because it carries a button inside itself.
+  /// because it carries a button inside itself. Its dashed outline is the
+  /// pack's ink at 20% (`#194B3833` in the kit), a swatch no neutral outline
+  /// role reproduces here.
   static const double couponRowHeight = 70;
+  static const double couponBorderOpacity = 0.2;
 
-  /// The `- n +` stepper's round buttons, on a cart row and on Product
-  /// Details. Below the touch floor for the same reason as the card heart.
+  /// The Apply pill's corner. The pack's buttons are pills; this one isn't —
+  /// it sits *inside* a rounded row and a full pill would echo the row's own
+  /// curve at half the size.
+  static const double applyPillRadius = 15;
+
+  /// The `- n +` stepper's buttons, on a cart row and on Product Details.
+  /// Rounded squares, not discs — the pack's one square control at this size.
+  /// Below the touch floor for the same reason as the card heart.
   static const double stepperButtonSize = 28;
+  static const double stepperButtonRadius = 8;
+
+  /// The favourite heart on a Bag row — the same control the product card
+  /// floats, at the smaller size the kit's wide card uses.
+  static const double lineItemHeartSize = 20;
 
   /// Filter/status chips (sheet options, order status, notification kinds).
   static const double chipHeight = 28;
+
+  /// The glyph or artwork leading a static `GrofastBadge`.
+  static const double badgeLeadingSize = 16;
 
   /// The Bag's "Apply" pill — the pack's one non-gradient button, sized to
   /// sit inside the [couponRowHeight] row rather than to match
@@ -152,10 +231,55 @@ abstract final class GrofastDimenConst {
 
   /// Product Details' hero well — the tallest surface in the pack, and the
   /// only one whose *bottom* edge is a dome.
-  static const double detailImageHeight = 380;
+  ///
+  /// A fraction of the screen, not a fixed height: the kit gives it 465 of an
+  /// 812-tall frame, and a hero that owns 57% of a phone can't be pinned to a
+  /// number without swallowing a short screen or stranding a tall one.
+  static const double detailImageHeightFraction = 465 / 812;
 
-  /// The floating favourite disc that overlaps the hero dome's bottom edge.
-  static const double detailFavouriteSize = 56;
+  static double detailImageHeight(BuildContext context) =>
+      MediaQuery.sizeOf(context).height * detailImageHeightFraction;
+
+  /// The favourite disc on the hero. The kit floats it **inside** the well,
+  /// clear of the dome's arc — not straddling the edge — so
+  /// [detailFavouriteBottomInset] is measured up from the well's flat bottom.
+  static const double detailFavouriteSize = 50;
+  static const double detailFavouriteBottomInset = 39;
+
+  /// Product Details' docked row (kit `27:316` + `101:1254`), the pack's one
+  /// control that deliberately ignores the device inset: the gradient panel
+  /// is welded into the bottom-right corner with a single 28 radius on its
+  /// top-left, and only the stepper beside it keeps the safe area.
+  static const double detailDockPanelWidthFraction = 196 / 375;
+  static const double detailDockPanelRadius = 28;
+
+  /// Product Details prints the price at 28/24 against a card's 18/14 — the
+  /// largest the pack ever draws it.
+  static const double detailPriceScale = 28 / 18;
+
+  /// The stepper on Product Details is the kit's larger "add-medium" pair —
+  /// [stepperButtonSize] is the compact one a Bag row carries.
+  static const double detailStepperButtonSize = 40;
+  static const double detailStepperButtonRadius = 15;
+
+  /// Where the stepper's bottom edge lands: on the home indicator's top edge,
+  /// as the kit draws it. Falls back to the pack's usual breathing room on a
+  /// device that reports no inset, where resting on the frame would read as a
+  /// mistake rather than as a deliberate weld.
+  static double detailStepperBottomInset(BuildContext context) =>
+      math.max(MediaQuery.paddingOf(context).bottom, AppSpacing.lg);
+
+  /// The band hugs its row: the kit's 92 measures a panel that overshoots the
+  /// stepper by 18, and that overshoot is dead white space on the stepper's
+  /// side of the screen — so the dock is exactly the row plus the inset it
+  /// rests on.
+  static double detailDockHeight(BuildContext context) =>
+      detailStepperBottomInset(context) + detailStepperButtonSize;
+
+  /// Bottom clearance for Product Details' scroll view, whose dock is taller
+  /// than the pack's ordinary floating CTA and, unlike it, opaque.
+  static double detailScrollInset(BuildContext context) =>
+      detailDockHeight(context) + AppSpacing.xl2;
 
   /// Track Order's timeline: the step disc and the connector between two.
   static const double timelineDiscSize = 24;
@@ -177,8 +301,16 @@ abstract final class GrofastDimenConst {
       controlHeight +
       AppSpacing.xl2;
 
-  /// Bottom clearance for a scroll view inside the shell, so the last row
-  /// clears the nav bar and the raised disc that rises out of it.
+  /// Bottom clearance for a scroll view inside the shell.
+  ///
+  /// The shell's `Scaffold` runs `extendBody`, so the body already reaches
+  /// under the whole nav widget and `paddingOf(context).bottom` reports its
+  /// full height (dome + bar + device inset). Content clears the **bar**, not
+  /// the dome: letting the last rows scroll under the raised dome is what
+  /// makes the dome read as a shape at all — with nothing behind it, white on
+  /// white, there is no silhouette to see.
   static double navScrollInset(BuildContext context) =>
-      MediaQuery.paddingOf(context).bottom + navBarHeight + AppSpacing.lg;
+      MediaQuery.paddingOf(context).bottom -
+      navBumpDiameter / 2 +
+      AppSpacing.lg;
 }

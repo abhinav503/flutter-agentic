@@ -642,8 +642,8 @@ a direct `google_fonts` dep for that half).
 **The four signature shapes** the kit is built on, all reproduced from
 measured geometry rather than eyeballed: the **domed sheet** (top edge an arc
 peaking 22 above its edges, the drag handle floating on the scrim above it —
-one `ShapeBorder` so `AppBottomSheet` fills and clips both); the **notched
-nav** (Ø82 circle cut from the bar's top edge with the active Ø64 gradient
+one `ShapeBorder` so `AppBottomSheet` fills and clips both); the **domed
+nav** (the bar's top edge lifting into a Ø82 dome with the active Ø64 gradient
 disc concentric in it, animating as one movement); the **corner add button**
 (53 × 41 welded into the product card's bottom-right, inheriting the card's 28
 radius on that corner); and the **staggered grid** (two independent columns
@@ -669,7 +669,7 @@ colour; a pack whose CTAs are all one gradient can't express that) and
 `ShapeDecoration` when supplied, `BoxDecoration` otherwise), with
 `showAppBottomSheet` forwarding `showHeader`/`shape`. Also `AppNetworkImage`
 now dispatches an `.svg` URL to `AppSvgImage.network`, and
-`ProductUnitTypeX.unitLabel` derives a price suffix's unit from `format`.
+`ProductUnitTypeX.pricePerLabel` derives a price suffix from `format`.
 
 **Deviations** — 18 kit details discarded for want of a feature or data
 behind them (Scan tab, view toggle, vouchers, maps, saved payment cards, a
@@ -681,6 +681,153 @@ the kit has no frame for and which were composed from the pack's own recipes.
 pass (gravia's network-dependent widget tests and doc_scanner's
 Firebase-init widget test fail identically with these changes stashed —
 pre-existing, unrelated).
+
+**Nav bar corrected against the kit's vector (2026-08-03).** The first pass
+read the kit's boolean as a *subtraction* — a Ø82 hole cut through the bar
+with the disc dropped into it. It is a **union**: the bar's top edge lifts
+into a dome and the disc sits in it. Three things followed from re-measuring
+the kit's own path (sampled over Figma MCP, then fitted against its rendered
+alpha to 0.3px):
+
+- **Tangent shoulders.** Neither the old cut nor a plain union gives them —
+  the circle's tangent is vertical where it crosses the flat edge, so both
+  leave a cusp. `GrofastNavBarClipper` now lifts the edge at 60.5 from the
+  centre and runs a quadratic Bézier to the circle's tangent at 59°, control
+  point at `r / sin(59°)`, which is tangent-continuous at both handovers.
+- **Something behind it, and a shadow.** A white bulge on a white canvas has
+  no silhouette, so neither shape was ever visible. Two fixes: the shell's
+  `Scaffold` now runs `extendBody` (a new `BasePage.extendBody` hook in core,
+  default `false`) so the tab's content passes behind the dome, with each tab
+  paying `navScrollInset` re-derived from the nav height the body's
+  `MediaQuery` now reports; and the bar carries its own shadow
+  (`GrofastElevation.navBar`) so it separates from the canvas even where no
+  content happens to be behind it. That shadow is painted, not elevated —
+  `GrofastNavBarSurface` draws two blurred layers of the pack's green ink and
+  then the fill from one path. Material `elevation` was tried first and
+  doesn't work here twice over: a `ClipPath` can't cast a shadow, and
+  `PhysicalShape` paints nothing at all without a child (its render object
+  returns early), while the alpha `Canvas.drawShadow` derives is far too faint
+  for white-on-white at this scale — the kit's own separation is a wide wash
+  (~10% of the ink at the bar's edge, gone ~230 above it), not a lift.
+- **One animation driver, and a centred label.** The dome, the disc and the
+  label all read one `TweenAnimationBuilder` value instead of a tween plus a
+  separate `AnimatedPositioned`. The label had been placed with an
+  `Alignment` computed from the tab's centre, which positions a child by its
+  *edges* — exact only for a zero-width child, so every real label sat short
+  of its tab, pulled toward the bar's middle. It now centres in a fixed slot.
+
+**Promo banner rebuilt as a split card, with a store-picked colour
+(2026-08-03).** grofast's banner printed the copy over the artwork behind a
+scrim, following the kit — but the kit's illustration is drawn *around* its
+words and an uploaded photograph isn't, so the scrim muddied every store's
+image and forced white copy. The card is now a 40/60 split: copy column, then
+the photo. Three parts:
+
+- **A new banner field, end to end** — `backgroundColor` (`"#RRGGBB"`, `""`
+  for unset) on the Firestore banner doc, written from a colour picker in the
+  admin's banner dialog (`ColorPickerField`, native `<input type="color">` +
+  hex, no new dependency, with the swatch shown in the banners table),
+  serialized as `background_color`, and parsed in `BannerModel.toEntity` into
+  `BannerEntity.backgroundArgb` — an `int`, so `domain` stays free of
+  `dart:ui`. Core gained the parser pair behind it (`String.hexColorArgb` /
+  `int.asHexColor`), and `AppThemeConfig` now shares the same parse instead of
+  keeping its own copy. Templates that print copy *over* the photo (gravia,
+  dailymart) ignore the field; grofast falls back to `surfaceContainerLow`.
+- **The carousel's geometry** — the first card sat inset well past the 30
+  gutter, out of line with every other row on Home. Cause: the gutter was
+  padding on each *page*, on top of `PageView` centring pages when
+  `viewportFraction < 1`. The gutter now belongs to the viewport
+  (`padEnds: false`, the whole `PageView` padded left), the gap belongs
+  inside the page, and the page fraction is derived per width
+  (`promoPageFraction`) because one absolute inset among proportional widths
+  can't be a constant. Reproduces the kit exactly: card at x=30, 291 wide,
+  next card at 339.
+- **Type** — the banner's two lines are 800 weights, one per family
+  (`promoTitle` Raleway 14/800, `promoAmount` Montserrat 28/800), both on
+  `cs.onSurface`, which *is* the `#194B38` the kit specifies. Home's greeting
+  is the pack's other 800 (`welcomeBold`, the kit's own `Text/Welcome Text`
+  component rather than the `Text/Reguler/Big` token behind every screen
+  title).
+
+**Font weights were never real cuts — `TextStyle.atWeight` in core
+(2026-08-04).** Bumping the greeting to 800 changed nothing on screen, and the
+reason is systemic rather than grofast's: google_fonts binds a style to one
+font **file** when the family resolves, and `AppTheme` resolves the preset's
+family across the M3 scale, so each role arrives pinned to *its own* weight
+(`headlineMedium` at w400). Every pack's tokens then did
+`tt.<role>!.copyWith(fontWeight: w700)`, which changes the field but keeps the
+regular file — the rasterizer fake-bolds it, and every weight above the role's
+renders identically. Core now ships `TextStyle.atWeight`, which recovers the
+plain family name google_fonts leaves in `fontFamilyFallback` and re-resolves
+the real cut (falling back to `copyWith` for a bundled font, which carries its
+own weights). grofast's Raleway tokens are converted; four tests in
+`packages/core/test/extensions/` pin the behaviour, including the
+copyWith-keeps-the-regular-cut case that is the actual bug.
+
+**`dailymart` and `gravia` converted too (same day)** — every token in
+`DailyMartTextStyleConst` and `CordeliaTextStyleConst` (which `gravia` aliases,
+and which the app's own auth/discovery chrome also renders) now goes through
+`atWeight`. The regular-weight tokens pass their role's *existing* weight
+explicitly (`labelMedium` is w500, not w400) so nothing shifted except the
+bolds, which now use the real cuts. All three spec sheets carry the rule in
+§4.
+
+**Product card corrections (2026-08-04).** Three, all from re-reading the
+kit's own card against a real catalog:
+
+- **The favourite heart is two circles, and the outer one is a state.** Not
+  saved is a plain white Ø20 disc with an `error` glyph; saved fills that disc
+  with `error`, flips the glyph white, and grows a detached `error` ring at
+  Ø25 — at 15% alpha, which is the ink the kit's hairline actually lays down
+  (measured on both card variants, `Card/Product/Tall` and
+  `-favorite-disabled`). Before this the Ø25 was an opaque white disc in both
+  states, so the unsaved heart was 25 wide instead of 20 and the ring never
+  appeared at all.
+- **The image well needed the padding the kit hides in its assets.** The kit's
+  well is edge-to-edge because its artwork is a cut-out on transparency
+  carrying ~20 of margin in the file; a store's rectangular photograph has
+  none, so `contain` ran it to the card's edges. `productImageInset` (20) adds
+  it back.
+- **`/g` was a 500× lie.** `unitLabel` took the last word of the formatted
+  pack size and dropped the amount, so a 500 g pack at $1.80 rendered
+  "$1.80/g" — a per-gram price. `pricePerLabel` keeps the whole pack unless it
+  is exactly one unit: `1000 g → /kg`, `1 pc → /pc`, but `500 g → /500 g`.
+
+**grofast Bag rebuilt against kit frame `119:650` (2026-08-04).** Six
+corrections, all from the kit's own Bag frame:
+
+- **"3 items" moved onto the "My Bag" line**, where the kit puts it — it was a
+  header-row trailing control, which read as something tappable.
+- **The row's top-right control is the favourite heart, not a delete disc.**
+  The kit's wide card carries the same heart the product card does (at 20),
+  with its ring hidden in the unsaved variant — independent confirmation of
+  the heart's two states. Deleting is now a **swipe** (`Dismissible` over an
+  `error` panel with the trash glyph), matching `Card/Product/Wide+Delete`.
+  The destructive action being the deliberate one is the point. The swipe is
+  built the way dailymart's cart row already was — panel as a layer under the
+  row inside one `ClipRRect`, `Dismissible.background` empty — since a panel
+  passed to `background` is sized to the row and squares off outside the clip.
+  Two templates shared that shape without sharing code until the extraction
+  landed: core's `SwipeToDeleteRow` molecule now owns it (panel painted by
+  its own Stack, `background` empty, `onDelete` for the optimistic commit or
+  `confirmDismiss` for the deliberate one), and grofast's Bag row, dailymart's
+  cart row and dailymart's address card all sit on it.
+- **Every line that makes the total**, on core's `PriceBreakdown` with the
+  coupon row in its `leading` slot — the same block Checkout already used. The
+  Bag had shown a lone "Total" figure.
+- **Coupon row**: `surfaceContainerLow` fill behind its dashed outline, which
+  is now the ink at 20% (`#194B3833`) rather than `cs.outline`.
+- **Apply pill radius 15**, the pack's one non-pill button — a full pill
+  inside the rounded coupon row echoed the row's own curve at half the size.
+- **Stepper buttons are white rounded squares (radius 8)**, not tinted discs.
+
+**grofast's second radius (2026-08-04).** The kit softens by 5 for the two
+surfaces that frame an image rather than being a card — the category tile's
+tinted well and the cart / checkout / order line-item row — so
+`GrofastDimenConst.tileRadius` (23) joins the theme's `cardRadius` (28), which
+everything card-sized keeps. `GrofastCardSkeleton` gained a `radius` param and
+the category skeletons pass it, so a loading state can't round differently
+from what replaces it.
 
 ## Missing flows (fill these or explicitly defer)
 

@@ -10,6 +10,25 @@ extension ImageUrlX on String {
       Uri.tryParse(this)?.path.toLowerCase().endsWith('.svg') ?? false;
 }
 
+/// Colour strings that arrive as data — a theme config's role map, or a
+/// colour an admin picked in a dashboard and stored on a record.
+extension HexColorX on String {
+  /// This `#RRGGBB` / `#AARRGGBB` string as an ARGB value, or null when it
+  /// isn't one. Returns the `int` rather than a `Color` so a `domain` entity
+  /// can carry it without importing `dart:ui`; the widget wraps it.
+  ///
+  /// Tolerant by design — a colour that came from user input shouldn't take
+  /// a screen down, it should fall back to the default. A call site that
+  /// *must* have a colour (a theme config file, where a typo should surface
+  /// loudly) checks for null and throws.
+  int? get hexColorArgb {
+    final cleaned = replaceFirst('#', '').trim();
+    if (cleaned.length != 6 && cleaned.length != 8) return null;
+    final padded = cleaned.length == 6 ? 'FF$cleaned' : cleaned;
+    return int.tryParse(padded, radix: 16);
+  }
+}
+
 /// Form-field validation predicates — the logic behind core's
 /// `TextfieldValidations` mixin (`core/mixins/`), exposed separately for
 /// call sites that need the predicate without the message.

@@ -65,7 +65,6 @@ gradient and the prices are identical in both modes.
 | `gradientStart` / `gradientEnd` | `#26AD71` / `#32CB4B` | every affirmative control (§10) |
 | `brandGradient` | bottom-left → top-right, stops `0.063 / 0.967` | the one recipe all of them share |
 | `categoryTints` | 7 pastels (mint `#EBF4F1`, cream `#F5F4E8`, sand `#F6EDE4`, blush `#FBECEC`, butter `#F7F4E3`, peach `#F8EFE4`, sky `#E9F1F7`) | category tiles, cycled by index (light only) |
-| `promoScrim` | `#40000000` | copy over a store-uploaded banner photo |
 
 **Extension roles** (`AppColorsExtension`, read via `context.appColors`):
 
@@ -95,15 +94,21 @@ doesn't name goes to `AppColorsExtension` if it's semantic, or to
 | Button | 999 (pill) | preset `shape.button` |
 | Chip | 999 (pill) | preset `shape.chip` |
 | Card / product image | **28** | preset `shape.card` |
+| Category tile / line-item row | **23** | `GrofastDimenConst.tileRadius` — the kit's second radius, for a surface that *holds* an image rather than being a card |
 | Input (shared default) | **18** | preset `shape.input` |
 | Bottom sheet | 28 (fallback only) | preset `shape.sheet` |
 | Sheet-over-header (the content sheet's top edge) | **an arc, not a radius** | `GrofastDimenConst.sheetDomeRise` = 22 |
 | List thumbnail | 28 | card radius, reused |
 | Icon circle / avatar | full circle | |
 
-The 28 is doing a lot of work: card, image well inside the card, category
-tile, cart row, promo banner and quick tile all share it, which is why cards
-can sit directly on white without a border or a shadow.
+The 28 is doing a lot of work: card, image well inside the card, promo
+banner, menu row and quick tile all share it, which is why cards can sit
+directly on white without a border or a shadow. The kit softens by 5 for the
+two surfaces that are a *frame around an image* rather than a card — the
+category tile's tinted well and the cart / checkout / order line-item row —
+and that 23 is the pack's only other radius. A skeleton standing in for one of
+them passes `GrofastCardSkeleton(radius: tileRadius)`, or the loading state
+rounds differently from what replaces it.
 
 **Documented deviations:**
 
@@ -120,6 +125,7 @@ can sit directly on white without a border or a shadow.
 
 | Constant | Value | Applies to |
 |---|---|---|
+| `tileRadius` | **23** | category tile's well, line-item row — see §2 |
 | `GrofastDimenConst.controlHeight` | **50** | search bar, scan button, every wide CTA, form fields |
 | `screenGutter` | **30** | every screen's content inset — wider than any other pack, and the main reason the screens feel unhurried |
 | Back control | 60 × 40 | `backButtonWidth` / `backButtonHeight` |
@@ -128,17 +134,24 @@ can sit directly on white without a border or a shadow.
 | Product card | 245 tall (215 for the first cell) × 149 wide at 375 | `productCardHeight` / `productCardShortHeight` |
 | Product card chrome below the image | 71 | `productCardChromeHeight` — the well is `height − 71` |
 | Card corner add button | 53 × 41 | `productAddButtonWidth` / `Height` |
-| Card heart | 25, inset 17 | `productHeartSize` / `productHeartInset` |
+| Product image inset | 20 | `productImageInset` — the margin the kit's cut-out artwork carries in-file, added as real padding for uploaded photos |
+| Card heart | 25 outer, 20 inner (0.81), 8 glyph (0.4 of inner), inset 17 | `productHeartSize` / `productHeartInset` — two concentric circles, see §10 |
 | Grid gaps | 17 column / 18 row | `gridColumnGap` / `gridRowGap` |
 | Category rail entry | 70 tile, 89 total | `categoryRailTileSize` / `categoryRailEntryHeight` |
 | Category grid cell | square (1:1) | `categoryGridAspectRatio` |
-| Promo card | 150 tall, 0.776 viewport | `promoCardHeight` / `promoViewportFraction` |
-| Nav bar / notch / disc | 90 / 82 / 64 | `navBarHeight` / `navNotchDiameter` / `navDiscSize` |
+| Promo card | 150 tall, 0.776 of the screen wide, 18 gap, copy/artwork split 40:60 | `promoCardHeight` / `promoCardWidthFraction` / `promoCardGap` / `promoCopyFlex` / `promoImageFlex`; the carousel's page fraction is derived by `promoPageFraction(width)` |
+| Nav bar / dome / disc | 90 / 82 / 64 | `navBarHeight` / `navBumpDiameter` / `navDiscSize` |
 | Line-item row | 100 tall, 76 thumb | `lineItemRowHeight` / `lineItemThumbSize` |
-| Stepper button | 28 | `stepperButtonSize` |
+| Stepper button | 28, radius 8 | `stepperButtonSize` / `stepperButtonRadius` — white rounded squares, not discs |
+| Bag row heart | 20 | `lineItemHeartSize` — the card's heart at the wide row's size |
+| Coupon row | 70 tall, dashed outline at 20% ink | `couponRowHeight` / `couponBorderOpacity` |
+| Apply pill | 40 tall, radius 15 | `applyPillHeight` / `applyPillRadius` — the pack's one non-pill button |
 | Chip | 28 | `chipHeight` |
 | Avatar — profile / edit | 100 / 120 | `profileAvatarSize` / `editAvatarSize` |
-| Product Details hero | 380 | `detailImageHeight` |
+| Product Details hero | 465/812 of the screen | `detailImageHeightFraction` → `detailImageHeight(context)` — the one height in the pack taken as a fraction, because a surface that owns 57% of the screen can't be pinned to a number |
+| Product Details favourite | 50, resting 39 above the well's flat bottom | `detailFavouriteSize` / `detailFavouriteBottomInset` — **inside** the well, clear of the arc (the dome drops `sheetDomeRise` at the edges) |
+| Product Details dock | device inset + stepper; panel 196/375 wide, one 28 radius top-left | `detailDockHeight(context)` / `detailDockPanelWidthFraction` / `detailDockPanelRadius` — the kit's 92 includes an 18 panel overshoot that is dead white on the stepper's side, so the band hugs its row instead |
+| Product Details stepper | 40, radius 15 | `detailStepperButtonSize` / `detailStepperButtonRadius` — `GrofastQuantityStepper.large`, tinted keys on white (the Bag row's inverts) |
 | Screen gutter | `screenGutter` (30) | not `AppSpacing.lg` — this pack is wider |
 | Between sections | `AppSpacing.xl4`+ | |
 | Inside a card | `AppSpacing.lg` | |
@@ -156,7 +169,7 @@ can sit directly on white without a border or a shadow.
 |---|---|
 | Family | **Raleway** for everything the theme sets; **Montserrat** for numerics only |
 | Letter-spacing | 0 throughout — the kit sets none at any size |
-| Weights in use | 400 / 500 / 600 / 700. No light weights, and no 800+ |
+| Weights in use | 400 / 500 / 600 / 700, plus **800** on Home's greeting and the promo banner's two lines. No light weights |
 | Scale source | the kit's `Text/Reguler/{Big,Medium,Small}` + `Text/Link/Small` tokens, extended only where a real screen needed a step between them |
 
 The two-family pairing is the pack's least obvious contract: prices, unit
@@ -167,13 +180,26 @@ resolved at the call site through `GoogleFonts` in
 `GrofastTextStyleConst`. `core`'s 13-role M3 scale is shared by every preset —
 never edit it for one pack.
 
+**A Raleway token sets its weight with `atWeight`, never
+`copyWith(fontWeight:)`.** google_fonts binds a style to one font *file* when
+the family resolves, and the preset resolves each role at that role's own
+weight (`headlineMedium` is w400). Copying a heavier weight onto it keeps the
+regular file and fake-bolds it, so every weight above the role's renders
+identically — 700 and 800 are the same picture, which is how the greeting
+shipped looking unchanged after a deliberate bump to 800.
+`TextStyle.atWeight` (`core/extensions/text_style_extensions.dart`)
+re-resolves the real cut. The Montserrat half never had the problem: it passes
+its weight to `GoogleFonts` in the first place.
+
 | Token | M3 role it wraps | Used for |
 |---|---|---|
-| `displayBold` | `headlineMedium` | 28/700 — screen titles ("My Bag", the greeting, "Success!") |
+| `displayBold` | `headlineMedium` | 28/700 — screen titles ("My Bag", "Success!") |
+| `welcomeBold` | `headlineMedium` | 28/800 — Home's greeting; the kit draws it from its own `Text/Welcome Text` component, not the `Text/Reguler/Big` token behind `displayBold` |
 | `sectionBold` | `titleLarge` | 20/700 — section headers |
 | `subheadBold` | `titleMedium` | 18/700 — sheet titles, card headlines |
 | `rowTitleBold` | `titleMedium` | 16/700 — category names, row primaries |
 | `cardTitleBold` | `titleSmall` | 14/700 — product card names |
+| `promoTitle` | `titleSmall` | 14/800 — the promo banner's headline; the pack's only extra-bold, paired with `promoAmount` |
 | `labelSemibold` | `labelLarge` | 14/600 — button labels, header titles, the active nav label |
 | `bodyMedium` | `bodyMedium` | 14/500 — menu rows, chips |
 | `bodySmall` | `bodySmall` | 12/500 — sub-lines, timestamps, form labels |
@@ -181,6 +207,7 @@ never edit it for one pack.
 | `price` / `priceDecimal` | `titleMedium` / `titleSmall` | Montserrat 18/600 + 14/600 — a price's integer and decimal runs |
 | `unitSuffix` | `labelSmall` | Montserrat 10/500 at 50% opacity — "/kg" |
 | `meta` | `labelSmall` | Montserrat 10/500 — counts, dates |
+| `promoAmount` | `headlineMedium` | Montserrat 28/800 — the promo banner's offer figure, the 800 half that pairs with `promoTitle` |
 | `link` | `bodySmall` | Montserrat 12/400 — "see all", "add new" |
 
 ---
@@ -212,11 +239,13 @@ Two exports ship but are deliberately unused: `scan.svg` and
 | Tinted info | `cs.surfaceContainer` / `tintedPrimaryFill` | selected chips, category tiles (via `categoryTint`) |
 | Affirmative control | `GrofastColorConst.brandGradient` | **not** a colour role — the gradient is the fill |
 | Hairline | `appColors.dockedHairline` | the Bag's totals separator |
-| Floating | `GrofastElevation.raised` | the nav disc, the filter pill, the success icon — the pack's only shadow |
+| Floating | `GrofastElevation.raised` | the nav disc, the filter pill, the success icon |
+| Nav bar | `GrofastElevation.navBar` | a wash, not a lift: bar and canvas are both `cs.surface`, so without it the dome only reads where content happens to sit behind it. **Not** a Material `elevation` — the alpha `Canvas.drawShadow` derives is invisible at this scale, and a `ClipPath` can't cast a shadow at all, so `GrofastNavBarSurface` paints the shadow layers and the fill from one path |
 
 The ladder is unusually flat: two neutral steps (white → `#F1F4F3`) carry
 almost the whole app, and depth comes from the 28 radius and the gradient
-rather than from elevation. **Cards never take a shadow** — that's what
+rather than from elevation. Both shadow recipes share one green ink
+(`#369246`) — a third is drift. **Cards never take a shadow** — that's what
 separates this pack from `dailymart`, which lifts white cards off a mint
 canvas.
 
@@ -227,14 +256,15 @@ canvas.
 | Tier | Duration | Curve | Used for |
 |---|---|---|---|
 | Micro (state flip) | 150ms | `easeOut` | heart toggle, chip selection, stepper press |
-| Component | 300ms | `easeOutCubic` | the nav's notch + disc sliding between tabs, page indicator |
+| Component | 300ms | `easeOutCubic` | the nav's dome + disc sliding between tabs, page indicator |
 | Content swap | 300ms | `easeInOut` | `AppSwitcher` between skeleton / loaded / empty / error |
 | Route | 350ms in / 300ms out | `easeInOut` | page transitions (fade, matching the app's other packs) |
 | Shared element | 300ms | default | Home ↔ Search field flight (`HeroSearchFieldFlight`) |
 | Ambient / looping | 1200ms | `easeInOut` | skeleton shimmer |
 
-The notch and the disc are one transition and therefore share one duration —
-they must never be animated separately, or the disc visibly leaves its hole.
+The dome and the disc are one transition and therefore share one *driver* —
+not merely one duration. Two animations of equal duration drift apart the
+moment either curve is touched, and the disc then visibly leaves its dome.
 No bounces anywhere; a mount-in animation fades or scales, never relayouts.
 
 ---
@@ -257,8 +287,8 @@ Scaffold (BasePage, no AppBar — the pack draws its own header row)
 | Chrome | `GrofastHeaderRow` | Never a Material `AppBar` — the back control is a rounded rectangle and the title is optically centred against it |
 | Scroll behaviour | plain scroll | Nothing pins or collapses; the header scrolls away with the content |
 | Body | `GrofastScreenBody` | One padding/scroll recipe for **every** state a screen swaps through |
-| Persistent action | floating pill over a `surface → transparent` fade | Not a docked bar — the CTA floats, and the fade is what separates it from the content |
-| Global nav | `GrofastNavBar` | 4 slots, notched, only inside the shell |
+| Persistent action | floating pill over a `surface → transparent` fade | Not a docked bar — the CTA floats, and the fade is what separates it from the content. **One exception:** Product Details, whose kit frame welds its CTA into the corner (see §10) |
+| Global nav | `GrofastNavBar` | 4 slots, domed, only inside the shell — its `Scaffold` runs `extendBody` so the tab's content passes behind the dome, and every tab pays `navScrollInset` |
 
 **Screens that deviate:** Product Details (hero dome, no header row — the back
 and bag controls float on the image); the success sheet (no header at all);
@@ -293,10 +323,41 @@ overlay type would cost the identity.
   are one `GrofastDomeSheetBorder` passed to `AppBottomSheet.shape`, so the
   sheet fills and clips to the same path and the gap between handle and dome
   shows the scrim through. Content clears `GrofastSheetMetrics.contentTop`.
-- **The notched nav.** A white 90px bar with a Ø82 circle cut out of its top
-  edge and the active tab's Ø64 gradient disc dropped into it, concentric, the
-  9px difference reading as a white ring. The label sits under the disc,
-  *inside* the bar. Notch and disc animate as one 300ms movement.
+- **The domed nav.** A white 90px bar whose top edge *lifts into* a Ø82 dome
+  around the active tab — a bulge, not a hole — with the tab's Ø64 gradient
+  disc sitting in it, concentric, the 9px difference reading as a white ring.
+  The label sits under the disc, *inside* the bar. Dome and disc animate as one
+  300ms movement off one driver.
+
+  Two things make or break it. **The shoulders:** where the circle meets the
+  flat edge its tangent is vertical, so a plain rectangle-∪-circle leaves two
+  cusps; the kit instead lifts the edge 60.5 out from the centre and runs a
+  quadratic Bézier to the circle's tangent at 59°, control point at
+  `r / sin(59°)`, tangent-continuous at both ends (`GrofastNavBarClipper`).
+  **What's behind it:** a white bulge on a white canvas has no silhouette, so
+  the shell's `Scaffold` runs `extendBody` and the tab's own content scrolls
+  under the dome. Without that the shape is invisible and the bar reads as a
+  plain strip with a floating disc.
+- **The Bag row.** The kit's wide card carries the *favourite* heart in its
+  top-right and the stepper bottom-right — no remove control. Deleting a line
+  is a **swipe** (the kit's `Card/Product/Wide+Delete`: the row slides off a
+  soft `errorContainer` panel with the outlined trash glyph in `error`), which
+  is why the visible control is the one that can't be undone by accident. The
+  swipe is core's `SwipeToDeleteRow` (which owns the panel-under-the-row
+  clip recipe), fed the kit's trash glyph at the row's 23 radius. Its totals
+  show every line that makes the
+  sum — subtotal, discount when there is one, then the total under a hairline
+  — on core's `PriceBreakdown`, the same block Checkout uses, with the coupon
+  row in its `leading` slot.
+- **The favourite heart.** Two concentric circles, Ø25 over Ø20, and the
+  outer one only exists once saved: not saved is a plain white Ø20 disc with
+  an `error` glyph; saved fills that disc with `error`, flips the glyph white,
+  and grows a detached `error` hairline **ring** at Ø25 with the card showing
+  through the gap. So the toggle changes the silhouette, not just the colour —
+  it is the kit's own difference between `Card/Product/Tall` and
+  `Card/Product/Tall-favorite-disabled`. The Ø25 box is kept in both states so
+  the tap target doesn't move. `GrofastFavouriteHeart` scales both circles off
+  its `size`, which is what lets Product Details reuse it at 56.
 - **The corner add button.** A 53 × 41 gradient block welded into the product
   card's bottom-right: it inherits the card's 28 radius on that corner and
   rounds its top-left by 15, so it reads as a piece cut out of the card. The
@@ -309,7 +370,22 @@ overlay type would cost the identity.
   than the integer part, with a 10/500 unit suffix at 50% opacity trailing it.
   On every card, row, hero and total.
 - **The flipped dome.** Product Details' hero well takes the same arc on its
-  *bottom* edge, with the favourite disc overlapping it.
+  *bottom* edge. The favourite disc floats **inside** the well, above the
+  curve — it does not straddle the edge.
+- **The welded dock.** Product Details' "Add to bag" is not the pack's
+  floating pill: it is a gradient **panel** driven into the bottom-right
+  corner, carrying a single 28 radius on its top-left and no safe-area inset
+  at all, so it runs behind the home indicator. Only the stepper beside it
+  keeps that inset, and the label centres on the stepper's line rather than on
+  the panel's. The band is exactly the row's height — the kit draws the panel
+  18 taller than the stepper, which reads as dead padding above the stepper
+  once the row is the only thing in it. The band under both is opaque
+  `cs.surface`, and the fade over it is `GrofastBottomFade.overDock` — no
+  device inset (the band owns it) and a gradient that runs its whole length,
+  because the ordinary fade's opaque lower half would stack a second white
+  slab on top of an already-opaque band. The fade sits
+  *above* it, so nothing scrolls through the row. Same family as the product
+  card's corner add button — a piece cut out of the surface, not laid on it.
 
 ## 11. Recipes
 
@@ -327,7 +403,8 @@ Recorded so nobody "restores" them:
 | Saved payment cards on Checkout | Omitted | Razorpay owns payment; a card picker here decides nothing |
 | Six-step delivery pipeline on Tracking | The three statuses the backend records (+ cancelled) | `OrderStatus` has four values; the rest would be invented progress |
 | Courier tracking id, delivery ETA | Order id; no ETA | Not on `OrderEntity` |
-| Product rating (`4.7`) and "Free shipping" chip on Product Details | Omitted | Not on `ProductEntity` |
+| Product rating (`4.7`) on Product Details | The kit's badge, rendering the kit's own number — `GrofastValueConst.staticRatingLabel` | The badge is half of a row the kit's layout is built around (rating, category, price); no rating exists on `ProductEntity`, so this is the pack's **one** piece of invented copy, same call as dailymart's card rating |
+| "Free shipping" chip on Product Details | Omitted | No shipping model — unlike the rating it names a promise the store never made |
 | "112 Items" under each category tile | Omitted | Not on `CategoryEntity` |
 | Per-category hand-picked pastel tints | A 7-stop ramp cycled by index | The backend has no tint field |
 | Notification status filter chips | Omitted | The feed is a mixed-kind mock, not an order list |
@@ -335,13 +412,28 @@ Recorded so nobody "restores" them:
 | Filter sheet's "Free Shipping" row and Lowest/Highest price inputs | Sort + the app's `ProductPriceFilter` bands as chips | No shipping model; a free range needs a filter axis the shared bloc lacks |
 | Product Review frame | Omitted | No review feature in this storefront |
 | Notification Setting frame | Omitted as a screen; its form silhouette serves Edit Profile / Change Password | No notification-preference feature |
-| Flat banner artwork with copy over it | The same copy over a scrim | Stores upload photographs; unscrimmed copy is unreadable on half of them |
+| Flat banner artwork with the copy over it | A 40/60 split — copy column, then the photo — on a colour the store picks | The kit's illustration is drawn *around* its words; a store's uploaded photograph isn't, and a scrim over it (the first attempt) muddies the artwork and forces white copy. The split keeps the pack's ink on a flat surface and every store's banner legible; `BannerEntity.backgroundArgb` (admin → `backgroundColor`) is what ties the copy panel to the photo beside it, falling back to `surfaceContainerLow` |
+| Edge-to-edge product image well | The same well, with `productImageInset` (20) of padding | Same cause: the kit's cut-out artwork carries that margin in the asset, an uploaded photograph doesn't, and `contain` then runs it to the card's edges |
+| "All Categories" page title | Dropped; the grid starts under the search field | The nav bar already names the tab and the whole body is the grid. Per-group headers stay — they name something the screen can't otherwise tell you |
+| Price suffix as a bare unit (`/kg`) | The whole pack unless it is exactly one unit (`/500 g`) | The kit's products are all 1 kg, so the bare unit is honest there. A 500 g pack labelled `/g` prices it per gram — see `ProductUnitTypeX.pricePerLabel` |
+
+**One went the other way.** The kit's category chip beside that rating was the
+first surface to need a product's category, which the storefront API didn't
+return — `GET /api/stores/{id}/products/{productId}` now resolves the first of
+the product's `categoryIds` and answers a `category` object (null when it has
+none), carried through as `ProductDetailEntity.category`. The badge renders
+the category's real name and artwork; the kit's emoji is its own placeholder.
 
 **Surfaces the kit has no frame for**, composed from the pack's own recipes:
 My Orders (the Notification screen's search + chips + cards), Edit Profile and
 Change Password (the labelled-field stack + floating CTA), Add/Edit Address
 (the same, with the City/Country pair as sheet-opening picklists), Wishlist
-(the header row + staggered grid), and the nav shell's tab set.
+(the header row + staggered grid), and the nav shell's tab set. Profile's
+**Dark Mode** row is the same recipe: the kit ships only light screens and so
+draws no theme control, but the preset authors a dark half (§1) that nothing
+would otherwise reach — the row is a `GrofastMenuTile` whose `trailing` slot
+carries an `AppSwitch` over `ThemeModeScope` instead of a chevron, and whose
+own tap toggles it (a chevron there would promise a screen).
 
 ## 12. Blocks used
 
@@ -379,14 +471,14 @@ behaviour, plus the matching design-gallery entry.
 | Bounded-picklist selection sheet | `AppRadioGroup` | `GrofastOptionsSheetContent` |
 | Back + centered-title header | — | `GrofastHeaderRow` + `GrofastBackButton` (60 × 40 rounded rect) |
 | Glass / icon header control | — | `GrofastHeaderAction` (bare glyph + optional dot), `GrofastGradientDisc` |
-| Single-select option chip | — | `GrofastChip` / `GrofastChipWrap` |
+| Single-select option chip | — | `GrofastChip` / `GrofastChipWrap`; `GrofastBadge.outlined` / `.tinted` for the **static** pills under Product Details' title (rating, category), which are labels rather than controls and take no `onTap` |
 | Thumbnail / avatar / info badge | `AppNetworkImage` | `GrofastLineItemRow`'s well, `GrofastOrderStatusPill` |
 | Quantity or numeric stepper | — | `GrofastQuantityStepper` |
 | Loading skeleton body | `ShimmerBox` | `GrofastProductGridSkeleton` + per-screen `_*SkeletonBody` |
 | Screen shell | — | `GrofastScreenBody` + `GrofastBottomFade` |
 | **Domain card** | — | `GrofastProductCard`, `GrofastCategoryTile` / `GrofastCategoryRailTile`, `GrofastPromoCard`, `GrofastLineItemRow` |
 | Price | — | `GrofastPrice` |
-| Menu / quick tile | — | `GrofastMenuTile`, `GrofastQuickTile` |
+| Menu / quick tile | — | `GrofastMenuTile` (chevron by default; a `trailing` slot swaps in a real control — Dark Mode's `AppSwitch`), `GrofastQuickTile` |
 | Global nav | — | `GrofastNavBar` |
 
 ## 14. State design

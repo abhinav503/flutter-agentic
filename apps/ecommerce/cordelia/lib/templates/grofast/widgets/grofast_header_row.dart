@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:core/core/theme/app_radius.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/svg_image.dart';
 
+import 'package:cordelia/constants/app_routes.dart';
+import 'package:cordelia/feature/storefront/cart/presentation/cubit/cart_cubit.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_color_const.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_dimen_const.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_image_const.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_text_style_const.dart';
+import 'package:cordelia/templates/grofast/constants/grofast_value_const.dart';
 
 /// The pack's back control: a 60 × 40 rounded **rectangle**, not a disc
 /// (spec sheet §2). Outlined rather than filled, so it reads as chrome
@@ -122,6 +127,24 @@ class GrofastHeaderAction extends StatelessWidget {
       ),
     );
   }
+}
+
+/// The header's bag control — the kit's own bag glyph with its `Active` dot
+/// lit while the bag has anything in it, pushing the routed Bag. One widget
+/// because three screens (Search, Category Details, Product Details) carry
+/// it identically, including the `CartCubit` watch.
+class GrofastBagAction extends StatelessWidget {
+  final String storeId;
+
+  const GrofastBagAction({super.key, required this.storeId});
+
+  @override
+  Widget build(BuildContext context) => GrofastHeaderAction(
+    asset: GrofastImageConst.navBag,
+    showDot: context.watch<CartCubit>().state.isNotEmpty,
+    onTap: () => context.push(AppRoutes.cart, extra: storeId),
+    tooltip: GrofastValueConst.bagTitle,
+  );
 }
 
 /// The pack's standard screen header (spec sheet §8): back control, an

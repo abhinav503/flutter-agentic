@@ -19,6 +19,7 @@ import type {
 } from "@/lib/types";
 import { BANNER_TARGET_TYPE_LABELS } from "@/lib/types";
 import { ImageUploadField } from "@/components/image-upload-field";
+import { ColorPickerField, isHexColor } from "@/components/color-picker-field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -109,7 +110,7 @@ export default function BannersPage() {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-24">Image</TableHead>
+            <TableHead className="w-36">Image</TableHead>
             <TableHead>Title</TableHead>
             <TableHead>Links to</TableHead>
             <TableHead className="w-20">Order</TableHead>
@@ -129,18 +130,27 @@ export default function BannersPage() {
           {banners.map((banner) => (
             <TableRow key={banner.id}>
               <TableCell>
-                {banner.imageUrl ? (
-                  <Image
-                    src={banner.imageUrl}
-                    alt={banner.title}
-                    width={80}
-                    height={40}
-                    unoptimized
-                    className="h-10 w-20 rounded-md object-cover"
-                  />
-                ) : (
-                  <div className="h-10 w-20 rounded-md bg-muted" />
-                )}
+                <div className="flex items-center gap-2">
+                  {banner.backgroundColor && (
+                    <span
+                      title={banner.backgroundColor}
+                      style={{ backgroundColor: banner.backgroundColor }}
+                      className="size-10 shrink-0 rounded-md border border-border"
+                    />
+                  )}
+                  {banner.imageUrl ? (
+                    <Image
+                      src={banner.imageUrl}
+                      alt={banner.title}
+                      width={80}
+                      height={40}
+                      unoptimized
+                      className="h-10 w-20 rounded-md object-cover"
+                    />
+                  ) : (
+                    <div className="h-10 w-20 rounded-md bg-muted" />
+                  )}
+                </div>
               </TableCell>
               <TableCell className="font-medium">
                 <div>{banner.title}</div>
@@ -256,6 +266,9 @@ function BannerDialog({
     String(banner?.sortOrder ?? nextSortOrder),
   );
   const [isActive, setIsActive] = useState(banner?.isActive ?? true);
+  const [backgroundColor, setBackgroundColor] = useState(
+    banner?.backgroundColor ?? "",
+  );
   const [submitting, setSubmitting] = useState(false);
 
   const targetOptions = targetType === "product" ? products : categories;
@@ -275,6 +288,10 @@ function BannerDialog({
       toast.error(`Choose which ${targetType} this banner opens`);
       return;
     }
+    if (backgroundColor && !isHexColor(backgroundColor)) {
+      toast.error("Background colour must be a 6-digit hex, e.g. #C8DFC3");
+      return;
+    }
     setSubmitting(true);
     try {
       const data = {
@@ -285,6 +302,7 @@ function BannerDialog({
         targetId: targetType === "none" ? "" : targetId,
         sortOrder: Number(sortOrder) || 0,
         isActive,
+        backgroundColor,
       };
       if (banner) {
         await updateBanner(storeId, banner.id, data);
@@ -318,10 +336,20 @@ function BannerDialog({
               onChange={setImageUrl}
             />
             <p className="text-xs text-muted-foreground">
-              Landscape, roughly 2:1. The storefront darkens it slightly so the
-              white title and subtitle stay readable over any photo.
+              Landscape, roughly 2:1. Some storefronts show it beside the
+              copy rather than behind it, so keep the subject centred.
             </p>
           </div>
+
+          <ColorPickerField
+            id="banner-background"
+            label="Background colour"
+            value={backgroundColor}
+            onChange={setBackgroundColor}
+            description="Fills the panel the title and subtitle sit on, next to the
+              image. Pick one from the image so the card reads as one piece.
+              Leave it clear to use your storefront's own card colour."
+          />
 
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="banner-title">Title</Label>

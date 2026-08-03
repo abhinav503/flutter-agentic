@@ -1,12 +1,18 @@
 import { NextResponse } from "next/server";
+import { getCategories } from "@/lib/categories";
 import { getProduct, getProducts } from "@/lib/products";
-import { serializeProduct } from "@/lib/api/serializers";
+import { serializeCategory, serializeProduct } from "@/lib/api/serializers";
 
 // Matches product_details.json's per-product shape in gravia — { product,
 // images, description, size_options, similar_products }. This schema doesn't
 // model a photo carousel yet, so `images` falls back to the single imageUrl;
 // `size_options` (the "Select QTY" row) and `similar_products` (other products
 // sharing a category) are both real, admin-driven data now, not stubs.
+//
+// `category` is this route's own addition (grofast draws a category badge
+// under the product title): a product can carry several categoryIds, so it
+// resolves the first one that still exists and returns null otherwise —
+// nothing else in the payload names a category.
 export async function GET(
   _request: Request,
   { params }: { params: Promise<{ storeId: string; productId: string }> },
@@ -17,7 +23,10 @@ export async function GET(
     return NextResponse.json({ error: "Product not found" }, { status: 404 });
   }
 
-  const allProducts = await getProducts(storeId);
+  const [allProducts, categories] = await Promise.all([
+    getProducts(storeId),
+    getCategories(storeId),
+  ]);
   const similarProducts = allProducts
     .filter(
       (p) =>
@@ -26,11 +35,14 @@ export async function GET(
     )
     .slice(0, 4);
 
+  const category = categories.find((c) => product.categoryIds.includes(c.id));
+
   return NextResponse.json({
     product: serializeProduct(product),
     images: product.imageUrl ? [product.imageUrl] : [],
     description: product.description,
     size_options: product.sizeOptions,
     similar_products: similarProducts.map((p) => serializeProduct(p)),
+    category: category ? serializeCategory(category) : null,
   });
 }

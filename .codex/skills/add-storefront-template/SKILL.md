@@ -181,6 +181,76 @@ Order of work (proven by the dailymart port):
 Run the app against a store set to the new template after each feature
 slice; `flutter analyze` must stay clean throughout.
 
+### Kit-fidelity rules (every one bought with a correction pass)
+
+Each rule below is something a first implementation pass has shipped wrong
+and a correction sweep then had to fix. Apply them **during** Phase 1/3,
+not after.
+
+**Read the kit's geometry, don't infer it from the render:**
+
+- **Signature shapes: fetch the vector.** A boolean that *looks* like a
+  cut-out may be a **union** (an edge bulging up around a control reads,
+  at a glance, like a hole with the control dropped in). Where a circle
+  meets a flat edge, kits draw tangent shoulders — a raw union or cut
+  leaves a cusp. Sample the actual path, fit against the rendered alpha,
+  and reproduce the tangent geometry.
+- **A pack shape the same colour as its canvas needs a visibility
+  mechanism.** Find the kit's: content passing behind it (→ `extendBody` +
+  a scroll inset derived from what `MediaQuery` then reports) and/or a
+  shadow/wash (→ **painted** under the fill from the same path — a
+  `ClipPath` can't cast a shadow, and Material `elevation` alpha is far too
+  faint for same-on-same at this scale).
+- **Measure radii per surface class.** Kits routinely run more than one —
+  cards at one radius, image wells or line rows a step softer. Don't
+  collapse everything to the theme's `cardRadius`.
+- **A dimension that mixes an absolute inset with proportional widths, or
+  owns a big fraction of the screen, is a formula, not a constant** — a
+  peeking carousel's page fraction moves with the width, a hero that owns
+  most of a frame is a fraction of the screen, anything docked derives from
+  the device inset.
+- **Diff every component variant, not just the default.** State treatments
+  hide in variant pairs — a control's saved/selected state, a row's
+  swipe-to-delete affordance. One variant sampled = states invented.
+- **A screen's own frame overrides the pack recipe.** A kit that floats its
+  CTAs everywhere may weld one screen's CTA into a corner. Check each
+  frame's bottom band, header, and inset story before reusing the standard
+  shell.
+- **Use the kit's exported glyph wherever the kit has a component for the
+  slot.** Material stand-ins are the single most visible tell of a
+  generated screen.
+
+**Kit artwork is curated; store data is not:**
+
+- **Copy laid over artwork, images run edge-to-edge** — both only work
+  because the kit's illustration was drawn around them. A store uploads a
+  photograph: give copy its own column/panel instead of a scrim, and re-add
+  the margin a cut-out PNG carries inside its own file (an uploaded
+  rectangular photo has none, so `contain` runs it to the edges).
+- **Data the kit shows but the backend lacks is a three-way call**, made
+  per instance and recorded in the spec sheet's deviations: render the
+  kit's placeholder when the layout is built around it (and document it as
+  invented copy), omit when it states a promise the store never made, or
+  extend the backend when the cost is small.
+- **Derive unit/price suffixes without changing meaning.** Dropping the
+  amount from a formatted pack size turns a per-pack price into a per-unit
+  one — keep the whole pack unless it is exactly one unit.
+
+**Mechanics that always bite:**
+
+- **Concentric moving parts share one animation driver** — two tweens of
+  the same duration still drift the moment either curve changes.
+- **`Alignment` positions a child by its edges** — anything centring on a
+  moving x (a travelling nav label) needs a fixed-width `Positioned` slot.
+- **Weights go through `TextStyle.atWeight`, never
+  `copyWith(fontWeight:)`** — google_fonts pins each role to one file and
+  `copyWith` fake-bolds it (every spec sheet §4 carries this).
+- **A header row whose every element is hidden must drop, not reserve its
+  height** (a tab root with no back, no title, no trailing).
+- **Peeking carousels:** the gutter belongs to the viewport (`padEnds:
+  false` + outer padding), the gap belongs inside the page, and the
+  fraction is derived per width.
+
 ### Reuse before you build (Phase 3's standing rule)
 
 The template layer is *only* chrome — before writing any widget or screen

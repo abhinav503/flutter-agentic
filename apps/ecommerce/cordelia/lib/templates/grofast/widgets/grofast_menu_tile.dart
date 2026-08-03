@@ -27,6 +27,10 @@ class GrofastMenuTile extends StatelessWidget {
   /// Set false on a terminal row (Log Out), which the kit draws without one.
   final bool showChevron;
 
+  /// Control that replaces the chevron on a row that acts in place instead of
+  /// navigating (the Dark Mode switch).
+  final Widget? trailing;
+
   const GrofastMenuTile({
     super.key,
     required this.label,
@@ -35,6 +39,7 @@ class GrofastMenuTile extends StatelessWidget {
     this.onTap,
     this.iconColor,
     this.showChevron = true,
+    this.trailing,
   }) : assert(
          (asset == null) != (icon == null),
          'Pass a pack asset or a Material icon, not both.',
@@ -78,7 +83,9 @@ class GrofastMenuTile extends StatelessWidget {
                     ).copyWith(color: cs.onSurfaceVariant),
                   ),
                 ),
-                if (showChevron)
+                if (trailing != null)
+                  trailing!
+                else if (showChevron)
                   Icon(
                     Icons.chevron_right_rounded,
                     size: AppSpacing.xl4,

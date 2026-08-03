@@ -91,20 +91,30 @@ class GrofastProductGridSkeleton extends StatelessWidget {
 }
 
 /// A shimmer block at the pack's **card** radius, read from the theme rather
-/// than restated — every skeleton that stands in for a card (a category tile,
-/// a menu row, a promo banner) uses this instead of a literal, so the corner
-/// can never drift from `AppShapes.cardRadius`.
+/// than restated — every skeleton that stands in for a card (a menu row, a
+/// promo banner, a product card) uses this instead of a literal, so the
+/// corner can never drift from `AppShapes.cardRadius`.
+///
+/// A skeleton standing in for one of the pack's *tile*-radius surfaces (a
+/// category tile, a line-item row) passes [radius] instead, or the loading
+/// state rounds differently from what replaces it.
 class GrofastCardSkeleton extends StatelessWidget {
   final double? width;
   final double height;
+  final double? radius;
 
-  const GrofastCardSkeleton({super.key, this.width, required this.height});
+  const GrofastCardSkeleton({
+    super.key,
+    this.width,
+    required this.height,
+    this.radius,
+  });
 
   @override
   Widget build(BuildContext context) => ShimmerBox(
     width: width ?? double.infinity,
     height: height,
-    borderRadius: BorderRadius.circular(context.appShapes.cardRadius),
+    borderRadius: BorderRadius.circular(radius ?? context.appShapes.cardRadius),
   );
 }
 

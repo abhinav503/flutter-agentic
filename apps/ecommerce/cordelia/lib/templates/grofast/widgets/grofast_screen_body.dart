@@ -158,10 +158,25 @@ class GrofastScreenBody extends StatelessWidget {
 class GrofastBottomFade extends StatelessWidget {
   final double height;
 
+  /// True when the fade sits at the device edge with a control floating in
+  /// it: it then pays the device inset and turns fully opaque partway down,
+  /// so the button has solid surface behind it.
+  ///
+  /// False when it sits **on top of** an already-opaque band (Product
+  /// Details' dock): the inset belongs to that band, and any opaque stretch
+  /// here is a white slab above the row rather than a fade into it — so the
+  /// gradient runs the fade's whole length and lands exactly on the band.
+  final bool carriesFloatingAction;
+
   const GrofastBottomFade({
     super.key,
     this.height = GrofastDimenConst.bottomFadeHeight,
-  });
+  }) : carriesFloatingAction = true;
+
+  const GrofastBottomFade.overDock({
+    super.key,
+    this.height = GrofastDimenConst.bottomFadeHeight,
+  }) : carriesFloatingAction = false;
 
   @override
   Widget build(BuildContext context) {
@@ -169,13 +184,15 @@ class GrofastBottomFade extends StatelessWidget {
 
     return IgnorePointer(
       child: Container(
-        height: height + MediaQuery.paddingOf(context).bottom,
+        height: carriesFloatingAction
+            ? height + MediaQuery.paddingOf(context).bottom
+            : height,
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [surface.withValues(alpha: 0), surface],
-            stops: const [0, 0.55],
+            stops: carriesFloatingAction ? const [0, 0.55] : const [0, 1],
           ),
         ),
       ),

@@ -30,6 +30,7 @@ function mapBannerDoc(d: QueryDocumentSnapshot): Banner {
     // live — treating a missing field as hidden would silently blank a
     // storefront's carousel.
     isActive: (data.isActive as boolean) ?? true,
+    backgroundColor: (data.backgroundColor as string) ?? "",
   };
 }
 

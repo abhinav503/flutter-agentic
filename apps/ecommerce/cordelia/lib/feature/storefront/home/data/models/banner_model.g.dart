@@ -13,6 +13,7 @@ _BannerModel _$BannerModelFromJson(Map<String, dynamic> json) => _BannerModel(
   subtitle: json['subtitle'] as String? ?? '',
   targetType: json['target_type'] as String? ?? 'none',
   targetId: json['target_id'] as String? ?? '',
+  backgroundColor: json['background_color'] as String? ?? '',
 );
 
 Map<String, dynamic> _$BannerModelToJson(_BannerModel instance) =>
@@ -23,4 +24,5 @@ Map<String, dynamic> _$BannerModelToJson(_BannerModel instance) =>
       'subtitle': instance.subtitle,
       'target_type': instance.targetType,
       'target_id': instance.targetId,
+      'background_color': instance.backgroundColor,
     };

@@ -11,14 +11,15 @@ import 'package:cordelia/templates/grofast/constants/grofast_dimen_const.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_text_style_const.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_value_const.dart';
 
-/// Home's promo banner (spec sheet §10): the store's artwork at radius 28
-/// with the admin's copy stacked on the left and a small gradient "claim now"
-/// pill beneath it.
+/// Home's promo banner (spec sheet §10): radius 28, split into a copy column
+/// and the store's artwork — the admin's headline and offer over a small
+/// gradient "claim now" pill on the left, the photo filling the right.
 ///
-/// The kit draws its banners on flat illustrated artwork, so its copy needs
-/// no protection; a real store uploads a photograph, so the copy sits over
-/// [GrofastColorConst.promoScrim] — a documented departure from the kit, made
-/// because the alternative is unreadable text on half the stores' banners.
+/// The kit draws one flat illustration across the whole card with the copy on
+/// top of it, which only works because the artwork is drawn around the words.
+/// A store uploads a photograph, so the copy takes a column of its own
+/// instead — the split is what keeps every store's banner legible, and it
+/// lets the copy use the pack's ink rather than white over a wash.
 class GrofastPromoCard extends StatelessWidget {
   final BannerEntity banner;
   final VoidCallback? onTap;
@@ -29,78 +30,83 @@ class GrofastPromoCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
-    final radius = BorderRadius.circular(context.appShapes.cardRadius);
 
     return GestureDetector(
       onTap: onTap,
       child: ClipRRect(
-        borderRadius: radius,
+        borderRadius: BorderRadius.circular(context.appShapes.cardRadius),
         child: SizedBox(
           height: GrofastDimenConst.promoCardHeight,
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              AppNetworkImage(url: banner.imageUrl, fit: BoxFit.cover),
-              DecoratedBox(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                    colors: [
-                      GrofastColorConst.promoScrim,
-                      GrofastColorConst.promoScrim.withValues(alpha: 0),
-                    ],
+          child: ColoredBox(
+            // The store's own banner colour when its admin picked one — the
+            // copy column is a flat surface, so it's the one thing that ties
+            // the card to the photograph beside it. Falls back to the pack's
+            // raised neutral, which reads as a plain card.
+            color: banner.backgroundArgb == null
+                ? cs.surfaceContainerLow
+                : Color(banner.backgroundArgb!),
+            child: Row(
+              children: [
+                Expanded(
+                  flex: GrofastDimenConst.promoCopyFlex,
+                  child: Padding(
+                    padding: const EdgeInsets.all(AppSpacing.xl2),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          banner.title,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: GrofastTextStyleConst.promoTitle(
+                            tt,
+                          ).copyWith(color: cs.onSurface),
+                        ),
+                        if (banner.subtitle.isNotEmpty) ...[
+                          const SizedBox(height: AppSpacing.xs3),
+                          Text(
+                            banner.subtitle,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: GrofastTextStyleConst.promoAmount(
+                              tt,
+                            ).copyWith(color: cs.onSurface),
+                          ),
+                        ],
+                        if (banner.hasTarget) ...[
+                          const SizedBox(height: AppSpacing.base),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: AppSpacing.lg,
+                              vertical: AppSpacing.xs,
+                            ),
+                            decoration: const BoxDecoration(
+                              gradient: GrofastColorConst.brandGradient,
+                              borderRadius: AppRadius.full,
+                            ),
+                            child: Text(
+                              GrofastValueConst.claimNow,
+                              style: GrofastTextStyleConst.bodySmall(
+                                tt,
+                              ).copyWith(color: cs.onPrimary),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(AppSpacing.xl2),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      banner.title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: GrofastTextStyleConst.subheadBold(
-                        tt,
-                      ).copyWith(color: cs.onPrimary),
-                    ),
-                    if (banner.subtitle.isNotEmpty) ...[
-                      const SizedBox(height: AppSpacing.xs3),
-                      Text(
-                        banner.subtitle,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: GrofastTextStyleConst.bodySmall(
-                          tt,
-                        ).copyWith(color: cs.onPrimary),
-                      ),
-                    ],
-                    if (banner.hasTarget) ...[
-                      const SizedBox(height: AppSpacing.base),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: AppSpacing.lg,
-                          vertical: AppSpacing.xs,
-                        ),
-                        decoration: const BoxDecoration(
-                          gradient: GrofastColorConst.brandGradient,
-                          borderRadius: AppRadius.full,
-                        ),
-                        child: Text(
-                          GrofastValueConst.claimNow,
-                          style: GrofastTextStyleConst.bodySmall(
-                            tt,
-                          ).copyWith(color: cs.onPrimary),
-                        ),
-                      ),
-                    ],
-                  ],
+                Expanded(
+                  flex: GrofastDimenConst.promoImageFlex,
+                  child: AppNetworkImage(
+                    url: banner.imageUrl,
+                    fit: BoxFit.cover,
+                    height: GrofastDimenConst.promoCardHeight,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

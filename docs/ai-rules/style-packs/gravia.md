@@ -150,13 +150,20 @@ The kit's Design System page defines two token groups, each in Regular/Medium/Bo
 
 This doesn't map 1:1 onto core's fixed 13-role M3 scale (`AppTheme._textTheme`,
 shared by every preset) — **don't edit that scale for one pack**. Extend
-`lib/constants/text_style_const.dart` **on demand**: one `copyWith`-based static
-method per token+weight an actual screen uses, named after the Figma token
+`lib/constants/cordelia_text_style_const.dart` **on demand**: one static method
+per token+weight an actual screen uses, named after the Figma token
 (`textLgBold`, `textSmRegular`), based off the nearest M3 role so font family
 and default colour still come from the theme. Consuming blocks accept an
 optional style-override param the way `SectionHeader` does
 (`titleStyle`/`actionStyle`; `CategoryTile` follows with `labelStyle`) — core
 stays generic, the app supplies the pack-specific metrics.
+
+**A token sets its weight with `atWeight`, never `copyWith(fontWeight:)`.**
+google_fonts binds a style to one font *file* when the family resolves, and the
+preset resolves each M3 role at that role's own weight — so copying a heavier
+weight onto it keeps the regular file and fake-bolds it, and every weight above
+the role's renders identically. `TextStyle.atWeight`
+(`core/extensions/text_style_extensions.dart`) re-resolves the real cut.
 
 Common tokens in use: `textMdMedium` (menu-tile labels), `textSmMedium` (paired
 action buttons — see the `OrderCard` note in §10), `textSmBold` (active

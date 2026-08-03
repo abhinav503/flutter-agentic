@@ -68,15 +68,17 @@ class GrofastInkButton extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
 
+    final radius = BorderRadius.circular(GrofastDimenConst.applyPillRadius);
+
     return SizedBox(
       width: width,
       height: GrofastDimenConst.applyPillHeight,
       child: Material(
         color: cs.secondary,
-        borderRadius: AppRadius.full,
+        borderRadius: radius,
         child: InkWell(
           onTap: onTap,
-          borderRadius: AppRadius.full,
+          borderRadius: radius,
           child: Center(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl2),

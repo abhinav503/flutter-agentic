@@ -29,7 +29,6 @@ abstract final class GrofastValueConst {
       '${percentage.asPercent} off';
 
   // ── Categories ───────────────────────────────────────────────────────────
-  static const allCategoriesTitle = 'All Categories';
   static const categoriesLoadErrorMessage = "Couldn't load categories.";
   static const categoriesEmptyTitle = 'No categories yet';
   static const categoriesEmptySubtitle =
@@ -79,6 +78,14 @@ abstract final class GrofastValueConst {
       'Added $quantity × $name to your bag.';
   static const noDescriptionLabel = 'No description for this product yet.';
 
+  /// **Placeholder**, the pack's only invented copy — same reasoning as
+  /// dailymart's `staticRatingLabel`: the kit sets a rating badge beside the
+  /// category on this screen, but no rating exists on `ProductEntity` (the
+  /// admin catalog collects no reviews), so the badge renders the kit's own
+  /// number. When reviews land, take the value off the entity and delete
+  /// this; the badge's geometry does not change.
+  static const staticRatingLabel = '4.7';
+
   // ── Bag (cart) ───────────────────────────────────────────────────────────
   static const bagTitle = 'My Bag';
   static String bagItemCount(int count) => '$count ${count.plural('item')}';
@@ -94,7 +101,6 @@ abstract final class GrofastValueConst {
       'Add some fresh groceries and they will show up here.';
   static const bagExploreAction = 'Start shopping';
   static const removedFromBagMessage = 'Removed from your bag.';
-  static const removeItemTooltip = 'Remove from bag';
 
   // ── Checkout ─────────────────────────────────────────────────────────────
   static const checkoutTitle = 'Checkout';
@@ -124,6 +130,7 @@ abstract final class GrofastValueConst {
   static const wishlistTileLabel = 'Wishlist';
   static const myProfileLabel = 'My Profile';
   static const changePasswordLabel = 'Change Password';
+  static const darkModeLabel = 'Dark Mode';
   static const myAddressLabel = 'My Address';
   static const privacyPolicyLabel = 'Privacy Policy';
   static const termsAndConditionsLabel = 'Term and Condition';

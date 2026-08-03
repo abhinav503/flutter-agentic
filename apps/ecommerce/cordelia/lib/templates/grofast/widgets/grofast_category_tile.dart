@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'package:core/core/theme/app_shapes_extension.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/network_image.dart';
 
@@ -39,7 +38,7 @@ class GrofastCategoryTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
-    final radius = BorderRadius.circular(context.appShapes.cardRadius);
+    final radius = BorderRadius.circular(GrofastDimenConst.tileRadius);
 
     return Material(
       color: cs.categoryTint(index),
@@ -104,7 +103,7 @@ class GrofastCategoryRailTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
-    final radius = BorderRadius.circular(context.appShapes.cardRadius);
+    final radius = BorderRadius.circular(GrofastDimenConst.tileRadius);
 
     return GestureDetector(
       onTap: onTap,

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:core/core/extensions/text_style_extensions.dart';
+
 /// The GROFAST kit's type tokens, each based off the nearest M3 role so the
 /// family and default colour still come from the theme (spec sheet §4).
 ///
@@ -10,49 +12,70 @@ import 'package:google_fonts/google_fonts.dart';
 /// holds one `fontFamily`, so the Montserrat half is resolved here via
 /// `GoogleFonts` instead of the `TextTheme`. Only tokens a real screen renders
 /// live here.
+///
+/// **Weights go through `atWeight`, never `copyWith(fontWeight:)`.** The
+/// preset's Raleway arrives on each role already resolved to that role's own
+/// weight — `headlineMedium` is w400 — and copying a heavier weight onto it
+/// keeps the regular font file and fake-bolds it, so every weight above the
+/// role's renders the same. `atWeight` re-resolves the real cut (see
+/// `core/extensions/text_style_extensions.dart`). The Montserrat half is
+/// immune: it passes its weight to `GoogleFonts` in the first place.
 abstract final class GrofastTextStyleConst {
   // ------------------------------------------------------- Raleway (theme)
 
   /// Text/Reguler/Big — 28/700. The screen title on every page that has one
-  /// ("My Bag", "Hey Yona 👋", "Success!").
+  /// ("My Bag", "Success!").
   static TextStyle displayBold(TextTheme tt) =>
-      tt.headlineMedium!.copyWith(fontSize: 28, fontWeight: FontWeight.w700);
+      tt.headlineMedium!.copyWith(fontSize: 28).atWeight(FontWeight.w700);
+
+  /// Text/Welcome Text — 28/800. Home's greeting only. Same size as
+  /// [displayBold] but a step heavier: the kit draws the greeting from its own
+  /// component, not from the `Text/Reguler/Big` token every screen title uses,
+  /// and it is the one line on Home meant to carry the whole screen.
+  static TextStyle welcomeBold(TextTheme tt) =>
+      tt.headlineMedium!.copyWith(fontSize: 28).atWeight(FontWeight.w800);
 
   /// Text/Reguler/Medium — 20/700. Section headers ("Categories", "Popular",
   /// "All Categories", "Tracking Detail").
   static TextStyle sectionBold(TextTheme tt) =>
-      tt.titleLarge!.copyWith(fontSize: 20, fontWeight: FontWeight.w700);
+      tt.titleLarge!.copyWith(fontSize: 20).atWeight(FontWeight.w700);
 
   /// 18/700. The one step down from [sectionBold], for a sheet's own title
   /// and a card's headline.
   static TextStyle subheadBold(TextTheme tt) =>
-      tt.titleMedium!.copyWith(fontSize: 18, fontWeight: FontWeight.w700);
+      tt.titleMedium!.copyWith(fontSize: 18).atWeight(FontWeight.w700);
 
   /// 16/700. A category tile's name and a list row's primary line.
   static TextStyle rowTitleBold(TextTheme tt) =>
-      tt.titleMedium!.copyWith(fontSize: 16, fontWeight: FontWeight.w700);
+      tt.titleMedium!.copyWith(fontSize: 16).atWeight(FontWeight.w700);
 
   /// 14/700. A product card's name — the pack's smallest bold.
   static TextStyle cardTitleBold(TextTheme tt) =>
-      tt.titleSmall!.copyWith(fontSize: 14, fontWeight: FontWeight.w700);
+      tt.titleSmall!.copyWith(fontSize: 14).atWeight(FontWeight.w700);
+
+  /// 14/800. A promo banner's headline — the pack's only extra-bold besides
+  /// the greeting, and the reason it doesn't reuse [cardTitleBold]: the
+  /// banner's two lines are a matched pair, both at 800, one per family.
+  static TextStyle promoTitle(TextTheme tt) =>
+      tt.titleSmall!.copyWith(fontSize: 14).atWeight(FontWeight.w800);
 
   /// 14/600. Every button label, the header's centred title, and the active
   /// nav tab's label.
   static TextStyle labelSemibold(TextTheme tt) =>
-      tt.labelLarge!.copyWith(fontSize: 14, fontWeight: FontWeight.w600);
+      tt.labelLarge!.copyWith(fontSize: 14).atWeight(FontWeight.w600);
 
   /// 14/500. Menu rows, chip labels, and any secondary line at reading size.
   static TextStyle bodyMedium(TextTheme tt) =>
-      tt.bodyMedium!.copyWith(fontSize: 14, fontWeight: FontWeight.w500);
+      tt.bodyMedium!.copyWith(fontSize: 14).atWeight(FontWeight.w500);
 
   /// Text/Reguler/Small — 12/500. Sub-lines, timestamps, form labels.
   static TextStyle bodySmall(TextTheme tt) =>
-      tt.bodySmall!.copyWith(fontSize: 12, fontWeight: FontWeight.w500);
+      tt.bodySmall!.copyWith(fontSize: 12).atWeight(FontWeight.w500);
 
   /// 12/400. Field placeholders — rendered at 40% ink by the field itself, so
   /// this token stays a plain regular weight.
   static TextStyle placeholder(TextTheme tt) =>
-      tt.bodySmall!.copyWith(fontSize: 12, fontWeight: FontWeight.w400);
+      tt.bodySmall!.copyWith(fontSize: 12).atWeight(FontWeight.w400);
 
   // -------------------------------------------------- Montserrat (numerics)
 
@@ -86,6 +109,15 @@ abstract final class GrofastTextStyleConst {
     textStyle: tt.labelSmall,
     fontSize: 10,
     fontWeight: FontWeight.w500,
+  );
+
+  /// A promo banner's offer — 28/800, the largest numeric in the pack. Pairs
+  /// with [promoTitle] above it: same weight, the other family, because the
+  /// line it carries is a figure ("40%").
+  static TextStyle promoAmount(TextTheme tt) => GoogleFonts.montserrat(
+    textStyle: tt.headlineMedium,
+    fontSize: 28,
+    fontWeight: FontWeight.w800,
   );
 
   /// Text/Link/Small — 12/400. Inline actions that sit at the end of a

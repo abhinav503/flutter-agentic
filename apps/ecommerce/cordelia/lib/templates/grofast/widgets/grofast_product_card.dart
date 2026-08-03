@@ -81,9 +81,14 @@ class GrofastProductCard extends StatelessWidget {
                       height:
                           height - GrofastDimenConst.productCardChromeHeight,
                       width: double.infinity,
-                      child: AppNetworkImage(
-                        url: product.imageUrl,
-                        fit: BoxFit.contain,
+                      child: Padding(
+                        padding: const EdgeInsets.all(
+                          GrofastDimenConst.productImageInset,
+                        ),
+                        child: AppNetworkImage(
+                          url: product.imageUrl,
+                          fit: BoxFit.contain,
+                        ),
                       ),
                     ),
                     Padding(
@@ -102,7 +107,7 @@ class GrofastProductCard extends StatelessWidget {
                           const SizedBox(height: AppSpacing.xs),
                           GrofastPrice(
                             value: product.price,
-                            unit: product.unitType.unitLabel(product.unitValue),
+                            unit: product.unitType.pricePerLabel(product.unitValue),
                           ),
                         ],
                       ),
@@ -174,9 +179,21 @@ class _AddButton extends StatelessWidget {
   }
 }
 
-/// The floating favourite heart used on cards and on Product Details: a white
-/// disc that fills with `cs.error` once saved, the glyph flipping to white
-/// with it. One widget so the two states can't drift apart.
+/// The floating favourite heart used on cards and on Product Details.
+///
+/// The kit draws it as two concentric circles — a Ø20 disc inside a Ø25 one —
+/// and the *outer* circle only appears once saved, as a ring:
+///
+/// | | Ø25 outer | Ø20 inner | glyph |
+/// |---|---|---|---|
+/// | not saved | nothing | white disc | `cs.error` |
+/// | saved | `cs.error` hairline **ring** at 15%, no fill | `cs.error` disc | white |
+///
+/// So saving doesn't just recolour the disc, it grows a detached ring around
+/// it with the card showing through the gap — measured off the kit's two card
+/// variants (`Card/Product/Tall` and `-favorite-disabled`), which differ in
+/// exactly this. The Ø25 box is kept in both states so the tap target and the
+/// card's layout don't move when it toggles.
 class GrofastFavouriteHeart extends StatelessWidget {
   final bool isFavourite;
   final VoidCallback onTap;
@@ -192,7 +209,9 @@ class GrofastFavouriteHeart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    // The white ring is a fixed fraction of the disc in the kit (20.2 of 25).
+    // Both circles are fractions of the outer box, so a caller that scales the
+    // control (Product Details' 56) keeps the kit's proportions: 20.2 of 25,
+    // and an 8.1 glyph inside that.
     final innerSize = size * 0.81;
 
     return Semantics(
@@ -204,7 +223,19 @@ class GrofastFavouriteHeart extends StatelessWidget {
         child: Container(
           width: size,
           height: size,
-          decoration: BoxDecoration(color: cs.surface, shape: BoxShape.circle),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            // A whisper, not a stroke — the kit's ring measures ~15% of the
+            // ink a full hairline would lay down, and reads as a halo rather
+            // than a second outline around the disc.
+            border: isFavourite
+                ? Border.all(
+                    color: cs.error.withValues(
+                      alpha: GrofastDimenConst.favouriteRingOpacity,
+                    ),
+                  )
+                : null,
+          ),
           alignment: Alignment.center,
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 150),
@@ -212,14 +243,14 @@ class GrofastFavouriteHeart extends StatelessWidget {
             width: innerSize,
             height: innerSize,
             decoration: BoxDecoration(
-              color: isFavourite ? cs.error : Colors.transparent,
+              color: isFavourite ? cs.error : cs.surface,
               shape: BoxShape.circle,
             ),
             alignment: Alignment.center,
             child: AppSvgImage.asset(
               GrofastImageConst.heart,
-              width: innerSize * 0.5,
-              height: innerSize * 0.5,
+              width: innerSize * 0.4,
+              height: innerSize * 0.4,
               color: isFavourite ? cs.onError : cs.error,
             ),
           ),

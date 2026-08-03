@@ -14,6 +14,14 @@ abstract class BasePageState<T extends BasePage> extends State<T> {
   Color? backgroundColor(BuildContext context) => null;
   bool get resizeToAvoidBottomInset => true;
 
+  /// Lets the body run *behind* the bottom nav instead of stopping above it —
+  /// for a bar that is partly transparent (a notch, a raised disc, a fade) and
+  /// only reads as a shape with content showing through it. A screen under
+  /// such a bar owns its own bottom clearance; with this on,
+  /// `MediaQuery.paddingOf(context).bottom` inside the body reports the bar's
+  /// full height, so that clearance can be derived from it.
+  bool get extendBody => false;
+
   // ── Bottom navigation ─────────────────────────────────────────────────────
   /// Set to true to enable the default [BottomNavigationBar].
   bool get showBottomNav => false;
@@ -53,6 +61,7 @@ abstract class BasePageState<T extends BasePage> extends State<T> {
           body: buildBody(ctx),
           floatingActionButton: buildFab(ctx),
           bottomNavigationBar: buildBottomNav(ctx),
+          extendBody: extendBody,
           backgroundColor: backgroundColor(ctx),
           resizeToAvoidBottomInset: resizeToAvoidBottomInset,
         ),

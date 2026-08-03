@@ -95,7 +95,7 @@ class _Greeting extends StatelessWidget {
 
         return Text(
           GrofastValueConst.greeting(name),
-          style: GrofastTextStyleConst.displayBold(tt),
+          style: GrofastTextStyleConst.welcomeBold(tt),
         );
       },
     );

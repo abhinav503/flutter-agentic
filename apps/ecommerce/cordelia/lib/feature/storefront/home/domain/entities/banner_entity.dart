@@ -16,6 +16,14 @@ class BannerEntity {
   /// the loaded catalog, so a rename can't leave a stale copy here.
   final String targetId;
 
+  /// The canvas the admin picked for this banner's copy column, as an ARGB
+  /// value — an `int`, not a `Color`, so `domain` stays free of `dart:ui`.
+  ///
+  /// Null when the store never picked one, which is the normal case: a
+  /// template that paints copy over the artwork ignores this entirely, and
+  /// one that splits copy from artwork falls back to its own surface role.
+  final int? backgroundArgb;
+
   const BannerEntity({
     required this.id,
     required this.imageUrl,
@@ -23,6 +31,7 @@ class BannerEntity {
     required this.subtitle,
     required this.targetType,
     required this.targetId,
+    this.backgroundArgb,
   });
 }
 

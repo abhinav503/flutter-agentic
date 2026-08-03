@@ -1,5 +1,8 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
+import 'package:cordelia/templates/grofast/constants/grofast_color_const.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_dimen_const.dart';
 
 /// The arc that gives the GROFAST pack its silhouette (spec sheet §2/§10).
@@ -116,32 +119,82 @@ class GrofastBottomDomeClipper extends CustomClipper<Path> {
   bool shouldReclip(covariant CustomClipper<Path> oldClipper) => false;
 }
 
-/// The bottom nav's silhouette: a bar whose top edge is interrupted by a
-/// circular notch centred on the active tab (spec sheet §10). The notch
-/// travels with the selection, so [notchCenterX] is animated by the caller.
-class GrofastNavBarClipper extends CustomClipper<Path> {
-  final double notchCenterX;
+/// The bottom nav's silhouette: a bar whose flat top edge **lifts into a
+/// dome** around the active tab, which the gradient disc then sits in (spec
+/// sheet §10). The kit draws it as a rectangle unioned with a Ø82 circle
+/// centred on the bar's top edge — a bulge, not a hole — so the widget's own
+/// top [GrofastDimenConst.navBumpDiameter] / 2 is the dome's headroom and
+/// everything outside the dome up there is transparent.
+///
+/// The two shoulders are the whole trick, and a raw union doesn't give them:
+/// where the circle crosses the flat edge its tangent is vertical, so the
+/// join is a cusp. Instead the flat edge leaves at
+/// [GrofastDimenConst.navBumpShoulderSpan] and a quadratic Bézier carries it
+/// to the circle's tangent point at [GrofastDimenConst.navBumpTangentDegrees]
+/// — the control point lands where that tangent meets the flat edge, exactly
+/// `r / sin(angle)` from the centre, which is what makes *both* handovers
+/// tangent-continuous. Fitted against the kit's vector to within 0.3px.
+///
+/// Painted rather than clipped, because the bar and the canvas behind it are
+/// the same `cs.surface` — the shape only reads by its shadow
+/// ([GrofastElevation.navBar]), and a clip can't cast one.
+///
+/// The dome travels with the selection, so [bumpCenterX] is animated by the
+/// caller.
+class GrofastNavBarSurface extends CustomPainter {
+  final double bumpCenterX;
+  final Color color;
 
-  const GrofastNavBarClipper({required this.notchCenterX});
+  const GrofastNavBarSurface({required this.bumpCenterX, required this.color});
 
   @override
-  Path getClip(Size size) {
-    final radius = GrofastDimenConst.navNotchDiameter / 2;
-    // The notch circle is centred *on* the bar's top edge, so exactly its
-    // lower half is cut away and the raised disc drops into the hole.
-    final notch = Path()
-      ..addOval(
-        Rect.fromCircle(center: Offset(notchCenterX, 0), radius: radius),
-      );
+  void paint(Canvas canvas, Size size) {
+    final path = _path(size);
 
-    return Path.combine(
-      PathOperation.difference,
-      Path()..addRect(Offset.zero & size),
-      notch,
-    );
+    // Under the fill, so each layer only shows where it spills past the bar.
+    for (final shadow in GrofastElevation.navBar) {
+      canvas.drawPath(path.shift(shadow.offset), shadow.toPaint());
+    }
+    canvas.drawPath(path, Paint()..color = color);
+  }
+
+  Path _path(Size size) {
+    const radius = GrofastDimenConst.navBumpDiameter / 2;
+    const span = GrofastDimenConst.navBumpShoulderSpan;
+    // The dome is a half-circle above the edge, so its rise *is* the radius.
+    const edgeY = radius;
+
+    final angle = GrofastDimenConst.navBumpTangentDegrees * math.pi / 180;
+    final tangentX = radius * math.sin(angle);
+    final tangentY = edgeY - radius * math.cos(angle);
+    final controlX = radius / math.sin(angle);
+
+    return Path()
+      ..moveTo(0, size.height)
+      ..lineTo(0, edgeY)
+      ..lineTo(bumpCenterX - span, edgeY)
+      ..quadraticBezierTo(
+        bumpCenterX - controlX,
+        edgeY,
+        bumpCenterX - tangentX,
+        tangentY,
+      )
+      ..arcToPoint(
+        Offset(bumpCenterX + tangentX, tangentY),
+        radius: const Radius.circular(radius),
+      )
+      ..quadraticBezierTo(
+        bumpCenterX + controlX,
+        edgeY,
+        bumpCenterX + span,
+        edgeY,
+      )
+      ..lineTo(size.width, edgeY)
+      ..lineTo(size.width, size.height)
+      ..close();
   }
 
   @override
-  bool shouldReclip(covariant GrofastNavBarClipper oldClipper) =>
-      oldClipper.notchCenterX != notchCenterX;
+  bool shouldRepaint(covariant GrofastNavBarSurface oldDelegate) =>
+      oldDelegate.bumpCenterX != bumpCenterX || oldDelegate.color != color;
 }

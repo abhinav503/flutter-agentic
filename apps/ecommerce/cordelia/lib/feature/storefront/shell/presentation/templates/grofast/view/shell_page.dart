@@ -19,8 +19,8 @@ import 'package:cordelia/templates/grofast/widgets/grofast_nav_bar.dart';
 
 /// `grofast` template's nav shell. Four tabs — Home, Categories, Bag, Account
 /// — in the kit's own four-slot bar, rendered by [GrofastNavBar]: a white bar
-/// with a circular notch cut out of its top edge and the active tab's
-/// gradient disc dropped into it.
+/// whose top edge lifts into a dome around the active tab, with that tab's
+/// gradient disc sitting in the dome.
 ///
 /// The kit's second slot is a barcode **Scan** tab. This storefront has no
 /// barcode feature, so shipping it would be a dead control; Categories takes
@@ -69,6 +69,13 @@ class _ShellPageState extends BasePageState<ShellPage>
   /// header row as the first item of its scroll view (spec sheet §8).
   @override
   PreferredSizeWidget? buildAppBar(BuildContext context) => null;
+
+  /// The nav's dome is a bulge in the bar's top edge, and a white bulge on a
+  /// white canvas is invisible — it only reads with the tab's own content
+  /// passing behind it. Each tab pays [GrofastDimenConst.navScrollInset] for
+  /// that, which is derived from the height this hands it.
+  @override
+  bool get extendBody => true;
 
   /// Shared above the tabs because Home's greeting and avatar read the same
   /// profile the Account tab does — one fetch, cache-first, instead of one

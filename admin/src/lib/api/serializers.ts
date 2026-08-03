@@ -118,6 +118,7 @@ export function serializeBanner(b: Banner) {
     subtitle: b.subtitle,
     target_type: b.targetType,
     target_id: b.targetId,
+    background_color: b.backgroundColor,
   };
 }
 

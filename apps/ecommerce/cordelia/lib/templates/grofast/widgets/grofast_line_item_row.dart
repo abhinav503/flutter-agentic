@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'package:core/core/theme/app_shapes_extension.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/network_image.dart';
 import 'package:core/core/ui/atoms/svg_image.dart';
@@ -19,8 +18,8 @@ import 'grofast_price.dart';
 ///
 /// Every screen that lists a purchased line renders THIS, so the three can't
 /// drift; what varies between them is only what goes in [topTrailing] (a
-/// heart, a remove disc, nothing) and [trailing] (a stepper, a quantity,
-/// nothing).
+/// favourite heart, nothing) and [trailing] (a stepper, a quantity,
+/// nothing). Removing a line is the Bag's swipe, never a control in the row.
 class GrofastLineItemRow extends StatelessWidget {
   final String imageUrl;
   final String name;
@@ -33,7 +32,7 @@ class GrofastLineItemRow extends StatelessWidget {
   /// line total (Checkout, Track Order).
   final String? unit;
 
-  /// Top-right slot — a favourite heart, or the Bag's remove disc.
+  /// Top-right slot — the favourite heart, on the rows that toggle one.
   final Widget? topTrailing;
 
   /// Bottom-right slot — the Bag's quantity stepper, or a `× 2` count.
@@ -57,7 +56,7 @@ class GrofastLineItemRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
-    final radius = BorderRadius.circular(context.appShapes.cardRadius);
+    final radius = BorderRadius.circular(GrofastDimenConst.tileRadius);
 
     return Material(
       color: cs.surfaceContainerLow,
@@ -121,9 +120,14 @@ class GrofastLineItemRow extends StatelessWidget {
   }
 }
 
-/// The `−  n  +` stepper on a Bag row and on Product Details (spec sheet
-/// §13): two bare circular buttons around the count, sized below the touch
-/// floor on purpose — they sit on a row that is itself the large target.
+/// The `−  n  +` stepper (spec sheet §13): two rounded squares around the
+/// count, sized below the touch floor on purpose — they sit on a row that is
+/// itself the large target.
+///
+/// The kit draws it at two sizes, and the two invert each other's colours: on
+/// a Bag row the keys are white squares on the row's tinted card, while
+/// Product Details' larger [GrofastQuantityStepper.large] puts tinted keys on
+/// the plain white page.
 class GrofastQuantityStepper extends StatelessWidget {
   final int quantity;
   final VoidCallback onIncrement;
@@ -132,15 +136,37 @@ class GrofastQuantityStepper extends StatelessWidget {
   /// letting a stepper delete the row).
   final VoidCallback? onDecrement;
 
+  final double buttonSize;
+  final double buttonRadius;
+  final double glyphSize;
+
+  /// True on a tinted row, where the keys invert to white.
+  final bool keysOnTint;
+
   const GrofastQuantityStepper({
     super.key,
     required this.quantity,
     required this.onIncrement,
     this.onDecrement,
-  });
+  }) : buttonSize = GrofastDimenConst.stepperButtonSize,
+       buttonRadius = GrofastDimenConst.stepperButtonRadius,
+       glyphSize = AppSpacing.base,
+       keysOnTint = true;
+
+  const GrofastQuantityStepper.large({
+    super.key,
+    required this.quantity,
+    required this.onIncrement,
+    this.onDecrement,
+  }) : buttonSize = GrofastDimenConst.detailStepperButtonSize,
+       buttonRadius = GrofastDimenConst.detailStepperButtonRadius,
+       // The kit insets the larger key's glyph by 25% a side.
+       glyphSize = AppSpacing.xl2,
+       keysOnTint = false;
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
 
     return Row(
@@ -150,19 +176,31 @@ class GrofastQuantityStepper extends StatelessWidget {
           asset: GrofastImageConst.minus,
           onTap: onDecrement,
           semanticLabel: GrofastValueConst.decreaseQuantityLabel,
+          size: buttonSize,
+          radius: buttonRadius,
+          glyphSize: glyphSize,
+          onTint: keysOnTint,
         ),
         SizedBox(
           width: AppSpacing.xl6,
           child: Text(
             '$quantity',
             textAlign: TextAlign.center,
-            style: GrofastTextStyleConst.rowTitleBold(tt),
+            style: keysOnTint
+                ? GrofastTextStyleConst.rowTitleBold(tt)
+                : GrofastTextStyleConst.price(
+                    tt,
+                  ).copyWith(color: cs.onSurfaceVariant),
           ),
         ),
         _StepperButton(
           asset: GrofastImageConst.plus,
           onTap: onIncrement,
           semanticLabel: GrofastValueConst.increaseQuantityLabel,
+          size: buttonSize,
+          radius: buttonRadius,
+          glyphSize: glyphSize,
+          onTint: keysOnTint,
         ),
       ],
     );
@@ -173,11 +211,19 @@ class _StepperButton extends StatelessWidget {
   final String asset;
   final VoidCallback? onTap;
   final String semanticLabel;
+  final double size;
+  final double radius;
+  final double glyphSize;
+  final bool onTint;
 
   const _StepperButton({
     required this.asset,
     required this.onTap,
     required this.semanticLabel,
+    required this.size,
+    required this.radius,
+    required this.glyphSize,
+    required this.onTint,
   });
 
   @override
@@ -192,58 +238,23 @@ class _StepperButton extends StatelessWidget {
       child: GestureDetector(
         onTap: onTap,
         child: Container(
-          width: GrofastDimenConst.stepperButtonSize,
-          height: GrofastDimenConst.stepperButtonSize,
+          width: size,
+          height: size,
           decoration: BoxDecoration(
-            color: cs.surfaceContainer,
-            shape: BoxShape.circle,
+            // The kit's stepper reads as two keys either side of the count,
+            // not two dots — so the key always takes the opposite fill to
+            // whatever it stands on.
+            color: onTint ? cs.surface : cs.surfaceContainerLow,
+            borderRadius: BorderRadius.circular(radius),
           ),
           alignment: Alignment.center,
           child: AppSvgImage.asset(
             asset,
-            width: AppSpacing.base,
-            height: AppSpacing.base,
+            width: glyphSize,
+            height: glyphSize,
             color: enabled
                 ? cs.onSurface
                 : cs.onSurfaceVariant.withValues(alpha: 0.4),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// The small circular remove control on a Bag row — `cs.error`-filled, with
-/// the kit's trash glyph.
-class GrofastRemoveDisc extends StatelessWidget {
-  final VoidCallback onTap;
-  final String tooltip;
-
-  const GrofastRemoveDisc({
-    super.key,
-    required this.onTap,
-    required this.tooltip,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-
-    return Semantics(
-      button: true,
-      label: tooltip,
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          width: GrofastDimenConst.productHeartSize,
-          height: GrofastDimenConst.productHeartSize,
-          decoration: BoxDecoration(color: cs.error, shape: BoxShape.circle),
-          alignment: Alignment.center,
-          child: AppSvgImage.asset(
-            GrofastImageConst.delete,
-            width: AppSpacing.base,
-            height: AppSpacing.base,
-            color: cs.onError,
           ),
         ),
       ),

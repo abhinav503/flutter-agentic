@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../../../home/data/models/category_model.dart';
 import '../../../home/data/models/product_model.dart';
 import '../../domain/entities/product_detail_entity.dart';
 
@@ -17,6 +18,9 @@ abstract class ProductDetailModel with _$ProductDetailModel {
     @JsonKey(name: 'size_options') required List<double> sizeOptions,
     @JsonKey(name: 'similar_products')
     required List<ProductModel> similarProducts,
+    // Nullable, not required: a product need not belong to a category, and
+    // stores created before this field shipped answer without the key.
+    CategoryModel? category,
   }) = _ProductDetailModel;
 
   factory ProductDetailModel.fromJson(Map<String, dynamic> json) =>
@@ -31,6 +35,9 @@ abstract class ProductDetailModel with _$ProductDetailModel {
         similarProducts: e.similarProducts
             .map(ProductModel.fromEntity)
             .toList(),
+        category: e.category == null
+            ? null
+            : CategoryModel.fromEntity(e.category!),
       );
 
   ProductDetailEntity toEntity() => ProductDetailEntity(
@@ -39,5 +46,6 @@ abstract class ProductDetailModel with _$ProductDetailModel {
     description: description,
     sizeOptions: sizeOptions,
     similarProducts: similarProducts.map((p) => p.toEntity()).toList(),
+    category: category?.toEntity(),
   );
 }

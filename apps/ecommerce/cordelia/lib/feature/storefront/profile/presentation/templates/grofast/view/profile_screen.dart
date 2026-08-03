@@ -5,7 +5,9 @@ import 'package:go_router/go_router.dart';
 
 import 'package:core/core/base/base_screen.dart';
 import 'package:core/core/theme/app_spacing.dart';
+import 'package:core/core/theme/theme_mode_scope.dart';
 import 'package:core/core/ui/atoms/shimmer_box.dart';
+import 'package:core/core/ui/atoms/switch.dart';
 
 import 'package:cordelia/constants/app_routes.dart';
 import 'package:cordelia/feature/auth/presentation/sign_out.dart';
@@ -71,9 +73,10 @@ class _ProfileScreenState extends BaseScreenState<ProfileScreen> {
             ),
           ),
           gap: AppSpacing.xl4,
-          // The nav bar below reserves its own height (and the device inset
-          // with it), so this is breathing room only.
-          bottomInset: AppSpacing.xl2,
+          // The shell runs `extendBody`, so this scroll view reaches under
+          // the nav: clear the bar, and let the last row pass behind the
+          // dome — that content is what makes the dome visible.
+          bottomInset: GrofastDimenConst.navScrollInset(context),
           body: GrofastSwitcher(
             child: switch (state) {
               ProfileLoading() => const _ProfileSkeletonBody(),
@@ -106,6 +109,13 @@ class _ProfileContent extends StatelessWidget {
     required this.onEditProfile,
     required this.onSignOut,
   });
+
+  void _toggleDarkMode(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    ThemeModeScope.of(
+      context,
+    ).setMode(isDark ? ThemeMode.light : ThemeMode.dark);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -183,6 +193,21 @@ class _ProfileContent extends StatelessWidget {
           label: GrofastValueConst.changePasswordLabel,
           icon: Icons.lock_rounded,
           onTap: () => context.push(AppRoutes.changePassword),
+        ),
+        const SizedBox(height: AppSpacing.base),
+        GrofastMenuTile(
+          label: GrofastValueConst.darkModeLabel,
+          icon: Icons.dark_mode_rounded,
+          // Acts in place, so the row's own tap toggles the switch rather
+          // than navigating — the chevron would promise a screen.
+          onTap: () => _toggleDarkMode(context),
+          trailing: AppSwitch(
+            value: Theme.of(context).brightness == Brightness.dark,
+            // The pack's surfaceContainerHighest is a near-white that reads as
+            // no track at all against the tile — use the kit's own hairline.
+            inactiveTrackColor: cs.outlineVariant,
+            onChanged: (_) => _toggleDarkMode(context),
+          ),
         ),
         const SizedBox(height: AppSpacing.base),
         GrofastMenuTile(

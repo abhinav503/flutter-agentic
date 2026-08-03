@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 
 import 'package:core/core/base/base_screen.dart';
 import 'package:core/core/theme/app_spacing.dart';
-import 'package:core/core/ui/atoms/shimmer_box.dart';
 
 import 'package:cordelia/constants/app_routes.dart';
 import 'package:cordelia/feature/storefront/active_store/presentation/cubit/active_store_cubit.dart';
@@ -26,10 +25,13 @@ import '../../../bloc/categories_bloc.dart';
 /// (`119:796`): a tap-to-search field over a 2-column grid of square pastel
 /// tiles.
 ///
-/// The kit draws one flat grid under one title. Real stores can group their
-/// categories, so a store with a single group renders exactly the kit's flat
-/// grid and one with several gets a section header per group — the grid
-/// itself is identical either way (spec sheet §11).
+/// The kit draws one flat grid under an "All Categories" title. That title
+/// isn't reproduced: the tab is already named in the nav bar and its whole
+/// body is the grid, so the line only pushed the tiles down. Real stores can
+/// group their categories, so a store with a single group renders the kit's
+/// flat grid and one with several gets a section header per group — those
+/// headers name something the screen can't otherwise tell you, which is why
+/// they stay (spec sheet §11).
 class CategoriesScreen extends BaseScreen {
   const CategoriesScreen({super.key});
 
@@ -71,9 +73,10 @@ class _CategoriesScreenState extends BaseScreenState<CategoriesScreen> {
             onTap: _openSearch,
           ),
           gap: AppSpacing.xl4,
-          // The nav bar below reserves its own height (and the device inset
-          // with it), so this is breathing room only.
-          bottomInset: AppSpacing.xl2,
+          // The shell runs `extendBody`, so this scroll view reaches under
+          // the nav: clear the bar, and let the last row pass behind the
+          // dome — that content is what makes the dome visible.
+          bottomInset: GrofastDimenConst.navScrollInset(context),
           body: GrofastSwitcher(
             child: switch (state) {
               CategoriesLoading() => const _CategoriesSkeletonBody(),
@@ -115,8 +118,9 @@ class _CategoriesContent extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        GrofastSectionHeader(title: GrofastValueConst.allCategoriesTitle),
-        const SizedBox(height: AppSpacing.xl2),
+        // No page title: the search field is the header, and a tab whose
+        // whole body is the category grid doesn't need a line naming it.
+        // Group headers below still appear when a store splits its catalog.
         for (final group in groups) ...[
           if (!isSingleGroup && group.categories.isNotEmpty) ...[
             GrofastSectionHeader(title: group.name),
@@ -170,8 +174,6 @@ class _CategoriesSkeletonBody extends StatelessWidget {
   Widget build(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      const ShimmerBox(width: 180, height: AppSpacing.xl5),
-      const SizedBox(height: AppSpacing.xl2),
       GridView.builder(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
@@ -183,8 +185,10 @@ class _CategoriesSkeletonBody extends StatelessWidget {
           mainAxisSpacing: GrofastDimenConst.gridRowGap,
           childAspectRatio: GrofastDimenConst.categoryGridAspectRatio,
         ),
-        itemBuilder: (context, index) =>
-            const GrofastCardSkeleton(height: double.infinity),
+        itemBuilder: (context, index) => const GrofastCardSkeleton(
+          height: double.infinity,
+          radius: GrofastDimenConst.tileRadius,
+        ),
       ),
     ],
   );

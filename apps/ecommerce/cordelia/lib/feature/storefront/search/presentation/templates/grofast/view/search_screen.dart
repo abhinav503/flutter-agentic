@@ -114,12 +114,7 @@ class _SearchScreenState extends BaseScreenState<SearchScreen> {
             children: [
               GrofastHeaderRow(
                 title: GrofastValueConst.searchTitle,
-                trailing: GrofastHeaderAction(
-                  icon: Icons.shopping_bag_rounded,
-                  onTap: () =>
-                      context.push(AppRoutes.cart, extra: widget.storeId),
-                  tooltip: GrofastValueConst.bagTitle,
-                ),
+                trailing: GrofastBagAction(storeId: widget.storeId),
               ),
               const SizedBox(height: AppSpacing.xl2),
               // The kit docks its filter square here too, opening the Sort

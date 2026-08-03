@@ -7,6 +7,7 @@ import 'package:core/core/ui/molecules/icon_info_row.dart';
 import 'package:core/core/ui/molecules/skeleton_rows.dart';
 import 'package:core/core/ui/molecules/menu_tile.dart';
 import 'package:core/core/ui/molecules/radio_group.dart';
+import 'package:core/core/ui/molecules/swipe_to_delete_row.dart';
 import 'package:flutter/material.dart';
 import 'package:widgetbook/widgetbook.dart';
 
@@ -63,6 +64,36 @@ WidgetbookCategory moleculesCategory() {
                   subtitle: r'$4.99',
                   trailing: Icon(Icons.chevron_right, color: cs.onSurfaceVariant),
                   onTap: () {},
+                );
+              },
+            ),
+            width: 320,
+          ),
+        ]),
+      ),
+      allVariants(
+        'SwipeToDeleteRow',
+        (context) => showcase(context, [
+          Variant(
+            'Swipe left to reveal',
+            Builder(
+              builder: (context) {
+                final cs = Theme.of(context).colorScheme;
+                return SwipeToDeleteRow(
+                  itemKey: 'demo-row',
+                  onDelete: () {},
+                  borderRadius: BorderRadius.circular(16),
+                  icon: Icon(Icons.delete_outline, color: cs.error),
+                  child: Container(
+                    height: 72,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    decoration: BoxDecoration(
+                      color: cs.surfaceContainerLow,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    alignment: Alignment.centerLeft,
+                    child: const Text('Fresh Avocado — swipe me left'),
+                  ),
                 );
               },
             ),

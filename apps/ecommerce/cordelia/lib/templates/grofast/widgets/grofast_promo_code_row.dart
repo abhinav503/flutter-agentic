@@ -28,27 +28,42 @@ class GrofastPromoCodeRow extends StatelessWidget {
     final tt = Theme.of(context).textTheme;
     final radius = BorderRadius.circular(context.appShapes.cardRadius);
 
-    return CustomPaint(
-      painter: _DashedBorderPainter(color: cs.outline, radius: radius),
-      child: SizedBox(
-        height: GrofastDimenConst.couponRowHeight,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  GrofastValueConst.promoCodeHint,
-                  style: GrofastTextStyleConst.bodyMedium(
-                    tt,
-                  ).copyWith(color: cs.onSurfaceVariant),
+    return DecoratedBox(
+      // Fills like a card and outlines like a voucher: the kit's raised
+      // neutral behind the dashes, not the page.
+      decoration: BoxDecoration(
+        color: cs.surfaceContainerLow,
+        borderRadius: radius,
+      ),
+      child: CustomPaint(
+        painter: _DashedBorderPainter(
+          // The kit's own stroke — the ink at 20%, which no neutral outline
+          // role reproduces on this pack's green-cast palette.
+          color: cs.onSurface.withValues(
+            alpha: GrofastDimenConst.couponBorderOpacity,
+          ),
+          radius: radius,
+        ),
+        child: SizedBox(
+          height: GrofastDimenConst.couponRowHeight,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    GrofastValueConst.promoCodeHint,
+                    style: GrofastTextStyleConst.bodyMedium(
+                      tt,
+                    ).copyWith(color: cs.onSurfaceVariant),
+                  ),
                 ),
-              ),
-              GrofastInkButton(
-                label: GrofastValueConst.promoApplyLabel,
-                onTap: onApply,
-              ),
-            ],
+                GrofastInkButton(
+                  label: GrofastValueConst.promoApplyLabel,
+                  onTap: onApply,
+                ),
+              ],
+            ),
           ),
         ),
       ),

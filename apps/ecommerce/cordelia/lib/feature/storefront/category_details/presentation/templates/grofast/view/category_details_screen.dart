@@ -97,12 +97,7 @@ class _CategoryDetailsScreenState
             headerRow: Column(
               children: [
                 GrofastHeaderRow(
-                  trailing: GrofastHeaderAction(
-                    icon: Icons.shopping_bag_rounded,
-                    onTap: () =>
-                        context.push(AppRoutes.cart, extra: widget.storeId),
-                    tooltip: GrofastValueConst.bagTitle,
-                  ),
+                  trailing: GrofastBagAction(storeId: widget.storeId),
                 ),
                 const SizedBox(height: AppSpacing.xl2),
                 GrofastSearchField(

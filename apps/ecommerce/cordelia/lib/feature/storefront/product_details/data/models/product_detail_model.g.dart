@@ -19,6 +19,9 @@ _ProductDetailModel _$ProductDetailModelFromJson(Map<String, dynamic> json) =>
       similarProducts: (json['similar_products'] as List<dynamic>)
           .map((e) => ProductModel.fromJson(e as Map<String, dynamic>))
           .toList(),
+      category: json['category'] == null
+          ? null
+          : CategoryModel.fromJson(json['category'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$ProductDetailModelToJson(_ProductDetailModel instance) =>
@@ -28,4 +31,5 @@ Map<String, dynamic> _$ProductDetailModelToJson(_ProductDetailModel instance) =>
       'description': instance.description,
       'size_options': instance.sizeOptions,
       'similar_products': instance.similarProducts,
+      'category': instance.category,
     };

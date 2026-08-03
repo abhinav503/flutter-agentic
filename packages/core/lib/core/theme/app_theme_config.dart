@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import '../extensions/string_extensions.dart';
 import 'app_shapes_extension.dart';
 import 'app_theme_presets.dart';
 
@@ -122,9 +123,14 @@ class AppThemeConfig {
     return result;
   }
 
+  // Strict where `hexColorArgb` is tolerant: this reads a config file the app
+  // ships, so a malformed hex is a build-time mistake to surface, not
+  // something to fall back from.
   static Color _parseColor(String hex) {
-    final cleaned = hex.replaceFirst('#', '');
-    final padded = cleaned.length == 6 ? 'FF$cleaned' : cleaned;
-    return Color(int.parse(padded, radix: 16));
+    final argb = hex.hexColorArgb;
+    if (argb == null) {
+      throw FormatException('theme_config.json: not a colour', hex);
+    }
+    return Color(argb);
   }
 }

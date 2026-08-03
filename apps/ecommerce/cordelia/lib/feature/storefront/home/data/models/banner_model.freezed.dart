@@ -18,7 +18,9 @@ mixin _$BannerModel {
  String get id; String get image; String get title; String get subtitle;// Raw wire string ('none' / 'product' / 'category') — parsed to
 // BannerTargetType only in toEntity(), per the data-layer-parses-wire-
 // strings convention.
-@JsonKey(name: 'target_type') String get targetType;@JsonKey(name: 'target_id') String get targetId;
+@JsonKey(name: 'target_type') String get targetType;@JsonKey(name: 'target_id') String get targetId;// Raw '#RRGGBB' from the admin's colour picker, empty when unset — parsed
+// in toEntity() for the same reason the target type is.
+@JsonKey(name: 'background_color') String get backgroundColor;
 /// Create a copy of BannerModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -31,16 +33,16 @@ $BannerModelCopyWith<BannerModel> get copyWith => _$BannerModelCopyWithImpl<Bann
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is BannerModel&&(identical(other.id, id) || other.id == id)&&(identical(other.image, image) || other.image == image)&&(identical(other.title, title) || other.title == title)&&(identical(other.subtitle, subtitle) || other.subtitle == subtitle)&&(identical(other.targetType, targetType) || other.targetType == targetType)&&(identical(other.targetId, targetId) || other.targetId == targetId));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is BannerModel&&(identical(other.id, id) || other.id == id)&&(identical(other.image, image) || other.image == image)&&(identical(other.title, title) || other.title == title)&&(identical(other.subtitle, subtitle) || other.subtitle == subtitle)&&(identical(other.targetType, targetType) || other.targetType == targetType)&&(identical(other.targetId, targetId) || other.targetId == targetId)&&(identical(other.backgroundColor, backgroundColor) || other.backgroundColor == backgroundColor));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,image,title,subtitle,targetType,targetId);
+int get hashCode => Object.hash(runtimeType,id,image,title,subtitle,targetType,targetId,backgroundColor);
 
 @override
 String toString() {
-  return 'BannerModel(id: $id, image: $image, title: $title, subtitle: $subtitle, targetType: $targetType, targetId: $targetId)';
+  return 'BannerModel(id: $id, image: $image, title: $title, subtitle: $subtitle, targetType: $targetType, targetId: $targetId, backgroundColor: $backgroundColor)';
 }
 
 
@@ -51,7 +53,7 @@ abstract mixin class $BannerModelCopyWith<$Res>  {
   factory $BannerModelCopyWith(BannerModel value, $Res Function(BannerModel) _then) = _$BannerModelCopyWithImpl;
 @useResult
 $Res call({
- String id, String image, String title, String subtitle,@JsonKey(name: 'target_type') String targetType,@JsonKey(name: 'target_id') String targetId
+ String id, String image, String title, String subtitle,@JsonKey(name: 'target_type') String targetType,@JsonKey(name: 'target_id') String targetId,@JsonKey(name: 'background_color') String backgroundColor
 });
 
 
@@ -68,7 +70,7 @@ class _$BannerModelCopyWithImpl<$Res>
 
 /// Create a copy of BannerModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? image = null,Object? title = null,Object? subtitle = null,Object? targetType = null,Object? targetId = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? image = null,Object? title = null,Object? subtitle = null,Object? targetType = null,Object? targetId = null,Object? backgroundColor = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,image: null == image ? _self.image : image // ignore: cast_nullable_to_non_nullable
@@ -76,6 +78,7 @@ as String,title: null == title ? _self.title : title // ignore: cast_nullable_to
 as String,subtitle: null == subtitle ? _self.subtitle : subtitle // ignore: cast_nullable_to_non_nullable
 as String,targetType: null == targetType ? _self.targetType : targetType // ignore: cast_nullable_to_non_nullable
 as String,targetId: null == targetId ? _self.targetId : targetId // ignore: cast_nullable_to_non_nullable
+as String,backgroundColor: null == backgroundColor ? _self.backgroundColor : backgroundColor // ignore: cast_nullable_to_non_nullable
 as String,
   ));
 }
@@ -161,10 +164,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String image,  String title,  String subtitle, @JsonKey(name: 'target_type')  String targetType, @JsonKey(name: 'target_id')  String targetId)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String image,  String title,  String subtitle, @JsonKey(name: 'target_type')  String targetType, @JsonKey(name: 'target_id')  String targetId, @JsonKey(name: 'background_color')  String backgroundColor)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _BannerModel() when $default != null:
-return $default(_that.id,_that.image,_that.title,_that.subtitle,_that.targetType,_that.targetId);case _:
+return $default(_that.id,_that.image,_that.title,_that.subtitle,_that.targetType,_that.targetId,_that.backgroundColor);case _:
   return orElse();
 
 }
@@ -182,10 +185,10 @@ return $default(_that.id,_that.image,_that.title,_that.subtitle,_that.targetType
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String image,  String title,  String subtitle, @JsonKey(name: 'target_type')  String targetType, @JsonKey(name: 'target_id')  String targetId)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String image,  String title,  String subtitle, @JsonKey(name: 'target_type')  String targetType, @JsonKey(name: 'target_id')  String targetId, @JsonKey(name: 'background_color')  String backgroundColor)  $default,) {final _that = this;
 switch (_that) {
 case _BannerModel():
-return $default(_that.id,_that.image,_that.title,_that.subtitle,_that.targetType,_that.targetId);case _:
+return $default(_that.id,_that.image,_that.title,_that.subtitle,_that.targetType,_that.targetId,_that.backgroundColor);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -202,10 +205,10 @@ return $default(_that.id,_that.image,_that.title,_that.subtitle,_that.targetType
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String image,  String title,  String subtitle, @JsonKey(name: 'target_type')  String targetType, @JsonKey(name: 'target_id')  String targetId)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String image,  String title,  String subtitle, @JsonKey(name: 'target_type')  String targetType, @JsonKey(name: 'target_id')  String targetId, @JsonKey(name: 'background_color')  String backgroundColor)?  $default,) {final _that = this;
 switch (_that) {
 case _BannerModel() when $default != null:
-return $default(_that.id,_that.image,_that.title,_that.subtitle,_that.targetType,_that.targetId);case _:
+return $default(_that.id,_that.image,_that.title,_that.subtitle,_that.targetType,_that.targetId,_that.backgroundColor);case _:
   return null;
 
 }
@@ -217,7 +220,7 @@ return $default(_that.id,_that.image,_that.title,_that.subtitle,_that.targetType
 @JsonSerializable()
 
 class _BannerModel extends BannerModel {
-  const _BannerModel({required this.id, required this.image, required this.title, this.subtitle = '', @JsonKey(name: 'target_type') this.targetType = 'none', @JsonKey(name: 'target_id') this.targetId = ''}): super._();
+  const _BannerModel({required this.id, required this.image, required this.title, this.subtitle = '', @JsonKey(name: 'target_type') this.targetType = 'none', @JsonKey(name: 'target_id') this.targetId = '', @JsonKey(name: 'background_color') this.backgroundColor = ''}): super._();
   factory _BannerModel.fromJson(Map<String, dynamic> json) => _$BannerModelFromJson(json);
 
 @override final  String id;
@@ -229,6 +232,9 @@ class _BannerModel extends BannerModel {
 // strings convention.
 @override@JsonKey(name: 'target_type') final  String targetType;
 @override@JsonKey(name: 'target_id') final  String targetId;
+// Raw '#RRGGBB' from the admin's colour picker, empty when unset — parsed
+// in toEntity() for the same reason the target type is.
+@override@JsonKey(name: 'background_color') final  String backgroundColor;
 
 /// Create a copy of BannerModel
 /// with the given fields replaced by the non-null parameter values.
@@ -243,16 +249,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _BannerModel&&(identical(other.id, id) || other.id == id)&&(identical(other.image, image) || other.image == image)&&(identical(other.title, title) || other.title == title)&&(identical(other.subtitle, subtitle) || other.subtitle == subtitle)&&(identical(other.targetType, targetType) || other.targetType == targetType)&&(identical(other.targetId, targetId) || other.targetId == targetId));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _BannerModel&&(identical(other.id, id) || other.id == id)&&(identical(other.image, image) || other.image == image)&&(identical(other.title, title) || other.title == title)&&(identical(other.subtitle, subtitle) || other.subtitle == subtitle)&&(identical(other.targetType, targetType) || other.targetType == targetType)&&(identical(other.targetId, targetId) || other.targetId == targetId)&&(identical(other.backgroundColor, backgroundColor) || other.backgroundColor == backgroundColor));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,image,title,subtitle,targetType,targetId);
+int get hashCode => Object.hash(runtimeType,id,image,title,subtitle,targetType,targetId,backgroundColor);
 
 @override
 String toString() {
-  return 'BannerModel(id: $id, image: $image, title: $title, subtitle: $subtitle, targetType: $targetType, targetId: $targetId)';
+  return 'BannerModel(id: $id, image: $image, title: $title, subtitle: $subtitle, targetType: $targetType, targetId: $targetId, backgroundColor: $backgroundColor)';
 }
 
 
@@ -263,7 +269,7 @@ abstract mixin class _$BannerModelCopyWith<$Res> implements $BannerModelCopyWith
   factory _$BannerModelCopyWith(_BannerModel value, $Res Function(_BannerModel) _then) = __$BannerModelCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String image, String title, String subtitle,@JsonKey(name: 'target_type') String targetType,@JsonKey(name: 'target_id') String targetId
+ String id, String image, String title, String subtitle,@JsonKey(name: 'target_type') String targetType,@JsonKey(name: 'target_id') String targetId,@JsonKey(name: 'background_color') String backgroundColor
 });
 
 
@@ -280,7 +286,7 @@ class __$BannerModelCopyWithImpl<$Res>
 
 /// Create a copy of BannerModel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? image = null,Object? title = null,Object? subtitle = null,Object? targetType = null,Object? targetId = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? image = null,Object? title = null,Object? subtitle = null,Object? targetType = null,Object? targetId = null,Object? backgroundColor = null,}) {
   return _then(_BannerModel(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,image: null == image ? _self.image : image // ignore: cast_nullable_to_non_nullable
@@ -288,6 +294,7 @@ as String,title: null == title ? _self.title : title // ignore: cast_nullable_to
 as String,subtitle: null == subtitle ? _self.subtitle : subtitle // ignore: cast_nullable_to_non_nullable
 as String,targetType: null == targetType ? _self.targetType : targetType // ignore: cast_nullable_to_non_nullable
 as String,targetId: null == targetId ? _self.targetId : targetId // ignore: cast_nullable_to_non_nullable
+as String,backgroundColor: null == backgroundColor ? _self.backgroundColor : backgroundColor // ignore: cast_nullable_to_non_nullable
 as String,
   ));
 }
