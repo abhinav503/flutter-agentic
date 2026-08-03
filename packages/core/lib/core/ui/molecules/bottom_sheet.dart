@@ -82,6 +82,14 @@ class AppBottomSheet extends StatelessWidget {
   /// draws its own handle if it wants one. This replaces hand-rolled
   /// `showModalBottomSheet` recipes that re-implement the sheet container.
   final bool showHeader;
+
+  /// Replaces the sheet container's rounded-top-corners silhouette. For a
+  /// style pack whose sheet edge is not a radius at all — e.g. `grofast`,
+  /// whose sheets rise in an arc with the drag handle floating above them as
+  /// part of the same painted shape. The container both fills and clips to
+  /// this, so content still has to stay clear of whatever the shape cuts
+  /// away. Omit (default) for the standard rounded-top sheet.
+  final ShapeBorder? shape;
   final List<Widget>? actions;
   final bool isScrollable;
   final double maxHeightFraction;
@@ -102,6 +110,7 @@ class AppBottomSheet extends StatelessWidget {
     this.headerHeight,
     this.showCloseAction = true,
     this.showHeader = true,
+    this.shape,
     this.actions,
     this.isScrollable = true,
     this.maxHeightFraction = 0.9,
@@ -123,6 +132,7 @@ class AppBottomSheet extends StatelessWidget {
     double? headerHeight,
     bool showCloseAction = true,
     bool showHeader = true,
+    ShapeBorder? shape,
     List<Widget>? actions,
     bool isScrollable = true,
     double maxHeightFraction = 0.9,
@@ -152,6 +162,7 @@ class AppBottomSheet extends StatelessWidget {
         headerHeight: headerHeight,
         showCloseAction: showCloseAction,
         showHeader: showHeader,
+        shape: shape,
         actions: actions,
         isScrollable: isScrollable,
         maxHeightFraction: maxHeightFraction,
@@ -175,10 +186,17 @@ class AppBottomSheet extends StatelessWidget {
         // by the first sliver covers the decoration's rounded top corners
         // instead of being clipped to them.
         clipBehavior: Clip.antiAlias,
-        decoration: BoxDecoration(
-          color: cs.surface,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(sheetRadius)),
-        ),
+        // ShapeDecoration (not BoxDecoration) once a caller supplies its own
+        // silhouette — Container fills *and* clips to the decoration's path,
+        // so a pack's non-rectangular sheet edge needs no separate clipper.
+        decoration: shape != null
+            ? ShapeDecoration(color: cs.surface, shape: shape!)
+            : BoxDecoration(
+                color: cs.surface,
+                borderRadius: BorderRadius.vertical(
+                  top: Radius.circular(sheetRadius),
+                ),
+              ),
         child: CustomScrollView(
           shrinkWrap: true,
           physics: isScrollable
@@ -189,20 +207,20 @@ class AppBottomSheet extends StatelessWidget {
               SliverPersistentHeader(
                 pinned: true,
                 delegate: _HeaderDelegate(
-                title: title,
-                titleStyle: titleStyle,
-                onClose: onClose,
-                closeLabel: closeLabel,
-                closeLabelStyle: closeLabelStyle,
-                dividerColor: dividerColor,
-                handleColor: handleColor,
-                handleSize: handleSize,
-                leading: leading,
-                centerTitle: centerTitle,
-                headerHeight: headerHeight,
-                showCloseAction: showCloseAction,
+                  title: title,
+                  titleStyle: titleStyle,
+                  onClose: onClose,
+                  closeLabel: closeLabel,
+                  closeLabelStyle: closeLabelStyle,
+                  dividerColor: dividerColor,
+                  handleColor: handleColor,
+                  handleSize: handleSize,
+                  leading: leading,
+                  centerTitle: centerTitle,
+                  headerHeight: headerHeight,
+                  showCloseAction: showCloseAction,
+                ),
               ),
-            ),
             SliverToBoxAdapter(child: child),
             if (actions != null && actions!.isNotEmpty)
               SliverToBoxAdapter(
@@ -261,7 +279,10 @@ class _HeaderDelegate extends SliverPersistentHeaderDelegate {
 
   @override
   Widget build(
-      BuildContext context, double shrinkOffset, bool overlapsContent) {
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
     final cs = Theme.of(context).colorScheme;
     // The handle bar above already gives every sheet a drag affordance, so
     // an untitled sheet just leaves the title slot blank rather than
@@ -276,16 +297,16 @@ class _HeaderDelegate extends SliverPersistentHeaderDelegate {
     final closeAction = onClose == null || !showCloseAction
         ? null
         : closeLabel != null
-            ? TextButton(
-                onPressed: onClose,
-                style: TextButton.styleFrom(foregroundColor: cs.primary),
-                child: Text(closeLabel!, style: closeLabelStyle),
-              )
-            : IconButton(
-                icon: const Icon(Icons.close),
-                onPressed: onClose,
-                color: cs.onSurfaceVariant,
-              );
+        ? TextButton(
+            onPressed: onClose,
+            style: TextButton.styleFrom(foregroundColor: cs.primary),
+            child: Text(closeLabel!, style: closeLabelStyle),
+          )
+        : IconButton(
+            icon: const Icon(Icons.close),
+            onPressed: onClose,
+            color: cs.onSurfaceVariant,
+          );
 
     return Material(
       elevation: overlapsContent ? 2 : 0,
@@ -299,7 +320,8 @@ class _HeaderDelegate extends SliverPersistentHeaderDelegate {
               width: handleSize?.width ?? 44,
               height: handleSize?.height ?? 3,
               decoration: BoxDecoration(
-                color: handleColor ?? cs.onSurfaceVariant.withValues(alpha: 0.4),
+                color:
+                    handleColor ?? cs.onSurfaceVariant.withValues(alpha: 0.4),
                 borderRadius: AppRadius.full,
               ),
             ),
@@ -316,7 +338,10 @@ class _HeaderDelegate extends SliverPersistentHeaderDelegate {
                       children: [
                         titleText,
                         if (leading != null)
-                          Align(alignment: Alignment.centerLeft, child: leading),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: leading,
+                          ),
                         if (closeAction != null)
                           Align(
                             alignment: Alignment.centerRight,

@@ -1,7 +1,7 @@
 /// Which per-store `presentation/templates/<name>/` a storefront renders —
 /// the swappable UI layer selected per store, while `domain`/`data` under
 /// `feature/storefront/` stay shared across every template.
-enum StorefrontTemplate { gravia, dailymart }
+enum StorefrontTemplate { gravia, dailymart, grofast }
 
 extension StorefrontTemplateX on StorefrontTemplate {
   /// Enum → wire value, for the data layer's model-to-JSON mapping. Matches
@@ -10,6 +10,7 @@ extension StorefrontTemplateX on StorefrontTemplate {
   String get wireValue => switch (this) {
     StorefrontTemplate.gravia => 'gravia',
     StorefrontTemplate.dailymart => 'dailymart',
+    StorefrontTemplate.grofast => 'grofast',
   };
 }
 
@@ -19,6 +20,7 @@ extension StorefrontTemplateX on StorefrontTemplate {
 extension StorefrontTemplateParse on String {
   StorefrontTemplate toStorefrontTemplate() => switch (this) {
     'dailymart' => StorefrontTemplate.dailymart,
+    'grofast' => StorefrontTemplate.grofast,
     _ => StorefrontTemplate.gravia,
   };
 }

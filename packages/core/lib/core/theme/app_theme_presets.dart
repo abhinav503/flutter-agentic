@@ -345,7 +345,8 @@ const Map<String, Map<String, dynamic>> kThemePresets = {
       'button': 999,
       'chip': 999,
       'card': 20,
-      'input': 999, // pill — SearchFieldBar's glass field; form fields override to 16 (GraviaFormField)
+      'input':
+          999, // pill — SearchFieldBar's glass field; form fields override to 16 (GraviaFormField)
       'sheet': 28,
     },
     'light': {
@@ -380,14 +381,16 @@ const Map<String, Map<String, dynamic>> kThemePresets = {
       'outline': '#ADADAD', // Gray/400
       'outlineVariant': '#DFDFDF', // Gray/200
       // AppColorsExtension roles (consumed by AppTheme, not ColorScheme)
-      'tintedPrimaryFill': '#ECFDF6', // Primary/50 — selected/emphasis pill fill
+      'tintedPrimaryFill':
+          '#ECFDF6', // Primary/50 — selected/emphasis pill fill
       'dockedHairline': '#A1A1A1', // Gray/500 — docked bar / nav top hairline
       'sheetHairline': '#DFDFDF', // Gray/200 — sheet divider + drag handle
       'onSheetMuted': '#7B7B7B', // Gray/700 — chrome-free sheet subtitle text
     },
     'dark': {
       'seed': '#027A60',
-      'primary': '#027A60', // Primary/500 — kept identical to light mode by design
+      'primary':
+          '#027A60', // Primary/500 — kept identical to light mode by design
       'onPrimary': '#FFFFFF', // matches light mode's pairing for this tone
       'primaryContainer': '#04614D', // Primary/800
       'onPrimaryContainer': '#D0FBE8', // Primary/100
@@ -413,10 +416,13 @@ const Map<String, Map<String, dynamic>> kThemePresets = {
       'outline': '#545454', // Gray/900
       'outlineVariant': '#363636', // Gray/950
       // AppColorsExtension roles (consumed by AppTheme, not ColorScheme)
-      'tintedPrimaryFill': '#33027A60', // kit's "Primary 20%" — Primary/500 at 20% alpha
-      'dockedHairline': '#FFFFFF', // kit specs white so the divider reads on dark surface
+      'tintedPrimaryFill':
+          '#33027A60', // kit's "Primary 20%" — Primary/500 at 20% alpha
+      'dockedHairline':
+          '#FFFFFF', // kit specs white so the divider reads on dark surface
       'sheetHairline': '#3A3B3F', // Light/900 — kit's dark neutral
-      'onSheetMuted': '#FFFFFF', // kit specs white subtitle so it reads on dark surface
+      'onSheetMuted':
+          '#FFFFFF', // kit specs white subtitle so it reads on dark surface
     },
   },
 
@@ -467,21 +473,27 @@ const Map<String, Map<String, dynamic>> kThemePresets = {
       'onErrorContainer': '#7F1D1D',
       'surface': '#FFFFFF',
       'onSurface': '#0D121C', // Gary Modern/950 — the kit's cool text black
-      'surfaceContainerLow': '#F5F8FF', // Dark Blue/25 — active search field, sheet discs
+      'surfaceContainerLow':
+          '#F5F8FF', // Dark Blue/25 — active search field, sheet discs
       'surfaceContainer': '#EEF2F6', // back-button disc, avatar well
-      'surfaceContainerHighest': '#EFF4FF', // product-image well behind the photo
-      'onSurfaceVariant': '#697586', // Gary Modern/500 — placeholder + inactive nav
-      'outline': '#CDD5DF', // Gary Modern/300 — field borders, the bell disc ring
+      'surfaceContainerHighest':
+          '#EFF4FF', // product-image well behind the photo
+      'onSurfaceVariant':
+          '#697586', // Gary Modern/500 — placeholder + inactive nav
+      'outline':
+          '#CDD5DF', // Gary Modern/300 — field borders, the bell disc ring
       'outlineVariant': '#DFE1E7', // Greyscale/100
       // AppColorsExtension roles (consumed by AppTheme, not ColorScheme)
-      'tintedPrimaryFill': '#C6FFB9', // same mint as the canvas — the pack has one tint
+      'tintedPrimaryFill':
+          '#C6FFB9', // same mint as the canvas — the pack has one tint
       'dockedHairline': '#CDD5DF', // Gary Modern/300
       'sheetHairline': '#DFE1E7', // Greyscale/100 — sheet divider + drag handle
       'onSheetMuted': '#697586', // Gary Modern/500
     },
     'dark': {
       'seed': '#44BC28',
-      'primary': '#44BC28', // held identical to light — the brand green reads on both
+      'primary':
+          '#44BC28', // held identical to light — the brand green reads on both
       'onPrimary': '#FFFFFF',
       'primaryContainer': '#1E5C11',
       'onPrimaryContainer': '#C6FFB9',
@@ -506,10 +518,115 @@ const Map<String, Map<String, dynamic>> kThemePresets = {
       'outline': '#4B5565', // Gary Modern/600
       'outlineVariant': '#364152',
       // AppColorsExtension roles (consumed by AppTheme, not ColorScheme)
-      'tintedPrimaryFill': '#3344BC28', // primary at 20% — the mint swatch blows out on dark
+      'tintedPrimaryFill':
+          '#3344BC28', // primary at 20% — the mint swatch blows out on dark
       'dockedHairline': '#4B5565',
       'sheetHairline': '#2A3448',
       'onSheetMuted': '#9AA4B2',
+    },
+  },
+
+  // Deep forest-green ink with a bright grass-green accent on white, over
+  // barely-tinted grey-green cards. The brand green is almost never a flat
+  // fill — every affirmative control is the kit's one green gradient
+  // (#26AD71 → #32CB4B), which lives in the app's `grofast_color_const.dart`
+  // because a `ColorScheme` role can only hold a single colour. Corners are
+  // generous: cards and category tiles at 28, inputs at 18, everything else a
+  // pill. Values sampled from the UI8 "GROFAST — eCommerce Grocery App UI
+  // Kit" Home / Product Detail / Bag / Search-Option frames, not its
+  // foundation page (see docs/ai-rules/style-packs/grofast.md §0).
+  //
+  // Note `onSurface` is the dark *green* #194B38, not a neutral black — the
+  // kit sets every heading, product name and body line in it, and that single
+  // decision is most of what makes the pack read as "grocery".
+  //
+  // The kit is the LIGHT edition and ships no dark screens. The light block
+  // is measured; the dark block is authored here by dropping the same forest
+  // ink to a near-black green canvas and climbing the neutrals back up as
+  // elevation, holding both greens fixed — a decision recorded in the spec
+  // sheet, not sampled.
+  'grofast': {
+    'fontFamily': 'Raleway',
+    'shape': {
+      'button': 999, // pill — every CTA, chip and the promo "claim now"
+      'chip': 999,
+      'card': 28, // product card, category tile, cart row, promo banner
+      'input': 18, // search bar + form fields
+      'sheet': 28, // fallback; grofast's own sheets are clipped to a dome
+    },
+    'light': {
+      'seed': '#4CBB5E',
+      'primary': '#4CBB5E', // Light-Green — prices, active chip ink, accents
+      'onPrimary': '#FFFFFF',
+      'primaryContainer':
+          '#EBF4F1', // the mint tile/tint the kit reuses everywhere
+      'onPrimaryContainer': '#194B38',
+      // Dark-Green. The kit's ink, and the fill of the one non-gradient
+      // button (Bag's "Apply"). Held as a role so the pill can invert on dark.
+      'secondary': '#194B38',
+      'onSecondary': '#FFFFFF',
+      'secondaryContainer': '#EBF4F1',
+      'onSecondaryContainer': '#194B38',
+      // Reserved — no grofast screen paints tertiary. Kept as the gradient's
+      // darker stop so a future accent matches the kit instead of a
+      // seed-derived tone.
+      'tertiary': '#26AD71',
+      'onTertiary': '#FFFFFF',
+      'tertiaryContainer': '#DFF0E7',
+      'onTertiaryContainer': '#194B38',
+      'error': '#EC534A', // Light-Red — favourite hearts, discounts, cancel
+      'onError': '#FFFFFF',
+      'errorContainer': '#FDE7E5',
+      'onErrorContainer': '#7A211B',
+      'surface': '#FFFFFF',
+      'onSurface': '#194B38', // Dark-Green — see the note above
+      'surfaceContainerLow':
+          '#F1F4F3', // Soft-Grey-1 — cards, rows, image wells
+      'surfaceContainer': '#EBF4F1', // tinted tiles + selected states
+      'surfaceContainerHighest': '#F1F4F3',
+      'onSurfaceVariant': '#777777', // Medium-Grey — every secondary line
+      'outline': '#DCE3E1', // unselected chip + card borders
+      'outlineVariant': '#E8ECEA',
+      // AppColorsExtension roles (consumed by AppTheme, not ColorScheme)
+      'tintedPrimaryFill':
+          '#EBF4F1', // same mint as the tiles — the pack has one tint
+      'dockedHairline': '#E8ECEA',
+      'sheetHairline': '#E8ECEA',
+      'onSheetMuted': '#777777',
+    },
+    'dark': {
+      'seed': '#4CBB5E',
+      'primary':
+          '#4CBB5E', // held identical to light — the accent reads on both
+      'onPrimary': '#FFFFFF',
+      'primaryContainer': '#1B3A2B',
+      'onPrimaryContainer': '#C9E7D5',
+      'secondary': '#DDE9E3', // the "Apply" pill inverts to near-white ink
+      'onSecondary': '#0F1A15',
+      'secondaryContainer': '#1B3A2B',
+      'onSecondaryContainer': '#C9E7D5',
+      'tertiary': '#5FD7A0',
+      'onTertiary': '#04331B',
+      'tertiaryContainer': '#173A2C',
+      'onTertiaryContainer': '#DFF0E7',
+      'error': '#F08A83',
+      'onError': '#4A0F0B',
+      'errorContainer': '#5C201B',
+      'onErrorContainer': '#FDE7E5',
+      'surface': '#0F1A15', // the forest ink dropped to a canvas
+      'onSurface': '#EAF2EE',
+      'surfaceContainerLow': '#17241E',
+      'surfaceContainer': '#1E2E27',
+      'surfaceContainerHighest': '#253830',
+      'onSurfaceVariant': '#9FB0A8',
+      'outline': '#35473F',
+      'outlineVariant': '#2A3A33',
+      // AppColorsExtension roles (consumed by AppTheme, not ColorScheme)
+      'tintedPrimaryFill':
+          '#334CBB5E', // primary at 20% — the mint blows out on dark
+      'dockedHairline': '#35473F',
+      'sheetHairline': '#253830',
+      'onSheetMuted': '#9FB0A8',
     },
   },
 
@@ -518,13 +635,7 @@ const Map<String, Map<String, dynamic>> kThemePresets = {
   // come out identical under a config-driven theme (see core test).
   'rocketWarm': {
     'fontFamily': 'Outfit',
-    'shape': {
-      'button': 999,
-      'chip': 999,
-      'card': 16,
-      'input': 8,
-      'sheet': 24,
-    },
+    'shape': {'button': 999, 'chip': 999, 'card': 16, 'input': 8, 'sheet': 24},
     'light': {
       'seed': '#F59E0B',
       'primary': '#1A1A1A',

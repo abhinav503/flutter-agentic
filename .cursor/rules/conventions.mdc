@@ -39,7 +39,7 @@ apps/ai_chat/    streaming app
 apps/ecommerce/gravia/  style-pack exemplar (`gravia` theme, ecommerce blocks, free-pack
                          screens: splash, onboarding, app logo)
 apps/ecommerce/cordelia/  multi-tenant storefront — one shopper app, many stores; each
-                           store's template (`gravia` | `dailymart`) restyles it at runtime
+                           store's template (`gravia` | `dailymart` | `grofast`) restyles it at runtime
 apps/design_gallery/  Widgetbook showcase — every core atom/molecule/block × every preset
 ```
 

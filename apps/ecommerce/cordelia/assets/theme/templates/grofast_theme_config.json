@@ -1,0 +1,4 @@
+{
+  "_doc": "The 'grofast' storefront template's own theme, distinct from CordeliaApps' own app-level brand config at assets/theme/theme_config.json. Selects the shared 'grofast' preset (packages/core/lib/core/theme/app_theme_presets.dart) verbatim — the real GROFAST kit palette (forest-green ink and a grass-green gradient accent on white, over barely-tinted grey-green cards) sampled from the kit's live screens. Full contract: docs/ai-rules/style-packs/grofast.md. Loaded at runtime by StorefrontPage once a store's templateId resolves to 'grofast', not at boot.",
+  "activeTheme": "grofast"
+}

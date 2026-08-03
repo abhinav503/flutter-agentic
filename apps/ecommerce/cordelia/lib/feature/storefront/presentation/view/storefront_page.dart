@@ -7,6 +7,8 @@ import 'package:cordelia/feature/storefront/shell/presentation/templates/dailyma
     as dailymart;
 import 'package:cordelia/feature/storefront/shell/presentation/templates/gravia/view/shell_page.dart'
     as gravia;
+import 'package:cordelia/feature/storefront/shell/presentation/templates/grofast/view/shell_page.dart'
+    as grofast;
 import 'package:core/core/base/base_page.dart';
 import 'package:core/core/theme/app_theme_config.dart';
 import 'package:flutter/material.dart';
@@ -117,6 +119,9 @@ class _StorefrontPageState extends BasePageState<StorefrontPage> {
       initialTab: widget.initialTab,
     ),
     StorefrontTemplate.dailymart => dailymart.ShellPage(
+      initialTab: widget.initialTab,
+    ),
+    StorefrontTemplate.grofast => grofast.ShellPage(
       initialTab: widget.initialTab,
     ),
   };

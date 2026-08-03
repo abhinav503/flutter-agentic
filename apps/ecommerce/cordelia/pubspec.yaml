@@ -48,6 +48,11 @@ dependencies:
 
   # Brand SVG rendering (splash wordmark glyph)
   flutter_svg: ^2.3.0
+
+  # The grofast pack sets prices and small meta in a second family
+  # (Montserrat) against the theme's Raleway — a theme preset carries one
+  # fontFamily, so that one pairing is resolved at the call site.
+  google_fonts: ^6.2.1
   razorpay_flutter: ^1.4.0
 
 dev_dependencies:
@@ -70,6 +75,7 @@ flutter:
     - assets/theme/theme_config.json
     - assets/theme/templates/gravia_theme_config.json
     - assets/theme/templates/dailymart_theme_config.json
+    - assets/theme/templates/grofast_theme_config.json
     # App-level assets (Cordelia brand marks, auth-provider logos, the shared
     # back arrow). A directory entry is NOT recursive, so each storefront
     # template's pack folder below needs its own line — adding a template
@@ -81,6 +87,9 @@ flutter:
     # dailymart ships no pack images yet — icons and mock data only.
     - assets/icons/templates/dailymart/
     - assets/data/templates/dailymart/
+    # grofast likewise — its artwork all comes from the store's own catalog.
+    - assets/icons/templates/grofast/
+    - assets/data/templates/grofast/
 
 # One source mark → every launcher-icon size. branding/ holds these
 # build-time generator sources and lives OUTSIDE assets/ on purpose — it

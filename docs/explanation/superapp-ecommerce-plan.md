@@ -622,6 +622,66 @@ frames with no feature behind them), full end-to-end implementation over the
 unchanged shared layers, the review + cross-pack promotion sweep, and the
 doc/progress updates.
 
+## grofast — third storefront template, first built by the skill — DONE (2026-08-03)
+
+`/add-storefront-template` run end-to-end against the UI8 **GROFAST**
+eCommerce Grocery kit (Figma `bpUABss9li4hSRt7NGPRN3`), producing cordelia's
+third template over **zero** changes to the shared `domain`/`data`/`bloc`
+layers. Full contract: `docs/ai-rules/style-packs/grofast.md`.
+
+**Contracts first (Phase 1).** The `'grofast'` preset (light measured off the
+Home / Product Detail / Bag / Search-Option frames, dark authored by dropping
+the same forest ink to a canvas), `assets/theme/templates/grofast_theme_config.json`,
+and the five `lib/templates/grofast/constants/` files. Two things make the
+pack: `onSurface` is the kit's Dark-Green `#194B38` rather than a neutral, and
+every affirmative control is one gradient (`#26AD71 → #32CB4B`) instead of a
+flat `cs.primary`. It also pairs two families — Raleway from the preset,
+Montserrat resolved at the call site for prices and numerics (cordelia gained
+a direct `google_fonts` dep for that half).
+
+**The four signature shapes** the kit is built on, all reproduced from
+measured geometry rather than eyeballed: the **domed sheet** (top edge an arc
+peaking 22 above its edges, the drag handle floating on the scrim above it —
+one `ShapeBorder` so `AppBottomSheet` fills and clips both); the **notched
+nav** (Ø82 circle cut from the bar's top edge with the active Ø64 gradient
+disc concentric in it, animating as one movement); the **corner add button**
+(53 × 41 welded into the product card's bottom-right, inheriting the card's 28
+radius on that corner); and the **staggered grid** (two independent columns
+where only the *first* card is short, which offsets the right column for the
+rest of the scroll).
+
+**Surfaces (Phases 2–3).** Every storefront surface ships: shell (Home /
+Categories / Bag / Account), Home, All Categories, Category Details + filter
+sheet, Search, Product Details (the dome flipped onto the hero's bottom edge),
+Bag, Checkout + the domed "Success!" sheet, My Orders, Track Order with a
+dated timeline, Select/Add/Edit Address, Profile, Edit Profile, Change
+Password, Wishlist, Notifications, Privacy + Terms. No screen falls through to
+another pack. Wishlist is this template's one **routed** surface where the
+others give it a tab — `AppRoutes.wishlist` — because the kit reaches it from
+Profile; the orders/track/checkout routes gained a real
+`StorefrontTemplateSwitch` (gravia's branch maps to dailymart's page, which it
+never reaches).
+
+**Promoted to core**, both defaulted to prior behaviour and shipped with the
+design-gallery entry: `AppButton.gradient` (a `ColorScheme` role holds one
+colour; a pack whose CTAs are all one gradient can't express that) and
+`AppBottomSheet.shape` (a sheet silhouette that isn't rounded corners —
+`ShapeDecoration` when supplied, `BoxDecoration` otherwise), with
+`showAppBottomSheet` forwarding `showHeader`/`shape`. Also `AppNetworkImage`
+now dispatches an `.svg` URL to `AppSvgImage.network`, and
+`ProductUnitTypeX.unitLabel` derives a price suffix's unit from `format`.
+
+**Deviations** — 18 kit details discarded for want of a feature or data
+behind them (Scan tab, view toggle, vouchers, maps, saved payment cards, a
+six-step delivery pipeline, product ratings, category item counts, …), each
+recorded with its reasoning in the spec sheet §11 alongside the six surfaces
+the kit has no frame for and which were composed from the pack's own recipes.
+
+`flutter analyze` clean at the repo root; core/cordelia/jokes/ai_chat tests
+pass (gravia's network-dependent widget tests and doc_scanner's
+Firebase-init widget test fail identically with these changes stashed —
+pre-existing, unrelated).
+
 ## Missing flows (fill these or explicitly defer)
 
 1. **Store onboarding** — how a creator signs up, creates a store, becomes its admin (roles/claims).

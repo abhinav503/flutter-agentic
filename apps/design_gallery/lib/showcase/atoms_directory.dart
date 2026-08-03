@@ -25,6 +25,7 @@ import 'package:core/core/ui/atoms/text_field.dart';
 import 'package:core/core/ui/atoms/theme_mode_toggle.dart';
 import 'package:core/core/ui/atoms/top_bar.dart';
 import 'package:core/core/theme/app_colors_extension.dart';
+import 'package:core/core/theme/app_radius.dart';
 import 'package:flutter/material.dart';
 import 'package:widgetbook/widgetbook.dart';
 
@@ -65,6 +66,25 @@ WidgetbookCategory atomsCategory() {
           const Variant(
             'Disabled',
             AppButton(label: 'Disabled', state: AppButtonState.disabled),
+          ),
+          Variant(
+            'Gradient (primary only)',
+            AppButton(
+              label: 'Proceed To Checkout',
+              onTap: () {},
+              size: AppButtonSize.large,
+              fullWidth: true,
+              height: 50,
+              borderRadius: AppRadius.full,
+              // A pack whose affirmative controls are all one brand gradient
+              // passes it here rather than forking the atom — a ColorScheme
+              // role can only hold a single colour (see `grofast`).
+              gradient: const LinearGradient(
+                begin: Alignment.bottomLeft,
+                end: Alignment.topRight,
+                colors: [Color(0xFF26AD71), Color(0xFF32CB4B)],
+              ),
+            ),
           ),
           Variant(
             'With trailing action',

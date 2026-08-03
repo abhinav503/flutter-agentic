@@ -21,17 +21,20 @@ import 'storefront_template.dart';
 class StorefrontTemplateSwitch extends StatelessWidget {
   final WidgetBuilder gravia;
   final WidgetBuilder dailymart;
+  final WidgetBuilder grofast;
 
   const StorefrontTemplateSwitch({
     super.key,
     required this.gravia,
     required this.dailymart,
+    required this.grofast,
   });
 
   @override
   Widget build(BuildContext context) =>
       switch (context.read<ActiveStoreCubit>().state?.templateId) {
         StorefrontTemplate.dailymart => dailymart(context),
+        StorefrontTemplate.grofast => grofast(context),
         // `null` only outside a storefront, which these routes are never
         // reached from. Falling back to gravia matches the same default
         // `String.toStorefrontTemplate()` uses for an unknown template.

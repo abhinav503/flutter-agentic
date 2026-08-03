@@ -1,0 +1,184 @@
+import 'package:flutter/material.dart';
+
+import 'package:core/core/theme/app_spacing.dart';
+
+import 'package:cordelia/templates/grofast/constants/grofast_dimen_const.dart';
+
+import 'grofast_header_row.dart';
+
+/// The pack's screen shell (spec sheet §8): one scroll view at the 30px
+/// gutter carrying the header row as its first item — this pack scrolls its
+/// header away rather than docking it — with an optional CTA floating over a
+/// `surface → transparent` fade.
+///
+/// One padding recipe for **every** state a screen swaps through, so a
+/// loading → loaded → empty → error transition never shifts content sideways
+/// and every branch pays the same bottom inset.
+///
+/// With a [floatingAction] the shell becomes a `Stack(fit: StackFit.expand)`:
+/// the scroll view shrink-wraps its content, so without expanding, a short
+/// page ends the stack early and the fade + CTA pin to the content's bottom
+/// edge instead of the device's. The scroll view then pays
+/// [GrofastDimenConst.floatingActionScrollInset] so its last row clears the
+/// CTA; without one it pays the device inset alone (the screen's `SafeArea`
+/// deliberately leaves the bottom edge to this shell).
+class GrofastScreenBody extends StatelessWidget {
+  final Widget body;
+
+  /// Builds the standard [GrofastHeaderRow]. Null (with no [headerRow]) means
+  /// a headerless shell — a tab root whose header is pinned outside, or a
+  /// body slot under an already-rendered header.
+  final String? title;
+  final VoidCallback? onBack;
+  final bool showBack;
+  final Widget? trailing;
+
+  /// Replaces the [title]-built header for screens with their own recipe
+  /// (Home's identity band).
+  final Widget? headerRow;
+
+  /// Space between the header row and [body].
+  final double gap;
+
+  final double topPadding;
+
+  /// Bottom clearance when nothing floats. Defaults to the device inset +
+  /// `lg`; a shell tab sitting above the nav bar passes
+  /// [GrofastDimenConst.navScrollInset] instead. Ignored when
+  /// [floatingAction] is set — the CTA clearance takes over.
+  final double? bottomInset;
+
+  /// The CTA floating over the bottom fade, spanning the gutters at
+  /// `device inset + lg` above the bottom edge.
+  final Widget? floatingAction;
+
+  /// Drops the horizontal gutters so [body] can bleed edge-to-edge (Home's
+  /// peeking carousel); the header row keeps its own gutters.
+  final bool fullBleedBody;
+
+  /// Replaces the scroll view with a plain column — for a screen whose body
+  /// is itself a scrollable that must own the viewport (a long list with its
+  /// own physics).
+  final bool scrollable;
+
+  const GrofastScreenBody({
+    super.key,
+    required this.body,
+    this.title,
+    this.onBack,
+    this.showBack = true,
+    this.trailing,
+    this.headerRow,
+    this.gap = AppSpacing.xl4,
+    this.topPadding = AppSpacing.base,
+    this.bottomInset,
+    this.floatingAction,
+    this.fullBleedBody = false,
+    this.scrollable = true,
+  }) : assert(
+         title == null || headerRow == null,
+         'Pass a title or a custom headerRow, not both.',
+       );
+
+  @override
+  Widget build(BuildContext context) {
+    final header =
+        headerRow ??
+        (title == null && !showBack
+            ? null
+            : GrofastHeaderRow(
+                title: title,
+                onBack: onBack,
+                showBack: showBack,
+                trailing: trailing,
+              ));
+
+    final horizontal = fullBleedBody ? 0.0 : GrofastDimenConst.screenGutter;
+    final bottom = floatingAction != null
+        ? GrofastDimenConst.floatingActionScrollInset(context)
+        : bottomInset ?? MediaQuery.paddingOf(context).bottom + AppSpacing.lg;
+
+    final content = header == null
+        ? body
+        : Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (fullBleedBody)
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: GrofastDimenConst.screenGutter,
+                  ),
+                  child: header,
+                )
+              else
+                header,
+              SizedBox(height: gap),
+              body,
+            ],
+          );
+
+    final padding = EdgeInsets.fromLTRB(
+      horizontal,
+      topPadding,
+      horizontal,
+      bottom,
+    );
+
+    final view = scrollable
+        ? SingleChildScrollView(padding: padding, child: content)
+        : Padding(padding: padding, child: content);
+
+    if (floatingAction == null) return view;
+
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        view,
+        const Positioned(
+          left: 0,
+          right: 0,
+          bottom: 0,
+          child: GrofastBottomFade(),
+        ),
+        Positioned(
+          left: GrofastDimenConst.screenGutter,
+          right: GrofastDimenConst.screenGutter,
+          bottom: MediaQuery.paddingOf(context).bottom + AppSpacing.lg,
+          child: floatingAction!,
+        ),
+      ],
+    );
+  }
+}
+
+/// The `surface → transparent` gradient a floating CTA sits on, so content
+/// scrolling underneath fades out instead of colliding with the button. The
+/// pack has no docked bar; this fade is what separates the two layers
+/// (spec sheet §8).
+class GrofastBottomFade extends StatelessWidget {
+  final double height;
+
+  const GrofastBottomFade({
+    super.key,
+    this.height = GrofastDimenConst.bottomFadeHeight,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final surface = Theme.of(context).colorScheme.surface;
+
+    return IgnorePointer(
+      child: Container(
+        height: height + MediaQuery.paddingOf(context).bottom,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [surface.withValues(alpha: 0), surface],
+            stops: const [0, 0.55],
+          ),
+        ),
+      ),
+    );
+  }
+}

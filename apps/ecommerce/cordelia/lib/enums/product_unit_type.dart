@@ -24,6 +24,12 @@ extension ProductUnitTypeX on ProductUnitType {
     ProductUnitType.pieces => _pieces(amount),
   };
 
+  /// Just the unit [format] would print [amount] in — `kg` for 1500 g, `g`
+  /// for 300. For a per-unit price suffix ("$1.8/kg") that has to agree with
+  /// the pack size shown beside it; derived from [format] rather than
+  /// re-deciding the threshold, so the two can never disagree.
+  String unitLabel(double amount) => format(amount).split(' ').last;
+
   static String _withLargeUnit(
     double amount, {
     required String small,

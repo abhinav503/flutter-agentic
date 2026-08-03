@@ -18,7 +18,7 @@ abstract final class AppRoutes {
   static const privacyPolicy = '/privacy-policy';
   static const selectAddress = '/select-address';
 
-   /// The address being edited travels via GoRouter's `extra` (a full
+  /// The address being edited travels via GoRouter's `extra` (a full
   /// address entity, not just an id) — Select Address already holds the
   /// whole list in memory, so re-fetching by id would be redundant, and
   /// `null` (Add New Address) has no id to encode in the path anyway.
@@ -40,6 +40,11 @@ abstract final class AppRoutes {
   /// switch until that changes.
   static const checkout = '/checkout';
   static const notifications = '/notifications';
+
+  /// `grofast` only: that template reaches its wishlist as a pushed route off
+  /// Profile (as its kit does), while `gravia` and `dailymart` both give it a
+  /// nav tab and so never need a route for it.
+  static const wishlist = '/wishlist';
 
   /// `dailymart` only, same reasoning as [checkout]: gravia reaches its
   /// orders through a shell tab, so there is no gravia page to switch to
@@ -69,6 +74,4 @@ abstract final class AppRoutes {
   /// `context.push`/`context.go`, not [categoryDetails] (that's the pattern).
   static String categoryDetailsPath(String id, String name) =>
       '/category-details/$id?name=${Uri.encodeQueryComponent(name)}';
-
-      
 }

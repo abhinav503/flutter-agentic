@@ -2,6 +2,8 @@ import 'package:cordelia/feature/home/presentation/view/discovery_page.dart';
 import 'package:cordelia/feature/storefront/address/domain/entities/address_entity.dart';
 import 'package:cordelia/feature/storefront/address/presentation/templates/dailymart/view/address_form_page.dart'
     as dailymart_address_form;
+import 'package:cordelia/feature/storefront/address/presentation/templates/grofast/view/address_form_page.dart'
+    as grofast_address_form;
 import 'package:cordelia/feature/storefront/address/presentation/templates/gravia/view/address_form_page.dart'
     as gravia_address_form;
 // Every template names its Select Address entry `AddressPage` (the class
@@ -9,6 +11,8 @@ import 'package:cordelia/feature/storefront/address/presentation/templates/gravi
 // dispatched from one StorefrontTemplateSwitch — same as Notifications below.
 import 'package:cordelia/feature/storefront/address/presentation/templates/dailymart/view/address_page.dart'
     as dailymart_address;
+import 'package:cordelia/feature/storefront/address/presentation/templates/grofast/view/address_page.dart'
+    as grofast_address;
 import 'package:cordelia/feature/storefront/address/presentation/templates/gravia/view/address_page.dart'
     as gravia_address;
 import 'package:cordelia/feature/storefront/cart/presentation/cubit/cart_cubit.dart';
@@ -17,42 +21,64 @@ import 'package:cordelia/feature/storefront/cart/presentation/cubit/cart_cubit.d
 // dispatched from one StorefrontTemplateSwitch.
 import 'package:cordelia/feature/storefront/cart/presentation/templates/dailymart/view/cart_page.dart'
     as dailymart_cart;
+import 'package:cordelia/feature/storefront/cart/presentation/templates/grofast/view/cart_page.dart'
+    as grofast_cart;
 import 'package:cordelia/feature/storefront/cart/presentation/templates/gravia/view/cart_page.dart'
     as gravia_cart;
 import 'package:cordelia/feature/storefront/category_details/presentation/templates/dailymart/view/category_details_page.dart'
     as dailymart_category_details;
+import 'package:cordelia/feature/storefront/category_details/presentation/templates/grofast/view/category_details_page.dart'
+    as grofast_category_details;
 import 'package:cordelia/feature/storefront/category_details/presentation/templates/gravia/view/category_details_page.dart'
     as gravia_category_details;
 import 'package:cordelia/feature/storefront/checkout/presentation/templates/dailymart/view/checkout_page.dart'
     as dailymart_checkout;
+import 'package:cordelia/feature/storefront/checkout/presentation/templates/grofast/view/checkout_page.dart'
+    as grofast_checkout;
 import 'package:cordelia/feature/storefront/orders/domain/entities/order_entity.dart';
 import 'package:cordelia/feature/storefront/orders/presentation/templates/dailymart/view/orders_page.dart'
     as dailymart_orders;
+import 'package:cordelia/feature/storefront/orders/presentation/templates/grofast/view/orders_page.dart'
+    as grofast_orders;
 import 'package:cordelia/feature/storefront/orders/presentation/templates/dailymart/view/track_order_page.dart'
     as dailymart_track_order;
+import 'package:cordelia/feature/storefront/orders/presentation/templates/grofast/view/track_order_page.dart'
+    as grofast_track_order;
 import 'package:cordelia/feature/storefront/favourites/presentation/cubit/favourites_cubit.dart';
+import 'package:cordelia/feature/storefront/favourites/presentation/templates/grofast/view/favourites_page.dart'
+    as grofast_favourites;
 // Every template names its Notifications entry `NotificationsPage` (the class
 // name belongs to the role, not the pack), so both need a prefix to be
 // dispatched from one StorefrontTemplateSwitch.
 import 'package:cordelia/feature/storefront/notifications/presentation/templates/dailymart/view/notifications_page.dart'
     as dailymart_notifications;
+import 'package:cordelia/feature/storefront/notifications/presentation/templates/grofast/view/notifications_page.dart'
+    as grofast_notifications;
 import 'package:cordelia/feature/storefront/notifications/presentation/templates/gravia/view/notifications_page.dart'
     as gravia_notifications;
 import 'package:cordelia/feature/storefront/product_details/presentation/templates/dailymart/view/product_details_page.dart'
     as dailymart_product_details;
+import 'package:cordelia/feature/storefront/product_details/presentation/templates/grofast/view/product_details_page.dart'
+    as grofast_product_details;
 import 'package:cordelia/feature/storefront/product_details/presentation/templates/gravia/view/product_details_page.dart'
     as gravia_product_details;
 import 'package:cordelia/feature/storefront/profile/domain/entities/profile_entity.dart';
 import 'package:cordelia/feature/storefront/profile/presentation/templates/dailymart/view/change_password_page.dart'
     as dailymart_change_password;
+import 'package:cordelia/feature/storefront/profile/presentation/templates/grofast/view/change_password_page.dart'
+    as grofast_change_password;
 import 'package:cordelia/feature/storefront/profile/presentation/templates/gravia/view/change_password_page.dart'
     as gravia_change_password;
 import 'package:cordelia/feature/storefront/profile/presentation/templates/dailymart/view/edit_profile_page.dart'
     as dailymart_edit_profile;
+import 'package:cordelia/feature/storefront/profile/presentation/templates/grofast/view/edit_profile_page.dart'
+    as grofast_edit_profile;
 import 'package:cordelia/feature/storefront/profile/presentation/templates/gravia/view/edit_profile_page.dart'
     as gravia_edit_profile;
 import 'package:cordelia/feature/storefront/search/presentation/templates/dailymart/view/search_page.dart'
     as dailymart_search;
+import 'package:cordelia/feature/storefront/search/presentation/templates/grofast/view/search_page.dart'
+    as grofast_search;
 import 'package:cordelia/feature/storefront/search/presentation/templates/gravia/view/search_page.dart'
     as gravia_search;
 import 'package:cordelia/feature/storefront/template/storefront_template_switch.dart';
@@ -77,6 +103,8 @@ import 'feature/legal/presentation/view/legal_document_content.dart';
 // document screen is app-level copy rendered in the active store's pack.
 import 'feature/legal/presentation/templates/dailymart/view/legal_document_page.dart'
     as dailymart_legal;
+import 'feature/legal/presentation/templates/grofast/view/legal_document_page.dart'
+    as grofast_legal;
 import 'feature/legal/presentation/templates/gravia/view/legal_document_page.dart'
     as gravia_legal;
 import 'feature/onboarding/presentation/view/onboarding_page.dart';
@@ -157,6 +185,9 @@ final _router = GoRouter(
           dailymart: (_) => dailymart_legal.LegalDocumentPage(
             content: LegalDocumentContent.termsAndConditions(),
           ),
+          grofast: (_) => grofast_legal.LegalDocumentPage(
+            content: LegalDocumentContent.termsAndConditions(),
+          ),
         ),
       ),
     ),
@@ -176,6 +207,9 @@ final _router = GoRouter(
             content: LegalDocumentContent.privacyPolicy(),
           ),
           dailymart: (_) => dailymart_legal.LegalDocumentPage(
+            content: LegalDocumentContent.privacyPolicy(),
+          ),
+          grofast: (_) => grofast_legal.LegalDocumentPage(
             content: LegalDocumentContent.privacyPolicy(),
           ),
         ),
@@ -198,6 +232,8 @@ final _router = GoRouter(
               gravia_search.SearchPage(storeId: state.extra as String),
           dailymart: (_) =>
               dailymart_search.SearchPage(storeId: state.extra as String),
+          grofast: (_) =>
+              grofast_search.SearchPage(storeId: state.extra as String),
         ),
       ),
     ),
@@ -225,6 +261,10 @@ final _router = GoRouter(
             storeId: state.extra as String,
             productId: state.pathParameters['id']!,
           ),
+          grofast: (_) => grofast_product_details.ProductDetailsPage(
+            storeId: state.extra as String,
+            productId: state.pathParameters['id']!,
+          ),
         ),
       ),
     ),
@@ -245,6 +285,7 @@ final _router = GoRouter(
         child: StorefrontTemplateSwitch(
           gravia: (_) => const gravia_address.AddressPage(),
           dailymart: (_) => const dailymart_address.AddressPage(),
+          grofast: (_) => const grofast_address.AddressPage(),
         ),
       ),
     ),
@@ -266,6 +307,9 @@ final _router = GoRouter(
             address: state.extra as AddressEntity?,
           ),
           dailymart: (_) => dailymart_address_form.AddressFormPage(
+            address: state.extra as AddressEntity?,
+          ),
+          grofast: (_) => grofast_address_form.AddressFormPage(
             address: state.extra as AddressEntity?,
           ),
         ),
@@ -290,6 +334,9 @@ final _router = GoRouter(
           dailymart: (_) => dailymart_edit_profile.EditProfilePage(
             profile: state.extra as ProfileEntity,
           ),
+          grofast: (_) => grofast_edit_profile.EditProfilePage(
+            profile: state.extra as ProfileEntity,
+          ),
         ),
       ),
     ),
@@ -309,6 +356,7 @@ final _router = GoRouter(
           gravia: (_) => const gravia_change_password.ChangePasswordPage(),
           dailymart: (_) =>
               const dailymart_change_password.ChangePasswordPage(),
+          grofast: (_) => const grofast_change_password.ChangePasswordPage(),
         ),
       ),
     ),
@@ -335,6 +383,11 @@ final _router = GoRouter(
             categoryId: state.pathParameters['id']!,
             categoryName: state.uri.queryParameters['name'] ?? '',
           ),
+          grofast: (_) => grofast_category_details.CategoryDetailsPage(
+            storeId: state.extra as String,
+            categoryId: state.pathParameters['id']!,
+            categoryName: state.uri.queryParameters['name'] ?? '',
+          ),
         ),
       ),
     ),
@@ -357,6 +410,9 @@ final _router = GoRouter(
           // No storeId: this template's Cart places no order, so it needs
           // nothing store-scoped — Checkout resolves the store itself.
           dailymart: (_) => const dailymart_cart.CartPage(),
+          // Same as dailymart: this template's Bag places no order, so it
+          // needs nothing store-scoped — Checkout resolves the store itself.
+          grofast: (_) => const grofast_cart.CartPage(),
         ),
       ),
     ),
@@ -373,11 +429,19 @@ final _router = GoRouter(
               opacity: CurveTween(curve: Curves.easeInOut).animate(animation),
               child: child,
             ),
-        // No StorefrontTemplateSwitch: only `dailymart` has a checkout frame
-        // in its kit. `gravia`'s Cart still runs the flow inline and never
-        // pushes here, so a gravia branch would be an unreachable screen.
-        child: dailymart_checkout.CheckoutPage(
-          address: state.extra as AddressEntity,
+        // `gravia`'s Cart still runs the flow inline and never pushes here,
+        // so its branch is unreachable — it maps to `dailymart`'s page rather
+        // than existing as a fourth checkout screen nobody opens.
+        child: StorefrontTemplateSwitch(
+          gravia: (_) => dailymart_checkout.CheckoutPage(
+            address: state.extra as AddressEntity,
+          ),
+          dailymart: (_) => dailymart_checkout.CheckoutPage(
+            address: state.extra as AddressEntity,
+          ),
+          grofast: (_) => grofast_checkout.CheckoutPage(
+            address: state.extra as AddressEntity,
+          ),
         ),
       ),
     ),
@@ -398,13 +462,35 @@ final _router = GoRouter(
         child: StorefrontTemplateSwitch(
           gravia: (_) => const gravia_notifications.NotificationsPage(),
           dailymart: (_) => const dailymart_notifications.NotificationsPage(),
+          grofast: (_) => const grofast_notifications.NotificationsPage(),
         ),
       ),
     ),
-    // My Orders and Track Order carry no template switch: gravia reaches the
-    // same list through a shell tab and has no Track Order screen at all, so
-    // both of these are `dailymart` pages until that changes (same shape as
-    // the checkout route).
+    // `grofast` only: that template opens its wishlist from Profile rather
+    // than from a nav tab, so it needs a route where the other two don't —
+    // their branches map to grofast's page, which they never reach.
+    GoRoute(
+      path: AppRoutes.wishlist,
+      pageBuilder: (context, state) => CustomTransitionPage<void>(
+        key: state.pageKey,
+        transitionDuration: const Duration(milliseconds: 350),
+        reverseTransitionDuration: const Duration(milliseconds: 300),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+            FadeTransition(
+              opacity: CurveTween(curve: Curves.easeInOut).animate(animation),
+              child: child,
+            ),
+        child: StorefrontTemplateSwitch(
+          gravia: (_) => const grofast_favourites.FavouritesPage(),
+          dailymart: (_) => const grofast_favourites.FavouritesPage(),
+          grofast: (_) => const grofast_favourites.FavouritesPage(),
+        ),
+      ),
+    ),
+    // My Orders and Track Order: gravia reaches the same list through a shell
+    // tab and has no Track Order screen at all, so its branch maps to
+    // `dailymart`'s page (unreachable) rather than existing separately — same
+    // shape as the checkout route above.
     GoRoute(
       path: AppRoutes.orders,
       // Fade, same reasoning as Select Address — pushed from a screen that
@@ -418,7 +504,11 @@ final _router = GoRouter(
               opacity: CurveTween(curve: Curves.easeInOut).animate(animation),
               child: child,
             ),
-        child: const dailymart_orders.OrdersPage(),
+        child: StorefrontTemplateSwitch(
+          gravia: (_) => const dailymart_orders.OrdersPage(),
+          dailymart: (_) => const dailymart_orders.OrdersPage(),
+          grofast: (_) => const grofast_orders.OrdersPage(),
+        ),
       ),
     ),
     GoRoute(
@@ -432,8 +522,16 @@ final _router = GoRouter(
               opacity: CurveTween(curve: Curves.easeInOut).animate(animation),
               child: child,
             ),
-        child: dailymart_track_order.TrackOrderPage(
-          order: state.extra as OrderEntity,
+        child: StorefrontTemplateSwitch(
+          gravia: (_) => dailymart_track_order.TrackOrderPage(
+            order: state.extra as OrderEntity,
+          ),
+          dailymart: (_) => dailymart_track_order.TrackOrderPage(
+            order: state.extra as OrderEntity,
+          ),
+          grofast: (_) => grofast_track_order.TrackOrderPage(
+            order: state.extra as OrderEntity,
+          ),
         ),
       ),
     ),

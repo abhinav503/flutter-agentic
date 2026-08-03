@@ -69,30 +69,33 @@ abstract class BaseScreenState<T extends BaseScreen> extends State<T> {
     bool centerTitle = false,
     double? headerHeight,
     bool showCloseAction = true,
+    bool showHeader = true,
+    ShapeBorder? shape,
     List<Widget>? actions,
     bool isDismissible = true,
     bool enableDrag = true,
     double maxHeightFraction = 0.9,
-  }) =>
-      AppBottomSheet.show<R>(
-        context,
-        title: title,
-        titleStyle: titleStyle,
-        child: child ?? buildBottomSheetContent(),
-        closeLabel: closeLabel,
-        closeLabelStyle: closeLabelStyle,
-        dividerColor: dividerColor,
-        handleColor: handleColor,
-        handleSize: handleSize,
-        leading: leading,
-        centerTitle: centerTitle,
-        headerHeight: headerHeight,
-        showCloseAction: showCloseAction,
-        actions: actions,
-        isDismissible: isDismissible,
-        enableDrag: enableDrag,
-        maxHeightFraction: maxHeightFraction,
-      );
+  }) => AppBottomSheet.show<R>(
+    context,
+    title: title,
+    titleStyle: titleStyle,
+    child: child ?? buildBottomSheetContent(),
+    closeLabel: closeLabel,
+    closeLabelStyle: closeLabelStyle,
+    dividerColor: dividerColor,
+    handleColor: handleColor,
+    handleSize: handleSize,
+    leading: leading,
+    centerTitle: centerTitle,
+    headerHeight: headerHeight,
+    showCloseAction: showCloseAction,
+    showHeader: showHeader,
+    shape: shape,
+    actions: actions,
+    isDismissible: isDismissible,
+    enableDrag: enableDrag,
+    maxHeightFraction: maxHeightFraction,
+  );
 
   /// Override to provide bottom sheet content driven by the screen's state.
   /// Used when [showAppBottomSheet] is called without an explicit [child].
@@ -109,11 +112,7 @@ abstract class BaseScreenState<T extends BaseScreen> extends State<T> {
     ScaffoldMessenger.of(context)
       ..clearSnackBars()
       ..showSnackBar(
-        SnackBar(
-          content: Text(message),
-          duration: duration,
-          action: action,
-        ),
+        SnackBar(content: Text(message), duration: duration, action: action),
       );
   }
 

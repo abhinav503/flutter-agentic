@@ -61,6 +61,13 @@ class AppButton extends StatelessWidget {
   /// rather than the neutral outline every other secondary button uses.
   final Color? borderColor;
 
+  /// [AppButtonVariant.primary] only — paints the pill with a gradient
+  /// instead of the flat `cs.primary` fill. For a style pack whose
+  /// affirmative controls are all one brand gradient, which a `ColorScheme`
+  /// role can't hold (it stores a single colour). Ignored while disabled, so
+  /// a disabled button still reads as inert.
+  final Gradient? gradient;
+
   const AppButton({
     super.key,
     required this.label,
@@ -76,6 +83,7 @@ class AppButton extends StatelessWidget {
     this.height,
     this.borderRadius,
     this.borderColor,
+    this.gradient,
   });
 
   @override
@@ -117,8 +125,14 @@ class AppButton extends StatelessWidget {
             ),
           );
 
+    final paintGradient =
+        gradient != null && variant == AppButtonVariant.primary && !isDisabled;
+
     final decoration = BoxDecoration(
-      color: bg,
+      // A BoxDecoration paints `color` under `gradient`, so the flat fill is
+      // dropped rather than layered when a gradient is in play.
+      color: paintGradient ? null : bg,
+      gradient: paintGradient ? gradient : null,
       borderRadius: borderRadius ?? BorderRadius.circular(shapes.buttonRadius),
       border: border != null ? Border.fromBorderSide(border) : null,
     );
@@ -175,7 +189,8 @@ class AppButton extends StatelessWidget {
     if (disabled) {
       return switch (variant) {
         AppButtonVariant.primary => cs.onSurface.withValues(alpha: 0.12),
-        AppButtonVariant.secondary || AppButtonVariant.text => Colors.transparent,
+        AppButtonVariant.secondary ||
+        AppButtonVariant.text => Colors.transparent,
       };
     }
     return switch (variant) {
@@ -201,27 +216,34 @@ class AppButton extends StatelessWidget {
   }
 
   EdgeInsets _padding() => switch (size) {
-        AppButtonSize.small => const EdgeInsets.symmetric(
-            horizontal: AppSpacing.base, vertical: AppSpacing.xs),
-        AppButtonSize.medium => const EdgeInsets.symmetric(
-            horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
-        AppButtonSize.large => const EdgeInsets.symmetric(
-            horizontal: AppSpacing.xl2, vertical: AppSpacing.base),
-      };
+    AppButtonSize.small => const EdgeInsets.symmetric(
+      horizontal: AppSpacing.base,
+      vertical: AppSpacing.xs,
+    ),
+    AppButtonSize.medium => const EdgeInsets.symmetric(
+      horizontal: AppSpacing.lg,
+      vertical: AppSpacing.sm,
+    ),
+    AppButtonSize.large => const EdgeInsets.symmetric(
+      horizontal: AppSpacing.xl2,
+      vertical: AppSpacing.base,
+    ),
+  };
 
   double _loaderSize() => switch (size) {
-        AppButtonSize.small => 14,
-        AppButtonSize.medium => 16,
-        AppButtonSize.large => 20,
-      };
+    AppButtonSize.small => 14,
+    AppButtonSize.medium => 16,
+    AppButtonSize.large => 20,
+  };
 
   TextStyle _textStyle(BuildContext context, Color color) {
     final tt = Theme.of(context).textTheme;
-    final base = labelStyle ??
+    final base =
+        labelStyle ??
         switch (size) {
-          AppButtonSize.small  => tt.labelSmall!,
+          AppButtonSize.small => tt.labelSmall!,
           AppButtonSize.medium => tt.labelMedium!,
-          AppButtonSize.large  => tt.labelLarge!,
+          AppButtonSize.large => tt.labelLarge!,
         };
     return base.copyWith(color: labelStyle?.color ?? color);
   }
