@@ -253,6 +253,7 @@ class _ProfileSkeletonBody extends StatelessWidget {
             const Expanded(
               child: GrofastCardSkeleton(
                 height: GrofastDimenConst.quickTileHeight,
+                radius: GrofastDimenConst.tileRadius,
               ),
             ),
           ],
@@ -261,7 +262,10 @@ class _ProfileSkeletonBody extends StatelessWidget {
       const SizedBox(height: AppSpacing.xl4),
       for (var i = 0; i < 4; i++) ...[
         if (i > 0) const SizedBox(height: AppSpacing.base),
-        const GrofastCardSkeleton(height: GrofastDimenConst.menuRowHeight),
+        const GrofastCardSkeleton(
+          height: GrofastDimenConst.menuRowHeight,
+          radius: GrofastDimenConst.tileRadius,
+        ),
       ],
     ],
   );

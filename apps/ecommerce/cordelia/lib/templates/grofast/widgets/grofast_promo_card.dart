@@ -61,7 +61,7 @@ class GrofastPromoCard extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                           style: GrofastTextStyleConst.promoTitle(
                             tt,
-                          ).copyWith(color: cs.onSurface),
+                          ).copyWith(color: GrofastColorConst.promoInk),
                         ),
                         if (banner.subtitle.isNotEmpty) ...[
                           const SizedBox(height: AppSpacing.xs3),
@@ -71,7 +71,7 @@ class GrofastPromoCard extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                             style: GrofastTextStyleConst.promoAmount(
                               tt,
-                            ).copyWith(color: cs.onSurface),
+                            ).copyWith(color: GrofastColorConst.promoInk),
                           ),
                         ],
                         if (banner.hasTarget) ...[

@@ -136,12 +136,17 @@ class GrofastSquareAction extends StatelessWidget {
   final VoidCallback onTap;
   final String? tooltip;
 
+  /// Inks the glyph in `cs.primary` — the square's only "something is in
+  /// force" signal (My Orders lights it while a date filter is applied).
+  final bool active;
+
   const GrofastSquareAction({
     super.key,
     this.asset,
     this.icon,
     required this.onTap,
     this.tooltip,
+    this.active = false,
   }) : assert(
          (asset == null) != (icon == null),
          'Pass a pack asset or a Material icon, not both.',
@@ -151,6 +156,7 @@ class GrofastSquareAction extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final radius = BorderRadius.circular(context.appShapes.inputRadius);
+    final glyphColor = active ? cs.primary : cs.onSurface;
 
     return Semantics(
       button: true,
@@ -169,9 +175,9 @@ class GrofastSquareAction extends StatelessWidget {
                       asset!,
                       width: AppSpacing.xl2,
                       height: AppSpacing.xl2,
-                      color: cs.onSurface,
+                      color: glyphColor,
                     )
-                  : Icon(icon, size: AppSpacing.xl2, color: cs.onSurface),
+                  : Icon(icon, size: AppSpacing.xl2, color: glyphColor),
             ),
           ),
         ),

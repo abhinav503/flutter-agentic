@@ -58,11 +58,16 @@ class GrofastFormField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: GrofastTextStyleConst.bodySmall(
-            tt,
-          ).copyWith(color: cs.onSurfaceVariant),
+        Padding(
+          padding: const EdgeInsets.only(
+            left: GrofastDimenConst.fieldLabelInset,
+          ),
+          child: Text(
+            label,
+            style: GrofastTextStyleConst.bodySmall(
+              tt,
+            ).copyWith(color: cs.onSurfaceVariant),
+          ),
         ),
         const SizedBox(height: AppSpacing.xs),
         TextField(
@@ -156,11 +161,16 @@ class GrofastDropdownField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: GrofastTextStyleConst.bodySmall(
-            tt,
-          ).copyWith(color: cs.onSurfaceVariant),
+        Padding(
+          padding: const EdgeInsets.only(
+            left: GrofastDimenConst.fieldLabelInset,
+          ),
+          child: Text(
+            label,
+            style: GrofastTextStyleConst.bodySmall(
+              tt,
+            ).copyWith(color: cs.onSurfaceVariant),
+          ),
         ),
         const SizedBox(height: AppSpacing.xs),
         Material(

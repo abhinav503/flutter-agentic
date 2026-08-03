@@ -60,7 +60,7 @@ class _GrofastFilterSheetContentState extends State<GrofastFilterSheetContent> {
     children: [
       GrofastSheetSection(
         title: GrofastValueConst.sortByTitle,
-        child: GrofastChipWrap(
+        child: GrofastChipRow(
           labels: [for (final option in _sortOptions) option.label],
           selectedIndex: _sortOptions.indexOf(_sort),
           onSelected: (index) => setState(() => _sort = _sortOptions[index]),
@@ -69,7 +69,7 @@ class _GrofastFilterSheetContentState extends State<GrofastFilterSheetContent> {
       const SizedBox(height: AppSpacing.xl4),
       GrofastSheetSection(
         title: GrofastValueConst.priceTitle,
-        child: GrofastChipWrap(
+        child: GrofastChipRow(
           labels: [
             for (final filter in ProductPriceFilter.values) filter.label,
           ],

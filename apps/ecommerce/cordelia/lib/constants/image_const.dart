@@ -14,4 +14,14 @@ abstract final class ImageConst {
   /// The shopper's fallback avatar photo — the shopper is the same person in
   /// every storefront, so the default portrait is app-level, not per-pack.
   static const profileDefault = 'assets/images/profile_default.png';
+
+  /// Map-thumbnail stand-ins for an address card — nothing stores an
+  /// address's coordinates, so no real map tile can be rendered (the same
+  /// data gap that dropped the kit maps elsewhere; a template that wants the
+  /// silhouette anyway cycles these by index). App-level because the gap is
+  /// the backend's, not any one pack's.
+  static const addressPlaceholders = [
+    'assets/images/address_placeholder_1.png',
+    'assets/images/address_placeholder_2.png',
+  ];
 }

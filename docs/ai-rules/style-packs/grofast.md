@@ -94,19 +94,19 @@ doesn't name goes to `AppColorsExtension` if it's semantic, or to
 | Button | 999 (pill) | preset `shape.button` |
 | Chip | 999 (pill) | preset `shape.chip` |
 | Card / product image | **28** | preset `shape.card` |
-| Category tile / line-item row | **23** | `GrofastDimenConst.tileRadius` — the kit's second radius, for a surface that *holds* an image rather than being a card |
+| Category tile / line-item row / address card / Profile's menu rows + quick tiles | **23** | `GrofastDimenConst.tileRadius` — the kit's second radius, for the row-scale surfaces; only true product/promo *cards* keep the 28 |
 | Input (shared default) | **18** | preset `shape.input` |
 | Bottom sheet | 28 (fallback only) | preset `shape.sheet` |
 | Sheet-over-header (the content sheet's top edge) | **an arc, not a radius** | `GrofastDimenConst.sheetDomeRise` = 22 |
 | List thumbnail | 28 | card radius, reused |
 | Icon circle / avatar | full circle | |
 
-The 28 is doing a lot of work: card, image well inside the card, promo
-banner, menu row and quick tile all share it, which is why cards can sit
-directly on white without a border or a shadow. The kit softens by 5 for the
-two surfaces that are a *frame around an image* rather than a card — the
-category tile's tinted well and the cart / checkout / order line-item row —
-and that 23 is the pack's only other radius. A skeleton standing in for one of
+The 28 is doing a lot of work: card, image well inside the card and promo
+banner all share it, which is why cards can sit directly on white without a
+border or a shadow. The kit softens by 5 for the *row-scale* surfaces — the
+category tile's tinted well, the cart / checkout / order line-item row, the
+address card, and Profile's menu rows and quick tiles — and that 23 is the
+pack's only other radius. A skeleton standing in for one of
 them passes `GrofastCardSkeleton(radius: tileRadius)`, or the loading state
 rounds differently from what replaces it.
 
@@ -125,7 +125,7 @@ rounds differently from what replaces it.
 
 | Constant | Value | Applies to |
 |---|---|---|
-| `tileRadius` | **23** | category tile's well, line-item row — see §2 |
+| `tileRadius` | **23** | category tile's well, line-item row, address card, Profile's menu rows and quick tiles — see §2 |
 | `GrofastDimenConst.controlHeight` | **50** | search bar, scan button, every wide CTA, form fields |
 | `screenGutter` | **30** | every screen's content inset — wider than any other pack, and the main reason the screens feel unhurried |
 | Back control | 60 × 40 | `backButtonWidth` / `backButtonHeight` |
@@ -146,7 +146,14 @@ rounds differently from what replaces it.
 | Bag row heart | 20 | `lineItemHeartSize` — the card's heart at the wide row's size |
 | Coupon row | 70 tall, dashed outline at 20% ink | `couponRowHeight` / `couponBorderOpacity` |
 | Apply pill | 40 tall, radius 15 | `applyPillHeight` / `applyPillRadius` — the pack's one non-pill button |
-| Chip | 28 | `chipHeight` |
+| Chip — sheet options | 28 | `chipHeight` — the sheet frames' pill (Search Option `23:285`) |
+| Chip — list-screen filter row (`Button-Text/Big`) | **35** tall at `tileRadius`, 22 side padding | `bigChipHeight` / `bigChipHorizontalPad` — Montserrat 12/500 label, active ink/border the kit's Medium-Green `chipActiveInk` on `cs.surfaceContainer` (Notification `168:2316`) |
+| Order card | 100 tall at `tileRadius`, square image well | `orderCardHeight` — the kit's notification card |
+| Track Order detail fields | 33 tall at radius **13** | `trackFieldHeight` / `trackFieldRadius` — the Status / Purchase Date pair; the pack's one odd radius |
+| Field label inset | 9 | `fieldLabelInset` — every labelled field's label starts 9 in from its field's edge (forms, pickers, the Order Detail pair); applied inside `GrofastFormField`/`GrofastDropdownField` so no screen re-adds it |
+| Tracking event card | 70 tall at `tileRadius` | `trackEventCardHeight` — the newest event (`Track/New`) |
+| Timeline bullet / connector / indent | 8 / 1 / derived | `timelineDiscSize` / `timelineLineWidth` / `timelinePastIndent` — the indent is derived from the event card's padding + glyph so the rail centres under its icon |
+| Total row price | 22/18 | `totalPriceScale` — the kit's `Item/Menu/Total-Title` split price |
 | Avatar — profile / edit | 100 / 120 | `profileAvatarSize` / `editAvatarSize` |
 | Product Details hero | 465/812 of the screen | `detailImageHeightFraction` → `detailImageHeight(context)` — the one height in the pack taken as a fraction, because a surface that owns 57% of the screen can't be pinned to a number |
 | Product Details favourite | 50, resting 39 above the well's flat bottom | `detailFavouriteSize` / `detailFavouriteBottomInset` — **inside** the well, clear of the arc (the dome drops `sheetDomeRise` at the edges) |
@@ -200,7 +207,9 @@ its weight to `GoogleFonts` in the first place.
 | `rowTitleBold` | `titleMedium` | 16/700 — category names, row primaries |
 | `cardTitleBold` | `titleSmall` | 14/700 — product card names |
 | `promoTitle` | `titleSmall` | 14/800 — the promo banner's headline; the pack's only extra-bold, paired with `promoAmount` |
-| `labelSemibold` | `labelLarge` | 14/600 — button labels, header titles, the active nav label |
+| `labelSemibold` | `labelLarge` | 14/600 — button labels, the active nav label |
+| `chipMedium` | `bodySmall` (Montserrat) | 12/500 — the big list chip's label; one weight up from `link` |
+| header title | `link` in `cs.headerInk` | the kit's `Header/Back and Text`: Montserrat 12/400 in Dark-Grey `#4B4B4B` (dark mode falls back to `onSurfaceVariant`) — quiet on purpose; the pack's real title is the bold line the content opens with |
 | `bodyMedium` | `bodyMedium` | 14/500 — menu rows, chips |
 | `bodySmall` | `bodySmall` | 12/500 — sub-lines, timestamps, form labels |
 | `placeholder` | `bodySmall` | 12/400 — field placeholders, drawn at 40% ink |
@@ -399,20 +408,20 @@ Recorded so nobody "restores" them:
 | Grid/list view toggle (a Vertical + Horizontal frame per list screen) | Grid only | Presentation-only axis; shipping half of it beats shipping a toggle nobody asked for. `list_view_menu.svg` unused |
 | Voucher screen + Coupon Detail + Profile's Voucher tile | Profile's middle tile is **My Orders** | No coupon backend; My Orders is a real surface the kit's own menu never reaches |
 | Promo-code field with a working Apply | The field, with the other packs' "coming soon" snackbar | Same coupon gap; removing the row would leave a hole in the kit's Bag layout |
-| Map thumbnails (Tracking header, Checkout address cards, Notification cards) | Omitted | Nothing stores an address's or delivery's coordinates |
+| Map thumbnails (Tracking header, Checkout address cards, Notification cards) | Omitted — except the address cards, which cycle two bundled placeholder maps (`ImageConst.addressPlaceholders`) | Nothing stores an address's or delivery's coordinates; the address card keeps the silhouette because the kit's `Item/Location` layout is built around the thumbnail |
 | Saved payment cards on Checkout | Omitted | Razorpay owns payment; a card picker here decides nothing |
-| Six-step delivery pipeline on Tracking | The three statuses the backend records (+ cancelled) | `OrderStatus` has four values; the rest would be invented progress |
+| Courier event feed on Tracking (staging depots, city names, "See N more updates", six steps) | The statuses the order actually reached, dated by `statusHistory`: newest on the kit's tinted `Track/New` card (red `-Canceled` variant), earlier ones as its bullet rows | `OrderStatus` has four values and no locations; unreached steps aren't shown — the kit's feed is a log of what happened, not a pipeline |
 | Courier tracking id, delivery ETA | Order id; no ETA | Not on `OrderEntity` |
 | Product rating (`4.7`) on Product Details | The kit's badge, rendering the kit's own number — `GrofastValueConst.staticRatingLabel` | The badge is half of a row the kit's layout is built around (rating, category, price); no rating exists on `ProductEntity`, so this is the pack's **one** piece of invented copy, same call as dailymart's card rating |
 | "Free shipping" chip on Product Details | Omitted | No shipping model — unlike the rating it names a promise the store never made |
 | "112 Items" under each category tile | Omitted | Not on `CategoryEntity` |
 | Per-category hand-picked pastel tints | A 7-stop ramp cycled by index | The backend has no tint field |
-| Notification status filter chips | Omitted | The feed is a mixed-kind mock, not an order list |
+| Notification status filter chips (All / On Delivery / Delivered / Canceled) | Kept as a chip row, but over the feed's own **section titles** (All / Now / Past …) rather than order statuses | The feed is a mixed-kind mock, not an order list — the sections are the only real axis it has |
 | Category rail across Category Details | Omitted | It would re-fetch the whole category list to render sideways navigation |
 | Filter sheet's "Free Shipping" row and Lowest/Highest price inputs | Sort + the app's `ProductPriceFilter` bands as chips | No shipping model; a free range needs a filter axis the shared bloc lacks |
 | Product Review frame | Omitted | No review feature in this storefront |
 | Notification Setting frame | Omitted as a screen; its form silhouette serves Edit Profile / Change Password | No notification-preference feature |
-| Flat banner artwork with the copy over it | A 40/60 split — copy column, then the photo — on a colour the store picks | The kit's illustration is drawn *around* its words; a store's uploaded photograph isn't, and a scrim over it (the first attempt) muddies the artwork and forces white copy. The split keeps the pack's ink on a flat surface and every store's banner legible; `BannerEntity.backgroundArgb` (admin → `backgroundColor`) is what ties the copy panel to the photo beside it, falling back to `surfaceContainerLow` |
+| Flat banner artwork with the copy over it | A 40/60 split — copy column, then the photo — on a colour the store picks | The kit's illustration is drawn *around* its words; a store's uploaded photograph isn't, and a scrim over it (the first attempt) muddies the artwork and forces white copy. The split keeps the pack's ink on a flat surface and every store's banner legible; `BannerEntity.backgroundArgb` (admin → `backgroundColor`) is what ties the copy panel to the photo beside it, falling back to `surfaceContainerLow`. The copy itself is `GrofastColorConst.promoInk` — the kit's Dark-Green held constant in **both** modes, because it sits on the store's colour, not the theme's canvas |
 | Edge-to-edge product image well | The same well, with `productImageInset` (20) of padding | Same cause: the kit's cut-out artwork carries that margin in the asset, an uploaded photograph doesn't, and `contain` then runs it to the card's edges |
 | "All Categories" page title | Dropped; the grid starts under the search field | The nav bar already names the tab and the whole body is the grid. Per-group headers stay — they name something the screen can't otherwise tell you |
 | Price suffix as a bare unit (`/kg`) | The whole pack unless it is exactly one unit (`/500 g`) | The kit's products are all 1 kg, so the bare unit is honest there. A 500 g pack labelled `/g` prices it per gram — see `ProductUnitTypeX.pricePerLabel` |
@@ -424,8 +433,54 @@ the product's `categoryIds` and answers a `category` object (null when it has
 none), carried through as `ProductDetailEntity.category`. The badge renders
 the category's real name and artwork; the kit's emoji is its own placeholder.
 
+**Address picking is the kit's Select Location sheet (`129:1458`), not a
+page.** Mid-flow selection (Bag → checkout, Checkout's change address) opens
+`showGrofastAddressPicker` — the domed sheet listing `Item/Location` cards
+(`GrofastAddressTile`: 100 tall at `tileRadius`, a rounded-18 map thumbnail
+inset 6, name over a hairline, pin + address lines; active takes a 2px
+`gradientStart` ring). The sheet owns its own `AddressBloc` and dispatches
+`started` on open — warm cache renders instantly, cold runs a tile-shaped
+shimmer — and tapping a card *is* the commit. The routed Select Address page
+survives as Profile's **management** surface only, on the same tile plus the
+affordances the sheet doesn't carry: edit as a pencil in the tile's trailing
+slot (`edit.svg` — authored in the kit's icon language, since the kit ships
+no pencil), delete as a left swipe on core's `SwipeToDeleteRow`, gated behind
+the pack's confirm sheet and non-optimistic so a failed server delete keeps
+the row. The tile is the pack's *one*
+address rendering: Home's location pill opens the picker too, and Checkout's
+delivery-address card is the same tile in its active ring (the former
+`GrofastCheckoutAddressCard` is deleted). The thumbnails cycle two
+app-level placeholder maps (`ImageConst.addressPlaceholders`) — nothing
+stores an address's coordinates, the same data gap that dropped the kit's
+other maps.
+
+**Track Order** follows its three frames minus the map header — the page
+starts at Order Detail: the kit's side-by-side Status / Purchase Date fields
+(33-tall at radius 13, labels inset `fieldLabelInset` = 9 from the field
+edge — the inset every labelled field in the pack shares, forms included;
+Delivered fills with the **brand gradient** under white text — an
+affirmative fill is always the gradient — in-flight takes the mint +
+Medium-Green, cancelled the error tint), then the
+id rows — Order ID and Payment ID each carry a **copy** glyph in
+`cs.primary`, the whole row tapping to clipboard with a snackbar. The Total
+prints as the kit's `Item/Menu/Total-Title` row (`totalPriceScale`, 22/18).
+Cancel Order is the kit's quiet outlined neutral — the destructive red lives
+in the confirm sheet, not on the button.
+
 **Surfaces the kit has no frame for**, composed from the pack's own recipes:
-My Orders (the Notification screen's search + chips + cards), Edit Profile and
+My Orders (Notification `168:2316`'s search field → `Button-Text/Big` chip
+row → 100-tall cards — the same layout Notifications itself renders, minus
+the search row, its chips being All + the feed's section titles and its
+card wells holding the kind's glyph disc instead of a photo. Each order
+card carries the order's date, split total, hairline
+and a "Delivered/Delivering to *address tag*" line; no status chip on the
+card — the chip row above already scopes the list, and the kit's chip labels
+map onto `OrdersStatusFilter` as All / On Delivery (`active`) / Delivered
+(`completed`) / Canceled. The pack's filter square docks beside the search
+field — glyph lit `cs.primary` while a filter is in force — opening a
+**date-only** sheet on the shared `OrdersFilter` (quick picks + range picker
++ Apply over Reset); status stays on the chip row, so the two can't
+disagree), Edit Profile and
 Change Password (the labelled-field stack + floating CTA), Add/Edit Address
 (the same, with the City/Country pair as sheet-opening picklists), Wishlist
 (the header row + staggered grid), and the nav shell's tab set. Profile's
@@ -440,7 +495,7 @@ own tap toggles it (a chevron there would promise a screen).
 From `core/ui/blocks/`: `section_header` (via `GrofastSectionHeader`),
 `section_rail` (Home's category rail), `ecommerce/price_breakdown` (Checkout
 and Track Order totals). From `core/ui/molecules/`: `empty_state`,
-`error_view`, `icon_info_row` (notification rows), `radio_group` (picklist
+`error_view`, `icon_info_row`, `radio_group` (picklist
 sheets), `skeleton_rows`. From `core/ui/atoms/`: `app_switcher`,
 `shimmer_box`, `network_image`, `svg_image`, `page_indicator`,
 `concentric_circles`, `button`.
@@ -461,7 +516,7 @@ behaviour, plus the matching design-gallery entry.
 | Wrapper role | Wraps | This pack's instance |
 |---|---|---|
 | Full-width primary CTA | `AppButton` | `GrofastPrimaryButton` (50px pill, brand gradient) |
-| Destructive / tinted inline pill | `AppButton` | secondary variant with `cs.error` border — the confirm sheet's destructive action and Track Order's Cancel |
+| Destructive / tinted inline pill | `AppButton` | secondary variant with `cs.error` border — the confirm sheet's destructive action. Track Order's Cancel is the **neutral** outline (`cs.outline` border, muted label): the kit keeps the red in the confirm sheet. A secondary/outline button floating over the fade needs an opaque `cs.surface` box behind it — its own fill is transparent |
 | Two half-width actions side by side | — (not used by this pack) | the confirm sheet stacks its pair vertically |
 | Form text field | `TextField` | `GrofastFormField` (label over a filled 50px input at radius 18) |
 | Bounded-picklist trigger field | field-styled box | `GrofastDropdownField` |
@@ -470,15 +525,17 @@ behaviour, plus the matching design-gallery entry.
 | Terminal confirmation sheet | `AppBottomSheet` | `showGrofastSuccessSheet` / `GrofastSuccessSheetContent` |
 | Bounded-picklist selection sheet | `AppRadioGroup` | `GrofastOptionsSheetContent` |
 | Back + centered-title header | — | `GrofastHeaderRow` + `GrofastBackButton` (60 × 40 rounded rect) |
-| Glass / icon header control | — | `GrofastHeaderAction` (bare glyph + optional dot), `GrofastGradientDisc` |
-| Single-select option chip | — | `GrofastChip` / `GrofastChipWrap`; `GrofastBadge.outlined` / `.tinted` for the **static** pills under Product Details' title (rating, category), which are labels rather than controls and take no `onTap` |
+| Glass / icon header control | — | `GrofastHeaderAction` (bare glyph + optional dot), `GrofastBagAction` (the bag glyph + live cart dot + push, shared by the three screens that carry it), `GrofastGradientDisc` |
+| Single-select option chip | — | `GrofastChip` (28 sheet pill) / `GrofastChip.big` (the list-screen `Button-Text/Big`), laid out by `GrofastChipRow` — every chip row scrolls **horizontally** off the edge, the way the kit crops "Canceled" mid-word; never a `Wrap`. `GrofastBadge.outlined` / `.tinted` for the **static** pills under Product Details' title (rating, category), which are labels rather than controls and take no `onTap` |
 | Thumbnail / avatar / info badge | `AppNetworkImage` | `GrofastLineItemRow`'s well, `GrofastOrderStatusPill` |
-| Quantity or numeric stepper | — | `GrofastQuantityStepper` |
+| Quantity or numeric stepper | — | `GrofastQuantityStepper` (glyphs in `gradientEnd` — the kit inks the keys as controls, not copy) |
+| Address card | — | `GrofastAddressTile` (+ `GrofastAddressTileAction` for the page's edit/delete); picked via `showGrofastAddressPicker` |
 | Loading skeleton body | `ShimmerBox` | `GrofastProductGridSkeleton` + per-screen `_*SkeletonBody` |
-| Screen shell | — | `GrofastScreenBody` + `GrofastBottomFade` |
+| Screen shell | — | `GrofastScreenBody` + `GrofastBottomFade` (`.overDock` when the fade sits on an opaque band — no inset, gradient runs its whole length) |
 | **Domain card** | — | `GrofastProductCard`, `GrofastCategoryTile` / `GrofastCategoryRailTile`, `GrofastPromoCard`, `GrofastLineItemRow` |
 | Price | — | `GrofastPrice` |
 | Menu / quick tile | — | `GrofastMenuTile` (chevron by default; a `trailing` slot swaps in a real control — Dark Mode's `AppSwitch`), `GrofastQuickTile` |
+| Search field + docked square | — | `GrofastSearchField` (button or live-input mode) + `GrofastSquareAction` (the filter square; `active: true` inks the glyph `cs.primary` while a filter is in force) |
 | Global nav | — | `GrofastNavBar` |
 
 ## 14. State design

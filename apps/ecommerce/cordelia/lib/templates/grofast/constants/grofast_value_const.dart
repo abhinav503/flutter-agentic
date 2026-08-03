@@ -177,6 +177,7 @@ abstract final class GrofastValueConst {
 
   // ── Notifications ────────────────────────────────────────────────────────
   static const notificationsTitle = 'Notification';
+  static const notificationsFilterAllLabel = 'All';
   static const notificationsSearchHint = 'Search your Notification';
   static const notificationsNowTitle = 'Now';
   static const notificationsPastTitle = 'Past';
@@ -253,6 +254,17 @@ abstract final class GrofastValueConst {
   static const ordersFilterActiveLabel = 'On Delivery';
   static const ordersFilterCompletedLabel = 'Delivered';
   static const ordersFilterCancelledLabel = 'Canceled';
+
+  /// The filter square's sheet. Dates only — the status axis is already on
+  /// the screen as the chip row, and asking for it twice lets the two
+  /// disagree (same call as dailymart's sheet).
+  static const ordersDateFilterTitle = 'Filter by date';
+  static const ordersDateRangeLabel = 'Date Range';
+  static const ordersAllTimeLabel = 'All time';
+  static String ordersDateRangeValue(DateTime from, DateTime to) =>
+      '${from.asFilterDate} - ${to.asFilterDate}';
+  static const ordersFilterLastWeekLabel = 'Last week';
+  static const ordersFilterLastMonthLabel = 'Last month';
   static const ordersLoadErrorMessage = "Couldn't load your orders.";
   static const ordersRefreshFailedMessage = "Couldn't refresh your orders.";
   static const ordersEmptyTitle = 'No orders yet';
@@ -265,9 +277,17 @@ abstract final class GrofastValueConst {
       'Order ${placedAt.asFilterDate}';
   static String orderItemCount(int count) => '$count ${count.plural('item')}';
 
+  /// The order card's bottom line (the kit's "Delivered to Yona's Home"),
+  /// tensed by where the order actually is.
+  static String orderDeliveryLine(String addressLabel, bool delivered) =>
+      '${delivered ? 'Delivered' : 'Delivering'} to $addressLabel';
+  static const orderCancelledLine = 'This order was cancelled';
+
   // ── Order tracking ───────────────────────────────────────────────────────
   static const trackOrderTitle = 'Track Order';
   static const orderDetailTitle = 'Order Detail';
+  static const copyTooltip = 'Copy';
+  static String copiedMessage(String label) => '$label copied.';
   static const trackingDetailTitle = 'Tracking Detail';
   static const orderStatusLabel = 'Status';
   static const purchaseDateLabel = 'Purchase Date';
@@ -277,7 +297,6 @@ abstract final class GrofastValueConst {
   static const amountPaidLabel = 'Amount Paid';
   static const noOnlinePaymentLabel = 'Not paid online';
   static const refundLabel = 'Refund';
-  static const copiedMessage = 'Copied';
   static const orderReceivedLabel = 'Order Received';
   static const cancelOrderLabel = 'Cancel Order';
   static const cancelOrderTitle = 'Cancel this order?';

@@ -211,8 +211,20 @@ abstract final class GrofastDimenConst {
   /// Filter/status chips (sheet options, order status, notification kinds).
   static const double chipHeight = 28;
 
+  /// The kit's `Button-Text/Big` list chip (the Notification / My Orders
+  /// filter row): a **35**-tall pill at [tileRadius] with 22 of side
+  /// padding, visibly larger than the sheet's [chipHeight] pills. The height
+  /// is pinned rather than derived from vertical padding — the kit's 10 + a
+  /// 12px line lands on 35, but Flutter's role line-height would drift it.
+  static const double bigChipHeight = 35;
+  static const double bigChipHorizontalPad = 22;
+
   /// The glyph or artwork leading a static `GrofastBadge`.
   static const double badgeLeadingSize = 16;
+
+  /// My Orders' card — the kit's 100-tall notification card at [tileRadius],
+  /// whose image well is the square the card's height makes.
+  static const double orderCardHeight = 100;
 
   /// The Bag's "Apply" pill — the pack's one non-gradient button, sized to
   /// sit inside the [couponRowHeight] row rather than to match
@@ -257,6 +269,9 @@ abstract final class GrofastDimenConst {
   /// largest the pack ever draws it.
   static const double detailPriceScale = 28 / 18;
 
+  /// A Total row's price (kit `Item/Menu/Total-Title`, 22/18).
+  static const double totalPriceScale = 22 / 18;
+
   /// The stepper on Product Details is the kit's larger "add-medium" pair —
   /// [stepperButtonSize] is the compact one a Bag row carries.
   static const double detailStepperButtonSize = 40;
@@ -281,9 +296,37 @@ abstract final class GrofastDimenConst {
   static double detailScrollInset(BuildContext context) =>
       detailDockHeight(context) + AppSpacing.xl2;
 
-  /// Track Order's timeline: the step disc and the connector between two.
-  static const double timelineDiscSize = 24;
-  static const double timelineLineWidth = 2;
+  /// An address card (kit `Item/Location`): a 100-tall tinted card at
+  /// [tileRadius] whose map thumbnail is a square inset 6 from the card's
+  /// edges (so its side is derived, `height − 2 × inset`), rounded a step
+  /// softer than the card exactly as the product image wells are.
+  static const double addressTileHeight = 100;
+  static const double addressThumbInset = 6;
+  static const double addressThumbRadius = 18;
+
+  /// Track Order's Order Detail fields (kit `Track/Status` / `Track/Date`):
+  /// two side-by-side 33-tall tinted fields at the pack's one odd radius, 13.
+  static const double trackFieldHeight = 33;
+  static const double trackFieldRadius = 13;
+
+  /// A form/field label's inset from its field's left edge — the kit starts
+  /// "Status" 9 in from the field below it, and every labelled field in the
+  /// pack (forms, pickers, the Order Detail pair) shares it.
+  static const double fieldLabelInset = 9;
+
+  /// The newest tracking event's tinted card (kit `Track/New`).
+  static const double trackEventCardHeight = 70;
+
+  /// Track Order's timeline: the past-event bullet and the connector line.
+  static const double timelineDiscSize = 8;
+  static const double timelineLineWidth = 1;
+
+  /// How far the past rows indent, chosen so the bullet's centre lands on
+  /// the event card's leading glyph centre: the card pads 20 and its glyph
+  /// is 20 wide (centre at 30), and the 8-wide bullet needs its left edge 4
+  /// short of that.
+  static const double timelinePastIndent =
+      AppSpacing.xl2 + AppSpacing.xl2 / 2 - timelineDiscSize / 2;
 
   /// The `surface → transparent` fade under a floating control.
   static const double bottomFadeHeight = 120;

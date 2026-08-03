@@ -12,8 +12,10 @@
 ///
 /// Not exported from the kit, so those call sites render a Material Symbol
 /// instead: the location pin and its chevron in Home's header, the avatar's
-/// person placeholder, the chevron ending a menu row, the edit pencil, the
+/// person placeholder, the chevron ending a menu row, the
 /// star, the lock on Change Password, and the shield on the legal screens.
+/// The edit pencil is the one glyph *authored* to match the kit instead
+/// ([edit]).
 ///
 /// Two files in the folder are deliberately **not** named below:
 /// `scan.svg` (the kit's Scan tab and 3D-scan button — cordelia has no
@@ -31,6 +33,10 @@ abstract final class GrofastImageConst {
   static const bell = '$_icons/bell.svg';
   static const check = '$_icons/check.svg';
   static const delete = '$_icons/delete.svg';
+
+  /// Authored in the kit's own icon language (20-box, solid fluent-style
+  /// fills), not exported from it — the kit ships no pencil.
+  static const edit = '$_icons/edit.svg';
   static const filter = '$_icons/filter.svg';
   static const gear = '$_icons/gear.svg';
   static const gift = '$_icons/gift.svg';

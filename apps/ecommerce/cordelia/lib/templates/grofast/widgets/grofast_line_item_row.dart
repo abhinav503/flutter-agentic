@@ -4,6 +4,7 @@ import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/network_image.dart';
 import 'package:core/core/ui/atoms/svg_image.dart';
 
+import 'package:cordelia/templates/grofast/constants/grofast_color_const.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_dimen_const.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_image_const.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_text_style_const.dart';
@@ -248,12 +249,14 @@ class _StepperButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(radius),
           ),
           alignment: Alignment.center,
+          // The kit inks the +/− in the gradient's light stop, not the pack's
+          // dark-green text ink — the keys are controls, not copy.
           child: AppSvgImage.asset(
             asset,
             width: glyphSize,
             height: glyphSize,
             color: enabled
-                ? cs.onSurface
+                ? GrofastColorConst.gradientEnd
                 : cs.onSurfaceVariant.withValues(alpha: 0.4),
           ),
         ),

@@ -59,8 +59,9 @@ abstract final class GrofastTextStyleConst {
   static TextStyle promoTitle(TextTheme tt) =>
       tt.titleSmall!.copyWith(fontSize: 14).atWeight(FontWeight.w800);
 
-  /// 14/600. Every button label, the header's centred title, and the active
-  /// nav tab's label.
+  /// 14/600. Every button label and the active nav tab's label. Not the
+  /// header row's centred title — that is [link] in `cs.headerInk`, the
+  /// kit's quiet Montserrat 12/400.
   static TextStyle labelSemibold(TextTheme tt) =>
       tt.labelLarge!.copyWith(fontSize: 14).atWeight(FontWeight.w600);
 
@@ -126,5 +127,14 @@ abstract final class GrofastTextStyleConst {
     textStyle: tt.bodySmall,
     fontSize: 12,
     fontWeight: FontWeight.w400,
+  );
+
+  /// The big list chip's label (`Button-Text/Big`) — Montserrat 12/500, the
+  /// numeric family even though the labels are words: the kit sets its filter
+  /// rows in Montserrat, one weight up from [link].
+  static TextStyle chipMedium(TextTheme tt) => GoogleFonts.montserrat(
+    textStyle: tt.bodySmall,
+    fontSize: 12,
+    fontWeight: FontWeight.w500,
   );
 }

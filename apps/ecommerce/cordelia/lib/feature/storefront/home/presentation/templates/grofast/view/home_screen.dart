@@ -10,6 +10,7 @@ import 'package:cordelia/constants/app_routes.dart';
 import 'package:cordelia/enums/banner_target_type.dart';
 import 'package:cordelia/feature/storefront/active_store/presentation/cubit/active_store_cubit.dart';
 import 'package:cordelia/feature/storefront/address/presentation/selected_address_label.dart';
+import 'package:cordelia/feature/storefront/address/presentation/templates/grofast/widgets/address_picker_sheet.dart';
 import 'package:cordelia/feature/storefront/cart/presentation/cubit/cart_cubit.dart';
 import 'package:cordelia/feature/storefront/favourites/presentation/cubit/favourites_cubit.dart';
 import 'package:cordelia/feature/storefront/home/domain/entities/banner_entity.dart';
@@ -51,6 +52,14 @@ class _HomeScreenState extends BaseScreenState<HomeScreen>
 
   String get _addressLabel =>
       selectedAddressLabel ?? GrofastValueConst.noLocationSelectedLabel;
+
+  /// This pack picks addresses in the kit's Select Location sheet, not the
+  /// routed page the shared mixin pushes — same commit, same pref re-read.
+  Future<void> _openAddressPicker() async {
+    await showGrofastAddressPicker(this);
+    if (!mounted) return;
+    setState(loadSelectedAddressLabel);
+  }
 
   void _openProductDetails(ProductEntity product) =>
       context.push(AppRoutes.productDetailsPath(product.id), extra: _storeId);
@@ -119,7 +128,7 @@ class _HomeScreenState extends BaseScreenState<HomeScreen>
             children: [
               GrofastHomeHeader(
                 addressLabel: _addressLabel,
-                onLocationTap: openSelectAddress,
+                onLocationTap: _openAddressPicker,
                 onNotificationTap: _openNotifications,
               ),
               const SizedBox(height: AppSpacing.xl2),

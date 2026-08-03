@@ -6,28 +6,33 @@ import 'package:go_router/go_router.dart';
 import 'package:core/core/base/base_screen.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/svg_image.dart';
-import 'package:core/core/ui/molecules/icon_info_row.dart';
-import 'package:core/core/ui/molecules/skeleton_rows.dart';
 
 import 'package:cordelia/enums/notification_kind.dart';
 import 'package:cordelia/feature/storefront/notifications/domain/entities/notification_entity.dart';
+import 'package:cordelia/feature/storefront/notifications/domain/entities/notification_section_entity.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_dimen_const.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_image_const.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_text_style_const.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_value_const.dart';
+import 'package:cordelia/templates/grofast/widgets/grofast_chip.dart';
+import 'package:cordelia/templates/grofast/widgets/grofast_product_grid.dart';
 import 'package:cordelia/templates/grofast/widgets/grofast_screen_body.dart';
 import 'package:cordelia/templates/grofast/widgets/grofast_state_views.dart';
 
 import '../../../bloc/notifications_bloc.dart';
 
-/// `grofast` template's Notifications (kit frame `119:942`) — the kit's
-/// "Now" / "Past" sections, each a run of rows carrying a tinted kind glyph.
+/// `grofast` template's Notifications (kit frame `168:2316`) — My Orders'
+/// exact layout minus the search row: the `Button-Text/Big` chip row over
+/// the pack's 100-tall cards.
 ///
-/// Deviations from the frame, both for want of data: the kit's per-card
-/// **map** thumbnail is dropped (nothing stores an order's route), and its
-/// status filter chips are dropped with it — the shared notifications feed is
-/// a per-template mock of mixed kinds, not an order list to filter (spec
-/// sheet §11).
+/// The chips are **All + the feed's own section titles** ("Now", "Past", and
+/// whatever else the mock ships) — section titles are data, so the row can't
+/// be a fixed enum. Which chip is selected is UI-local view state, same as a
+/// tab index; the sections themselves come from the shared bloc untouched.
+///
+/// The kit's per-card map thumbnail stays dropped (nothing stores an order's
+/// route) — the card's well carries the kind's tinted glyph disc instead
+/// (spec sheet §11).
 class NotificationsScreen extends BaseScreen {
   const NotificationsScreen({super.key});
 
@@ -36,9 +41,25 @@ class NotificationsScreen extends BaseScreen {
 }
 
 class _NotificationsScreenState extends BaseScreenState<NotificationsScreen> {
+  /// 0 = All; `i + 1` = `sections[i]`. An index, not a title — two sections
+  /// with the same title would make a title ambiguous.
+  int _selectedChip = 0;
+
   @override
   SystemUiOverlayStyle? overlayStyle(BuildContext context) =>
       BaseScreenState.themedStatusIcons(context);
+
+  List<NotificationSectionEntity> _visible(
+    List<NotificationSectionEntity> sections,
+  ) {
+    final nonEmpty = sections
+        .where((s) => s.notifications.isNotEmpty)
+        .toList();
+    if (_selectedChip == 0) return nonEmpty;
+    final index = _selectedChip - 1;
+    if (index >= nonEmpty.length) return nonEmpty;
+    return [nonEmpty[index]];
+  }
 
   @override
   Widget body(BuildContext context) {
@@ -69,25 +90,23 @@ class _NotificationsScreenState extends BaseScreenState<NotificationsScreen> {
               NotificationsLoaded(:final sections) => Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  for (final section in sections) ...[
-                    Row(
-                      children: [
-                        Text(
-                          section.title,
-                          style: GrofastTextStyleConst.sectionBold(
-                            Theme.of(context).textTheme,
-                          ),
-                        ),
-                        const SizedBox(width: AppSpacing.base),
-                        _CountPill(count: section.notifications.length),
-                      ],
-                    ),
-                    const SizedBox(height: AppSpacing.lg),
+                  GrofastChipRow(
+                    big: true,
+                    labels: [
+                      GrofastValueConst.notificationsFilterAllLabel,
+                      for (final section in sections)
+                        if (section.notifications.isNotEmpty) section.title,
+                    ],
+                    selectedIndex: _selectedChip,
+                    onSelected: (index) =>
+                        setState(() => _selectedChip = index),
+                  ),
+                  const SizedBox(height: AppSpacing.xl4),
+                  for (final section in _visible(sections)) ...[
                     for (final notification in section.notifications) ...[
-                      _NotificationRow(notification: notification),
+                      _NotificationCard(notification: notification),
                       const SizedBox(height: AppSpacing.base),
                     ],
-                    const SizedBox(height: AppSpacing.xl4),
                   ],
                 ],
               ),
@@ -99,38 +118,13 @@ class _NotificationsScreenState extends BaseScreenState<NotificationsScreen> {
   }
 }
 
-/// The kit sets a small green count beside each section title.
-class _CountPill extends StatelessWidget {
-  final int count;
-
-  const _CountPill({required this.count});
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.base,
-        vertical: AppSpacing.xs4,
-      ),
-      decoration: BoxDecoration(
-        color: cs.primary,
-        borderRadius: BorderRadius.circular(AppSpacing.base),
-      ),
-      child: Text(
-        '$count',
-        style: GrofastTextStyleConst.meta(tt).copyWith(color: cs.onPrimary),
-      ),
-    );
-  }
-}
-
-class _NotificationRow extends StatelessWidget {
+/// One notification, on the same 100-tall card as an order (kit `168:2513`):
+/// the kind's tinted glyph disc where the order card puts its photo, the
+/// title over a hairline, and the message beneath.
+class _NotificationCard extends StatelessWidget {
   final NotificationEntity notification;
 
-  const _NotificationRow({required this.notification});
+  const _NotificationCard({required this.notification});
 
   /// Each pack maps the shared [NotificationKind]s onto its own glyphs; this
   /// one has exported artwork for three of them and falls back to a Material
@@ -156,30 +150,72 @@ class _NotificationRow extends StatelessWidget {
     final tt = Theme.of(context).textTheme;
     final glyph = _glyph;
 
-    return IconInfoRow(
-      leading: Container(
-        width: GrofastDimenConst.menuRowHeight,
-        height: GrofastDimenConst.menuRowHeight,
-        decoration: BoxDecoration(
-          color: cs.surfaceContainerLow,
-          shape: BoxShape.circle,
+    return Material(
+      color: cs.surfaceContainerLow,
+      borderRadius: BorderRadius.circular(GrofastDimenConst.tileRadius),
+      child: SizedBox(
+        height: GrofastDimenConst.orderCardHeight,
+        child: Row(
+          children: [
+            SizedBox.square(
+              dimension: GrofastDimenConst.orderCardHeight,
+              child: Center(
+                child: Container(
+                  width: GrofastDimenConst.menuRowHeight,
+                  height: GrofastDimenConst.menuRowHeight,
+                  decoration: BoxDecoration(
+                    // The disc needs its own step off the card it sits on.
+                    color: cs.surface,
+                    shape: BoxShape.circle,
+                  ),
+                  alignment: Alignment.center,
+                  child: glyph.asset != null
+                      ? AppSvgImage.asset(
+                          glyph.asset!,
+                          width: AppSpacing.xl4,
+                          height: AppSpacing.xl4,
+                          color: cs.primary,
+                        )
+                      : Icon(
+                          glyph.icon,
+                          size: AppSpacing.xl4,
+                          color: cs.primary,
+                        ),
+                ),
+              ),
+            ),
+            const SizedBox(width: AppSpacing.xs),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.only(right: AppSpacing.lg),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      notification.title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: GrofastTextStyleConst.cardTitleBold(tt),
+                    ),
+                    const SizedBox(height: AppSpacing.xs),
+                    Divider(height: 1, color: cs.outlineVariant),
+                    const SizedBox(height: AppSpacing.xs),
+                    Text(
+                      notification.message,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: GrofastTextStyleConst.bodySmall(
+                        tt,
+                      ).copyWith(color: cs.onSurfaceVariant),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
-        alignment: Alignment.center,
-        child: glyph.asset != null
-            ? AppSvgImage.asset(
-                glyph.asset!,
-                width: AppSpacing.xl4,
-                height: AppSpacing.xl4,
-                color: cs.primary,
-              )
-            : Icon(glyph.icon, size: AppSpacing.xl4, color: cs.primary),
       ),
-      title: notification.title,
-      subtitle: notification.message,
-      titleStyle: GrofastTextStyleConst.rowTitleBold(tt),
-      subtitleStyle: GrofastTextStyleConst.bodySmall(
-        tt,
-      ).copyWith(color: cs.onSurfaceVariant),
     );
   }
 }
@@ -188,12 +224,22 @@ class _NotificationsSkeletonBody extends StatelessWidget {
   const _NotificationsSkeletonBody();
 
   @override
-  Widget build(BuildContext context) => const Column(
+  Widget build(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      ShimmerSectionHeader(),
-      SizedBox(height: AppSpacing.lg),
-      ShimmerListRow(itemCount: 5),
+      const GrofastCardSkeleton(
+        width: 200,
+        height: GrofastDimenConst.bigChipHeight,
+        radius: GrofastDimenConst.tileRadius,
+      ),
+      const SizedBox(height: AppSpacing.xl4),
+      for (var i = 0; i < 4; i++) ...[
+        if (i > 0) const SizedBox(height: AppSpacing.base),
+        const GrofastCardSkeleton(
+          height: GrofastDimenConst.orderCardHeight,
+          radius: GrofastDimenConst.tileRadius,
+        ),
+      ],
     ],
   );
 }

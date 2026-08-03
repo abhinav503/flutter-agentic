@@ -55,6 +55,24 @@ abstract final class GrofastColorConst {
   /// `AppColorsExtension.warning` is a semantic state colour, and a star is
   /// not a warning.
   static const ratingStar = Color(0xFFF0C334);
+
+  /// The kit's Dark-Grey — the header row's centred title, a *neutral*
+  /// deliberately distinct from both the green ink (`onSurface`) and the
+  /// muted grey (`onSurfaceVariant`). Light mode only; see
+  /// [GrofastColorSchemeX.headerInk] for the dark-mode fallback.
+  static const darkGrey = Color(0xFF4B4B4B);
+
+  /// The kit's Medium-Green — the *active* ink and border of the big list
+  /// chips (`Button-Text/Big-Active`, the All / On Delivery / Delivered row).
+  /// Deliberately not `cs.primary`: the kit inks these chips a step darker
+  /// than the price green so the row doesn't compete with the totals below.
+  static const chipActiveInk = Color(0xFF2AAF7F);
+
+  /// The promo banner's copy ink — the kit's Dark-Green, held constant across
+  /// light **and** dark mode rather than read from `cs.onSurface` (which
+  /// inverts on dark): the copy sits on the *store's* picked banner colour,
+  /// not on the theme's canvas, and that colour doesn't change with the mode.
+  static const promoInk = Color(0xFF194B38);
 }
 
 /// Roles the pack needs that no `ColorScheme` member expresses on its own —
@@ -73,6 +91,12 @@ extension GrofastColorSchemeX on ColorScheme {
   /// can't reproduce. Same recipe in both modes; on dark the ink is the light
   /// text colour, which lifts the field off the canvas exactly as intended.
   Color get fieldFill => onSurface.withValues(alpha: 0.06);
+
+  /// The header row's centred title — the kit's Dark-Grey, which would sink
+  /// into the dark canvas, so dark mode falls back to the muted role.
+  Color get headerInk => brightness == Brightness.dark
+      ? onSurfaceVariant
+      : GrofastColorConst.darkGrey;
 }
 
 /// The kit's one elevation recipe — a four-layer green-tinted shadow

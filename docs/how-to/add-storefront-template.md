@@ -89,7 +89,7 @@ feature → what the template must draw):
 | Product details (+ add to cart) | `product_details` + `ProductDetailsActions` | route |
 | Cart | `cart` / `CartCubit` | tab and/or route |
 | Checkout + Razorpay + success | `checkout` / `CheckoutBloc` (provider-agnostic) | pack-specific: inline from Cart (gravia) or routed page (dailymart) |
-| Orders (list, cancel) | `orders` / `OrdersBloc` (BlocCache, optimistic cancel) | tab or route |
+| Orders (list, cancel) | `orders` / `OrdersBloc` (BlocCache, optimistic cancel) — the list **must** ship a status filter and a **date filter** (sheet on the shared `OrdersFilter`/`OrdersFilterPeriod`; quick picks + range picker + reset); an order list without a date filter is unusable past the first month, so build it with the screen, not as a correction. Search is optional — add it when the pack's own frames draw it | tab or route |
 | Track order (status timeline, OTP, refund) | `OrderEntity.statusHistory` | route |
 | Address select / add / edit / delete | `address` / `AddressBloc` + `AddressFormFields` mixin | routes |
 | Profile | `profile` / `ProfileBloc` | tab |
@@ -198,6 +198,25 @@ not after.
 - **Diff every component variant, not just the default.** State treatments
   hide in variant pairs — a control's saved/selected state, a row's
   swipe-to-delete affordance. One variant sampled = states invented.
+- **Similar-looking controls may be different components — check the node
+  name.** A kit can run two chip species (a sheet's small option pill and a
+  list screen's larger filter chip) that read as "the chip" at a glance but
+  differ in radius, padding, type family and active colour. Reusing the one
+  you sampled first ships the wrong one everywhere else.
+- **Pin measured control heights; never derive them from padding + text.**
+  A chip specced 35 tall (10 + a 12px line + 10) renders 36–37 when built
+  as vertical padding around Flutter's role line-height. Fix the height to
+  the measured number and center the label.
+- **Classify each frame as a route or an overlay before building it.** A
+  frame whose lower half sits over a blurred/scrimmed copy of another
+  screen is a **sheet**, not a page (the scrim layer in the node tree is
+  the tell). Building it as a routed screen changes the whole flow around
+  it — and note that navigation *management* (a list you edit) and mid-flow
+  *picking* (choose one and continue) may legitimately be different
+  surfaces sharing one card.
+- **Cropped, not wrapped.** A row whose last item runs off the frame's edge
+  is a horizontally scrolling band — chips, category rails. Rebuilding it
+  as a `Wrap` stacks it into lines the kit never draws.
 - **A screen's own frame overrides the pack recipe.** A kit that floats its
   CTAs everywhere may weld one screen's CTA into a corner. Check each
   frame's bottom band, header, and inset story before reusing the standard
@@ -205,6 +224,31 @@ not after.
 - **Use the kit's exported glyph wherever the kit has a component for the
   slot.** Material stand-ins are the single most visible tell of a
   generated screen.
+- **Chrome text: use the node's own type, never role intuition.** A
+  header's centred title *reads* like "a screen title, so bold ink" — but a
+  kit may set it quiet (Montserrat 12/400 in a neutral grey) because the
+  real title is the bold line the content opens with. Sample the header
+  component's actual text style and colour; small-chrome type is where
+  "obviously an X = style Y" instincts ship wrong.
+- **Micro-offsets between a label and its control are measurements.** A
+  label starting 9 in from its field's edge is a kit decision, not noise —
+  measure label-x vs control-x, hold it as a pack constant, and apply it
+  **inside the shared field widget** so every form inherits it and no
+  screen can miss it.
+- **Check the fill *type* on every filled state, not just its colour.** A
+  pack with a signature gradient paints its affirmative fills with that
+  gradient — a "Delivered" field, a success disc — and flat `cs.primary`
+  in that slot reads instantly off-brand. When a kit has one gradient,
+  assume every affirmative fill uses it until a frame shows otherwise.
+- **Feed vs pipeline: decide which the kit draws before building a
+  timeline.** A courier-style feed logs only events that *happened*
+  (newest highlighted, earlier ones as bullets); a stepper promises steps
+  to come (future greyed). Building the wrong one inverts the meaning —
+  a feed never renders unreached statuses.
+- **Derive alignment constants from the geometry they align to.** A
+  timeline rail that must run under a card's leading glyph gets its indent
+  computed from the card's padding + glyph size — an eyeballed constant
+  drifts the first time either changes.
 
 **Kit artwork is curated; store data is not:**
 
@@ -221,6 +265,20 @@ not after.
 - **Derive unit/price suffixes without changing meaning.** Dropping the
   amount from a formatted pack size turns a per-pack price into a per-unit
   one — keep the whole pack unless it is exactly one unit.
+- **The kit is a showroom; real usage needs affordances it never draws.**
+  Add them with the screen and record each in the spec sheet: a **copy**
+  action on every identifier a user might quote (order id, payment id — a
+  glyph plus whole-row tap to clipboard with a snackbar), the Orders
+  **date filter** (mandated in Phase 2's table), an *active* signal on any
+  filter trigger whose sheet holds state the screen doesn't show, and a
+  dark-mode switch surfaced from Profile when the preset ships a dark half
+  nothing else reaches.
+- **A surface with no frame borrows its sibling list screen wholesale.**
+  Notifications with no frame = the Orders layout minus the search row,
+  chips over the feed's own section titles, the same card with a glyph
+  disc in the image slot. Reusing a sibling's whole layout beats
+  composing a new one from atoms — fewer decisions, and the two screens
+  read as one pack.
 
 **Mechanics that always bite:**
 
@@ -236,6 +294,10 @@ not after.
 - **Peeking carousels:** the gutter belongs to the viewport (`padEnds:
   false` + outer padding), the gap belongs inside the page, and the
   fraction is derived per width.
+- **A transparent-filled button can't float over a fade.** Outline /
+  secondary variants only work on an opaque surface — floating over the
+  bottom fade, content scrolls through the button. Give it an opaque
+  `cs.surface` box behind it (or use the pack's opaque variant).
 
 ### Reuse before you build (Phase 3's standing rule)
 

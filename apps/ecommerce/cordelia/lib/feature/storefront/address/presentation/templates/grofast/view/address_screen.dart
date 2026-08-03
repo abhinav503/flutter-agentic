@@ -5,30 +5,35 @@ import 'package:go_router/go_router.dart';
 
 import 'package:core/core/base/base_screen.dart';
 import 'package:core/core/services/shared_pref_service/shared_preference_service.dart';
-import 'package:core/core/theme/app_shapes_extension.dart';
 import 'package:core/core/theme/app_spacing.dart';
-import 'package:core/core/ui/molecules/skeleton_rows.dart';
+import 'package:core/core/ui/atoms/svg_image.dart';
+import 'package:core/core/ui/molecules/swipe_to_delete_row.dart';
 
 import 'package:cordelia/constants/app_routes.dart';
 import 'package:cordelia/feature/storefront/address/domain/entities/address_entity.dart';
 import 'package:cordelia/feature/storefront/address/presentation/address_pref_keys.dart';
-import 'package:cordelia/templates/grofast/constants/grofast_text_style_const.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_value_const.dart';
+import 'package:cordelia/templates/grofast/constants/grofast_color_const.dart';
+import 'package:cordelia/templates/grofast/constants/grofast_dimen_const.dart';
+import 'package:cordelia/templates/grofast/constants/grofast_image_const.dart';
 import 'package:cordelia/templates/grofast/widgets/grofast_primary_button.dart';
+import 'package:cordelia/templates/grofast/widgets/grofast_product_grid.dart';
 import 'package:cordelia/templates/grofast/widgets/grofast_screen_body.dart';
 import 'package:cordelia/templates/grofast/widgets/grofast_sheet.dart';
 import 'package:cordelia/templates/grofast/widgets/grofast_state_views.dart';
 
 import '../../../bloc/address_bloc.dart';
+import '../widgets/grofast_address_tile.dart';
 
-/// `grofast` template's Select Address (kit frame `129:1458`) — the saved
-/// locations as outlined cards, the selected one carrying the pack's primary
-/// border, with Add New Address floating over the bottom fade.
+/// `grofast` template's address **management** page — Profile's My Address
+/// row is its only way in. Mid-flow *picking* (Bag → checkout, Checkout's
+/// change address) is the kit's Select Location sheet instead
+/// (`showGrofastAddressPicker`); both render the same `Item/Location` cards
+/// ([GrofastAddressTile]), this page adding the edit/delete actions the
+/// feature has but the kit's frame doesn't draw.
 ///
-/// Selecting **is** committing: the screen pops with the chosen address, so
-/// the kit's card list needs no confirm button. Each row also carries the two
-/// affordances the kit's frame doesn't draw but the feature has: edit (a
-/// pencil) and delete (behind the pack's confirm sheet).
+/// Selecting **is** still committing here too: the tap persists the choice
+/// and pops with the address, so the list needs no confirm button.
 class AddressScreen extends BaseScreen {
   const AddressScreen({super.key});
 
@@ -71,15 +76,24 @@ class _AddressScreenState extends BaseScreenState<AddressScreen> {
     context.read<AddressBloc>().add(AddressEvent.saved(address: saved));
   }
 
-  void _confirmDelete(AddressEntity address) => showGrofastConfirmSheet(
-    context: context,
-    title: GrofastValueConst.deleteAddressTitle,
-    message: GrofastValueConst.deleteAddressMessage,
-    confirmLabel: GrofastValueConst.deleteLabel,
-    onConfirm: () => context.read<AddressBloc>().add(
-      AddressEvent.deleted(addressId: address.id),
-    ),
-  );
+  /// Gates the swipe behind the pack's confirm sheet, then always answers
+  /// `false`: the delete is a server round-trip the bloc awaits, so the row
+  /// leaves when the new list lands and survives a failed delete — answering
+  /// `true` would drop it optimistically, and re-emitting the same list
+  /// rebuilds a `Dismissible` the framework believes it already dismissed,
+  /// which throws (same shape as dailymart's address card).
+  Future<bool> _confirmDelete(AddressEntity address) async {
+    await showGrofastConfirmSheet(
+      context: context,
+      title: GrofastValueConst.deleteAddressTitle,
+      message: GrofastValueConst.deleteAddressMessage,
+      confirmLabel: GrofastValueConst.deleteLabel,
+      onConfirm: () => context.read<AddressBloc>().add(
+        AddressEvent.deleted(addressId: address.id),
+      ),
+    );
+    return false;
+  }
 
   @override
   SystemUiOverlayStyle? overlayStyle(BuildContext context) =>
@@ -108,7 +122,17 @@ class _AddressScreenState extends BaseScreenState<AddressScreen> {
           ),
           body: GrofastSwitcher(
             child: switch (state) {
-              AddressLoading() => const ShimmerListRow(itemCount: 3),
+              AddressLoading() => Column(
+                children: [
+                  for (var i = 0; i < 3; i++) ...[
+                    if (i > 0) const SizedBox(height: AppSpacing.base),
+                    const GrofastCardSkeleton(
+                      height: GrofastDimenConst.addressTileHeight,
+                      radius: GrofastDimenConst.tileRadius,
+                    ),
+                  ],
+                ],
+              ),
               AddressError(:final message) => GrofastErrorView(
                 message: message,
                 onRetry: () => context.read<AddressBloc>().add(
@@ -125,13 +149,14 @@ class _AddressScreenState extends BaseScreenState<AddressScreen> {
               AddressLoaded(:final addresses, :final selectedAddressId) =>
                 Column(
                   children: [
-                    for (final address in addresses) ...[
-                      _AddressCard(
+                    for (final (index, address) in addresses.indexed) ...[
+                      _DismissibleAddressTile(
                         address: address,
+                        index: index,
                         isSelected: address.id == selectedAddressId,
                         onTap: () => _select(address),
                         onEdit: () => _openForm(address: address),
-                        onDelete: () => _confirmDelete(address),
+                        confirmDismiss: () => _confirmDelete(address),
                       ),
                       const SizedBox(height: AppSpacing.base),
                     ],
@@ -145,113 +170,76 @@ class _AddressScreenState extends BaseScreenState<AddressScreen> {
   }
 }
 
-class _AddressCard extends StatelessWidget {
+/// The page's swipeable row: core's [SwipeToDeleteRow] under a **static**
+/// selection ring. The ring is painted as a non-hit-testing overlay rather
+/// than by the tile itself, so the swipe slides the card's *contents* out
+/// from inside it — the selected outline stays put instead of riding off the
+/// screen with the row.
+class _DismissibleAddressTile extends StatelessWidget {
   final AddressEntity address;
+  final int index;
   final bool isSelected;
   final VoidCallback onTap;
   final VoidCallback onEdit;
-  final VoidCallback onDelete;
+  final Future<bool> Function() confirmDismiss;
 
-  const _AddressCard({
+  const _DismissibleAddressTile({
     required this.address,
+    required this.index,
     required this.isSelected,
     required this.onTap,
     required this.onEdit,
-    required this.onDelete,
+    required this.confirmDismiss,
   });
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
-    final radius = BorderRadius.circular(context.appShapes.cardRadius);
+    final radius = BorderRadius.circular(GrofastDimenConst.tileRadius);
 
-    return Material(
-      color: cs.surfaceContainerLow,
-      shape: RoundedRectangleBorder(
-        borderRadius: radius,
-        side: BorderSide(color: isSelected ? cs.primary : Colors.transparent),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.xl2),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(
-                Icons.location_on_rounded,
-                size: AppSpacing.xl4,
-                color: isSelected ? cs.primary : cs.onSurfaceVariant,
-              ),
-              const SizedBox(width: AppSpacing.lg),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      address.tag.isEmpty ? address.name : address.tag,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: GrofastTextStyleConst.rowTitleBold(tt),
-                    ),
-                    const SizedBox(height: AppSpacing.xs3),
-                    Text(
-                      address.displayLine,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: GrofastTextStyleConst.bodySmall(
-                        tt,
-                      ).copyWith(color: cs.onSurfaceVariant),
-                    ),
-                  ],
-                ),
-              ),
-              _RowAction(
-                icon: Icons.edit_rounded,
-                tooltip: GrofastValueConst.editAddressTooltip,
-                color: cs.onSurfaceVariant,
-                onTap: onEdit,
-              ),
-              _RowAction(
-                icon: Icons.delete_outline_rounded,
-                tooltip: GrofastValueConst.deleteLabel,
-                color: cs.error,
-                onTap: onDelete,
-              ),
-            ],
+    return Stack(
+      children: [
+        SwipeToDeleteRow(
+          itemKey: address.id,
+          confirmDismiss: confirmDismiss,
+          borderRadius: radius,
+          icon: AppSvgImage.asset(
+            GrofastImageConst.delete,
+            width: AppSpacing.xl,
+            height: AppSpacing.xl,
+            color: cs.error,
+          ),
+          // The overlay owns the ring, so the tile renders unselected.
+          child: GrofastAddressTile(
+            address: address,
+            index: index,
+            isSelected: false,
+            onTap: onTap,
+            trailing: GrofastAddressTileAction(
+              asset: GrofastImageConst.edit,
+              tooltip: GrofastValueConst.editAddressTooltip,
+              color: cs.onSurfaceVariant,
+              onTap: onEdit,
+            ),
           ),
         ),
-      ),
+        if (isSelected)
+          Positioned.fill(
+            child: IgnorePointer(
+              child: DecoratedBox(
+                decoration: ShapeDecoration(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: radius,
+                    side: const BorderSide(
+                      color: GrofastColorConst.gradientStart,
+                      width: 2,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+      ],
     );
   }
-}
-
-class _RowAction extends StatelessWidget {
-  final IconData icon;
-  final String tooltip;
-  final Color color;
-  final VoidCallback onTap;
-
-  const _RowAction({
-    required this.icon,
-    required this.tooltip,
-    required this.color,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) => Semantics(
-    button: true,
-    label: tooltip,
-    child: GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: Padding(
-        padding: const EdgeInsets.only(left: AppSpacing.base),
-        child: Icon(icon, size: AppSpacing.xl2, color: color),
-      ),
-    ),
-  );
 }

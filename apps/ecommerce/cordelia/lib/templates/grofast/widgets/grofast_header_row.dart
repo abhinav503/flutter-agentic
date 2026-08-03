@@ -178,11 +178,15 @@ class GrofastHeaderRow extends StatelessWidget {
         alignment: Alignment.center,
         children: [
           if (title != null)
+            // The kit's `Header/Back and Text`: Montserrat 12/400 in
+            // Dark-Grey — quieter than a screen title on purpose, since the
+            // pack's real title is the bold line the content itself opens
+            // with ("My Bag").
             Text(
               title!,
-              style: GrofastTextStyleConst.labelSemibold(
+              style: GrofastTextStyleConst.link(
                 tt,
-              ).copyWith(color: cs.onSurface),
+              ).copyWith(color: cs.headerInk),
             ),
           Align(
             alignment: Alignment.centerLeft,

@@ -13,6 +13,8 @@ import 'package:cordelia/constants/app_routes.dart';
 import 'package:cordelia/enums/product_unit_type.dart';
 import 'package:cordelia/feature/storefront/active_store/presentation/cubit/active_store_cubit.dart';
 import 'package:cordelia/feature/storefront/address/domain/entities/address_entity.dart';
+import 'package:cordelia/feature/storefront/address/presentation/templates/grofast/widgets/address_picker_sheet.dart';
+import 'package:cordelia/feature/storefront/address/presentation/templates/grofast/widgets/grofast_address_tile.dart';
 import 'package:cordelia/feature/storefront/cart/domain/entities/cart_item_entity.dart';
 import 'package:cordelia/feature/storefront/cart/presentation/cubit/cart_cubit.dart';
 import 'package:cordelia/feature/storefront/presentation/view/storefront_page.dart';
@@ -27,7 +29,6 @@ import 'package:cordelia/templates/grofast/widgets/grofast_sheet.dart';
 import 'package:cordelia/templates/grofast/widgets/grofast_success_sheet_content.dart';
 
 import '../../../bloc/checkout_bloc.dart';
-import '../widgets/checkout_address_card.dart';
 
 /// `grofast` template's Checkout (kit frame `119:819`) — the items, the
 /// delivery address, the promo stub, the totals, and "Confirm Order" floating
@@ -59,7 +60,7 @@ class _CheckoutScreenState extends BaseScreenState<CheckoutScreen> {
   late AddressEntity _address = widget.address;
 
   Future<void> _changeAddress() async {
-    final picked = await context.push<AddressEntity>(AppRoutes.selectAddress);
+    final picked = await showGrofastAddressPicker(this);
     if (picked == null || !mounted) return;
     setState(() => _address = picked);
   }
@@ -185,7 +186,14 @@ class _CheckoutForm extends StatelessWidget {
           onAction: onChangeAddress,
         ),
         const SizedBox(height: AppSpacing.lg),
-        GrofastCheckoutAddressCard(address: address, onTap: onChangeAddress),
+        // The same Item/Location card the picker sheet lists, in its active
+        // ring — this is the chosen one, and tapping it re-opens the picker.
+        GrofastAddressTile(
+          address: address,
+          index: 0,
+          isSelected: true,
+          onTap: onChangeAddress,
+        ),
         const SizedBox(height: AppSpacing.xl4),
         PriceBreakdown(
           leading: GrofastPromoCodeRow(onApply: onPromoApply),

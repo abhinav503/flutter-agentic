@@ -217,16 +217,23 @@ class _SearchResults extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.xl2),
         if (categories.isNotEmpty) ...[
-          Wrap(
-            spacing: AppSpacing.xs,
-            runSpacing: AppSpacing.xs,
-            children: [
-              for (final category in categories)
-                _CategoryResultChip(
-                  category: category,
-                  onTap: () => onCategoryTap(category),
-                ),
-            ],
+          // One horizontal band that scrolls off the edge, like every chip
+          // row in this pack — wrapping to more lines would push the grid
+          // down by however many categories happened to match.
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            clipBehavior: Clip.none,
+            child: Row(
+              children: [
+                for (final (i, category) in categories.indexed) ...[
+                  if (i > 0) const SizedBox(width: AppSpacing.xs),
+                  _CategoryResultChip(
+                    category: category,
+                    onTap: () => onCategoryTap(category),
+                  ),
+                ],
+              ],
+            ),
           ),
           const SizedBox(height: AppSpacing.xl2),
         ],

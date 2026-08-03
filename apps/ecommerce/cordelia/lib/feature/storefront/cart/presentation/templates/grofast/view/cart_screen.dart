@@ -13,7 +13,7 @@ import 'package:core/core/ui/molecules/swipe_to_delete_row.dart';
 
 import 'package:cordelia/constants/app_routes.dart';
 import 'package:cordelia/enums/product_unit_type.dart';
-import 'package:cordelia/feature/storefront/address/domain/entities/address_entity.dart';
+import 'package:cordelia/feature/storefront/address/presentation/templates/grofast/widgets/address_picker_sheet.dart';
 import 'package:cordelia/feature/storefront/cart/domain/entities/cart_item_entity.dart';
 import 'package:cordelia/feature/storefront/favourites/presentation/cubit/favourites_cubit.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_dimen_const.dart';
@@ -50,12 +50,12 @@ class CartScreen extends BaseScreen {
 }
 
 class _CartScreenState extends BaseScreenState<CartScreen> {
-  /// Checkout gates on picking a delivery address first — reuses the Select
-  /// Address screen, which pops with the chosen address (null if the shopper
-  /// backs out) — then hands off to the Checkout route, which owns the order
-  /// from there.
+  /// Checkout gates on picking a delivery address first — the kit's Select
+  /// Location sheet, which resolves with the chosen address (null if the
+  /// shopper swipes it away) — then hands off to the Checkout route, which
+  /// owns the order from there.
   Future<void> _startCheckout() async {
-    final address = await context.push<AddressEntity>(AppRoutes.selectAddress);
+    final address = await showGrofastAddressPicker(this);
     if (address == null || !mounted) return;
     if (!context.mounted) return;
     await context.push(AppRoutes.checkout, extra: address);

@@ -829,6 +829,49 @@ everything card-sized keeps. `GrofastCardSkeleton` gained a `radius` param and
 the category skeletons pass it, so a loading state can't round differently
 from what replaces it.
 
+**grofast correction sweep, second round (2026-08-04).** Screen-by-screen
+fixes against the kit's own frames, each fed back into the
+`add-storefront-template` skill's Kit-fidelity rules (all three agent-surface
+copies) so the next port ships them first-go:
+
+- **Profile** — Dark Mode row (`GrofastMenuTile.trailing` + `AppSwitch` over
+  `ThemeModeScope`); menu rows + quick tiles re-radiused to `tileRadius` 23.
+- **Product Details** — corner-welded gradient dock (no safe area on the
+  panel, opaque band, `GrofastBottomFade.overDock`), fractional hero
+  (465/812), favourite inside the well, kit bag glyph + live cart dot,
+  rating + category badges (`GrofastBadge`; `category` added to the product
+  detail API end-to-end), `.large` stepper with `gradientEnd` glyphs.
+- **Promo** — copy pinned to `promoInk` (#194B38) in both modes.
+- **Addresses** — the kit's Select Location **sheet** (`showGrofastAddressPicker`,
+  own `AddressBloc`, warm-cache instant) for all mid-flow picking (Bag,
+  Checkout, Home's pill); the routed page is Profile's management surface on
+  the same `GrofastAddressTile` (map placeholders cycled from
+  `ImageConst.addressPlaceholders`), edit via an **authored** `edit.svg`
+  (kit ships no pencil), delete by swipe on core's `SwipeToDeleteRow` with a
+  static selection-ring overlay so only the contents slide.
+- **Chips** — two species (`GrofastChip` 28 sheet pill vs `.big`
+  `Button-Text/Big`, pinned 35 tall at `tileRadius`, Medium-Green
+  `chipActiveInk`); every chip row a horizontal `GrofastChipRow`, never Wrap.
+- **My Orders** — the Notification frame's layout (search → big chips →
+  100-tall cards with the delivery line off `deliveryAddress`), a **date
+  filter** square beside search (sheet on the shared `OrdersFilter`, active
+  glyph while in force) — now a Phase-2 mandate for future packs.
+- **Notifications** — the Orders layout minus search; chips = All + section
+  titles; the same card with a kind-glyph disc in the image slot.
+- **Header title** — the kit's `Header/Back and Text` is quiet Montserrat
+  12/400 Dark-Grey (`cs.headerInk` computed role), not a bold title.
+- **Track Order** — rebuilt to its three frames minus the map: the
+  Status/Purchase-Date field pair (33h r13; Delivered = **brand gradient**),
+  copy actions on order/payment id, the feed-style timeline (newest event on
+  the tinted `Track/New` card, reached-only bullets on a rail whose indent
+  is derived from the card's glyph geometry), kit Total row
+  (`totalPriceScale`), neutral outlined Cancel over an opaque backing.
+- **Forms pack-wide** — `fieldLabelInset` (9) applied inside
+  `GrofastFormField`/`GrofastDropdownField` so every form inherits it.
+- **Core** — `SwipeToDeleteRow` molecule (grofast Bag + dailymart cart +
+  dailymart address card all sit on it, gallery entry shipped) and
+  `GrofastBagAction` de-duplicating three header bag controls.
+
 ## Missing flows (fill these or explicitly defer)
 
 1. **Store onboarding** — how a creator signs up, creates a store, becomes its admin (roles/claims).

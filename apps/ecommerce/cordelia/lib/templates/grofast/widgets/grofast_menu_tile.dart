@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-import 'package:core/core/theme/app_shapes_extension.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/svg_image.dart';
 
 import 'package:cordelia/templates/grofast/constants/grofast_dimen_const.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_text_style_const.dart';
 
-/// Profile's list row (spec sheet §13): a filled 60px card at radius 28
+/// Profile's list row (spec sheet §13): a filled 60px card at the pack's
+/// softer 23 (`tileRadius` — the image-well radius, not the 28 card one)
 /// carrying a coloured glyph, a muted label and a chevron.
 ///
 /// The glyph keeps its own accent (`cs.primary` for ordinary rows,
@@ -49,7 +49,7 @@ class GrofastMenuTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
-    final radius = BorderRadius.circular(context.appShapes.cardRadius);
+    final radius = BorderRadius.circular(GrofastDimenConst.tileRadius);
     final glyphColor = iconColor ?? cs.primary;
 
     return Material(
@@ -125,7 +125,7 @@ class GrofastQuickTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
-    final radius = BorderRadius.circular(context.appShapes.cardRadius);
+    final radius = BorderRadius.circular(GrofastDimenConst.tileRadius);
     final glyphColor = iconColor ?? cs.primary;
 
     return Material(
