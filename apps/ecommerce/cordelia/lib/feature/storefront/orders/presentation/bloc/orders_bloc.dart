@@ -10,6 +10,7 @@ import 'package:core/core/base/bloc_cache.dart';
 import '../../domain/entities/order_entity.dart';
 import '../../domain/usecase/cancel_order_usecase.dart';
 import '../../domain/usecase/get_orders_usecase.dart';
+import '../../domain/usecase/rate_order_usecase.dart';
 
 part 'orders_bloc.freezed.dart';
 part 'orders_event.dart';
@@ -18,6 +19,7 @@ part 'orders_state.dart';
 class OrdersBloc extends Bloc<OrdersEvent, OrdersState> {
   final GetOrdersUseCase _getOrders;
   final CancelOrderUseCase _cancelOrder;
+  final RateOrderUseCase _rateOrder;
   final String _storeId;
 
   // Only the fetched list is cached — [OrdersLoaded.selectedTab]/
@@ -33,9 +35,11 @@ class OrdersBloc extends Bloc<OrdersEvent, OrdersState> {
   OrdersBloc({
     required GetOrdersUseCase getOrdersUseCase,
     required CancelOrderUseCase cancelOrderUseCase,
+    required RateOrderUseCase rateOrderUseCase,
     required String storeId,
   }) : _getOrders = getOrdersUseCase,
        _cancelOrder = cancelOrderUseCase,
+       _rateOrder = rateOrderUseCase,
        _storeId = storeId,
        super(
          _cache.seed(
@@ -48,6 +52,7 @@ class OrdersBloc extends Bloc<OrdersEvent, OrdersState> {
     on<OrdersStarted>(_onStarted);
     on<OrdersTabChanged>(_onTabChanged);
     on<OrdersCancelled>(_onCancelled);
+    on<OrdersRated>(_onRated);
     on<OrdersFilterApplied>(_onFilterApplied);
     on<OrdersStatusFilterChanged>(_onStatusFilterChanged);
     on<OrdersSearched>(_onSearched);
@@ -135,6 +140,34 @@ class OrdersBloc extends Bloc<OrdersEvent, OrdersState> {
     }
   }
 
+  Future<void> _onRated(OrdersRated event, Emitter<OrdersState> emit) async {
+    if (state case final OrdersLoaded loaded) {
+      final index = loaded.orders.indexWhere((o) => o.id == event.orderId);
+      // Ignore a stale tap on an order that has since left the list, or one
+      // the server would refuse anyway — only a delivered order can be rated.
+      if (index == -1 || !loaded.orders[index].canBeRated) return;
+
+      final result = await _rateOrder(
+        RateOrderParams(
+          storeId: _storeId,
+          orderId: event.orderId,
+          rating: event.rating,
+          text: event.text,
+        ),
+      );
+      result.fold((failure) => emit(loaded.copyWith(rateFailed: true)), (
+        serverOrder,
+      ) {
+        // The server's order, not a locally patched copy — it carries the
+        // authoritative reviewedAt alongside the rating.
+        final rated = [...loaded.orders];
+        rated[index] = serverOrder;
+        _cache.save(_storeId, rated);
+        _emitView(loaded.copyWith(orders: rated), emit);
+      });
+    }
+  }
+
   OrderEntity _cancelledCopy(OrderEntity order, RefundStatus refundStatus) =>
       OrderEntity(
         id: order.id,
@@ -190,8 +223,9 @@ class OrdersBloc extends Bloc<OrdersEvent, OrdersState> {
   /// emission has to drop them — carried forward by `copyWith` they toast
   /// again on every chip tap and, on `dailymart`'s Orders, on every
   /// keystroke in the search field.
-  void _emitView(OrdersLoaded next, Emitter<OrdersState> emit) =>
-      emit(next.copyWith(cancelFailed: false, refreshFailed: false));
+  void _emitView(OrdersLoaded next, Emitter<OrdersState> emit) => emit(
+    next.copyWith(cancelFailed: false, refreshFailed: false, rateFailed: false),
+  );
 
   void _emitLoaded(
     List<OrderEntity> orders,

@@ -189,6 +189,20 @@ abstract final class ValueConst {
       'Be the first to rate this product and help other shoppers decide.';
   static const unratedLabel = 'No ratings yet';
 
+  // ── Order rating — the shopper's verdict on a *delivery*, not on a
+  // product. App-level for the same reason product-review copy is: one
+  // shared orders stack serves every storefront.
+  static const rateOrderLabel = 'Rate Order';
+  static const editOrderRatingLabel = 'Edit Rating';
+  static const rateOrderSheetTitle = 'How was this order?';
+  static const rateOrderTextLabel = 'Your feedback';
+  static const rateOrderTextHint = 'How was the delivery?';
+  static const orderRatingNotDeliveredMessage =
+      'You can rate an order once it has been delivered.';
+  static const orderRatingFailedMessage =
+      'Could not save your rating. Please try again.';
+  static const yourRatingLabel = 'Your rating';
+
   /// "4.6 (128)" — the compact form a product card prints beside its stars.
   static String ratingLabel(double average, int count) =>
       '${average.toStringAsFixed(1)} ($count)';

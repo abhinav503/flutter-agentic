@@ -4,6 +4,8 @@ import 'package:core/core/extensions/num_extensions.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:flutter_bloc/flutter_bloc.dart';
+
 import 'package:core/core/base/base_screen.dart';
 import 'package:core/core/theme/app_spacing.dart';
 
@@ -15,7 +17,12 @@ import 'package:cordelia/templates/dailymart/widgets/dailymart_outline_button.da
 import 'package:cordelia/templates/dailymart/widgets/dailymart_section_header.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_sheet.dart';
 
+import 'package:cordelia/constants/value_const.dart';
+
+import '../../../../../reviews/presentation/templates/dailymart/widgets/write_review_sheet_content.dart';
 import '../../../../domain/entities/order_entity.dart';
+import '../../../bloc/orders_bloc.dart';
+import '../../../order_review_actions.dart';
 import '../widgets/order_item_row.dart';
 import '../widgets/order_status_timeline.dart';
 
@@ -31,12 +38,15 @@ import '../widgets/order_status_timeline.dart';
 /// blocks below (Order Details, Payment), so nothing the card carried is
 /// lost.
 ///
-/// Static: the order arrives whole via `extra` from My Orders, which already
-/// holds the list, so this screen has no BLoC and never re-fetches. Cancel
-/// is the one action it can take, and it reports that by popping the order
-/// id back — `OrdersScreen` owns the bloc whose optimistic cancel and warm
-/// cache back that list, so a second instance here would let the two
-/// disagree.
+/// The order arrives whole via `extra` from My Orders, so the screen paints
+/// without fetching; it then reads the bloc's copy of that order
+/// (`OrdersState.freshest`) so a rating saved here shows immediately.
+///
+/// **Cancel** still reports back by popping the order id rather than
+/// dispatching: it applies optimistically and reconciles against the list,
+/// which belongs to the bloc `OrdersScreen` owns — two instances racing that
+/// would let them disagree. Rating has nothing optimistic to reconcile, so
+/// it goes straight through this page's own bloc into the shared cache.
 ///
 /// Two departures from the frame, both because the data isn't there to back
 /// it (see [DailyMartOrderStatusTimeline] for the third, its six steps):
@@ -62,7 +72,25 @@ class TrackOrderScreen extends BaseScreen {
   State<TrackOrderScreen> createState() => _TrackOrderScreenState();
 }
 
-class _TrackOrderScreenState extends BaseScreenState<TrackOrderScreen> {
+class _TrackOrderScreenState extends BaseScreenState<TrackOrderScreen>
+    with OrderReviewActions {
+  @override
+  Future<void> showRateOrderSheet({
+    required int initialRating,
+    required String initialText,
+    required void Function(int rating, String text) onSubmit,
+  }) => showDailyMartSheet<void>(
+    title: ValueConst.rateOrderSheetTitle,
+    child: DailyMartWriteReviewSheetContent(
+      initialRating: initialRating,
+      initialText: initialText,
+      textLabel: ValueConst.rateOrderTextLabel,
+      textHint: ValueConst.rateOrderTextHint,
+      onSubmit: onSubmit,
+      onMessage: showSnackBar,
+    ),
+  );
+
   void _confirmCancel() => showDailyMartConfirmSheet(
     context: context,
     title: DailyMartValueConst.cancelOrderTitle,
@@ -82,8 +110,19 @@ class _TrackOrderScreenState extends BaseScreenState<TrackOrderScreen> {
       BaseScreenState.themedStatusIcons(context);
 
   @override
-  Widget body(BuildContext context) {
-    final order = widget.order;
+  Widget body(BuildContext context) => BlocConsumer<OrdersBloc, OrdersState>(
+    listener: (context, state) {
+      if (state case OrdersLoaded(rateFailed: true)) {
+        showSnackBar(ValueConst.orderRatingFailedMessage);
+      }
+    },
+    // The routed order is a snapshot; once the list has loaded, its copy
+    // is the one that carries a rating saved from this screen.
+    builder: (context, state) =>
+        _content(context, state.freshest(widget.order)),
+  );
+
+  Widget _content(BuildContext context, OrderEntity order) {
     // Only meaningful while the order is out for delivery — a delivered or
     // cancelled order has nothing left to hand over.
     final showOtp =
@@ -108,7 +147,17 @@ class _TrackOrderScreenState extends BaseScreenState<TrackOrderScreen> {
           // a design decision. Floating over the fade, not a full-width
           // docked bar: this pack has exactly one docked surface (the Cart
           // screen's checkout bar) and this isn't it (spec sheet §8).
-          floatingAction: canCancel
+          // Cancel while it's coming; once it has arrived the same slot
+          // asks how the delivery went. A cancelled order gets neither —
+          // nothing left to stop, and no delivery to rate.
+          floatingAction: order.canBeRated
+              ? DailyMartOutlineButton(
+                  label: order.isRated
+                      ? ValueConst.editOrderRatingLabel
+                      : ValueConst.rateOrderLabel,
+                  onTap: () => rateOrder(order),
+                )
+              : canCancel
               ? DailyMartOutlineButton(
                   label: DailyMartValueConst.cancelOrderLabel,
                   onTap: _confirmCancel,

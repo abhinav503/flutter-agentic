@@ -1,3 +1,4 @@
+import 'package:cordelia/constants/value_const.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -21,9 +22,12 @@ import 'package:cordelia/templates/grofast/widgets/grofast_line_item_row.dart';
 import 'package:cordelia/templates/grofast/widgets/grofast_price.dart';
 import 'package:cordelia/templates/grofast/widgets/grofast_screen_body.dart';
 import 'package:cordelia/templates/grofast/widgets/grofast_section_header.dart';
+import 'package:cordelia/templates/grofast/widgets/grofast_primary_button.dart';
 import 'package:cordelia/templates/grofast/widgets/grofast_sheet.dart';
 
+import '../../../../../reviews/presentation/templates/grofast/widgets/write_review_sheet_content.dart';
 import '../../../bloc/orders_bloc.dart';
+import '../../../order_review_actions.dart';
 
 /// `grofast` template's Track Order (kit frames `122:1025` / `171:2573` /
 /// `171:2696`) — Order Detail with the kit's side-by-side Status and
@@ -50,17 +54,27 @@ class TrackOrderScreen extends BaseScreen {
   State<TrackOrderScreen> createState() => _TrackOrderScreenState();
 }
 
-class _TrackOrderScreenState extends BaseScreenState<TrackOrderScreen> {
+class _TrackOrderScreenState extends BaseScreenState<TrackOrderScreen>
+    with OrderReviewActions {
+  @override
+  Future<void> showRateOrderSheet({
+    required int initialRating,
+    required String initialText,
+    required void Function(int rating, String text) onSubmit,
+  }) => showGrofastSheet<void>(
+    title: ValueConst.rateOrderSheetTitle,
+    child: GrofastWriteReviewSheetContent(
+      initialRating: initialRating,
+      initialText: initialText,
+      textLabel: ValueConst.rateOrderTextLabel,
+      textHint: ValueConst.rateOrderTextHint,
+      onSubmit: onSubmit,
+      onMessage: showSnackBar,
+    ),
+  );
+
   /// The freshest copy of this order — the bloc's list wins over the routed
   /// snapshot, so a cancel made here (or a refresh) is reflected immediately.
-  OrderEntity _current(OrdersState state) => switch (state) {
-    OrdersLoaded(:final orders) => orders.firstWhere(
-      (o) => o.id == widget.order.id,
-      orElse: () => widget.order,
-    ),
-    _ => widget.order,
-  };
-
   void _confirmCancel(OrderEntity order) => showGrofastConfirmSheet(
     context: context,
     title: GrofastValueConst.cancelOrderTitle,
@@ -90,9 +104,12 @@ class _TrackOrderScreenState extends BaseScreenState<TrackOrderScreen> {
           if (state case OrdersLoaded(cancelFailed: true)) {
             showSnackBar(GrofastValueConst.orderCancelFailedMessage);
           }
+          if (state case OrdersLoaded(rateFailed: true)) {
+            showSnackBar(ValueConst.orderRatingFailedMessage);
+          }
         },
         builder: (context, state) {
-          final order = _current(state);
+          final order = state.freshest(widget.order);
           final canCancel = order.status.isUpcoming;
 
           return GrofastScreenBody(
@@ -104,7 +121,17 @@ class _TrackOrderScreenState extends BaseScreenState<TrackOrderScreen> {
             // secondary variant's own fill is transparent, which is right on
             // a page but not floating over the fade: content would scroll
             // through the button, so it gets an opaque surface behind it.
-            floatingAction: canCancel
+            // Cancel while it's coming; once it has arrived the same slot
+            // asks how the delivery went. A cancelled order gets neither —
+            // there is nothing left to stop and no delivery to rate.
+            floatingAction: order.canBeRated
+                ? GrofastPrimaryButton(
+                    label: order.isRated
+                        ? ValueConst.editOrderRatingLabel
+                        : ValueConst.rateOrderLabel,
+                    onTap: () => rateOrder(order),
+                  )
+                : canCancel
                 ? DecoratedBox(
                     decoration: BoxDecoration(
                       color: Theme.of(context).colorScheme.surface,

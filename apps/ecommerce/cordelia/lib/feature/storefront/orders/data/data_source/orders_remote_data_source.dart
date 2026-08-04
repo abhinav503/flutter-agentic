@@ -37,4 +37,15 @@ abstract interface class OrdersRemoteDataSource {
   /// paid) and returns the updated order, whose `refund_status` reflects the
   /// refund outcome. The server authorizes by the verified token's uid.
   Future<OrderModel> cancelOrder(String storeId, String orderId);
+
+  /// Rates the shopper's own delivered order, returning it with the rating
+  /// applied. Re-rating replaces the previous one. The server authorizes by
+  /// the verified token's uid and refuses anything not delivered — this is
+  /// about the delivery, so there is nothing to judge before it arrives.
+  Future<OrderModel> rateOrder(
+    String storeId,
+    String orderId,
+    int rating,
+    String text,
+  );
 }

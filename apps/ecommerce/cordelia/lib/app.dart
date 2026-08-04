@@ -43,6 +43,10 @@ import 'package:cordelia/feature/storefront/orders/presentation/templates/grofas
     as grofast_orders;
 import 'package:cordelia/feature/storefront/orders/presentation/templates/dailymart/view/track_order_page.dart'
     as dailymart_track_order;
+import 'package:cordelia/feature/storefront/orders/presentation/templates/gravia/view/orders_page.dart'
+    as gravia_orders;
+import 'package:cordelia/feature/storefront/orders/presentation/templates/gravia/view/track_order_page.dart'
+    as gravia_track_order;
 import 'package:cordelia/feature/storefront/orders/presentation/templates/grofast/view/track_order_page.dart'
     as grofast_track_order;
 import 'package:cordelia/feature/storefront/favourites/presentation/cubit/favourites_cubit.dart';
@@ -506,7 +510,7 @@ final _router = GoRouter(
               child: child,
             ),
         child: StorefrontTemplateSwitch(
-          gravia: (_) => const dailymart_orders.OrdersPage(),
+          gravia: (_) => const gravia_orders.OrdersPage(),
           dailymart: (_) => const dailymart_orders.OrdersPage(),
           grofast: (_) => const grofast_orders.OrdersPage(),
         ),
@@ -524,7 +528,7 @@ final _router = GoRouter(
               child: child,
             ),
         child: StorefrontTemplateSwitch(
-          gravia: (_) => dailymart_track_order.TrackOrderPage(
+          gravia: (_) => gravia_track_order.TrackOrderPage(
             order: state.extra as OrderEntity,
           ),
           dailymart: (_) => dailymart_track_order.TrackOrderPage(

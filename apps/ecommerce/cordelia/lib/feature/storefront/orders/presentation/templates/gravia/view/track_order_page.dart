@@ -26,12 +26,8 @@ class _TrackOrderPageState extends BasePageState<TrackOrderPage>
     // seeds the cubit before any of its screens build.
     final storeId = context.read<ActiveStoreCubit>().state!.storeId;
 
-    // The screen's *cancel* still reports back by popping the order id, so
-    // the list's optimistic update and warm cache stay with the one bloc
-    // that owns them (see TrackOrderScreen). This provider is for rating,
-    // which is a plain server write with nothing optimistic to reconcile —
-    // it lands in the same `ScopedBlocCache` the list reads, so the two
-    // can't disagree. Same shape grofast's Track Order already uses.
+    // Rating writes through this bloc; cancel still pops the order id back
+    // to the list that owns the optimistic update (see TrackOrderScreen).
     return ordersBlocProvider(
       storeId: storeId,
       child: TrackOrderScreen(order: widget.order),

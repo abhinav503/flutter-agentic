@@ -97,6 +97,25 @@ class OrdersRemoteDataSourceImpl implements OrdersRemoteDataSource {
     return OrderModel.fromJson(response.data!['order'] as Map<String, dynamic>);
   }
 
+  @override
+  Future<OrderModel> rateOrder(
+    String storeId,
+    String orderId,
+    int rating,
+    String text,
+  ) async {
+    // Same signed-in-only path as cancel: 401 without a token, 404 for
+    // someone else's order, 409 for one that hasn't been delivered.
+    final idToken = await FirebaseAuthService.instance.idToken();
+
+    final response = await HttpService.instance.post<Map<String, dynamic>>(
+      ApiConstants.orderReviewPath(storeId, orderId),
+      data: {'rating': rating, 'text': text},
+      options: Options(headers: {'Authorization': 'Bearer $idToken'}),
+    );
+    return OrderModel.fromJson(response.data!['order'] as Map<String, dynamic>);
+  }
+
   List<Map<String, dynamic>> _itemsPayload(List<CartItemEntity> items) => items
       .map(
         (item) => {

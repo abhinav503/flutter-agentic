@@ -55,13 +55,14 @@ extension OrdersEventPatterns on OrdersEvent {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( OrdersStarted value)?  started,TResult Function( OrdersTabChanged value)?  tabChanged,TResult Function( OrdersCancelled value)?  cancelled,TResult Function( OrdersFilterApplied value)?  filterApplied,TResult Function( OrdersStatusFilterChanged value)?  statusFilterChanged,TResult Function( OrdersSearched value)?  searched,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( OrdersStarted value)?  started,TResult Function( OrdersTabChanged value)?  tabChanged,TResult Function( OrdersCancelled value)?  cancelled,TResult Function( OrdersRated value)?  rated,TResult Function( OrdersFilterApplied value)?  filterApplied,TResult Function( OrdersStatusFilterChanged value)?  statusFilterChanged,TResult Function( OrdersSearched value)?  searched,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case OrdersStarted() when started != null:
 return started(_that);case OrdersTabChanged() when tabChanged != null:
 return tabChanged(_that);case OrdersCancelled() when cancelled != null:
-return cancelled(_that);case OrdersFilterApplied() when filterApplied != null:
+return cancelled(_that);case OrdersRated() when rated != null:
+return rated(_that);case OrdersFilterApplied() when filterApplied != null:
 return filterApplied(_that);case OrdersStatusFilterChanged() when statusFilterChanged != null:
 return statusFilterChanged(_that);case OrdersSearched() when searched != null:
 return searched(_that);case _:
@@ -82,13 +83,14 @@ return searched(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( OrdersStarted value)  started,required TResult Function( OrdersTabChanged value)  tabChanged,required TResult Function( OrdersCancelled value)  cancelled,required TResult Function( OrdersFilterApplied value)  filterApplied,required TResult Function( OrdersStatusFilterChanged value)  statusFilterChanged,required TResult Function( OrdersSearched value)  searched,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( OrdersStarted value)  started,required TResult Function( OrdersTabChanged value)  tabChanged,required TResult Function( OrdersCancelled value)  cancelled,required TResult Function( OrdersRated value)  rated,required TResult Function( OrdersFilterApplied value)  filterApplied,required TResult Function( OrdersStatusFilterChanged value)  statusFilterChanged,required TResult Function( OrdersSearched value)  searched,}){
 final _that = this;
 switch (_that) {
 case OrdersStarted():
 return started(_that);case OrdersTabChanged():
 return tabChanged(_that);case OrdersCancelled():
-return cancelled(_that);case OrdersFilterApplied():
+return cancelled(_that);case OrdersRated():
+return rated(_that);case OrdersFilterApplied():
 return filterApplied(_that);case OrdersStatusFilterChanged():
 return statusFilterChanged(_that);case OrdersSearched():
 return searched(_that);}
@@ -105,13 +107,14 @@ return searched(_that);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( OrdersStarted value)?  started,TResult? Function( OrdersTabChanged value)?  tabChanged,TResult? Function( OrdersCancelled value)?  cancelled,TResult? Function( OrdersFilterApplied value)?  filterApplied,TResult? Function( OrdersStatusFilterChanged value)?  statusFilterChanged,TResult? Function( OrdersSearched value)?  searched,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( OrdersStarted value)?  started,TResult? Function( OrdersTabChanged value)?  tabChanged,TResult? Function( OrdersCancelled value)?  cancelled,TResult? Function( OrdersRated value)?  rated,TResult? Function( OrdersFilterApplied value)?  filterApplied,TResult? Function( OrdersStatusFilterChanged value)?  statusFilterChanged,TResult? Function( OrdersSearched value)?  searched,}){
 final _that = this;
 switch (_that) {
 case OrdersStarted() when started != null:
 return started(_that);case OrdersTabChanged() when tabChanged != null:
 return tabChanged(_that);case OrdersCancelled() when cancelled != null:
-return cancelled(_that);case OrdersFilterApplied() when filterApplied != null:
+return cancelled(_that);case OrdersRated() when rated != null:
+return rated(_that);case OrdersFilterApplied() when filterApplied != null:
 return filterApplied(_that);case OrdersStatusFilterChanged() when statusFilterChanged != null:
 return statusFilterChanged(_that);case OrdersSearched() when searched != null:
 return searched(_that);case _:
@@ -131,12 +134,13 @@ return searched(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  started,TResult Function( OrdersTab tab)?  tabChanged,TResult Function( String orderId)?  cancelled,TResult Function( OrdersFilter? filter)?  filterApplied,TResult Function( OrdersStatusFilter filter)?  statusFilterChanged,TResult Function( String term)?  searched,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  started,TResult Function( OrdersTab tab)?  tabChanged,TResult Function( String orderId)?  cancelled,TResult Function( String orderId,  int rating,  String text)?  rated,TResult Function( OrdersFilter? filter)?  filterApplied,TResult Function( OrdersStatusFilter filter)?  statusFilterChanged,TResult Function( String term)?  searched,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case OrdersStarted() when started != null:
 return started();case OrdersTabChanged() when tabChanged != null:
 return tabChanged(_that.tab);case OrdersCancelled() when cancelled != null:
-return cancelled(_that.orderId);case OrdersFilterApplied() when filterApplied != null:
+return cancelled(_that.orderId);case OrdersRated() when rated != null:
+return rated(_that.orderId,_that.rating,_that.text);case OrdersFilterApplied() when filterApplied != null:
 return filterApplied(_that.filter);case OrdersStatusFilterChanged() when statusFilterChanged != null:
 return statusFilterChanged(_that.filter);case OrdersSearched() when searched != null:
 return searched(_that.term);case _:
@@ -157,12 +161,13 @@ return searched(_that.term);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  started,required TResult Function( OrdersTab tab)  tabChanged,required TResult Function( String orderId)  cancelled,required TResult Function( OrdersFilter? filter)  filterApplied,required TResult Function( OrdersStatusFilter filter)  statusFilterChanged,required TResult Function( String term)  searched,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  started,required TResult Function( OrdersTab tab)  tabChanged,required TResult Function( String orderId)  cancelled,required TResult Function( String orderId,  int rating,  String text)  rated,required TResult Function( OrdersFilter? filter)  filterApplied,required TResult Function( OrdersStatusFilter filter)  statusFilterChanged,required TResult Function( String term)  searched,}) {final _that = this;
 switch (_that) {
 case OrdersStarted():
 return started();case OrdersTabChanged():
 return tabChanged(_that.tab);case OrdersCancelled():
-return cancelled(_that.orderId);case OrdersFilterApplied():
+return cancelled(_that.orderId);case OrdersRated():
+return rated(_that.orderId,_that.rating,_that.text);case OrdersFilterApplied():
 return filterApplied(_that.filter);case OrdersStatusFilterChanged():
 return statusFilterChanged(_that.filter);case OrdersSearched():
 return searched(_that.term);}
@@ -179,12 +184,13 @@ return searched(_that.term);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  started,TResult? Function( OrdersTab tab)?  tabChanged,TResult? Function( String orderId)?  cancelled,TResult? Function( OrdersFilter? filter)?  filterApplied,TResult? Function( OrdersStatusFilter filter)?  statusFilterChanged,TResult? Function( String term)?  searched,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  started,TResult? Function( OrdersTab tab)?  tabChanged,TResult? Function( String orderId)?  cancelled,TResult? Function( String orderId,  int rating,  String text)?  rated,TResult? Function( OrdersFilter? filter)?  filterApplied,TResult? Function( OrdersStatusFilter filter)?  statusFilterChanged,TResult? Function( String term)?  searched,}) {final _that = this;
 switch (_that) {
 case OrdersStarted() when started != null:
 return started();case OrdersTabChanged() when tabChanged != null:
 return tabChanged(_that.tab);case OrdersCancelled() when cancelled != null:
-return cancelled(_that.orderId);case OrdersFilterApplied() when filterApplied != null:
+return cancelled(_that.orderId);case OrdersRated() when rated != null:
+return rated(_that.orderId,_that.rating,_that.text);case OrdersFilterApplied() when filterApplied != null:
 return filterApplied(_that.filter);case OrdersStatusFilterChanged() when statusFilterChanged != null:
 return statusFilterChanged(_that.filter);case OrdersSearched() when searched != null:
 return searched(_that.term);case _:
@@ -352,6 +358,76 @@ class _$OrdersCancelledCopyWithImpl<$Res>
 @pragma('vm:prefer-inline') $Res call({Object? orderId = null,}) {
   return _then(OrdersCancelled(
 orderId: null == orderId ? _self.orderId : orderId // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class OrdersRated implements OrdersEvent {
+  const OrdersRated({required this.orderId, required this.rating, required this.text});
+  
+
+ final  String orderId;
+ final  int rating;
+ final  String text;
+
+/// Create a copy of OrdersEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$OrdersRatedCopyWith<OrdersRated> get copyWith => _$OrdersRatedCopyWithImpl<OrdersRated>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is OrdersRated&&(identical(other.orderId, orderId) || other.orderId == orderId)&&(identical(other.rating, rating) || other.rating == rating)&&(identical(other.text, text) || other.text == text));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,orderId,rating,text);
+
+@override
+String toString() {
+  return 'OrdersEvent.rated(orderId: $orderId, rating: $rating, text: $text)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $OrdersRatedCopyWith<$Res> implements $OrdersEventCopyWith<$Res> {
+  factory $OrdersRatedCopyWith(OrdersRated value, $Res Function(OrdersRated) _then) = _$OrdersRatedCopyWithImpl;
+@useResult
+$Res call({
+ String orderId, int rating, String text
+});
+
+
+
+
+}
+/// @nodoc
+class _$OrdersRatedCopyWithImpl<$Res>
+    implements $OrdersRatedCopyWith<$Res> {
+  _$OrdersRatedCopyWithImpl(this._self, this._then);
+
+  final OrdersRated _self;
+  final $Res Function(OrdersRated) _then;
+
+/// Create a copy of OrdersEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? orderId = null,Object? rating = null,Object? text = null,}) {
+  return _then(OrdersRated(
+orderId: null == orderId ? _self.orderId : orderId // ignore: cast_nullable_to_non_nullable
+as String,rating: null == rating ? _self.rating : rating // ignore: cast_nullable_to_non_nullable
+as int,text: null == text ? _self.text : text // ignore: cast_nullable_to_non_nullable
 as String,
   ));
 }
@@ -680,11 +756,11 @@ return error(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loading,TResult Function( List<OrderEntity> orders,  OrdersTab selectedTab,  OrdersFilter? filter,  OrdersStatusFilter statusFilter,  String searchTerm,  bool refreshFailed,  bool cancelFailed)?  loaded,TResult Function( String message)?  error,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loading,TResult Function( List<OrderEntity> orders,  OrdersTab selectedTab,  OrdersFilter? filter,  OrdersStatusFilter statusFilter,  String searchTerm,  bool refreshFailed,  bool cancelFailed,  bool rateFailed)?  loaded,TResult Function( String message)?  error,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case OrdersLoading() when loading != null:
 return loading();case OrdersLoaded() when loaded != null:
-return loaded(_that.orders,_that.selectedTab,_that.filter,_that.statusFilter,_that.searchTerm,_that.refreshFailed,_that.cancelFailed);case OrdersError() when error != null:
+return loaded(_that.orders,_that.selectedTab,_that.filter,_that.statusFilter,_that.searchTerm,_that.refreshFailed,_that.cancelFailed,_that.rateFailed);case OrdersError() when error != null:
 return error(_that.message);case _:
   return orElse();
 
@@ -703,11 +779,11 @@ return error(_that.message);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loading,required TResult Function( List<OrderEntity> orders,  OrdersTab selectedTab,  OrdersFilter? filter,  OrdersStatusFilter statusFilter,  String searchTerm,  bool refreshFailed,  bool cancelFailed)  loaded,required TResult Function( String message)  error,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loading,required TResult Function( List<OrderEntity> orders,  OrdersTab selectedTab,  OrdersFilter? filter,  OrdersStatusFilter statusFilter,  String searchTerm,  bool refreshFailed,  bool cancelFailed,  bool rateFailed)  loaded,required TResult Function( String message)  error,}) {final _that = this;
 switch (_that) {
 case OrdersLoading():
 return loading();case OrdersLoaded():
-return loaded(_that.orders,_that.selectedTab,_that.filter,_that.statusFilter,_that.searchTerm,_that.refreshFailed,_that.cancelFailed);case OrdersError():
+return loaded(_that.orders,_that.selectedTab,_that.filter,_that.statusFilter,_that.searchTerm,_that.refreshFailed,_that.cancelFailed,_that.rateFailed);case OrdersError():
 return error(_that.message);}
 }
 /// A variant of `when` that fallback to returning `null`
@@ -722,11 +798,11 @@ return error(_that.message);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loading,TResult? Function( List<OrderEntity> orders,  OrdersTab selectedTab,  OrdersFilter? filter,  OrdersStatusFilter statusFilter,  String searchTerm,  bool refreshFailed,  bool cancelFailed)?  loaded,TResult? Function( String message)?  error,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loading,TResult? Function( List<OrderEntity> orders,  OrdersTab selectedTab,  OrdersFilter? filter,  OrdersStatusFilter statusFilter,  String searchTerm,  bool refreshFailed,  bool cancelFailed,  bool rateFailed)?  loaded,TResult? Function( String message)?  error,}) {final _that = this;
 switch (_that) {
 case OrdersLoading() when loading != null:
 return loading();case OrdersLoaded() when loaded != null:
-return loaded(_that.orders,_that.selectedTab,_that.filter,_that.statusFilter,_that.searchTerm,_that.refreshFailed,_that.cancelFailed);case OrdersError() when error != null:
+return loaded(_that.orders,_that.selectedTab,_that.filter,_that.statusFilter,_that.searchTerm,_that.refreshFailed,_that.cancelFailed,_that.rateFailed);case OrdersError() when error != null:
 return error(_that.message);case _:
   return null;
 
@@ -771,7 +847,7 @@ String toString() {
 
 
 class OrdersLoaded implements OrdersState {
-  const OrdersLoaded({required final  List<OrderEntity> orders, required this.selectedTab, this.filter, this.statusFilter = OrdersStatusFilter.all, this.searchTerm = '', this.refreshFailed = false, this.cancelFailed = false}): _orders = orders;
+  const OrdersLoaded({required final  List<OrderEntity> orders, required this.selectedTab, this.filter, this.statusFilter = OrdersStatusFilter.all, this.searchTerm = '', this.refreshFailed = false, this.cancelFailed = false, this.rateFailed = false}): _orders = orders;
   
 
  final  List<OrderEntity> _orders;
@@ -799,6 +875,11 @@ class OrdersLoaded implements OrdersState {
 /// True for one emission after a cancel request fails and its optimistic
 /// update is rolled back — the listener surfaces a snackbar.
 @JsonKey() final  bool cancelFailed;
+/// True for one emission after rating an order fails. The list is
+/// untouched in that case (the rating is written straight through, not
+/// optimistically — there is nothing to roll back), so this is purely
+/// the listener's cue to toast.
+@JsonKey() final  bool rateFailed;
 
 /// Create a copy of OrdersState
 /// with the given fields replaced by the non-null parameter values.
@@ -810,16 +891,16 @@ $OrdersLoadedCopyWith<OrdersLoaded> get copyWith => _$OrdersLoadedCopyWithImpl<O
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is OrdersLoaded&&const DeepCollectionEquality().equals(other._orders, _orders)&&(identical(other.selectedTab, selectedTab) || other.selectedTab == selectedTab)&&(identical(other.filter, filter) || other.filter == filter)&&(identical(other.statusFilter, statusFilter) || other.statusFilter == statusFilter)&&(identical(other.searchTerm, searchTerm) || other.searchTerm == searchTerm)&&(identical(other.refreshFailed, refreshFailed) || other.refreshFailed == refreshFailed)&&(identical(other.cancelFailed, cancelFailed) || other.cancelFailed == cancelFailed));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is OrdersLoaded&&const DeepCollectionEquality().equals(other._orders, _orders)&&(identical(other.selectedTab, selectedTab) || other.selectedTab == selectedTab)&&(identical(other.filter, filter) || other.filter == filter)&&(identical(other.statusFilter, statusFilter) || other.statusFilter == statusFilter)&&(identical(other.searchTerm, searchTerm) || other.searchTerm == searchTerm)&&(identical(other.refreshFailed, refreshFailed) || other.refreshFailed == refreshFailed)&&(identical(other.cancelFailed, cancelFailed) || other.cancelFailed == cancelFailed)&&(identical(other.rateFailed, rateFailed) || other.rateFailed == rateFailed));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_orders),selectedTab,filter,statusFilter,searchTerm,refreshFailed,cancelFailed);
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_orders),selectedTab,filter,statusFilter,searchTerm,refreshFailed,cancelFailed,rateFailed);
 
 @override
 String toString() {
-  return 'OrdersState.loaded(orders: $orders, selectedTab: $selectedTab, filter: $filter, statusFilter: $statusFilter, searchTerm: $searchTerm, refreshFailed: $refreshFailed, cancelFailed: $cancelFailed)';
+  return 'OrdersState.loaded(orders: $orders, selectedTab: $selectedTab, filter: $filter, statusFilter: $statusFilter, searchTerm: $searchTerm, refreshFailed: $refreshFailed, cancelFailed: $cancelFailed, rateFailed: $rateFailed)';
 }
 
 
@@ -830,7 +911,7 @@ abstract mixin class $OrdersLoadedCopyWith<$Res> implements $OrdersStateCopyWith
   factory $OrdersLoadedCopyWith(OrdersLoaded value, $Res Function(OrdersLoaded) _then) = _$OrdersLoadedCopyWithImpl;
 @useResult
 $Res call({
- List<OrderEntity> orders, OrdersTab selectedTab, OrdersFilter? filter, OrdersStatusFilter statusFilter, String searchTerm, bool refreshFailed, bool cancelFailed
+ List<OrderEntity> orders, OrdersTab selectedTab, OrdersFilter? filter, OrdersStatusFilter statusFilter, String searchTerm, bool refreshFailed, bool cancelFailed, bool rateFailed
 });
 
 
@@ -847,7 +928,7 @@ class _$OrdersLoadedCopyWithImpl<$Res>
 
 /// Create a copy of OrdersState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? orders = null,Object? selectedTab = null,Object? filter = freezed,Object? statusFilter = null,Object? searchTerm = null,Object? refreshFailed = null,Object? cancelFailed = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? orders = null,Object? selectedTab = null,Object? filter = freezed,Object? statusFilter = null,Object? searchTerm = null,Object? refreshFailed = null,Object? cancelFailed = null,Object? rateFailed = null,}) {
   return _then(OrdersLoaded(
 orders: null == orders ? _self._orders : orders // ignore: cast_nullable_to_non_nullable
 as List<OrderEntity>,selectedTab: null == selectedTab ? _self.selectedTab : selectedTab // ignore: cast_nullable_to_non_nullable
@@ -856,6 +937,7 @@ as OrdersFilter?,statusFilter: null == statusFilter ? _self.statusFilter : statu
 as OrdersStatusFilter,searchTerm: null == searchTerm ? _self.searchTerm : searchTerm // ignore: cast_nullable_to_non_nullable
 as String,refreshFailed: null == refreshFailed ? _self.refreshFailed : refreshFailed // ignore: cast_nullable_to_non_nullable
 as bool,cancelFailed: null == cancelFailed ? _self.cancelFailed : cancelFailed // ignore: cast_nullable_to_non_nullable
+as bool,rateFailed: null == rateFailed ? _self.rateFailed : rateFailed // ignore: cast_nullable_to_non_nullable
 as bool,
   ));
 }

@@ -67,7 +67,8 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
       showGrofastSheet<void>(
         title: ValueConst.reviewSheetTitle,
         child: GrofastWriteReviewSheetContent(
-          existing: existing,
+          initialRating: existing?.rating ?? 0,
+          initialText: existing?.text ?? '',
           onSubmit: submitReview,
           onMessage: showSnackBar,
         ),

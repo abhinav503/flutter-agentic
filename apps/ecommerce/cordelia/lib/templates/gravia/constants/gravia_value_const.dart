@@ -234,6 +234,29 @@ abstract final class GraviaValueConst {
       'Something went wrong loading your orders.';
   static const ordersRefreshFailedMessage =
       "Couldn't refresh — showing your last loaded orders.";
+  // ── Track Order ────────────────────────────────────────────────────────
+  static const trackOrderTitle = 'Track Order';
+  static const orderStatusTitle = 'Order Status';
+  static const orderItemsTitle = 'Items';
+  static const orderSummaryTitle = 'Summary';
+  static const orderDetailsTitle = 'Order Details';
+  static const deliveryAddressTitle = 'Delivery Address';
+  static const orderIdLabel = 'Order ID';
+  static const orderPlacedOnLabel = 'Placed on';
+  static const paymentIdLabel = 'Payment ID';
+  static const noOnlinePaymentLabel = 'No online payment';
+  static const refundLabel = 'Refund';
+  static const copiedMessage = 'Copied';
+  static const orderTotalLabel = 'Total Paid';
+
+  /// The timeline's steps. The backend has three real statuses, so these are
+  /// the three it can date — see `GraviaOrderStatusTimeline`.
+  static const orderStepPlacedLabel = 'Order Placed';
+  static const orderStepOnTheWayLabel = 'On the way';
+  static const orderStepDeliveredLabel = 'Delivered';
+  static const orderStepCancelledLabel = 'Cancelled';
+  static const orderStepUndatedLabel = 'Time not recorded';
+
   static const ordersEmptyTitle = 'No orders yet';
   static const ordersEmptySubtitle =
       'Your past and active orders will show up here.';

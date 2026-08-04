@@ -86,6 +86,23 @@ export function serializeReview(r: Review) {
   };
 }
 
+// An order the shopper rated, for the dashboard's order-review list. Not a
+// public review: this is private feedback about a delivery, so it carries
+// the order's own identifying details (id, date, total) rather than a
+// product's, and the customer is named from the delivery address the order
+// already snapshotted — no profile lookup per row.
+export function serializeOrderReview(o: Order) {
+  return {
+    order_id: o.id,
+    rating: o.rating,
+    text: o.reviewText,
+    reviewed_at: o.reviewedAt,
+    placed_at: o.placedAt,
+    total: o.total,
+    customer_name: o.deliveryAddress?.name ?? "",
+  };
+}
+
 // The rating summary a product page renders above its review list — the
 // average, the total, and the per-star histogram. Read off the product doc's
 // denormalized aggregates, never recounted per request.
@@ -147,6 +164,12 @@ export function serializeOrder(o: Order) {
     // the discount.
     coupon_code: o.couponCode,
     coupon_discount: o.couponDiscount,
+    // The shopper's rating of this delivery — 0 when unrated, which is every
+    // order that hasn't been delivered yet. Sent back to the shopper so
+    // their own order card can show what they gave and offer to change it.
+    rating: o.rating,
+    review_text: o.reviewText,
+    reviewed_at: o.reviewedAt,
     total: o.total,
     // Reuses serializeAddress so the order's snapshot round-trips through
     // gravia's existing AddressModel.fromJson (feature/address) unchanged.

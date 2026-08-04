@@ -4,6 +4,7 @@ import 'package:cordelia/templates/gravia/constants/gravia_text_style_const.dart
 import 'package:cordelia/templates/gravia/constants/gravia_value_const.dart';
 import 'package:cordelia/templates/gravia/extensions/gravia_order_labels.dart';
 import 'package:cordelia/templates/gravia/widgets/gravia_action_pair.dart';
+import 'package:cordelia/templates/gravia/widgets/gravia_otp_digits.dart';
 import 'package:cordelia/templates/gravia/widgets/gravia_tint_badge.dart';
 import 'package:flutter/material.dart';
 
@@ -11,6 +12,9 @@ import 'package:core/core/extensions/num_extensions.dart';
 import 'package:core/core/theme/app_colors_extension.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/badge.dart';
+import 'package:core/core/ui/atoms/rating_stars.dart';
+
+import 'package:cordelia/constants/value_const.dart';
 import '../../../../domain/entities/order_entity.dart';
 import 'order_line_item_row.dart';
 
@@ -93,14 +97,7 @@ class OrderCard extends StatelessWidget {
               const SizedBox(width: AppSpacing.sm),
               _StatusBadge(status: order.status),
               const Spacer(),
-              Row(
-                children: [
-                  for (var i = 0; i < order.deliveryOtp.length; i++) ...[
-                    if (i > 0) const SizedBox(width: AppSpacing.xs2),
-                    _OtpDigitBox(digit: order.deliveryOtp[i]),
-                  ],
-                ],
-              ),
+              GraviaOtpDigits(otp: order.deliveryOtp),
             ],
           ),
           const SizedBox(height: AppSpacing.base),
@@ -124,17 +121,80 @@ class OrderCard extends StatelessWidget {
             _RefundNote(status: order.refundStatus),
             const SizedBox(height: AppSpacing.lg),
           ],
-          GraviaActionPair(
-            left: GraviaAction(
-              label: GraviaValueConst.viewDetailsLabel,
-              kind: GraviaActionKind.secondary,
-              onTap: onViewDetails,
+          // The rating the shopper already gave, above the actions — the
+          // card should answer "did I rate this?" without opening a sheet.
+          if (order.isRated) ...[
+            _GivenRating(order: order),
+            const SizedBox(height: AppSpacing.lg),
+          ],
+          // A cancelled order can't be rated — there was no delivery to
+          // judge — so it keeps View Details alone rather than pairing it
+          // with a dead button.
+          if (order.canBeRated)
+            GraviaActionPair(
+              left: GraviaAction(
+                label: GraviaValueConst.viewDetailsLabel,
+                kind: GraviaActionKind.secondary,
+                onTap: onViewDetails,
+              ),
+              right: GraviaAction(
+                label: order.isRated
+                    ? ValueConst.editOrderRatingLabel
+                    : ValueConst.rateOrderLabel,
+                kind: GraviaActionKind.primary,
+                onTap: onWriteReview,
+              ),
+            )
+          else
+            GraviaActionButton(
+              action: GraviaAction(
+                label: GraviaValueConst.viewDetailsLabel,
+                kind: GraviaActionKind.secondary,
+                onTap: onViewDetails,
+              ),
             ),
-            right: GraviaAction(
-              label: GraviaValueConst.writeReviewLabel,
-              kind: GraviaActionKind.primary,
-              onTap: onWriteReview,
+        ],
+      ],
+    );
+  }
+}
+
+/// The shopper's own rating of this delivery, once given — stars plus the
+/// first line of whatever they wrote.
+class _GivenRating extends StatelessWidget {
+  final OrderEntity order;
+
+  const _GivenRating({required this.order});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(
+              ValueConst.yourRatingLabel,
+              style: GraviaTextStyleConst.textSmRegular(
+                tt,
+              ).copyWith(color: GraviaColorConst.gray500),
             ),
+            const SizedBox(width: AppSpacing.xs),
+            RatingStars(rating: order.rating.toDouble(), size: AppSpacing.base),
+          ],
+        ),
+        if (order.reviewText.isNotEmpty) ...[
+          const SizedBox(height: AppSpacing.xs2),
+          Text(
+            order.reviewText,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: GraviaTextStyleConst.textSmRegular(
+              tt,
+            ).copyWith(color: cs.onSurfaceVariant),
           ),
         ],
       ],
@@ -205,36 +265,5 @@ class _StatusBadge extends StatelessWidget {
         textStyle: GraviaTextStyleConst.badgeLabel(tt),
       ),
     };
-  }
-}
-
-class _OtpDigitBox extends StatelessWidget {
-  final String digit;
-
-  const _OtpDigitBox({required this.digit});
-
-  static const double _size = 32;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
-
-    return Container(
-      width: _size,
-      height: _size,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: context.appColors.tintedPrimaryFill,
-        border: Border.all(color: cs.primary),
-      ),
-      alignment: Alignment.center,
-      child: Text(
-        digit,
-        style: GraviaTextStyleConst.textMdBold(
-          tt,
-        ).copyWith(color: cs.onSurface),
-      ),
-    );
   }
 }

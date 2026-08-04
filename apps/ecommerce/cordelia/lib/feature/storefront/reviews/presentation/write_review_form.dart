@@ -1,22 +1,25 @@
 import 'package:flutter/widgets.dart';
 
-import '../domain/entities/review_entity.dart';
-
-/// Everything a write-review sheet does that isn't pack chrome — the chosen
-/// star count, the text controller seeded from an existing review, the
+/// Everything a rating sheet does that isn't pack chrome — the chosen star
+/// count, the text controller seeded from what was written before, the
 /// "pick a rating first" gate, and the submit.
 ///
-/// Each template renders its own sheet body over this, so the form's
-/// behaviour can't drift between packs (same shape as [EditProfileForm] and
+/// Serves **both** things a shopper rates: a product (its reviews section)
+/// and a delivered order (My Orders / Track Order). They differ only in
+/// where the initial values come from and what the submit dispatches, so
+/// each template needs one sheet body, not two.
+///
+/// Each template renders its own body over this, so the form's behaviour
+/// can't drift between packs (same shape as [EditProfileForm] and
 /// `QuantitySelection`).
 ///
 /// The sheet never touches a bloc: it calls [onSubmit] and the screen that
 /// opened it dispatches, the same callback split every pack's add-to-cart
 /// and confirm sheet already uses.
 mixin WriteReviewForm<T extends StatefulWidget> on State<T> {
-  /// The shopper's current review when they're editing one, null when
-  /// writing their first — implemented by the sheet as `widget.existing`.
-  ReviewEntity? get existingReview;
+  /// What was rated before — 0 and '' when nothing was.
+  int get initialRating;
+  String get initialText;
 
   void Function(int rating, String text) get onSubmit;
 
@@ -27,13 +30,11 @@ mixin WriteReviewForm<T extends StatefulWidget> on State<T> {
   /// screen, usually) — a sheet has no `BaseScreenState` of its own.
   void showFormMessage(String message);
 
-  late final reviewController = TextEditingController(
-    text: existingReview?.text ?? '',
-  );
+  late final reviewController = TextEditingController(text: initialText);
 
   /// 0 until a star is tapped, which is what keeps submit gated on a first
-  /// write. Editing starts on the review's existing rating.
-  late int rating = existingReview?.rating ?? 0;
+  /// write. Editing starts on the existing rating.
+  late int rating = initialRating;
 
   bool get hasRating => rating > 0;
 

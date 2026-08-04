@@ -1,7 +1,7 @@
 "use client";
 
 import { Fragment, useEffect, useState } from "react";
-import { ChevronDown, ChevronRight } from "lucide-react";
+import { ChevronDown, ChevronRight, Star } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { useStore } from "@/lib/store-context";
 import {
@@ -11,6 +11,7 @@ import {
   refundOrder,
 } from "@/lib/orders-dashboard";
 import type { Address, Order, OrderStatus, RefundStatus } from "@/lib/types";
+import { MAX_RATING } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -438,6 +439,40 @@ function OrderDetail({ order, paid }: { order: Order; paid: boolean }) {
           <p className="text-sm text-muted-foreground">
             No delivery address on this order.
           </p>
+        )}
+
+        {/* The shopper's verdict on this delivery — distinct from a product
+            review, and only ever present on a delivered order. */}
+        {order.rating > 0 && (
+          <>
+            <h3 className="mt-2 text-xs font-semibold uppercase text-muted-foreground">
+              Customer rating
+            </h3>
+            <div className="flex items-center gap-2 text-sm">
+              <span className="flex items-center gap-0.5">
+                {Array.from({ length: MAX_RATING }, (_, i) => (
+                  <Star
+                    key={i}
+                    className={
+                      i < order.rating
+                        ? "size-4 fill-amber-400 text-amber-400"
+                        : "size-4 text-muted-foreground/40"
+                    }
+                  />
+                ))}
+              </span>
+              {order.reviewedAt && (
+                <span className="text-xs text-muted-foreground">
+                  {new Date(order.reviewedAt).toLocaleDateString()}
+                </span>
+              )}
+            </div>
+            {order.reviewText && (
+              <p className="text-sm text-muted-foreground">
+                {order.reviewText}
+              </p>
+            )}
+          </>
         )}
 
         <h3 className="mt-2 text-xs font-semibold uppercase text-muted-foreground">

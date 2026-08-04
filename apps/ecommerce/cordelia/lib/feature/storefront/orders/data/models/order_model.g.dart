@@ -22,6 +22,9 @@ _OrderModel _$OrderModelFromJson(Map<String, dynamic> json) => _OrderModel(
   paymentId: json['payment_id'] as String? ?? '',
   couponCode: json['coupon_code'] as String? ?? '',
   couponDiscount: (json['coupon_discount'] as num?)?.toDouble() ?? 0,
+  rating: (json['rating'] as num?)?.toInt() ?? 0,
+  reviewText: json['review_text'] as String? ?? '',
+  reviewedAt: json['reviewed_at'] as String? ?? '',
   items: (json['items'] as List<dynamic>)
       .map((e) => OrderLineItemModel.fromJson(e as Map<String, dynamic>))
       .toList(),
@@ -41,6 +44,9 @@ Map<String, dynamic> _$OrderModelToJson(_OrderModel instance) =>
       'payment_id': instance.paymentId,
       'coupon_code': instance.couponCode,
       'coupon_discount': instance.couponDiscount,
+      'rating': instance.rating,
+      'review_text': instance.reviewText,
+      'reviewed_at': instance.reviewedAt,
       'items': instance.items,
       'delivery_address': instance.deliveryAddress,
     };

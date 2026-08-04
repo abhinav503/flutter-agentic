@@ -80,46 +80,43 @@ class _CartScreenState extends BaseScreenState<CartScreen> {
       listener: (context, items) =>
           context.read<CouponCubit>().revalidate(storeId, items),
       child: SafeArea(
-      bottom: false,
-      child: GrofastScreenBody(
-        // The count belongs to the "My Bag" line, not up here — see
-        // `_BagContent`. With no title and no trailing action, the back
-        // control is the whole header: as the tab it drops out entirely
-        // rather than leaving an empty row's height above "My Bag".
-        onBack: widget.onBack,
-        showBack: widget.showBack,
-        gap: AppSpacing.xl2,
-        // As a tab this scroll view reaches under the nav (the shell runs
-        // `extendBody`), so it clears the bar itself and lets its last row
-        // pass behind the dome; the routed copy has no nav below it and owns
-        // the bottom edge, so it takes the shell's default.
-        bottomInset: widget.showBack
-            ? null
-            : GrofastDimenConst.navScrollInset(context),
-        // No floating CTA: the kit runs "Proceed To Checkout" in the scroll
-        // flow under the totals, not docked over a fade.
-        body: GrofastSwitcher(
-          child: items.isEmpty
-              ? GrofastEmptyState(
-                  icon: Icons.shopping_bag_outlined,
-                  title: GrofastValueConst.bagEmptyTitle,
-                  subtitle: GrofastValueConst.bagEmptySubtitle,
-                  actionLabel: GrofastValueConst.bagExploreAction,
-                  onAction: widget.onBack,
-                )
-              : _BagContent(
-                  items: items,
-                  couponState: couponState,
-                  onPromoApply: (code) => context.read<CouponCubit>().apply(
-                    storeId,
-                    code,
-                    items,
+        bottom: false,
+        child: GrofastScreenBody(
+          // The count belongs to the "My Bag" line, not up here — see
+          // `_BagContent`. With no title and no trailing action, the back
+          // control is the whole header: as the tab it drops out entirely
+          // rather than leaving an empty row's height above "My Bag".
+          onBack: widget.onBack,
+          showBack: widget.showBack,
+          gap: AppSpacing.xl2,
+          // As a tab this scroll view reaches under the nav (the shell runs
+          // `extendBody`), so it clears the bar itself and lets its last row
+          // pass behind the dome; the routed copy has no nav below it and owns
+          // the bottom edge, so it takes the shell's default.
+          bottomInset: widget.showBack
+              ? null
+              : GrofastDimenConst.navScrollInset(context),
+          // No floating CTA: the kit runs "Proceed To Checkout" in the scroll
+          // flow under the totals, not docked over a fade.
+          body: GrofastSwitcher(
+            child: items.isEmpty
+                ? GrofastEmptyState(
+                    icon: Icons.shopping_bag_outlined,
+                    title: GrofastValueConst.bagEmptyTitle,
+                    subtitle: GrofastValueConst.bagEmptySubtitle,
+                    actionLabel: GrofastValueConst.bagExploreAction,
+                    onAction: widget.onBack,
+                  )
+                : _BagContent(
+                    items: items,
+                    couponState: couponState,
+                    onPromoApply: (code) =>
+                        context.read<CouponCubit>().apply(storeId, code, items),
+                    onPromoRemove: () => context.read<CouponCubit>().remove(),
+                    onCheckout: _startCheckout,
                   ),
-                  onPromoRemove: () => context.read<CouponCubit>().remove(),
-                  onCheckout: _startCheckout,
-                ),
+          ),
         ),
-      ),
       ),
     );
   }

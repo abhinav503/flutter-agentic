@@ -57,8 +57,7 @@ class CouponCubit extends Cubit<CouponState> {
       ValidateCouponParams(storeId: storeId, code: trimmed, items: items),
     );
     result.fold(
-      (failure) =>
-          emit(CouponFailed(message: failure.message, code: trimmed)),
+      (failure) => emit(CouponFailed(message: failure.message, code: trimmed)),
       (coupon) => emit(CouponApplied(coupon: coupon)),
     );
   }

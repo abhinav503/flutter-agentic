@@ -74,7 +74,8 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
       showDailyMartSheet<void>(
         title: ValueConst.reviewSheetTitle,
         child: DailyMartWriteReviewSheetContent(
-          existing: existing,
+          initialRating: existing?.rating ?? 0,
+          initialText: existing?.text ?? '',
           onSubmit: submitReview,
           onMessage: showSnackBar,
         ),

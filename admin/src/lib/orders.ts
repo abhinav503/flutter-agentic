@@ -12,16 +12,22 @@ import {
   type CouponLine,
 } from "./coupon-engine";
 import { resolveLinePricing } from "./products";
-import type {
-  Address,
-  Order,
-  OrderLineItem,
-  OrderStatus,
-  OrderStatusChange,
-  RefundStatus,
-  SizeVariant,
-  UnitType,
+import {
+  MAX_RATING,
+  MIN_RATING,
+  type Address,
+  type Order,
+  type OrderLineItem,
+  type OrderStatus,
+  type OrderStatusChange,
+  type RefundStatus,
+  type SizeVariant,
+  type UnitType,
 } from "./types";
+
+// Same cap a product review's body takes — one runaway paragraph shouldn't
+// bloat every order payload the dashboard and the app load.
+const MAX_REVIEW_TEXT_LENGTH = 2000;
 
 // sizeValue selects one of the product's sizeVariants (absent = base pack) —
 // only the size travels; the server resolves its price, never the client.
@@ -121,6 +127,11 @@ function toOrder(id: string, data: FirebaseFirestore.DocumentData): Order {
     razorpayOrderId: (data.razorpayOrderId as string) ?? "",
     couponCode: (data.couponCode as string) ?? "",
     couponDiscount: (data.couponDiscount as number) ?? 0,
+    // Absent on every order placed before order rating shipped, and on every
+    // order nobody has rated — both are "unrated", which is what 0 means.
+    rating: (data.rating as number) ?? 0,
+    reviewText: (data.reviewText as string) ?? "",
+    reviewedAt: (data.reviewedAt as string) ?? "",
     // Orders placed before the refund axis existed have no field — default to
     // NONE so an un-refunded past order reads correctly.
     refundStatus: (data.refundStatus as RefundStatus) ?? "NONE",
@@ -341,6 +352,10 @@ export async function createOrder(
       razorpayOrderId,
       couponCode: appliedCouponCode,
       couponDiscount,
+      // Unrated until the order is delivered and the shopper says so.
+      rating: 0,
+      reviewText: "",
+      reviewedAt: "",
       refundStatus: "NONE",
       refundId: "",
     };
@@ -518,6 +533,67 @@ export async function cancelOrder(orderId: string): Promise<Order> {
       refundStatus,
       statusHistory: [...order.statusHistory, change],
     };
+  });
+}
+
+// The shopper rated their own delivery, or is changing that rating. Distinct
+// from a product review (lib/reviews.ts): this judges how the *order* went,
+// so it is gated where a product review deliberately isn't — you can only
+// rate a delivery you actually received.
+// Carries its own HTTP status rather than making the route infer one from
+// the message: the three refusals are genuinely different (bad input, wrong
+// owner, wrong lifecycle state) and a caller acts on each differently.
+export class OrderRatingError extends Error {
+  constructor(
+    message: string,
+    readonly status: number,
+  ) {
+    super(message);
+  }
+}
+
+// Rates an order. Re-rating overwrites, the same "one per subject, posting
+// again edits it" rule product reviews follow — an order has exactly one
+// shopper, so no per-user keying is needed here.
+//
+// Transactional for the two gates: the order must belong to the caller and
+// must be DELIVERED when the write lands. Read-then-write without one would
+// let a cancel racing in leave a rating on an order that never arrived.
+export async function rateOrder(
+  orderId: string,
+  uid: string,
+  rating: number,
+  text: string,
+): Promise<Order> {
+  if (!Number.isInteger(rating) || rating < MIN_RATING || rating > MAX_RATING) {
+    throw new OrderRatingError(
+      `rating must be a whole number from ${MIN_RATING} to ${MAX_RATING}`,
+      400,
+    );
+  }
+
+  const orderRef = ordersRef().doc(orderId);
+
+  return adminDb.runTransaction(async (tx) => {
+    const snap = await tx.get(orderRef);
+    if (!snap.exists) {
+      throw new OrderRatingError("Order not found", 404);
+    }
+    const order = toOrder(snap.id, snap.data()!);
+
+    // Someone else's order answers exactly as a missing one does — the same
+    // policy getOrderForStore follows, so probing ids reveals nothing.
+    if (order.uid !== uid) {
+      throw new OrderRatingError("Order not found", 404);
+    }
+    if (order.status !== "DELIVERED") {
+      throw new OrderRatingError("Only a delivered order can be rated", 409);
+    }
+
+    const reviewedAt = new Date().toISOString();
+    const reviewText = text.trim().slice(0, MAX_REVIEW_TEXT_LENGTH);
+    tx.update(orderRef, { rating, reviewText, reviewedAt });
+    return { ...order, rating, reviewText, reviewedAt };
   });
 }
 

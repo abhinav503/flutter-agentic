@@ -112,7 +112,12 @@ class GrofastScreenBody extends StatelessWidget {
     if (pinned) {
       // The header docks above the scroll view — content clips at the
       // viewport's top edge instead of sliding under the back control.
-      final bodyPadding = EdgeInsets.fromLTRB(horizontal, 0, horizontal, bottom);
+      final bodyPadding = EdgeInsets.fromLTRB(
+        horizontal,
+        0,
+        horizontal,
+        bottom,
+      );
       view = Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

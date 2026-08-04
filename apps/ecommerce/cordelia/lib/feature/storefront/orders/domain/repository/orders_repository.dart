@@ -28,4 +28,13 @@ abstract interface class OrdersRepository {
     String storeId,
     String orderId,
   );
+
+  /// Rates the shopper's own delivered order; resolves to the order with the
+  /// rating applied. Re-rating replaces the previous one.
+  Future<Either<Failure, OrderEntity>> rateOrder(
+    String storeId,
+    String orderId,
+    int rating,
+    String text,
+  );
 }

@@ -1,21 +1,29 @@
 import { NextResponse } from "next/server";
+import { getOrdersForStore } from "@/lib/orders";
 import { getProducts } from "@/lib/products";
 import { getReviewsForStore } from "@/lib/reviews";
-import { serializeReview } from "@/lib/api/serializers";
+import { serializeOrderReview, serializeReview } from "@/lib/api/serializers";
 import {
   ForbiddenError,
   requireStoreOwner,
   UnauthorizedError,
 } from "@/lib/api/admin-guard";
 
-// The store owner's moderation list — every review across the store, newest
-// first. Owner-only: this is the one view that puts a shopper's name next to
-// every product they've reviewed, which no storefront needs.
+// The store owner's review lists, newest first. Owner-only: this is the one
+// view that puts a shopper's name next to everything they've said.
+//
+// `?type=order` switches from **product reviews** (public, moderatable) to
+// **order ratings** (private feedback about a delivery, which live on the
+// order doc). They're two different subjects with different columns, so the
+// route answers one or the other rather than a merged list the dashboard
+// would have to pull apart again.
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ storeId: string }> },
 ) {
   const { storeId } = await params;
+  const isOrderReviews =
+    new URL(request.url).searchParams.get("type") === "order";
 
   try {
     await requireStoreOwner(request, storeId);
@@ -27,6 +35,17 @@ export async function GET(
       return NextResponse.json({ error: e.message }, { status: 403 });
     }
     throw e;
+  }
+
+  if (isOrderReviews) {
+    const orders = await getOrdersForStore(storeId);
+    // Only orders the shopper actually rated, newest rating first — the
+    // list is about the feedback, so it orders by when that was given
+    // rather than by when the order was placed.
+    const rated = orders
+      .filter((o) => o.rating > 0)
+      .sort((a, b) => b.reviewedAt.localeCompare(a.reviewedAt));
+    return NextResponse.json({ reviews: rated.map(serializeOrderReview) });
   }
 
   const [reviews, products] = await Promise.all([

@@ -19,7 +19,8 @@ class ValidateCouponParams {
 }
 
 class ValidateCouponUseCase
-    extends UseCase<Either<Failure, AppliedCouponEntity>, ValidateCouponParams> {
+    extends
+        UseCase<Either<Failure, AppliedCouponEntity>, ValidateCouponParams> {
   final CouponsRepository _repository;
 
   const ValidateCouponUseCase(this._repository);

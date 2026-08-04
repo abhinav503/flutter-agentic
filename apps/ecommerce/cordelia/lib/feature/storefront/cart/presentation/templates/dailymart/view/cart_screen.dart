@@ -73,100 +73,103 @@ class _CartScreenState extends BaseScreenState<CartScreen> {
           context.read<CouponCubit>().revalidate(storeId, items),
       child: ColoredBox(
         color: cs.surface,
-      child: SafeArea(
-        // The summary panel handles the bottom inset itself so its surface
-        // runs to the screen's edge.
-        bottom: false,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                AppSpacing.lg,
-                AppSpacing.base,
-                AppSpacing.lg,
-                0,
-              ),
-              child: DailyMartHeaderRow(
-                title: DailyMartValueConst.myCartTitle,
-                onBack: widget.showBack ? widget.onBack : null,
-              ),
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            if (cartItems.isEmpty)
-              Expanded(
-                child: EmptyState(
-                  iconData: Icons.shopping_bag_outlined,
-                  title: DailyMartValueConst.cartEmptyTitle,
-                  subtitle: DailyMartValueConst.cartEmptySubtitle,
-                  actions: [
-                    AppButton(
-                      label: DailyMartValueConst.cartExploreAction,
-                      variant: AppButtonVariant.secondary,
-                      onTap: widget.onBack,
-                    ),
-                  ],
+        child: SafeArea(
+          // The summary panel handles the bottom inset itself so its surface
+          // runs to the screen's edge.
+          bottom: false,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.lg,
+                  AppSpacing.base,
+                  AppSpacing.lg,
+                  0,
                 ),
-              )
-            else ...[
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.fromLTRB(
-                    AppSpacing.lg,
-                    0,
-                    AppSpacing.lg,
-                    AppSpacing.xl4,
-                  ),
-                  child: Column(
-                    children: [
-                      for (var i = 0; i < cartItems.length; i++) ...[
-                        if (i > 0) const SizedBox(height: AppSpacing.base),
-                        DailyMartCartItemCard(
-                          item: cartItems[i],
-                          // sizeValue scopes each tap to this exact line —
-                          // the same product can sit here twice in two pack
-                          // sizes.
-                          onIncrement: () =>
-                              context.read<CartCubit>().incrementQuantity(
-                                cartItems[i].product.id,
-                                sizeValue: cartItems[i].sizeValue,
-                              ),
-                          onDecrement: () =>
-                              context.read<CartCubit>().decrementQuantity(
-                                cartItems[i].product.id,
-                                sizeValue: cartItems[i].sizeValue,
-                              ),
-                          onRemove: () {
-                            context.read<CartCubit>().removeItem(
-                              cartItems[i].product.id,
-                              sizeValue: cartItems[i].sizeValue,
-                            );
-                            showSnackBar(
-                              DailyMartValueConst.removedFromCartMessage,
-                            );
-                          },
-                        ),
-                      ],
-                      const SizedBox(height: AppSpacing.xl2),
-                      DailyMartCartSummarySection(
-                        items: cartItems,
-                        couponState: couponState,
-                        onApplyCoupon: (code) => context
-                            .read<CouponCubit>()
-                            .apply(storeId, code, cartItems),
-                        onRemoveCoupon: () =>
-                            context.read<CouponCubit>().remove(),
+                child: DailyMartHeaderRow(
+                  title: DailyMartValueConst.myCartTitle,
+                  onBack: widget.showBack ? widget.onBack : null,
+                ),
+              ),
+              const SizedBox(height: AppSpacing.lg),
+              if (cartItems.isEmpty)
+                Expanded(
+                  child: EmptyState(
+                    iconData: Icons.shopping_bag_outlined,
+                    title: DailyMartValueConst.cartEmptyTitle,
+                    subtitle: DailyMartValueConst.cartEmptySubtitle,
+                    actions: [
+                      AppButton(
+                        label: DailyMartValueConst.cartExploreAction,
+                        variant: AppButtonVariant.secondary,
+                        onTap: widget.onBack,
                       ),
                     ],
                   ),
+                )
+              else ...[
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.fromLTRB(
+                      AppSpacing.lg,
+                      0,
+                      AppSpacing.lg,
+                      AppSpacing.xl4,
+                    ),
+                    child: Column(
+                      children: [
+                        for (var i = 0; i < cartItems.length; i++) ...[
+                          if (i > 0) const SizedBox(height: AppSpacing.base),
+                          DailyMartCartItemCard(
+                            item: cartItems[i],
+                            // sizeValue scopes each tap to this exact line —
+                            // the same product can sit here twice in two pack
+                            // sizes.
+                            onIncrement: () =>
+                                context.read<CartCubit>().incrementQuantity(
+                                  cartItems[i].product.id,
+                                  sizeValue: cartItems[i].sizeValue,
+                                ),
+                            onDecrement: () =>
+                                context.read<CartCubit>().decrementQuantity(
+                                  cartItems[i].product.id,
+                                  sizeValue: cartItems[i].sizeValue,
+                                ),
+                            onRemove: () {
+                              context.read<CartCubit>().removeItem(
+                                cartItems[i].product.id,
+                                sizeValue: cartItems[i].sizeValue,
+                              );
+                              showSnackBar(
+                                DailyMartValueConst.removedFromCartMessage,
+                              );
+                            },
+                          ),
+                        ],
+                        const SizedBox(height: AppSpacing.xl2),
+                        DailyMartCartSummarySection(
+                          items: cartItems,
+                          couponState: couponState,
+                          onApplyCoupon: (code) => context
+                              .read<CouponCubit>()
+                              .apply(storeId, code, cartItems),
+                          onRemoveCoupon: () =>
+                              context.read<CouponCubit>().remove(),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
-              // Never busy: this CTA only navigates now — the Checkout
-              // screen's own CTA carries the order's loading state.
-              DailyMartCartCheckoutBar(busy: false, onCheckout: _startCheckout),
+                // Never busy: this CTA only navigates now — the Checkout
+                // screen's own CTA carries the order's loading state.
+                DailyMartCartCheckoutBar(
+                  busy: false,
+                  onCheckout: _startCheckout,
+                ),
+              ],
             ],
-          ],
-        ),
+          ),
         ),
       ),
     );

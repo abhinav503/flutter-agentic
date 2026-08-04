@@ -47,18 +47,15 @@ class ProductDetailsBloc
     final result = await _getProductDetails(
       GetProductDetailsParams(storeId: storeId, productId: productId),
     );
-    result.fold(
-      (failure) {
-        if (silent) return;
-        emit(
-          ProductDetailsState.error(
-            message: failure.message,
-            storeId: storeId,
-            productId: productId,
-          ),
-        );
-      },
-      (detail) => emit(ProductDetailsState.loaded(detail: detail)),
-    );
+    result.fold((failure) {
+      if (silent) return;
+      emit(
+        ProductDetailsState.error(
+          message: failure.message,
+          storeId: storeId,
+          productId: productId,
+        ),
+      );
+    }, (detail) => emit(ProductDetailsState.loaded(detail: detail)));
   }
 }

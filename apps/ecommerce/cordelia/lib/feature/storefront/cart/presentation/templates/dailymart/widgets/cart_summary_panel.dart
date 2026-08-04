@@ -263,9 +263,9 @@ class _CouponRowState extends State<_CouponRow> {
                     applied != null
                         ? DailyMartValueConst.couponRemoveLabel
                         : DailyMartValueConst.applyLabel,
-                    style: DailyMartTextStyleConst.bodySmSemibold(tt).copyWith(
-                      color: applied != null ? cs.error : cs.primary,
-                    ),
+                    style: DailyMartTextStyleConst.bodySmSemibold(
+                      tt,
+                    ).copyWith(color: applied != null ? cs.error : cs.primary),
                   ),
                 ),
             ],

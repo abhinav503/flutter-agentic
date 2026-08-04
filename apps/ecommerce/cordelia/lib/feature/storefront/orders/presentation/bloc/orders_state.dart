@@ -1,8 +1,9 @@
 part of 'orders_bloc.dart';
 
-/// [OrdersLoaded.refreshFailed] and [OrdersLoaded.cancelFailed] are one-shot
-/// signals to the screen's listener, not state the screen renders — every
-/// later emission clears them through `OrdersBloc._emitView`.
+/// [OrdersLoaded.refreshFailed], [OrdersLoaded.cancelFailed] and
+/// [OrdersLoaded.rateFailed] are one-shot signals to the screen's listener,
+/// not state the screen renders — every later emission clears them through
+/// `OrdersBloc._emitView`.
 @freezed
 sealed class OrdersState with _$OrdersState {
   const factory OrdersState.loading() = OrdersLoading;
@@ -30,8 +31,32 @@ sealed class OrdersState with _$OrdersState {
     /// True for one emission after a cancel request fails and its optimistic
     /// update is rolled back — the listener surfaces a snackbar.
     @Default(false) bool cancelFailed,
+
+    /// True for one emission after rating an order fails. The list is
+    /// untouched in that case (the rating is written straight through, not
+    /// optimistically — there is nothing to roll back), so this is purely
+    /// the listener's cue to toast.
+    @Default(false) bool rateFailed,
   }) = OrdersLoaded;
   const factory OrdersState.error({required String message}) = OrdersError;
+}
+
+extension OrdersStateOrderX on OrdersState {
+  /// The freshest copy of [order] — the one in the loaded list when it's
+  /// there, the passed-in one otherwise.
+  ///
+  /// A screen opened with an order handed to it (Track Order takes one
+  /// through `extra`) would otherwise keep rendering that snapshot after a
+  /// write, so a rating it just saved wouldn't show. Falling back to the
+  /// original keeps it working before the list has loaded, and for an order
+  /// that has since left it.
+  OrderEntity freshest(OrderEntity order) => switch (this) {
+    OrdersLoaded(:final orders) => orders.firstWhere(
+      (o) => o.id == order.id,
+      orElse: () => order,
+    ),
+    OrdersLoading() || OrdersError() => order,
+  };
 }
 
 /// The filter sheet's applied selection. [period] is only the quick pick

@@ -1,3 +1,4 @@
+import 'package:cordelia/constants/value_const.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -102,6 +103,9 @@ class _OrdersScreenState extends BaseScreenState<OrdersScreen> {
           listener: (context, state) {
             if (state case OrdersLoaded(cancelFailed: true)) {
               showSnackBar(DailyMartValueConst.orderCancelFailedMessage);
+            }
+            if (state case OrdersLoaded(rateFailed: true)) {
+              showSnackBar(ValueConst.orderRatingFailedMessage);
             }
             if (state case OrdersLoaded(refreshFailed: true)) {
               showSnackBar(DailyMartValueConst.ordersRefreshFailedMessage);

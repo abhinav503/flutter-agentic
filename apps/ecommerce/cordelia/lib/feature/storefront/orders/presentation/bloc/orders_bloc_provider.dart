@@ -15,6 +15,7 @@ BlocProvider<OrdersBloc> ordersBlocProvider({
   create: (_) => OrdersBloc(
     getOrdersUseCase: sl(),
     cancelOrderUseCase: sl(),
+    rateOrderUseCase: sl(),
     storeId: storeId,
   )..add(const OrdersEvent.started()),
   child: child,

@@ -66,6 +66,53 @@ export async function fetchStoreReviews(
   return body.reviews.map(toStoreReview);
 }
 
+// A shopper's rating of one delivery. Deliberately not the same row as a
+// product review: it is private feedback about an order, so it is identified
+// by that order (id, date, total) and carries no delete — an owner removing
+// feedback nobody else can see would only be destroying their own signal.
+export type StoreOrderReview = {
+  orderId: string;
+  rating: number;
+  text: string;
+  reviewedAt: string;
+  placedAt: string;
+  total: number;
+  customerName: string;
+};
+
+type OrderReviewResponse = {
+  order_id: string;
+  rating: number;
+  text: string;
+  reviewed_at: string;
+  placed_at: string;
+  total: number;
+  customer_name: string;
+};
+
+export async function fetchStoreOrderReviews(
+  storeId: string,
+  token: string,
+): Promise<StoreOrderReview[]> {
+  const res = await fetch(`/api/stores/${storeId}/reviews?type=order`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) {
+    const body = (await res.json().catch(() => ({}))) as { error?: string };
+    throw new Error(body.error ?? "Could not load order ratings");
+  }
+  const body = (await res.json()) as { reviews: OrderReviewResponse[] };
+  return body.reviews.map((r) => ({
+    orderId: r.order_id,
+    rating: r.rating,
+    text: r.text,
+    reviewedAt: r.reviewed_at,
+    placedAt: r.placed_at,
+    total: r.total,
+    customerName: r.customer_name,
+  }));
+}
+
 // A review is identified by (productId, uid) — its doc id is the reviewer's
 // uid, scoped to the product it hangs off.
 export async function deleteStoreReview(

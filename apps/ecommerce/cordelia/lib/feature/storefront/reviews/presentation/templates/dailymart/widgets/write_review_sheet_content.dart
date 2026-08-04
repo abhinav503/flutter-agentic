@@ -9,7 +9,6 @@ import 'package:cordelia/templates/dailymart/constants/dailymart_text_style_cons
 import 'package:cordelia/templates/dailymart/widgets/dailymart_form_field.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_primary_button.dart';
 
-import '../../../../domain/entities/review_entity.dart';
 import '../../../write_review_form.dart';
 
 /// Body of the write/edit-review sheet — the pack's field and CTA around the
@@ -19,8 +18,18 @@ import '../../../write_review_form.dart';
 /// Composed from recipes the pack already owns: the kit ships no
 /// write-review frame, since its Reviews tab is a static display.
 class DailyMartWriteReviewSheetContent extends StatefulWidget {
-  /// The shopper's current review when editing, null when writing a first.
-  final ReviewEntity? existing;
+  /// What the shopper rated this before — 0 / '' when they haven't. Both
+  /// callers fill these: a product's own review, or a delivered order's
+  /// rating.
+  final int initialRating;
+  final String initialText;
+
+  /// The text field's label and hint. Defaulted to the product-review
+  /// wording; the order-rating caller passes its own, since it is asking
+  /// about a delivery rather than a product.
+  final String textLabel;
+  final String textHint;
+
   final void Function(int rating, String text) onSubmit;
 
   /// Surfaces the "pick a rating" message — a sheet has no screen state of
@@ -29,7 +38,10 @@ class DailyMartWriteReviewSheetContent extends StatefulWidget {
 
   const DailyMartWriteReviewSheetContent({
     super.key,
-    required this.existing,
+    this.initialRating = 0,
+    this.initialText = '',
+    this.textLabel = ValueConst.reviewTextLabel,
+    this.textHint = ValueConst.reviewTextHint,
     required this.onSubmit,
     required this.onMessage,
   });
@@ -43,7 +55,10 @@ class _DailyMartWriteReviewSheetContentState
     extends State<DailyMartWriteReviewSheetContent>
     with WriteReviewForm {
   @override
-  ReviewEntity? get existingReview => widget.existing;
+  int get initialRating => widget.initialRating;
+
+  @override
+  String get initialText => widget.initialText;
 
   @override
   void Function(int rating, String text) get onSubmit => widget.onSubmit;
@@ -84,9 +99,9 @@ class _DailyMartWriteReviewSheetContentState
           ),
           const SizedBox(height: AppSpacing.lg),
           DailyMartFormField(
-            label: ValueConst.reviewTextLabel,
+            label: widget.textLabel,
             controller: reviewController,
-            hint: ValueConst.reviewTextHint,
+            hint: widget.textHint,
             keyboardType: TextInputType.multiline,
             maxLines: 4,
           ),

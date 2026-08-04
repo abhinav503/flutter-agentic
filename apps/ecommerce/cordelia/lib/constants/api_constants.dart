@@ -44,6 +44,11 @@ abstract final class ApiConstants {
   static String orderCancelPath(String storeId, String orderId) =>
       '${_storeBase(storeId)}/orders/$orderId/cancel';
 
+  /// The shopper's rating of a delivered order — token-authed, and the
+  /// server refuses anything that isn't the caller's own delivered order.
+  static String orderReviewPath(String storeId, String orderId) =>
+      '${_storeBase(storeId)}/orders/$orderId/review';
+
   static String favouritesPath(String storeId) =>
       '${_storeBase(storeId)}/favourites';
 

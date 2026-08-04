@@ -13,6 +13,17 @@ sealed class OrdersEvent with _$OrdersEvent {
   const factory OrdersEvent.cancelled({required String orderId}) =
       OrdersCancelled;
 
+  /// Rates a delivered order 1-5 with optional text. Rating again replaces
+  /// the previous one. Not optimistic, unlike [OrdersCancelled]: the write
+  /// changes nothing about where the order sits in the list, so there is
+  /// nothing for a shopper to watch happen — and a rating that silently
+  /// reverted would be worse than one that took a moment to appear.
+  const factory OrdersEvent.rated({
+    required String orderId,
+    required int rating,
+    required String text,
+  }) = OrdersRated;
+
   /// A null [filter] clears the date constraint — what `dailymart`'s filter
   /// sheet sends from Reset, and from Apply with no range picked. gravia's
   /// sheet has no Reset and always passes one.

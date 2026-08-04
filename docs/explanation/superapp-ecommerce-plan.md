@@ -1911,3 +1911,92 @@ page 500s without it).
 
 **Still open:** order rating (the delivered-order button), review
 pagination beyond the first 50, and owner replies.
+
+---
+
+## Order rating + gravia Track Order — DONE (2026-08-04)
+
+Two things, both following from the product-review track: rating a
+**delivered order** (the feature product reviews deliberately are *not*), and
+gravia's own Track Order, the last surface where one pack fell through to
+another's screen.
+
+### Order rating
+
+The second half of the split the product owner drew: a **product** review is
+open to any signed-in shopper, bought or not; rating an **order** judges the
+delivery, so only the shopper who placed it can rate it, and only once it is
+`DELIVERED`.
+
+**Schema** — `rating` / `reviewText` / `reviewedAt` on the order doc, not a
+subcollection: strictly 1:1 with the order, and the dashboard already reads
+that doc. `rating: 0` is unrated, which covers every order placed before this
+shipped.
+
+`rateOrder` is transactional for its two gates (yours, and delivered *when
+the write lands*) — without it a cancel racing in could leave a rating on an
+order that never arrived. `OrderRatingError` carries its own HTTP status, so
+the route maps 400 (bad rating) / 404 (not yours, answered exactly as a
+missing order) / 409 (not delivered) without re-deriving intent from a
+message. `POST /api/stores/{id}/orders/{orderId}/review` is shopper-only —
+no store-owner branch, unlike cancel: an owner rating their own store's
+delivery would be fabricating customer feedback.
+
+**App** — `OrdersEvent.rated` writes straight through (not optimistic, unlike
+cancel: nothing moves in the list, and a rating that silently reverted would
+be worse than one that took a moment), reconciling to the server's order so
+`reviewedAt` is authoritative. `rateFailed` joins the existing one-shot
+listener flags. All three packs offer it: gravia's order card (its
+"Write A Review" button finally does something) and every pack's Track Order,
+where the slot that holds Cancel while an order is coming asks how it went
+once it has arrived. A cancelled order gets neither.
+
+**Three consolidations rather than copies:** `WriteReviewForm` now takes
+`initialRating`/`initialText` instead of a `ReviewEntity`, so **one sheet
+body per pack** serves both product and order rating; `OrdersState.freshest`
+was promoted out of grofast once dailymart needed it; and three pages that
+hand-built `OrdersBloc` adopted the `ordersBlocProvider` factory that existed
+for exactly that.
+
+**One documented design change.** dailymart's Track Order had *no* bloc by
+design (it pops the order id back for cancel). Rating needs one, so it now
+gets `ordersBlocProvider` — cancel still pops, because that update is
+optimistic and belongs to the list's bloc, while rating has nothing to
+reconcile. Its class doc said "static, no BLoC" and was corrected rather than
+left lying.
+
+### gravia Track Order
+
+`/track-order` routed gravia to **dailymart's** screen and gravia's own
+Track Order / View Details buttons were `comingSoon` — so the last two
+`comingSoon` stubs on that card are gone, and no gravia flow ends in another
+pack's visual language. The kit draws no frame for it, so the screen is
+composed from recipes the pack owns: `CollapsingHeaderSheet` +
+`GraviaHeroHeader`, the order card's `OrderLineItemRow`, the Cart's
+`PriceBreakdown` (coupon-aware), and hairline-divided sections. **View
+Details** opens the same screen — Track Order *is* the details view; a second
+screen saying the same thing would differ only by which one has a live
+status.
+
+`GraviaOrderStatusTimeline` renders the three statuses the backend actually
+has (two for a cancelled order), dated from `statusHistory`, undated rather
+than guessed where the server predates that field. `GraviaOtpDigits` was
+extracted from `OrderCard`'s private `_OtpDigitBox` so both draw the same
+discs. gravia also gained a routed `OrdersPage` (it only had the shell tab),
+so the "My Orders" / "Track Your Order" jumps no longer land in dailymart's
+list on the way.
+
+### Admin: one Reviews page, two subjects
+
+`/dashboard/reviews` gained a **Products / Orders** segmented switch beside
+Refresh. The two are genuinely different subjects, so they get their own
+columns and their own fetch rather than one merged table with half the cells
+empty per row: product reviews are public and moderatable (Delete stays),
+delivery ratings are private feedback identified by their order (id, date,
+total) with **no** Delete — removing feedback nobody else can see would only
+destroy the store's own signal. `GET /api/stores/{id}/reviews?type=order`
+serves the second, and the page fetches on switch rather than loading both
+up front, since the order list reads the whole orders collection.
+
+**Still open:** post-delivery returns; gravia's Login social buttons; review
+pagination past the first 50; owner replies to reviews.

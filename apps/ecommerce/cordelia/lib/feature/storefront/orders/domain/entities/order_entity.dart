@@ -50,6 +50,16 @@ class OrderEntity {
   /// step existed (the server sends an empty address for those).
   final AddressEntity? deliveryAddress;
 
+  /// The shopper's rating of this *delivery*, 1–5, or 0 when they haven't
+  /// rated it. A different question from what they thought of a product —
+  /// that's a product review, which anyone signed in may write. Only a
+  /// delivered order can carry one.
+  final int rating;
+  final String reviewText;
+
+  /// When the rating was last given; null when unrated.
+  final DateTime? reviewedAt;
+
   const OrderEntity({
     required this.id,
     required this.status,
@@ -62,11 +72,20 @@ class OrderEntity {
     this.paymentId = '',
     this.couponCode = '',
     this.couponDiscount = 0,
+    this.rating = 0,
+    this.reviewText = '',
+    this.reviewedAt,
   });
 }
 
 extension OrderEntityX on OrderEntity {
   double get totalPrice => items.total;
+
+  /// Whether this order can be rated at all — only after it arrives. An
+  /// order still on its way, or cancelled, has no delivery to judge.
+  bool get canBeRated => status == OrderStatus.delivered;
+
+  bool get isRated => rating > 0;
 
   /// What was actually charged — the line-item sum net of the coupon, the
   /// same figure the server recorded as the order's total.

@@ -65,7 +65,8 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
       showGraviaSheet<void>(
         title: ValueConst.reviewSheetTitle,
         child: GraviaWriteReviewSheetContent(
-          existing: existing,
+          initialRating: existing?.rating ?? 0,
+          initialText: existing?.text ?? '',
           onSubmit: submitReview,
           onMessage: showSnackBar,
         ),

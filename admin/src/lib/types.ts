@@ -364,6 +364,17 @@ export type Order = {
   // (dashboard, support), not for re-deriving the charge.
   couponCode: string;
   couponDiscount: number;
+  // The shopper's rating of this *delivery* — how the order went, which is a
+  // different question from what they thought of a product (that's a Review,
+  // above). 0 = not rated. Lives on the order doc rather than its own
+  // collection because it is strictly 1:1 with the order, and the dashboard
+  // reads that doc already. Only a DELIVERED order can be rated: there is
+  // nothing to judge until it arrives.
+  rating: number;
+  reviewText: string;
+  // ISO, "" when unrated. Distinguishes "rated 0 stars" — impossible, the
+  // range starts at 1 — from "never rated".
+  reviewedAt: string;
   // The refund axis (see RefundStatus). NONE on every freshly-placed order;
   // set only when the order is cancelled and a refund is attempted.
   refundStatus: RefundStatus;

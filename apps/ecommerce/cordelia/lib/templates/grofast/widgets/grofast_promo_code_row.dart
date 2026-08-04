@@ -98,8 +98,7 @@ class _GrofastPromoCodeRowState extends State<GrofastPromoCodeRow> {
                           : TextField(
                               controller: _code,
                               enabled: !applying,
-                              textCapitalization:
-                                  TextCapitalization.characters,
+                              textCapitalization: TextCapitalization.characters,
                               style: GrofastTextStyleConst.bodyMedium(
                                 tt,
                               ).copyWith(color: cs.onSurface),
@@ -147,9 +146,7 @@ class _GrofastPromoCodeRowState extends State<GrofastPromoCodeRow> {
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
             child: Text(
               errorMessage,
-              style: GrofastTextStyleConst.meta(
-                tt,
-              ).copyWith(color: cs.error),
+              style: GrofastTextStyleConst.meta(tt).copyWith(color: cs.error),
             ),
           ),
         ],

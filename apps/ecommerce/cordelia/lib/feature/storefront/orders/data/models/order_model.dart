@@ -33,6 +33,12 @@ abstract class OrderModel with _$OrderModel {
     // feature) omit both.
     @JsonKey(name: 'coupon_code') @Default('') String couponCode,
     @JsonKey(name: 'coupon_discount') @Default(0) double couponDiscount,
+    // The shopper's rating of this delivery. Defaulted: 0 is every order
+    // that hasn't been rated, including every one placed before the feature
+    // existed, and reviewed_at is absent for exactly the same set.
+    @Default(0) int rating,
+    @JsonKey(name: 'review_text') @Default('') String reviewText,
+    @JsonKey(name: 'reviewed_at') @Default('') String reviewedAt,
     required List<OrderLineItemModel> items,
     // Reuses AddressModel — the server serializes the snapshot through the
     // same shape the /users/addresses endpoints use. Nullable: legacy orders
@@ -60,6 +66,9 @@ abstract class OrderModel with _$OrderModel {
     paymentId: e.paymentId,
     couponCode: e.couponCode,
     couponDiscount: e.couponDiscount,
+    rating: e.rating,
+    reviewText: e.reviewText,
+    reviewedAt: e.reviewedAt?.toIso8601String() ?? '',
     items: e.items.map(OrderLineItemModel.fromEntity).toList(),
     deliveryAddress: e.deliveryAddress == null
         ? null
@@ -76,6 +85,11 @@ abstract class OrderModel with _$OrderModel {
     paymentId: paymentId,
     couponCode: couponCode,
     couponDiscount: couponDiscount,
+    rating: rating,
+    reviewText: reviewText,
+    // '' (unrated) and a malformed value both read as null — the rating
+    // itself is what says whether one exists.
+    reviewedAt: DateTime.tryParse(reviewedAt),
     items: items.map((m) => m.toEntity()).toList(),
     deliveryAddress: deliveryAddress?.toEntity(),
   );

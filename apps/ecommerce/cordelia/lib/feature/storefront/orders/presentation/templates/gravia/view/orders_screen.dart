@@ -1,3 +1,4 @@
+import 'package:cordelia/constants/app_routes.dart';
 import 'package:cordelia/constants/value_const.dart';
 import 'package:cordelia/enums/order_status.dart';
 import 'package:cordelia/enums/orders_tab.dart';
@@ -10,6 +11,7 @@ import 'package:cordelia/templates/gravia/widgets/gravia_hero_header.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:cordelia/templates/gravia/widgets/gravia_switcher.dart';
 import 'package:core/core/base/base_screen.dart';
@@ -18,8 +20,10 @@ import 'package:core/core/ui/blocks/collapsing_header_sheet.dart';
 import 'package:core/core/ui/molecules/empty_state.dart';
 import 'package:core/core/ui/molecules/error_view.dart';
 
+import '../../../../../reviews/presentation/templates/gravia/widgets/write_review_sheet_content.dart';
 import '../../../../domain/entities/order_entity.dart';
 import '../../../bloc/orders_bloc.dart';
+import '../../../order_review_actions.dart';
 import '../widgets/order_card.dart';
 import '../widgets/orders_filter_sheet_content.dart';
 import '../widgets/orders_segmented_tab_bar.dart';
@@ -32,7 +36,25 @@ class OrdersScreen extends BaseScreen {
   State<OrdersScreen> createState() => _OrdersScreenState();
 }
 
-class _OrdersScreenState extends BaseScreenState<OrdersScreen> {
+class _OrdersScreenState extends BaseScreenState<OrdersScreen>
+    with OrderReviewActions {
+  @override
+  Future<void> showRateOrderSheet({
+    required int initialRating,
+    required String initialText,
+    required void Function(int rating, String text) onSubmit,
+  }) => showGraviaSheet<void>(
+    title: ValueConst.rateOrderSheetTitle,
+    child: GraviaWriteReviewSheetContent(
+      initialRating: initialRating,
+      initialText: initialText,
+      textLabel: ValueConst.rateOrderTextLabel,
+      textHint: ValueConst.rateOrderTextHint,
+      onSubmit: onSubmit,
+      onMessage: showSnackBar,
+    ),
+  );
+
   @override
   SystemUiOverlayStyle? overlayStyle(BuildContext context) =>
       BaseScreenState.lightStatusIcons;
@@ -50,6 +72,9 @@ class _OrdersScreenState extends BaseScreenState<OrdersScreen> {
         // Cancel failed and its optimistic update rolled back.
         if (state case OrdersLoaded(cancelFailed: true)) {
           showSnackBar(GraviaValueConst.cancelFailedMessage);
+        }
+        if (state case OrdersLoaded(rateFailed: true)) {
+          showSnackBar(ValueConst.orderRatingFailedMessage);
         }
       },
       builder: (context, state) => GraviaSwitcher(
@@ -147,18 +172,32 @@ class _OrdersScreenState extends BaseScreenState<OrdersScreen> {
                     OrderCard(
                       order: visible[i],
                       onCancel: () => _confirmCancel(context, visible[i].id),
-                      onTrackOrder: () =>
-                          showSnackBar(ValueConst.comingSoonMessage),
-                      onViewDetails: () =>
-                          showSnackBar(ValueConst.comingSoonMessage),
-                      onWriteReview: () =>
-                          showSnackBar(ValueConst.comingSoonMessage),
+                      onTrackOrder: () => _openTrackOrder(visible[i]),
+                      // Track Order *is* the details view — it itemises the
+                      // order, its totals and its timeline. A second screen
+                      // saying the same thing for a past order would only
+                      // differ by which of them has a live status.
+                      onViewDetails: () => _openTrackOrder(visible[i]),
+                      onWriteReview: () => rateOrder(visible[i]),
                     ),
                   ],
                 ],
               ),
       ),
     );
+  }
+
+  /// Opens Track Order and, if it came back asking to cancel, dispatches
+  /// that here — the bloc lives on this screen (its optimistic cancel and
+  /// warm cache belong to this list), so the pushed screen reports the
+  /// intent rather than owning a second instance of it.
+  Future<void> _openTrackOrder(OrderEntity order) async {
+    final cancelledId = await context.push<String>(
+      AppRoutes.trackOrder,
+      extra: order,
+    );
+    if (cancelledId == null || !mounted) return;
+    context.read<OrdersBloc>().add(OrdersEvent.cancelled(orderId: cancelledId));
   }
 
   void _confirmCancel(BuildContext context, String orderId) {
