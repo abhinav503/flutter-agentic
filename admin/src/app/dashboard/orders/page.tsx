@@ -80,6 +80,18 @@ function itemCount(order: Order): number {
   return order.items.reduce((sum, item) => sum + item.quantity, 0);
 }
 
+// What the lines came to before any coupon — `total` is already net of the
+// discount, so this is the only figure that shows what was taken off.
+function itemsSubtotal(order: Order): number {
+  return order.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+}
+
+// Orders placed before coupons existed have no field at all — treat those,
+// and any order checked out without a code, as "no coupon".
+function couponDiscount(order: Order): number {
+  return order.couponDiscount ?? 0;
+}
+
 function addressLines(address: Address): string {
   return [
     address.addressLine1,
@@ -249,7 +261,15 @@ export default function OrdersPage() {
                     {new Date(order.placedAt).toLocaleString()}
                   </TableCell>
                   <TableCell>{itemCount(order)}</TableCell>
-                  <TableCell>₹{order.total.toFixed(2)}</TableCell>
+                  <TableCell>
+                    <div>₹{order.total.toFixed(2)}</div>
+                    {couponDiscount(order) > 0 && (
+                      <div className="text-xs text-muted-foreground">
+                        {order.couponCode || "Coupon"} · −₹
+                        {couponDiscount(order).toFixed(2)}
+                      </div>
+                    )}
+                  </TableCell>
                   <TableCell>
                     {paid ? (
                       <Badge variant="success">Paid</Badge>
@@ -388,6 +408,7 @@ export default function OrdersPage() {
 }
 
 function OrderDetail({ order, paid }: { order: Order; paid: boolean }) {
+  const discount = couponDiscount(order);
   return (
     <div className="grid gap-6 p-2 md:grid-cols-[1fr_1.4fr]">
       <div className="flex flex-col gap-2">
@@ -477,9 +498,30 @@ function OrderDetail({ order, paid }: { order: Order; paid: boolean }) {
             </div>
           ))}
         </div>
-        <div className="flex justify-between border-t pt-2 text-sm font-semibold">
-          <span>Total</span>
-          <span>₹{order.total.toFixed(2)}</span>
+        <div className="flex flex-col gap-1 border-t pt-2 text-sm">
+          {discount > 0 && (
+            <>
+              <div className="flex justify-between text-muted-foreground">
+                <span>Subtotal</span>
+                <span>₹{itemsSubtotal(order).toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between text-muted-foreground">
+                <span className="flex items-center gap-2">
+                  Coupon
+                  {order.couponCode && (
+                    <Badge variant="outline" className="font-mono">
+                      {order.couponCode}
+                    </Badge>
+                  )}
+                </span>
+                <span>−₹{discount.toFixed(2)}</span>
+              </div>
+            </>
+          )}
+          <div className="flex justify-between font-semibold">
+            <span>Total</span>
+            <span>₹{order.total.toFixed(2)}</span>
+          </div>
         </div>
       </div>
     </div>
