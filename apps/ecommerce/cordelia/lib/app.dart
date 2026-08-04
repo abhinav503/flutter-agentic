@@ -663,6 +663,9 @@ class _AppState extends State<App> {
               controller: _activeTheme,
               child: MaterialApp.router(
                 title: ValueConst.appTitle,
+                // Off so debug builds screen-record cleanly — the ribbon is
+                // debug-only, so this changes nothing about release.
+                debugShowCheckedModeBanner: false,
                 routerConfig: _router,
                 theme: AppTheme.fromConfig(themeConfig),
                 darkTheme: AppTheme.fromConfig(themeConfig, dark: true),

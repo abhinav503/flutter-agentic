@@ -128,3 +128,173 @@
     @apply font-sans;
   }
 }
+/* ─────────────────────────────────────────────────────────────────────────
+   Marketing site (cordeliaapps.com)
+
+   The landing page ships its own brand palette — the product's green
+   (#027A60-family), a warmer neutral ramp, and per-template accent colours
+   for the phone mockups. Those tokens are DELIBERATELY scoped to `.site`
+   rather than merged into :root: the dashboard above keeps its own neutral
+   shadcn theme, and a global merge would repaint every admin screen.
+
+   The `@theme inline` block only registers the *new* utility names the
+   marketing components use (bg-surface, text-ink, border-border-strong,
+   bg-primary-soft, the template accents). Tailwind v4 compiles those to
+   var() lookups, so the `.site` scope below is what gives them their values;
+   the fallbacks keep them defined if a component ever renders outside it.
+   ───────────────────────────────────────────────────────────────────────── */
+
+@theme inline {
+  --color-ink: var(--ink);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-border-strong: var(--border-strong);
+  --color-primary-soft: var(--primary-soft);
+  --color-primary-glow: var(--primary-glow);
+  --color-gravia: var(--gravia);
+  --color-gravia-soft: var(--gravia-soft);
+  --color-dailymart: var(--dailymart);
+  --color-dailymart-soft: var(--dailymart-soft);
+  --color-grofast: var(--grofast);
+  --color-grofast-soft: var(--grofast-soft);
+}
+
+/* Fallbacks so the new utilities resolve to the admin's own theme if used
+   outside `.site` — they should never look broken, just un-branded. */
+:root {
+  --ink: var(--foreground);
+  --surface: var(--card);
+  --surface-2: var(--muted);
+  --border-strong: var(--border);
+  --primary-soft: var(--accent);
+  --primary-glow: var(--primary);
+  --gravia: var(--primary);
+  --gravia-soft: var(--accent);
+  --dailymart: var(--primary);
+  --dailymart-soft: var(--accent);
+  --grofast: var(--primary);
+  --grofast-soft: var(--accent);
+}
+
+.site {
+  --radius: 0.875rem;
+
+  /* The design's typeface. Applied on the element too, not just declared:
+     `html { @apply font-sans }` has already resolved the family above, so
+     redefining the token alone would change nothing here. */
+  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", sans-serif;
+  font-family: var(--font-sans);
+
+  --background: oklch(0.99 0.004 157);
+  --foreground: oklch(0.21 0.02 172);
+  --ink: oklch(0.15 0.018 172);
+
+  --surface: oklch(1 0 0);
+  --surface-2: oklch(0.968 0.008 167);
+
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.21 0.02 172);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.21 0.02 172);
+
+  --primary: oklch(0.516 0.101 171);
+  --primary-foreground: oklch(0.99 0.004 157);
+  --primary-soft: oklch(0.945 0.026 167);
+  --primary-glow: oklch(0.66 0.118 170);
+
+  --secondary: oklch(0.955 0.013 167);
+  --secondary-foreground: oklch(0.3 0.045 171);
+
+  --muted: oklch(0.962 0.008 167);
+  --muted-foreground: oklch(0.46 0.022 172);
+
+  --accent: oklch(0.945 0.026 167);
+  --accent-foreground: oklch(0.378 0.073 169);
+
+  --destructive: oklch(0.55 0.19 25);
+  --destructive-foreground: oklch(0.99 0.004 157);
+
+  --border: oklch(0.912 0.012 167);
+  --border-strong: oklch(0.855 0.02 167);
+  --input: oklch(0.912 0.012 167);
+  --ring: oklch(0.516 0.101 171);
+
+  /* Each template's REAL primary, converted from its Flutter theme preset
+     (packages/core/.../app_theme_presets.dart) — gravia #027A60,
+     dailyMart #44BC28, grofast #4CBB5E. All three are greens because the
+     products are; the cards separate them by depth and vividness, not by
+     inventing a hue the storefront doesn't use. */
+  --gravia: oklch(0.516 0.101 171);
+  --gravia-soft: oklch(0.95 0.028 171);
+  --dailymart: oklch(0.701 0.21 140.5);
+  --dailymart-soft: oklch(0.95 0.05 140.5);
+  --grofast: oklch(0.706 0.166 146.7);
+  --grofast-soft: oklch(0.95 0.046 146.7);
+
+  --gradient-hero: radial-gradient(
+      120% 90% at 85% 0%,
+      color-mix(in oklab, var(--primary-glow) 22%, transparent),
+      transparent 60%
+    ),
+    radial-gradient(90% 70% at 0% 10%, color-mix(in oklab, var(--primary) 12%, transparent), transparent 55%);
+  --gradient-brand: linear-gradient(135deg, var(--primary), var(--primary-glow));
+  --shadow-soft: 0 1px 2px oklch(0.21 0.02 172 / 0.05), 0 8px 24px -12px oklch(0.21 0.02 172 / 0.14);
+  --shadow-lift: 0 2px 4px oklch(0.21 0.02 172 / 0.05), 0 28px 60px -28px oklch(0.21 0.02 172 / 0.28);
+  --shadow-phone: 0 40px 90px -40px oklch(0.21 0.02 172 / 0.45);
+}
+
+.dark .site {
+  --background: oklch(0.175 0.017 174);
+  --foreground: oklch(0.965 0.008 167);
+  --ink: oklch(0.98 0.006 167);
+
+  --surface: oklch(0.222 0.021 173);
+  --surface-2: oklch(0.262 0.024 173);
+
+  --card: oklch(0.222 0.021 173);
+  --card-foreground: oklch(0.965 0.008 167);
+  --popover: oklch(0.222 0.021 173);
+  --popover-foreground: oklch(0.965 0.008 167);
+
+  --primary: oklch(0.7 0.13 170);
+  --primary-foreground: oklch(0.16 0.02 173);
+  --primary-soft: oklch(0.3 0.045 172);
+  --primary-glow: oklch(0.8 0.13 170);
+
+  --secondary: oklch(0.28 0.026 173);
+  --secondary-foreground: oklch(0.95 0.01 167);
+
+  --muted: oklch(0.27 0.024 173);
+  --muted-foreground: oklch(0.775 0.022 168);
+
+  --accent: oklch(0.3 0.042 172);
+  --accent-foreground: oklch(0.93 0.03 167);
+
+  --destructive: oklch(0.68 0.17 25);
+  --destructive-foreground: oklch(0.16 0.02 173);
+
+  --border: oklch(0.33 0.024 173);
+  --border-strong: oklch(0.42 0.03 172);
+  --input: oklch(0.33 0.024 173);
+  --ring: oklch(0.7 0.13 170);
+
+  /* Same three hues, lifted for dark surfaces — gravia stays the deep one,
+     dailyMart the most vivid, grofast the softest. */
+  --gravia: oklch(0.756 0.086 171);
+  --gravia-soft: oklch(0.29 0.035 171);
+  --dailymart: oklch(0.8 0.178 140.5);
+  --dailymart-soft: oklch(0.29 0.073 140.5);
+  --grofast: oklch(0.8 0.141 146.7);
+  --grofast-soft: oklch(0.29 0.058 146.7);
+
+  --gradient-hero: radial-gradient(
+      120% 90% at 85% 0%,
+      color-mix(in oklab, var(--primary-glow) 16%, transparent),
+      transparent 60%
+    ),
+    radial-gradient(90% 70% at 0% 10%, color-mix(in oklab, var(--primary) 12%, transparent), transparent 55%);
+  --shadow-soft: 0 1px 2px oklch(0 0 0 / 0.3), 0 8px 24px -12px oklch(0 0 0 / 0.5);
+  --shadow-lift: 0 2px 4px oklch(0 0 0 / 0.3), 0 28px 60px -28px oklch(0 0 0 / 0.7);
+  --shadow-phone: 0 40px 90px -40px oklch(0 0 0 / 0.85);
+}

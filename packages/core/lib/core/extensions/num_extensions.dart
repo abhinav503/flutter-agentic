@@ -1,16 +1,21 @@
 /// Generic number-formatting helpers shared across every app.
 extension PriceFormatX on num {
-  /// `12.5 → '$12.50'`, `12 → '$12'`. The one place the currency glyph and
+  /// `12.5 → '₹12.50'`, `12 → '₹12'`. The one place the currency glyph and
   /// decimal rule live — app `ValueConst` formatters compose this rather than
   /// re-inlining `toStringAsFixed`.
   ///
   /// A whole amount drops its decimals entirely; anything else keeps both, so
-  /// a price never shows a lone digit after the point. `$12.00` reads as a
+  /// a price never shows a lone digit after the point. `₹12.00` reads as a
   /// number a machine wrote, and only the round prices in a catalog would
   /// carry it.
+  ///
+  /// Rupees, matching the admin console (which prints ₹ throughout) and the
+  /// Razorpay account every order settles into. A storefront showing one
+  /// currency while its dashboard and its payment gateway use another is a
+  /// bug the shopper sees before anyone else does.
   String get asPrice {
     final fixed = toStringAsFixed(2);
-    return '\$${fixed.endsWith('.00') ? fixed.substring(0, fixed.length - 3) : fixed}';
+    return '₹${fixed.endsWith('.00') ? fixed.substring(0, fixed.length - 3) : fixed}';
   }
 
   /// Whole-number rendering for percentages (`25.0 → '25'`); the suffix
@@ -18,8 +23,8 @@ extension PriceFormatX on num {
   String get asPercent => toStringAsFixed(0);
 
   /// [asPrice] split at the decimal point — for typography that renders the
-  /// integer part large and the decimals small (`12.5 → ('$12', '.50')`;
-  /// `12 → ('$12', null)`, matching [asPrice]'s whole-amount rule). Splitting
+  /// integer part large and the decimals small (`12.5 → ('₹12', '.50')`;
+  /// `12 → ('₹12', null)`, matching [asPrice]'s whole-amount rule). Splitting
   /// the formatted string here keeps the two renderings from ever disagreeing
   /// with each other.
   ({String integer, String? decimals}) get asPriceParts {

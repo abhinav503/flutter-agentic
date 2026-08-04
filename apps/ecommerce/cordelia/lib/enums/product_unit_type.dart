@@ -24,7 +24,7 @@ extension ProductUnitTypeX on ProductUnitType {
     ProductUnitType.pieces => _pieces(amount),
   };
 
-  /// What a price is *per*, for a "$1.8/kg" suffix — the pack [format] would
+  /// What a price is *per*, for a "₹1.8/kg" suffix — the pack [format] would
   /// print, minus a leading "1" that reads better implied: 1000 g → `kg`,
   /// 1 pc → `pc`, but 500 g → `500 g` and 1.5 kg → `1.5 kg`.
   ///

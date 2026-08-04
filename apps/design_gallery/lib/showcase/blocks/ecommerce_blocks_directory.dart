@@ -18,11 +18,11 @@ WidgetbookFolder ecommerceBlocksFolder() {
             'Cart totals',
             const PriceBreakdown(
               lines: [
-                PriceLine(label: 'Item Total', value: r'$24.50'),
-                PriceLine(label: 'Discount', value: r'$3.20'),
+                PriceLine(label: 'Item Total', value: '₹24.50'),
+                PriceLine(label: 'Discount', value: '₹3.20'),
                 PriceLine(label: 'Delivery', value: 'Free'),
               ],
-              total: PriceLine(label: 'Grand Total', value: r'$21.30'),
+              total: PriceLine(label: 'Grand Total', value: '₹21.30'),
             ),
             width: 320,
           ),
@@ -40,8 +40,8 @@ WidgetbookFolder ecommerceBlocksFolder() {
               meta: const [
                 ProductCardMeta(icon: Icon(Icons.bolt), label: '10 Min'),
               ],
-              price: '\$6.30',
-              originalPrice: '\$8.00',
+              price: '₹6.30',
+              originalPrice: '₹8.00',
               actionLabel: 'Add To Cart',
               onAction: () {},
             ),
@@ -61,8 +61,8 @@ WidgetbookFolder ecommerceBlocksFolder() {
                     ProductCardMeta(icon: Icon(Icons.bolt), label: '10 Min'),
                   ],
                   metaLabelStyle: TextStyle(color: cs.onSurface),
-                  price: '\$6.30',
-                  originalPrice: '\$8.00',
+                  price: '₹6.30',
+                  originalPrice: '₹8.00',
                   actionLabel: 'Add To Cart',
                   onAction: () {},
                   // Docks a fully separate tappable widget on the CTA's

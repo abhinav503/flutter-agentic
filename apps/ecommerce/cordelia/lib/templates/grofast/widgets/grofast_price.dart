@@ -41,7 +41,7 @@ class GrofastPrice extends StatelessWidget {
     final tt = Theme.of(context).textTheme;
     final accent = color ?? cs.primary;
 
-    // `asPrice` is the app-wide money format ("$12.50"); this splits it at the
+    // `asPrice` is the app-wide money format ("₹12.50"); this splits it at the
     // decimal point rather than re-formatting, so the two can't drift.
     final formatted = value.asPrice;
     final dot = formatted.indexOf('.');

@@ -20,8 +20,8 @@ export 'product_meta_row.dart' show ProductCardMeta, ProductMetaRow;
 ///   title: 'Washington Red Apple',
 ///   badgeLabel: '300 g',
 ///   meta: const [ProductCardMeta(icon: Icon(Icons.bolt), label: '10 Min')],
-///   price: '\$6.30',
-///   originalPrice: '\$8.00',
+///   price: '₹6.30',
+///   originalPrice: '₹8.00',
 ///   actionLabel: 'Add To Cart',
 ///   onAction: () => ...,
 /// )

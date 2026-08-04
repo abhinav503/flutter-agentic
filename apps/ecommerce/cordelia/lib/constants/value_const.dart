@@ -171,10 +171,13 @@ abstract final class ValueConst {
   static const sortRatingHighToLowLabel = 'Rating (High to Low)';
   static const sortDiscountHighToLowLabel = 'Discount (High to Low)';
   static const priceFilterAllLabel = 'All Prices';
-  static const priceFilterUnder5Label = 'Under \$5';
-  static const priceFilter5To10Label = '\$5 - \$10';
-  static const priceFilter10To20Label = '\$10 - \$20';
-  static const priceFilterOver20Label = 'Over \$20';
+  // Bands sized for a rupee grocery basket, not converted from the dollar
+  // ones they replaced — ₹5 buys nothing, so a "under ₹5" bucket would
+  // always come back empty.
+  static const priceFilterUnder100Label = 'Under ₹100';
+  static const priceFilter100To250Label = '₹100 - ₹250';
+  static const priceFilter250To500Label = '₹250 - ₹500';
+  static const priceFilterOver500Label = 'Over ₹500';
 
   // ── Product reviews — app-level, not per-pack: one shared reviews feature
   // serves every storefront, and the wording describes the *mechanism*

@@ -69,7 +69,7 @@ WidgetbookCategory moleculesCategory() {
                   ),
                   title: 'Fresh Avocado',
                   titleMaxLines: 1,
-                  subtitle: r'$4.99',
+                  subtitle: '₹4.99',
                   trailing: Icon(Icons.chevron_right, color: cs.onSurfaceVariant),
                   onTap: () {},
                 );
