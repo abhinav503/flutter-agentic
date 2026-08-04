@@ -1,9 +1,27 @@
 import { NextResponse } from "next/server";
 import { getCartItems, saveCartItems } from "@/lib/cart";
-import { getProduct } from "@/lib/products";
+import { getProduct, resolveLinePricing } from "@/lib/products";
 import { serializeProduct } from "@/lib/api/serializers";
 import { requireAuthedUser, UnauthorizedError } from "@/lib/api/admin-guard";
-import type { CartItem } from "@/lib/types";
+import type { CartItem, Product } from "@/lib/types";
+
+// One joined line of the GET/PUT response. A sized line carries its resolved
+// per-pack prices (size_value/unit_price/original_unit_price); a base-pack
+// line omits them and the client falls back to the product's own price —
+// same convention as the Flutter CartItemModel.
+function serializeCartLine(product: Product, item: CartItem) {
+  const line: Record<string, unknown> = {
+    product: serializeProduct(product),
+    quantity: item.quantity,
+  };
+  if (item.sizeValue && item.sizeValue > 0) {
+    const pricing = resolveLinePricing(product, item.sizeValue);
+    line.size_value = item.sizeValue;
+    line.unit_price = pricing.price;
+    line.original_unit_price = pricing.originalPrice;
+  }
+  return line;
+}
 
 // The shopper's own cart. The uid always comes off a verified Firebase ID
 // token (gravia sends `Authorization: Bearer <idToken>`), never a
@@ -28,7 +46,7 @@ export async function GET(
   const resolved = await Promise.all(
     cartItems.map(async (item) => {
       const product = await getProduct(storeId, item.productId);
-      return product ? { product: serializeProduct(product), quantity: item.quantity } : null;
+      return product ? serializeCartLine(product, item) : null;
     }),
   );
 
@@ -64,7 +82,7 @@ export async function PUT(
   const resolved = await Promise.all(
     items.map(async (item) => {
       const product = await getProduct(storeId, item.productId);
-      return product ? { product: serializeProduct(product), quantity: item.quantity } : null;
+      return product ? serializeCartLine(product, item) : null;
     }),
   );
   return NextResponse.json({ items: resolved.filter((i) => i !== null) });

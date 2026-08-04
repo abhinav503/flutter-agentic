@@ -178,12 +178,16 @@ class _BagContent extends StatelessWidget {
         const SizedBox(height: AppSpacing.xl2),
         for (final item in items) ...[
           _DismissibleRow(
-            productId: item.product.id,
-            onDelete: () => cart.removeItem(item.product.id),
+            // Keyed by line, not product — the same product can sit in the
+            // bag twice in two pack sizes; sizeValue scopes every control to
+            // this exact line.
+            lineKey: '${item.product.id}-${item.sizeValue}',
+            onDelete: () =>
+                cart.removeItem(item.product.id, sizeValue: item.sizeValue),
             child: GrofastLineItemRow(
               imageUrl: item.product.imageUrl,
               name: item.product.name,
-              subtitle: item.product.unitType.format(item.product.unitValue),
+              subtitle: item.product.unitType.format(item.effectiveSizeValue),
               price: item.lineTotal,
               // The kit's row carries the *favourite* heart here, not a
               // remove control — removing is the swipe (see `_DismissibleRow`),
@@ -197,9 +201,15 @@ class _BagContent extends StatelessWidget {
               ),
               trailing: GrofastQuantityStepper(
                 quantity: item.quantity,
-                onIncrement: () => cart.incrementQuantity(item.product.id),
+                onIncrement: () => cart.incrementQuantity(
+                  item.product.id,
+                  sizeValue: item.sizeValue,
+                ),
                 onDecrement: item.quantity > 1
-                    ? () => cart.decrementQuantity(item.product.id)
+                    ? () => cart.decrementQuantity(
+                        item.product.id,
+                        sizeValue: item.sizeValue,
+                      )
                     : null,
               ),
             ),
@@ -257,12 +267,14 @@ class _BagContent extends StatelessWidget {
 /// control is the favourite heart instead: the destructive action should be
 /// the one you have to mean.
 class _DismissibleRow extends StatelessWidget {
-  final String productId;
+  /// Identifies the (product, size) line — not just the product, which can
+  /// appear twice in two pack sizes.
+  final String lineKey;
   final VoidCallback onDelete;
   final Widget child;
 
   const _DismissibleRow({
-    required this.productId,
+    required this.lineKey,
     required this.onDelete,
     required this.child,
   });
@@ -272,7 +284,7 @@ class _DismissibleRow extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
 
     return SwipeToDeleteRow(
-      itemKey: productId,
+      itemKey: lineKey,
       onDelete: onDelete,
       borderRadius: BorderRadius.circular(GrofastDimenConst.tileRadius),
       iconInset: AppSpacing.xl2,

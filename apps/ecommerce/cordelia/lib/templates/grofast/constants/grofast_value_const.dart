@@ -71,6 +71,7 @@ abstract final class GrofastValueConst {
   // ── Product details ──────────────────────────────────────────────────────
   static const productDetailsTitle = 'Product Details';
   static const descriptionTitle = 'Description';
+  static const selectSizeTitle = 'Select Size';
   static const addToBag = 'Add to bag';
   static const productDetailsLoadErrorMessage =
       "Couldn't load this product right now.";

@@ -4,14 +4,16 @@ import { useEffect, useState, type FormEvent } from "react";
 import Image from "next/image";
 import { useStore } from "@/lib/store-context";
 import { watchCategories } from "@/lib/categories";
+import { watchBrands } from "@/lib/brands";
 import {
   watchProducts,
   addProduct,
   updateProduct,
   deleteProduct,
   computeDiscountPercentage,
+  scalePriceToSize,
 } from "@/lib/products";
-import type { Category, Product, UnitType } from "@/lib/types";
+import type { Brand, Category, Product, UnitType } from "@/lib/types";
 import { UNIT_TYPE_LABELS } from "@/lib/types";
 import { ImageUploadField } from "@/components/image-upload-field";
 import { Button } from "@/components/ui/button";
@@ -58,6 +60,7 @@ export default function ProductsPage() {
   const { storeId } = useStore();
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [brands, setBrands] = useState<Brand[]>([]);
   const [editing, setEditing] = useState<Product | "new" | null>(null);
   const [deleting, setDeleting] = useState<Product | null>(null);
 
@@ -65,9 +68,11 @@ export default function ProductsPage() {
     if (!storeId) return;
     const unsubProducts = watchProducts(storeId, setProducts);
     const unsubCategories = watchCategories(storeId, setCategories);
+    const unsubBrands = watchBrands(storeId, setBrands);
     return () => {
       unsubProducts();
       unsubCategories();
+      unsubBrands();
     };
   }, [storeId]);
 
@@ -75,6 +80,7 @@ export default function ProductsPage() {
 
   const categoryName = (id: string) =>
     categories.find((c) => c.id === id)?.name ?? "Unknown";
+  const brandName = (id: string) => brands.find((b) => b.id === id)?.name;
 
   return (
     <div className="flex flex-col gap-6">
@@ -101,6 +107,7 @@ export default function ProductsPage() {
           <TableRow>
             <TableHead className="w-16">Image</TableHead>
             <TableHead>Name</TableHead>
+            <TableHead>Brand</TableHead>
             <TableHead>Price</TableHead>
             <TableHead>Stock</TableHead>
             <TableHead>Categories</TableHead>
@@ -110,7 +117,7 @@ export default function ProductsPage() {
         <TableBody>
           {products.length === 0 && (
             <TableRow>
-              <TableCell colSpan={6} className="text-center text-muted-foreground">
+              <TableCell colSpan={7} className="text-center text-muted-foreground">
                 No products yet.
               </TableCell>
             </TableRow>
@@ -136,6 +143,9 @@ export default function ProductsPage() {
                   {product.name}
                   {product.isPopular && <Badge>Popular</Badge>}
                 </div>
+              </TableCell>
+              <TableCell className="text-muted-foreground">
+                {brandName(product.brandId) ?? "—"}
               </TableCell>
               <TableCell>
                 <div className="flex items-center gap-1.5">
@@ -186,6 +196,7 @@ export default function ProductsPage() {
           storeId={storeId}
           product={editing === "new" ? null : editing}
           categories={categories}
+          brands={brands}
           onClose={() => setEditing(null)}
         />
       )}
@@ -221,15 +232,25 @@ export default function ProductsPage() {
   );
 }
 
+// Select items can't carry an empty-string value, so "unbranded" travels
+// through the picker as this sentinel and is mapped back to "" on save.
+const NO_BRAND = "none";
+
+// Form-local variant row — strings because they're bound to inputs; empty
+// price fields mean "use the scaled suggestion shown as the placeholder".
+type VariantRow = { value: string; price: string; originalPrice: string };
+
 function ProductDialog({
   storeId,
   product,
   categories,
+  brands,
   onClose,
 }: {
   storeId: string;
   product: Product | null;
   categories: Category[];
+  brands: Brand[];
   onClose: () => void;
 }) {
   const [name, setName] = useState(product?.name ?? "");
@@ -246,11 +267,22 @@ function ProductDialog({
   const [categoryIds, setCategoryIds] = useState<string[]>(
     product?.categoryIds ?? [],
   );
+  const [brandId, setBrandId] = useState(product?.brandId || NO_BRAND);
   const [isPopular, setIsPopular] = useState(product?.isPopular ?? false);
-  const [sizeOptions, setSizeOptions] = useState(
-    product?.sizeOptions?.join(", ") ?? "",
+  const [variants, setVariants] = useState<VariantRow[]>(
+    (product?.sizeVariants ?? []).map((v) => ({
+      value: String(v.value),
+      price: String(v.price),
+      originalPrice: String(v.originalPrice),
+    })),
   );
   const [submitting, setSubmitting] = useState(false);
+
+  function setVariantField(index: number, field: keyof VariantRow, raw: string) {
+    setVariants((prev) =>
+      prev.map((row, i) => (i === index ? { ...row, [field]: raw } : row)),
+    );
+  }
 
   function toggleCategory(id: string) {
     setCategoryIds((prev) =>
@@ -268,22 +300,43 @@ function ProductDialog({
     try {
       const priceNum = Number(price);
       const originalPriceNum = Number(originalPrice) || priceNum;
+      const unitValueNum = Number(unitValue);
+      // Empty price fields resolve to the scaled suggestion the row showed as
+      // its placeholder; rows without a valid size are dropped, and chips
+      // render smallest-first regardless of entry order.
+      const sizeVariants = variants
+        .map((row) => {
+          const value = Number(row.value);
+          const rowPrice =
+            Number(row.price) || scalePriceToSize(priceNum, unitValueNum, value);
+          return {
+            value,
+            price: rowPrice,
+            originalPrice:
+              Number(row.originalPrice) ||
+              scalePriceToSize(originalPriceNum, unitValueNum, value) ||
+              rowPrice,
+          };
+        })
+        .filter((v) => Number.isFinite(v.value) && v.value > 0 && v.price > 0)
+        .sort((a, b) => a.value - b.value);
       const data = {
         name: name.trim(),
         imageUrl: imageUrl.trim(),
         price: priceNum,
         originalPrice: originalPriceNum,
         discountPercentage: computeDiscountPercentage(priceNum, originalPriceNum),
-        unitValue: Number(unitValue),
+        unitValue: unitValueNum,
         unitType,
         prepTime: prepTime.trim(),
         description: description.trim(),
         stock: Number(stock),
         categoryIds,
-        sizeOptions: sizeOptions
-          .split(",")
-          .map((s) => Number(s.trim()))
-          .filter((n) => Number.isFinite(n) && n > 0),
+        brandId: brandId === NO_BRAND ? "" : brandId,
+        sizeVariants,
+        // Derived from the variants on every save so pre-variant storefront
+        // readers keep seeing the same "Select QTY" values.
+        sizeOptions: sizeVariants.map((v) => v.value),
         isPopular,
       };
       if (product) {
@@ -327,6 +380,23 @@ function ProductDialog({
             value={imageUrl}
             onChange={setImageUrl}
           />
+
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="product-brand">Brand</Label>
+            <Select value={brandId} onValueChange={setBrandId}>
+              <SelectTrigger id="product-brand">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={NO_BRAND}>No brand</SelectItem>
+                {brands.map((brand) => (
+                  <SelectItem key={brand.id} value={brand.id}>
+                    {brand.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-1.5">
@@ -422,17 +492,104 @@ function ProductDialog({
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="product-size-options">Size options</Label>
-            <Input
-              id="product-size-options"
-              value={sizeOptions}
-              onChange={(e) => setSizeOptions(e.target.value)}
-              placeholder="e.g. 250, 500, 1000"
-            />
+            <Label>Size options</Label>
             <p className="text-xs text-muted-foreground">
-              Comma-separated pack sizes in {unitType}, shown as the &ldquo;Select
-              QTY&rdquo; row on the product page. Leave empty for none.
+              Pack sizes shown as the &ldquo;Select QTY&rdquo; row on the product
+              page, each with its own price. Leave a price empty to charge the
+              suggested one (base price scaled by size).
             </p>
+            {variants.length > 0 && (
+              <div className="flex flex-col gap-2">
+                <div className="grid grid-cols-[1fr_1fr_1fr_3.5rem_2rem] items-center gap-2 text-xs text-muted-foreground">
+                  <span>Size ({unitType})</span>
+                  <span>Price (₹)</span>
+                  <span>Original (₹)</span>
+                  <span>Off</span>
+                  <span />
+                </div>
+                {variants.map((row, index) => {
+                  const value = Number(row.value);
+                  const suggestedPrice = scalePriceToSize(
+                    Number(price),
+                    Number(unitValue),
+                    value,
+                  );
+                  const suggestedOriginal = scalePriceToSize(
+                    Number(originalPrice) || Number(price),
+                    Number(unitValue),
+                    value,
+                  );
+                  const rowPrice = Number(row.price) || suggestedPrice;
+                  const rowOriginal = Number(row.originalPrice) || suggestedOriginal;
+                  const discount = computeDiscountPercentage(rowPrice, rowOriginal);
+                  return (
+                    <div
+                      key={index}
+                      className="grid grid-cols-[1fr_1fr_1fr_3.5rem_2rem] items-center gap-2"
+                    >
+                      <Input
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        value={row.value}
+                        onChange={(e) => setVariantField(index, "value", e.target.value)}
+                        placeholder="e.g. 250"
+                        aria-label={`Size ${index + 1} value`}
+                      />
+                      <Input
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        value={row.price}
+                        onChange={(e) => setVariantField(index, "price", e.target.value)}
+                        placeholder={value > 0 ? String(suggestedPrice) : ""}
+                        aria-label={`Size ${index + 1} price`}
+                      />
+                      <Input
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        value={row.originalPrice}
+                        onChange={(e) =>
+                          setVariantField(index, "originalPrice", e.target.value)
+                        }
+                        placeholder={value > 0 ? String(suggestedOriginal) : ""}
+                        aria-label={`Size ${index + 1} original price`}
+                      />
+                      <span className="text-xs text-muted-foreground">
+                        {discount > 0 ? `${discount}%` : "—"}
+                      </span>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="text-destructive"
+                        onClick={() =>
+                          setVariants((prev) => prev.filter((_, i) => i !== index))
+                        }
+                        aria-label={`Remove size ${index + 1}`}
+                      >
+                        ✕
+                      </Button>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="self-start"
+              onClick={() =>
+                setVariants((prev) => [
+                  ...prev,
+                  { value: "", price: "", originalPrice: "" },
+                ])
+              }
+            >
+              Add size
+            </Button>
           </div>
 
           <div className="flex flex-col gap-1.5">

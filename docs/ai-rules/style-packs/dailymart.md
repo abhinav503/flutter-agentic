@@ -340,7 +340,7 @@ BottomNavBar (stacked variant)                    ← shell-owned, not per scree
 | Region | Widget | Notes |
 |---|---|---|
 | Chrome | **No `AppBar`, ever** | Every screen builds its own header row as the first item in the scroll view. `BasePageState.buildAppBar` returns `null` for all tabs |
-| Scroll behaviour | Everything scrolls away, including the header | This pack has no pinned or collapsing header; `CollapsingHeaderSheet` is not used |
+| Scroll behaviour | Back-button headers **pin** above the scroll; back-less headers scroll away | `DailyMartScreenBody` auto-pins when it builds a `title` + `onBack` header (Column: docked header row → `Expanded` scroll view, the pattern Cart/Checkout/Wishlist always hand-rolled); tab roots and custom `headerRow`s keep scrolling. No `CollapsingHeaderSheet` — content clips below the docked row, it doesn't slide under it |
 | Body | Sections separated by `AppSpacing.xl4` | |
 | Persistent action | Floating controls over a bottom `surface→transparent` fade (`DailyMartBottomFade`) | Search floats the cart status pill (both browse and results modes — the kit's Filter pill was removed from Search, see §10); Product Details floats its cart-disc + Add To Cart row; Edit Profile floats Save Changes, Change Password floats Update Password, Checkout floats Continue to Payment, Add/Edit Address floats Add Address / Update Address, and Select Address floats Add New Address, all over the same fade with `floatingActionScrollInset(context)` — derived from the device inset, since the CTA sits at `paddingOf.bottom + lg` and a static clearance runs short on notched devices — under the scroll content (all via `DailyMartScreenBody`'s `floatingAction` slot, §13). A full-width *docked bar* is still **not** part of this pack — the Cart screen's checkout CTA (`DailyMartCartCheckoutBar`) is the one docked surface, a slim sheet-cornered region of that screen; the coupon row + totals (`DailyMartCartSummarySection`) scroll with the item cards rather than docking |
 | Cart presence outside the shell | `DailyMartCartStatusBar` — the floating-pill signature (primary fill, `floatingAction` shadow) | Screens pushed *outside* the shell (Product Details, Search's browse state) float it while the cart is non-empty; inside the shell the Cart tab itself is the affordance, so the shell never docks it |
@@ -541,6 +541,15 @@ why they are field-shaped (10 px, bordered) rather than menu-shaped.
   only clearing the draft (`OrdersEvent.filterApplied` takes a nullable
   filter for this); Reset that needs a second tap on Apply reads as a
   control that didn't work.
+- **Product Details' size row and brand line (kit deviations).** The kit's
+  frames `22`/`23` predate both features. The brand renders as a
+  bodyXsMedium `onSurfaceVariant` line above the name (only when the
+  product has one). Below the price row, a "Select Size" label over a
+  horizontal row of `DailyMartFilterChip`s — My Orders' status-chip recipe
+  reused as a single-select — carries the sizes; the price label
+  (`₹X /pack`) follows the selected chip, and Add To Cart carries the
+  selection into the cart line, which then shows that pack size and
+  per-size price on the Cart's item cards and Checkout's Order List.
 
 ---
 

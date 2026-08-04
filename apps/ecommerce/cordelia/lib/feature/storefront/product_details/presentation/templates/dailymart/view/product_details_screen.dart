@@ -24,6 +24,7 @@ import 'package:cordelia/templates/dailymart/constants/dailymart_image_const.dar
 import 'package:cordelia/templates/dailymart/constants/dailymart_text_style_const.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_value_const.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_bottom_fade.dart';
+import 'package:cordelia/templates/dailymart/widgets/dailymart_filter_chip.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_header_row.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_icon_disc.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_product_grid.dart';
@@ -32,6 +33,7 @@ import 'package:cordelia/templates/dailymart/widgets/dailymart_section_header.da
 import 'package:cordelia/templates/dailymart/widgets/dailymart_top_switcher.dart';
 
 import '../../../../domain/entities/product_detail_entity.dart';
+import '../../../../domain/entities/size_variant_entity.dart';
 import '../../../bloc/product_details_bloc.dart';
 import '../../../product_details_actions.dart';
 import '../widgets/product_detail_bottom_bar.dart';
@@ -115,8 +117,10 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
 
   Widget _loaded(ProductDetailEntity detail) {
     final cs = Theme.of(context).colorScheme;
+    final tt = Theme.of(context).textTheme;
     final hairline = context.appColors.dockedHairline;
     final product = detail.product;
+    final variant = selectedVariant(detail);
     final favouritesCubit = context.watch<FavouritesCubit>();
     final isFavourite = favouritesCubit.isFavourite(product.id);
 
@@ -146,6 +150,18 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
                     : product.imageUrl,
               ),
               const SizedBox(height: AppSpacing.lg),
+              // Kit deviation (recorded in the spec sheet): the kit predates
+              // brands, so the brand line takes the card meta's muted small
+              // role above the name.
+              if (detail.brand != null) ...[
+                Text(
+                  detail.brand!.name,
+                  style: DailyMartTextStyleConst.bodyXsMedium(
+                    tt,
+                  ).copyWith(color: cs.onSurfaceVariant),
+                ),
+                const SizedBox(height: AppSpacing.xs3),
+              ],
               Row(
                 children: [
                   Expanded(
@@ -165,7 +181,9 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
               const SizedBox(height: AppSpacing.base),
               Row(
                 children: [
-                  Expanded(child: _PriceLabel(product: product)),
+                  Expanded(
+                    child: _PriceLabel(product: product, variant: variant),
+                  ),
                   DailyMartQuantityStepper(
                     value: quantity,
                     onDecrement: decrementQuantity,
@@ -173,6 +191,37 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
                   ),
                 ],
               ),
+              // Kit deviation (recorded in the spec sheet): the kit has no
+              // size picker; the row reuses My Orders' filter-chip recipe so
+              // the selected size — which now carries its own price — is a
+              // real choice, not decoration.
+              if (detail.sizeVariants.isNotEmpty) ...[
+                const SizedBox(height: AppSpacing.lg),
+                Text(
+                  DailyMartValueConst.selectSizeLabel,
+                  style: DailyMartTextStyleConst.bodyMdSemibold(
+                    tt,
+                  ).copyWith(color: cs.onSurface),
+                ),
+                const SizedBox(height: AppSpacing.base),
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      for (var i = 0; i < detail.sizeVariants.length; i++) ...[
+                        if (i > 0) const SizedBox(width: AppSpacing.base),
+                        DailyMartFilterChip(
+                          label: product.unitType.format(
+                            detail.sizeVariants[i].value,
+                          ),
+                          selected: i == effectiveSizeIndex(detail),
+                          onTap: () => selectSize(i),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
               const SizedBox(height: AppSpacing.lg),
               Divider(height: 1, thickness: 1, color: hairline),
               const SizedBox(height: AppSpacing.xl4),
@@ -225,7 +274,10 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
           child: DailyMartProductDetailBottomBar(
             storeId: widget.storeId,
             onAddToCart: () {
-              _addToCart(product, quantity);
+              addSelectedToCart(detail, quantity);
+              showSnackBar(
+                DailyMartValueConst.addedToCartMessage(product.name, quantity),
+              );
               resetQuantity();
             },
           ),
@@ -253,25 +305,37 @@ class _Page extends StatelessWidget {
         DailyMartDimenConst.controlHeight +
         AppSpacing.xl10;
 
-    return SingleChildScrollView(
-      padding: EdgeInsets.fromLTRB(
-        AppSpacing.lg,
-        AppSpacing.base,
-        AppSpacing.lg,
-        bottomClearance,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          DailyMartHeaderRow(
+    // The header docks above the scroll view — the pack pins every
+    // back-button header (same pattern as DailyMartScreenBody's pinned mode).
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.lg,
+            AppSpacing.base,
+            AppSpacing.lg,
+            0,
+          ),
+          child: DailyMartHeaderRow(
             title: DailyMartValueConst.productDetailsTitle,
             onBack: onBack,
             trailing: trailing,
           ),
-          const SizedBox(height: AppSpacing.lg),
-          body,
-        ],
-      ),
+        ),
+        const SizedBox(height: AppSpacing.lg),
+        Expanded(
+          child: SingleChildScrollView(
+            padding: EdgeInsets.fromLTRB(
+              AppSpacing.lg,
+              0,
+              AppSpacing.lg,
+              bottomClearance,
+            ),
+            child: body,
+          ),
+        ),
+      ],
     );
   }
 }
@@ -343,7 +407,11 @@ class _RatingPill extends StatelessWidget {
 class _PriceLabel extends StatelessWidget {
   final ProductEntity product;
 
-  const _PriceLabel({required this.product});
+  /// The selected size — price and the per-pack suffix follow it; null (no
+  /// size picker) falls back to the product's base pack.
+  final SizeVariantEntity? variant;
+
+  const _PriceLabel({required this.product, this.variant});
 
   @override
   Widget build(BuildContext context) {
@@ -354,14 +422,14 @@ class _PriceLabel extends StatelessWidget {
       TextSpan(
         children: [
           TextSpan(
-            text: product.price.asPrice,
+            text: (variant?.price ?? product.price).asPrice,
             style: DailyMartTextStyleConst.bodyLgSemibold(
               tt,
             ).copyWith(color: cs.onSurface),
           ),
           TextSpan(
             text: DailyMartValueConst.perUnitSuffix(
-              product.unitType.format(product.unitValue),
+              product.unitType.format(variant?.value ?? product.unitValue),
             ),
             style: DailyMartTextStyleConst.bodySmSemibold(
               tt,

@@ -48,7 +48,9 @@ class CartItemRow extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
               Text(
-                product.unitType.format(product.unitValue),
+                // The pack this line actually holds — the selected size when
+                // one was chosen on Product Details, the base pack otherwise.
+                product.unitType.format(item.effectiveSizeValue),
                 style: GraviaTextStyleConst.textSmRegular(
                   tt,
                 ).copyWith(color: cs.onSurfaceVariant),

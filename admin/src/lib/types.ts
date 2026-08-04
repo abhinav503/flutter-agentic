@@ -22,6 +22,29 @@ export type Category = {
   groupName: string;
 };
 
+// A product manufacturer/label ("Amul", "Tata") — an entity rather than a
+// free-text field on Product so a storefront can browse/filter by it and a
+// rename edits one doc. Products reference it by id only (see Banner's
+// targetId note: display data resolves at read time, so a rename can't
+// leave stale copies behind).
+export type Brand = {
+  id: string;
+  name: string;
+  logoUrl: string;
+};
+
+// One selectable package size on the product page's "Select QTY" row, with
+// its own price — 500g is not just 2× the 250g chip visually, it has a real
+// price the cart will charge. originalPrice ≥ price; discount is derived per
+// variant (computeDiscountPercentage), never stored. Stock deliberately stays
+// product-level until order lines carry a variant — per-variant stock with
+// nothing decrementing it would be fiction.
+export type SizeVariant = {
+  value: number;
+  price: number;
+  originalPrice: number;
+};
+
 export type Product = {
   id: string;
   name: string;
@@ -35,10 +58,18 @@ export type Product = {
   description: string;
   stock: number;
   categoryIds: string[];
+  // The product's brand doc id, or "" for unbranded. Id-only — name/logo
+  // resolve from the brands collection at read time (see Brand above).
+  brandId: string;
   // Selectable package sizes shown on gravia's Product Details "Select QTY"
   // row, in unitType's base unit (e.g. [250, 500, 1000] for grams). Empty =
-  // the product has no size picker.
+  // the product has no size picker. Kept in sync with sizeVariants (it's
+  // always the variants' values) so storefronts reading the old field keep
+  // working until they adopt per-variant pricing.
   sizeOptions: number[];
+  // sizeOptions with real per-size pricing — the source of truth the form
+  // edits; sizeOptions is derived from it on every save.
+  sizeVariants: SizeVariant[];
   // Real curation flag for the storefront's "popular products" rail —
   // without this, that endpoint would have to fake it by returning
   // everything.
@@ -87,6 +118,9 @@ export type Banner = {
 export type CartItem = {
   productId: string;
   quantity: number;
+  // The selected package size (a sizeVariants value), absent for the
+  // product's base pack — line identity in a cart is (productId, sizeValue).
+  sizeValue?: number;
 };
 
 // Mirrors the real stores/{storeId} doc written by POST /api/stores

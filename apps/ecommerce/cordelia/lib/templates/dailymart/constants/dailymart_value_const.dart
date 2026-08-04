@@ -97,6 +97,7 @@ abstract final class DailyMartValueConst {
   static const descriptionsTabLabel = 'Descriptions';
   static const reviewsTabLabel = 'Reviews';
   static const relatedProductsTitle = 'Related Products';
+  static const selectSizeLabel = 'Select Size';
   static const productDetailsLoadErrorMessage =
       "Couldn't load this product's details.";
   static String perUnitSuffix(String unit) => '/$unit';

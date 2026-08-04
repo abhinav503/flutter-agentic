@@ -50,12 +50,28 @@ class CartCubit extends Cubit<List<CartItemEntity>> {
     result.fold((failure) {}, (items) => emit(items));
   }
 
-  void addToCart(ProductEntity product, int quantity) {
-    final index = state.indexWhere((item) => item.product.id == product.id);
+  /// A line is (product, size) — Product Details passes the selected
+  /// variant's size and prices; cards and sheets pass nothing, which lands
+  /// on the product's existing line if it has one (see [_lineIndex]) or
+  /// starts a base-pack line.
+  void addToCart(
+    ProductEntity product,
+    int quantity, {
+    double? sizeValue,
+    double? unitPrice,
+    double? originalUnitPrice,
+  }) {
+    final index = _lineIndex(product.id, sizeValue);
     if (index == -1) {
       _emitAndPersist([
         ...state,
-        CartItemEntity(product: product, quantity: quantity),
+        CartItemEntity(
+          product: product,
+          quantity: quantity,
+          sizeValue: sizeValue,
+          unitPrice: unitPrice,
+          originalUnitPrice: originalUnitPrice,
+        ),
       ]);
       return;
     }
@@ -68,30 +84,58 @@ class CartCubit extends Cubit<List<CartItemEntity>> {
     ]);
   }
 
-  void incrementQuantity(String productId) => _emitAndPersist([
-    for (final item in state)
-      item.product.id == productId
-          ? item.copyWith(quantity: item.quantity + 1)
-          : item,
-  ]);
-
-  void decrementQuantity(String productId) {
-    final item = state.firstWhere((item) => item.product.id == productId);
-    if (item.quantity <= 1) {
-      removeItem(productId);
-      return;
-    }
+  void incrementQuantity(String productId, {double? sizeValue}) {
+    final index = _lineIndex(productId, sizeValue);
+    if (index == -1) return;
     _emitAndPersist([
-      for (final item in state)
-        item.product.id == productId
-            ? item.copyWith(quantity: item.quantity - 1)
-            : item,
+      for (var i = 0; i < state.length; i++)
+        if (i == index)
+          state[i].copyWith(quantity: state[i].quantity + 1)
+        else
+          state[i],
     ]);
   }
 
-  void removeItem(String productId) => _emitAndPersist(
-    state.where((item) => item.product.id != productId).toList(),
-  );
+  void decrementQuantity(String productId, {double? sizeValue}) {
+    final index = _lineIndex(productId, sizeValue);
+    if (index == -1) return;
+    if (state[index].quantity <= 1) {
+      _emitAndPersist([
+        for (var i = 0; i < state.length; i++)
+          if (i != index) state[i],
+      ]);
+      return;
+    }
+    _emitAndPersist([
+      for (var i = 0; i < state.length; i++)
+        if (i == index)
+          state[i].copyWith(quantity: state[i].quantity - 1)
+        else
+          state[i],
+    ]);
+  }
+
+  void removeItem(String productId, {double? sizeValue}) {
+    final index = _lineIndex(productId, sizeValue);
+    if (index == -1) return;
+    _emitAndPersist([
+      for (var i = 0; i < state.length; i++)
+        if (i != index) state[i],
+    ]);
+  }
+
+  /// Exact (product, size) match first; a null size that finds no base-pack
+  /// line falls back to the product's first line of any size. Cards and
+  /// steppers outside Product Details don't know about sizes — "this
+  /// product's line" is what they mean, and without the fallback a card's +
+  /// on a variant-only product would grow a phantom base-pack line beside it.
+  int _lineIndex(String productId, double? sizeValue) {
+    final exact = state.indexWhere(
+      (item) => item.matchesLine(productId, sizeValue),
+    );
+    if (exact != -1 || sizeValue != null) return exact;
+    return state.indexWhere((item) => item.product.id == productId);
+  }
 
   void clear() => _emitAndPersist(const []);
 

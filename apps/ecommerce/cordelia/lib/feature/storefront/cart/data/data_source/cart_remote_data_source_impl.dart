@@ -42,6 +42,9 @@ class CartRemoteDataSourceImpl implements CartRemoteDataSource {
               (item) => {
                 'productId': item.product.id,
                 'quantity': item.quantity,
+                // Omitted for a base-pack line — the server treats absence
+                // as "the product's own pack".
+                if (item.sizeValue != null) 'sizeValue': item.sizeValue,
               },
             )
             .toList(),

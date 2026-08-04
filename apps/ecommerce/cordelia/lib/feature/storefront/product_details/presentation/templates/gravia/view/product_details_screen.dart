@@ -46,8 +46,6 @@ class ProductDetailsScreen extends BaseScreen {
 
 class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
     with QuantitySelection, ProductDetailsActions {
-  int _selectedSizeIndex = 0;
-
   @override
   String get storeId => widget.storeId;
 
@@ -107,6 +105,14 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
 
   Widget _buildLoaded(BuildContext context, ProductDetailEntity detail) {
     final product = detail.product;
+    // Everything priced on this screen follows the selected size — the price
+    // row, the discount meta chip, and the bottom bar all read the variant,
+    // so a chip tap can't leave any of them showing the base pack's numbers.
+    final variant = selectedVariant(detail);
+    final unitPrice = variant?.price ?? product.price;
+    final originalUnitPrice = variant?.originalPrice ?? product.originalPrice;
+    final discountPercentage =
+        variant?.discountPercentage ?? product.discountPercentage;
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
     final isFavourite = context.watch<FavouritesCubit>().isFavourite(
@@ -145,6 +151,18 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
                 children: [
                   ProductDetailImageCarousel(images: detail.images),
                   const SizedBox(height: AppSpacing.base),
+                  // Kit deviation (recorded in the spec sheet): the Gravia kit
+                  // predates brands, so the brand line borrows the meta row's
+                  // muted supporting-text role above the name.
+                  if (detail.brand != null) ...[
+                    Text(
+                      detail.brand!.name,
+                      style: GraviaTextStyleConst.textXsRegular(
+                        tt,
+                      ).copyWith(color: cs.onSurfaceVariant),
+                    ),
+                    const SizedBox(height: AppSpacing.xs2),
+                  ],
                   Text(
                     product.name,
                     style: GraviaTextStyleConst.textLgBold(
@@ -165,7 +183,7 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
                           GraviaImageConst.badgePercent,
                         ),
                         label: GraviaValueConst.discountPercentOffLabel(
-                          product.discountPercentage,
+                          discountPercentage,
                         ),
                       ),
                     ],
@@ -179,14 +197,14 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
                     textBaseline: TextBaseline.alphabetic,
                     children: [
                       Text(
-                        product.price.asPrice,
+                        unitPrice.asPrice,
                         style: GraviaTextStyleConst.textLgBold(
                           tt,
                         ).copyWith(color: cs.onSurface),
                       ),
                       const SizedBox(width: AppSpacing.xs2),
                       Text(
-                        product.originalPrice.asPrice,
+                        originalUnitPrice.asPrice,
                         style: GraviaTextStyleConst.textSmRegular(tt).copyWith(
                           color: cs.onSurfaceVariant,
                           decoration: TextDecoration.lineThrough,
@@ -197,7 +215,7 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
                   // "Select QTY" only renders when the product actually has
                   // package sizes (admin-driven) — an empty list means no size
                   // picker, not an orphaned heading between two dividers.
-                  if (detail.sizeOptions.isNotEmpty) ...[
+                  if (detail.sizeVariants.isNotEmpty) ...[
                     const SizedBox(height: AppSpacing.xl2),
                     Divider(color: hairlineColor, height: 1, thickness: 1),
                     const SizedBox(height: AppSpacing.xl2),
@@ -210,14 +228,18 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
                     const SizedBox(height: AppSpacing.base),
                     Row(
                       children: [
-                        for (var i = 0; i < detail.sizeOptions.length; i++) ...[
+                        for (
+                          var i = 0;
+                          i < detail.sizeVariants.length;
+                          i++
+                        ) ...[
                           if (i > 0) const SizedBox(width: AppSpacing.base),
                           SelectorChip(
                             label: product.unitType.format(
-                              detail.sizeOptions[i],
+                              detail.sizeVariants[i].value,
                             ),
-                            selected: i == _selectedSizeIndex,
-                            onTap: () => setState(() => _selectedSizeIndex = i),
+                            selected: i == effectiveSizeIndex(detail),
+                            onTap: () => selectSize(i),
                           ),
                         ],
                       ],
@@ -242,11 +264,11 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
         ProductDetailBottomBar(
           storeId: widget.storeId,
           quantity: quantity,
-          unitPrice: product.price,
+          unitPrice: unitPrice,
           onIncrement: incrementQuantity,
           onDecrement: decrementQuantity,
           onAddToCart: () {
-            addToCart(product, quantity);
+            addSelectedToCart(detail, quantity);
             resetQuantity();
           },
         ),

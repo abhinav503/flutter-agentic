@@ -295,7 +295,7 @@ Scaffold (BasePage, no AppBar — the pack draws its own header row)
 | Region | Widget | Notes |
 |---|---|---|
 | Chrome | `GrofastHeaderRow` | Never a Material `AppBar` — the back control is a rounded rectangle and the title is optically centred against it |
-| Scroll behaviour | plain scroll | Nothing pins or collapses; the header scrolls away with the content |
+| Scroll behaviour | Back-button headers **pin** above the scroll; back-less headers scroll away | `GrofastScreenBody` auto-pins when its title-built header shows the back control; tab roots (`showBack: false` / custom `headerRow`) keep scrolling, and Search/Category Details opt their back-carrying `headerRow` in with `pinnedHeader: true`. Product Details pins its floating header row over the hero in the screen's outer Stack instead — its controls carry their own fills |
 | Body | `GrofastScreenBody` | One padding/scroll recipe for **every** state a screen swaps through |
 | Persistent action | floating pill over a `surface → transparent` fade | Not a docked bar — the CTA floats, and the fade is what separates it from the content. **One exception:** Product Details, whose kit frame welds its CTA into the corner (see §10) |
 | Global nav | `GrofastNavBar` | 4 slots, domed, only inside the shell — its `Scaffold` runs `extendBody` so the tab's content passes behind the dome, and every tab pays `navScrollInset` |
@@ -426,6 +426,8 @@ Recorded so nobody "restores" them:
 | Edge-to-edge product image well | The same well, with `productImageInset` (20) of padding | Same cause: the kit's cut-out artwork carries that margin in the asset, an uploaded photograph doesn't, and `contain` then runs it to the card's edges |
 | "All Categories" page title | Dropped; the grid starts under the search field | The nav bar already names the tab and the whole body is the grid. Per-group headers stay — they name something the screen can't otherwise tell you |
 | Price suffix as a bare unit (`/kg`) | The whole pack unless it is exactly one unit (`/500 g`) | The kit's products are all 1 kg, so the bare unit is honest there. A 500 g pack labelled `/g` prices it per gram — see `ProductUnitTypeX.pricePerLabel` |
+| No size picker on Product Details | A "Select Size" title over the pack's `GrofastChipRow`, between the price row and Description | Per-size pricing landed after the kit (`ProductDetailEntity.sizeVariants`); the price and its `/pack` suffix follow the selected chip, and Add to bag carries the selection into the cart line |
+| No brand on Product Details | The brand joins the title's label pills as a `GrofastBadge.outlined` — its logo artwork when it has one, the rounded-icon system (`Icons.sell_rounded`) otherwise | Brands landed after the kit; unbranded products simply don't render the pill |
 
 **One went the other way.** The kit's category chip beside that rating was the
 first surface to need a product's category, which the storefront API didn't

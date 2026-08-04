@@ -82,6 +82,13 @@ service cloud.firestore {
         allow read: if true;
         allow write: if isStoreOwner(storeId);
       }
+
+      // Product brands ("Amul", "Tata") products reference by id — same
+      // gate as the catalog above.
+      match /brands/{brandId} {
+        allow read: if true;
+        allow write: if isStoreOwner(storeId);
+      }
     }
 
     // Storefront template catalog — world-readable so the create-store

@@ -6,10 +6,11 @@ import 'package:cordelia/templates/dailymart/constants/dailymart_dimen_const.dar
 import 'package:cordelia/templates/dailymart/widgets/dailymart_bottom_fade.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_header_row.dart';
 
-/// The pack's screen shell (spec sheet §8/§11): one scroll view carrying the
-/// header row as its first item — this pack scrolls its header away rather
-/// than docking it — at the standard `lg / base / lg` gutters, with an
-/// optional CTA floating over a [DailyMartBottomFade].
+/// The pack's screen shell (spec sheet §8/§11): the header row over one
+/// scroll view at the standard `lg / base / lg` gutters, with an optional
+/// CTA floating over a [DailyMartBottomFade]. A back-button header docks
+/// above the scroll (see [pinnedHeader]); a back-less one scrolls away with
+/// the content.
 ///
 /// One padding recipe for every state a screen swaps through, so a
 /// loading → loaded → error transition never shifts the content sideways.
@@ -58,6 +59,13 @@ class DailyMartScreenBody extends StatelessWidget {
   /// own `lg` gutters.
   final bool fullBleedBody;
 
+  /// Keeps the header row outside the scroll view, docked above it — the
+  /// same pinned pattern the Cart/Checkout/Wishlist screens hand-roll. Null
+  /// defaults to pinning exactly the headers that carry a back button
+  /// ([title] + [onBack]); tab roots and custom [headerRow]s keep scrolling
+  /// away unless a caller opts in.
+  final bool? pinnedHeader;
+
   const DailyMartScreenBody({
     super.key,
     required this.body,
@@ -70,6 +78,7 @@ class DailyMartScreenBody extends StatelessWidget {
     this.bottomInset,
     this.floatingAction,
     this.fullBleedBody = false,
+    this.pinnedHeader,
   }) : assert(
          title == null || headerRow == null,
          'Pass a title or a custom headerRow, not both.',
@@ -91,35 +100,69 @@ class DailyMartScreenBody extends StatelessWidget {
     final bottom = floatingAction != null
         ? DailyMartDimenConst.floatingActionScrollInset(context)
         : bottomInset ?? MediaQuery.paddingOf(context).bottom + AppSpacing.lg;
+    final pinned =
+        header != null && (pinnedHeader ?? (title != null && onBack != null));
 
-    final scrollView = SingleChildScrollView(
-      padding: EdgeInsets.fromLTRB(horizontal, topPadding, horizontal, bottom),
-      child: header == null
-          ? body
-          : Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (fullBleedBody)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.lg,
-                    ),
-                    child: header,
-                  )
-                else
-                  header,
-                SizedBox(height: gap),
-                body,
-              ],
+    final Widget view;
+    if (pinned) {
+      // The header docks above the scroll view — content clips at the
+      // viewport's top edge instead of sliding under the back button.
+      view = Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: EdgeInsets.fromLTRB(
+              AppSpacing.lg,
+              topPadding,
+              AppSpacing.lg,
+              0,
             ),
-    );
+            child: header,
+          ),
+          SizedBox(height: gap),
+          Expanded(
+            child: SingleChildScrollView(
+              padding: EdgeInsets.fromLTRB(horizontal, 0, horizontal, bottom),
+              child: body,
+            ),
+          ),
+        ],
+      );
+    } else {
+      view = SingleChildScrollView(
+        padding: EdgeInsets.fromLTRB(
+          horizontal,
+          topPadding,
+          horizontal,
+          bottom,
+        ),
+        child: header == null
+            ? body
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (fullBleedBody)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.lg,
+                      ),
+                      child: header,
+                    )
+                  else
+                    header,
+                  SizedBox(height: gap),
+                  body,
+                ],
+              ),
+      );
+    }
 
-    if (floatingAction == null) return scrollView;
+    if (floatingAction == null) return view;
 
     return Stack(
       fit: StackFit.expand,
       children: [
-        scrollView,
+        view,
         const Positioned(
           left: 0,
           right: 0,

@@ -114,15 +114,23 @@ class _CartScreenState extends BaseScreenState<CartScreen> {
                         if (i > 0) const SizedBox(height: AppSpacing.base),
                         DailyMartCartItemCard(
                           item: cartItems[i],
-                          onIncrement: () => context
-                              .read<CartCubit>()
-                              .incrementQuantity(cartItems[i].product.id),
-                          onDecrement: () => context
-                              .read<CartCubit>()
-                              .decrementQuantity(cartItems[i].product.id),
+                          // sizeValue scopes each tap to this exact line —
+                          // the same product can sit here twice in two pack
+                          // sizes.
+                          onIncrement: () =>
+                              context.read<CartCubit>().incrementQuantity(
+                                cartItems[i].product.id,
+                                sizeValue: cartItems[i].sizeValue,
+                              ),
+                          onDecrement: () =>
+                              context.read<CartCubit>().decrementQuantity(
+                                cartItems[i].product.id,
+                                sizeValue: cartItems[i].sizeValue,
+                              ),
                           onRemove: () {
                             context.read<CartCubit>().removeItem(
                               cartItems[i].product.id,
+                              sizeValue: cartItems[i].sizeValue,
                             );
                             showSnackBar(
                               DailyMartValueConst.removedFromCartMessage,

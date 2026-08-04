@@ -168,7 +168,7 @@ class _CheckoutForm extends StatelessWidget {
           GrofastLineItemRow(
             imageUrl: item.product.imageUrl,
             name: item.product.name,
-            subtitle: item.product.unitType.format(item.product.unitValue),
+            subtitle: item.product.unitType.format(item.effectiveSizeValue),
             price: item.lineTotal,
             trailing: Text(
               GrofastValueConst.orderLineQuantity(item.quantity),

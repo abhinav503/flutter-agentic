@@ -94,6 +94,9 @@ class _CategoryDetailsScreenState
           };
 
           return GrofastScreenBody(
+            // The header carries the back control, so it docks like every
+            // other back-button screen — a custom headerRow doesn't auto-pin.
+            pinnedHeader: true,
             headerRow: Column(
               children: [
                 GrofastHeaderRow(

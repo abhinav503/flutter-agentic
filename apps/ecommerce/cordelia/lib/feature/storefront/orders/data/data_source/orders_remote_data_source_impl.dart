@@ -91,6 +91,15 @@ class OrdersRemoteDataSourceImpl implements OrdersRemoteDataSource {
   }
 
   List<Map<String, dynamic>> _itemsPayload(List<CartItemEntity> items) => items
-      .map((item) => {'productId': item.product.id, 'quantity': item.quantity})
+      .map(
+        (item) => {
+          'productId': item.product.id,
+          'quantity': item.quantity,
+          // The server prices the line from this size's live variant — only
+          // the size travels, never a client price. Omitted for a base-pack
+          // line.
+          if (item.sizeValue != null) 'sizeValue': item.sizeValue,
+        },
+      )
       .toList();
 }

@@ -1,6 +1,7 @@
 import { FieldValue } from "firebase-admin/firestore";
 import { adminDb } from "./firebase-admin";
 import { cartDocRef } from "./cart";
+import { resolveLinePricing } from "./products";
 import type {
   Address,
   Order,
@@ -8,10 +9,40 @@ import type {
   OrderStatus,
   OrderStatusChange,
   RefundStatus,
+  SizeVariant,
   UnitType,
 } from "./types";
 
-export type CreateOrderItemInput = { productId: string; quantity: number };
+// sizeValue selects one of the product's sizeVariants (absent = base pack) —
+// only the size travels; the server resolves its price, never the client.
+export type CreateOrderItemInput = {
+  productId: string;
+  quantity: number;
+  sizeValue?: number;
+};
+
+// The pricing fields resolveLinePricing needs, off a raw product doc —
+// orders run on the Admin SDK, so there's no mapProductDoc here.
+function pricingFields(data: FirebaseFirestore.DocumentData) {
+  return {
+    price: (data.price as number) ?? 0,
+    originalPrice: (data.originalPrice as number) ?? 0,
+    unitValue: (data.unitValue as number) ?? 0,
+    sizeVariants: (data.sizeVariants as SizeVariant[]) ?? [],
+  };
+}
+
+// Stock is product-level while variants share it, and a cart can now hold
+// several lines of one product (different sizes) — check and decrement the
+// summed quantity per product, not per line, or the second line's write
+// would clobber the first's.
+function quantityByProduct(items: { productId: string; quantity: number }[]) {
+  const totals = new Map<string, number>();
+  for (const item of items) {
+    totals.set(item.productId, (totals.get(item.productId) ?? 0) + item.quantity);
+  }
+  return totals;
+}
 
 // Thrown for any client-input problem (unknown product, insufficient
 // stock) — routes catch this and map it to a 400/409, distinct from an
@@ -124,22 +155,23 @@ export async function priceCart(
     requestedItems.map((item) => productDocRef(storeId, item.productId).get()),
   );
 
+  const requiredStock = quantityByProduct(requestedItems);
   let total = 0;
   for (let i = 0; i < requestedItems.length; i++) {
-    const { productId, quantity } = requestedItems[i];
+    const { productId, quantity, sizeValue } = requestedItems[i];
     const snap = snaps[i];
     if (!snap.exists) {
       throw new OrderCreationError(`Product not found: ${productId}`, productId);
     }
     const data = snap.data()!;
     const stock = (data.stock as number) ?? 0;
-    if (stock < quantity) {
+    if (stock < requiredStock.get(productId)!) {
       throw new OrderCreationError(
         `Insufficient stock for ${(data.name as string) ?? productId}`,
         productId,
       );
     }
-    total += ((data.price as number) ?? 0) * quantity;
+    total += resolveLinePricing(pricingFields(data), sizeValue).price * quantity;
   }
   return total;
 }
@@ -178,11 +210,16 @@ export async function createOrder(
     );
     const productSnaps = await Promise.all(productRefs.map((ref) => tx.get(ref)));
 
+    const requiredStock = quantityByProduct(requestedItems);
     const lineItems: OrderLineItem[] = [];
     let total = 0;
+    // Decrement each product once, by its summed quantity — a second
+    // tx.update on the same doc would overwrite the first, silently
+    // restoring the earlier line's stock.
+    const decremented = new Set<string>();
 
     for (let i = 0; i < requestedItems.length; i++) {
-      const { productId, quantity } = requestedItems[i];
+      const { productId, quantity, sizeValue } = requestedItems[i];
       const snap = productSnaps[i];
       if (!snap.exists) {
         throw new OrderCreationError(`Product not found: ${productId}`, productId);
@@ -190,28 +227,33 @@ export async function createOrder(
 
       const data = snap.data()!;
       const stock = (data.stock as number) ?? 0;
-      if (stock < quantity) {
+      const required = requiredStock.get(productId)!;
+      if (stock < required) {
         throw new OrderCreationError(
           `Insufficient stock for ${(data.name as string) ?? productId}`,
           productId,
         );
       }
 
-      const price = (data.price as number) ?? 0;
-      const unitValue = (data.unitValue as number) ?? 0;
+      const pricing = resolveLinePricing(pricingFields(data), sizeValue);
       const unitType = (data.unitType as UnitType) ?? "g";
 
       lineItems.push({
         productId,
         productName: (data.name as string) ?? "",
         image: (data.imageUrl as string) ?? "",
-        price,
+        price: pricing.price,
         quantity,
-        weight: formatWeight(unitValue, unitType),
+        // The pack actually sold — the selected size's label when the line
+        // carried one, the product's own otherwise.
+        weight: formatWeight(pricing.packSize, unitType),
       });
-      total += price * quantity;
+      total += pricing.price * quantity;
 
-      tx.update(productRefs[i], { stock: stock - quantity });
+      if (!decremented.has(productId)) {
+        decremented.add(productId);
+        tx.update(productRefs[i], { stock: stock - required });
+      }
     }
 
     const placedAt = new Date().toISOString();
@@ -368,9 +410,13 @@ export async function cancelOrder(orderId: string): Promise<Order> {
     }
 
     // Restock every line item — read all product docs first (Firestore
-    // transactions require reads before writes), then increment.
-    const productRefs = order.items.map((item) =>
-      productDocRef(order.storeId, item.productId),
+    // transactions require reads before writes), then increment. Summed per
+    // product: an order can hold several lines of one product (different
+    // sizes), and a second update on the same doc would overwrite the first.
+    const restockByProduct = quantityByProduct(order.items);
+    const productIds = [...restockByProduct.keys()];
+    const productRefs = productIds.map((productId) =>
+      productDocRef(order.storeId, productId),
     );
     const productSnaps = await Promise.all(productRefs.map((ref) => tx.get(ref)));
 
@@ -386,13 +432,15 @@ export async function cancelOrder(orderId: string): Promise<Order> {
       refundStatus,
       statusHistory: FieldValue.arrayUnion(change),
     });
-    for (let i = 0; i < order.items.length; i++) {
+    for (let i = 0; i < productIds.length; i++) {
       const productSnap = productSnaps[i];
       // A product deleted since the order was placed simply isn't restocked —
       // there's no doc to increment, and re-creating it would be wrong.
       if (!productSnap.exists) continue;
       const stock = (productSnap.data()!.stock as number) ?? 0;
-      tx.update(productRefs[i], { stock: stock + order.items[i].quantity });
+      tx.update(productRefs[i], {
+        stock: stock + restockByProduct.get(productIds[i])!,
+      });
     }
 
     return {

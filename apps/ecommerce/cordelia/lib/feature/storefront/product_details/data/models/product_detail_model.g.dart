@@ -16,12 +16,20 @@ _ProductDetailModel _$ProductDetailModelFromJson(Map<String, dynamic> json) =>
       sizeOptions: (json['size_options'] as List<dynamic>)
           .map((e) => (e as num).toDouble())
           .toList(),
+      sizeVariants:
+          (json['size_variants'] as List<dynamic>?)
+              ?.map((e) => SizeVariantModel.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const <SizeVariantModel>[],
       similarProducts: (json['similar_products'] as List<dynamic>)
           .map((e) => ProductModel.fromJson(e as Map<String, dynamic>))
           .toList(),
       category: json['category'] == null
           ? null
           : CategoryModel.fromJson(json['category'] as Map<String, dynamic>),
+      brand: json['brand'] == null
+          ? null
+          : BrandModel.fromJson(json['brand'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$ProductDetailModelToJson(_ProductDetailModel instance) =>
@@ -30,6 +38,8 @@ Map<String, dynamic> _$ProductDetailModelToJson(_ProductDetailModel instance) =>
       'images': instance.images,
       'description': instance.description,
       'size_options': instance.sizeOptions,
+      'size_variants': instance.sizeVariants,
       'similar_products': instance.similarProducts,
       'category': instance.category,
+      'brand': instance.brand,
     };

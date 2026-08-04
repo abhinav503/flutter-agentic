@@ -30,6 +30,12 @@ class DailyMartProductListTile extends StatelessWidget {
   /// text instead of a control that would reopen a settled decision.
   final bool showStepper;
 
+  /// Per-line overrides for a cart line holding a selected package size —
+  /// null keeps the product's own price/pack, which is what the Add To Cart
+  /// sheet (no line yet) renders.
+  final double? unitPrice;
+  final double? packSize;
+
   const DailyMartProductListTile({
     super.key,
     required this.product,
@@ -37,6 +43,8 @@ class DailyMartProductListTile extends StatelessWidget {
     this.onIncrement,
     this.onDecrement,
     this.showStepper = true,
+    this.unitPrice,
+    this.packSize,
   });
 
   @override
@@ -77,7 +85,7 @@ class DailyMartProductListTile extends StatelessWidget {
                 ),
                 const SizedBox(height: AppSpacing.xs4),
                 Text(
-                  product.unitType.format(product.unitValue),
+                  product.unitType.format(packSize ?? product.unitValue),
                   style: DailyMartTextStyleConst.bodySmRegular(
                     tt,
                   ).copyWith(color: cs.onSurfaceVariant),
@@ -87,7 +95,7 @@ class DailyMartProductListTile extends StatelessWidget {
                   children: [
                     Expanded(
                       child: Text(
-                        (product.price * quantity).asPrice,
+                        ((unitPrice ?? product.price) * quantity).asPrice,
                         style: DailyMartTextStyleConst.bodyMdSemibold(
                           tt,
                         ).copyWith(color: cs.onSurface),

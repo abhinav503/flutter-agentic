@@ -184,6 +184,8 @@ class _Form extends StatelessWidget {
             DailyMartProductListTile(
               product: items[i].product,
               quantity: items[i].quantity,
+              unitPrice: items[i].effectiveUnitPrice,
+              packSize: items[i].effectiveSizeValue,
               showStepper: false,
             ),
           ],

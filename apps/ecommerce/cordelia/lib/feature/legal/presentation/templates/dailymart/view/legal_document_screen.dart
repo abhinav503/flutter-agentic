@@ -57,77 +57,90 @@ class _LegalDocumentScreenState extends BaseScreenState<LegalDocumentScreen> {
       color: cs.surface,
       child: SafeArea(
         bottom: false,
-        child: RawScrollbar(
-          controller: _scrollController,
-          thumbVisibility: true,
-          trackVisibility: true,
-          thickness: DailyMartDimenConst.scrollRailWidth,
-          thumbColor: cs.primary,
-          trackColor: hairline,
-          // Without this the painter draws its default black-at-10% line
-          // down the track's inner edge — the kit's rail is one clean pill.
-          trackBorderColor: Colors.transparent,
-          radius: const Radius.circular(AppRadius.fullValue),
-          trackRadius: const Radius.circular(AppRadius.fullValue),
-          // Sits the rail in the screen gutter, where the kit draws it —
-          // not flush against the device edge.
-          crossAxisMargin: AppSpacing.lg,
-          child: SingleChildScrollView(
-            controller: _scrollController,
-            padding: const EdgeInsets.fromLTRB(
-              AppSpacing.lg,
-              AppSpacing.base,
-              AppSpacing.lg,
-              AppSpacing.xl10,
+        // The header docks above the rail-tracked scroll — the pack pins
+        // every back-button header; only the document copy scrolls.
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.lg,
+                AppSpacing.base,
+                AppSpacing.lg,
+                0,
+              ),
+              child: DailyMartHeaderRow(
+                title: widget.content.title,
+                onBack: () => context.pop(),
+              ),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                DailyMartHeaderRow(
-                  title: widget.content.title,
-                  onBack: () => context.pop(),
-                ),
-                const SizedBox(height: AppSpacing.xl4),
-                Padding(
-                  // Keeps the copy clear of the rail; the header row above
-                  // still spans the full gutter-to-gutter width. The kit
-                  // leaves a wide channel here — the copy stops well short
-                  // of the rail rather than running up against it.
-                  padding: const EdgeInsets.only(right: AppSpacing.xl7),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        widget.content.lastUpdated,
-                        style: DailyMartTextStyleConst.bodyLgSemibold(
-                          tt,
-                        ).copyWith(color: cs.onSurface),
-                      ),
-                      // The kit prints the numbered clauses straight after
-                      // the date — no lead paragraph, so `content.intro`
-                      // (gravia's) is deliberately unrendered here.
-                      for (final section in widget.content.sections) ...[
-                        const SizedBox(height: AppSpacing.lg),
+            const SizedBox(height: AppSpacing.xl4),
+            Expanded(
+              child: RawScrollbar(
+                controller: _scrollController,
+                thumbVisibility: true,
+                trackVisibility: true,
+                thickness: DailyMartDimenConst.scrollRailWidth,
+                thumbColor: cs.primary,
+                trackColor: hairline,
+                // Without this the painter draws its default black-at-10%
+                // line down the track's inner edge — the kit's rail is one
+                // clean pill.
+                trackBorderColor: Colors.transparent,
+                radius: const Radius.circular(AppRadius.fullValue),
+                trackRadius: const Radius.circular(AppRadius.fullValue),
+                // Sits the rail in the screen gutter, where the kit draws it
+                // — not flush against the device edge.
+                crossAxisMargin: AppSpacing.lg,
+                child: SingleChildScrollView(
+                  controller: _scrollController,
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.lg,
+                    0,
+                    AppSpacing.lg,
+                    AppSpacing.xl10,
+                  ),
+                  child: Padding(
+                    // Keeps the copy clear of the rail; the header row above
+                    // still spans the full gutter-to-gutter width. The kit
+                    // leaves a wide channel here — the copy stops well short
+                    // of the rail rather than running up against it.
+                    padding: const EdgeInsets.only(right: AppSpacing.xl7),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
                         Text(
-                          section.heading,
-                          style: DailyMartTextStyleConst.bodyMdMedium(
+                          widget.content.lastUpdated,
+                          style: DailyMartTextStyleConst.bodyLgSemibold(
                             tt,
                           ).copyWith(color: cs.onSurface),
                         ),
-                        const SizedBox(height: AppSpacing.xs),
-                        Text(
-                          section.body,
-                          style: DailyMartTextStyleConst.bodySmRegular(
-                            tt,
-                          ).copyWith(color: cs.onSurfaceVariant),
-                        ),
+                        // The kit prints the numbered clauses straight after
+                        // the date — no lead paragraph, so `content.intro`
+                        // (gravia's) is deliberately unrendered here.
+                        for (final section in widget.content.sections) ...[
+                          const SizedBox(height: AppSpacing.lg),
+                          Text(
+                            section.heading,
+                            style: DailyMartTextStyleConst.bodyMdMedium(
+                              tt,
+                            ).copyWith(color: cs.onSurface),
+                          ),
+                          const SizedBox(height: AppSpacing.xs),
+                          Text(
+                            section.body,
+                            style: DailyMartTextStyleConst.bodySmRegular(
+                              tt,
+                            ).copyWith(color: cs.onSurfaceVariant),
+                          ),
+                        ],
                       ],
-                    ],
+                    ),
                   ),
                 ),
-              ],
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );

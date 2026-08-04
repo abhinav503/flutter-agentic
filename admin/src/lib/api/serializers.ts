@@ -1,11 +1,14 @@
 import type {
   Address,
   Banner,
+  Brand,
   Category,
   Order,
   Product,
+  SizeVariant,
   Store,
 } from "@/lib/types";
+import { computeDiscountPercentage } from "@/lib/products";
 
 // Shapes match gravia's existing mock JSON / *Model.fromJson() wire format
 // exactly (apps/ecommerce/gravia/lib/feature/*/data/models/) — snake_case,
@@ -50,7 +53,28 @@ export function serializeProduct(p: Product, isFavourite = false) {
     unit_value: p.unitValue,
     unit_type: p.unitType,
     prep_time: p.prepTime,
+    // "" for unbranded. Extra key existing *Model.fromJson readers ignore;
+    // a storefront that wants the name resolves it against GET /brands
+    // (id-only, same rationale as Banner.targetId).
+    brand_id: p.brandId,
     is_favourite: isFavourite,
+  };
+}
+
+// Matches serializeCategory's shape (`image` not `logoUrl`) so a future
+// BrandModel.fromJson can share the id/name/image convention.
+export function serializeBrand(b: Brand) {
+  return { id: b.id, name: b.name, image: b.logoUrl };
+}
+
+// Per-size pricing for the product page's "Select QTY" row — discount is
+// derived through the same function as Product's, never stored.
+export function serializeSizeVariant(v: SizeVariant) {
+  return {
+    value: v.value,
+    price: v.price,
+    original_price: v.originalPrice,
+    discount_percentage: computeDiscountPercentage(v.price, v.originalPrice),
   };
 }
 

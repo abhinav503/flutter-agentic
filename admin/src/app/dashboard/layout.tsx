@@ -12,6 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 const NAV_ITEMS = [
   { href: "/dashboard", label: "Overview" },
   { href: "/dashboard/categories", label: "Categories" },
+  { href: "/dashboard/brands", label: "Brands" },
   { href: "/dashboard/products", label: "Products" },
   { href: "/dashboard/banners", label: "Banners" },
   { href: "/dashboard/orders", label: "Orders" },

@@ -31,13 +31,17 @@ class DailyMartCartItemCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SwipeToDeleteRow(
-      itemKey: item.product.id,
+      // Keyed by line, not product — the same product can sit in the cart
+      // twice in two pack sizes, and duplicate keys would confuse dismissal.
+      itemKey: '${item.product.id}-${item.sizeValue}',
       onDelete: onRemove,
       borderRadius: BorderRadius.circular(context.appShapes.cardRadius),
       icon: AppSvgImage.asset(DailyMartImageConst.delete),
       child: DailyMartProductListTile(
         product: item.product,
         quantity: item.quantity,
+        unitPrice: item.effectiveUnitPrice,
+        packSize: item.effectiveSizeValue,
         onIncrement: onIncrement,
         onDecrement: onDecrement,
       ),

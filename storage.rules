@@ -42,6 +42,13 @@ service firebase.storage {
       allow write: if isStoreOwner(storeId);
     }
 
+    // Brand logos uploaded from the dashboard's Brands page — same owner
+    // gate as the catalog prefixes above.
+    match /{storeId}/brands/{allPaths=**} {
+      allow read: if true;
+      allow write: if isStoreOwner(storeId);
+    }
+
     // Store profile assets (logo) uploaded from the dashboard's Settings
     // page — same owner gate as the catalog prefixes above.
     match /{storeId}/store/{allPaths=**} {

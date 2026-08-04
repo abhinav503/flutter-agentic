@@ -1569,3 +1569,114 @@ gravia orders BLoC tests 7/7 (incl. optimistic-reconcile and rollback cases).
   needs the admin API live (Razorpay must reach a public URL).
 - **Return/refund after delivery** — today refund is only wired to cancel;
   a post-delivery return flow (often partial) isn't built.
+
+## PRODUCT_SPEC + catalog depth (brands, size variants) — admin side DONE (2026-08-04)
+
+**`docs/PRODUCT_SPEC.md`** now exists — the store-owner-facing scope contract
+(pitch: no commission, instant publish inside the already-listed Cordelia app,
+template choice; capability matrix of every shopper + admin surface marked
+✅/🚧/🗓; committed roadmap order: catalog depth → coupons → reviews →
+per-store notifications). New feature work should update its matrix in the
+same commit.
+
+**Catalog depth — admin half shipped** (storefront half deliberately not
+started; the wire format already carries everything it will need):
+
+- **Brands** — `stores/{id}/brands` subcollection (`name`, `logoUrl`),
+  world-readable / owner-writable in `firestore.rules`, logo uploads under
+  `{storeId}/brands/**` in `storage.rules` (both **need a rules deploy**).
+  `lib/brands.ts` mirrors categories; new `/dashboard/brands` page (table +
+  dialog, delete warns about dangling references); products carry **`brandId`
+  only** — name/logo resolve at read time (Banner-`targetId` rationale: a
+  rename can't leave stale copies). Product form gains a brand `Select`
+  (`"none"` sentinel ↔ `""`), products table a resolved Brand column. API:
+  public `GET /api/stores/{id}/brands` (`serializeBrand`, id/name/`image`
+  shape), `serializeProduct` adds `brand_id`, and the product-details route
+  resolves a full `brand` object (null when unbranded/dangling) beside
+  `category`.
+- **Size variants** — `sizeOptions: number[]` (values only, price implied
+  linear) grew into `sizeVariants: [{value, price, originalPrice}]` as the
+  form's source of truth; `sizeOptions` is **derived from it on every save**
+  so pre-variant storefront readers keep working unchanged. Legacy docs
+  upgrade on read: `scalePriceToSize` (base price × size/unitValue, 2-dp)
+  synthesizes variants, persisted next save. The form's comma-separated
+  input became a variant editor — per-row size/price/original with the
+  scaled suggestion as placeholder (empty field = charge the suggestion),
+  per-row derived discount %, rows sorted ascending on save. Stock stays
+  product-level until order lines carry a variant. API: product-details adds
+  `size_variants` (`serializeSizeVariant`, discount via the shared
+  `computeDiscountPercentage`) alongside the legacy `size_options`.
+
+**Next on this track (storefront half):** `BrandModel`/`SizeVariant` in
+cordelia's shared data layer, brand label on cards/details + brand search
+facet, "Select QTY" chips driving price from the selected variant, cart lines
+carrying `sizeValue`, and server-side order creation re-resolving variant
+prices (client never dictates totals) — then per-variant stock becomes
+worth modelling.
+
+## Catalog depth — storefront half DONE (2026-08-04)
+
+The size-variant + brand data the admin half (previous section) started
+writing now flows end-to-end through `cordelia` and the order pipeline. All
+three templates, `flutter analyze` clean workspace-wide, cordelia's 11 tests
+green, admin lint/tsc/build green.
+
+**Shared layers (one change, every template inherits):**
+- `SizeVariantEntity`/`BrandEntity` + models in `product_details`;
+  `ProductDetailEntity.sizeOptions: List<double>` **replaced** by
+  `sizeVariants` (+ nullable `brand`). The repository upgrades legacy
+  `size_options`-only responses to priced variants (linear scale — the same
+  rule as the backend), so screens always see one shape and never price a
+  size themselves.
+- **Cart lines are (product, size).** `CartItemEntity` gains
+  `sizeValue`/`unitPrice`/`originalUnitPrice` (null = base pack;
+  `effective*` getters fall back to the product) and `CartCubit`'s ops take
+  an optional `sizeValue`. Exact (product, size) match first; a null-size op
+  that finds no base-pack line falls back to the product's first line — so
+  card steppers/quick-adds, which don't know about sizes, operate on "this
+  product's line" instead of growing a phantom base-pack line.
+- `ProductDetailsActions` (the cross-template mixin) owns size-selection
+  state: `selectedSizeIndex`/`selectSize`, `effectiveSizeIndex` (defaults to
+  the variant matching the product's own pack, so the page opens priced like
+  the card that led there), and `addSelectedToCart`.
+- Wire: cart PUT and order/payment `items[]` gain `sizeValue` (omitted for
+  base pack); cart GET/PUT responses gain per-line
+  `size_value`/`unit_price`/`original_unit_price`.
+
+**Server (the price authority):** `resolveLinePricing` in `lib/products.ts`
+— one function the cart join, `priceCart` (payment intent), and
+`createOrder` all resolve a (product, sizeValue) through, so what the
+shopper sees, is charged, and is recorded can never disagree. A carted size
+the admin later removed degrades to the linearly-scaled price rather than
+failing. Order lines' `weight` now formats the pack actually sold. Also
+fixed while there: **per-product stock aggregation** in
+`priceCart`/`createOrder`/`cancelOrder` — two lines of one product
+(different sizes) previously issued two `tx.update`s on the same doc, the
+second silently clobbering the first's decrement/restock.
+
+**Cart-totals bug fixed:** `CartItemsX.itemTotal` summed *selling* prices
+while `grandTotal` subtracted the discount from it again — every summary
+and "N items | ₹X" pill understated what checkout actually charges.
+`itemTotal` is now the original-price (MRP) sum, so
+`grandTotal = itemTotal − discountTotal` equals the server's charge exactly.
+
+**Template UIs** (deviations recorded in each spec sheet §2/§10, since all
+three kits predate sizes-with-prices and brands):
+- **gravia** — "Select QTY" chips now drive the price row, discount meta
+  chip, and bottom bar; brand as a muted Text/xs line above the name; cart
+  rows show the line's pack size and pass `sizeValue` to the steppers.
+- **dailymart** — new "Select Size" row reusing My Orders'
+  `DailyMartFilterChip` recipe; brand line above the name; `_PriceLabel`'s
+  `₹X /pack` follows the selection; `DailyMartProductListTile` gains
+  `unitPrice`/`packSize` overrides (cart cards + Checkout's Order List);
+  swipe-row keys are per-line, not per-product.
+- **grofast** — "Select Size" title + the pack's `GrofastChipRow`;
+  `GrofastPrice` and its `pricePerLabel` suffix follow the selection; brand
+  joins the title's label pills as a `GrofastBadge` (logo or
+  `Icons.sell_rounded`); Bag rows show the line's pack and scope
+  swipe/stepper to (product, size); Checkout item rows show the sold pack.
+
+**Not done on this track:** brand as a search/browse facet (needs a
+brand-filter axis on the shared search/category blocs — do it with coupons'
+filter work or as its own slice), and per-variant stock (deliberately
+product-level until there's a reason to split it).

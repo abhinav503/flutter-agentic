@@ -146,12 +146,19 @@ class _CartScreenState extends BaseScreenState<CartScreen> {
                             if (i > 0) const SizedBox(height: AppSpacing.xl2),
                             CartItemRow(
                               item: cartItems[i],
-                              onIncrement: () => context
-                                  .read<CartCubit>()
-                                  .incrementQuantity(cartItems[i].product.id),
-                              onDecrement: () => context
-                                  .read<CartCubit>()
-                                  .decrementQuantity(cartItems[i].product.id),
+                              // sizeValue scopes the tap to this exact line —
+                              // the same product can sit here twice in two
+                              // pack sizes.
+                              onIncrement: () =>
+                                  context.read<CartCubit>().incrementQuantity(
+                                    cartItems[i].product.id,
+                                    sizeValue: cartItems[i].sizeValue,
+                                  ),
+                              onDecrement: () =>
+                                  context.read<CartCubit>().decrementQuantity(
+                                    cartItems[i].product.id,
+                                    sizeValue: cartItems[i].sizeValue,
+                                  ),
                             ),
                           ],
                           const SizedBox(height: AppSpacing.xl4),

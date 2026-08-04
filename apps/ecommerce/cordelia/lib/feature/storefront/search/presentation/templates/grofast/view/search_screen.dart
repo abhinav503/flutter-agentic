@@ -111,6 +111,10 @@ class _SearchScreenState extends BaseScreenState<SearchScreen> {
       bottom: false,
       child: BlocBuilder<SearchBloc, SearchState>(
         builder: (context, state) => GrofastScreenBody(
+          // The header carries the back control (and the live search field),
+          // so it docks like every other back-button screen — a custom
+          // headerRow doesn't auto-pin.
+          pinnedHeader: true,
           headerRow: Column(
             children: [
               GrofastHeaderRow(

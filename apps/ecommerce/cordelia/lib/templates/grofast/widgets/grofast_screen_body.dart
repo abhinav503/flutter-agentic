@@ -6,10 +6,11 @@ import 'package:cordelia/templates/grofast/constants/grofast_dimen_const.dart';
 
 import 'grofast_header_row.dart';
 
-/// The pack's screen shell (spec sheet §8): one scroll view at the 30px
-/// gutter carrying the header row as its first item — this pack scrolls its
-/// header away rather than docking it — with an optional CTA floating over a
-/// `surface → transparent` fade.
+/// The pack's screen shell (spec sheet §8): the header row over one scroll
+/// view at the 30px gutter, with an optional CTA floating over a
+/// `surface → transparent` fade. A back-button header docks above the
+/// scroll (see [pinnedHeader]); a back-less one scrolls away with the
+/// content.
 ///
 /// One padding recipe for **every** state a screen swaps through, so a
 /// loading → loaded → empty → error transition never shifts content sideways
@@ -61,6 +62,12 @@ class GrofastScreenBody extends StatelessWidget {
   /// own physics).
   final bool scrollable;
 
+  /// Keeps the header outside the scroll view, docked above it. Null
+  /// defaults to pinning exactly the headers that carry the back control
+  /// (a title-built row with [showBack]); tab roots and custom [headerRow]s
+  /// keep scrolling away unless a caller opts in.
+  final bool? pinnedHeader;
+
   const GrofastScreenBody({
     super.key,
     required this.body,
@@ -75,6 +82,7 @@ class GrofastScreenBody extends StatelessWidget {
     this.floatingAction,
     this.fullBleedBody = false,
     this.scrollable = true,
+    this.pinnedHeader,
   }) : assert(
          title == null || headerRow == null,
          'Pass a title or a custom headerRow, not both.',
@@ -97,36 +105,62 @@ class GrofastScreenBody extends StatelessWidget {
     final bottom = floatingAction != null
         ? GrofastDimenConst.floatingActionScrollInset(context)
         : bottomInset ?? MediaQuery.paddingOf(context).bottom + AppSpacing.lg;
+    final pinned =
+        header != null && (pinnedHeader ?? (headerRow == null && showBack));
 
-    final content = header == null
-        ? body
-        : Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (fullBleedBody)
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: GrofastDimenConst.screenGutter,
-                  ),
-                  child: header,
-                )
-              else
-                header,
-              SizedBox(height: gap),
-              body,
-            ],
-          );
+    final Widget view;
+    if (pinned) {
+      // The header docks above the scroll view — content clips at the
+      // viewport's top edge instead of sliding under the back control.
+      final bodyPadding = EdgeInsets.fromLTRB(horizontal, 0, horizontal, bottom);
+      view = Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: GrofastDimenConst.screenGutter,
+            ).copyWith(top: topPadding),
+            child: header,
+          ),
+          SizedBox(height: gap),
+          Expanded(
+            child: scrollable
+                ? SingleChildScrollView(padding: bodyPadding, child: body)
+                : Padding(padding: bodyPadding, child: body),
+          ),
+        ],
+      );
+    } else {
+      final content = header == null
+          ? body
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (fullBleedBody)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: GrofastDimenConst.screenGutter,
+                    ),
+                    child: header,
+                  )
+                else
+                  header,
+                SizedBox(height: gap),
+                body,
+              ],
+            );
 
-    final padding = EdgeInsets.fromLTRB(
-      horizontal,
-      topPadding,
-      horizontal,
-      bottom,
-    );
+      final padding = EdgeInsets.fromLTRB(
+        horizontal,
+        topPadding,
+        horizontal,
+        bottom,
+      );
 
-    final view = scrollable
-        ? SingleChildScrollView(padding: padding, child: content)
-        : Padding(padding: padding, child: content);
+      view = scrollable
+          ? SingleChildScrollView(padding: padding, child: content)
+          : Padding(padding: padding, child: content);
+    }
 
     if (floatingAction == null) return view;
 

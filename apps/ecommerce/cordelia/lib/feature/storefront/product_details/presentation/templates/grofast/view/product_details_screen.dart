@@ -12,6 +12,7 @@ import 'package:cordelia/feature/storefront/cart/presentation/quantity_selection
 import 'package:cordelia/feature/storefront/favourites/presentation/cubit/favourites_cubit.dart';
 import 'package:cordelia/feature/storefront/home/domain/entities/product_entity.dart';
 import 'package:cordelia/feature/storefront/product_details/domain/entities/product_detail_entity.dart';
+import 'package:cordelia/feature/storefront/product_details/domain/entities/size_variant_entity.dart';
 import 'package:cordelia/feature/storefront/product_details/presentation/product_details_actions.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_color_const.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_dimen_const.dart';
@@ -52,9 +53,11 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
   @override
   String get storeId => widget.storeId;
 
-  void _addToBag(ProductEntity product) {
-    addToCart(product, quantity);
-    showSnackBar(GrofastValueConst.addedToBagMessage(product.name, quantity));
+  void _addToBag(ProductDetailEntity detail) {
+    addSelectedToCart(detail, quantity);
+    showSnackBar(
+      GrofastValueConst.addedToBagMessage(detail.product.name, quantity),
+    );
     resetQuantity();
   }
 
@@ -100,9 +103,12 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
             detail: detail,
             storeId: widget.storeId,
             quantity: quantity,
+            variant: selectedVariant(detail),
+            selectedSizeIndex: effectiveSizeIndex(detail),
+            onSelectSize: selectSize,
             onIncrement: incrementQuantity,
             onDecrement: decrementQuantity,
-            onAddToBag: () => _addToBag(detail.product),
+            onAddToBag: () => _addToBag(detail),
             onSimilarTap: openProductDetails,
             onSimilarAdd: (product) {
               addToCart(product, 1);
@@ -121,6 +127,14 @@ class _DetailsContent extends StatelessWidget {
   final ProductDetailEntity detail;
   final String storeId;
   final int quantity;
+
+  /// The selected size (null = no size picker) with the state/callback the
+  /// host's `ProductDetailsActions` mixin owns — price and the chip row
+  /// follow it.
+  final SizeVariantEntity? variant;
+  final int selectedSizeIndex;
+  final ValueChanged<int> onSelectSize;
+
   final VoidCallback onIncrement;
   final VoidCallback? onDecrement;
   final VoidCallback onAddToBag;
@@ -131,6 +145,9 @@ class _DetailsContent extends StatelessWidget {
     required this.detail,
     required this.storeId,
     required this.quantity,
+    required this.variant,
+    required this.selectedSizeIndex,
+    required this.onSelectSize,
     required this.onIncrement,
     required this.onDecrement,
     required this.onAddToBag,
@@ -157,7 +174,6 @@ class _DetailsContent extends StatelessWidget {
             children: [
               _HeroWell(
                 imageUrl: product.imageUrl,
-                storeId: storeId,
                 isFavourite: isFavourite,
                 onFavouriteToggle: () =>
                     context.read<FavouritesCubit>().toggle(product),
@@ -207,19 +223,62 @@ class _DetailsContent extends StatelessWidget {
                                     ),
                                   ),
                                 ),
+                              // Kit deviation (recorded in the spec sheet):
+                              // the kit predates brands — the brand joins the
+                              // product's label pills, artwork when it has a
+                              // logo, the rounded-icon system otherwise.
+                              if (detail.brand case final brand?)
+                                brand.imageUrl.isEmpty
+                                    ? GrofastBadge.outlined(
+                                        label: brand.name,
+                                        leading: Icon(
+                                          Icons.sell_rounded,
+                                          size: GrofastDimenConst
+                                              .badgeLeadingSize,
+                                          color: cs.primary,
+                                        ),
+                                      )
+                                    : GrofastBadge.outlined(
+                                        label: brand.name,
+                                        leading: ClipOval(
+                                          child: AppNetworkImage(
+                                            url: brand.imageUrl,
+                                            fit: BoxFit.cover,
+                                          ),
+                                        ),
+                                      ),
                             ],
                           ),
                         ),
                         const SizedBox(width: AppSpacing.lg),
                         GrofastPrice(
-                          value: product.price,
+                          value: variant?.price ?? product.price,
                           unit: product.unitType.pricePerLabel(
-                            product.unitValue,
+                            variant?.value ?? product.unitValue,
                           ),
                           scale: GrofastDimenConst.detailPriceScale,
                         ),
                       ],
                     ),
+                    // Kit deviation (recorded in the spec sheet): the kit has
+                    // no size picker — the pack's single-select chip row
+                    // carries the sizes, each priced by its own variant.
+                    if (detail.sizeVariants.isNotEmpty) ...[
+                      const SizedBox(height: AppSpacing.xl4),
+                      Text(
+                        GrofastValueConst.selectSizeTitle,
+                        style: GrofastTextStyleConst.sectionBold(tt),
+                      ),
+                      const SizedBox(height: AppSpacing.sm),
+                      GrofastChipRow(
+                        labels: [
+                          for (final v in detail.sizeVariants)
+                            product.unitType.format(v.value),
+                        ],
+                        selectedIndex: selectedSizeIndex,
+                        onSelected: onSelectSize,
+                      ),
+                    ],
                     const SizedBox(height: AppSpacing.xl4),
                     Text(
                       GrofastValueConst.descriptionTitle,
@@ -273,6 +332,17 @@ class _DetailsContent extends StatelessWidget {
             onIncrement: onIncrement,
             onDecrement: onDecrement,
             onAddToBag: onAddToBag,
+          ),
+        ),
+        // Pinned over the scrolling hero, not inside it — every back-button
+        // header in this pack stays docked; the controls carry their own
+        // fills, so they hold up over whatever scrolls beneath.
+        Positioned(
+          top: MediaQuery.paddingOf(context).top + AppSpacing.base,
+          left: GrofastDimenConst.screenGutter,
+          right: GrofastDimenConst.screenGutter,
+          child: GrofastHeaderRow(
+            trailing: GrofastBagAction(storeId: storeId),
           ),
         ),
       ],
@@ -367,17 +437,16 @@ class _AddToBagDock extends StatelessWidget {
   }
 }
 
-/// The hero: a tinted well whose bottom edge is the pack's dome, with the
-/// floating chrome over it.
+/// The hero: a tinted well whose bottom edge is the pack's dome. The header
+/// row is NOT here — it pins in the screen's outer Stack so it can't scroll
+/// away with the well; only the favourite disc scrolls with the artwork.
 class _HeroWell extends StatelessWidget {
   final String imageUrl;
-  final String storeId;
   final bool isFavourite;
   final VoidCallback onFavouriteToggle;
 
   const _HeroWell({
     required this.imageUrl,
-    required this.storeId,
     required this.isFavourite,
     required this.onFavouriteToggle,
   });
@@ -410,14 +479,6 @@ class _HeroWell extends StatelessWidget {
                   ),
                   child: AppNetworkImage(url: imageUrl, fit: BoxFit.contain),
                 ),
-              ),
-            ),
-            Positioned(
-              top: topInset + AppSpacing.base,
-              left: GrofastDimenConst.screenGutter,
-              right: GrofastDimenConst.screenGutter,
-              child: GrofastHeaderRow(
-                trailing: GrofastBagAction(storeId: storeId),
               ),
             ),
             // Inside the well, clear of the arc — the kit never lets this
@@ -463,22 +524,10 @@ class _DetailsSkeletonBody extends StatelessWidget {
             children: [
               ClipPath(
                 clipper: const GrofastBottomDomeClipper(),
-                child: Stack(
-                  children: [
-                    ShimmerBox(
-                      width: double.infinity,
-                      height: GrofastDimenConst.detailImageHeight(context),
-                      borderRadius: BorderRadius.zero,
-                    ),
-                    Positioned(
-                      top: topInset + AppSpacing.base,
-                      left: GrofastDimenConst.screenGutter,
-                      right: GrofastDimenConst.screenGutter,
-                      child: GrofastHeaderRow(
-                        trailing: GrofastBagAction(storeId: storeId),
-                      ),
-                    ),
-                  ],
+                child: ShimmerBox(
+                  width: double.infinity,
+                  height: GrofastDimenConst.detailImageHeight(context),
+                  borderRadius: BorderRadius.zero,
                 ),
               ),
               const SizedBox(height: AppSpacing.xl4),
@@ -505,6 +554,16 @@ class _DetailsSkeletonBody extends StatelessWidget {
           ),
         ),
         Positioned(left: 0, right: 0, bottom: 0, child: const _DockSkeleton()),
+        // Same pinned header as the loaded body, so Back and the bag work
+        // (and hold still) before the product arrives.
+        Positioned(
+          top: topInset + AppSpacing.base,
+          left: GrofastDimenConst.screenGutter,
+          right: GrofastDimenConst.screenGutter,
+          child: GrofastHeaderRow(
+            trailing: GrofastBagAction(storeId: storeId),
+          ),
+        ),
       ],
     );
   }
