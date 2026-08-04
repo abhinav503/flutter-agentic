@@ -180,6 +180,7 @@ Use these shared components rather than their raw Flutter equivalents:
 | `SectionRail` | hand-rolled section-header + horizontal scroll rails |
 | `PriceBreakdown` (`blocks/ecommerce/`) | hand-rolled cart/checkout totals columns |
 | `ShimmerListRow` / `ShimmerSectionHeader` / `ShimmerCircleTile` | hand-rolled `ShimmerBox` skeleton layouts |
+| `RatingStars` (fractional) / `RatingStarsField` (1–5 input) | hand-rolled star rows — an average lands *between* stars, so the trailing one fills partially |
 | `context.appColors` | `Theme.of(context).extension<AppColorsExtension>()!` |
 | core `num` extensions (`asPrice` / `asPercent` / `int.plural`) | inline `toStringAsFixed` price/percent formatting and `> 1 ? 's' : ''` pluralization |
 

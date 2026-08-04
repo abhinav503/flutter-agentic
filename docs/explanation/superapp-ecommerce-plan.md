@@ -1998,5 +1998,24 @@ destroy the store's own signal. `GET /api/stores/{id}/reviews?type=order`
 serves the second, and the page fetches on switch rather than loading both
 up front, since the order list reads the whole orders collection.
 
+### Stub/mock audit (2026-08-04)
+
+Ran after the above, so the record is current rather than remembered:
+
+- **Stubs (a control that does nothing):** exactly one — Login's *Continue
+  with Google / Apple*. Every other `comingSoon` is gone.
+- **Mocks (real UI over data no backend produces):** notifications (bundled
+  `assets/data/templates/<id>/notifications.json`; there is no
+  `/notifications` route at all — the one feature with no backend behind
+  it), the lorem-ipsum Terms & Conditions body, onboarding's seeded stock
+  photos, and grofast's two bundled address-tile maps.
+- **Schema thinner than the UI implies:** a product carries one image, so
+  every photo carousel is single-slide.
+- Cleaned up while auditing: `DailyMartImageConst.like` was dead once the
+  Reviews frame's vote counters went (nothing votes on a review) — the const
+  is gone and the asset stays in the pack folder with a note, the policy
+  grofast's unused `scan.svg` set.
+
 **Still open:** post-delivery returns; gravia's Login social buttons; review
-pagination past the first 50; owner replies to reviews.
+pagination past the first 50; owner replies to reviews; per-store
+notifications from the backend.

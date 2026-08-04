@@ -245,8 +245,11 @@ weight above the role's renders identically. `TextStyle.atWeight`
   transparent margins) rendered at 16/24 of the disc — the square canvas is
   load-bearing, since `SvgPicture` stretches a non-square canvas to fill an
   explicit width × height box.
-- **The thumbs-down is `like.svg` rotated 180°** — the kit draws its own
-  Reviews frame that way and exports no separate down glyph.
+- **`like.svg` is exported but unused, and carries no const.** The kit's
+  Reviews frame votes a review up or down (drawing the down arrow as this
+  same glyph rotated 180°, having exported no separate one); nothing in this
+  backend records a vote on a review, so the counters aren't built and the
+  asset sits in the pack folder the way grofast's `scan.svg` does.
 - **`logout.svg` is mirrored at the call site** — the export's arrow points
   *into* the door; the kit's own Profile frame flips it horizontally so the
   arrow exits rightwards, which `DailyMartMenuTile.flipIconHorizontally`
@@ -342,7 +345,7 @@ BottomNavBar (stacked variant)                    ← shell-owned, not per scree
 | Chrome | **No `AppBar`, ever** | Every screen builds its own header row as the first item in the scroll view. `BasePageState.buildAppBar` returns `null` for all tabs |
 | Scroll behaviour | Back-button headers **pin** above the scroll; back-less headers scroll away | `DailyMartScreenBody` auto-pins when it builds a `title` + `onBack` header (Column: docked header row → `Expanded` scroll view, the pattern Cart/Checkout/Wishlist always hand-rolled); tab roots and custom `headerRow`s keep scrolling. No `CollapsingHeaderSheet` — content clips below the docked row, it doesn't slide under it |
 | Body | Sections separated by `AppSpacing.xl4` | |
-| Persistent action | Floating controls over a bottom `surface→transparent` fade (`DailyMartBottomFade`) | Search floats the cart status pill (both browse and results modes — the kit's Filter pill was removed from Search, see §10); Product Details floats its cart-disc + Add To Cart row; Edit Profile floats Save Changes, Change Password floats Update Password, Checkout floats Continue to Payment, Add/Edit Address floats Add Address / Update Address, and Select Address floats Add New Address, all over the same fade with `floatingActionScrollInset(context)` — derived from the device inset, since the CTA sits at `paddingOf.bottom + lg` and a static clearance runs short on notched devices — under the scroll content (all via `DailyMartScreenBody`'s `floatingAction` slot, §13). A full-width *docked bar* is still **not** part of this pack — the Cart screen's checkout CTA (`DailyMartCartCheckoutBar`) is the one docked surface, a slim sheet-cornered region of that screen; the coupon row + totals (`DailyMartCartSummarySection`) scroll with the item cards rather than docking |
+| Persistent action | Floating controls over a bottom `surface→transparent` fade (`DailyMartBottomFade`) | Search floats the cart status pill (both browse and results modes — the kit's Filter pill was removed from Search, see §10); Product Details floats its cart-disc + Add To Cart row; Edit Profile floats Save Changes, Change Password floats Update Password, Checkout floats Continue to Payment, Track Order floats Cancel Order while the order is coming and Rate Order once it has arrived, Add/Edit Address floats Add Address / Update Address, and Select Address floats Add New Address, all over the same fade with `floatingActionScrollInset(context)` — derived from the device inset, since the CTA sits at `paddingOf.bottom + lg` and a static clearance runs short on notched devices — under the scroll content (all via `DailyMartScreenBody`'s `floatingAction` slot, §13). A full-width *docked bar* is still **not** part of this pack — the Cart screen's checkout CTA (`DailyMartCartCheckoutBar`) is the one docked surface, a slim sheet-cornered region of that screen; the coupon row + totals (`DailyMartCartSummarySection`) scroll with the item cards rather than docking |
 | Cart presence outside the shell | `DailyMartCartStatusBar` — the floating-pill signature (primary fill, `floatingAction` shadow) | Screens pushed *outside* the shell (Product Details, Search's browse state) float it while the cart is non-empty; inside the shell the Cart tab itself is the affordance, so the shell never docks it |
 | Global nav | `BottomNavBar(variant: stacked)` — Home / Wishlist / Cart / Profile | Four tabs; the cart **is** a tab here (unlike gravia, where it's a docked status bar). Every storefront surface is now ported to this pack — the four tabs plus Checkout, Search, Category Details, Product Details, Edit Profile, Change Password, Select Address, Add/Edit Address, My Orders, Track Order and the legal document. Nothing falls through to a gravia screen, so two packs' visual languages never meet on one nav bar |
 
@@ -552,6 +555,15 @@ why they are field-shaped (10 px, bordered) rather than menu-shaped.
   (`₹X /pack`) follows the selected chip, and Add To Cart carries the
   selection into the cart line, which then shows that pack size and
   per-size price on the Cart's item cards and Checkout's Order List.
+- **Order rating.** Track Order's floating slot holds Cancel Order while an
+  order is on its way and **Rate Order** once it has been delivered (Edit
+  Rating after the first time); a cancelled order gets neither, since there
+  is nothing left to stop and no delivery to judge. The sheet is the pack's
+  own `write_review_sheet_content` — the *same* body the product reviews
+  use, since a rating form is a rating form — over `showDailyMartSheet`.
+  The kit draws no rating frame at all; this is a real backend capability
+  (`orders/{id}.rating`, gated server-side to the shopper's own delivered
+  order), not a kit surface.
 - **The Reviews tab is live** (kit frame `23 Review product`). The frame's
   geometry is reproduced verbatim — the bordered summary card with
   `score/5.0` and its five amber stars beside the five `N Star` bar rows,

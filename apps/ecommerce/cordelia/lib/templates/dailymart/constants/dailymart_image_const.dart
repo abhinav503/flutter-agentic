@@ -13,6 +13,10 @@
 /// address row's [location]), the avatar's person placeholder, the cart
 /// row's trash, the coupon row's discount badge, and Profile's My Orders /
 /// Dark Mode / Terms rows, which the kit's own list never draws.
+///
+/// `like.svg` stays in the pack folder with no const: the kit's Reviews
+/// frame votes on a review, and nothing in this backend records that — the
+/// same policy grofast's unused `scan.svg` follows.
 abstract final class DailyMartImageConst {
   static const _icons = 'assets/icons/templates/dailymart';
 
@@ -32,10 +36,6 @@ abstract final class DailyMartImageConst {
   static const plus = '$_icons/plus.svg';
   static const minus = '$_icons/minus.svg';
 
-  /// The Reviews tab's thumbs-up. The kit has no thumbs-down export — the
-  /// call site renders this rotated 180° instead, exactly as the kit's own
-  /// frame does.
-  static const like = '$_icons/like.svg';
 
   /// The product card's rating star. Ships 14 × 13, not square — render it
   /// inside a square box and let `BoxFit.contain` letterbox it rather than

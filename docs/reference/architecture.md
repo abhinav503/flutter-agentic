@@ -22,7 +22,8 @@ flutter_agentic/
         │                         app logo)
         └── cordelia/            real app — multi-tenant storefront: one shopper app, many
                                   stores; shared storefront `domain`/`data`, per-template
-                                  `presentation/templates/<id>/` UI (`gravia`, `dailymart`)
+                                  `presentation/templates/<id>/` UI (`gravia`, `dailymart`,
+                                  `grofast`)
                                   picked per store at runtime
 ```
 

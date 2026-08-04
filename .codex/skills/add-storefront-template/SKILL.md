@@ -106,6 +106,7 @@ feature → what the template must draw):
 | Checkout + Razorpay + success | `checkout` / `CheckoutBloc` (provider-agnostic) | pack-specific: inline from Cart (gravia) or routed page (dailymart) |
 | Orders (list, cancel) | `orders` / `OrdersBloc` (BlocCache, optimistic cancel) — the list **must** ship a status filter and a **date filter** (sheet on the shared `OrdersFilter`/`OrdersFilterPeriod`; quick picks + range picker + reset); an order list without a date filter is unusable past the first month, so build it with the screen, not as a correction. Search is optional — add it when the pack's own frames draw it | tab or route |
 | Track order (status timeline, OTP, refund) | `OrderEntity.statusHistory` | route |
+| Order rating (rate a **delivered** order) | `orders` / `OrdersEvent.rated` + `OrderReviewActions` | CTA on Track Order and/or the order card |
 | Address select / add / edit / delete | `address` / `AddressBloc` + `AddressFormFields` mixin | routes |
 | Profile | `profile` / `ProfileBloc` | tab |
 | Edit profile (+ avatar upload) | `EditProfileBloc` + `EditProfileForm` mixin | route |

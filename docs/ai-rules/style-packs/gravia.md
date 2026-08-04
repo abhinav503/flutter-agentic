@@ -431,10 +431,14 @@ divider + handle colours). Never re-style `showAppBottomSheet` at a call site.
   minus the stepper, since a placed order is read-only), a hairline, then a
   full-width date + order-total row (the sum of every line) — with the status
   badge beside the total for a delivered/cancelled order — then a final row that
-  depends on status: while in-process, a "Delivery OTP" row (status badge + four
-  circular outlined digit boxes, `cs.primary` ring + text; one OTP per *order*)
-  followed by Cancel/Track Order; once delivered/cancelled, View Details/Write A
-  Review instead. Every button in these paired rows (`GraviaTintedButton` for
+  depends on status: while in-process, a "Delivery OTP" row (status badge +
+  four circular outlined digit boxes, `cs.primary` ring + text; one OTP per
+  *order* — `GraviaOtpDigits`, shared with Track Order) followed by
+  Cancel/Track Order; once **delivered**, View Details paired with Rate Order
+  (Edit Rating once given, with the stars shown above the pair); once
+  **cancelled**, View Details *alone* through `GraviaActionButton` — a
+  cancelled order has no delivery to rate, and pairing it with a dead button
+  would be worse than not offering one. Every button in these paired rows (`GraviaTintedButton` for
   Cancel, raw `AppButton` for the other three) **must share the exact same
   `labelStyle`** (`textSmMedium` / `cs.onPrimary`-or-`cs.primary`) — `AppButton`
   without an explicit override falls back to `tt.labelMedium`, a different
@@ -571,6 +575,10 @@ never re-style the underlying atom/block inline.**
 | Tinted-error pill (destructive inline action) | `GraviaTintedButton` — no `AppButton` variant renders a filled error-tinted pill; never fork the atom |
 | Two half-width actions side by side | `GraviaActionPair` — bakes in `DimenConst.controlHeight` + `textSmMedium` across both, and renders a `GraviaTintedButton` for a `tintedError` action so a paired row never mixes recipes |
 | Quantity stepper | `GraviaQuantityStepper` |
+| One action on its own | `GraviaActionButton` — the same pill `GraviaActionPair` puts in each half, extracted so a single-action row can't drift into its own recipe |
+| Delivery OTP digits | `GraviaOtpDigits` — the tinted disc per digit; started private inside `OrderCard`, shared with Track Order |
+| Order status timeline | `GraviaOrderStatusTimeline` — dated ticks over a connector that runs brand-coloured as far as the order has got |
+| Product reviews block | `GraviaProductReviewsSection` (Product Details) + `GraviaWriteReviewSheetContent`, the pack's one rating-sheet body — **both** the product review and the order rating open it |
 | Mint-on-tinted-primary info badge (weight, tag, in-process status) | `GraviaTintBadge` — `GraviaProductCard`'s badge can't render it directly (it passes params through to `ProductCard`), so use `GraviaTintBadge.labelStyle`/`.backgroundColor` there |
 | Styled bottom sheet | `showGraviaSheet` / `showGraviaAddToCartSheet` (extension on `BaseScreenState`, `gravia_sheet.dart`) — never raw `showAppBottomSheet` styling |
 | Chrome-free confirmation sheet | `showOrderPlacedSheet` → `OrderPlacedSheetContent` — bypasses `AppBottomSheet`; never force a title/close in just to reuse the atom |
