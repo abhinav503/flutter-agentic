@@ -3,14 +3,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:core/core/base/base_page.dart';
 
-import 'package:cordelia/di/injection_container.dart';
 import 'package:cordelia/feature/storefront/active_store/presentation/cubit/active_store_cubit.dart';
+import 'package:cordelia/feature/storefront/cart/presentation/cubit/cart_cubit.dart';
 import 'package:cordelia/feature/storefront/cart/presentation/templates/grofast/view/cart_screen.dart';
-import 'package:cordelia/feature/storefront/categories/presentation/bloc/categories_bloc.dart';
+import 'package:cordelia/feature/storefront/categories/presentation/bloc/categories_bloc_provider.dart';
 import 'package:cordelia/feature/storefront/categories/presentation/templates/grofast/view/categories_screen.dart';
-import 'package:cordelia/feature/storefront/home/presentation/bloc/home_bloc.dart';
+import 'package:cordelia/feature/storefront/home/presentation/bloc/home_bloc_provider.dart';
 import 'package:cordelia/feature/storefront/home/presentation/templates/grofast/view/home_screen.dart';
-import 'package:cordelia/feature/storefront/profile/presentation/bloc/profile_bloc.dart';
+import 'package:cordelia/feature/storefront/profile/presentation/bloc/profile_bloc_provider.dart';
 import 'package:cordelia/feature/storefront/profile/presentation/templates/grofast/view/profile_screen.dart';
 import 'package:cordelia/feature/storefront/shell/presentation/storefront_shell.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_image_const.dart';
@@ -45,21 +45,24 @@ class _ShellPageState extends BasePageState<ShellPage>
     with StorefrontShellState {
   /// The kit's nav glyphs are all solid fills — one export per slot serves
   /// both states, tinted by the bar (spec sheet §5).
-  static const _tabs = [
-    GrofastNavItem(
+  ///
+  /// Not a `static const` list: the Bag's dot is the bag's own unread mark,
+  /// so it has to follow the cart rather than be lit permanently.
+  static List<GrofastNavItem> _tabs({required bool bagHasItems}) => [
+    const GrofastNavItem(
       asset: GrofastImageConst.navHome,
       label: GrofastValueConst.navHome,
     ),
-    GrofastNavItem(
+    const GrofastNavItem(
       asset: GrofastImageConst.grid,
       label: GrofastValueConst.navCategories,
     ),
     GrofastNavItem(
       asset: GrofastImageConst.navBag,
       label: GrofastValueConst.navBag,
-      showDot: true,
+      showDot: bagHasItems,
     ),
-    GrofastNavItem(
+    const GrofastNavItem(
       asset: GrofastImageConst.navAccount,
       label: GrofastValueConst.navAccount,
     ),
@@ -81,15 +84,11 @@ class _ShellPageState extends BasePageState<ShellPage>
   /// profile the Account tab does — one fetch, cache-first, instead of one
   /// per screen.
   @override
-  Widget buildBlocProviders(Widget child) => BlocProvider(
-    create: (_) =>
-        ProfileBloc(getProfileUseCase: sl())..add(const ProfileEvent.started()),
-    child: child,
-  );
+  Widget buildBlocProviders(Widget child) => profileBlocProvider(child: child);
 
   @override
   Widget? buildBottomNav(BuildContext context) => GrofastNavBar(
-    items: _tabs,
+    items: _tabs(bagHasItems: context.watch<CartCubit>().state.isNotEmpty),
     currentIndex: currentTab,
     onTap: onTabSelected,
   );
@@ -101,16 +100,12 @@ class _ShellPageState extends BasePageState<ShellPage>
     final storeId = context.read<ActiveStoreCubit>().state!.storeId;
 
     return switch (currentTab) {
-      ShellPage.homeTabIndex => BlocProvider(
-        create: (_) =>
-            HomeBloc(getHomeUseCase: sl(), storeId: storeId)
-              ..add(HomeEvent.started(storeId: storeId)),
+      ShellPage.homeTabIndex => homeBlocProvider(
+        storeId: storeId,
         child: HomeScreen(onSeeAllCategories: _goCategories),
       ),
-      ShellPage.categoriesTabIndex => BlocProvider(
-        create: (_) =>
-            CategoriesBloc(getCategoriesUseCase: sl(), storeId: storeId)
-              ..add(const CategoriesEvent.started()),
+      ShellPage.categoriesTabIndex => categoriesBlocProvider(
+        storeId: storeId,
         child: const CategoriesScreen(),
       ),
       // The bag's items live in the app-root CartCubit — nothing to provide

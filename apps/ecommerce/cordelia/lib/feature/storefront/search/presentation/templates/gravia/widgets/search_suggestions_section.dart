@@ -3,6 +3,8 @@ import 'package:cordelia/templates/gravia/constants/gravia_value_const.dart';
 import 'package:cordelia/templates/gravia/widgets/gravia_list_thumbnail.dart';
 import 'package:cordelia/templates/gravia/widgets/gravia_tint_badge.dart';
 import 'package:flutter/material.dart';
+
+import 'package:core/core/extensions/num_extensions.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/molecules/icon_info_row.dart';
 import '../../../../../home/domain/entities/category_entity.dart';
@@ -70,7 +72,7 @@ class SearchSuggestionsSection extends StatelessWidget {
               titleMaxLines: 1,
               padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
               trailing: Text(
-                GraviaValueConst.formattedPrice(product.price),
+                product.price.asPrice,
                 style: GraviaTextStyleConst.textSmBold(
                   tt,
                 ).copyWith(color: cs.onSurface),

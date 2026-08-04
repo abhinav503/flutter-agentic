@@ -24,7 +24,10 @@ class ProductDetailsBloc
     Emitter<ProductDetailsState> emit,
   ) async {
     final result = await _getProductDetails(
-      GetProductDetailsParams(storeId: event.storeId, productId: event.productId),
+      GetProductDetailsParams(
+        storeId: event.storeId,
+        productId: event.productId,
+      ),
     );
     result.fold(
       (failure) => emit(
@@ -37,5 +40,4 @@ class ProductDetailsBloc
       (detail) => emit(ProductDetailsState.loaded(detail: detail)),
     );
   }
-
 }

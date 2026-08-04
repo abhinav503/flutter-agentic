@@ -13,37 +13,28 @@ part 'categories_state.dart';
 class CategoriesBloc extends Bloc<CategoriesEvent, CategoriesState> {
   final GetCategoriesUseCase _getCategories;
   final String _storeId;
-  static final _cache = BlocCache<CategoriesEntity>();
 
-  // Opening store A's categories then store B's behind the same static
-  // cache would otherwise flash A's stale groups before B's fetch resolves
-  // — same guard as HomeBloc's _cachedStoreId.
-  static String? _cachedStoreId;
+  // Scoped to the store: store A's categories then store B's behind an
+  // unscoped static cache would flash A's stale groups before B's fetch
+  // resolves.
+  static final _cache = ScopedBlocCache<CategoriesEntity>();
 
   @visibleForTesting
-  static void resetCache() {
-    _cache.reset();
-    _cachedStoreId = null;
-  }
+  static void resetCache() => _cache.reset();
 
   CategoriesBloc({
     required GetCategoriesUseCase getCategoriesUseCase,
     required String storeId,
   }) : _getCategories = getCategoriesUseCase,
        _storeId = storeId,
-       super(_seed(storeId)) {
+       super(
+         _cache.seed(
+           scope: storeId,
+           warm: (categories) => CategoriesState.loaded(categories: categories),
+           cold: CategoriesState.loading,
+         ),
+       ) {
     on<CategoriesStarted>(_onStarted);
-  }
-
-  static CategoriesState _seed(String storeId) {
-    if (_cachedStoreId != storeId) {
-      _cache.reset();
-      _cachedStoreId = storeId;
-    }
-    return _cache.seed(
-      warm: (categories) => CategoriesState.loaded(categories: categories),
-      cold: CategoriesState.loading,
-    );
   }
 
   Future<void> _onStarted(
@@ -65,7 +56,7 @@ class CategoriesBloc extends Bloc<CategoriesEvent, CategoriesState> {
   }
 
   void _emitLoaded(CategoriesEntity categories, Emitter<CategoriesState> emit) {
-    _cache.save(categories);
+    _cache.save(_storeId, categories);
     emit(CategoriesState.loaded(categories: categories));
   }
 }

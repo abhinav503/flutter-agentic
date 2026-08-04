@@ -53,9 +53,8 @@ class ProductDetailSimilarProducts extends StatelessWidget {
         onQuickAdd: () => onQuickAdd(products[i]),
         onTap: () => onProductTap(products[i]),
         isFavourite: favourites.any((p) => p.id == products[i].id),
-        onFavouriteToggle: () => context
-            .read<FavouritesCubit>()
-            .toggle(products[i]),
+        onFavouriteToggle: () =>
+            context.read<FavouritesCubit>().toggle(products[i]),
       ),
     );
   }

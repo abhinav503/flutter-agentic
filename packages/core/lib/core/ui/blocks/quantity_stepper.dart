@@ -46,6 +46,41 @@ class QuantityStepper extends StatelessWidget {
   /// default content-driven height.
   final double? height;
 
+  /// Set false for a **bare** stepper: no pill container at all — no fill,
+  /// border, or radius — just the − / value / + row. For packs whose kit
+  /// draws the controls directly on the host surface (or draws its own
+  /// container around them).
+  final bool showContainer;
+
+  /// Container fill override (default `primaryContainer` @ 0.35). Ignored
+  /// when [showContainer] is false.
+  final Color? backgroundColor;
+
+  /// Container border colour override (default `cs.primary`); pass
+  /// transparent for a fill-only pill. Ignored when [showContainer] is false.
+  final Color? borderColor;
+
+  /// Container radius override (default the full pill). Ignored when
+  /// [showContainer] is false.
+  final BorderRadius? borderRadius;
+
+  /// Pins each step key to an exact square edge instead of the
+  /// padding-driven default — for kits whose keys are fixed-size squares or
+  /// discs.
+  final double? buttonSize;
+
+  /// Step-key silhouette (default a circle) — e.g. a small rounded square.
+  final BorderRadius? buttonRadius;
+
+  /// Step-key fill (default none — the key is a bare glyph on the pill).
+  final Color? buttonColor;
+
+  /// Glyph size inside each step key (default 18).
+  final double iconSize;
+
+  /// Gap either side of the count (default [AppSpacing.xs2]).
+  final double? valueGap;
+
   const QuantityStepper({
     super.key,
     required this.value,
@@ -56,6 +91,15 @@ class QuantityStepper extends StatelessWidget {
     this.incrementIconBuilder,
     this.valueTextStyle,
     this.height,
+    this.showContainer = true,
+    this.backgroundColor,
+    this.borderColor,
+    this.borderRadius,
+    this.buttonSize,
+    this.buttonRadius,
+    this.buttonColor,
+    this.iconSize = 18,
+    this.valueGap,
   });
 
   @override
@@ -63,38 +107,54 @@ class QuantityStepper extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
 
+    final row = Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _StepButton(
+          icon: Icons.remove,
+          iconBuilder: decrementIconBuilder,
+          onTap: onDecrement,
+          iconColor: iconColor,
+          size: buttonSize,
+          radius: buttonRadius,
+          fillColor: buttonColor,
+          iconSize: iconSize,
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: valueGap ?? AppSpacing.xs2,
+          ),
+          child: Text(
+            '$value',
+            style: valueTextStyle ??
+                tt.titleMedium!.copyWith(fontWeight: FontWeight.w700),
+          ),
+        ),
+        _StepButton(
+          icon: Icons.add,
+          iconBuilder: incrementIconBuilder,
+          onTap: onIncrement,
+          iconColor: iconColor,
+          size: buttonSize,
+          radius: buttonRadius,
+          fillColor: buttonColor,
+          iconSize: iconSize,
+        ),
+      ],
+    );
+
+    if (!showContainer) {
+      return height == null ? row : SizedBox(height: height, child: row);
+    }
+
     return Container(
       height: height,
       decoration: BoxDecoration(
-        color: cs.primaryContainer.withValues(alpha: 0.35),
-        borderRadius: AppRadius.full,
-        border: Border.all(color: cs.primary),
+        color: backgroundColor ?? cs.primaryContainer.withValues(alpha: 0.35),
+        borderRadius: borderRadius ?? AppRadius.full,
+        border: Border.all(color: borderColor ?? cs.primary),
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _StepButton(
-            icon: Icons.remove,
-            iconBuilder: decrementIconBuilder,
-            onTap: onDecrement,
-            iconColor: iconColor,
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs2),
-            child: Text(
-              '$value',
-              style: valueTextStyle ??
-                  tt.titleMedium!.copyWith(fontWeight: FontWeight.w700),
-            ),
-          ),
-          _StepButton(
-            icon: Icons.add,
-            iconBuilder: incrementIconBuilder,
-            onTap: onIncrement,
-            iconColor: iconColor,
-          ),
-        ],
-      ),
+      child: row,
     );
   }
 }
@@ -104,14 +164,20 @@ class _StepButton extends StatelessWidget {
   final Widget Function(Color color, double size)? iconBuilder;
   final VoidCallback? onTap;
   final Color? iconColor;
-
-  static const double _iconSize = 18;
+  final double? size;
+  final BorderRadius? radius;
+  final Color? fillColor;
+  final double iconSize;
 
   const _StepButton({
     required this.icon,
     this.iconBuilder,
     this.onTap,
     this.iconColor,
+    this.size,
+    this.radius,
+    this.fillColor,
+    this.iconSize = 18,
   });
 
   @override
@@ -121,19 +187,32 @@ class _StepButton extends StatelessWidget {
         ? cs.onSurface.withValues(alpha: 0.38)
         : (iconColor ?? cs.primary);
 
-    return InkWell(
-      onTap: onTap,
-      customBorder: const CircleBorder(),
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.sm),
-        child: iconBuilder != null
-            ? SizedBox(
-                width: _iconSize,
-                height: _iconSize,
-                child: iconBuilder!(resolvedColor, _iconSize),
-              )
-            : Icon(icon, size: _iconSize, color: resolvedColor),
-      ),
+    final glyph = iconBuilder != null
+        ? SizedBox(
+            width: iconSize,
+            height: iconSize,
+            child: iconBuilder!(resolvedColor, iconSize),
+          )
+        : Icon(icon, size: iconSize, color: resolvedColor);
+
+    final shape = radius != null
+        ? RoundedRectangleBorder(borderRadius: radius!)
+        : const CircleBorder() as ShapeBorder;
+
+    // A fixed [size] centres the glyph in an exact square key; the default
+    // keeps the padding-driven hit area.
+    final content = size != null
+        ? SizedBox.square(dimension: size, child: Center(child: glyph))
+        : Padding(padding: const EdgeInsets.all(AppSpacing.sm), child: glyph);
+
+    if (fillColor == null) {
+      return InkWell(onTap: onTap, customBorder: shape, child: content);
+    }
+    return Material(
+      color: fillColor,
+      shape: shape,
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(onTap: onTap, customBorder: shape, child: content),
     );
   }
 }

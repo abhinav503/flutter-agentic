@@ -22,8 +22,9 @@ class _CartPageState extends BasePageState<CartPage> {
   Widget buildBody(BuildContext context) => MultiBlocProvider(
     providers: [
       BlocProvider(
-        create: (_) => CartBloc(getHomeUseCase: sl(), storeId: widget.storeId)
-          ..add(const CartEvent.started()),
+        create: (_) =>
+            CartBloc(getHomeUseCase: sl(), storeId: widget.storeId)
+              ..add(const CartEvent.started()),
       ),
       BlocProvider(
         create: (_) => CheckoutBloc(

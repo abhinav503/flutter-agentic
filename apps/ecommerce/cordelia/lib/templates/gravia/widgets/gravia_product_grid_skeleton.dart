@@ -24,9 +24,7 @@ class GraviaProductGridSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cardRadius = BorderRadius.circular(
-      context.appShapes.cardRadius,
-    );
+    final cardRadius = BorderRadius.circular(context.appShapes.cardRadius);
     return Padding(
       padding: padding,
       child: ChunkedGrid(

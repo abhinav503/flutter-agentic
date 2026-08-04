@@ -133,9 +133,8 @@ class _HomeScreenState extends BaseScreenState<HomeScreen>
                 padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
                 child: ErrorView(
                   message: DailyMartValueConst.homeLoadErrorMessage,
-                  onRetry: () => context.read<HomeBloc>().add(
-                    HomeEvent.started(storeId: _storeId),
-                  ),
+                  onRetry: () =>
+                      context.read<HomeBloc>().add(const HomeEvent.started()),
                 ),
               ),
               HomeLoading() => const DailyMartHomeSkeletonBody(),
@@ -242,7 +241,9 @@ class _HomeContent extends StatelessWidget {
           onFavouriteToggle: onFavouriteToggle,
           onSeeAll: () => _openBrowse(context),
         ),
-        SizedBox(height: DailyMartDimenConst.floatingActionScrollInset(context)),
+        SizedBox(
+          height: DailyMartDimenConst.floatingActionScrollInset(context),
+        ),
       ],
     );
   }

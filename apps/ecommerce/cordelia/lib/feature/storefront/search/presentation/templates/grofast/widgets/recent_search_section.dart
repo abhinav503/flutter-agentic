@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/svg_image.dart';
+import 'package:core/core/ui/molecules/icon_info_row.dart';
 
 import 'package:cordelia/feature/storefront/search/domain/entities/recent_search_entity.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_image_const.dart';
@@ -42,69 +43,42 @@ class GrofastRecentSearchSection extends StatelessWidget {
       children: [
         const GrofastSectionHeader(title: GrofastValueConst.recentSearchTitle),
         const SizedBox(height: AppSpacing.lg),
-        for (final item in items)
-          _RecentSearchRow(
-            item: item,
-            onTap: () => onItemTap(item),
-            onRemove: () => onItemRemove(item),
-          ),
+        for (final item in items) _recentRow(context, item),
       ],
     );
   }
-}
 
-class _RecentSearchRow extends StatelessWidget {
-  final RecentSearchEntity item;
-  final VoidCallback onTap;
-  final VoidCallback onRemove;
-
-  const _RecentSearchRow({
-    required this.item,
-    required this.onTap,
-    required this.onRemove,
-  });
-
-  @override
-  Widget build(BuildContext context) {
+  /// The pack's dressing over core's row silhouette — leading search glyph,
+  /// pack body type, an X that removes without opening the term.
+  Widget _recentRow(BuildContext context, RecentSearchEntity item) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
 
-    return InkWell(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: AppSpacing.base),
-        child: Row(
-          children: [
-            AppSvgImage.asset(
-              GrofastImageConst.search,
-              width: AppSpacing.xl,
-              height: AppSpacing.xl,
-              color: cs.onSurfaceVariant,
-            ),
-            const SizedBox(width: AppSpacing.lg),
-            Expanded(
-              child: Text(
-                item.name,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: GrofastTextStyleConst.bodyMedium(
-                  tt,
-                ).copyWith(color: cs.onSurface),
-              ),
-            ),
-            GestureDetector(
-              onTap: onRemove,
-              behavior: HitTestBehavior.opaque,
-              child: Padding(
-                padding: const EdgeInsets.all(AppSpacing.xs),
-                child: Icon(
-                  Icons.close_rounded,
-                  size: AppSpacing.xl,
-                  color: cs.onSurfaceVariant,
-                ),
-              ),
-            ),
-          ],
+    return IconInfoRow(
+      leading: AppSvgImage.asset(
+        GrofastImageConst.search,
+        width: AppSpacing.xl,
+        height: AppSpacing.xl,
+        color: cs.onSurfaceVariant,
+      ),
+      title: item.name,
+      titleMaxLines: 1,
+      titleStyle: GrofastTextStyleConst.bodyMedium(
+        tt,
+      ).copyWith(color: cs.onSurface),
+      gap: AppSpacing.lg,
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.base),
+      onTap: () => onItemTap(item),
+      trailing: GestureDetector(
+        onTap: () => onItemRemove(item),
+        behavior: HitTestBehavior.opaque,
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.xs),
+          child: Icon(
+            Icons.close_rounded,
+            size: AppSpacing.xl,
+            color: cs.onSurfaceVariant,
+          ),
         ),
       ),
     );

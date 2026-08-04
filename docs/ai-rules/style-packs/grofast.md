@@ -57,6 +57,7 @@ gradient and the prices are identical in both modes.
 | `primary` | `#4CBB5E` | Prices are the pack's signature; a flipped green would read as a different brand |
 | Brand gradient | `#26AD71 → #32CB4B` | It is the pack's "primary button", and it carries white text in both modes |
 | `error` | `#EC534A` light / `#F08A83` dark | Hue held; only lightness moves, so a favourited heart stays the same red |
+| `secondary` / `onSecondary` | `#194B38` / `#FFFFFF` | The role's only consumer is the promo row's "Apply" pill, and the kit inks it Dark-Green. Inverting it to a near-white chip made the one control on a dark coupon row the brightest thing on the screen — louder than the gradient CTA below it |
 
 **Fixed swatches** — pinned in both modes, in `grofast_color_const.dart`:
 

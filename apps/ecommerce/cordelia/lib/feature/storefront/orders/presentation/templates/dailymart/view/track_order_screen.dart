@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import 'package:core/core/extensions/num_extensions.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
@@ -113,71 +115,71 @@ class _TrackOrderScreenState extends BaseScreenState<TrackOrderScreen> {
                 )
               : null,
           body: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const DailyMartSectionHeader(
-                    title: DailyMartValueConst.orderListLabel,
-                  ),
-                  const SizedBox(height: AppSpacing.base),
-                  for (var i = 0; i < order.items.length; i++) ...[
-                    if (i > 0) const SizedBox(height: AppSpacing.base),
-                    DailyMartOrderItemRow(item: order.items[i]),
-                  ],
-                  const SizedBox(height: AppSpacing.lg),
-                  const DailyMartSectionHeader(
-                    title: DailyMartValueConst.orderDetailsTitle,
-                  ),
-                  const SizedBox(height: AppSpacing.xs),
-                  _DetailRow(
-                    label: DailyMartValueConst.orderIdLabel,
-                    value: order.id,
-                    onCopy: () => _copy(order.id),
-                  ),
-                  if (showOtp) ...[
-                    const SizedBox(height: AppSpacing.xs3),
-                    _DetailRow(
-                      label: DailyMartValueConst.deliveryOtpLabel,
-                      value: order.deliveryOtp,
-                    ),
-                  ],
-                  const SizedBox(height: AppSpacing.lg),
-                  const DailyMartSectionHeader(
-                    title: DailyMartValueConst.paymentTitle,
-                  ),
-                  const SizedBox(height: AppSpacing.xs),
-                  _DetailRow(
-                    label: DailyMartValueConst.amountPaidLabel,
-                    value: DailyMartValueConst.formattedPrice(order.totalPrice),
-                  ),
-                  const SizedBox(height: AppSpacing.xs3),
-                  _DetailRow(
-                    label: DailyMartValueConst.paymentIdLabel,
-                    // A payment-less (test-mode) order has no reference to
-                    // quote — say so rather than render an empty right edge.
-                    value: order.paymentId.isEmpty
-                        ? DailyMartValueConst.noOnlinePaymentLabel
-                        : order.paymentId,
-                    onCopy: order.paymentId.isEmpty
-                        ? null
-                        : () => _copy(order.paymentId),
-                  ),
-                  // Only once money has actually moved back — an order that
-                  // was never paid for has nothing to report here.
-                  if (refund != null) ...[
-                    const SizedBox(height: AppSpacing.xs3),
-                    _DetailRow(
-                      label: DailyMartValueConst.refundLabel,
-                      value: refund,
-                    ),
-                  ],
-                  const SizedBox(height: AppSpacing.lg),
-                  const DailyMartSectionHeader(
-                    title: DailyMartValueConst.orderStatusTitle,
-                  ),
-                  const SizedBox(height: AppSpacing.base),
-                  DailyMartOrderStatusTimeline(order: order),
-                ],
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const DailyMartSectionHeader(
+                title: DailyMartValueConst.orderListLabel,
               ),
+              const SizedBox(height: AppSpacing.base),
+              for (var i = 0; i < order.items.length; i++) ...[
+                if (i > 0) const SizedBox(height: AppSpacing.base),
+                DailyMartOrderItemRow(item: order.items[i]),
+              ],
+              const SizedBox(height: AppSpacing.lg),
+              const DailyMartSectionHeader(
+                title: DailyMartValueConst.orderDetailsTitle,
+              ),
+              const SizedBox(height: AppSpacing.xs),
+              _DetailRow(
+                label: DailyMartValueConst.orderIdLabel,
+                value: order.id,
+                onCopy: () => _copy(order.id),
+              ),
+              if (showOtp) ...[
+                const SizedBox(height: AppSpacing.xs3),
+                _DetailRow(
+                  label: DailyMartValueConst.deliveryOtpLabel,
+                  value: order.deliveryOtp,
+                ),
+              ],
+              const SizedBox(height: AppSpacing.lg),
+              const DailyMartSectionHeader(
+                title: DailyMartValueConst.paymentTitle,
+              ),
+              const SizedBox(height: AppSpacing.xs),
+              _DetailRow(
+                label: DailyMartValueConst.amountPaidLabel,
+                value: order.totalPrice.asPrice,
+              ),
+              const SizedBox(height: AppSpacing.xs3),
+              _DetailRow(
+                label: DailyMartValueConst.paymentIdLabel,
+                // A payment-less (test-mode) order has no reference to
+                // quote — say so rather than render an empty right edge.
+                value: order.paymentId.isEmpty
+                    ? DailyMartValueConst.noOnlinePaymentLabel
+                    : order.paymentId,
+                onCopy: order.paymentId.isEmpty
+                    ? null
+                    : () => _copy(order.paymentId),
+              ),
+              // Only once money has actually moved back — an order that
+              // was never paid for has nothing to report here.
+              if (refund != null) ...[
+                const SizedBox(height: AppSpacing.xs3),
+                _DetailRow(
+                  label: DailyMartValueConst.refundLabel,
+                  value: refund,
+                ),
+              ],
+              const SizedBox(height: AppSpacing.lg),
+              const DailyMartSectionHeader(
+                title: DailyMartValueConst.orderStatusTitle,
+              ),
+              const SizedBox(height: AppSpacing.base),
+              DailyMartOrderStatusTimeline(order: order),
+            ],
+          ),
         ),
       ),
     );

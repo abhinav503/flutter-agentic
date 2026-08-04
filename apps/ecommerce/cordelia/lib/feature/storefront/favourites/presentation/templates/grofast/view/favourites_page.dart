@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:core/core/base/base_page.dart';
+import 'package:cordelia/feature/storefront/presentation/chromeless_page.dart';
 
 import 'favourites_screen.dart';
 
@@ -16,14 +17,8 @@ class FavouritesPage extends BasePage {
   State<FavouritesPage> createState() => _FavouritesPageState();
 }
 
-class _FavouritesPageState extends BasePageState<FavouritesPage> {
-  @override
-  PreferredSizeWidget? buildAppBar(BuildContext context) => null;
-
-  @override
-  Color? backgroundColor(BuildContext context) =>
-      Theme.of(context).colorScheme.surface;
-
+class _FavouritesPageState extends BasePageState<FavouritesPage>
+    with ChromelessStorefrontPage {
   @override
   Widget buildBody(BuildContext context) => const FavouritesScreen();
 }

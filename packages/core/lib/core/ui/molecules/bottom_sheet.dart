@@ -83,6 +83,12 @@ class AppBottomSheet extends StatelessWidget {
   /// `showModalBottomSheet` recipes that re-implement the sheet container.
   final bool showHeader;
 
+  /// Draws the drag handle even in chromeless mode ([showHeader] false) —
+  /// for content with no title row that still wants the grab affordance,
+  /// which otherwise hand-draws its own 44 × 3 bar. Omit (default) to follow
+  /// [showHeader]: headered sheets get the handle, chromeless sheets don't.
+  final bool? showHandle;
+
   /// Replaces the sheet container's rounded-top-corners silhouette. For a
   /// style pack whose sheet edge is not a radius at all — e.g. `grofast`,
   /// whose sheets rise in an arc with the drag handle floating above them as
@@ -110,6 +116,7 @@ class AppBottomSheet extends StatelessWidget {
     this.headerHeight,
     this.showCloseAction = true,
     this.showHeader = true,
+    this.showHandle,
     this.shape,
     this.actions,
     this.isScrollable = true,
@@ -132,6 +139,7 @@ class AppBottomSheet extends StatelessWidget {
     double? headerHeight,
     bool showCloseAction = true,
     bool showHeader = true,
+    bool? showHandle,
     ShapeBorder? shape,
     List<Widget>? actions,
     bool isScrollable = true,
@@ -162,6 +170,7 @@ class AppBottomSheet extends StatelessWidget {
         headerHeight: headerHeight,
         showCloseAction: showCloseAction,
         showHeader: showHeader,
+        showHandle: showHandle,
         shape: shape,
         actions: actions,
         isScrollable: isScrollable,
@@ -203,6 +212,26 @@ class AppBottomSheet extends StatelessWidget {
               ? const ClampingScrollPhysics()
               : const NeverScrollableScrollPhysics(),
           slivers: [
+            if (!showHeader && (showHandle ?? false))
+              SliverToBoxAdapter(
+                child: Center(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: AppSpacing.xs2,
+                    ),
+                    child: Container(
+                      width: handleSize?.width ?? 44,
+                      height: handleSize?.height ?? 3,
+                      decoration: BoxDecoration(
+                        color:
+                            handleColor ??
+                            cs.onSurfaceVariant.withValues(alpha: 0.4),
+                        borderRadius: AppRadius.full,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             if (showHeader)
               SliverPersistentHeader(
                 pinned: true,

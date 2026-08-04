@@ -61,4 +61,3 @@ class DailyMartProductDetailBottomBar extends StatelessWidget {
   void _openCart(BuildContext context) =>
       context.push(AppRoutes.cart, extra: storeId);
 }
-

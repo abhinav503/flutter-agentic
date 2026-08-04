@@ -153,9 +153,8 @@ class _HomeScreenState extends BaseScreenState<HomeScreen>
                 ),
                 child: GrofastErrorView(
                   message: message,
-                  onRetry: () => context.read<HomeBloc>().add(
-                    HomeEvent.started(storeId: _storeId),
-                  ),
+                  onRetry: () =>
+                      context.read<HomeBloc>().add(const HomeEvent.started()),
                 ),
               ),
               HomeLoaded(:final home) => _HomeContent(

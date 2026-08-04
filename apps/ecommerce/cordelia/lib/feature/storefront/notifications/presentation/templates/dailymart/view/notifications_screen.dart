@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:core/core/ui/atoms/app_switcher.dart';
+import 'package:cordelia/templates/dailymart/widgets/dailymart_switcher.dart';
 import 'package:core/core/base/base_screen.dart';
 import 'package:core/core/theme/app_colors_extension.dart';
 import 'package:core/core/theme/app_spacing.dart';
@@ -56,17 +56,17 @@ class _NotificationsScreenState extends BaseScreenState<NotificationsScreen> {
               showSnackBar(message);
             }
           },
-          builder: (context, state) => AppSwitcher(
+          builder: (context, state) => DailyMartSwitcher(
             curve: Curves.easeInOut,
             child: switch (state) {
               // Error keeps the same page shell as loading/loaded so the
               // header stays put and the branch pays its own bottom inset.
-              NotificationsError(:final template) => _page(
+              NotificationsError() => _page(
                 key: const ValueKey('error'),
                 body: ErrorView(
                   message: DailyMartValueConst.notificationsLoadErrorMessage,
                   onRetry: () => context.read<NotificationsBloc>().add(
-                    NotificationsEvent.started(template: template),
+                    const NotificationsEvent.started(),
                   ),
                 ),
               ),
@@ -95,8 +95,6 @@ class _NotificationsScreenState extends BaseScreenState<NotificationsScreen> {
     );
   }
 }
-
-
 
 class _Sections extends StatelessWidget {
   final List<NotificationSectionEntity> sections;

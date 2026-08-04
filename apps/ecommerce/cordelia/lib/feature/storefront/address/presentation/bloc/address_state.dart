@@ -12,6 +12,13 @@ sealed class AddressState with _$AddressState {
     @Default(false) bool saveFailed,
     // Same one-shot pattern as [saveFailed], for a failed delete.
     @Default(false) bool deleteFailed,
+    // True for one emission when a silent background refresh (a warm start
+    // seeded from AddressBloc's cached data) fails — the already-visible
+    // cached content stays on screen; the listener surfaces this via a
+    // snackbar instead of replacing it with the error view. Cleared the same
+    // way [saveFailed] is: every later emission rebuilds the state fresh, so
+    // the default takes over.
+    @Default(false) bool refreshFailed,
   }) = AddressLoaded;
   const factory AddressState.error({required String message}) = AddressError;
 }

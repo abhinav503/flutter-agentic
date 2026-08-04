@@ -77,7 +77,9 @@ class GraviaHeroHeader extends StatelessWidget {
     return _pageTitle
         ? HeroHeader.page(
             title: title,
-            titleStyle: GraviaTextStyleConst.textXlBold(tt).copyWith(color: onOverlay),
+            titleStyle: GraviaTextStyleConst.textXlBold(
+              tt,
+            ).copyWith(color: onOverlay),
             trailing: trailing,
             bottom: bottom,
             bottomGap: bottomGap,
@@ -85,7 +87,9 @@ class GraviaHeroHeader extends StatelessWidget {
           )
         : HeroHeader(
             title: title,
-            titleStyle: GraviaTextStyleConst.textLgBold(tt).copyWith(color: onOverlay),
+            titleStyle: GraviaTextStyleConst.textLgBold(
+              tt,
+            ).copyWith(color: onOverlay),
             leading: GraviaGlassIconButton(
               asset: ImageConst.arrowLeft,
               onTap: onBack,

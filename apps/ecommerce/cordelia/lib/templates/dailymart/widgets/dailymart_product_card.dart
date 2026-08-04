@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:core/core/extensions/num_extensions.dart';
 import 'package:core/core/theme/app_shapes_extension.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/network_image.dart';
@@ -50,8 +51,7 @@ class DailyMartProductCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
-    final shapes =
-        context.appShapes;
+    final shapes = context.appShapes;
 
     // Shadow on the outer box, surface inside it: a `boxShadow` declared on a
     // child of the Material paints *after* the white fill, so the two have to
@@ -105,22 +105,18 @@ class DailyMartProductCard extends StatelessWidget {
                               children: [
                                 Text(
                                   product.name,
-                                  style:
-                                      DailyMartTextStyleConst.bodySmSemibold(
-                                        tt,
-                                      ).copyWith(color: cs.onSurface),
+                                  style: DailyMartTextStyleConst.bodySmSemibold(
+                                    tt,
+                                  ).copyWith(color: cs.onSurface),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                 ),
                                 const SizedBox(height: AppSpacing.xs4),
                                 Text(
-                                  DailyMartValueConst.formattedPrice(
-                                    product.price,
-                                  ),
-                                  style:
-                                      DailyMartTextStyleConst.bodySmSemibold(
-                                        tt,
-                                      ).copyWith(color: cs.onSurface),
+                                  product.price.asPrice,
+                                  style: DailyMartTextStyleConst.bodySmSemibold(
+                                    tt,
+                                  ).copyWith(color: cs.onSurface),
                                 ),
                               ],
                             ),
@@ -196,9 +192,7 @@ class _ImageWell extends StatelessWidget {
                       size: DailyMartDimenConst.cardActionSize,
                       iconSize: AppSpacing.lg,
                       backgroundColor: cs.surface,
-                      foregroundColor: isFavourite
-                          ? cs.primary
-                          : cs.onSurface,
+                      foregroundColor: isFavourite ? cs.primary : cs.onSurface,
                     ),
                 ],
               ),

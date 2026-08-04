@@ -34,10 +34,7 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
   }
 
   @override
-  Future<SearchResultsModel> searchCatalog(
-    String storeId,
-    String query,
-  ) async {
+  Future<SearchResultsModel> searchCatalog(String storeId, String query) async {
     final response = await HttpService.instance.get<Map<String, dynamic>>(
       ApiConstants.searchPath(storeId),
       queryParameters: {'q': query},

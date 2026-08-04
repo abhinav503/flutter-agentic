@@ -54,10 +54,7 @@ class GrofastAddressTile extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: radius,
         side: isSelected
-            ? const BorderSide(
-                color: GrofastColorConst.gradientStart,
-                width: 2,
-              )
+            ? const BorderSide(color: GrofastColorConst.gradientStart, width: 2)
             : BorderSide.none,
       ),
       clipBehavior: Clip.antiAlias,

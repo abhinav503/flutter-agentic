@@ -131,9 +131,7 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton<OrdersRemoteDataSource>(
     () => const OrdersRemoteDataSourceImpl(),
   );
-  sl.registerLazySingleton<OrdersRepository>(
-    () => OrdersRepositoryImpl(sl()),
-  );
+  sl.registerLazySingleton<OrdersRepository>(() => OrdersRepositoryImpl(sl()));
   sl.registerLazySingleton(() => GetOrdersUseCase(sl()));
   sl.registerLazySingleton(() => CreatePaymentUseCase(sl()));
   sl.registerLazySingleton(() => CreateOrderUseCase(sl()));

@@ -89,9 +89,7 @@ class _LoginScreenState extends BaseScreenState<LoginScreen>
       return;
     }
     context.read<AuthBloc>().add(
-      AuthEvent.forgotPasswordRequested(
-        email: _emailController.text.trim(),
-      ),
+      AuthEvent.forgotPasswordRequested(email: _emailController.text.trim()),
     );
   }
 

@@ -4,7 +4,6 @@ import 'package:core/core/theme/app_radius.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/button.dart';
 
-import 'package:cordelia/enums/orders_filter_period.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_dimen_const.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_text_style_const.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_value_const.dart';
@@ -14,6 +13,7 @@ import 'package:cordelia/templates/grofast/widgets/grofast_options_sheet_content
 import 'package:cordelia/templates/grofast/widgets/grofast_primary_button.dart';
 
 import '../../../bloc/orders_bloc.dart';
+import '../../../orders_date_filter_state.dart';
 
 /// Body of My Orders' date-filter sheet — **dates only**, on the pack's own
 /// sheet grammar: quick-pick chips, the range as a picklist-trigger field
@@ -53,53 +53,19 @@ class GrofastOrdersDateFilterSheetContent extends StatefulWidget {
 }
 
 class _GrofastOrdersDateFilterSheetContentState
-    extends State<GrofastOrdersDateFilterSheetContent> {
-  late OrdersFilterPeriod? _period = widget.initialFilter?.period;
-  late DateTime? _from = widget.initialFilter?.from;
-  late DateTime? _to = widget.initialFilter?.to;
+    extends State<GrofastOrdersDateFilterSheetContent>
+    with OrdersDateFilterState {
+  @override
+  OrdersFilter? get initialFilter => widget.initialFilter;
 
-  static const _quickPicks = <(OrdersFilterPeriod, String)>[
-    (OrdersFilterPeriod.lastWeek, GrofastValueConst.ordersFilterLastWeekLabel),
-    (
-      OrdersFilterPeriod.lastMonth,
-      GrofastValueConst.ordersFilterLastMonthLabel,
-    ),
+  @override
+  DateTime get anchor => widget.anchor;
+
+  /// This pack's copy for the shared windows, in the mixin's order.
+  static const _labels = [
+    GrofastValueConst.ordersFilterLastWeekLabel,
+    GrofastValueConst.ordersFilterLastMonthLabel,
   ];
-
-  /// Tapping the selected chip again clears it — with only two windows and
-  /// no "All time" chip, that's the only way back to an unbounded range
-  /// without opening the calendar.
-  void _toggle(int index) => setState(() {
-    final (period, _) = _quickPicks[index];
-    if (_period == period) {
-      _period = null;
-      _from = null;
-      _to = null;
-      return;
-    }
-    _period = period;
-    _from = period.startBefore(widget.anchor);
-    _to = widget.anchor;
-  });
-
-  Future<void> _pickRange() async {
-    final picked = await showDateRangePicker(
-      context: context,
-      firstDate: DateTime(widget.anchor.year - 1),
-      // An order can't be placed in the future, so future dates are disabled.
-      lastDate: widget.anchor,
-      initialDateRange: _from == null || _to == null
-          ? null
-          : DateTimeRange(start: _from!, end: _to!),
-    );
-    if (picked == null || !mounted) return;
-    setState(() {
-      _from = picked.start;
-      _to = picked.end;
-      // A hand-picked range no longer corresponds to a quick pick.
-      _period = null;
-    });
-  }
 
   void _close(OrdersFilter? result) {
     Navigator.of(context).pop();
@@ -110,8 +76,6 @@ class _GrofastOrdersDateFilterSheetContentState
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
-    final from = _from;
-    final to = _to;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -120,11 +84,12 @@ class _GrofastOrdersDateFilterSheetContentState
         GrofastSheetSection(
           title: GrofastValueConst.ordersDateFilterTitle,
           child: GrofastChipRow(
-            labels: [for (final (_, label) in _quickPicks) label],
-            selectedIndex: _period == null
+            labels: _labels,
+            selectedIndex: period == null
                 ? -1
-                : _quickPicks.indexWhere((pick) => pick.$1 == _period),
-            onSelected: _toggle,
+                : OrdersDateFilterState.quickPicks.indexOf(period!),
+            onSelected: (index) =>
+                togglePeriod(OrdersDateFilterState.quickPicks[index]),
           ),
         ),
         const SizedBox(height: AppSpacing.xl4),
@@ -133,17 +98,13 @@ class _GrofastOrdersDateFilterSheetContentState
           hint: GrofastValueConst.ordersAllTimeLabel,
           value: from == null || to == null
               ? ''
-              : GrofastValueConst.ordersDateRangeValue(from, to),
-          onTap: _pickRange,
+              : GrofastValueConst.ordersDateRangeValue(from!, to!),
+          onTap: pickRange,
         ),
         const SizedBox(height: AppSpacing.xl6),
         GrofastPrimaryButton(
           label: GrofastValueConst.applyLabel,
-          onTap: () => _close(
-            from == null || to == null
-                ? null
-                : OrdersFilter(from: from, to: to, period: _period),
-          ),
+          onTap: () => _close(selectedFilter),
         ),
         const SizedBox(height: AppSpacing.base),
         AppButton(

@@ -68,6 +68,17 @@ class AppButton extends StatelessWidget {
   /// a disabled button still reads as inert.
   final Gradient? gradient;
 
+  /// Overrides the variant's own fill — for a tonal/tinted pill (an
+  /// error-tinted destructive action, a brand ink pill) that none of the
+  /// three variants render. Pair with [foregroundColor] so the label stays
+  /// legible on the custom fill. Ignored while disabled, so a disabled
+  /// button still reads as inert.
+  final Color? backgroundColor;
+
+  /// The label/loader colour on a [backgroundColor] fill (or on a variant
+  /// fill, when only the ink needs to change). Ignored while disabled.
+  final Color? foregroundColor;
+
   const AppButton({
     super.key,
     required this.label,
@@ -84,6 +95,8 @@ class AppButton extends StatelessWidget {
     this.borderRadius,
     this.borderColor,
     this.gradient,
+    this.backgroundColor,
+    this.foregroundColor,
   });
 
   @override
@@ -193,6 +206,7 @@ class AppButton extends StatelessWidget {
         AppButtonVariant.text => Colors.transparent,
       };
     }
+    if (backgroundColor != null) return backgroundColor!;
     return switch (variant) {
       AppButtonVariant.primary => cs.primary,
       AppButtonVariant.secondary || AppButtonVariant.text => Colors.transparent,
@@ -201,6 +215,7 @@ class AppButton extends StatelessWidget {
 
   Color _foregroundColor(ColorScheme cs, bool disabled) {
     if (disabled) return cs.onSurface.withValues(alpha: 0.38);
+    if (foregroundColor != null) return foregroundColor!;
     return switch (variant) {
       AppButtonVariant.primary => cs.onPrimary,
       AppButtonVariant.secondary || AppButtonVariant.text => cs.primary,

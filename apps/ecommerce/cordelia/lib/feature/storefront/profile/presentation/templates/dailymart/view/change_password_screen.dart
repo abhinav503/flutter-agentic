@@ -62,35 +62,33 @@ class _ChangePasswordScreenState extends BaseScreenState<ChangePasswordScreen>
               gap: AppSpacing.xl4,
               floatingAction: DailyMartPrimaryButton(
                 label: DailyMartValueConst.updatePasswordButtonLabel,
-                state: isSaving
-                    ? AppButtonState.loading
-                    : AppButtonState.idle,
+                state: isSaving ? AppButtonState.loading : AppButtonState.idle,
                 onTap: isSaving ? null : submitPassword,
               ),
               body: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _field(
-                        DailyMartValueConst.currentPasswordLabel,
-                        currentPasswordController,
-                        field: ChangePasswordField.current,
-                        hint: DailyMartValueConst.currentPasswordHint,
-                      ),
-                      const SizedBox(height: AppSpacing.md),
-                      _field(
-                        DailyMartValueConst.newPasswordLabel,
-                        newPasswordController,
-                        field: ChangePasswordField.newPassword,
-                        hint: DailyMartValueConst.newPasswordHint,
-                      ),
-                      const SizedBox(height: AppSpacing.md),
-                      _field(
-                        DailyMartValueConst.confirmNewPasswordLabel,
-                        confirmPasswordController,
-                        field: ChangePasswordField.confirm,
-                        hint: DailyMartValueConst.confirmNewPasswordHint,
-                      ),
-                    ],
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _field(
+                    DailyMartValueConst.currentPasswordLabel,
+                    currentPasswordController,
+                    field: ChangePasswordField.current,
+                    hint: DailyMartValueConst.currentPasswordHint,
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+                  _field(
+                    DailyMartValueConst.newPasswordLabel,
+                    newPasswordController,
+                    field: ChangePasswordField.newPassword,
+                    hint: DailyMartValueConst.newPasswordHint,
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+                  _field(
+                    DailyMartValueConst.confirmNewPasswordLabel,
+                    confirmPasswordController,
+                    field: ChangePasswordField.confirm,
+                    hint: DailyMartValueConst.confirmNewPasswordHint,
+                  ),
+                ],
               ),
             );
           },

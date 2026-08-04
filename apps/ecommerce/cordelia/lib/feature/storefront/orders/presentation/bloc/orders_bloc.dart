@@ -22,19 +22,13 @@ class OrdersBloc extends Bloc<OrdersEvent, OrdersState> {
 
   // Only the fetched list is cached — [OrdersLoaded.selectedTab]/
   // [OrdersLoaded.filter] are transient view selections, so a warm start
-  // always reopens on the default Past tab with no filter.
-  static final _cache = BlocCache<List<OrderEntity>>();
-
-  // Opening store A's orders then store B's behind the same static cache
-  // would otherwise flash A's stale list before B's fetch resolves — same
-  // guard as HomeBloc's _cachedStoreId.
-  static String? _cachedStoreId;
+  // always reopens on the default Past tab with no filter. Scoped to the
+  // store: store A's orders then store B's behind an unscoped static cache
+  // would flash A's stale list before B's fetch resolves.
+  static final _cache = ScopedBlocCache<List<OrderEntity>>();
 
   @visibleForTesting
-  static void resetCache() {
-    _cache.reset();
-    _cachedStoreId = null;
-  }
+  static void resetCache() => _cache.reset();
 
   OrdersBloc({
     required GetOrdersUseCase getOrdersUseCase,
@@ -43,7 +37,14 @@ class OrdersBloc extends Bloc<OrdersEvent, OrdersState> {
   }) : _getOrders = getOrdersUseCase,
        _cancelOrder = cancelOrderUseCase,
        _storeId = storeId,
-       super(_seed(storeId)) {
+       super(
+         _cache.seed(
+           scope: storeId,
+           warm: (orders) =>
+               OrdersState.loaded(orders: orders, selectedTab: OrdersTab.past),
+           cold: OrdersState.loading,
+         ),
+       ) {
     on<OrdersStarted>(_onStarted);
     on<OrdersTabChanged>(_onTabChanged);
     on<OrdersCancelled>(_onCancelled);
@@ -52,46 +53,37 @@ class OrdersBloc extends Bloc<OrdersEvent, OrdersState> {
     on<OrdersSearched>(_onSearched);
   }
 
-  static OrdersState _seed(String storeId) {
-    if (_cachedStoreId != storeId) {
-      _cache.reset();
-      _cachedStoreId = storeId;
-    }
-    return _cache.seed(
-      warm: (orders) =>
-          OrdersState.loaded(orders: orders, selectedTab: OrdersTab.past),
-      cold: OrdersState.loading,
-    );
-  }
-
   Future<void> _onStarted(
     OrdersStarted event,
     Emitter<OrdersState> emit,
   ) async {
     final result = await _getOrders(GetOrdersParams(storeId: _storeId));
-    result.fold((failure) {
-      switch (state) {
-        // Warm start: cached content is already on screen — keep it there
-        // and let the failure surface as a snackbar instead of an error view.
-        case final OrdersLoaded loaded:
-          emit(loaded.copyWith(refreshFailed: true));
-        case OrdersLoading():
-        case OrdersError():
-          emit(OrdersState.error(message: failure.message));
-      }
-    }, (orders) {
-      switch (state) {
-        // Warm start: the refresh landed under an already-visible list —
-        // swap in the fresh orders without discarding the shopper's
-        // tab/filter/search selections made while the fetch was in flight.
-        case final OrdersLoaded loaded:
-          _cache.save(orders);
-          _emitView(loaded.copyWith(orders: orders), emit);
-        case OrdersLoading():
-        case OrdersError():
-          _emitLoaded(orders, OrdersTab.past, emit);
-      }
-    });
+    result.fold(
+      (failure) {
+        switch (state) {
+          // Warm start: cached content is already on screen — keep it there
+          // and let the failure surface as a snackbar instead of an error view.
+          case final OrdersLoaded loaded:
+            emit(loaded.copyWith(refreshFailed: true));
+          case OrdersLoading():
+          case OrdersError():
+            emit(OrdersState.error(message: failure.message));
+        }
+      },
+      (orders) {
+        switch (state) {
+          // Warm start: the refresh landed under an already-visible list —
+          // swap in the fresh orders without discarding the shopper's
+          // tab/filter/search selections made while the fetch was in flight.
+          case final OrdersLoaded loaded:
+            _cache.save(_storeId, orders);
+            _emitView(loaded.copyWith(orders: orders), emit);
+          case OrdersLoading():
+          case OrdersError():
+            _emitLoaded(orders, OrdersTab.past, emit);
+        }
+      },
+    );
   }
 
   void _onTabChanged(OrdersTabChanged event, Emitter<OrdersState> emit) {
@@ -121,7 +113,7 @@ class OrdersBloc extends Bloc<OrdersEvent, OrdersState> {
         loaded.orders[index],
         RefundStatus.pending,
       );
-      _cache.save(optimistic);
+      _cache.save(_storeId, optimistic);
       _emitView(loaded.copyWith(orders: optimistic), emit);
 
       final result = await _cancelOrder(
@@ -130,13 +122,13 @@ class OrdersBloc extends Bloc<OrdersEvent, OrdersState> {
       result.fold(
         (failure) {
           // Roll back to the pre-cancel list; the listener toasts the failure.
-          _cache.save(loaded.orders);
+          _cache.save(_storeId, loaded.orders);
           emit(loaded.copyWith(cancelFailed: true, refreshFailed: false));
         },
         (serverOrder) {
           final reconciled = [...loaded.orders];
           reconciled[index] = serverOrder;
-          _cache.save(reconciled);
+          _cache.save(_storeId, reconciled);
           _emitView(loaded.copyWith(orders: reconciled), emit);
         },
       );
@@ -207,7 +199,7 @@ class OrdersBloc extends Bloc<OrdersEvent, OrdersState> {
     Emitter<OrdersState> emit, {
     OrdersFilter? filter,
   }) {
-    _cache.save(orders);
+    _cache.save(_storeId, orders);
     emit(
       OrdersState.loaded(
         orders: orders,

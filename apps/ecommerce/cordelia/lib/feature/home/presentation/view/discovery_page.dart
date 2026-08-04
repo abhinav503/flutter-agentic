@@ -84,7 +84,8 @@ class _DiscoveryPageState extends BasePageState<DiscoveryPage> {
   @override
   Widget buildBody(BuildContext context) => BlocProvider(
     create: (_) =>
-        DiscoveryBloc(getStoresUseCase: sl())..add(const DiscoveryEvent.started()),
+        DiscoveryBloc(getStoresUseCase: sl())
+          ..add(const DiscoveryEvent.started()),
     child: const DiscoveryScreen(),
   );
 }

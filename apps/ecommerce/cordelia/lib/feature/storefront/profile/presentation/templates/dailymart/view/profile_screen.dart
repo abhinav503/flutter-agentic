@@ -129,8 +129,7 @@ class _ProfileScreenState extends BaseScreenState<ProfileScreen> {
                           // states — AppSwitch keeps one fixed thumb size.
                           trailing: AppSwitch(
                             value:
-                                Theme.of(context).brightness ==
-                                Brightness.dark,
+                                Theme.of(context).brightness == Brightness.dark,
                             // Greyscale/100 (#DFE1E7) in light — the kit's
                             // off-track. AppSwitch's own default
                             // (surfaceContainerHighest) is this pack's near
@@ -138,11 +137,10 @@ class _ProfileScreenState extends BaseScreenState<ProfileScreen> {
                             inactiveTrackColor: Theme.of(
                               context,
                             ).colorScheme.outlineVariant,
-                            onChanged: (isDark) => ThemeModeScope.of(
-                              context,
-                            ).setMode(
-                              isDark ? ThemeMode.dark : ThemeMode.light,
-                            ),
+                            onChanged: (isDark) =>
+                                ThemeModeScope.of(context).setMode(
+                                  isDark ? ThemeMode.dark : ThemeMode.light,
+                                ),
                           ),
                         ),
                         DailyMartMenuTile(
@@ -169,8 +167,7 @@ class _ProfileScreenState extends BaseScreenState<ProfileScreen> {
                             title: DailyMartValueConst.logoutTitle,
                             message: DailyMartValueConst.logoutConfirmMessage,
                             confirmLabel: DailyMartValueConst.logoutLabel,
-                            onConfirm: () =>
-                                signOutAndReturnToLogin(context),
+                            onConfirm: () => signOutAndReturnToLogin(context),
                           ),
                         ),
                       ],

@@ -24,6 +24,21 @@ class AppRadioGroup<T> extends StatelessWidget {
   final ValueChanged<T> onSelected;
   final TextStyle? labelStyle;
 
+  /// Pops the enclosing route (the sheet) **before** reporting the pick — the
+  /// standard picklist-sheet contract, so callers never re-type the
+  /// pop-then-apply dance and can't get its order wrong (apply-then-pop
+  /// re-renders the sheet against the new state for one frame).
+  final bool popOnSelect;
+
+  /// Outer inset around the list (default none — the sheet's own gutter
+  /// pads) — for a sheet body that owns its horizontal inset.
+  final EdgeInsetsGeometry? padding;
+
+  /// Caps the list at this fraction of the screen height and makes it
+  /// scrollable — for open-ended picklists (a city list) that would
+  /// otherwise push the sheet past the viewport. Omit for shrink-wrap.
+  final double? maxHeightFraction;
+
   const AppRadioGroup({
     super.key,
     required this.options,
@@ -31,11 +46,14 @@ class AppRadioGroup<T> extends StatelessWidget {
     required this.selected,
     required this.onSelected,
     this.labelStyle,
+    this.popOnSelect = false,
+    this.padding,
+    this.maxHeightFraction,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    Widget list = Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         for (final option in options)
@@ -43,10 +61,23 @@ class AppRadioGroup<T> extends StatelessWidget {
             label: labelOf(option),
             selected: option == selected,
             labelStyle: labelStyle,
-            onTap: () => onSelected(option),
+            onTap: () {
+              if (popOnSelect) Navigator.of(context).pop();
+              onSelected(option);
+            },
           ),
       ],
     );
+    if (maxHeightFraction != null) {
+      list = ConstrainedBox(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.sizeOf(context).height * maxHeightFraction!,
+        ),
+        child: SingleChildScrollView(child: list),
+      );
+    }
+    if (padding != null) list = Padding(padding: padding!, child: list);
+    return list;
   }
 }
 

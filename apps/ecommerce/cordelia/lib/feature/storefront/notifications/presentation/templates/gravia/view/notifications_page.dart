@@ -1,9 +1,12 @@
-import 'package:cordelia/di/injection_container.dart';
-import 'package:cordelia/feature/storefront/template/storefront_template.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import 'package:core/core/base/base_page.dart';
-import '../../../bloc/notifications_bloc.dart';
+
+import 'package:cordelia/feature/storefront/active_store/presentation/cubit/active_store_cubit.dart';
+import 'package:cordelia/feature/storefront/template/storefront_template.dart';
+
+import '../../../bloc/notifications_bloc_provider.dart';
 import 'notifications_screen.dart';
 
 class NotificationsPage extends BasePage {
@@ -18,14 +21,15 @@ class _NotificationsPageState extends BasePageState<NotificationsPage> {
   // centered title), per the pack's "coloured header canvas" composition —
   // same reasoning as Address/Cart.
   @override
-  Widget buildBody(BuildContext context) => BlocProvider(
-    create: (_) =>
-        NotificationsBloc(getNotificationsUseCase: sl())
-          ..add(
-            const NotificationsEvent.started(
-              template: StorefrontTemplate.gravia,
-            ),
-          ),
-    child: const NotificationsScreen(),
-  );
+  Widget buildBody(BuildContext context) {
+    // `!`: this page only opens from inside a storefront, which seeds the
+    // cubit before its first build.
+    final store = context.read<ActiveStoreCubit>().state!;
+
+    return notificationsBlocProvider(
+      storeId: store.storeId,
+      templateId: store.templateId.wireValue,
+      child: const NotificationsScreen(),
+    );
+  }
 }

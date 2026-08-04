@@ -1,12 +1,11 @@
 import 'package:cordelia/enums/product_unit_type.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_text_style_const.dart';
-import 'package:cordelia/templates/gravia/constants/gravia_value_const.dart';
 import 'package:cordelia/templates/gravia/widgets/gravia_list_thumbnail.dart';
 import 'package:cordelia/templates/gravia/widgets/gravia_quantity_stepper.dart';
 import 'package:flutter/material.dart';
 
+import 'package:core/core/extensions/num_extensions.dart';
 import 'package:core/core/theme/app_spacing.dart';
-
 
 import '../../../../domain/entities/cart_item_entity.dart';
 
@@ -58,7 +57,7 @@ class CartItemRow extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    GraviaValueConst.formattedPrice(item.lineTotal),
+                    item.lineTotal.asPrice,
                     style: GraviaTextStyleConst.textMdBold(
                       tt,
                     ).copyWith(color: cs.onSurface),

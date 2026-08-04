@@ -28,8 +28,7 @@ Future<void> showGraviaConfirmSheet({
 }) {
   final cs = Theme.of(context).colorScheme;
   final tt = Theme.of(context).textTheme;
-  final hairline =
-      context.appColors.sheetHairline;
+  final hairline = context.appColors.sheetHairline;
 
   return AppBottomSheet.show<void>(
     context,
@@ -92,14 +91,15 @@ extension GraviaSheetX<T extends BaseScreen> on BaseScreenState<T> {
   /// The delete-confirmation sheet opened from an address card's Delete
   /// action. [onConfirm] dispatches the actual delete — the sheet itself
   /// only gates the tap, it never touches the bloc.
-  Future<void> showGraviaDeleteAddressSheet({required VoidCallback onConfirm}) =>
-      showGraviaConfirmSheet(
-        context: context,
-        title: GraviaValueConst.deleteAddressTitle,
-        message: GraviaValueConst.deleteAddressConfirmMessage,
-        confirmLabel: GraviaValueConst.deleteLabel,
-        onConfirm: onConfirm,
-      );
+  Future<void> showGraviaDeleteAddressSheet({
+    required VoidCallback onConfirm,
+  }) => showGraviaConfirmSheet(
+    context: context,
+    title: GraviaValueConst.deleteAddressTitle,
+    message: GraviaValueConst.deleteAddressConfirmMessage,
+    confirmLabel: GraviaValueConst.deleteLabel,
+    onConfirm: onConfirm,
+  );
 
   /// The checkout confirmation sheet — [OrderPlacedSheetContent] has no
   /// title row or close control, so it rides [AppBottomSheet]'s chromeless

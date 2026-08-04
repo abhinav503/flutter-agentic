@@ -22,9 +22,7 @@ abstract class SearchModel with _$SearchModel {
       _$SearchModelFromJson(json);
 
   factory SearchModel.fromEntity(SearchEntity e) => SearchModel(
-    recentSearches: e.recentSearches
-        .map(RecentSearchModel.fromEntity)
-        .toList(),
+    recentSearches: e.recentSearches.map(RecentSearchModel.fromEntity).toList(),
     popularProducts: e.popularProducts.map(ProductModel.fromEntity).toList(),
   );
 

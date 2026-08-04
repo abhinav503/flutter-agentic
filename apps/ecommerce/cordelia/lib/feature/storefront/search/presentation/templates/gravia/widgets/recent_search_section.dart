@@ -38,7 +38,9 @@ class RecentSearchSection extends StatelessWidget {
         children: [
           Text(
             GraviaValueConst.recentSearchTitle,
-            style: GraviaTextStyleConst.textLgBold(tt).copyWith(color: cs.onSurface),
+            style: GraviaTextStyleConst.textLgBold(
+              tt,
+            ).copyWith(color: cs.onSurface),
           ),
           const SizedBox(height: AppSpacing.xs),
           for (final item in items)

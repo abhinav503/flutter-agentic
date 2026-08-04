@@ -123,9 +123,7 @@ class _OrdersScreenState extends BaseScreenState<OrdersScreen> {
                 orders: state.orders
                     .where((order) => state.statusFilter.matches(order))
                     .where((order) => order.matchesSearch(state.searchTerm))
-                    .where(
-                      (order) => state.filter?.matches(order) ?? true,
-                    )
+                    .where((order) => state.filter?.matches(order) ?? true)
                     .toList(),
                 statusFilter: state.statusFilter,
                 dateFilterActive: state.filter != null,

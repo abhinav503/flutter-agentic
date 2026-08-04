@@ -1,4 +1,3 @@
-
 import 'package:cordelia/enums/recent_search_type.dart';
 
 import '../../domain/entities/recent_search_entity.dart';

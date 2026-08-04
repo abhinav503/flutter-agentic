@@ -72,7 +72,6 @@ class _AddressScreenState extends BaseScreenState<AddressScreen> {
       extra: address,
     );
     if (saved == null || !mounted) return;
-    if (!context.mounted) return;
     context.read<AddressBloc>().add(AddressEvent.saved(address: saved));
   }
 

@@ -163,8 +163,7 @@ class _DailyMartHomePromoCarouselSkeletonState
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final shapes =
-        context.appShapes;
+    final shapes = context.appShapes;
 
     return Column(
       mainAxisSize: MainAxisSize.min,

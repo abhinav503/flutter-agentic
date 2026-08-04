@@ -96,7 +96,8 @@ mixin AddressFormFields<T extends BaseScreen>
       AddressField.phone: ?validateMobile(phone),
       if (addressLine1.isEmpty)
         AddressField.addressLine1: requiredFieldErrorMessage,
-      if (postalCode.isEmpty) AddressField.postalCode: requiredFieldErrorMessage,
+      if (postalCode.isEmpty)
+        AddressField.postalCode: requiredFieldErrorMessage,
       if (tag.isEmpty) AddressField.tag: requiredFieldErrorMessage,
     };
 

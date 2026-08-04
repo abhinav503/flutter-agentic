@@ -21,8 +21,11 @@ abstract class StoreModel with _$StoreModel {
     required String description,
     // Defaulted, not required — the admin backend sends template_id now,
     // but the still-deployed older API build may not, so this must parse
-    // cleanly either way.
-    @JsonKey(name: 'template_id') @Default('gravia') String templateId,
+    // cleanly either way. Empty, not 'gravia': the wire→enum fallback lives
+    // in one place (`StorefrontTemplateParse.toStorefrontTemplate`, which
+    // maps ''/unknown → gravia), so this DTO doesn't hold a second copy of
+    // that policy.
+    @JsonKey(name: 'template_id') @Default('') String templateId,
   }) = _StoreModel;
 
   factory StoreModel.fromJson(Map<String, dynamic> json) =>

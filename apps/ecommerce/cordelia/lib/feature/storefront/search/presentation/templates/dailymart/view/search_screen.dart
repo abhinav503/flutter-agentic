@@ -99,7 +99,9 @@ class _SearchScreenState extends BaseScreenState<SearchScreen> {
 
   void _addToCart(ProductEntity product, int quantity) {
     context.read<CartCubit>().addToCart(product, quantity);
-    showSnackBar(DailyMartValueConst.addedToCartMessage(product.name, quantity));
+    showSnackBar(
+      DailyMartValueConst.addedToCartMessage(product.name, quantity),
+    );
   }
 
   void _showAddToCartSheet(ProductEntity product) =>
@@ -222,8 +224,10 @@ class _SearchScreenState extends BaseScreenState<SearchScreen> {
                           SearchLoading() => SingleChildScrollView(
                             key: const ValueKey('loading'),
                             padding: EdgeInsets.only(
-                              bottom: DailyMartDimenConst
-                                  .floatingActionScrollInset(context),
+                              bottom:
+                                  DailyMartDimenConst.floatingActionScrollInset(
+                                    context,
+                                  ),
                             ),
                             child: const DailyMartSearchSkeletonBody(),
                           ),

@@ -4,8 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:core/core/base/base_screen.dart';
+import 'package:core/core/theme/app_radius.dart';
 import 'package:core/core/theme/app_spacing.dart';
-import 'package:core/core/ui/atoms/shimmer_box.dart';
 
 import 'package:cordelia/constants/app_routes.dart';
 import 'package:cordelia/enums/recent_search_type.dart';
@@ -22,6 +22,7 @@ import 'package:cordelia/templates/grofast/widgets/grofast_screen_body.dart';
 import 'package:cordelia/templates/grofast/widgets/grofast_search_field.dart';
 import 'package:cordelia/templates/grofast/widgets/grofast_state_views.dart';
 
+import '../widgets/search_skeleton_body.dart';
 import '../../../bloc/search_bloc.dart';
 import '../widgets/recent_search_section.dart';
 
@@ -135,7 +136,7 @@ class _SearchScreenState extends BaseScreenState<SearchScreen> {
           gap: AppSpacing.xl4,
           body: GrofastSwitcher(
             child: switch (state) {
-              SearchLoading() => const _SearchSkeletonBody(),
+              SearchLoading() => const GrofastSearchSkeletonBody(),
               SearchError(:final message) => GrofastErrorView(
                 message: message,
                 onRetry: () =>
@@ -148,7 +149,8 @@ class _SearchScreenState extends BaseScreenState<SearchScreen> {
                   SearchEvent.recentSearchRemoved(item: item),
                 ),
               ),
-              SearchLoaded(searching: true) => const _SearchSkeletonBody(),
+              SearchLoaded(searching: true) =>
+                const GrofastSearchSkeletonBody(),
               SearchLoaded(:final resultsError?, :final query) =>
                 GrofastErrorView(
                   message: resultsError,
@@ -168,7 +170,7 @@ class _SearchScreenState extends BaseScreenState<SearchScreen> {
               ),
               // A non-empty query with neither results nor an error yet —
               // the debounce window before the fetch starts.
-              SearchLoaded() => const _SearchSkeletonBody(),
+              SearchLoaded() => const GrofastSearchSkeletonBody(),
             },
           ),
         ),
@@ -267,9 +269,11 @@ class _CategoryResultChip extends StatelessWidget {
         height: AppSpacing.xl7,
         padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
         alignment: Alignment.center,
+        // A pill, not a rounded box — the kit's 18 is exactly half the row's
+        // 36, so it reads as `full` rather than as a radius of its own.
         decoration: BoxDecoration(
           color: cs.surfaceContainerLow,
-          borderRadius: BorderRadius.circular(AppSpacing.xl),
+          borderRadius: AppRadius.full,
         ),
         child: Text(
           category.name,
@@ -280,18 +284,4 @@ class _CategoryResultChip extends StatelessWidget {
       ),
     );
   }
-}
-
-class _SearchSkeletonBody extends StatelessWidget {
-  const _SearchSkeletonBody();
-
-  @override
-  Widget build(BuildContext context) => const Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      ShimmerBox(width: 160, height: AppSpacing.xl5),
-      SizedBox(height: AppSpacing.xl2),
-      GrofastProductGridSkeleton(),
-    ],
-  );
 }

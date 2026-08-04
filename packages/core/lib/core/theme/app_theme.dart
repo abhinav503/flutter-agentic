@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'app_colors_extension.dart';
+import 'app_shadows_extension.dart';
 import 'app_shapes_extension.dart';
 import 'app_spacing.dart';
 import 'app_theme_config.dart';
@@ -40,6 +41,7 @@ class AppTheme {
       shapes: config.shapes,
       density: config.density,
       colorOverrides: overrides,
+      shadows: config.shadows,
     );
   }
 
@@ -184,6 +186,7 @@ class AppTheme {
     AppShapes shapes = AppShapes.standard,
     double density = 0,
     Map<String, Color> colorOverrides = const {},
+    AppShadows shadows = AppShadows.standard,
   }) {
     final isDark = cs.brightness == Brightness.dark;
 
@@ -199,6 +202,10 @@ class AppTheme {
       dockedHairline: colorOverrides['dockedHairline'] ?? cs.outlineVariant,
       sheetHairline: colorOverrides['sheetHairline'] ?? cs.outlineVariant,
       onSheetMuted: colorOverrides['onSheetMuted'] ?? cs.onSurfaceVariant,
+      tintedErrorFill: colorOverrides['tintedErrorFill'] ??
+          cs.error.withValues(alpha: isDark ? 0.20 : 0.10),
+      fieldFill: colorOverrides['fieldFill'] ?? cs.surfaceContainerLow,
+      canvas: colorOverrides['canvas'] ?? cs.surface,
     );
 
     // Every brand shape is derived from the config's radii, so raw Material
@@ -232,6 +239,7 @@ class AppTheme {
       extensions: [
         colors,
         shapes,
+        shadows,
       ],
 
       // ── Text theme ────────────────────────────────────────────────────────

@@ -30,7 +30,9 @@ class SignupHeader extends StatelessWidget {
           const SizedBox(height: AppSpacing.base),
           Text(
             ValueConst.signupTitle,
-            style: CordeliaTextStyleConst.textXlBold(tt).copyWith(color: onOverlay),
+            style: CordeliaTextStyleConst.textXlBold(
+              tt,
+            ).copyWith(color: onOverlay),
           ),
           const SizedBox(height: AppSpacing.xs2),
           Text(

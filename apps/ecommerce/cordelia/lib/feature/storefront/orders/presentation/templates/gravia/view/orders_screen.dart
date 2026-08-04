@@ -11,7 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'package:core/core/ui/atoms/app_switcher.dart';
+import 'package:cordelia/templates/gravia/widgets/gravia_switcher.dart';
 import 'package:core/core/base/base_screen.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/blocks/collapsing_header_sheet.dart';
@@ -52,7 +52,7 @@ class _OrdersScreenState extends BaseScreenState<OrdersScreen> {
           showSnackBar(GraviaValueConst.cancelFailedMessage);
         }
       },
-      builder: (context, state) => AppSwitcher(
+      builder: (context, state) => GraviaSwitcher(
         child: switch (state) {
           OrdersLoading() => CollapsingHeaderSheet(
             key: const ValueKey('loading'),

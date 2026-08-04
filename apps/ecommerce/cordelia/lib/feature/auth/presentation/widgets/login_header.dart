@@ -23,7 +23,9 @@ class LoginHeader extends StatelessWidget {
         children: [
           Text(
             ValueConst.loginTitle,
-            style: CordeliaTextStyleConst.displayXsBold(tt).copyWith(color: onOverlay),
+            style: CordeliaTextStyleConst.displayXsBold(
+              tt,
+            ).copyWith(color: onOverlay),
           ),
           const SizedBox(height: AppSpacing.xs2),
           Text(

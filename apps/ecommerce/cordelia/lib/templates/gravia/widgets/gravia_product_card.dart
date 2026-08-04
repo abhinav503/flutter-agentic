@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:core/core/extensions/num_extensions.dart';
 import 'package:core/core/theme/app_colors_extension.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/icon_button.dart';
@@ -120,8 +121,8 @@ class GraviaProductCard extends StatelessWidget {
       metaLabelStyle: GraviaTextStyleConst.textXsRegular(
         tt,
       ).copyWith(color: cs.onSurface),
-      price: GraviaValueConst.formattedPrice(product.price),
-      originalPrice: GraviaValueConst.formattedPrice(product.originalPrice),
+      price: product.price.asPrice,
+      originalPrice: product.originalPrice.asPrice,
       actionLabel: GraviaValueConst.addToCart,
       actionLabelStyle: GraviaTextStyleConst.textSmMedium(
         tt,

@@ -11,11 +11,7 @@ class GraviaListThumbnail extends StatelessWidget {
   final String url;
   final double size;
 
-  const GraviaListThumbnail({
-    super.key,
-    required this.url,
-    required this.size,
-  });
+  const GraviaListThumbnail({super.key, required this.url, required this.size});
 
   @override
   Widget build(BuildContext context) => ClipRRect(

@@ -80,6 +80,27 @@ class AppIconButton extends StatelessWidget {
   /// notification bell) rather than a variant of its own.
   final Color? borderColor;
 
+  /// Non-circular silhouette — a rounded-rect control instead of the default
+  /// disc (e.g. a 60 × 40 back plate). Ripple and border clip to it too.
+  /// Ignored by [AppIconButtonVariant.glass], whose surface is disc-shaped.
+  final BorderRadius? borderRadius;
+
+  /// Non-square footprint — overrides [containerSize] on both axes (e.g. a
+  /// wide, short back control). Omit to keep the square [containerSize].
+  final Size? size;
+
+  /// Gradient fill for packs whose affirmative controls are one brand
+  /// gradient — same reasoning as [AppButton.gradient]. Wins over
+  /// [backgroundColor] / the variant fill. Ignored by glass.
+  final Gradient? gradient;
+
+  /// Draws a small status dot on the glyph's top-right (an unread badge, a
+  /// cart-not-empty indicator). Omit for no dot.
+  final Color? dotColor;
+
+  /// Dot diameter when [dotColor] is set (default 8).
+  final double dotSize;
+
   const AppIconButton({
     super.key,
     this.icon,
@@ -93,6 +114,11 @@ class AppIconButton extends StatelessWidget {
     this.backgroundColor,
     this.foregroundColor,
     this.borderColor,
+    this.borderRadius,
+    this.size,
+    this.gradient,
+    this.dotColor,
+    this.dotSize = 8,
   }) : assert(
           icon != null || iconBuilder != null,
           'AppIconButton requires either icon or iconBuilder',
@@ -119,13 +145,36 @@ class AppIconButton extends StatelessWidget {
           AppIconButtonVariant.glass => fg.withValues(alpha: 0.1),
         };
 
-    final iconWidget = iconBuilder != null
+    Widget iconWidget = iconBuilder != null
         ? SizedBox(
             width: iconSize,
             height: iconSize,
             child: iconBuilder!(fg, iconSize),
           )
         : Icon(icon, size: iconSize, color: fg);
+
+    if (dotColor != null) {
+      iconWidget = Stack(
+        clipBehavior: Clip.none,
+        children: [
+          iconWidget,
+          Positioned(
+            top: -dotSize / 4,
+            right: -dotSize / 4,
+            child: Container(
+              width: dotSize,
+              height: dotSize,
+              decoration: BoxDecoration(
+                color: dotColor,
+                shape: BoxShape.circle,
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+
+    final paintGradient = gradient != null && !isGlass;
 
     final button = isGlass
         ? AppGlassSurface(
@@ -136,8 +185,8 @@ class AppIconButton extends StatelessWidget {
             child: iconWidget,
           )
         : Container(
-            width: containerSize,
-            height: containerSize,
+            width: size?.width ?? containerSize,
+            height: size?.height ?? containerSize,
             // Without an alignment, Container hands its child tight
             // containerSize×containerSize constraints with nothing to loosen
             // them (see Container.build in the Flutter SDK — the Align wrap
@@ -147,8 +196,14 @@ class AppIconButton extends StatelessWidget {
             // constraints it can actually size itself within.
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: bg,
-              shape: BoxShape.circle,
+              // Same layering rule as AppButton: BoxDecoration paints color
+              // under gradient, so the flat fill is dropped, not stacked.
+              color: paintGradient ? null : bg,
+              gradient: paintGradient ? gradient : null,
+              shape: borderRadius == null
+                  ? BoxShape.circle
+                  : BoxShape.rectangle,
+              borderRadius: borderRadius,
               border: borderColor == null
                   ? null
                   : Border.all(color: borderColor!),
@@ -160,7 +215,9 @@ class AppIconButton extends StatelessWidget {
       type: MaterialType.transparency,
       child: InkWell(
         onTap: onTap,
-        customBorder: const CircleBorder(),
+        customBorder: borderRadius == null
+            ? const CircleBorder()
+            : RoundedRectangleBorder(borderRadius: borderRadius!),
         splashColor: fg.withValues(alpha: 0.24),
         highlightColor: fg.withValues(alpha: 0.12),
         child: button,

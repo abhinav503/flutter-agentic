@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:core/core/extensions/num_extensions.dart';
 import 'package:core/core/theme/app_colors_extension.dart';
 import 'package:core/core/theme/app_radius.dart';
 import 'package:core/core/theme/app_spacing.dart';
@@ -83,7 +84,7 @@ class DailyMartSearchResultsSection extends StatelessWidget {
           _ResultRow(
             imageUrl: product.imageUrl,
             name: product.name,
-            subtitle: DailyMartValueConst.formattedPrice(product.price),
+            subtitle: product.price.asPrice,
             // The kit's 24 disc with its 14/24 glyph-to-disc ratio — the
             // container is drawn here now that `plus.svg` is a bare glyph.
             trailing: DailyMartIconDisc(

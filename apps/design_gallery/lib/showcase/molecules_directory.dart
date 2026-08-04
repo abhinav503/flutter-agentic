@@ -1,9 +1,17 @@
+import 'package:core/core/theme/app_colors_extension.dart';
+import 'package:core/core/theme/app_radius.dart';
+import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/button.dart';
+import 'package:core/core/ui/atoms/icon_button.dart';
+import 'package:core/core/ui/blocks/action_pair.dart';
+import 'package:core/core/ui/molecules/action_sheet_body.dart';
 import 'package:core/core/ui/molecules/bottom_sheet.dart';
+import 'package:core/core/ui/molecules/confirm_sheet_body.dart';
 import 'package:core/core/ui/molecules/dialog.dart';
 import 'package:core/core/ui/molecules/empty_state.dart';
 import 'package:core/core/ui/molecules/error_view.dart';
 import 'package:core/core/ui/molecules/icon_info_row.dart';
+import 'package:core/core/ui/molecules/picker_field.dart';
 import 'package:core/core/ui/molecules/skeleton_rows.dart';
 import 'package:core/core/ui/molecules/menu_tile.dart';
 import 'package:core/core/ui/molecules/radio_group.dart';
@@ -114,6 +122,11 @@ WidgetbookCategory moleculesCategory() {
             const ShimmerListRow(itemCount: 3),
             width: 320,
           ),
+          Variant(
+            'Trailing slot (trailingWidth: 48)',
+            const ShimmerListRow(trailingWidth: 48),
+            width: 320,
+          ),
         ]),
       ),
       allVariants(
@@ -156,6 +169,22 @@ WidgetbookCategory moleculesCategory() {
             ),
             width: 320,
           ),
+          Variant(
+            'Custom padding + iconColor + titleStyle',
+            Builder(
+              builder: (context) => EmptyState(
+                iconData: Icons.favorite_border,
+                iconColor: Theme.of(context).colorScheme.primary,
+                title: 'No favourites yet',
+                titleStyle: Theme.of(context).textTheme.titleLarge!.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
+                subtitle: 'Tap the heart on a product to save it here.',
+                padding: const EdgeInsets.all(AppSpacing.lg),
+              ),
+            ),
+            width: 320,
+          ),
         ]),
       ),
       allVariants(
@@ -166,6 +195,20 @@ WidgetbookCategory moleculesCategory() {
             ErrorView(
               message: 'Something went wrong. Please try again.',
               onRetry: () {},
+            ),
+            width: 320,
+          ),
+          Variant(
+            'Custom retryLabel + messageStyle',
+            Builder(
+              builder: (context) => ErrorView(
+                message: 'We couldn\'t load your orders.',
+                messageStyle: Theme.of(context).textTheme.titleMedium!.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+                retryLabel: 'Reload',
+                onRetry: () {},
+              ),
             ),
             width: 320,
           ),
@@ -246,6 +289,75 @@ WidgetbookCategory moleculesCategory() {
               },
             ),
           ),
+          Variant(
+            'Chromeless + handle (showHeader: false, showHandle: true)',
+            SizedBox(
+              height: 180,
+              child: AppBottomSheet(
+                showHeader: false,
+                showHandle: true,
+                child: const Padding(
+                  padding: EdgeInsets.all(16),
+                  child: Text(
+                    'Chromeless content — no title row or close control; the '
+                    'content draws its own chrome (e.g. a ConfirmSheetBody).',
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Variant(
+            'Leading disc + centred title + custom handle (e.g. dailymart)',
+            SizedBox(
+              height: 220,
+              child: Builder(
+                builder: (context) {
+                  final cs = Theme.of(context).colorScheme;
+                  return AppBottomSheet(
+                    title: 'Order List',
+                    centerTitle: true,
+                    leading: AppIconButton(
+                      icon: Icons.close,
+                      backgroundColor: cs.surfaceContainerHighest,
+                      foregroundColor: cs.onSurface,
+                      onTap: () {},
+                    ),
+                    // The leading disc is the close control — a trailing X
+                    // too would read as two competing exits.
+                    showCloseAction: false,
+                    handleSize: const Size(64, 5),
+                    headerHeight: 64,
+                    child: const Padding(
+                      padding: EdgeInsets.all(16),
+                      child: Text('Body content goes here.'),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+          Variant(
+            'Custom outline (shape — e.g. grofast\'s domed top edge)',
+            SizedBox(
+              height: 220,
+              child: AppBottomSheet(
+                // A pack whose sheets arch rather than round off passes its
+                // own ShapeBorder; the container fills *and* clips to it, so
+                // content must stay clear of whatever the shape cuts away —
+                // here the handle sits below the arc's crown.
+                shape: const _DomeSheetBorder(),
+                showHeader: false,
+                showHandle: true,
+                child: const Padding(
+                  padding: EdgeInsets.fromLTRB(16, 32, 16, 16),
+                  child: Text(
+                    'Domed sheet — the top edge is an arc, not two corner '
+                    'radii.',
+                  ),
+                ),
+              ),
+            ),
+          ),
         ]),
       ),
       allVariants(
@@ -262,6 +374,18 @@ WidgetbookCategory moleculesCategory() {
               labelOf: (option) => option,
               selected: 'Newest first',
               onSelected: (_) {},
+            ),
+            width: 320,
+          ),
+          Variant(
+            'Long list (maxHeightFraction caps + scrolls, padding insets)',
+            AppRadioGroup(
+              options: [for (var i = 1; i <= 12; i++) 'Option $i'],
+              labelOf: (option) => option,
+              selected: 'Option 1',
+              onSelected: (_) {},
+              maxHeightFraction: 0.25,
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
             ),
             width: 320,
           ),
@@ -321,6 +445,138 @@ WidgetbookCategory moleculesCategory() {
             ),
             width: 320,
           ),
+          Variant(
+            'Strip (showIconCircle: false, height 52, border)',
+            Builder(
+              builder: (context) => AppMenuTile(
+                iconBuilder: (color, size) =>
+                    Icon(Icons.person_outline, color: color, size: size),
+                label: 'My Profile',
+                showIconCircle: false,
+                height: 52,
+                borderColor: Theme.of(context).colorScheme.outlineVariant,
+                borderRadius: AppRadius.md,
+                onTap: () {},
+              ),
+            ),
+            width: 320,
+          ),
+        ]),
+      ),
+      allVariants(
+        'AppPickerField',
+        (context) => showcase(context, [
+          Variant(
+            'Outlined (default) with value',
+            AppPickerField(label: 'City', value: 'Mumbai', onTap: () {}),
+            width: 260,
+          ),
+          Variant(
+            'Filled (fillColor, no border) with hint',
+            Builder(
+              builder: (context) => AppPickerField(
+                label: 'Country',
+                value: '',
+                hint: 'Select country',
+                fillColor: context.appColors.fieldFill,
+                onTap: () {},
+              ),
+            ),
+            width: 260,
+          ),
+          Variant(
+            'Fixed height + custom trailing',
+            Builder(
+              builder: (context) => AppPickerField(
+                label: 'Sort by',
+                value: 'Newest first',
+                height: 56,
+                trailing: Icon(
+                  Icons.tune,
+                  size: 20,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                onTap: () {},
+              ),
+            ),
+            width: 260,
+          ),
+        ]),
+      ),
+      allVariants(
+        'ConfirmSheetBody',
+        (context) => showcase(context, [
+          Variant(
+            'Title + message + ActionPair actions',
+            ConfirmSheetBody(
+              title: 'Remove address?',
+              message: 'This address will be deleted permanently.',
+              actions: ActionPair(
+                first: AppButton(
+                  label: 'Cancel',
+                  variant: AppButtonVariant.secondary,
+                  fullWidth: true,
+                  onTap: () {},
+                ),
+                second: AppButton(label: 'Remove', fullWidth: true, onTap: () {}),
+              ),
+            ),
+            width: 320,
+          ),
+          Variant(
+            'Message only (title: null)',
+            ConfirmSheetBody(
+              message: 'Are you sure you want to log out?',
+              actions: AppButton(label: 'Log Out', fullWidth: true, onTap: () {}),
+            ),
+            width: 320,
+          ),
+        ]),
+      ),
+      allVariants(
+        'AppActionSheetBody',
+        // Each row pops the enclosing route with its value — rendered inline
+        // here (a tap pops the showcase page); the layout is what's on show.
+        (context) => showcase(context, [
+          Variant(
+            'Two actions',
+            const AppActionSheetBody<int>(
+              actions: [
+                AppSheetAction(label: 'Take photo', value: 0),
+                AppSheetAction(label: 'Choose from gallery', value: 1),
+              ],
+            ),
+            width: 320,
+          ),
+          Variant(
+            'With leading glyphs',
+            Builder(
+              builder: (context) {
+                final cs = Theme.of(context).colorScheme;
+                return AppActionSheetBody<int>(
+                  actions: [
+                    AppSheetAction(
+                      label: 'Take photo',
+                      value: 0,
+                      leading: Icon(
+                        Icons.photo_camera_outlined,
+                        color: cs.onSurfaceVariant,
+                      ),
+                    ),
+                    AppSheetAction(
+                      label: 'Choose from gallery',
+                      value: 1,
+                      leading: Icon(
+                        Icons.image_outlined,
+                        color: cs.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
+            width: 320,
+          ),
         ]),
       ),
       allVariants(
@@ -349,4 +605,41 @@ WidgetbookCategory moleculesCategory() {
       ),
     ],
   );
+}
+
+/// A minimal stand-in for a pack's own sheet outline (grofast ships one), so
+/// the showcase can demonstrate `AppBottomSheet.shape` without depending on
+/// an app. The real thing arcs the handle into the same path; this only needs
+/// to prove that a non-rounded top edge fills and clips correctly.
+class _DomeSheetBorder extends ShapeBorder {
+  const _DomeSheetBorder();
+
+  /// How far the arc's crown climbs above its edges.
+  static const double _rise = 18;
+
+  @override
+  EdgeInsetsGeometry get dimensions => EdgeInsets.zero;
+
+  @override
+  Path getInnerPath(Rect rect, {TextDirection? textDirection}) =>
+      getOuterPath(rect, textDirection: textDirection);
+
+  @override
+  Path getOuterPath(Rect rect, {TextDirection? textDirection}) => Path()
+    ..moveTo(rect.left, rect.top + _rise)
+    ..quadraticBezierTo(
+      rect.center.dx,
+      rect.top - _rise,
+      rect.right,
+      rect.top + _rise,
+    )
+    ..lineTo(rect.right, rect.bottom)
+    ..lineTo(rect.left, rect.bottom)
+    ..close();
+
+  @override
+  void paint(Canvas canvas, Rect rect, {TextDirection? textDirection}) {}
+
+  @override
+  ShapeBorder scale(double t) => this;
 }

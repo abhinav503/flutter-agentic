@@ -19,11 +19,7 @@ class DailyMartSectionHeader extends StatelessWidget {
   final String title;
   final VoidCallback? onSeeAll;
 
-  const DailyMartSectionHeader({
-    super.key,
-    required this.title,
-    this.onSeeAll,
-  });
+  const DailyMartSectionHeader({super.key, required this.title, this.onSeeAll});
 
   @override
   Widget build(BuildContext context) {

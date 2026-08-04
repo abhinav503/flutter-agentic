@@ -11,7 +11,6 @@ import 'package:cordelia/feature/storefront/active_store/presentation/cubit/acti
 import 'package:cordelia/templates/grofast/constants/grofast_dimen_const.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_value_const.dart';
 import 'package:cordelia/templates/grofast/widgets/grofast_category_tile.dart';
-import 'package:cordelia/templates/grofast/widgets/grofast_product_grid.dart';
 import 'package:cordelia/templates/grofast/widgets/grofast_screen_body.dart';
 import 'package:cordelia/templates/grofast/widgets/grofast_search_field.dart';
 import 'package:cordelia/templates/grofast/widgets/grofast_section_header.dart';
@@ -19,6 +18,7 @@ import 'package:cordelia/templates/grofast/widgets/grofast_state_views.dart';
 
 import '../../../../../home/domain/entities/category_entity.dart';
 import '../../../../domain/entities/category_group_entity.dart';
+import '../widgets/categories_skeleton_body.dart';
 import '../../../bloc/categories_bloc.dart';
 
 /// `grofast` template's Categories tab — the kit's "All Categories" frame
@@ -79,7 +79,7 @@ class _CategoriesScreenState extends BaseScreenState<CategoriesScreen> {
           bottomInset: GrofastDimenConst.navScrollInset(context),
           body: GrofastSwitcher(
             child: switch (state) {
-              CategoriesLoading() => const _CategoriesSkeletonBody(),
+              CategoriesLoading() => const GrofastCategoriesSkeletonBody(),
               CategoriesError(:final message) => GrofastErrorView(
                 message: message,
                 onRetry: () => context.read<CategoriesBloc>().add(
@@ -162,34 +162,5 @@ class _CategoryGrid extends StatelessWidget {
       index: index,
       onTap: () => onCategoryTap(categories[index]),
     ),
-  );
-}
-
-/// First-load skeleton — the same square grid at the same aspect ratio, so
-/// nothing reflows when the tiles land.
-class _CategoriesSkeletonBody extends StatelessWidget {
-  const _CategoriesSkeletonBody();
-
-  @override
-  Widget build(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      GridView.builder(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        padding: EdgeInsets.zero,
-        itemCount: 6,
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          crossAxisSpacing: GrofastDimenConst.gridColumnGap,
-          mainAxisSpacing: GrofastDimenConst.gridRowGap,
-          childAspectRatio: GrofastDimenConst.categoryGridAspectRatio,
-        ),
-        itemBuilder: (context, index) => const GrofastCardSkeleton(
-          height: double.infinity,
-          radius: GrofastDimenConst.tileRadius,
-        ),
-      ),
-    ],
   );
 }

@@ -2,16 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:core/core/base/base_page.dart';
+import 'package:cordelia/feature/storefront/presentation/chromeless_page.dart';
 
-import 'package:cordelia/di/injection_container.dart';
+import 'package:cordelia/feature/storefront/active_store/presentation/cubit/active_store_cubit.dart';
 import 'package:cordelia/feature/storefront/template/storefront_template.dart';
 
-import '../../../bloc/notifications_bloc.dart';
+import '../../../bloc/notifications_bloc_provider.dart';
 import 'notifications_screen.dart';
 
-/// `grofast` template's Notifications entry. The bloc is told which pack's
-/// bundled list to load — a compile-time constant here, so a template can
-/// never render another's notifications.
+/// `grofast` template's Notifications entry. Which pack's bundled list loads
+/// follows the active store's own `template_id`, not a constant here — the
+/// store picks the template, so it also picks the notifications.
 class NotificationsPage extends BasePage {
   const NotificationsPage({super.key});
 
@@ -19,20 +20,16 @@ class NotificationsPage extends BasePage {
   State<NotificationsPage> createState() => _NotificationsPageState();
 }
 
-class _NotificationsPageState extends BasePageState<NotificationsPage> {
+class _NotificationsPageState extends BasePageState<NotificationsPage>
+    with ChromelessStorefrontPage {
   @override
-  PreferredSizeWidget? buildAppBar(BuildContext context) => null;
+  Widget buildBody(BuildContext context) {
+    final store = context.read<ActiveStoreCubit>().state!;
 
-  @override
-  Color? backgroundColor(BuildContext context) =>
-      Theme.of(context).colorScheme.surface;
-
-  @override
-  Widget buildBody(BuildContext context) => BlocProvider(
-    create: (_) => NotificationsBloc(getNotificationsUseCase: sl())
-      ..add(
-        const NotificationsEvent.started(template: StorefrontTemplate.grofast),
-      ),
-    child: const NotificationsScreen(),
-  );
+    return notificationsBlocProvider(
+      storeId: store.storeId,
+      templateId: store.templateId.wireValue,
+      child: const NotificationsScreen(),
+    );
+  }
 }

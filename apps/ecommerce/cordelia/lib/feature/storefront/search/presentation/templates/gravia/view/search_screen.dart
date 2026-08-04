@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:core/core/ui/atoms/app_switcher.dart';
+import 'package:cordelia/templates/gravia/widgets/gravia_switcher.dart';
 import 'package:core/core/base/base_screen.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/loading_dots.dart';
@@ -101,7 +101,10 @@ class _SearchScreenState extends BaseScreenState<SearchScreen> {
         ),
       ),
     );
-    context.push(AppRoutes.productDetailsPath(product.id), extra: widget.storeId);
+    context.push(
+      AppRoutes.productDetailsPath(product.id),
+      extra: widget.storeId,
+    );
   }
 
   void _openCategoryResult(CategoryEntity category) {
@@ -165,7 +168,7 @@ class _SearchScreenState extends BaseScreenState<SearchScreen> {
       builder: (context, state) => CollapsingHeaderSheet(
         initialHeaderHeight: GraviaDimenConst.headerHeightSearch,
         header: _header(),
-        body: AppSwitcher(
+        body: GraviaSwitcher(
           // The default layout centers the child in the available height —
           // short bodies (a few suggestions) would float mid-sheet.
           topAligned: true,

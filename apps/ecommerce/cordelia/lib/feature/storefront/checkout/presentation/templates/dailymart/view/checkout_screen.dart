@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:core/core/base/base_screen.dart';
 import 'package:core/core/theme/app_spacing.dart';
-import 'package:core/core/ui/atoms/app_switcher.dart';
+import 'package:cordelia/templates/dailymart/widgets/dailymart_switcher.dart';
 import 'package:core/core/ui/atoms/button.dart';
 
 import 'package:cordelia/constants/app_routes.dart';
@@ -108,7 +108,7 @@ class _CheckoutScreenState extends BaseScreenState<CheckoutScreen> {
                 ),
               ),
               Expanded(
-                child: AppSwitcher(
+                child: DailyMartSwitcher(
                   child: switch (state) {
                     CheckoutSuccess() => OrderSuccessBody(
                       onTrackOrder: _trackOrder,

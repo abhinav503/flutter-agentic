@@ -26,19 +26,16 @@ abstract class ProductDetailModel with _$ProductDetailModel {
   factory ProductDetailModel.fromJson(Map<String, dynamic> json) =>
       _$ProductDetailModelFromJson(json);
 
-  factory ProductDetailModel.fromEntity(ProductDetailEntity e) =>
-      ProductDetailModel(
-        product: ProductModel.fromEntity(e.product),
-        images: e.images,
-        description: e.description,
-        sizeOptions: e.sizeOptions,
-        similarProducts: e.similarProducts
-            .map(ProductModel.fromEntity)
-            .toList(),
-        category: e.category == null
-            ? null
-            : CategoryModel.fromEntity(e.category!),
-      );
+  factory ProductDetailModel.fromEntity(
+    ProductDetailEntity e,
+  ) => ProductDetailModel(
+    product: ProductModel.fromEntity(e.product),
+    images: e.images,
+    description: e.description,
+    sizeOptions: e.sizeOptions,
+    similarProducts: e.similarProducts.map(ProductModel.fromEntity).toList(),
+    category: e.category == null ? null : CategoryModel.fromEntity(e.category!),
+  );
 
   ProductDetailEntity toEntity() => ProductDetailEntity(
     product: product.toEntity(),

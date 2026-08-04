@@ -49,7 +49,5 @@ abstract interface class AuthRepository {
   /// Sends Firebase's own password-reset email to [email] — Firebase owns
   /// the rest of that flow (link, reset form); the app's only job is
   /// telling the user the email is on its way.
-  Future<Either<Failure, void>> sendPasswordResetEmail({
-    required String email,
-  });
+  Future<Either<Failure, void>> sendPasswordResetEmail({required String email});
 }

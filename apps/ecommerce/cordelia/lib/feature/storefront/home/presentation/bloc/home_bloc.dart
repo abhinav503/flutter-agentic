@@ -14,41 +14,33 @@ part 'home_state.dart';
 
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
   final GetHomeUseCase _getHome;
-  static final _cache = BlocCache<HomeEntity>();
+  final String _storeId;
 
-  // Unlike gravia (one store forever), this app opens a different store's
-  // Home behind the same static cache across visits — without this guard, a
-  // warm start would flash the previously-opened store's cached catalog for
-  // one frame before the fresh fetch resolves. Only trust the cache when
-  // it was populated for the same storeId.
-  static String? _cachedStoreId;
+  // Scoped to the store: unlike gravia (one store forever), this app opens a
+  // different store's Home behind the same static cache across visits —
+  // unscoped, a warm start would flash the previously-opened store's cached
+  // catalog for one frame before the fresh fetch resolves.
+  static final _cache = ScopedBlocCache<HomeEntity>();
 
   @visibleForTesting
-  static void resetCache() {
-    _cache.reset();
-    _cachedStoreId = null;
-  }
+  static void resetCache() => _cache.reset();
 
   HomeBloc({required GetHomeUseCase getHomeUseCase, required String storeId})
     : _getHome = getHomeUseCase,
-      super(_seed(storeId)) {
+      _storeId = storeId,
+      super(
+        _cache.seed(
+          scope: storeId,
+          warm: (home) => HomeState.loaded(home: home),
+          cold: HomeState.loading,
+        ),
+      ) {
     on<HomeStarted>(_onStarted);
-  }
-
-  static HomeState _seed(String storeId) {
-    if (_cachedStoreId != storeId) {
-      _cache.reset();
-      _cachedStoreId = storeId;
-    }
-    return _cache.seed(
-      warm: (home) => HomeState.loaded(home: home),
-      cold: HomeState.loading,
-    );
   }
 
   Future<void> _onStarted(HomeStarted event, Emitter<HomeState> emit) async {
     final Either<Failure, HomeEntity> result = await _getHome(
-      GetHomeParams(storeId: event.storeId),
+      GetHomeParams(storeId: _storeId),
     );
     result.fold((failure) {
       switch (state) {
@@ -62,7 +54,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   }
 
   void _emitLoaded(HomeEntity home, Emitter<HomeState> emit) {
-    _cache.save(home);
+    _cache.save(_storeId, home);
     emit(HomeState.loaded(home: home));
   }
 }

@@ -14,7 +14,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:core/core/base/base_screen.dart';
 import 'package:core/core/theme/app_spacing.dart';
-import 'package:core/core/ui/atoms/app_switcher.dart';
+import 'package:cordelia/templates/gravia/widgets/gravia_switcher.dart';
 import 'package:core/core/ui/blocks/collapsing_header_sheet.dart';
 import 'package:core/core/ui/molecules/empty_state.dart';
 
@@ -56,7 +56,7 @@ class _FavouritesScreenState extends BaseScreenState<FavouritesScreen> {
   Widget body(BuildContext context) {
     final state = context.watch<FavouritesCubit>().state;
 
-    return AppSwitcher(
+    return GraviaSwitcher(
       // isLoading only ever reads true before ShellPage.initState's
       // hydrate resolves — there's no warm cache to seed from (unlike
       // HomeBloc/AddressBloc), so a shopper who opens this tab first sees

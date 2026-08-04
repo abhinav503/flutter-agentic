@@ -524,11 +524,11 @@ return error(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loading,TResult Function( SearchEntity search,  String query,  bool searching,  SearchResultsEntity? results,  String? resultsError)?  loaded,TResult Function( String message)?  error,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loading,TResult Function( SearchEntity search,  String query,  bool searching,  SearchResultsEntity? results,  String? resultsError,  bool refreshFailed)?  loaded,TResult Function( String message)?  error,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case SearchLoading() when loading != null:
 return loading();case SearchLoaded() when loaded != null:
-return loaded(_that.search,_that.query,_that.searching,_that.results,_that.resultsError);case SearchError() when error != null:
+return loaded(_that.search,_that.query,_that.searching,_that.results,_that.resultsError,_that.refreshFailed);case SearchError() when error != null:
 return error(_that.message);case _:
   return orElse();
 
@@ -547,11 +547,11 @@ return error(_that.message);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loading,required TResult Function( SearchEntity search,  String query,  bool searching,  SearchResultsEntity? results,  String? resultsError)  loaded,required TResult Function( String message)  error,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loading,required TResult Function( SearchEntity search,  String query,  bool searching,  SearchResultsEntity? results,  String? resultsError,  bool refreshFailed)  loaded,required TResult Function( String message)  error,}) {final _that = this;
 switch (_that) {
 case SearchLoading():
 return loading();case SearchLoaded():
-return loaded(_that.search,_that.query,_that.searching,_that.results,_that.resultsError);case SearchError():
+return loaded(_that.search,_that.query,_that.searching,_that.results,_that.resultsError,_that.refreshFailed);case SearchError():
 return error(_that.message);}
 }
 /// A variant of `when` that fallback to returning `null`
@@ -566,11 +566,11 @@ return error(_that.message);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loading,TResult? Function( SearchEntity search,  String query,  bool searching,  SearchResultsEntity? results,  String? resultsError)?  loaded,TResult? Function( String message)?  error,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loading,TResult? Function( SearchEntity search,  String query,  bool searching,  SearchResultsEntity? results,  String? resultsError,  bool refreshFailed)?  loaded,TResult? Function( String message)?  error,}) {final _that = this;
 switch (_that) {
 case SearchLoading() when loading != null:
 return loading();case SearchLoaded() when loaded != null:
-return loaded(_that.search,_that.query,_that.searching,_that.results,_that.resultsError);case SearchError() when error != null:
+return loaded(_that.search,_that.query,_that.searching,_that.results,_that.resultsError,_that.refreshFailed);case SearchError() when error != null:
 return error(_that.message);case _:
   return null;
 
@@ -615,7 +615,7 @@ String toString() {
 
 
 class SearchLoaded implements SearchState {
-  const SearchLoaded({required this.search, this.query = '', this.searching = false, this.results, this.resultsError});
+  const SearchLoaded({required this.search, this.query = '', this.searching = false, this.results, this.resultsError, this.refreshFailed = false});
   
 
  final  SearchEntity search;
@@ -623,6 +623,12 @@ class SearchLoaded implements SearchState {
 @JsonKey() final  bool searching;
  final  SearchResultsEntity? results;
  final  String? resultsError;
+/// True for one emission when a silent background refresh (a warm start
+/// seeded from SearchBloc's cached data) fails — the already-visible
+/// cached content stays on screen; the listener surfaces this via a
+/// snackbar instead of replacing it with the error view. Every later
+/// emission clears it through `SearchBloc._emitView`.
+@JsonKey() final  bool refreshFailed;
 
 /// Create a copy of SearchState
 /// with the given fields replaced by the non-null parameter values.
@@ -634,16 +640,16 @@ $SearchLoadedCopyWith<SearchLoaded> get copyWith => _$SearchLoadedCopyWithImpl<S
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is SearchLoaded&&(identical(other.search, search) || other.search == search)&&(identical(other.query, query) || other.query == query)&&(identical(other.searching, searching) || other.searching == searching)&&(identical(other.results, results) || other.results == results)&&(identical(other.resultsError, resultsError) || other.resultsError == resultsError));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SearchLoaded&&(identical(other.search, search) || other.search == search)&&(identical(other.query, query) || other.query == query)&&(identical(other.searching, searching) || other.searching == searching)&&(identical(other.results, results) || other.results == results)&&(identical(other.resultsError, resultsError) || other.resultsError == resultsError)&&(identical(other.refreshFailed, refreshFailed) || other.refreshFailed == refreshFailed));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,search,query,searching,results,resultsError);
+int get hashCode => Object.hash(runtimeType,search,query,searching,results,resultsError,refreshFailed);
 
 @override
 String toString() {
-  return 'SearchState.loaded(search: $search, query: $query, searching: $searching, results: $results, resultsError: $resultsError)';
+  return 'SearchState.loaded(search: $search, query: $query, searching: $searching, results: $results, resultsError: $resultsError, refreshFailed: $refreshFailed)';
 }
 
 
@@ -654,7 +660,7 @@ abstract mixin class $SearchLoadedCopyWith<$Res> implements $SearchStateCopyWith
   factory $SearchLoadedCopyWith(SearchLoaded value, $Res Function(SearchLoaded) _then) = _$SearchLoadedCopyWithImpl;
 @useResult
 $Res call({
- SearchEntity search, String query, bool searching, SearchResultsEntity? results, String? resultsError
+ SearchEntity search, String query, bool searching, SearchResultsEntity? results, String? resultsError, bool refreshFailed
 });
 
 
@@ -671,14 +677,15 @@ class _$SearchLoadedCopyWithImpl<$Res>
 
 /// Create a copy of SearchState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? search = null,Object? query = null,Object? searching = null,Object? results = freezed,Object? resultsError = freezed,}) {
+@pragma('vm:prefer-inline') $Res call({Object? search = null,Object? query = null,Object? searching = null,Object? results = freezed,Object? resultsError = freezed,Object? refreshFailed = null,}) {
   return _then(SearchLoaded(
 search: null == search ? _self.search : search // ignore: cast_nullable_to_non_nullable
 as SearchEntity,query: null == query ? _self.query : query // ignore: cast_nullable_to_non_nullable
 as String,searching: null == searching ? _self.searching : searching // ignore: cast_nullable_to_non_nullable
 as bool,results: freezed == results ? _self.results : results // ignore: cast_nullable_to_non_nullable
 as SearchResultsEntity?,resultsError: freezed == resultsError ? _self.resultsError : resultsError // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,refreshFailed: null == refreshFailed ? _self.refreshFailed : refreshFailed // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 

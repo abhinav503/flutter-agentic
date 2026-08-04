@@ -36,7 +36,9 @@ class CategoryGroupSection extends StatelessWidget {
         children: [
           Text(
             group.name,
-            style: GraviaTextStyleConst.textLgBold(tt).copyWith(color: cs.onSurface),
+            style: GraviaTextStyleConst.textLgBold(
+              tt,
+            ).copyWith(color: cs.onSurface),
           ),
           const SizedBox(height: AppSpacing.base),
           ChunkedGrid(

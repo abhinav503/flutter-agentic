@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 
 import 'package:core/core/base/base_screen.dart';
 import 'package:core/core/theme/app_spacing.dart';
-import 'package:core/core/ui/atoms/shimmer_box.dart';
 
 import 'package:cordelia/constants/app_routes.dart';
 import 'package:cordelia/feature/storefront/cart/presentation/cubit/cart_cubit.dart';
@@ -22,6 +21,7 @@ import 'package:cordelia/templates/grofast/widgets/grofast_search_field.dart';
 import 'package:cordelia/templates/grofast/widgets/grofast_sheet.dart';
 import 'package:cordelia/templates/grofast/widgets/grofast_state_views.dart';
 
+import '../widgets/category_details_skeleton_body.dart';
 import '../../../bloc/category_details_bloc.dart';
 
 /// `grofast` template's Category Details (kit frame `119:937`) — a
@@ -116,7 +116,8 @@ class _CategoryDetailsScreenState
             gap: AppSpacing.xl4,
             body: GrofastSwitcher(
               child: switch (state) {
-                CategoryDetailsLoading() => const _CategorySkeletonBody(),
+                CategoryDetailsLoading() =>
+                  const GrofastCategoryDetailsSkeletonBody(),
                 CategoryDetailsError(
                   :final message,
                   :final storeId,
@@ -202,20 +203,4 @@ class _CategoryContent extends StatelessWidget {
       ],
     );
   }
-}
-
-class _CategorySkeletonBody extends StatelessWidget {
-  const _CategorySkeletonBody();
-
-  @override
-  Widget build(BuildContext context) => const Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      ShimmerBox(width: 180, height: AppSpacing.xl5),
-      SizedBox(height: AppSpacing.xs3),
-      ShimmerBox(width: 80, height: AppSpacing.base),
-      SizedBox(height: AppSpacing.xl2),
-      GrofastProductGridSkeleton(),
-    ],
-  );
 }

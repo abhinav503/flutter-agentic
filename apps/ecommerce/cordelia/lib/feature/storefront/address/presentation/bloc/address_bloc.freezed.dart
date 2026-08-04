@@ -524,11 +524,11 @@ return error(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loading,TResult Function( List<AddressEntity> addresses,  String selectedAddressId,  bool saveFailed,  bool deleteFailed)?  loaded,TResult Function( String message)?  error,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loading,TResult Function( List<AddressEntity> addresses,  String selectedAddressId,  bool saveFailed,  bool deleteFailed,  bool refreshFailed)?  loaded,TResult Function( String message)?  error,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case AddressLoading() when loading != null:
 return loading();case AddressLoaded() when loaded != null:
-return loaded(_that.addresses,_that.selectedAddressId,_that.saveFailed,_that.deleteFailed);case AddressError() when error != null:
+return loaded(_that.addresses,_that.selectedAddressId,_that.saveFailed,_that.deleteFailed,_that.refreshFailed);case AddressError() when error != null:
 return error(_that.message);case _:
   return orElse();
 
@@ -547,11 +547,11 @@ return error(_that.message);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loading,required TResult Function( List<AddressEntity> addresses,  String selectedAddressId,  bool saveFailed,  bool deleteFailed)  loaded,required TResult Function( String message)  error,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loading,required TResult Function( List<AddressEntity> addresses,  String selectedAddressId,  bool saveFailed,  bool deleteFailed,  bool refreshFailed)  loaded,required TResult Function( String message)  error,}) {final _that = this;
 switch (_that) {
 case AddressLoading():
 return loading();case AddressLoaded():
-return loaded(_that.addresses,_that.selectedAddressId,_that.saveFailed,_that.deleteFailed);case AddressError():
+return loaded(_that.addresses,_that.selectedAddressId,_that.saveFailed,_that.deleteFailed,_that.refreshFailed);case AddressError():
 return error(_that.message);}
 }
 /// A variant of `when` that fallback to returning `null`
@@ -566,11 +566,11 @@ return error(_that.message);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loading,TResult? Function( List<AddressEntity> addresses,  String selectedAddressId,  bool saveFailed,  bool deleteFailed)?  loaded,TResult? Function( String message)?  error,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loading,TResult? Function( List<AddressEntity> addresses,  String selectedAddressId,  bool saveFailed,  bool deleteFailed,  bool refreshFailed)?  loaded,TResult? Function( String message)?  error,}) {final _that = this;
 switch (_that) {
 case AddressLoading() when loading != null:
 return loading();case AddressLoaded() when loaded != null:
-return loaded(_that.addresses,_that.selectedAddressId,_that.saveFailed,_that.deleteFailed);case AddressError() when error != null:
+return loaded(_that.addresses,_that.selectedAddressId,_that.saveFailed,_that.deleteFailed,_that.refreshFailed);case AddressError() when error != null:
 return error(_that.message);case _:
   return null;
 
@@ -615,7 +615,7 @@ String toString() {
 
 
 class AddressLoaded implements AddressState {
-  const AddressLoaded({required final  List<AddressEntity> addresses, required this.selectedAddressId, this.saveFailed = false, this.deleteFailed = false}): _addresses = addresses;
+  const AddressLoaded({required final  List<AddressEntity> addresses, required this.selectedAddressId, this.saveFailed = false, this.deleteFailed = false, this.refreshFailed = false}): _addresses = addresses;
   
 
  final  List<AddressEntity> _addresses;
@@ -632,6 +632,13 @@ class AddressLoaded implements AddressState {
 @JsonKey() final  bool saveFailed;
 // Same one-shot pattern as [saveFailed], for a failed delete.
 @JsonKey() final  bool deleteFailed;
+// True for one emission when a silent background refresh (a warm start
+// seeded from AddressBloc's cached data) fails — the already-visible
+// cached content stays on screen; the listener surfaces this via a
+// snackbar instead of replacing it with the error view. Cleared the same
+// way [saveFailed] is: every later emission rebuilds the state fresh, so
+// the default takes over.
+@JsonKey() final  bool refreshFailed;
 
 /// Create a copy of AddressState
 /// with the given fields replaced by the non-null parameter values.
@@ -643,16 +650,16 @@ $AddressLoadedCopyWith<AddressLoaded> get copyWith => _$AddressLoadedCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AddressLoaded&&const DeepCollectionEquality().equals(other._addresses, _addresses)&&(identical(other.selectedAddressId, selectedAddressId) || other.selectedAddressId == selectedAddressId)&&(identical(other.saveFailed, saveFailed) || other.saveFailed == saveFailed)&&(identical(other.deleteFailed, deleteFailed) || other.deleteFailed == deleteFailed));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AddressLoaded&&const DeepCollectionEquality().equals(other._addresses, _addresses)&&(identical(other.selectedAddressId, selectedAddressId) || other.selectedAddressId == selectedAddressId)&&(identical(other.saveFailed, saveFailed) || other.saveFailed == saveFailed)&&(identical(other.deleteFailed, deleteFailed) || other.deleteFailed == deleteFailed)&&(identical(other.refreshFailed, refreshFailed) || other.refreshFailed == refreshFailed));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_addresses),selectedAddressId,saveFailed,deleteFailed);
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_addresses),selectedAddressId,saveFailed,deleteFailed,refreshFailed);
 
 @override
 String toString() {
-  return 'AddressState.loaded(addresses: $addresses, selectedAddressId: $selectedAddressId, saveFailed: $saveFailed, deleteFailed: $deleteFailed)';
+  return 'AddressState.loaded(addresses: $addresses, selectedAddressId: $selectedAddressId, saveFailed: $saveFailed, deleteFailed: $deleteFailed, refreshFailed: $refreshFailed)';
 }
 
 
@@ -663,7 +670,7 @@ abstract mixin class $AddressLoadedCopyWith<$Res> implements $AddressStateCopyWi
   factory $AddressLoadedCopyWith(AddressLoaded value, $Res Function(AddressLoaded) _then) = _$AddressLoadedCopyWithImpl;
 @useResult
 $Res call({
- List<AddressEntity> addresses, String selectedAddressId, bool saveFailed, bool deleteFailed
+ List<AddressEntity> addresses, String selectedAddressId, bool saveFailed, bool deleteFailed, bool refreshFailed
 });
 
 
@@ -680,12 +687,13 @@ class _$AddressLoadedCopyWithImpl<$Res>
 
 /// Create a copy of AddressState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? addresses = null,Object? selectedAddressId = null,Object? saveFailed = null,Object? deleteFailed = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? addresses = null,Object? selectedAddressId = null,Object? saveFailed = null,Object? deleteFailed = null,Object? refreshFailed = null,}) {
   return _then(AddressLoaded(
 addresses: null == addresses ? _self._addresses : addresses // ignore: cast_nullable_to_non_nullable
 as List<AddressEntity>,selectedAddressId: null == selectedAddressId ? _self.selectedAddressId : selectedAddressId // ignore: cast_nullable_to_non_nullable
 as String,saveFailed: null == saveFailed ? _self.saveFailed : saveFailed // ignore: cast_nullable_to_non_nullable
 as bool,deleteFailed: null == deleteFailed ? _self.deleteFailed : deleteFailed // ignore: cast_nullable_to_non_nullable
+as bool,refreshFailed: null == refreshFailed ? _self.refreshFailed : refreshFailed // ignore: cast_nullable_to_non_nullable
 as bool,
   ));
 }

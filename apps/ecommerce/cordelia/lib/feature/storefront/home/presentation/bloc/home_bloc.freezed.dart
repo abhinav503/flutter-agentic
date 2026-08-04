@@ -14,61 +14,30 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$HomeEvent {
 
- String get storeId;
-/// Create a copy of HomeEvent
-/// with the given fields replaced by the non-null parameter values.
-@JsonKey(includeFromJson: false, includeToJson: false)
-@pragma('vm:prefer-inline')
-$HomeEventCopyWith<HomeEvent> get copyWith => _$HomeEventCopyWithImpl<HomeEvent>(this as HomeEvent, _$identity);
+
 
 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is HomeEvent&&(identical(other.storeId, storeId) || other.storeId == storeId));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is HomeEvent);
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,storeId);
+int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'HomeEvent(storeId: $storeId)';
+  return 'HomeEvent()';
 }
 
 
 }
 
 /// @nodoc
-abstract mixin class $HomeEventCopyWith<$Res>  {
-  factory $HomeEventCopyWith(HomeEvent value, $Res Function(HomeEvent) _then) = _$HomeEventCopyWithImpl;
-@useResult
-$Res call({
- String storeId
-});
-
-
-
-
-}
-/// @nodoc
-class _$HomeEventCopyWithImpl<$Res>
-    implements $HomeEventCopyWith<$Res> {
-  _$HomeEventCopyWithImpl(this._self, this._then);
-
-  final HomeEvent _self;
-  final $Res Function(HomeEvent) _then;
-
-/// Create a copy of HomeEvent
-/// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? storeId = null,}) {
-  return _then(_self.copyWith(
-storeId: null == storeId ? _self.storeId : storeId // ignore: cast_nullable_to_non_nullable
-as String,
-  ));
-}
-
+class $HomeEventCopyWith<$Res>  {
+$HomeEventCopyWith(HomeEvent _, $Res Function(HomeEvent) __);
 }
 
 
@@ -147,10 +116,10 @@ return started(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String storeId)?  started,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  started,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case HomeStarted() when started != null:
-return started(_that.storeId);case _:
+return started();case _:
   return orElse();
 
 }
@@ -168,10 +137,10 @@ return started(_that.storeId);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String storeId)  started,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  started,}) {final _that = this;
 switch (_that) {
 case HomeStarted():
-return started(_that.storeId);}
+return started();}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -185,10 +154,10 @@ return started(_that.storeId);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String storeId)?  started,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  started,}) {final _that = this;
 switch (_that) {
 case HomeStarted() when started != null:
-return started(_that.storeId);case _:
+return started();case _:
   return null;
 
 }
@@ -200,67 +169,33 @@ return started(_that.storeId);case _:
 
 
 class HomeStarted implements HomeEvent {
-  const HomeStarted({required this.storeId});
+  const HomeStarted();
   
 
-@override final  String storeId;
 
-/// Create a copy of HomeEvent
-/// with the given fields replaced by the non-null parameter values.
-@override @JsonKey(includeFromJson: false, includeToJson: false)
-@pragma('vm:prefer-inline')
-$HomeStartedCopyWith<HomeStarted> get copyWith => _$HomeStartedCopyWithImpl<HomeStarted>(this, _$identity);
+
 
 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is HomeStarted&&(identical(other.storeId, storeId) || other.storeId == storeId));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is HomeStarted);
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,storeId);
+int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'HomeEvent.started(storeId: $storeId)';
+  return 'HomeEvent.started()';
 }
 
 
 }
 
-/// @nodoc
-abstract mixin class $HomeStartedCopyWith<$Res> implements $HomeEventCopyWith<$Res> {
-  factory $HomeStartedCopyWith(HomeStarted value, $Res Function(HomeStarted) _then) = _$HomeStartedCopyWithImpl;
-@override @useResult
-$Res call({
- String storeId
-});
 
 
-
-
-}
-/// @nodoc
-class _$HomeStartedCopyWithImpl<$Res>
-    implements $HomeStartedCopyWith<$Res> {
-  _$HomeStartedCopyWithImpl(this._self, this._then);
-
-  final HomeStarted _self;
-  final $Res Function(HomeStarted) _then;
-
-/// Create a copy of HomeEvent
-/// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? storeId = null,}) {
-  return _then(HomeStarted(
-storeId: null == storeId ? _self.storeId : storeId // ignore: cast_nullable_to_non_nullable
-as String,
-  ));
-}
-
-
-}
 
 /// @nodoc
 mixin _$HomeState {

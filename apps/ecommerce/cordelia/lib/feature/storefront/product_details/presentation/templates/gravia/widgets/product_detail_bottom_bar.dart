@@ -58,7 +58,9 @@ class ProductDetailBottomBar extends StatelessWidget {
               const SizedBox(width: AppSpacing.base),
               Expanded(
                 child: GraviaPrimaryButton(
-                  label: GraviaValueConst.addToCartWithPrice(unitPrice * quantity),
+                  label: GraviaValueConst.addToCartWithPrice(
+                    unitPrice * quantity,
+                  ),
                   onTap: onAddToCart,
                 ),
               ),

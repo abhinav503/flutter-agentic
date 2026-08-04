@@ -20,7 +20,10 @@ mixin _$StoreModel {
 // (these particular keys have no snake_case form to begin with).
  String get image; String get description;// Defaulted, not required — the admin backend sends template_id now,
 // but the still-deployed older API build may not, so this must parse
-// cleanly either way.
+// cleanly either way. Empty, not 'gravia': the wire→enum fallback lives
+// in one place (`StorefrontTemplateParse.toStorefrontTemplate`, which
+// maps ''/unknown → gravia), so this DTO doesn't hold a second copy of
+// that policy.
 @JsonKey(name: 'template_id') String get templateId;
 /// Create a copy of StoreModel
 /// with the given fields replaced by the non-null parameter values.
@@ -219,7 +222,7 @@ return $default(_that.id,_that.name,_that.image,_that.description,_that.template
 @JsonSerializable()
 
 class _StoreModel extends StoreModel {
-  const _StoreModel({required this.id, required this.name, required this.image, required this.description, @JsonKey(name: 'template_id') this.templateId = 'gravia'}): super._();
+  const _StoreModel({required this.id, required this.name, required this.image, required this.description, @JsonKey(name: 'template_id') this.templateId = ''}): super._();
   factory _StoreModel.fromJson(Map<String, dynamic> json) => _$StoreModelFromJson(json);
 
 @override final  String id;
@@ -231,7 +234,10 @@ class _StoreModel extends StoreModel {
 @override final  String description;
 // Defaulted, not required — the admin backend sends template_id now,
 // but the still-deployed older API build may not, so this must parse
-// cleanly either way.
+// cleanly either way. Empty, not 'gravia': the wire→enum fallback lives
+// in one place (`StorefrontTemplateParse.toStorefrontTemplate`, which
+// maps ''/unknown → gravia), so this DTO doesn't hold a second copy of
+// that policy.
 @override@JsonKey(name: 'template_id') final  String templateId;
 
 /// Create a copy of StoreModel

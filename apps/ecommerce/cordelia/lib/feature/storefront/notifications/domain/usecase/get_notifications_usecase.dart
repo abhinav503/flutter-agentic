@@ -2,19 +2,22 @@ import 'package:core/core/error/failure.dart';
 import 'package:core/core/usecase/usecase.dart';
 import 'package:fpdart/fpdart.dart';
 
-import 'package:cordelia/feature/storefront/template/storefront_template.dart';
-
 import '../entities/notification_section_entity.dart';
 import '../repository/notifications_repository.dart';
 
-/// Which template's notifications to load. Threaded as a call param rather
-/// than injected, the same way `storeId` is — one registered use case serves
-/// every storefront, and nothing needs re-registering when the shopper opens
-/// a store running a different template.
+/// Which store's notifications to load. Threaded as call params rather than
+/// injected, the same way `storeId` is elsewhere — one registered use case
+/// serves every storefront, and nothing needs re-registering when the shopper
+/// opens a different store. [templateId] is the store's `template_id` wire
+/// string, carried as store data (not a UI concept).
 class GetNotificationsParams {
-  final StorefrontTemplate template;
+  final String storeId;
+  final String templateId;
 
-  const GetNotificationsParams({required this.template});
+  const GetNotificationsParams({
+    required this.storeId,
+    required this.templateId,
+  });
 }
 
 class GetNotificationsUseCase
@@ -30,5 +33,8 @@ class GetNotificationsUseCase
   @override
   Future<Either<Failure, List<NotificationSectionEntity>>> call(
     GetNotificationsParams params,
-  ) => _repository.getNotifications(params.template);
+  ) => _repository.getNotifications(
+    storeId: params.storeId,
+    templateId: params.templateId,
+  );
 }

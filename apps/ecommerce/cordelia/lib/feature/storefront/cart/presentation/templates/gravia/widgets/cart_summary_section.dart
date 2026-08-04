@@ -3,6 +3,8 @@ import 'package:cordelia/templates/gravia/constants/gravia_image_const.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_text_style_const.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_value_const.dart';
 import 'package:flutter/material.dart';
+
+import 'package:core/core/extensions/num_extensions.dart';
 import 'package:core/core/theme/app_radius.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/svg_image.dart';
@@ -31,48 +33,48 @@ class CartSummarySection extends StatelessWidget {
 
     return PriceBreakdown(
       leading: GestureDetector(
-          onTap: onApplyCoupon,
-          child: Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.lg,
-              vertical: AppSpacing.base,
-            ),
-            decoration: BoxDecoration(
-              border: Border.all(color: cs.outlineVariant),
-              borderRadius: AppRadius.full,
-            ),
-            child: Row(
-              children: [
-                AppSvgImage.asset(
-                  GraviaImageConst.gift,
-                  color: isDark ? cs.onPrimary : GraviaColorConst.gray900,
-                  width: 20,
-                  height: 20,
-                ),
-                const SizedBox(width: AppSpacing.xs),
-                Expanded(
-                  child: Text(
-                    GraviaValueConst.couponCodeLabel,
-                    style: GraviaTextStyleConst.textSmRegular(
-                      tt,
-                    ).copyWith(color: cs.onSurfaceVariant),
-                  ),
-                ),
-                Text(
-                  GraviaValueConst.applyLabel,
-                  style: GraviaTextStyleConst.textSmMedium(
+        onTap: onApplyCoupon,
+        child: Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.lg,
+            vertical: AppSpacing.base,
+          ),
+          decoration: BoxDecoration(
+            border: Border.all(color: cs.outlineVariant),
+            borderRadius: AppRadius.full,
+          ),
+          child: Row(
+            children: [
+              AppSvgImage.asset(
+                GraviaImageConst.gift,
+                color: isDark ? cs.onPrimary : GraviaColorConst.gray900,
+                width: 20,
+                height: 20,
+              ),
+              const SizedBox(width: AppSpacing.xs),
+              Expanded(
+                child: Text(
+                  GraviaValueConst.couponCodeLabel,
+                  style: GraviaTextStyleConst.textSmRegular(
                     tt,
-                  ).copyWith(color: cs.primary),
+                  ).copyWith(color: cs.onSurfaceVariant),
                 ),
-              ],
-            ),
+              ),
+              Text(
+                GraviaValueConst.applyLabel,
+                style: GraviaTextStyleConst.textSmMedium(
+                  tt,
+                ).copyWith(color: cs.primary),
+              ),
+            ],
           ),
         ),
+      ),
       leadingGap: AppSpacing.xl2,
       lines: [
         PriceLine(
           label: GraviaValueConst.itemTotalLabel,
-          value: GraviaValueConst.formattedPrice(items.itemTotal),
+          value: items.itemTotal.asPrice,
           labelStyle: GraviaTextStyleConst.textSmRegular(
             tt,
           ).copyWith(color: cs.onSurfaceVariant),
@@ -82,7 +84,7 @@ class CartSummarySection extends StatelessWidget {
         ),
         PriceLine(
           label: GraviaValueConst.discountLabel,
-          value: GraviaValueConst.formattedPrice(items.discountTotal),
+          value: items.discountTotal.asPrice,
           labelStyle: GraviaTextStyleConst.textSmRegular(
             tt,
           ).copyWith(color: cs.onSurfaceVariant),
@@ -103,7 +105,7 @@ class CartSummarySection extends StatelessWidget {
       ],
       total: PriceLine(
         label: GraviaValueConst.grandTotalLabel,
-        value: GraviaValueConst.formattedPrice(items.grandTotal),
+        value: items.grandTotal.asPrice,
         labelStyle: GraviaTextStyleConst.textMdBold(
           tt,
         ).copyWith(color: cs.onSurface),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:core/core/base/base_page.dart';
+import 'package:cordelia/feature/storefront/presentation/chromeless_page.dart';
 
 import 'package:cordelia/di/injection_container.dart';
 import 'package:cordelia/feature/storefront/active_store/presentation/cubit/active_store_cubit.dart';
@@ -22,14 +23,8 @@ class CheckoutPage extends BasePage {
   State<CheckoutPage> createState() => _CheckoutPageState();
 }
 
-class _CheckoutPageState extends BasePageState<CheckoutPage> {
-  @override
-  PreferredSizeWidget? buildAppBar(BuildContext context) => null;
-
-  @override
-  Color? backgroundColor(BuildContext context) =>
-      Theme.of(context).colorScheme.surface;
-
+class _CheckoutPageState extends BasePageState<CheckoutPage>
+    with ChromelessStorefrontPage {
   /// `!`: this route is only pushed from inside a storefront, which seeds the
   /// cubit before any of its screens can render.
   @override

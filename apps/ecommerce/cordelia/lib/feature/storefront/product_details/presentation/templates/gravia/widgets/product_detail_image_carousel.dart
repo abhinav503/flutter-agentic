@@ -30,8 +30,7 @@ class _ProductDetailImageCarouselState
 
   @override
   Widget build(BuildContext context) {
-    final shapes =
-        context.appShapes;
+    final shapes = context.appShapes;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,

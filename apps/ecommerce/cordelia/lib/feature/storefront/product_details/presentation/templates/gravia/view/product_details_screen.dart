@@ -11,11 +11,13 @@ import 'package:cordelia/templates/gravia/widgets/selector_chip.dart';
 import 'package:cordelia/templates/gravia/widgets/gravia_glass_icon_button.dart';
 import 'package:cordelia/templates/gravia/widgets/gravia_hero_header.dart';
 import 'package:flutter/material.dart';
+
+import 'package:core/core/extensions/num_extensions.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:core/core/ui/atoms/app_switcher.dart';
+import 'package:cordelia/templates/gravia/widgets/gravia_switcher.dart';
 import 'package:core/core/base/base_screen.dart';
 import 'package:core/core/theme/app_colors_extension.dart';
 import 'package:core/core/theme/app_spacing.dart';
@@ -66,7 +68,7 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
           showSnackBar(message);
         }
       },
-      builder: (context, state) => AppSwitcher(
+      builder: (context, state) => GraviaSwitcher(
         child: switch (state) {
           ProductDetailsLoading() => CollapsingHeaderSheet(
             key: const ValueKey('loading'),
@@ -85,14 +87,15 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
             :final message,
             :final storeId,
             :final productId,
-          ) => SafeArea(
-            key: const ValueKey('error'),
-            child: ErrorView(
-              message: message,
-              onRetry: () =>
-                  retryLoad(storeId: storeId, productId: productId),
+          ) =>
+            SafeArea(
+              key: const ValueKey('error'),
+              child: ErrorView(
+                message: message,
+                onRetry: () =>
+                    retryLoad(storeId: storeId, productId: productId),
+              ),
             ),
-          ),
           ProductDetailsLoaded(:final detail) => KeyedSubtree(
             key: const ValueKey('loaded'),
             child: _buildLoaded(context, detail),
@@ -106,14 +109,14 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
     final product = detail.product;
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
-    final isFavourite =
-        context.watch<FavouritesCubit>().isFavourite(product.id);
+    final isFavourite = context.watch<FavouritesCubit>().isFavourite(
+      product.id,
+    );
     // Same divider colour as the bottom nav bar's top border (ShellPage uses
     // AppColorsExtension.dockedHairline for both its top and bottom borders)
     // — so the hairlines in this screen match the bar rather than the
     // generic Gray/200 hairline.
-    final hairlineColor =
-        context.appColors.dockedHairline;
+    final hairlineColor = context.appColors.dockedHairline;
 
     return Column(
       children: [
@@ -132,8 +135,7 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
                 asset: isFavourite
                     ? GraviaImageConst.favouriteFilled
                     : GraviaImageConst.navFavourite,
-                onTap: () =>
-                    context.read<FavouritesCubit>().toggle(product),
+                onTap: () => context.read<FavouritesCubit>().toggle(product),
               ),
             ),
             body: Padding(
@@ -153,7 +155,9 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
                   ProductMetaRow(
                     meta: [
                       ProductCardMeta(
-                        icon: GraviaProductCard.metaIcon(GraviaImageConst.flash),
+                        icon: GraviaProductCard.metaIcon(
+                          GraviaImageConst.flash,
+                        ),
                         label: product.prepTime,
                       ),
                       ProductCardMeta(
@@ -175,14 +179,14 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
                     textBaseline: TextBaseline.alphabetic,
                     children: [
                       Text(
-                        GraviaValueConst.formattedPrice(product.price),
+                        product.price.asPrice,
                         style: GraviaTextStyleConst.textLgBold(
                           tt,
                         ).copyWith(color: cs.onSurface),
                       ),
                       const SizedBox(width: AppSpacing.xs2),
                       Text(
-                        GraviaValueConst.formattedPrice(product.originalPrice),
+                        product.originalPrice.asPrice,
                         style: GraviaTextStyleConst.textSmRegular(tt).copyWith(
                           color: cs.onSurfaceVariant,
                           decoration: TextDecoration.lineThrough,

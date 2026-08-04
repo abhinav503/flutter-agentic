@@ -13,7 +13,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:core/core/ui/atoms/app_switcher.dart';
+import 'package:cordelia/templates/gravia/widgets/gravia_switcher.dart';
 import 'package:core/core/base/base_screen.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/theme/theme_mode_scope.dart';
@@ -57,7 +57,7 @@ class _ProfileScreenState extends BaseScreenState<ProfileScreen> {
       listener: (context, state) {
         if (state case ProfileError(:final message)) showSnackBar(message);
       },
-      builder: (context, state) => AppSwitcher(
+      builder: (context, state) => GraviaSwitcher(
         child: switch (state) {
           ProfileLoading() => const CollapsingHeaderSheet(
             key: ValueKey('loading'),
@@ -69,9 +69,8 @@ class _ProfileScreenState extends BaseScreenState<ProfileScreen> {
             key: const ValueKey('error'),
             child: ErrorView(
               message: GraviaValueConst.profileLoadErrorMessage,
-              onRetry: () => context.read<ProfileBloc>().add(
-                const ProfileEvent.started(),
-              ),
+              onRetry: () =>
+                  context.read<ProfileBloc>().add(const ProfileEvent.started()),
             ),
           ),
           ProfileLoaded(:final profile) => CollapsingHeaderSheet(
@@ -196,5 +195,4 @@ class _ProfileScreenState extends BaseScreenState<ProfileScreen> {
       ),
     );
   }
-
 }

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import 'package:core/core/theme/app_radius.dart';
-import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/button.dart';
 
 import 'package:cordelia/templates/grofast/constants/grofast_color_const.dart';
@@ -48,9 +47,9 @@ class GrofastPrimaryButton extends StatelessWidget {
 }
 
 /// The pack's one **non**-gradient button: the Bag's "Apply", a compact ink
-/// pill that sits inside the promo-code row. Uses `cs.secondary`, which is
-/// the kit's Dark-Green in light mode and inverts to near-white on dark so
-/// the pill keeps its contrast against the row behind it.
+/// pill that sits inside the promo-code row. Uses `cs.secondary`, the kit's
+/// Dark-Green — held to the same value in both modes (the preset says why),
+/// so the pill reads as the same control on either canvas.
 class GrofastInkButton extends StatelessWidget {
   final String label;
   final VoidCallback? onTap;
@@ -68,30 +67,20 @@ class GrofastInkButton extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
 
-    final radius = BorderRadius.circular(GrofastDimenConst.applyPillRadius);
-
-    return SizedBox(
-      width: width,
+    final button = AppButton(
+      label: label,
+      onTap: onTap,
+      // `large` only for its horizontal inset — the pack pins the height
+      // itself, so the size's vertical padding never applies.
+      size: AppButtonSize.large,
+      fullWidth: width != null,
       height: GrofastDimenConst.applyPillHeight,
-      child: Material(
-        color: cs.secondary,
-        borderRadius: radius,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: radius,
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl2),
-              child: Text(
-                label,
-                style: GrofastTextStyleConst.labelSemibold(
-                  tt,
-                ).copyWith(color: cs.onSecondary),
-              ),
-            ),
-          ),
-        ),
-      ),
+      borderRadius: BorderRadius.circular(GrofastDimenConst.applyPillRadius),
+      backgroundColor: cs.secondary,
+      foregroundColor: cs.onSecondary,
+      labelStyle: GrofastTextStyleConst.labelSemibold(tt),
     );
+
+    return width == null ? button : SizedBox(width: width, child: button);
   }
 }

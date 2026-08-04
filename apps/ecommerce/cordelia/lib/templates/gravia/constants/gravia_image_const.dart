@@ -50,5 +50,4 @@ abstract final class GraviaImageConst {
   static const logout = '$_icons/logout.svg';
   static const eye = '$_icons/eye.svg';
   static const lock = '$_icons/lock.svg';
-
 }

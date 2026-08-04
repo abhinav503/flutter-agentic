@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:core/core/base/base_page.dart';
+import 'package:cordelia/feature/storefront/presentation/chromeless_page.dart';
 
-import 'package:cordelia/di/injection_container.dart';
-
-import '../../../bloc/category_details_bloc.dart';
+import '../../../bloc/category_details_bloc_provider.dart';
 import 'category_details_screen.dart';
 
 class CategoryDetailsPage extends BasePage {
@@ -24,26 +22,13 @@ class CategoryDetailsPage extends BasePage {
   State<CategoryDetailsPage> createState() => _CategoryDetailsPageState();
 }
 
-class _CategoryDetailsPageState extends BasePageState<CategoryDetailsPage> {
-  /// No app bar anywhere in this pack — the screen renders its own header row
-  /// as the first item of its scroll view (spec sheet §8).
+class _CategoryDetailsPageState extends BasePageState<CategoryDetailsPage>
+    with ChromelessStorefrontPage {
   @override
-  PreferredSizeWidget? buildAppBar(BuildContext context) => null;
-
-  @override
-  Color? backgroundColor(BuildContext context) =>
-      Theme.of(context).colorScheme.surface;
-
-  @override
-  Widget buildBody(BuildContext context) => BlocProvider(
-    create: (_) => CategoryDetailsBloc(getCategoryDetailsUseCase: sl())
-      ..add(
-        CategoryDetailsEvent.started(
-          storeId: widget.storeId,
-          categoryId: widget.categoryId,
-          categoryName: widget.categoryName,
-        ),
-      ),
+  Widget buildBody(BuildContext context) => categoryDetailsBlocProvider(
+    storeId: widget.storeId,
+    categoryId: widget.categoryId,
+    categoryName: widget.categoryName,
     child: CategoryDetailsScreen(
       storeId: widget.storeId,
       categoryName: widget.categoryName,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../theme/app_radius.dart';
+import '../../theme/app_shapes_extension.dart';
 
 /// A single shimmering placeholder shape — the building block for skeleton
 /// loading states. Compose several inside a layout that mirrors the real
@@ -14,7 +15,10 @@ import '../../theme/app_radius.dart';
 class ShimmerBox extends StatefulWidget {
   final double width;
   final double height;
-  final BorderRadius borderRadius;
+
+  /// Null means "the theme's card radius" — only [ShimmerBox.card] sets it
+  /// null; both public constructors otherwise pin a concrete radius.
+  final BorderRadius? borderRadius;
 
   /// Override the theme-derived shimmer colours — for a skeleton sitting on
   /// a canvas where the surface-container ramp has no contrast left (e.g. a
@@ -44,6 +48,17 @@ class ShimmerBox extends StatefulWidget {
        height = size,
        borderRadius = const BorderRadius.all(Radius.circular(9999));
 
+  /// Card-silhouette variant: shimmers at the theme's `AppShapes.cardRadius`
+  /// so a card skeleton never hand-derives
+  /// `BorderRadius.circular(context.appShapes.cardRadius)` at the call site.
+  const ShimmerBox.card({
+    super.key,
+    required this.height,
+    this.width = double.infinity,
+    this.baseColor,
+    this.sweepColor,
+  }) : borderRadius = null;
+
   @override
   State<ShimmerBox> createState() => _ShimmerBoxState();
 }
@@ -66,9 +81,12 @@ class _ShimmerBoxState extends State<ShimmerBox>
     final cs = Theme.of(context).colorScheme;
     final base = widget.baseColor ?? cs.surfaceContainerHighest;
     final sweep = widget.sweepColor ?? cs.surfaceContainerHigh;
+    final radius =
+        widget.borderRadius ??
+        BorderRadius.circular(context.appShapes.cardRadius);
 
     return ClipRRect(
-      borderRadius: widget.borderRadius,
+      borderRadius: radius,
       child: AnimatedBuilder(
         animation: _controller,
         builder: (context, _) {

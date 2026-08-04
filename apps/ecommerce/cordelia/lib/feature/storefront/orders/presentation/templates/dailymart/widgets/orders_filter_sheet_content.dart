@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 
 import 'package:core/core/theme/app_spacing.dart';
 
-import 'package:cordelia/enums/orders_filter_period.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_value_const.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_action_pair.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_dropdown_field.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_filter_chip.dart';
 
 import '../../../bloc/orders_bloc.dart';
+import '../../../orders_date_filter_state.dart';
 
 /// Body of My Orders' Filter sheet — **dates only**, in the pack's own sheet
 /// grammar (kit frame `21`): quick-pick chips, one bordered select field,
@@ -48,72 +48,28 @@ class DailyMartOrdersFilterSheetContent extends StatefulWidget {
 }
 
 class _DailyMartOrdersFilterSheetContentState
-    extends State<DailyMartOrdersFilterSheetContent> {
-  late OrdersFilterPeriod? _period = widget.initialFilter?.period;
-  late DateTime? _from = widget.initialFilter?.from;
-  late DateTime? _to = widget.initialFilter?.to;
+    extends State<DailyMartOrdersFilterSheetContent>
+    with OrdersDateFilterState {
+  @override
+  OrdersFilter? get initialFilter => widget.initialFilter;
 
-  static const _quickPicks = <(OrdersFilterPeriod, String)>[
-    (
-      OrdersFilterPeriod.lastWeek,
-      DailyMartValueConst.ordersFilterLastWeekLabel,
-    ),
-    (
-      OrdersFilterPeriod.lastMonth,
-      DailyMartValueConst.ordersFilterLastMonthLabel,
-    ),
+  @override
+  DateTime get anchor => widget.anchor;
+
+  /// This pack's copy for the shared windows, in the mixin's order.
+  static const _labels = [
+    DailyMartValueConst.ordersFilterLastWeekLabel,
+    DailyMartValueConst.ordersFilterLastMonthLabel,
   ];
-
-  /// Tapping the selected chip again clears it — with only two windows and
-  /// no "All time" chip, that's the only way back to an unbounded range
-  /// without opening the calendar.
-  void _toggle(OrdersFilterPeriod period) => setState(() {
-    if (_period == period) {
-      _period = null;
-      _from = null;
-      _to = null;
-      return;
-    }
-    _period = period;
-    _from = period.startBefore(widget.anchor);
-    _to = widget.anchor;
-  });
-
-  Future<void> _pickRange() async {
-    final picked = await showDateRangePicker(
-      context: context,
-      firstDate: DateTime(widget.anchor.year - 1),
-      // An order can't be placed in the future, so future dates are disabled.
-      lastDate: widget.anchor,
-      initialDateRange: _from == null || _to == null
-          ? null
-          : DateTimeRange(start: _from!, end: _to!),
-    );
-    if (picked == null || !mounted) return;
-    setState(() {
-      _from = picked.start;
-      _to = picked.end;
-      // A hand-picked range no longer corresponds to a quick pick.
-      _period = null;
-    });
-  }
 
   void _reset() => widget.onApply(null);
 
-  void _apply() {
-    final from = _from;
-    final to = _to;
-    widget.onApply(
-      from == null || to == null
-          ? null
-          : OrdersFilter(from: from, to: to, period: _period),
-    );
-  }
+  void _apply() => widget.onApply(selectedFilter);
 
   @override
   Widget build(BuildContext context) {
-    final from = _from;
-    final to = _to;
+    final start = from;
+    final end = to;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(
@@ -128,13 +84,13 @@ class _DailyMartOrdersFilterSheetContentState
         children: [
           Row(
             children: [
-              for (final (period, label) in _quickPicks) ...[
-                if (period != _quickPicks.first.$1)
-                  const SizedBox(width: AppSpacing.sm),
+              for (var i = 0; i < _labels.length; i++) ...[
+                if (i > 0) const SizedBox(width: AppSpacing.sm),
                 DailyMartFilterChip(
-                  label: label,
-                  selected: _period == period,
-                  onTap: () => _toggle(period),
+                  label: _labels[i],
+                  selected: period == OrdersDateFilterState.quickPicks[i],
+                  onTap: () =>
+                      togglePeriod(OrdersDateFilterState.quickPicks[i]),
                 ),
               ],
             ],
@@ -142,10 +98,10 @@ class _DailyMartOrdersFilterSheetContentState
           const SizedBox(height: AppSpacing.lg),
           DailyMartDropdownField(
             label: DailyMartValueConst.ordersDateRangeLabel,
-            value: from == null || to == null
+            value: start == null || end == null
                 ? DailyMartValueConst.ordersAllTimeLabel
-                : DailyMartValueConst.ordersDateRangeValue(from, to),
-            onTap: _pickRange,
+                : DailyMartValueConst.ordersDateRangeValue(start, end),
+            onTap: pickRange,
           ),
           const SizedBox(height: AppSpacing.xl2),
           DailyMartActionPair(

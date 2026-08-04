@@ -356,6 +356,44 @@ inline `toStringAsFixed` or `> 1 ? 's' : ''`. App-level `Cordelia*`
 widgets (`lib/widgets/`) serve shared chrome; a pack may `typedef`-alias
 one into its own namespace (gravia's form field/button/glass disc do).
 
+**d. Structural conventions the other packs already follow.** Each of these
+was a finding on the `grofast` port — the code worked, but it sat somewhere
+the next reader wouldn't look:
+
+- **A `<Pack>Switcher`, `<Pack>EmptyState` and `<Pack>ErrorView` wrapper per
+  pack**, in `lib/templates/<id>/widgets/<id>_state_views.dart`. Screens use
+  the wrappers, never core's atoms bare — that's what keeps the swap
+  duration and the empty/error dressing from drifting screen by screen. A
+  wrapper may pass through a *layout* knob (`topAligned`, a `curve` one
+  screen genuinely needs), but the timing tier belongs to the pack.
+- **Every screen gets the switcher.** Not "every screen with a skeleton" —
+  every screen that swaps bodies at all. One screen left on a bare `switch`
+  is exactly where the layout jump ships.
+- **Skeleton bodies live in `presentation/templates/<id>/widgets/`**, one
+  `<feature>_skeleton_body.dart` file each, public and pack-prefixed
+  (`GrofastProfileSkeletonBody`) — never a private `_FooSkeletonBody` at the
+  bottom of the screen file.
+- **A skeleton mirrors the loaded screen's *structure*, not just its copy.**
+  If the loaded state is a `Stack` with a docked bar and a scroll inset, the
+  skeleton is too — including the bar's silhouette, because the docked bar
+  is usually what pays the bottom inset. A skeleton that's a bare `Column`
+  under a screen whose real body is a `Stack` jumps on load *and* leaves the
+  device inset unpaid while loading.
+- **A badge/dot in the nav bar reads live state.** A `static const` tab list
+  can't, so the tab list becomes a method taking what it needs
+  (`_tabs({required bool bagHasItems})`) and `buildBottomNav` watches the
+  cubit. A permanently-lit dot is a bug the kit screenshot won't show you.
+- **A pack widget that forks a core component says why, in its doc comment.**
+  Name the core component and the specific mismatch (`AppMenuTile`'s
+  silhouette is an icon circle on a bare surface; this kit's row is a filled
+  card). A fork without that note reads as an oversight, and the next port
+  copies it.
+- **Blocs are constructed through the feature's `*_bloc_provider.dart`
+  factory**, never inline in a page — see (a). Adding a use case to a bloc
+  should touch one file, not one per pack.
+- **Chromeless pages mix in `ChromelessStorefrontPage`** rather than
+  re-declaring the `buildAppBar => null` + surface-`backgroundColor` pair.
+
 ---
 
 ## Phase 4 — Review & promotion sweep

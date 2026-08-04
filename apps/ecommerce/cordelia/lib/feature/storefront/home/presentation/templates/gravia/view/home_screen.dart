@@ -12,7 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'package:core/core/ui/atoms/app_switcher.dart';
+import 'package:cordelia/templates/gravia/widgets/gravia_switcher.dart';
 import 'package:core/core/base/base_screen.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/blocks/collapsing_header_sheet.dart';
@@ -47,10 +47,8 @@ class _HomeScreenState extends BaseScreenState<HomeScreen>
 
   String get _storeId => context.read<ActiveStoreCubit>().state!.storeId;
 
-  void _openProductDetails(ProductEntity product) => context.push(
-    AppRoutes.productDetailsPath(product.id),
-    extra: _storeId,
-  );
+  void _openProductDetails(ProductEntity product) =>
+      context.push(AppRoutes.productDetailsPath(product.id), extra: _storeId);
 
   void _openCategoryDetails(CategoryEntity category) => context.push(
     AppRoutes.categoryDetailsPath(category.id, category.name),
@@ -86,25 +84,21 @@ class _HomeScreenState extends BaseScreenState<HomeScreen>
         header: HomeHeroHeader(
           storeId: _storeId,
           addressLabel:
-              selectedAddressLabel ??
-              GraviaValueConst.noLocationSelectedLabel,
+              selectedAddressLabel ?? GraviaValueConst.noLocationSelectedLabel,
           onLocationTap: openSelectAddress,
           onNotificationTap: () => context.push(AppRoutes.notifications),
           onSearchTap: () => context.push(AppRoutes.search, extra: _storeId),
         ),
-        body: AppSwitcher(
+        body: GraviaSwitcher(
           child: switch (state) {
-            HomeLoading() => const HomeSkeletonBody(
-              key: ValueKey('loading'),
-            ),
+            HomeLoading() => const HomeSkeletonBody(key: ValueKey('loading')),
             HomeError() => Padding(
               key: const ValueKey('error'),
               padding: const EdgeInsets.symmetric(vertical: AppSpacing.xl10),
               child: ErrorView(
                 message: GraviaValueConst.homeLoadErrorMessage,
-                onRetry: () => context.read<HomeBloc>().add(
-                  HomeEvent.started(storeId: _storeId),
-                ),
+                onRetry: () =>
+                    context.read<HomeBloc>().add(const HomeEvent.started()),
               ),
             ),
             HomeLoaded(:final home) => _HomeContent(

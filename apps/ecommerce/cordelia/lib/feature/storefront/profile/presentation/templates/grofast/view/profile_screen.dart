@@ -6,7 +6,6 @@ import 'package:go_router/go_router.dart';
 import 'package:core/core/base/base_screen.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/theme/theme_mode_scope.dart';
-import 'package:core/core/ui/atoms/shimmer_box.dart';
 import 'package:core/core/ui/atoms/switch.dart';
 
 import 'package:cordelia/constants/app_routes.dart';
@@ -18,12 +17,12 @@ import 'package:cordelia/templates/grofast/constants/grofast_text_style_const.da
 import 'package:cordelia/templates/grofast/constants/grofast_value_const.dart';
 import 'package:cordelia/templates/grofast/widgets/grofast_header_row.dart';
 import 'package:cordelia/templates/grofast/widgets/grofast_menu_tile.dart';
-import 'package:cordelia/templates/grofast/widgets/grofast_product_grid.dart';
 import 'package:cordelia/templates/grofast/widgets/grofast_screen_body.dart';
 import 'package:cordelia/templates/grofast/widgets/grofast_sheet.dart';
 import 'package:cordelia/templates/grofast/widgets/grofast_state_views.dart';
 import 'package:cordelia/widgets/cordelia_avatar_image.dart';
 
+import '../widgets/profile_skeleton_body.dart';
 import '../../../bloc/profile_bloc.dart';
 
 /// `grofast` template's Profile tab (kit frame `122:1143`): the identity
@@ -79,7 +78,7 @@ class _ProfileScreenState extends BaseScreenState<ProfileScreen> {
           bottomInset: GrofastDimenConst.navScrollInset(context),
           body: GrofastSwitcher(
             child: switch (state) {
-              ProfileLoading() => const _ProfileSkeletonBody(),
+              ProfileLoading() => const GrofastProfileSkeletonBody(),
               ProfileError(:final message) => GrofastErrorView(
                 message: message,
                 onRetry: () => context.read<ProfileBloc>().add(
@@ -232,41 +231,4 @@ class _ProfileContent extends StatelessWidget {
       ],
     );
   }
-}
-
-class _ProfileSkeletonBody extends StatelessWidget {
-  const _ProfileSkeletonBody();
-
-  @override
-  Widget build(BuildContext context) => Column(
-    children: [
-      const ShimmerBox.circle(size: GrofastDimenConst.profileAvatarSize),
-      const SizedBox(height: AppSpacing.lg),
-      const ShimmerBox(width: 160, height: AppSpacing.xl4),
-      const SizedBox(height: AppSpacing.xs),
-      const ShimmerBox(width: 200, height: AppSpacing.lg),
-      const SizedBox(height: AppSpacing.xl6),
-      Row(
-        children: [
-          for (var i = 0; i < 3; i++) ...[
-            if (i > 0) const SizedBox(width: AppSpacing.base),
-            const Expanded(
-              child: GrofastCardSkeleton(
-                height: GrofastDimenConst.quickTileHeight,
-                radius: GrofastDimenConst.tileRadius,
-              ),
-            ),
-          ],
-        ],
-      ),
-      const SizedBox(height: AppSpacing.xl4),
-      for (var i = 0; i < 4; i++) ...[
-        if (i > 0) const SizedBox(height: AppSpacing.base),
-        const GrofastCardSkeleton(
-          height: GrofastDimenConst.menuRowHeight,
-          radius: GrofastDimenConst.tileRadius,
-        ),
-      ],
-    ],
-  );
 }

@@ -151,4 +151,3 @@ class _Empty extends StatelessWidget {
     ],
   );
 }
-

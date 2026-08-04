@@ -9,7 +9,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:core/core/ui/blocks/section_header.dart';
 import 'package:core/core/ui/blocks/section_rail.dart';
 
-
 class HomePopularItemsSection extends StatelessWidget {
   final List<ProductEntity> products;
   final void Function(ProductEntity product, int quantity) onAddToCart;

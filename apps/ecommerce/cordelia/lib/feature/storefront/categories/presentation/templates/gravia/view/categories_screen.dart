@@ -10,7 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:core/core/ui/atoms/app_switcher.dart';
+import 'package:cordelia/templates/gravia/widgets/gravia_switcher.dart';
 import 'package:core/core/base/base_screen.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/blocks/collapsing_header_sheet.dart';
@@ -60,7 +60,7 @@ class _CategoriesScreenState extends BaseScreenState<CategoriesScreen> {
           showSnackBar(GraviaValueConst.categoriesRefreshFailedMessage);
         }
       },
-      builder: (context, state) => AppSwitcher(
+      builder: (context, state) => GraviaSwitcher(
         child: switch (state) {
           CategoriesLoading() => CollapsingHeaderSheet(
             key: const ValueKey('loading'),

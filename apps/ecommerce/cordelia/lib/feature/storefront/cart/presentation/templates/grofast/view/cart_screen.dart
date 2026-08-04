@@ -57,7 +57,6 @@ class _CartScreenState extends BaseScreenState<CartScreen> {
   Future<void> _startCheckout() async {
     final address = await showGrofastAddressPicker(this);
     if (address == null || !mounted) return;
-    if (!context.mounted) return;
     await context.push(AppRoutes.checkout, extra: address);
   }
 

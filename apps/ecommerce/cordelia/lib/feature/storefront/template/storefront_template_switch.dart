@@ -31,13 +31,18 @@ class StorefrontTemplateSwitch extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) =>
-      switch (context.read<ActiveStoreCubit>().state?.templateId) {
-        StorefrontTemplate.dailymart => dailymart(context),
-        StorefrontTemplate.grofast => grofast(context),
-        // `null` only outside a storefront, which these routes are never
-        // reached from. Falling back to gravia matches the same default
-        // `String.toStorefrontTemplate()` uses for an unknown template.
-        _ => gravia(context),
-      };
+  Widget build(BuildContext context) {
+    final template = context.read<ActiveStoreCubit>().state?.templateId;
+    // `null` only outside a storefront — Legal pushed from Signup is the one
+    // real case. Falling back to gravia matches the same default
+    // `String.toStorefrontTemplate()` uses for an unknown template. Handled
+    // before the switch so the enum switch stays exhaustive: a 4th template
+    // is then a compile error here, not a silent gravia fallback.
+    if (template == null) return gravia(context);
+    return switch (template) {
+      StorefrontTemplate.gravia => gravia(context),
+      StorefrontTemplate.dailymart => dailymart(context),
+      StorefrontTemplate.grofast => grofast(context),
+    };
+  }
 }

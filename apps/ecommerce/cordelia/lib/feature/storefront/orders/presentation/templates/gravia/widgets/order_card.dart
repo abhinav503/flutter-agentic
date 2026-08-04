@@ -7,6 +7,7 @@ import 'package:cordelia/templates/gravia/widgets/gravia_action_pair.dart';
 import 'package:cordelia/templates/gravia/widgets/gravia_tint_badge.dart';
 import 'package:flutter/material.dart';
 
+import 'package:core/core/extensions/num_extensions.dart';
 import 'package:core/core/theme/app_colors_extension.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/badge.dart';
@@ -68,7 +69,7 @@ class OrderCard extends StatelessWidget {
                 if (!isUpcoming) _StatusBadge(status: order.status),
                 if (!isUpcoming) const SizedBox(width: AppSpacing.sm),
                 Text(
-                  GraviaValueConst.formattedPrice(order.totalPrice),
+                  order.totalPrice.asPrice,
                   style: GraviaTextStyleConst.textMdBold(
                     tt,
                   ).copyWith(color: cs.onSurface),
@@ -230,7 +231,9 @@ class _OtpDigitBox extends StatelessWidget {
       alignment: Alignment.center,
       child: Text(
         digit,
-        style: GraviaTextStyleConst.textMdBold(tt).copyWith(color: cs.onSurface),
+        style: GraviaTextStyleConst.textMdBold(
+          tt,
+        ).copyWith(color: cs.onSurface),
       ),
     );
   }

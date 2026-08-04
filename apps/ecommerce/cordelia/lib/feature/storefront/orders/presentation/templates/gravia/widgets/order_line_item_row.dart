@@ -3,6 +3,8 @@ import 'package:cordelia/templates/gravia/constants/gravia_text_style_const.dart
 import 'package:cordelia/templates/gravia/constants/gravia_value_const.dart';
 import 'package:cordelia/templates/gravia/widgets/gravia_list_thumbnail.dart';
 import 'package:flutter/material.dart';
+
+import 'package:core/core/extensions/num_extensions.dart';
 import 'package:core/core/ui/molecules/icon_info_row.dart';
 import '../../../../domain/entities/order_line_item_entity.dart';
 
@@ -39,8 +41,10 @@ class OrderLineItemRow extends StatelessWidget {
       // The kit sets the two lines solid — line-height alone spaces them.
       lineGap: 0,
       trailing: Text(
-        GraviaValueConst.formattedPrice(item.lineTotal),
-        style: GraviaTextStyleConst.textMdBold(tt).copyWith(color: cs.onSurface),
+        item.lineTotal.asPrice,
+        style: GraviaTextStyleConst.textMdBold(
+          tt,
+        ).copyWith(color: cs.onSurface),
       ),
     );
   }

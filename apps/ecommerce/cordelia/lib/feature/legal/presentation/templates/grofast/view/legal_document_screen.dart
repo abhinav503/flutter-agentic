@@ -54,9 +54,9 @@ class _LegalDocumentScreenState extends BaseScreenState<LegalDocumentScreen> {
             const SizedBox(height: AppSpacing.lg),
             Text(
               content.intro,
-              style: GrofastTextStyleConst.bodyMedium(
+              style: GrofastTextStyleConst.bodyRelaxed(
                 tt,
-              ).copyWith(color: cs.onSurfaceVariant, height: 1.6),
+              ).copyWith(color: cs.onSurfaceVariant),
             ),
             for (final section in content.sections) ...[
               const SizedBox(height: AppSpacing.xl4),
@@ -67,9 +67,9 @@ class _LegalDocumentScreenState extends BaseScreenState<LegalDocumentScreen> {
               const SizedBox(height: AppSpacing.xs),
               Text(
                 section.body,
-                style: GrofastTextStyleConst.bodyMedium(
+                style: GrofastTextStyleConst.bodyRelaxed(
                   tt,
-                ).copyWith(color: cs.onSurfaceVariant, height: 1.6),
+                ).copyWith(color: cs.onSurfaceVariant),
               ),
             ],
           ],

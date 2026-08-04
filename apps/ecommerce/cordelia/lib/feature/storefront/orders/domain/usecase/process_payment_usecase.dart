@@ -16,7 +16,8 @@ class ProcessPaymentParams {
 /// returns the verifiable result. The BLoC calls this without knowing which
 /// provider runs underneath.
 class ProcessPaymentUseCase
-    extends UseCase<Either<Failure, PaymentResultEntity>, ProcessPaymentParams> {
+    extends
+        UseCase<Either<Failure, PaymentResultEntity>, ProcessPaymentParams> {
   final PaymentGatewayRepository _repository;
 
   const ProcessPaymentUseCase(this._repository);

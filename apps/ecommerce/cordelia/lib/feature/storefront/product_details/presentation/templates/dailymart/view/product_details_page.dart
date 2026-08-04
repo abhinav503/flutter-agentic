@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:core/core/base/base_page.dart';
+import 'package:cordelia/feature/storefront/presentation/chromeless_page.dart';
 
-import 'package:cordelia/di/injection_container.dart';
-
-import '../../../bloc/product_details_bloc.dart';
+import '../../../bloc/product_details_bloc_provider.dart';
 import 'product_details_screen.dart';
 
 /// `dailymart` template's Product Details entry — same shared
@@ -24,23 +22,12 @@ class ProductDetailsPage extends BasePage {
   State<ProductDetailsPage> createState() => _ProductDetailsPageState();
 }
 
-class _ProductDetailsPageState extends BasePageState<ProductDetailsPage> {
+class _ProductDetailsPageState extends BasePageState<ProductDetailsPage>
+    with ChromelessStorefrontPage {
   @override
-  Color? backgroundColor(BuildContext context) =>
-      Theme.of(context).colorScheme.surface;
-
-  @override
-  PreferredSizeWidget? buildAppBar(BuildContext context) => null;
-
-  @override
-  Widget buildBody(BuildContext context) => BlocProvider(
-    create: (_) => ProductDetailsBloc(getProductDetailsUseCase: sl())
-      ..add(
-        ProductDetailsEvent.started(
-          storeId: widget.storeId,
-          productId: widget.productId,
-        ),
-      ),
+  Widget buildBody(BuildContext context) => productDetailsBlocProvider(
+    storeId: widget.storeId,
+    productId: widget.productId,
     child: ProductDetailsScreen(storeId: widget.storeId),
   );
 }

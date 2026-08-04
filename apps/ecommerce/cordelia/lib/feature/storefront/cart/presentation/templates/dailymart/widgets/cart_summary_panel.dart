@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:core/core/extensions/num_extensions.dart';
 import 'package:core/core/theme/app_colors_extension.dart';
 import 'package:core/core/theme/app_radius.dart';
 import 'package:core/core/theme/app_shapes_extension.dart';
@@ -51,7 +52,7 @@ class DailyMartCartSummarySection extends StatelessWidget {
       lines: [
         PriceLine(
           label: DailyMartValueConst.subTotalLabel,
-          value: DailyMartValueConst.formattedPrice(items.itemTotal),
+          value: items.itemTotal.asPrice,
           labelStyle: mutedLabel,
           valueStyle: inkValue,
         ),
@@ -63,14 +64,14 @@ class DailyMartCartSummarySection extends StatelessWidget {
         ),
         PriceLine(
           label: DailyMartValueConst.discountLabel,
-          value: DailyMartValueConst.formattedPrice(items.discountTotal),
+          value: items.discountTotal.asPrice,
           labelStyle: mutedLabel,
           valueStyle: primaryValue,
         ),
       ],
       total: PriceLine(
         label: DailyMartValueConst.totalCostLabel,
-        value: DailyMartValueConst.formattedPrice(items.grandTotal),
+        value: items.grandTotal.asPrice,
         labelStyle: DailyMartTextStyleConst.bodyMdSemibold(
           tt,
         ).copyWith(color: cs.onSurface),
@@ -100,8 +101,7 @@ class DailyMartCartCheckoutBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final shapes =
-        context.appShapes;
+    final shapes = context.appShapes;
 
     return DecoratedBox(
       decoration: BoxDecoration(

@@ -26,7 +26,6 @@ abstract final class ApiConstants {
   /// order — the API filters out hidden ones, so the client shows what it gets.
   static String bannersPath(String storeId) => '${_storeBase(storeId)}/banners';
 
-
   static String searchPath(String storeId) => '${_storeBase(storeId)}/search';
 
   static String recentSearchesPath(String storeId) =>
@@ -51,7 +50,7 @@ abstract final class ApiConstants {
   static String productDetailsPath(String storeId, String productId) =>
       '${_storeBase(storeId)}/products/$productId';
 
-      /// Store-agnostic like [usersPath]; token-authed (no userId param).
+  /// Store-agnostic like [usersPath]; token-authed (no userId param).
   static String get addressesPath => '$baseUrl/users/addresses';
 
   static String addressPath(String addressId) =>

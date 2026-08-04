@@ -10,8 +10,7 @@ sealed class DiscoveryState with _$DiscoveryState {
   // Distinct from `loaded` with an empty list so the screen can show a real
   // "no stores match" EmptyState instead of a blank list flashing between
   // loading and content.
-  const factory DiscoveryState.empty({required String query}) =
-      DiscoveryEmpty;
+  const factory DiscoveryState.empty({required String query}) = DiscoveryEmpty;
   const factory DiscoveryState.error({
     required String message,
     required String query,

@@ -324,9 +324,7 @@ class _TrackField extends StatelessWidget {
       decoration: BoxDecoration(
         color: fill,
         gradient: gradient,
-        borderRadius: BorderRadius.circular(
-          GrofastDimenConst.trackFieldRadius,
-        ),
+        borderRadius: BorderRadius.circular(GrofastDimenConst.trackFieldRadius),
       ),
       child: Text(
         text,
@@ -418,11 +416,7 @@ class _CopyableRow extends StatelessWidget {
               ),
             ),
             const SizedBox(width: AppSpacing.xs),
-            Icon(
-              Icons.copy_rounded,
-              size: AppSpacing.lg,
-              color: cs.primary,
-            ),
+            Icon(Icons.copy_rounded, size: AppSpacing.lg, color: cs.primary),
           ],
         ),
       ),
@@ -485,8 +479,7 @@ class _TrackingDetail extends StatelessWidget {
       for (final step in steps)
         if (step == OrderStatus.pending)
           (step, order.statusReachedAt(step) ?? order.placedAt)
-        else if (order.statusReachedAt(step) != null ||
-            step == order.status)
+        else if (order.statusReachedAt(step) != null || step == order.status)
           (step, order.statusReachedAt(step)),
     ];
   }
@@ -573,10 +566,9 @@ class _TrackingDetail extends StatelessWidget {
                               children: [
                                 Text(
                                   GrofastValueConst.orderStatusName(step),
-                                  style:
-                                      GrofastTextStyleConst.bodySmall(tt)
-                                          .atWeight(FontWeight.w700)
-                                          .copyWith(color: cs.headerInk),
+                                  style: GrofastTextStyleConst.bodySmall(tt)
+                                      .atWeight(FontWeight.w700)
+                                      .copyWith(color: cs.headerInk),
                                 ),
                                 const SizedBox(height: AppSpacing.xs4),
                                 Text(

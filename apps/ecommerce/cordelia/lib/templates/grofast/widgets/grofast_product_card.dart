@@ -107,7 +107,9 @@ class GrofastProductCard extends StatelessWidget {
                           const SizedBox(height: AppSpacing.xs),
                           GrofastPrice(
                             value: product.price,
-                            unit: product.unitType.pricePerLabel(product.unitValue),
+                            unit: product.unitType.pricePerLabel(
+                              product.unitValue,
+                            ),
                           ),
                         ],
                       ),

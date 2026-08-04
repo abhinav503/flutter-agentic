@@ -14,7 +14,6 @@ abstract final class GraviaValueConst {
   static const cancel = 'Cancel';
 
   // ── Product card (GraviaProductCard, shared across screens) ──────────────
-  static String formattedPrice(double price) => price.asPrice;
   static String discountPercentLabel(double percentage) =>
       '${percentage.asPercent}%';
   static String discountPercentOffLabel(double percentage) =>

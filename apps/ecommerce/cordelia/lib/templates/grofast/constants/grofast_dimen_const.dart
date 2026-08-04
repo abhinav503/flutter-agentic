@@ -277,6 +277,11 @@ abstract final class GrofastDimenConst {
   static const double detailStepperButtonSize = 40;
   static const double detailStepperButtonRadius = 15;
 
+  /// The whole stepper's footprint — two keys either side of the count. Only
+  /// the skeleton needs it; the live stepper sizes itself from its children.
+  static const double detailStepperWidth =
+      detailStepperButtonSize * 2 + AppSpacing.xl6;
+
   /// Where the stepper's bottom edge lands: on the home indicator's top edge,
   /// as the kit draws it. Falls back to the pack's usual breathing room on a
   /// device that reports no inset, where resting on the frame would read as a

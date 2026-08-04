@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:core/core/base/base_page.dart';
+import 'package:cordelia/feature/storefront/presentation/chromeless_page.dart';
 
 import 'cart_screen.dart';
 
@@ -16,14 +17,8 @@ class CartPage extends BasePage {
   State<CartPage> createState() => _CartPageState();
 }
 
-class _CartPageState extends BasePageState<CartPage> {
-  @override
-  PreferredSizeWidget? buildAppBar(BuildContext context) => null;
-
-  @override
-  Color? backgroundColor(BuildContext context) =>
-      Theme.of(context).colorScheme.surface;
-
+class _CartPageState extends BasePageState<CartPage>
+    with ChromelessStorefrontPage {
   @override
   Widget buildBody(BuildContext context) =>
       CartScreen(onBack: () => Navigator.of(context).maybePop());

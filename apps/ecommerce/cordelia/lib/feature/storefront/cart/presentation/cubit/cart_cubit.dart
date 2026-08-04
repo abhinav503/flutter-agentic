@@ -53,7 +53,10 @@ class CartCubit extends Cubit<List<CartItemEntity>> {
   void addToCart(ProductEntity product, int quantity) {
     final index = state.indexWhere((item) => item.product.id == product.id);
     if (index == -1) {
-      _emitAndPersist([...state, CartItemEntity(product: product, quantity: quantity)]);
+      _emitAndPersist([
+        ...state,
+        CartItemEntity(product: product, quantity: quantity),
+      ]);
       return;
     }
     _emitAndPersist([
@@ -86,8 +89,9 @@ class CartCubit extends Cubit<List<CartItemEntity>> {
     ]);
   }
 
-  void removeItem(String productId) =>
-      _emitAndPersist(state.where((item) => item.product.id != productId).toList());
+  void removeItem(String productId) => _emitAndPersist(
+    state.where((item) => item.product.id != productId).toList(),
+  );
 
   void clear() => _emitAndPersist(const []);
 

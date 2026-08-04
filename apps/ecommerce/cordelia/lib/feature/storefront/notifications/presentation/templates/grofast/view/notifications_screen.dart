@@ -15,10 +15,10 @@ import 'package:cordelia/templates/grofast/constants/grofast_image_const.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_text_style_const.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_value_const.dart';
 import 'package:cordelia/templates/grofast/widgets/grofast_chip.dart';
-import 'package:cordelia/templates/grofast/widgets/grofast_product_grid.dart';
 import 'package:cordelia/templates/grofast/widgets/grofast_screen_body.dart';
 import 'package:cordelia/templates/grofast/widgets/grofast_state_views.dart';
 
+import '../widgets/notifications_skeleton_body.dart';
 import '../../../bloc/notifications_bloc.dart';
 
 /// `grofast` template's Notifications (kit frame `168:2316`) — My Orders'
@@ -52,9 +52,7 @@ class _NotificationsScreenState extends BaseScreenState<NotificationsScreen> {
   List<NotificationSectionEntity> _visible(
     List<NotificationSectionEntity> sections,
   ) {
-    final nonEmpty = sections
-        .where((s) => s.notifications.isNotEmpty)
-        .toList();
+    final nonEmpty = sections.where((s) => s.notifications.isNotEmpty).toList();
     if (_selectedChip == 0) return nonEmpty;
     final index = _selectedChip - 1;
     if (index >= nonEmpty.length) return nonEmpty;
@@ -72,14 +70,14 @@ class _NotificationsScreenState extends BaseScreenState<NotificationsScreen> {
           gap: AppSpacing.xl4,
           body: GrofastSwitcher(
             child: switch (state) {
-              NotificationsLoading() => const _NotificationsSkeletonBody(),
-              NotificationsError(:final message, :final template) =>
-                GrofastErrorView(
-                  message: message,
-                  onRetry: () => context.read<NotificationsBloc>().add(
-                    NotificationsEvent.started(template: template),
-                  ),
+              NotificationsLoading() =>
+                const GrofastNotificationsSkeletonBody(),
+              NotificationsError(:final message) => GrofastErrorView(
+                message: message,
+                onRetry: () => context.read<NotificationsBloc>().add(
+                  const NotificationsEvent.started(),
                 ),
+              ),
               NotificationsLoaded(:final sections)
                   when sections.every((s) => s.notifications.isEmpty) =>
                 const GrofastEmptyState(
@@ -218,28 +216,4 @@ class _NotificationCard extends StatelessWidget {
       ),
     );
   }
-}
-
-class _NotificationsSkeletonBody extends StatelessWidget {
-  const _NotificationsSkeletonBody();
-
-  @override
-  Widget build(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      const GrofastCardSkeleton(
-        width: 200,
-        height: GrofastDimenConst.bigChipHeight,
-        radius: GrofastDimenConst.tileRadius,
-      ),
-      const SizedBox(height: AppSpacing.xl4),
-      for (var i = 0; i < 4; i++) ...[
-        if (i > 0) const SizedBox(height: AppSpacing.base),
-        const GrofastCardSkeleton(
-          height: GrofastDimenConst.orderCardHeight,
-          radius: GrofastDimenConst.tileRadius,
-        ),
-      ],
-    ],
-  );
 }

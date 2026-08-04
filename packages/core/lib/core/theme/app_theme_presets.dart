@@ -601,8 +601,13 @@ const Map<String, Map<String, dynamic>> kThemePresets = {
       'onPrimary': '#FFFFFF',
       'primaryContainer': '#1B3A2B',
       'onPrimaryContainer': '#C9E7D5',
-      'secondary': '#DDE9E3', // the "Apply" pill inverts to near-white ink
-      'onSecondary': '#0F1A15',
+      // Held identical to light, like `primary` above: this role's only
+      // consumer is the promo row's "Apply" pill, and that pill is the kit's
+      // Dark-Green in both modes. Inverting it to a near-white chip made the
+      // one control on a dark coupon row read as the brightest thing on the
+      // screen — louder than the gradient CTA it sits above.
+      'secondary': '#194B38',
+      'onSecondary': '#FFFFFF',
       'secondaryContainer': '#1B3A2B',
       'onSecondaryContainer': '#C9E7D5',
       'tertiary': '#5FD7A0',

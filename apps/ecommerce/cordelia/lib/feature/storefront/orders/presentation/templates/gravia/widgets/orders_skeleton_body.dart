@@ -14,8 +14,7 @@ class OrdersSkeletonBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final sheetHairline =
-        context.appColors.sheetHairline;
+    final sheetHairline = context.appColors.sheetHairline;
 
     return Padding(
       padding: const EdgeInsets.symmetric(

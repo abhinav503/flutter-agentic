@@ -7,16 +7,15 @@ import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/svg_image.dart';
 import 'package:core/core/ui/blocks/bottom_nav_bar.dart';
 
-import 'package:cordelia/di/injection_container.dart';
 import 'package:cordelia/feature/storefront/active_store/presentation/cubit/active_store_cubit.dart';
 import 'package:cordelia/feature/storefront/cart/domain/entities/cart_item_entity.dart';
 import 'package:cordelia/feature/storefront/cart/presentation/cubit/cart_cubit.dart';
 import 'package:cordelia/feature/storefront/cart/presentation/templates/dailymart/view/cart_screen.dart';
 import 'package:cordelia/feature/storefront/cart/presentation/templates/dailymart/widgets/cart_status_bar.dart';
 import 'package:cordelia/feature/storefront/favourites/presentation/templates/dailymart/view/favourites_screen.dart';
-import 'package:cordelia/feature/storefront/home/presentation/bloc/home_bloc.dart';
+import 'package:cordelia/feature/storefront/home/presentation/bloc/home_bloc_provider.dart';
 import 'package:cordelia/feature/storefront/home/presentation/templates/dailymart/view/home_screen.dart';
-import 'package:cordelia/feature/storefront/profile/presentation/bloc/profile_bloc.dart';
+import 'package:cordelia/feature/storefront/profile/presentation/bloc/profile_bloc_provider.dart';
 import 'package:cordelia/feature/storefront/profile/presentation/templates/dailymart/view/profile_screen.dart';
 import 'package:cordelia/feature/storefront/shell/presentation/storefront_shell.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_color_const.dart';
@@ -101,16 +100,7 @@ class _ShellPageState extends BasePageState<ShellPage>
   /// too; it moved to `checkout/…/dailymart/view/checkout_page.dart` when
   /// checkout became its own routed page.)
   @override
-  Widget buildBlocProviders(Widget child) => MultiBlocProvider(
-    providers: [
-      BlocProvider(
-        create: (_) =>
-            ProfileBloc(getProfileUseCase: sl())
-              ..add(const ProfileEvent.started()),
-      ),
-    ],
-    child: child,
-  );
+  Widget buildBlocProviders(Widget child) => profileBlocProvider(child: child);
 
   @override
   Widget? buildBottomNav(BuildContext context) => BottomNavBar(
@@ -131,10 +121,8 @@ class _ShellPageState extends BasePageState<ShellPage>
     final storeId = context.read<ActiveStoreCubit>().state!.storeId;
 
     final content = switch (currentTab) {
-      ShellPage.homeTabIndex => BlocProvider(
-        create: (_) =>
-            HomeBloc(getHomeUseCase: sl(), storeId: storeId)
-              ..add(HomeEvent.started(storeId: storeId)),
+      ShellPage.homeTabIndex => homeBlocProvider(
+        storeId: storeId,
         child: const HomeScreen(),
       ),
       // The favourites live in the app-root FavouritesCubit, hydrated by

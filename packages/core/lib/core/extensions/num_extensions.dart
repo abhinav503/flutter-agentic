@@ -16,6 +16,19 @@ extension PriceFormatX on num {
   /// Whole-number rendering for percentages (`25.0 → '25'`); the suffix
   /// (`'%'`, `'% OFF'`, …) is copy and stays with the caller.
   String get asPercent => toStringAsFixed(0);
+
+  /// [asPrice] split at the decimal point — for typography that renders the
+  /// integer part large and the decimals small (`12.5 → ('$12', '.50')`;
+  /// `12 → ('$12', null)`, matching [asPrice]'s whole-amount rule). Splitting
+  /// the formatted string here keeps the two renderings from ever disagreeing
+  /// with each other.
+  ({String integer, String? decimals}) get asPriceParts {
+    final price = asPrice;
+    final dot = price.indexOf('.');
+    return dot == -1
+        ? (integer: price, decimals: null)
+        : (integer: price.substring(0, dot), decimals: price.substring(dot));
+  }
 }
 
 extension HexColorValueX on int {

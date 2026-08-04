@@ -41,6 +41,33 @@ class AppTextField extends StatefulWidget {
   /// standard surface background, e.g. `colorScheme.onPrimary`.
   final Color? hintColor;
 
+  /// Full hint style override — for a pack whose hints change weight/size,
+  /// not just colour. Wins over [hintColor] when both are set.
+  final TextStyle? hintStyle;
+
+  /// Paints the input box with this fill instead of leaving it transparent —
+  /// for packs whose inputs are filled rather than outlined. Usually paired
+  /// with `showBorder: false`; the error and focused borders still draw over
+  /// the fill so those states stay visible.
+  final Color? fillColor;
+
+  /// Overrides the inline error row's text style (default
+  /// `tt.labelSmall` at `cs.error`). The error colour is kept unless the
+  /// style sets its own.
+  final TextStyle? errorStyle;
+
+  /// Overrides the focused border colour (default `cs.primary`) — for a pack
+  /// whose focus accent isn't the primary role.
+  final Color? focusedBorderColor;
+
+  /// Insets the label independently of the input box (default none) — for a
+  /// spec whose label is nudged in from the field's own edge.
+  final EdgeInsetsGeometry? labelPadding;
+
+  /// Overrides the input box's content padding — for a filled field whose
+  /// spec calls for a taller/deeper inset than the outlined default.
+  final EdgeInsetsGeometry? contentPadding;
+
   /// Overrides the default typed-text colour (`cs.onSurface`) — for the same
   /// coloured/glass-surface case as [hintColor].
   final Color? textColor;
@@ -105,6 +132,12 @@ class AppTextField extends StatefulWidget {
     this.prefix,
     this.suffix,
     this.hintColor,
+    this.hintStyle,
+    this.fillColor,
+    this.errorStyle,
+    this.focusedBorderColor,
+    this.labelPadding,
+    this.contentPadding,
     this.textColor,
     this.cursorColor,
     this.focusNode,
@@ -158,7 +191,7 @@ class _AppTextFieldState extends State<AppTextField> {
     final borderColor = isError
         ? cs.error
         : _isFocused
-        ? cs.primary
+        ? (widget.focusedBorderColor ?? cs.primary)
         : cs.outline;
 
     final shapes =
@@ -171,14 +204,17 @@ class _AppTextFieldState extends State<AppTextField> {
       mainAxisSize: MainAxisSize.min,
       children: [
         if (widget.label != null) ...[
-          Text(
-            widget.label!,
-            style: isError
-                ? (widget.labelStyle ?? tt.labelMedium!).copyWith(
-                    color: cs.error,
-                  )
-                : widget.labelStyle ??
-                      tt.labelMedium!.copyWith(color: cs.onSurface),
+          Padding(
+            padding: widget.labelPadding ?? EdgeInsets.zero,
+            child: Text(
+              widget.label!,
+              style: isError
+                  ? (widget.labelStyle ?? tt.labelMedium!).copyWith(
+                      color: cs.error,
+                    )
+                  : widget.labelStyle ??
+                        tt.labelMedium!.copyWith(color: cs.onSurface),
+            ),
           ),
           SizedBox(height: widget.labelSpacing ?? AppSpacing.xs3),
         ],
@@ -210,9 +246,11 @@ class _AppTextFieldState extends State<AppTextField> {
             ),
             decoration: InputDecoration(
               hintText: widget.hint,
-              hintStyle: widget.hintColor != null
-                  ? TextStyle(color: widget.hintColor)
-                  : null,
+              hintStyle:
+                  widget.hintStyle ??
+                  (widget.hintColor != null
+                      ? TextStyle(color: widget.hintColor)
+                      : null),
               prefixIcon: widget.prefix,
               suffixIcon: widget.suffix,
               // Default prefix/suffix slots are tight at kMinInteractiveDimension
@@ -223,10 +261,12 @@ class _AppTextFieldState extends State<AppTextField> {
               prefixIconConstraints: const BoxConstraints(),
               suffixIconConstraints: const BoxConstraints(),
               isDense: widget.dense,
-              contentPadding: EdgeInsets.symmetric(
-                horizontal: AppSpacing.base,
-                vertical: widget.dense ? AppSpacing.xs : AppSpacing.sm,
-              ),
+              contentPadding:
+                  widget.contentPadding ??
+                  EdgeInsets.symmetric(
+                    horizontal: AppSpacing.base,
+                    vertical: widget.dense ? AppSpacing.xs : AppSpacing.sm,
+                  ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: radius,
                 borderSide: widget.showBorder
@@ -253,10 +293,10 @@ class _AppTextFieldState extends State<AppTextField> {
                   color: cs.onSurface.withValues(alpha: 0.12),
                 ),
               ),
-              filled: isDisabled,
+              filled: isDisabled || widget.fillColor != null,
               fillColor: isDisabled
                   ? cs.onSurface.withValues(alpha: 0.04)
-                  : null,
+                  : widget.fillColor,
             ),
           ),
         ),
@@ -268,7 +308,9 @@ class _AppTextFieldState extends State<AppTextField> {
               const SizedBox(width: AppSpacing.xs3),
               Text(
                 widget.errorText!,
-                style: tt.labelSmall!.copyWith(color: cs.error),
+                style:
+                    widget.errorStyle ??
+                    tt.labelSmall!.copyWith(color: cs.error),
               ),
             ],
           ),

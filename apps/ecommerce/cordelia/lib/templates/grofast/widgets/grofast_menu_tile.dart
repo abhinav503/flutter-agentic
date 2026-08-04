@@ -13,6 +13,12 @@ import 'package:cordelia/templates/grofast/constants/grofast_text_style_const.da
 /// The glyph keeps its own accent (`cs.primary` for ordinary rows,
 /// `cs.error` for Log Out) while the label stays muted — the kit never
 /// colours the text, only the icon.
+///
+/// Not core's [AppMenuTile]: that molecule's silhouette is a tinted icon
+/// *circle* on a bare surface, while this kit's row is a filled card with a
+/// bare glyph on it. Every slot would need an override, so the wrapper is
+/// cheaper than the parameterisation — the same reasoning `DailyMartMenuTile`
+/// records for its own fork.
 class GrofastMenuTile extends StatelessWidget {
   final String label;
 

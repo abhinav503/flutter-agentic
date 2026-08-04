@@ -65,44 +65,54 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
   @override
   Widget body(BuildContext context) {
     return BlocBuilder<ProductDetailsBloc, ProductDetailsState>(
-      builder: (context, state) => switch (state) {
-        ProductDetailsLoading() => const _DetailsSkeletonBody(),
-        ProductDetailsError(:final message, :final storeId, :final productId) =>
-          SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: GrofastDimenConst.screenGutter,
-              ),
-              child: Column(
-                children: [
-                  const GrofastHeaderRow(),
-                  Expanded(
-                    child: Center(
-                      child: GrofastErrorView(
-                        message: message,
-                        onRetry: () =>
-                            retryLoad(storeId: storeId, productId: productId),
+      builder: (context, state) => GrofastSwitcher(
+        child: switch (state) {
+          ProductDetailsLoading() => _DetailsSkeletonBody(
+            storeId: widget.storeId,
+          ),
+          ProductDetailsError(
+            :final message,
+            :final storeId,
+            :final productId,
+          ) =>
+            SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: GrofastDimenConst.screenGutter,
+                ),
+                child: Column(
+                  children: [
+                    const GrofastHeaderRow(),
+                    Expanded(
+                      child: Center(
+                        child: GrofastErrorView(
+                          message: message,
+                          onRetry: () =>
+                              retryLoad(storeId: storeId, productId: productId),
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
+          ProductDetailsLoaded(:final detail) => _DetailsContent(
+            detail: detail,
+            storeId: widget.storeId,
+            quantity: quantity,
+            onIncrement: incrementQuantity,
+            onDecrement: decrementQuantity,
+            onAddToBag: () => _addToBag(detail.product),
+            onSimilarTap: openProductDetails,
+            onSimilarAdd: (product) {
+              addToCart(product, 1);
+              showSnackBar(
+                GrofastValueConst.addedToBagMessage(product.name, 1),
+              );
+            },
           ),
-        ProductDetailsLoaded(:final detail) => _DetailsContent(
-          detail: detail,
-          storeId: widget.storeId,
-          quantity: quantity,
-          onIncrement: incrementQuantity,
-          onDecrement: decrementQuantity,
-          onAddToBag: () => _addToBag(detail.product),
-          onSimilarTap: openProductDetails,
-          onSimilarAdd: (product) {
-            addToCart(product, 1);
-            showSnackBar(GrofastValueConst.addedToBagMessage(product.name, 1));
-          },
-        ),
-      },
+        },
+      ),
     );
   }
 }
@@ -220,9 +230,9 @@ class _DetailsContent extends StatelessWidget {
                       detail.description.isEmpty
                           ? GrofastValueConst.noDescriptionLabel
                           : detail.description,
-                      style: GrofastTextStyleConst.bodyMedium(
+                      style: GrofastTextStyleConst.bodyRelaxed(
                         tt,
-                      ).copyWith(color: cs.onSurfaceVariant, height: 1.6),
+                      ).copyWith(color: cs.onSurfaceVariant),
                     ),
                     if (detail.similarProducts.isNotEmpty) ...[
                       const SizedBox(height: AppSpacing.xl6),
@@ -428,38 +438,121 @@ class _HeroWell extends StatelessWidget {
   }
 }
 
+/// Mirrors [_DetailsContent]'s Stack, not just its copy: the domed hero well,
+/// the same scroll inset, and the dock's silhouette — otherwise the layout
+/// jumps when data lands and, worse, the dock's device inset is unpaid while
+/// loading. The header row is the real one, so Back and the bag work before
+/// the product arrives.
 class _DetailsSkeletonBody extends StatelessWidget {
-  const _DetailsSkeletonBody();
+  final String storeId;
+
+  const _DetailsSkeletonBody({required this.storeId});
 
   @override
-  Widget build(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      ShimmerBox(
-        width: double.infinity,
-        height: GrofastDimenConst.detailImageHeight(context),
-        borderRadius: BorderRadius.zero,
-      ),
-      const SizedBox(height: AppSpacing.xl4),
-      const Padding(
-        padding: EdgeInsets.symmetric(
-          horizontal: GrofastDimenConst.screenGutter,
+  Widget build(BuildContext context) {
+    final topInset = MediaQuery.paddingOf(context).top;
+
+    return Stack(
+      children: [
+        SingleChildScrollView(
+          padding: EdgeInsets.only(
+            bottom: GrofastDimenConst.detailScrollInset(context),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ClipPath(
+                clipper: const GrofastBottomDomeClipper(),
+                child: Stack(
+                  children: [
+                    ShimmerBox(
+                      width: double.infinity,
+                      height: GrofastDimenConst.detailImageHeight(context),
+                      borderRadius: BorderRadius.zero,
+                    ),
+                    Positioned(
+                      top: topInset + AppSpacing.base,
+                      left: GrofastDimenConst.screenGutter,
+                      right: GrofastDimenConst.screenGutter,
+                      child: GrofastHeaderRow(
+                        trailing: GrofastBagAction(storeId: storeId),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: AppSpacing.xl4),
+              const Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: GrofastDimenConst.screenGutter,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ShimmerBox(width: 200, height: AppSpacing.xl6),
+                    SizedBox(height: AppSpacing.base),
+                    ShimmerBox(width: 120, height: AppSpacing.lg),
+                    SizedBox(height: AppSpacing.xl4),
+                    ShimmerBox(width: double.infinity, height: AppSpacing.base),
+                    SizedBox(height: AppSpacing.xs),
+                    ShimmerBox(width: double.infinity, height: AppSpacing.base),
+                    SizedBox(height: AppSpacing.xs),
+                    ShimmerBox(width: 220, height: AppSpacing.base),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        Positioned(left: 0, right: 0, bottom: 0, child: const _DockSkeleton()),
+      ],
+    );
+  }
+}
+
+/// The dock's silhouette while loading — same height, same welded corner, so
+/// the bottom edge is paid for and the panel doesn't pop into place.
+class _DockSkeleton extends StatelessWidget {
+  const _DockSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final bottomInset = GrofastDimenConst.detailStepperBottomInset(context);
+
+    return ColoredBox(
+      color: cs.surface,
+      child: SizedBox(
+        height: GrofastDimenConst.detailDockHeight(context),
+        child: Stack(
           children: [
-            ShimmerBox(width: 200, height: AppSpacing.xl6),
-            SizedBox(height: AppSpacing.base),
-            ShimmerBox(width: 120, height: AppSpacing.lg),
-            SizedBox(height: AppSpacing.xl4),
-            ShimmerBox(width: double.infinity, height: AppSpacing.base),
-            SizedBox(height: AppSpacing.xs),
-            ShimmerBox(width: double.infinity, height: AppSpacing.base),
-            SizedBox(height: AppSpacing.xs),
-            ShimmerBox(width: 220, height: AppSpacing.base),
+            Align(
+              alignment: Alignment.bottomRight,
+              child: FractionallySizedBox(
+                widthFactor: GrofastDimenConst.detailDockPanelWidthFraction,
+                heightFactor: 1,
+                child: const ShimmerBox(
+                  width: double.infinity,
+                  height: double.infinity,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(
+                      GrofastDimenConst.detailDockPanelRadius,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              left: GrofastDimenConst.screenGutter,
+              bottom: bottomInset,
+              child: const ShimmerBox(
+                width: GrofastDimenConst.detailStepperWidth,
+                height: GrofastDimenConst.detailStepperButtonSize,
+              ),
+            ),
           ],
         ),
       ),
-    ],
-  );
+    );
+  }
 }

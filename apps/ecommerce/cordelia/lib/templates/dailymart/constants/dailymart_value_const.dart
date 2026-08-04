@@ -33,7 +33,6 @@ abstract final class DailyMartValueConst {
       'Enjoy discounts of up to ${discountPercentage.asPercent}%\non your order today';
 
   // ── Product card ─────────────────────────────────────────────────────────
-  static String formattedPrice(double price) => price.asPrice;
   static String discountPercentOffLabel(double percentage) =>
       '${percentage.asPercent}% off';
 
@@ -162,7 +161,7 @@ abstract final class DailyMartValueConst {
   /// The docked cart status pill on screens pushed outside the shell (the
   /// cart tab itself is the in-shell affordance).
   static String cartSummaryLabel(int count, double total) =>
-      '$count ${count.plural('item')} | ${formattedPrice(total)}';
+      '$count ${count.plural('item')} | ${total.asPrice}';
   static const viewCartLabel = 'View Cart';
 
   // ── Profile ──────────────────────────────────────────────────────────────

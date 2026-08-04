@@ -61,6 +61,22 @@ class AppColorsExtension extends ThemeExtension<AppColorsExtension> {
   /// `ColorScheme` role (`onSurfaceVariant` flips the other way) doesn't land.
   final Color onSheetMuted;
 
+  /// Tinted-error fill for destructive emphasis surfaces (a filled
+  /// error-tinted pill, a danger row's wash) — the error-hued sibling of
+  /// [tintedPrimaryFill], with the same "pastel in light, alpha-primary in
+  /// dark" kit asymmetry.
+  final Color tintedErrorFill;
+
+  /// Fill for **filled** (borderless) input fields — packs whose inputs are
+  /// a soft filled box rather than an outline spec this exact swatch;
+  /// scheme-derived fallback is the low surface-container step.
+  final Color fieldFill;
+
+  /// The page canvas behind floating cards, when a kit distinguishes it from
+  /// `surface` (cards sit on a slightly darker/warmer canvas). Defaults to
+  /// the scheme's `surface` when a preset doesn't set it.
+  final Color canvas;
+
   const AppColorsExtension({
     required this.successContainer,
     required this.onSuccessContainer,
@@ -71,6 +87,9 @@ class AppColorsExtension extends ThemeExtension<AppColorsExtension> {
     this.dockedHairline = const Color(0x1F000000),
     this.sheetHairline = const Color(0x1F000000),
     this.onSheetMuted = const Color(0xFF7B7B7B),
+    this.tintedErrorFill = const Color(0x1AB3261E),
+    this.fieldFill = const Color(0xFFF5F5F5),
+    this.canvas = const Color(0xFFFFFFFF),
   });
 
   /// Default light-mode values.
@@ -90,6 +109,9 @@ class AppColorsExtension extends ThemeExtension<AppColorsExtension> {
     tintedPrimaryFill:  Color(0x336750A4),
     dockedHairline:     Color(0x33FFFFFF),
     sheetHairline:      Color(0x33FFFFFF),
+    tintedErrorFill:    Color(0x33B3261E),
+    fieldFill:          Color(0xFF2A2A2A),
+    canvas:             Color(0xFF121212),
   );
 
   @override
@@ -103,6 +125,9 @@ class AppColorsExtension extends ThemeExtension<AppColorsExtension> {
     Color? dockedHairline,
     Color? sheetHairline,
     Color? onSheetMuted,
+    Color? tintedErrorFill,
+    Color? fieldFill,
+    Color? canvas,
   }) =>
       AppColorsExtension(
         successContainer:   successContainer   ?? this.successContainer,
@@ -114,6 +139,9 @@ class AppColorsExtension extends ThemeExtension<AppColorsExtension> {
         dockedHairline:     dockedHairline     ?? this.dockedHairline,
         sheetHairline:      sheetHairline      ?? this.sheetHairline,
         onSheetMuted:       onSheetMuted       ?? this.onSheetMuted,
+        tintedErrorFill:    tintedErrorFill    ?? this.tintedErrorFill,
+        fieldFill:          fieldFill          ?? this.fieldFill,
+        canvas:             canvas             ?? this.canvas,
       );
 
   @override
@@ -128,6 +156,9 @@ class AppColorsExtension extends ThemeExtension<AppColorsExtension> {
         dockedHairline:     Color.lerp(dockedHairline,     other.dockedHairline,     t)!,
         sheetHairline:      Color.lerp(sheetHairline,      other.sheetHairline,      t)!,
         onSheetMuted:       Color.lerp(onSheetMuted,       other.onSheetMuted,       t)!,
+        tintedErrorFill:    Color.lerp(tintedErrorFill,    other.tintedErrorFill,    t)!,
+        fieldFill:          Color.lerp(fieldFill,          other.fieldFill,          t)!,
+        canvas:             Color.lerp(canvas,             other.canvas,             t)!,
       );
 }
 

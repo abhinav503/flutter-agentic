@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:core/core/base/base_page.dart';
+import 'package:cordelia/feature/storefront/presentation/chromeless_page.dart';
 
-import 'package:cordelia/di/injection_container.dart';
-
-import '../../../bloc/product_details_bloc.dart';
+import '../../../bloc/product_details_bloc_provider.dart';
 import 'product_details_screen.dart';
 
 class ProductDetailsPage extends BasePage {
@@ -22,25 +20,12 @@ class ProductDetailsPage extends BasePage {
   State<ProductDetailsPage> createState() => _ProductDetailsPageState();
 }
 
-class _ProductDetailsPageState extends BasePageState<ProductDetailsPage> {
-  /// No app bar: this screen's back and bag controls float on the hero
-  /// artwork (spec sheet §8).
+class _ProductDetailsPageState extends BasePageState<ProductDetailsPage>
+    with ChromelessStorefrontPage {
   @override
-  PreferredSizeWidget? buildAppBar(BuildContext context) => null;
-
-  @override
-  Color? backgroundColor(BuildContext context) =>
-      Theme.of(context).colorScheme.surface;
-
-  @override
-  Widget buildBody(BuildContext context) => BlocProvider(
-    create: (_) => ProductDetailsBloc(getProductDetailsUseCase: sl())
-      ..add(
-        ProductDetailsEvent.started(
-          storeId: widget.storeId,
-          productId: widget.productId,
-        ),
-      ),
+  Widget buildBody(BuildContext context) => productDetailsBlocProvider(
+    storeId: widget.storeId,
+    productId: widget.productId,
     child: ProductDetailsScreen(storeId: widget.storeId),
   );
 }

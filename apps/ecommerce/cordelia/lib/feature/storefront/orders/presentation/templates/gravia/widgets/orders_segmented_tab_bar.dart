@@ -132,8 +132,12 @@ class _SegmentLabel extends StatelessWidget {
             duration: OrdersSegmentedTabBar.slideDuration,
             curve: Curves.easeInOut,
             style: active
-                ? GraviaTextStyleConst.textSmBold(tt).copyWith(color: cs.onSurface)
-                : GraviaTextStyleConst.textSmMedium(tt).copyWith(color: onOverlay),
+                ? GraviaTextStyleConst.textSmBold(
+                    tt,
+                  ).copyWith(color: cs.onSurface)
+                : GraviaTextStyleConst.textSmMedium(
+                    tt,
+                  ).copyWith(color: onOverlay),
             child: Text(label),
           ),
         ),

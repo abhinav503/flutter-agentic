@@ -27,5 +27,6 @@ class CreatePaymentUseCase
   @override
   Future<Either<Failure, PaymentIntentEntity>> call(
     CreatePaymentParams params,
-  ) => _repository.createPayment(params.storeId, params.items, params.addressId);
+  ) =>
+      _repository.createPayment(params.storeId, params.items, params.addressId);
 }

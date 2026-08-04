@@ -124,9 +124,7 @@ class _EditProfileScreenState extends BaseScreenState<EditProfileScreen>
             DockedBar(
               child: GraviaPrimaryButton(
                 label: GraviaValueConst.updateProfileButtonLabel,
-                state: isSaving
-                    ? AppButtonState.loading
-                    : AppButtonState.idle,
+                state: isSaving ? AppButtonState.loading : AppButtonState.idle,
                 onTap: isSaving ? null : submitProfile,
               ),
             ),

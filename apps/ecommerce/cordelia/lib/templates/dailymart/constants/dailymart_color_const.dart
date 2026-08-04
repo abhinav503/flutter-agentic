@@ -41,7 +41,8 @@ extension DailyMartColorSchemeX on ColorScheme {
   /// (`primaryContainer`, `#C6FFB9`); dark mode has no equivalent — a
   /// desaturated green wash reads as sickly — so it falls back to the plain
   /// surface and cards separate by shadow alone.
-  Color get canvas => brightness == Brightness.dark ? surface : primaryContainer;
+  Color get canvas =>
+      brightness == Brightness.dark ? surface : primaryContainer;
 }
 
 /// The pack's three shadow recipes. Unlike packs that separate layers by

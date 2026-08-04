@@ -33,6 +33,25 @@ class AppChip extends StatelessWidget {
   final Color? selectedBorderColor;
   final TextStyle? labelStyle;
 
+  /// Selected-state label override — for a pack whose selection changes
+  /// weight, not just colour. Falls back to [labelStyle] when omitted.
+  final TextStyle? selectedLabelStyle;
+
+  /// Overrides the theme's `AppShapes.chipRadius` — for a pack that pins the
+  /// chip shape (a fixed pill, a small rounded rect) regardless of the
+  /// active theme's chip-shape token, same reasoning as
+  /// [AppButton.borderRadius].
+  final BorderRadius? borderRadius;
+
+  /// Pins the chip to an exact height instead of the padding-driven default —
+  /// for fixed-height chip rows (a filter rail, a size selector).
+  final double? height;
+
+  /// Overrides the default `horizontal: base, vertical: xs3` content
+  /// padding — for a pack whose chips are roomier or tighter than the
+  /// standard.
+  final EdgeInsetsGeometry? padding;
+
   /// How long a selection change crossfades. Defaults to a quick 150ms;
   /// pass [Duration.zero] for an instant switch — e.g. a multi-option
   /// selector where a visible crossfade on both the newly- and
@@ -52,6 +71,10 @@ class AppChip extends StatelessWidget {
     this.borderColor,
     this.selectedBorderColor,
     this.labelStyle,
+    this.selectedLabelStyle,
+    this.borderRadius,
+    this.height,
+    this.padding,
     this.animationDuration = const Duration(milliseconds: 150),
   });
 
@@ -62,7 +85,9 @@ class AppChip extends StatelessWidget {
     final bg = selected
         ? (selectedBackgroundColor ?? cs.primaryContainer)
         : (backgroundColor ?? cs.surfaceContainerHighest);
-    final fg = labelStyle?.color ??
+    final baseLabelStyle =
+        (selected ? selectedLabelStyle : null) ?? labelStyle;
+    final fg = baseLabelStyle?.color ??
         (selected ? cs.onPrimaryContainer : cs.onSurfaceVariant);
     final border = selected
         ? BorderSide(color: selectedBorderColor ?? cs.primary)
@@ -72,13 +97,17 @@ class AppChip extends StatelessWidget {
       onTap: onTap,
       child: AnimatedContainer(
         duration: animationDuration,
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.base,
-          vertical: AppSpacing.xs3,
-        ),
+        height: height,
+        alignment: height != null ? Alignment.center : null,
+        padding: padding ??
+            const EdgeInsets.symmetric(
+              horizontal: AppSpacing.base,
+              vertical: AppSpacing.xs3,
+            ),
         decoration: BoxDecoration(
           color: bg,
-          borderRadius: BorderRadius.circular(shapes.chipRadius),
+          borderRadius:
+              borderRadius ?? BorderRadius.circular(shapes.chipRadius),
           border: Border.fromBorderSide(border),
         ),
         child: Row(
@@ -99,8 +128,10 @@ class AppChip extends StatelessWidget {
             // at once.
             AnimatedDefaultTextStyle(
               duration: animationDuration,
-              style: (labelStyle ?? Theme.of(context).textTheme.labelMedium)!
-                  .copyWith(color: fg),
+              style:
+                  (baseLabelStyle ??
+                          Theme.of(context).textTheme.labelMedium)!
+                      .copyWith(color: fg),
               child: Text(label),
             ),
             if (selected && showCheckIcon) ...[

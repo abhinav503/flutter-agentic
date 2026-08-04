@@ -33,9 +33,10 @@ class AddressRepositoryImpl with BaseRepository implements AddressRepository {
       });
 
   @override
-  Future<Either<Failure, List<AddressEntity>>> deleteAddress(String addressId) =>
-      handleRequest(() async {
-        final models = await _dataSource.deleteAddress(addressId);
-        return right(models.map((m) => m.toEntity()).toList());
-      });
+  Future<Either<Failure, List<AddressEntity>>> deleteAddress(
+    String addressId,
+  ) => handleRequest(() async {
+    final models = await _dataSource.deleteAddress(addressId);
+    return right(models.map((m) => m.toEntity()).toList());
+  });
 }

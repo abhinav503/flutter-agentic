@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:core/core/extensions/num_extensions.dart';
 import 'package:core/core/theme/app_colors_extension.dart';
 import 'package:core/core/theme/app_radius.dart';
 import 'package:core/core/theme/app_spacing.dart';
@@ -122,7 +123,7 @@ class DailyMartOrderCard extends StatelessWidget {
                   children: [
                     Expanded(
                       child: Text(
-                        DailyMartValueConst.formattedPrice(order.totalPrice),
+                        order.totalPrice.asPrice,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: DailyMartTextStyleConst.bodyMdSemibold(

@@ -46,10 +46,7 @@ class NotificationRow extends StatelessWidget {
       leading: AppIconCircle(
         size: _iconCircleSize,
         color: context.appColors.tintedPrimaryFill,
-        child: AppSvgImage.asset(
-          _asset(notification.kind),
-          color: cs.primary,
-        ),
+        child: AppSvgImage.asset(_asset(notification.kind), color: cs.primary),
       ),
       title: notification.title,
       titleStyle: GraviaTextStyleConst.textMdBold(

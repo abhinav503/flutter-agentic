@@ -1,6 +1,7 @@
-import 'dart:ui';
+import 'package:flutter/material.dart';
 
 import '../extensions/string_extensions.dart';
+import 'app_shadows_extension.dart';
 import 'app_shapes_extension.dart';
 import 'app_theme_presets.dart';
 
@@ -37,6 +38,9 @@ class AppThemeConfig {
   /// standard 0 … comfortable ≈ 1). Omitted → 0 (standard).
   final double density;
 
+  /// Brand elevation ramps per surface tier. Omitted → [AppShadows.standard].
+  final AppShadows shadows;
+
   const AppThemeConfig({
     required this.lightSeed,
     required this.darkSeed,
@@ -45,6 +49,7 @@ class AppThemeConfig {
     this.darkOverrides = const {},
     this.shapes = AppShapes.standard,
     this.density = 0,
+    this.shadows = AppShadows.standard,
   });
 
   static const AppThemeConfig defaults = AppThemeConfig(
@@ -88,6 +93,40 @@ class AppThemeConfig {
       darkOverrides: _parseOverrides(darkJson),
       shapes: _parseShapes(json),
       density: (json['density'] as num?)?.toDouble() ?? 0,
+      shadows: _parseShadows(json),
+    );
+  }
+
+  /// Reads an optional `shadows` block — per-tier lists of
+  /// `{ color, blur, x, y, spread }` — falling back to [AppShadows.standard]
+  /// for the block and any missing tier.
+  static AppShadows _parseShadows(Map<String, dynamic> json) {
+    final s = (json['shadows'] as Map?)?.cast<String, dynamic>();
+    if (s == null) return AppShadows.standard;
+
+    List<BoxShadow>? tier(String key) {
+      final raw = s[key];
+      if (raw is! List) return null;
+      return [
+        for (final entry in raw.whereType<Map>())
+          BoxShadow(
+            color: _parseColor(entry['color'] as String? ?? '#1F000000'),
+            blurRadius: (entry['blur'] as num?)?.toDouble() ?? 0,
+            spreadRadius: (entry['spread'] as num?)?.toDouble() ?? 0,
+            offset: Offset(
+              (entry['x'] as num?)?.toDouble() ?? 0,
+              (entry['y'] as num?)?.toDouble() ?? 0,
+            ),
+          ),
+      ];
+    }
+
+    const base = AppShadows.standard;
+    return base.copyWith(
+      card: tier('card'),
+      raised: tier('raised'),
+      floatingAction: tier('floatingAction'),
+      navBar: tier('navBar'),
     );
   }
 

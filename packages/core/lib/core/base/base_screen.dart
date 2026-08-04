@@ -70,13 +70,13 @@ abstract class BaseScreenState<T extends BaseScreen> extends State<T> {
     double? headerHeight,
     bool showCloseAction = true,
     bool showHeader = true,
+    bool? showHandle,
     ShapeBorder? shape,
     List<Widget>? actions,
     bool isDismissible = true,
     bool enableDrag = true,
     double maxHeightFraction = 0.9,
-  }) => AppBottomSheet.show<R>(
-    context,
+  }) => context.showAppBottomSheet<R>(
     title: title,
     titleStyle: titleStyle,
     child: child ?? buildBottomSheetContent(),
@@ -90,6 +90,7 @@ abstract class BaseScreenState<T extends BaseScreen> extends State<T> {
     headerHeight: headerHeight,
     showCloseAction: showCloseAction,
     showHeader: showHeader,
+    showHandle: showHandle,
     shape: shape,
     actions: actions,
     isDismissible: isDismissible,
@@ -108,8 +109,69 @@ abstract class BaseScreenState<T extends BaseScreen> extends State<T> {
     String message, {
     Duration duration = const Duration(seconds: 4),
     SnackBarAction? action,
+  }) => context.showSnackBar(message, duration: duration, action: action);
+
+  /// Clears any visible snack bar immediately.
+  void clearSnackBar() => context.clearSnackBar();
+}
+
+/// The same overlay helpers as [BaseScreenState], reachable from **any**
+/// context — a `BasePageState` host (a shell's docked bar), a sheet's own
+/// content, a pack helper function. [BaseScreenState] delegates here, so the
+/// two can't drift; packs write one `showXSheet` helper on `BuildContext`
+/// instead of a twin API per host type.
+extension AppOverlaysX on BuildContext {
+  /// Shows [AppBottomSheet] — see [BaseScreenState.showAppBottomSheet].
+  Future<R?> showAppBottomSheet<R>({
+    required Widget child,
+    String? title,
+    TextStyle? titleStyle,
+    String? closeLabel,
+    TextStyle? closeLabelStyle,
+    Color? dividerColor,
+    Color? handleColor,
+    Size? handleSize,
+    Widget? leading,
+    bool centerTitle = false,
+    double? headerHeight,
+    bool showCloseAction = true,
+    bool showHeader = true,
+    bool? showHandle,
+    ShapeBorder? shape,
+    List<Widget>? actions,
+    bool isDismissible = true,
+    bool enableDrag = true,
+    double maxHeightFraction = 0.9,
+  }) => AppBottomSheet.show<R>(
+    this,
+    title: title,
+    titleStyle: titleStyle,
+    child: child,
+    closeLabel: closeLabel,
+    closeLabelStyle: closeLabelStyle,
+    dividerColor: dividerColor,
+    handleColor: handleColor,
+    handleSize: handleSize,
+    leading: leading,
+    centerTitle: centerTitle,
+    headerHeight: headerHeight,
+    showCloseAction: showCloseAction,
+    showHeader: showHeader,
+    showHandle: showHandle,
+    shape: shape,
+    actions: actions,
+    isDismissible: isDismissible,
+    enableDrag: enableDrag,
+    maxHeightFraction: maxHeightFraction,
+  );
+
+  /// Shows a floating snack bar. Clears any existing snack bar first.
+  void showSnackBar(
+    String message, {
+    Duration duration = const Duration(seconds: 4),
+    SnackBarAction? action,
   }) {
-    ScaffoldMessenger.of(context)
+    ScaffoldMessenger.of(this)
       ..clearSnackBars()
       ..showSnackBar(
         SnackBar(content: Text(message), duration: duration, action: action),
@@ -117,5 +179,5 @@ abstract class BaseScreenState<T extends BaseScreen> extends State<T> {
   }
 
   /// Clears any visible snack bar immediately.
-  void clearSnackBar() => ScaffoldMessenger.of(context).clearSnackBars();
+  void clearSnackBar() => ScaffoldMessenger.of(this).clearSnackBars();
 }

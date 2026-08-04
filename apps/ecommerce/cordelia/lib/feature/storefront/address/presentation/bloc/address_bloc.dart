@@ -77,10 +77,16 @@ class AddressBloc extends Bloc<AddressEvent, AddressState> {
     final result = await _getAddresses(const NoParams());
     result.fold((failure) {
       switch (state) {
-        // Warm start: a failed silent refresh isn't worth replacing a
-        // usable list with an error view — the cached data stands.
-        case AddressLoaded():
-          break;
+        // Warm start: cached content is already on screen — keep it there
+        // and let the failure surface as a snackbar instead of an error view.
+        case AddressLoaded(:final addresses, :final selectedAddressId):
+          emit(
+            AddressState.loaded(
+              addresses: addresses,
+              selectedAddressId: selectedAddressId,
+              refreshFailed: true,
+            ),
+          );
         case AddressLoading():
         case AddressError():
           emit(AddressState.error(message: failure.message));

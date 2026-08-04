@@ -7,7 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:core/core/ui/atoms/app_switcher.dart';
+import 'package:cordelia/templates/gravia/widgets/gravia_switcher.dart';
 import 'package:core/core/base/base_screen.dart';
 import 'package:core/core/theme/app_colors_extension.dart';
 import 'package:core/core/theme/app_spacing.dart';
@@ -41,7 +41,7 @@ class _NotificationsScreenState extends BaseScreenState<NotificationsScreen> {
           showSnackBar(message);
         }
       },
-      builder: (context, state) => AppSwitcher(
+      builder: (context, state) => GraviaSwitcher(
         child: switch (state) {
           NotificationsLoading() => CollapsingHeaderSheet(
             key: const ValueKey('loading'),
@@ -52,12 +52,12 @@ class _NotificationsScreenState extends BaseScreenState<NotificationsScreen> {
             ),
             body: const NotificationsSkeletonBody(),
           ),
-          NotificationsError(:final template) => SafeArea(
+          NotificationsError() => SafeArea(
             key: const ValueKey('error'),
             child: ErrorView(
               message: GraviaValueConst.notificationsLoadErrorMessage,
               onRetry: () => context.read<NotificationsBloc>().add(
-                NotificationsEvent.started(template: template),
+                const NotificationsEvent.started(),
               ),
             ),
           ),
@@ -76,8 +76,7 @@ class _NotificationsScreenState extends BaseScreenState<NotificationsScreen> {
   ) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
-    final sheetHairline =
-        context.appColors.sheetHairline;
+    final sheetHairline = context.appColors.sheetHairline;
 
     return Column(
       children: [

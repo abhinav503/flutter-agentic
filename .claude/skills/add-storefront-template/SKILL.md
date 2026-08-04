@@ -52,9 +52,17 @@ caching lives in the shared bloc), (b) the shared-behaviour table
 `signOutAndReturnToLogin`, `CheckoutBloc`, app-root cubits), (c) the
 design-system catalog (`EmptyState`/`ErrorView`/`AppSwitcher`/shimmer
 atoms/`IconInfoRow`/`SectionRail`/`PriceBreakdown`/`context.appColors`/
-`context.appShapes`/`asPrice`-`plural` extensions). Skeleton loading
-bodies, bottom inset on **every** branch, exhaustive switches,
-`ValueConst`-only copy.
+`context.appShapes`/`asPrice`-`plural` extensions), and (d) the structural
+conventions the other packs follow — a `<Pack>Switcher`/`EmptyState`/
+`ErrorView` trio in `<id>_state_views.dart` used by **every** body-swapping
+screen, skeleton bodies as public pack-prefixed files under
+`templates/<id>/widgets/` that mirror the loaded **structure** (dock and
+all, since the dock pays the bottom inset), nav badges reading live cubit
+state instead of a `static const` tab list, `*_bloc_provider.dart`
+factories instead of inline bloc construction, `ChromelessStorefrontPage`
+for the no-app-bar pages, and a doc comment on every core-component fork
+naming what didn't fit. Bottom inset on **every** branch, exhaustive
+switches, `ValueConst`-only copy.
 
 ## Phase 4 — Review & promotion
 

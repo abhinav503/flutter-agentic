@@ -45,6 +45,28 @@ class AppConcentricCircles extends StatefulWidget {
          'AppConcentricCircles requires one colour per radius',
        );
 
+  /// The standard status-graphic recipe — two 10%-alpha halo rings around a
+  /// solid disc of [color], with [child] (the status glyph) centred on it.
+  /// The same three-ring geometry recurs across success/pending sheets, so
+  /// it's a named form instead of a per-screen copy of the radii/alpha list.
+  factory AppConcentricCircles.status({
+    Key? key,
+    required Color color,
+    Widget? child,
+    List<double> radii = const [128, 96, 64],
+    bool animate = true,
+  }) => AppConcentricCircles(
+    key: key,
+    radii: radii,
+    colors: [
+      for (var i = 0; i < radii.length - 1; i++)
+        color.withValues(alpha: 0.1),
+      color,
+    ],
+    animate: animate,
+    child: child,
+  );
+
   @override
   State<AppConcentricCircles> createState() => _AppConcentricCirclesState();
 }

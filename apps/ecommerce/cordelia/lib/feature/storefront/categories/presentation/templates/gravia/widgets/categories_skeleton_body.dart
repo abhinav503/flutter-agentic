@@ -38,9 +38,7 @@ class CategoriesSkeletonBody extends StatelessWidget {
             children: [
               for (var col = 0; col < _kColumns; col++) ...[
                 if (col > 0) const SizedBox(width: AppSpacing.xs),
-                const Expanded(
-                  child: ShimmerCircleTile(labelWidth: 40),
-                ),
+                const Expanded(child: ShimmerCircleTile(labelWidth: 40)),
               ],
             ],
           ),

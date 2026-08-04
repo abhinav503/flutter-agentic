@@ -56,9 +56,7 @@ class DailyMartHeaderRow extends StatelessWidget {
           ),
         ),
         trailing ??
-            const SizedBox.square(
-              dimension: DailyMartDimenConst.controlHeight,
-            ),
+            const SizedBox.square(dimension: DailyMartDimenConst.controlHeight),
       ],
     );
   }

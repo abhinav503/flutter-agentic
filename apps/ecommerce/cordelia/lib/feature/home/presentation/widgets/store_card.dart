@@ -16,8 +16,7 @@ class StoreCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
-    final shapes =
-        context.appShapes;
+    final shapes = context.appShapes;
 
     return Material(
       color: cs.surfaceContainerLow,

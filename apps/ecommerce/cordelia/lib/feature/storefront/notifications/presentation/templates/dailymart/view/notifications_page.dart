@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:core/core/base/base_page.dart';
+import 'package:cordelia/feature/storefront/presentation/chromeless_page.dart';
 
-import 'package:cordelia/di/injection_container.dart';
+import 'package:cordelia/feature/storefront/active_store/presentation/cubit/active_store_cubit.dart';
 import 'package:cordelia/feature/storefront/template/storefront_template.dart';
 
-import '../../../bloc/notifications_bloc.dart';
+import '../../../bloc/notifications_bloc_provider.dart';
 import 'notifications_screen.dart';
 
 class NotificationsPage extends BasePage {
@@ -16,25 +17,16 @@ class NotificationsPage extends BasePage {
   State<NotificationsPage> createState() => _NotificationsPageState();
 }
 
-class _NotificationsPageState extends BasePageState<NotificationsPage> {
-  /// No app bar anywhere in this pack — `NotificationsScreen` renders the
-  /// header row as the first item of its own scroll view (spec sheet §8).
+class _NotificationsPageState extends BasePageState<NotificationsPage>
+    with ChromelessStorefrontPage {
   @override
-  PreferredSizeWidget? buildAppBar(BuildContext context) => null;
+  Widget buildBody(BuildContext context) {
+    final store = context.read<ActiveStoreCubit>().state!;
 
-  @override
-  Color? backgroundColor(BuildContext context) =>
-      Theme.of(context).colorScheme.surface;
-
-  @override
-  Widget buildBody(BuildContext context) => BlocProvider(
-    create: (_) =>
-        NotificationsBloc(getNotificationsUseCase: sl())
-          ..add(
-          const NotificationsEvent.started(
-            template: StorefrontTemplate.dailymart,
-          ),
-        ),
-    child: const NotificationsScreen(),
-  );
+    return notificationsBlocProvider(
+      storeId: store.storeId,
+      templateId: store.templateId.wireValue,
+      child: const NotificationsScreen(),
+    );
+  }
 }

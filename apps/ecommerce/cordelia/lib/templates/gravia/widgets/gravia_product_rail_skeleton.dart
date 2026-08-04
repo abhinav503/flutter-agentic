@@ -21,9 +21,7 @@ class GraviaProductRailSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cardRadius = BorderRadius.circular(
-      context.appShapes.cardRadius,
-    );
+    final cardRadius = BorderRadius.circular(context.appShapes.cardRadius);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,

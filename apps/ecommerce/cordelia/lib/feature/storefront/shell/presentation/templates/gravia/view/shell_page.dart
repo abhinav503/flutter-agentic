@@ -1,18 +1,17 @@
 import 'package:cordelia/constants/app_routes.dart';
 import 'package:cordelia/constants/value_const.dart';
-import 'package:cordelia/di/injection_container.dart';
 import 'package:cordelia/feature/storefront/active_store/presentation/cubit/active_store_cubit.dart';
 import 'package:cordelia/feature/storefront/cart/domain/entities/cart_item_entity.dart';
 import 'package:cordelia/feature/storefront/cart/presentation/cubit/cart_cubit.dart';
 import 'package:cordelia/feature/storefront/cart/presentation/templates/gravia/widgets/cart_status_bar.dart';
-import 'package:cordelia/feature/storefront/categories/presentation/bloc/categories_bloc.dart';
+import 'package:cordelia/feature/storefront/categories/presentation/bloc/categories_bloc_provider.dart';
 import 'package:cordelia/feature/storefront/categories/presentation/templates/gravia/view/categories_screen.dart';
 import 'package:cordelia/feature/storefront/favourites/presentation/templates/gravia/view/favourites_screen.dart';
-import 'package:cordelia/feature/storefront/home/presentation/bloc/home_bloc.dart';
+import 'package:cordelia/feature/storefront/home/presentation/bloc/home_bloc_provider.dart';
 import 'package:cordelia/feature/storefront/home/presentation/templates/gravia/view/home_screen.dart';
-import 'package:cordelia/feature/storefront/orders/presentation/bloc/orders_bloc.dart';
+import 'package:cordelia/feature/storefront/orders/presentation/bloc/orders_bloc_provider.dart';
 import 'package:cordelia/feature/storefront/orders/presentation/templates/gravia/view/orders_screen.dart';
-import 'package:cordelia/feature/storefront/profile/presentation/bloc/profile_bloc.dart';
+import 'package:cordelia/feature/storefront/profile/presentation/bloc/profile_bloc_provider.dart';
 import 'package:cordelia/feature/storefront/profile/presentation/templates/gravia/view/profile_screen.dart';
 import 'package:cordelia/feature/storefront/shell/presentation/storefront_shell.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_color_const.dart';
@@ -101,6 +100,12 @@ class _ShellPageState extends BasePageState<ShellPage>
     );
   }
 
+  /// Shell-level, not per-tab: the Profile tab is rebuilt fresh on every tab
+  /// switch, so constructing the bloc down in [buildBody] replayed the whole
+  /// profile skeleton each visit. Matches dailymart/grofast.
+  @override
+  Widget buildBlocProviders(Widget child) => profileBlocProvider(child: child);
+
   @override
   Widget? buildBottomNav(BuildContext context) => BottomNavBar(
     items: _tabs,
@@ -120,33 +125,20 @@ class _ShellPageState extends BasePageState<ShellPage>
     // seeds the cubit before its first build.
     final storeId = context.read<ActiveStoreCubit>().state!.storeId;
     final content = switch (currentTab) {
-      ShellPage.homeTabIndex => BlocProvider(
-        create: (_) =>
-            HomeBloc(getHomeUseCase: sl(), storeId: storeId)
-              ..add(HomeEvent.started(storeId: storeId)),
+      ShellPage.homeTabIndex => homeBlocProvider(
+        storeId: storeId,
         child: const HomeScreen(),
       ),
-      ShellPage.categoriesTabIndex => BlocProvider(
-        create: (_) =>
-            CategoriesBloc(getCategoriesUseCase: sl(), storeId: storeId)
-              ..add(const CategoriesEvent.started()),
+      ShellPage.categoriesTabIndex => categoriesBlocProvider(
+        storeId: storeId,
         child: const CategoriesScreen(),
       ),
       ShellPage.favouriteTabIndex => const FavouritesScreen(),
-      ShellPage.ordersTabIndex => BlocProvider(
-        create: (_) => OrdersBloc(
-          getOrdersUseCase: sl(),
-          cancelOrderUseCase: sl(),
-          storeId: storeId,
-        )..add(const OrdersEvent.started()),
+      ShellPage.ordersTabIndex => ordersBlocProvider(
+        storeId: storeId,
         child: const OrdersScreen(),
       ),
-      _ => BlocProvider(
-        create: (_) =>
-            ProfileBloc(getProfileUseCase: sl())
-              ..add(const ProfileEvent.started()),
-        child: const ProfileScreen(),
-      ),
+      _ => const ProfileScreen(),
     };
 
     // Cart is not a nav tab (see _tabs above) — instead a persistent bar
@@ -159,8 +151,7 @@ class _ShellPageState extends BasePageState<ShellPage>
       return content;
     }
 
-    final shapes =
-        context.appShapes;
+    final shapes = context.appShapes;
 
     // The bar always stays in the tree (empty cart → zero-height bar) so the
     // content subtree never moves to a different slot when the cart toggles

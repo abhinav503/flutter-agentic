@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:core/core/base/base_page.dart';
+import 'package:cordelia/feature/storefront/presentation/chromeless_page.dart';
 
 import 'package:cordelia/di/injection_container.dart';
 import 'package:cordelia/feature/storefront/active_store/presentation/cubit/active_store_cubit.dart';
@@ -22,14 +23,8 @@ class TrackOrderPage extends BasePage {
   State<TrackOrderPage> createState() => _TrackOrderPageState();
 }
 
-class _TrackOrderPageState extends BasePageState<TrackOrderPage> {
-  @override
-  PreferredSizeWidget? buildAppBar(BuildContext context) => null;
-
-  @override
-  Color? backgroundColor(BuildContext context) =>
-      Theme.of(context).colorScheme.surface;
-
+class _TrackOrderPageState extends BasePageState<TrackOrderPage>
+    with ChromelessStorefrontPage {
   @override
   Widget buildBody(BuildContext context) {
     final storeId = context.read<ActiveStoreCubit>().state!.storeId;

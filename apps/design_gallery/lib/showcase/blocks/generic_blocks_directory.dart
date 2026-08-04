@@ -1,4 +1,10 @@
+import 'package:core/core/theme/app_radius.dart';
 import 'package:core/core/theme/app_shapes_extension.dart';
+import 'package:core/core/theme/app_spacing.dart';
+import 'package:core/core/ui/atoms/bottom_fade.dart';
+import 'package:core/core/ui/atoms/button.dart';
+import 'package:core/core/ui/atoms/icon_button.dart';
+import 'package:core/core/ui/blocks/action_pair.dart';
 import 'package:core/core/ui/blocks/bottom_nav_bar.dart';
 import 'package:core/core/ui/blocks/chunked_grid.dart';
 import 'package:core/core/ui/blocks/collapsing_header_sheet.dart';
@@ -8,6 +14,7 @@ import 'package:core/core/ui/blocks/header_canvas.dart';
 import 'package:core/core/ui/blocks/hero_header.dart';
 import 'package:core/core/ui/blocks/hero_search_field_flight.dart';
 import 'package:core/core/ui/blocks/quantity_stepper.dart';
+import 'package:core/core/ui/blocks/screen_body.dart';
 import 'package:core/core/ui/blocks/section_header.dart';
 import 'package:core/core/ui/blocks/section_rail.dart';
 import 'package:flutter/material.dart';
@@ -245,6 +252,104 @@ WidgetbookFolder genericBlocksFolder() {
                       ),
                 );
               },
+            ),
+          ),
+          Variant(
+            'Bare (showContainer: false)',
+            QuantityStepper(
+              value: 2,
+              showContainer: false,
+              onIncrement: () {},
+              onDecrement: () {},
+            ),
+          ),
+          Variant(
+            'Square keys (buttonSize 32, buttonRadius + buttonColor)',
+            Builder(
+              builder: (context) {
+                final cs = Theme.of(context).colorScheme;
+                return QuantityStepper(
+                  value: 2,
+                  onIncrement: () {},
+                  onDecrement: () {},
+                  showContainer: false,
+                  buttonSize: 32,
+                  buttonRadius: AppRadius.sm,
+                  buttonColor: cs.surfaceContainerHighest,
+                );
+              },
+            ),
+          ),
+        ]),
+      ),
+      allVariants(
+        'ActionPair',
+        (context) => showcase(context, [
+          Variant(
+            'Secondary + primary pair',
+            ActionPair(
+              first: AppButton(
+                label: 'Cancel',
+                variant: AppButtonVariant.secondary,
+                fullWidth: true,
+                onTap: () {},
+              ),
+              second: AppButton(label: 'Apply', fullWidth: true, onTap: () {}),
+            ),
+            width: 320,
+          ),
+        ]),
+      ),
+      allVariants(
+        'ScreenBody',
+        (context) => showcase(context, [
+          Variant(
+            'Header + body + floating CTA over a BottomFade',
+            SizedBox(
+              width: 360,
+              height: 500,
+              child: ScreenBody(
+                header: Row(
+                  children: [
+                    Builder(
+                      builder: (context) => AppIconButton(
+                        icon: Icons.arrow_back_rounded,
+                        backgroundColor:
+                            Theme.of(context).colorScheme.surfaceContainer,
+                        foregroundColor:
+                            Theme.of(context).colorScheme.onSurface,
+                        onTap: () {},
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.base),
+                    Builder(
+                      builder: (context) => Text(
+                        'My Cart',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                    ),
+                  ],
+                ),
+                body: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    for (var i = 0; i < 12; i++)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: AppSpacing.xs,
+                        ),
+                        child: Text('Content row $i'),
+                      ),
+                  ],
+                ),
+                floatingAction: AppButton(
+                  label: 'Proceed To Checkout',
+                  fullWidth: true,
+                  onTap: () {},
+                ),
+                floatingActionScrollInset: 120,
+                bottomFade: const BottomFade(),
+              ),
             ),
           ),
         ]),

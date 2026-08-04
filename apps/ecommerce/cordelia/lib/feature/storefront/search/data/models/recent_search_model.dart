@@ -24,9 +24,6 @@ abstract class RecentSearchModel with _$RecentSearchModel {
   factory RecentSearchModel.fromEntity(RecentSearchEntity e) =>
       RecentSearchModel(id: e.id, name: e.name, type: e.type.wireValue);
 
-  RecentSearchEntity toEntity() => RecentSearchEntity(
-    id: id,
-    name: name,
-    type: type.toRecentSearchType(),
-  );
+  RecentSearchEntity toEntity() =>
+      RecentSearchEntity(id: id, name: name, type: type.toRecentSearchType());
 }

@@ -32,10 +32,8 @@ class DailyMartProductReviewsSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
-    final shapes =
-        context.appShapes;
-    final hairline =
-        context.appColors.dockedHairline;
+    final shapes = context.appShapes;
+    final hairline = context.appColors.dockedHairline;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

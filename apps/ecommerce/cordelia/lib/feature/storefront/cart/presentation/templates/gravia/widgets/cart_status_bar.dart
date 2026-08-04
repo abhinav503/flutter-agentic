@@ -43,8 +43,7 @@ class CartStatusBar extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
     final onOverlay = context.appColors.onOverlay;
-    final shapes =
-        context.appShapes;
+    final shapes = context.appShapes;
     // Same icon-circle convention as ProfileMenuTile — not a primary-tinted
     // circle invented for this bar.
     final iconCircleColor = cs.surfaceContainerLow;

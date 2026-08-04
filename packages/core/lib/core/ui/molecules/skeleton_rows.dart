@@ -39,6 +39,15 @@ class ShimmerListRow extends StatelessWidget {
   final Color? baseColor;
   final Color? sweepColor;
 
+  /// Trailing block after the text column (a price bar, a status pill slot) —
+  /// `trailingWidth: 0` (default) omits it, so existing rows are unchanged.
+  final double trailingWidth;
+  final double trailingHeight;
+  final BorderRadius? trailingRadius;
+
+  /// Gap between the text column and the trailing block.
+  final double trailingGap;
+
   const ShimmerListRow({
     super.key,
     this.itemCount = 1,
@@ -54,6 +63,10 @@ class ShimmerListRow extends StatelessWidget {
     this.crossAxisAlignment = CrossAxisAlignment.center,
     this.baseColor,
     this.sweepColor,
+    this.trailingWidth = 0,
+    this.trailingHeight = AppSpacing.lg,
+    this.trailingRadius,
+    this.trailingGap = AppSpacing.lg,
   });
 
   Widget _row() => Row(
@@ -88,6 +101,16 @@ class ShimmerListRow extends StatelessWidget {
           ],
         ),
       ),
+      if (trailingWidth > 0) ...[
+        SizedBox(width: trailingGap),
+        ShimmerBox(
+          width: trailingWidth,
+          height: trailingHeight,
+          borderRadius: trailingRadius ?? AppRadius.sm,
+          baseColor: baseColor,
+          sweepColor: sweepColor,
+        ),
+      ],
     ],
   );
 

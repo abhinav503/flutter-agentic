@@ -1,9 +1,7 @@
-import 'package:cordelia/di/injection_container.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:core/core/base/base_page.dart';
 import '../../../../domain/entities/profile_entity.dart';
-import '../../../bloc/edit_profile_bloc.dart';
+import '../../../bloc/edit_profile_bloc_provider.dart';
 import 'edit_profile_screen.dart';
 
 class EditProfilePage extends BasePage {
@@ -22,8 +20,7 @@ class _EditProfilePageState extends BasePageState<EditProfilePage> {
   // screen-local UI state — only the actual Update submit goes through
   // EditProfileBloc, which owns the real network call.
   @override
-  Widget buildBody(BuildContext context) => BlocProvider(
-    create: (_) => EditProfileBloc(updateProfileUseCase: sl()),
+  Widget buildBody(BuildContext context) => editProfileBlocProvider(
     child: EditProfileScreen(profile: widget.profile),
   );
 }

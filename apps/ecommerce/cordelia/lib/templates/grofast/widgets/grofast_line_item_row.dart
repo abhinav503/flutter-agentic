@@ -129,6 +129,12 @@ class GrofastLineItemRow extends StatelessWidget {
 /// a Bag row the keys are white squares on the row's tinted card, while
 /// Product Details' larger [GrofastQuantityStepper.large] puts tinted keys on
 /// the plain white page.
+///
+/// Not core's [QuantityStepper]: that block pins its keys inside one rounded
+/// pill container, and this kit has no container at all — two free-standing
+/// squares with the count between them, inverting per surface. Reproducing
+/// that through the block would mean switching its container off and
+/// re-specifying every key, so the pack draws its own.
 class GrofastQuantityStepper extends StatelessWidget {
   final int quantity;
   final VoidCallback onIncrement;

@@ -160,8 +160,10 @@ class _CategoryDetailsScreenState
                         CategoryDetailsLoading() => SingleChildScrollView(
                           key: const ValueKey('loading'),
                           padding: EdgeInsets.only(
-                            bottom: DailyMartDimenConst
-                                .floatingActionScrollInset(context),
+                            bottom:
+                                DailyMartDimenConst.floatingActionScrollInset(
+                                  context,
+                                ),
                           ),
                           child: const DailyMartCategoryDetailsSkeletonBody(),
                         ),

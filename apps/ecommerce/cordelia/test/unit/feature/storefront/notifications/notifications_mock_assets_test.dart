@@ -14,10 +14,17 @@ void main() {
 
   const dataSource = NotificationsRemoteDataSourceImpl();
 
+  // The mock resolves its asset by template alone; the store id is carried for
+  // the real backend's sake and doesn't select the file.
+  const anyStoreId = 'any-store';
+
   group('notifications mock assets', () {
     for (final template in StorefrontTemplate.values) {
       test('${template.wireValue} ships a parseable notifications mock', () async {
-        final sections = await dataSource.getNotifications(template);
+        final sections = await dataSource.getNotifications(
+          storeId: anyStoreId,
+          templateId: template.wireValue,
+        );
 
         expect(sections, isNotEmpty);
         expect(
@@ -35,10 +42,12 @@ void main() {
 
     test('each template gets its own list, not one shared file', () async {
       final gravia = await dataSource.getNotifications(
-        StorefrontTemplate.gravia,
+        storeId: anyStoreId,
+        templateId: StorefrontTemplate.gravia.wireValue,
       );
       final dailymart = await dataSource.getNotifications(
-        StorefrontTemplate.dailymart,
+        storeId: anyStoreId,
+        templateId: StorefrontTemplate.dailymart.wireValue,
       );
 
       String titles(List<dynamic> sections) => sections

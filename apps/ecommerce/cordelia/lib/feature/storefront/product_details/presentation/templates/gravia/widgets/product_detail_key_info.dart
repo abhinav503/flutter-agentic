@@ -46,7 +46,9 @@ class _ProductDetailKeyInfoState extends State<ProductDetailKeyInfo> {
       children: [
         Text(
           GraviaValueConst.keyInformationTitle,
-          style: GraviaTextStyleConst.textLgBold(tt).copyWith(color: cs.onSurface),
+          style: GraviaTextStyleConst.textLgBold(
+            tt,
+          ).copyWith(color: cs.onSurface),
         ),
         const SizedBox(height: AppSpacing.xs),
         if (_expanded)

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:core/core/base/base_page.dart';
+import 'package:cordelia/feature/storefront/presentation/chromeless_page.dart';
 import 'package:core/core/base/base_screen.dart';
 import 'package:core/core/mixins/textfield_validations.dart';
 import 'package:core/core/theme/app_spacing.dart';
@@ -35,14 +36,8 @@ class AddressFormPage extends BasePage {
   State<AddressFormPage> createState() => _AddressFormPageState();
 }
 
-class _AddressFormPageState extends BasePageState<AddressFormPage> {
-  @override
-  PreferredSizeWidget? buildAppBar(BuildContext context) => null;
-
-  @override
-  Color? backgroundColor(BuildContext context) =>
-      Theme.of(context).colorScheme.surface;
-
+class _AddressFormPageState extends BasePageState<AddressFormPage>
+    with ChromelessStorefrontPage {
   @override
   Widget buildBody(BuildContext context) =>
       _AddressFormScreen(address: widget.address);

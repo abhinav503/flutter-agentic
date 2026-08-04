@@ -1,4 +1,5 @@
 import 'package:core/core/ui/atoms/badge.dart';
+import 'package:core/core/ui/atoms/bottom_fade.dart';
 import 'package:core/core/ui/atoms/button.dart';
 import 'package:core/core/ui/atoms/checkbox.dart';
 import 'package:core/core/ui/atoms/chip.dart';
@@ -19,6 +20,7 @@ import 'package:core/core/ui/atoms/network_image.dart';
 import 'package:core/core/ui/atoms/page_indicator.dart';
 import 'package:core/core/ui/atoms/radio_dot.dart';
 import 'package:core/core/ui/atoms/shimmer_box.dart';
+import 'package:core/core/ui/atoms/surface_card.dart';
 import 'package:core/core/ui/atoms/svg_image.dart';
 import 'package:core/core/ui/atoms/switch.dart';
 import 'package:core/core/ui/atoms/text_field.dart';
@@ -26,6 +28,8 @@ import 'package:core/core/ui/atoms/theme_mode_toggle.dart';
 import 'package:core/core/ui/atoms/top_bar.dart';
 import 'package:core/core/theme/app_colors_extension.dart';
 import 'package:core/core/theme/app_radius.dart';
+import 'package:core/core/theme/app_shadows_extension.dart';
+import 'package:core/core/theme/app_spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:widgetbook/widgetbook.dart';
 
@@ -108,6 +112,32 @@ WidgetbookCategory atomsCategory() {
               ),
             ),
           ),
+          Variant(
+            'Tonal fill (backgroundColor override)',
+            Builder(
+              builder: (context) {
+                final cs = Theme.of(context).colorScheme;
+                return AppButton(
+                  label: 'Remove',
+                  backgroundColor: context.appColors.tintedErrorFill,
+                  foregroundColor: cs.error,
+                  onTap: () {},
+                );
+              },
+            ),
+          ),
+          Variant(
+            'Brand outline + fixed height (borderColor, height)',
+            Builder(
+              builder: (context) => AppButton(
+                label: 'Add',
+                variant: AppButtonVariant.secondary,
+                borderColor: Theme.of(context).colorScheme.primary,
+                height: 40,
+                onTap: () {},
+              ),
+            ),
+          ),
         ]),
       ),
       allVariants(
@@ -169,6 +199,18 @@ WidgetbookCategory atomsCategory() {
               },
             ),
           ),
+          Variant(
+            'Status recipe (.status factory)',
+            Builder(
+              builder: (context) {
+                final cs = Theme.of(context).colorScheme;
+                return AppConcentricCircles.status(
+                  color: cs.primary,
+                  child: Icon(Icons.check, color: cs.onPrimary, size: 28),
+                );
+              },
+            ),
+          ),
         ]),
       ),
       allVariants(
@@ -190,6 +232,78 @@ WidgetbookCategory atomsCategory() {
               selectedBorderColor: Colors.transparent,
               backgroundColor: Colors.transparent,
             ),
+          ),
+          Variant(
+            'Pinned radius + fixed height + padding + selectedLabelStyle',
+            Builder(
+              builder: (context) => AppChip(
+                label: 'Delivered',
+                selected: true,
+                onTap: () {},
+                showCheckIcon: false,
+                borderRadius: AppRadius.sm,
+                height: 32,
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                selectedLabelStyle: Theme.of(context).textTheme.labelMedium!
+                    .copyWith(fontWeight: FontWeight.w700),
+              ),
+            ),
+          ),
+        ]),
+      ),
+      allVariants(
+        'AppSurfaceCard',
+        (context) => showcase(context, [
+          Variant(
+            'Flat (padding + child)',
+            Builder(
+              builder: (context) => AppSurfaceCard(
+                color: Theme.of(context).colorScheme.surfaceContainerLow,
+                padding: const EdgeInsets.all(AppSpacing.lg),
+                child: const Text('Flat card content'),
+              ),
+            ),
+            width: 220,
+          ),
+          Variant(
+            'Tappable (shadows: appShadows.card + borderColor)',
+            Builder(
+              builder: (context) => AppSurfaceCard(
+                onTap: () {},
+                shadows: context.appShadows.card,
+                borderColor: Theme.of(context).colorScheme.outlineVariant,
+                padding: const EdgeInsets.all(AppSpacing.lg),
+                child: const Text('Tappable card'),
+              ),
+            ),
+            width: 220,
+          ),
+          Variant(
+            'Custom radius',
+            Builder(
+              builder: (context) => AppSurfaceCard(
+                color: Theme.of(context).colorScheme.primaryContainer,
+                borderRadius: AppRadius.xl,
+                padding: const EdgeInsets.all(AppSpacing.lg),
+                child: const Text('Custom radius'),
+              ),
+            ),
+            width: 220,
+          ),
+        ]),
+      ),
+      allVariants(
+        'BottomFade',
+        (context) => showcase(context, [
+          Variant(
+            'Default (floating-CTA fade)',
+            _bottomFadeDemo(context, const BottomFade()),
+            width: 240,
+          ),
+          Variant(
+            'Full-height fade (solidUntil: 0 — over a docked bar)',
+            _bottomFadeDemo(context, const BottomFade(solidUntil: 0)),
+            width: 240,
           ),
         ]),
       ),
@@ -388,6 +502,39 @@ WidgetbookCategory atomsCategory() {
                   onTap: () {},
                 ),
               ),
+            ),
+          ),
+          Variant(
+            'Rounded-rect (borderRadius + size 60×40)',
+            Builder(
+              builder: (context) => AppIconButton(
+                icon: Icons.arrow_back_rounded,
+                backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
+                foregroundColor: Theme.of(context).colorScheme.onSurface,
+                borderRadius: AppRadius.md,
+                size: const Size(60, 40),
+                onTap: () {},
+              ),
+            ),
+          ),
+          Variant(
+            'Gradient + dot (gradient, dotColor)',
+            Builder(
+              builder: (context) {
+                final cs = Theme.of(context).colorScheme;
+                return AppIconButton(
+                  icon: Icons.shopping_bag_outlined,
+                  containerSize: 48,
+                  iconSize: 22,
+                  gradient: LinearGradient(
+                    begin: Alignment.bottomLeft,
+                    end: Alignment.topRight,
+                    colors: [cs.primary, cs.tertiary],
+                  ),
+                  dotColor: cs.error,
+                  onTap: () {},
+                );
+              },
             ),
           ),
         ]),
@@ -668,6 +815,23 @@ WidgetbookCategory atomsCategory() {
             ),
             width: 260,
           ),
+          Variant(
+            'Filled (fillColor + showBorder false) + hintStyle',
+            Builder(
+              builder: (context) => AppTextField(
+                controller: TextEditingController(),
+                label: 'Email',
+                hint: 'you@example.com',
+                fillColor: context.appColors.fieldFill,
+                showBorder: false,
+                hintStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+            ),
+            width: 260,
+          ),
         ]),
       ),
       allVariants(
@@ -711,6 +875,11 @@ WidgetbookCategory atomsCategory() {
             'Circle (e.g. a category tile)',
             ShimmerBox.circle(size: 64),
           ),
+          const Variant(
+            'Card silhouette (ShimmerBox.card — theme card radius)',
+            ShimmerBox.card(height: 120),
+            width: 160,
+          ),
           Variant(
             'Composed skeleton row (category rail)',
             Row(
@@ -747,6 +916,38 @@ WidgetbookCategory atomsCategory() {
         ]),
       ),
     ],
+  );
+}
+
+/// A short scrollable stack with [fade] positioned across its bottom edge —
+/// `BottomFade` is only the gradient, so the demo provides the Stack +
+/// Positioned host a real screen would.
+Widget _bottomFadeDemo(BuildContext context, Widget fade) {
+  final cs = Theme.of(context).colorScheme;
+  return SizedBox(
+    height: 200,
+    child: Stack(
+      children: [
+        Positioned.fill(
+          child: ListView(
+            padding: EdgeInsets.zero,
+            children: [
+              for (var i = 0; i < 8; i++)
+                Container(
+                  height: 40,
+                  alignment: Alignment.centerLeft,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.lg,
+                  ),
+                  color: i.isEven ? cs.primaryContainer : cs.secondaryContainer,
+                  child: Text('Scrolling content row $i'),
+                ),
+            ],
+          ),
+        ),
+        Positioned(left: 0, right: 0, bottom: 0, child: fade),
+      ],
+    ),
   );
 }
 

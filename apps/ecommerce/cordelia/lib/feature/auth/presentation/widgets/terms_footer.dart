@@ -28,7 +28,9 @@ class TermsFooter extends StatelessWidget {
           child: Text(
             ValueConst.termsOfServiceAndPrivacyPolicy,
             textAlign: TextAlign.center,
-            style: CordeliaTextStyleConst.textSmBold(tt).copyWith(color: cs.onSurface),
+            style: CordeliaTextStyleConst.textSmBold(
+              tt,
+            ).copyWith(color: cs.onSurface),
           ),
         ),
       ],

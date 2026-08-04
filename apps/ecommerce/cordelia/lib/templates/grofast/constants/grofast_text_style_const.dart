@@ -69,6 +69,12 @@ abstract final class GrofastTextStyleConst {
   static TextStyle bodyMedium(TextTheme tt) =>
       tt.bodyMedium!.copyWith(fontSize: 14).atWeight(FontWeight.w500);
 
+  /// [bodyMedium] opened up for running prose — product descriptions and the
+  /// legal documents. The 1.6 leading is the kit's for multi-paragraph copy;
+  /// a token so it can't drift between the screens that read as one voice.
+  static TextStyle bodyRelaxed(TextTheme tt) =>
+      bodyMedium(tt).copyWith(height: 1.6);
+
   /// Text/Reguler/Small — 12/500. Sub-lines, timestamps, form labels.
   static TextStyle bodySmall(TextTheme tt) =>
       tt.bodySmall!.copyWith(fontSize: 12).atWeight(FontWeight.w500);

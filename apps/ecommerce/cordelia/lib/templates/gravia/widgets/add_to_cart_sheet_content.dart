@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:core/core/extensions/num_extensions.dart';
 import 'package:core/core/theme/app_spacing.dart';
 
 import 'package:cordelia/enums/product_unit_type.dart';
@@ -82,9 +83,7 @@ class _AddToCartSheetContentState extends State<AddToCartSheetContent>
                         Text(
                           // Line total for the chosen quantity, not the flat
                           // unit price — updates live as the stepper changes.
-                          GraviaValueConst.formattedPrice(
-                            widget.product.price * quantity,
-                          ),
+                          (widget.product.price * quantity).asPrice,
                           style: GraviaTextStyleConst.textMdBold(
                             tt,
                           ).copyWith(color: cs.onSurface),

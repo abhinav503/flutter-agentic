@@ -1,10 +1,11 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fpdart/fpdart.dart' hide State;
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:stream_transform/stream_transform.dart';
 
 import 'package:core/core/base/bloc_cache.dart';
 import 'package:core/core/error/failure.dart';
+
+import 'package:cordelia/utils/event_transformers.dart';
 
 import '../../domain/entities/recent_search_entity.dart';
 import '../../domain/entities/search_entity.dart';
@@ -18,12 +19,6 @@ part 'search_bloc.freezed.dart';
 part 'search_event.dart';
 part 'search_state.dart';
 
-/// Debounce + switchMap: waits out the typing burst, then cancels any
-/// in-flight search when a newer query arrives — so results can never come
-/// back out of order.
-EventTransformer<E> _debounceRestartable<E>(Duration duration) =>
-    (events, mapper) => events.debounce(duration).switchMap(mapper);
-
 class SearchBloc extends Bloc<SearchEvent, SearchState> {
   final GetSearchUseCase _getSearch;
   final SearchCatalogUseCase _searchCatalog;
@@ -34,19 +29,13 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
   // Warm-start cache: reopening Search seeds straight into loaded (recents +
   // popular) instead of the shimmer; started then refreshes silently. Only
   // the fetched SearchEntity is cached — query/results are transient view
-  // state and always start cold.
-  static final _cache = BlocCache<SearchEntity>();
-
-  // Opening store A's search then store B's behind the same static cache
-  // would otherwise flash A's stale popular products/recents before B's
-  // fetch resolves — same guard as HomeBloc's _cachedStoreId.
-  static String? _cachedStoreId;
+  // state and always start cold. Scoped to the store: store A's search then
+  // store B's behind an unscoped static cache would flash A's stale popular
+  // products/recents before B's fetch resolves.
+  static final _cache = ScopedBlocCache<SearchEntity>();
 
   @visibleForTesting
-  static void resetCache() {
-    _cache.reset();
-    _cachedStoreId = null;
-  }
+  static void resetCache() => _cache.reset();
 
   /// Hard cap on suggestions shown under the search field.
   static const int maxSuggestions = 5;
@@ -54,8 +43,6 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
   /// Categories keep a couple of guaranteed slots so a long product list
   /// can't push them out entirely; unused slots flow to the other kind.
   static const int _reservedCategorySuggestions = 2;
-
-  static const Duration _debounceDuration = Duration(milliseconds: 300);
 
   SearchBloc({
     required GetSearchUseCase getSearchUseCase,
@@ -68,25 +55,17 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
        _addRecentSearch = addRecentSearchUseCase,
        _removeRecentSearch = removeRecentSearchUseCase,
        _storeId = storeId,
-       super(_seed(storeId)) {
+       super(
+         _cache.seed(
+           scope: storeId,
+           warm: (search) => SearchState.loaded(search: search),
+           cold: SearchState.loading,
+         ),
+       ) {
     on<SearchStarted>(_onStarted);
-    on<SearchQueryChanged>(
-      _onQueryChanged,
-      transformer: _debounceRestartable(_debounceDuration),
-    );
+    on<SearchQueryChanged>(_onQueryChanged, transformer: debounceRestartable());
     on<SearchResultSelected>(_onResultSelected);
     on<SearchRecentSearchRemoved>(_onRecentSearchRemoved);
-  }
-
-  static SearchState _seed(String storeId) {
-    if (_cachedStoreId != storeId) {
-      _cache.reset();
-      _cachedStoreId = storeId;
-    }
-    return _cache.seed(
-      warm: (search) => SearchState.loaded(search: search),
-      cold: SearchState.loading,
-    );
   }
 
   Future<void> _onStarted(
@@ -96,10 +75,10 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     final result = await _getSearch(GetSearchParams(storeId: _storeId));
     result.fold((failure) {
       switch (state) {
-        // Warm start: a failed silent refresh isn't worth replacing a
-        // usable screen with an error view — the cached data stands.
-        case SearchLoaded():
-          break;
+        // Warm start: cached content is already on screen — keep it there
+        // and let the failure surface as a snackbar instead of an error view.
+        case final SearchLoaded loaded:
+          emit(loaded.copyWith(refreshFailed: true));
         case SearchLoading():
         case SearchError():
           emit(SearchState.error(message: failure.message));
@@ -108,17 +87,23 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
   }
 
   void _emitFreshSearch(SearchEntity search, Emitter<SearchState> emit) {
-    _cache.save(search);
+    _cache.save(_storeId, search);
     switch (state) {
       // copyWith, not a fresh loaded — on a warm start the shopper may
       // already be typing when the refresh lands; keep their query state.
       case SearchLoaded loaded:
-        emit(loaded.copyWith(search: search));
+        _emitView(loaded.copyWith(search: search), emit);
       case SearchLoading():
       case SearchError():
         emit(SearchState.loaded(search: search));
     }
   }
+
+  /// Emits a view update with the one-shot [SearchLoaded.refreshFailed] flag
+  /// cleared — carried forward by `copyWith`, it would toast again on every
+  /// keystroke (same reasoning as `OrdersBloc._emitView`).
+  void _emitView(SearchLoaded next, Emitter<SearchState> emit) =>
+      emit(next.copyWith(refreshFailed: false));
 
   Future<void> _onQueryChanged(
     SearchQueryChanged event,
@@ -128,24 +113,26 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
       case SearchLoaded loaded:
         final query = event.query.trim();
         if (query.isEmpty) {
-          emit(
+          _emitView(
             loaded.copyWith(
               query: '',
               searching: false,
               results: null,
               resultsError: null,
             ),
+            emit,
           );
           return;
         }
 
-        emit(
+        _emitView(
           loaded.copyWith(
             query: query,
             searching: true,
             results: null,
             resultsError: null,
           ),
+          emit,
         );
         final result = await _searchCatalog(
           SearchCatalogParams(storeId: _storeId, query: query),
@@ -155,17 +142,19 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
           // apply results that still answer what's in the field.
           case SearchLoaded current when current.query == query:
             result.fold(
-              (failure) => emit(
+              (failure) => _emitView(
                 current.copyWith(
                   searching: false,
                   resultsError: failure.message,
                 ),
+                emit,
               ),
-              (results) => emit(
+              (results) => _emitView(
                 current.copyWith(
                   searching: false,
                   results: _capSuggestions(results),
                 ),
+                emit,
               ),
             );
           case SearchLoaded():
@@ -254,8 +243,8 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     Emitter<SearchState> emit,
   ) {
     final search = current.search.copyWith(recentSearches: recents);
-    _cache.save(search);
-    emit(current.copyWith(search: search));
+    _cache.save(_storeId, search);
+    _emitView(current.copyWith(search: search), emit);
   }
 
   static List<RecentSearchEntity> _withNewest(

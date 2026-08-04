@@ -32,7 +32,9 @@ class RazorpayGatewayDataSourceImpl implements PaymentGatewayDataSource {
       throw PaymentGatewayException(
         message: e.isCancelled
             ? ValueConst.paymentCancelledMessage
-            : (e.message.isNotEmpty ? e.message : ValueConst.paymentFailedMessage),
+            : (e.message.isNotEmpty
+                  ? e.message
+                  : ValueConst.paymentFailedMessage),
         cancelled: e.isCancelled,
       );
     }

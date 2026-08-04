@@ -2,8 +2,6 @@ import 'package:core/core/base/base_repository.dart';
 import 'package:core/core/error/failure.dart';
 import 'package:fpdart/fpdart.dart';
 
-import 'package:cordelia/feature/storefront/template/storefront_template.dart';
-
 import '../../domain/entities/notification_section_entity.dart';
 import '../../domain/repository/notifications_repository.dart';
 import '../data_source/notifications_remote_data_source.dart';
@@ -16,10 +14,14 @@ class NotificationsRepositoryImpl
   const NotificationsRepositoryImpl(this._dataSource);
 
   @override
-  Future<Either<Failure, List<NotificationSectionEntity>>> getNotifications(
-    StorefrontTemplate template,
-  ) => handleRequest(() async {
-    final models = await _dataSource.getNotifications(template);
+  Future<Either<Failure, List<NotificationSectionEntity>>> getNotifications({
+    required String storeId,
+    required String templateId,
+  }) => handleRequest(() async {
+    final models = await _dataSource.getNotifications(
+      storeId: storeId,
+      templateId: templateId,
+    );
     return right(models.map((m) => m.toEntity()).toList());
   });
 }

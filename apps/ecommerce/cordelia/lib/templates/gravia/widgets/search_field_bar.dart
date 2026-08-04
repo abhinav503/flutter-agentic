@@ -18,6 +18,7 @@ class SearchFieldBar extends StatelessWidget {
   final VoidCallback? onTap;
   final ValueChanged<String>? onChanged;
   final ValueChanged<String>? onSubmitted;
+
   /// The Home <-> Search flight tag, scoped to one store.
   ///
   /// A fixed tag would also let *two different storefronts* running this pack
@@ -44,8 +45,7 @@ class SearchFieldBar extends StatelessWidget {
   Widget _buildField(BuildContext context, {required bool interactive}) {
     final cs = Theme.of(context).colorScheme;
     final onOverlay = context.appColors.onOverlay;
-    final shapes =
-        context.appShapes;
+    final shapes = context.appShapes;
 
     return CommonGlassSurface(
       borderRadius: BorderRadius.circular(shapes.inputRadius),
@@ -101,8 +101,7 @@ class SearchFieldBar extends StatelessWidget {
       barBuilder: (context, {required interactive}) =>
           _buildField(context, interactive: interactive),
       shuttleWrapper: (flightContext, child) {
-        final shapes =
-            flightContext.appShapes;
+        final shapes = flightContext.appShapes;
         // Clipped to the same pill radius as the field itself — an
         // unclipped ColoredBox is a hard rectangle, so its corners would
         // peek out past the glass surface's rounded corners for the whole

@@ -78,50 +78,48 @@ class _EditProfileScreenState extends BaseScreenState<EditProfileScreen>
               gap: AppSpacing.xl4,
               floatingAction: DailyMartPrimaryButton(
                 label: DailyMartValueConst.saveChangesLabel,
-                state: isSaving
-                    ? AppButtonState.loading
-                    : AppButtonState.idle,
+                state: isSaving ? AppButtonState.loading : AppButtonState.idle,
                 onTap: isSaving ? null : submitProfile,
               ),
               body: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Center(
-                        child: ProfileAvatarPicker(
-                          profile: widget.profile,
-                          pickedAvatarBytes: pickedAvatarBytes,
-                          onTap: pickAvatar,
-                        ),
-                      ),
-                      const SizedBox(height: AppSpacing.xl2),
-                      _field(
-                        DailyMartValueConst.fullNameLabel,
-                        nameController,
-                        field: ProfileField.name,
-                        keyboardType: TextInputType.name,
-                        hint: DailyMartValueConst.fullNameHint,
-                      ),
-                      const SizedBox(height: AppSpacing.md),
-                      _field(
-                        DailyMartValueConst.emailLabel,
-                        emailController,
-                        field: ProfileField.email,
-                        keyboardType: TextInputType.emailAddress,
-                        hint: DailyMartValueConst.emailHint,
-                        // Can't change here — Firebase's own re-verification
-                        // flow (verifyBeforeUpdateEmail) is needed to change
-                        // the sign-in email, out of scope for this form.
-                        enabled: false,
-                      ),
-                      const SizedBox(height: AppSpacing.md),
-                      _field(
-                        DailyMartValueConst.phoneNumberLabel,
-                        phoneController,
-                        field: ProfileField.phone,
-                        keyboardType: TextInputType.phone,
-                        hint: DailyMartValueConst.phoneNumberHint,
-                      ),
-                    ],
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: ProfileAvatarPicker(
+                      profile: widget.profile,
+                      pickedAvatarBytes: pickedAvatarBytes,
+                      onTap: pickAvatar,
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.xl2),
+                  _field(
+                    DailyMartValueConst.fullNameLabel,
+                    nameController,
+                    field: ProfileField.name,
+                    keyboardType: TextInputType.name,
+                    hint: DailyMartValueConst.fullNameHint,
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+                  _field(
+                    DailyMartValueConst.emailLabel,
+                    emailController,
+                    field: ProfileField.email,
+                    keyboardType: TextInputType.emailAddress,
+                    hint: DailyMartValueConst.emailHint,
+                    // Can't change here — Firebase's own re-verification
+                    // flow (verifyBeforeUpdateEmail) is needed to change
+                    // the sign-in email, out of scope for this form.
+                    enabled: false,
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+                  _field(
+                    DailyMartValueConst.phoneNumberLabel,
+                    phoneController,
+                    field: ProfileField.phone,
+                    keyboardType: TextInputType.phone,
+                    hint: DailyMartValueConst.phoneNumberHint,
+                  ),
+                ],
               ),
             );
           },

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:core/core/extensions/num_extensions.dart';
 import 'package:core/core/theme/app_radius.dart';
 import 'package:core/core/theme/app_shapes_extension.dart';
 import 'package:core/core/theme/app_spacing.dart';
@@ -42,8 +43,7 @@ class DailyMartProductListTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
-    final shapes =
-        context.appShapes;
+    final shapes = context.appShapes;
 
     return Container(
       padding: const EdgeInsets.all(AppSpacing.base),
@@ -87,9 +87,7 @@ class DailyMartProductListTile extends StatelessWidget {
                   children: [
                     Expanded(
                       child: Text(
-                        DailyMartValueConst.formattedPrice(
-                          product.price * quantity,
-                        ),
+                        (product.price * quantity).asPrice,
                         style: DailyMartTextStyleConst.bodyMdSemibold(
                           tt,
                         ).copyWith(color: cs.onSurface),

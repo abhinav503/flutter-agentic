@@ -33,6 +33,18 @@ class HeroSearchFieldFlight extends StatelessWidget {
     this.shuttleWrapper,
   });
 
+  /// For a bar with **no** interactive state — an idle tap-to-navigate pill
+  /// that never hosts a focused field. The child is used as its own shuttle
+  /// (already inert, so no `interactive` split is needed), keeping the same
+  /// RectTween-not-arc mechanics without forcing the caller to fake a
+  /// `barBuilder` it doesn't have.
+  HeroSearchFieldFlight.static({
+    super.key,
+    required this.tag,
+    required Widget child,
+    this.shuttleWrapper,
+  }) : barBuilder = ((context, {required bool interactive}) => child);
+
   @override
   Widget build(BuildContext context) => Hero(
     tag: tag,

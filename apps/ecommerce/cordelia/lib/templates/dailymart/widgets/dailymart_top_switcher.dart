@@ -14,9 +14,6 @@ class DailyMartTopSwitcher extends StatelessWidget {
   const DailyMartTopSwitcher({super.key, required this.child});
 
   @override
-  Widget build(BuildContext context) => AppSwitcher(
-    curve: Curves.easeInOut,
-    topAligned: true,
-    child: child,
-  );
+  Widget build(BuildContext context) =>
+      AppSwitcher(curve: Curves.easeInOut, topAligned: true, child: child);
 }

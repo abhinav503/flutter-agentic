@@ -117,16 +117,8 @@ abstract final class GrofastElevation {
   /// tight layer defines the dome's outline, the wide one is that wash, cut
   /// to a blur that is affordable to redraw every frame of a tab change.
   static const navBar = [
-    BoxShadow(
-      color: Color(0x1F369246),
-      blurRadius: 18,
-      offset: Offset(0, -2),
-    ),
-    BoxShadow(
-      color: Color(0x1A369246),
-      blurRadius: 55,
-      offset: Offset(0, -16),
-    ),
+    BoxShadow(color: Color(0x1F369246), blurRadius: 18, offset: Offset(0, -2)),
+    BoxShadow(color: Color(0x1A369246), blurRadius: 55, offset: Offset(0, -16)),
   ];
 
   static const raised = [

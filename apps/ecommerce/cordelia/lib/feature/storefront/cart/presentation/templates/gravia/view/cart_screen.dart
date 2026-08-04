@@ -51,9 +51,7 @@ class _CartScreenState extends BaseScreenState<CartScreen> {
   // once the server confirms the order (see the CheckoutBloc listener in
   // `body`), not optimistically here, since the request can still fail.
   Future<void> _startCheckout(List<CartItemEntity> items) async {
-    final address = await context.push<AddressEntity>(
-      AppRoutes.selectAddress,
-    );
+    final address = await context.push<AddressEntity>(AppRoutes.selectAddress);
     if (address == null || !mounted) return;
     context.read<CheckoutBloc>().add(
       CheckoutEvent.submitted(items: items, addressId: address.id),
@@ -106,102 +104,102 @@ class _CartScreenState extends BaseScreenState<CartScreen> {
         }
       },
       child: cartItems.isEmpty
-        ? Column(
-            children: [
-              GraviaHeroHeader(
-                title: GraviaValueConst.myCartTitle,
-                onBack: () => context.pop(),
-              ),
-              Expanded(
-                child: Container(
-                  color: cs.surface,
-                  // The loaded branch gets its bottom inset from DockedBar's
-                  // SafeArea; this branch has no docked bar, so it owns the
-                  // inset itself (the surface still bleeds to the edge).
-                  child: const SafeArea(
-                    top: false,
-                    child: EmptyState(
-                      iconData: Icons.shopping_bag_outlined,
-                      title: GraviaValueConst.cartEmptyTitle,
-                      subtitle: GraviaValueConst.cartEmptySubtitle,
+          ? Column(
+              children: [
+                GraviaHeroHeader(
+                  title: GraviaValueConst.myCartTitle,
+                  onBack: () => context.pop(),
+                ),
+                Expanded(
+                  child: Container(
+                    color: cs.surface,
+                    // The loaded branch gets its bottom inset from DockedBar's
+                    // SafeArea; this branch has no docked bar, so it owns the
+                    // inset itself (the surface still bleeds to the edge).
+                    child: const SafeArea(
+                      top: false,
+                      child: EmptyState(
+                        iconData: Icons.shopping_bag_outlined,
+                        title: GraviaValueConst.cartEmptyTitle,
+                        subtitle: GraviaValueConst.cartEmptySubtitle,
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
-          )
-        : Column(
-            children: [
-              Expanded(
-                child: CollapsingHeaderSheet(
-                  initialHeaderHeight: GraviaDimenConst.headerHeightCompact,
-                  header: GraviaHeroHeader(
-                    title: GraviaValueConst.myCartTitle,
-                    onBack: () => context.pop(),
-                  ),
-                  body: Padding(
-                    padding: const EdgeInsets.all(AppSpacing.lg),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        for (var i = 0; i < cartItems.length; i++) ...[
-                          if (i > 0) const SizedBox(height: AppSpacing.xl2),
-                          CartItemRow(
-                            item: cartItems[i],
-                            onIncrement: () => context
-                                .read<CartCubit>()
-                                .incrementQuantity(cartItems[i].product.id),
-                            onDecrement: () => context
-                                .read<CartCubit>()
-                                .decrementQuantity(cartItems[i].product.id),
+              ],
+            )
+          : Column(
+              children: [
+                Expanded(
+                  child: CollapsingHeaderSheet(
+                    initialHeaderHeight: GraviaDimenConst.headerHeightCompact,
+                    header: GraviaHeroHeader(
+                      title: GraviaValueConst.myCartTitle,
+                      onBack: () => context.pop(),
+                    ),
+                    body: Padding(
+                      padding: const EdgeInsets.all(AppSpacing.lg),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          for (var i = 0; i < cartItems.length; i++) ...[
+                            if (i > 0) const SizedBox(height: AppSpacing.xl2),
+                            CartItemRow(
+                              item: cartItems[i],
+                              onIncrement: () => context
+                                  .read<CartCubit>()
+                                  .incrementQuantity(cartItems[i].product.id),
+                              onDecrement: () => context
+                                  .read<CartCubit>()
+                                  .decrementQuantity(cartItems[i].product.id),
+                            ),
+                          ],
+                          const SizedBox(height: AppSpacing.xl4),
+                          BlocBuilder<CartBloc, CartState>(
+                            builder: (context, state) => switch (state) {
+                              CartLoaded(:final suggestions) =>
+                                _BeforeYouCheckoutRail(
+                                  products: suggestions,
+                                  onAddToCart: (product) =>
+                                      _addToCart(product, 1),
+                                  onQuickAdd: _showAddToCartSheet,
+                                  onProductTap: _openProductDetails,
+                                ),
+                              CartLoading() ||
+                              CartError() => const SizedBox.shrink(),
+                            },
+                          ),
+                          const SizedBox(height: AppSpacing.xl4),
+                          CartSummarySection(
+                            items: cartItems,
+                            onApplyCoupon: _showComingSoon,
                           ),
                         ],
-                        const SizedBox(height: AppSpacing.xl4),
-                        BlocBuilder<CartBloc, CartState>(
-                          builder: (context, state) => switch (state) {
-                            CartLoaded(:final suggestions) =>
-                              _BeforeYouCheckoutRail(
-                                products: suggestions,
-                                onAddToCart: (product) =>
-                                    _addToCart(product, 1),
-                                onQuickAdd: _showAddToCartSheet,
-                                onProductTap: _openProductDetails,
-                              ),
-                            CartLoading() ||
-                            CartError() => const SizedBox.shrink(),
-                          },
-                        ),
-                        const SizedBox(height: AppSpacing.xl4),
-                        CartSummarySection(
-                          items: cartItems,
-                          onApplyCoupon: _showComingSoon,
-                        ),
-                      ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-              DockedBar(
-                child: BlocBuilder<CheckoutBloc, CheckoutState>(
-                  builder: (context, state) {
-                    // Submitting spans the whole flow (payment + placement),
-                    // so the CTA stays loading and un-tappable throughout.
-                    final busy = switch (state) {
-                      CheckoutSubmitting() => true,
-                      _ => false,
-                    };
-                    return GraviaPrimaryButton(
-                      label: GraviaValueConst.proceedToCheckoutLabel,
-                      state: busy
-                          ? AppButtonState.loading
-                          : AppButtonState.idle,
-                      onTap: busy ? null : () => _startCheckout(cartItems),
-                    );
-                  },
+                DockedBar(
+                  child: BlocBuilder<CheckoutBloc, CheckoutState>(
+                    builder: (context, state) {
+                      // Submitting spans the whole flow (payment + placement),
+                      // so the CTA stays loading and un-tappable throughout.
+                      final busy = switch (state) {
+                        CheckoutSubmitting() => true,
+                        _ => false,
+                      };
+                      return GraviaPrimaryButton(
+                        label: GraviaValueConst.proceedToCheckoutLabel,
+                        state: busy
+                            ? AppButtonState.loading
+                            : AppButtonState.idle,
+                        onTap: busy ? null : () => _startCheckout(cartItems),
+                      );
+                    },
+                  ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            ),
     );
   }
 }

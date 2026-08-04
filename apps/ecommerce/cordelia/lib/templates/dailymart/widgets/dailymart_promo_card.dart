@@ -32,8 +32,7 @@ class DailyMartPromoCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
-    final shapes =
-        context.appShapes;
+    final shapes = context.appShapes;
     final radius = BorderRadius.circular(shapes.cardRadius);
 
     return ClipRRect(

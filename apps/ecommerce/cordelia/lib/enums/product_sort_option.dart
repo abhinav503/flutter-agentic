@@ -20,6 +20,6 @@ extension ProductSortOptionX on ProductSortOption {
     ProductSortOption.priceHighToLow => ValueConst.sortPriceHighToLowLabel,
     ProductSortOption.ratingHighToLow => ValueConst.sortRatingHighToLowLabel,
     ProductSortOption.discountHighToLow =>
-        ValueConst.sortDiscountHighToLowLabel,
+      ValueConst.sortDiscountHighToLowLabel,
   };
 }

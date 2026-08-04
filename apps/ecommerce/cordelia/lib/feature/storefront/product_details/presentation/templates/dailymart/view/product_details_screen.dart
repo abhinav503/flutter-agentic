@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import 'package:core/core/extensions/num_extensions.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -68,8 +70,7 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
 
   /// Same landing as Home's "See all" chips — this template has no
   /// Categories tab, so browse means the store-scoped Search screen.
-  void _openBrowse() =>
-      context.push(AppRoutes.search, extra: widget.storeId);
+  void _openBrowse() => context.push(AppRoutes.search, extra: widget.storeId);
 
   @override
   SystemUiOverlayStyle? overlayStyle(BuildContext context) =>
@@ -114,8 +115,7 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
 
   Widget _loaded(ProductDetailEntity detail) {
     final cs = Theme.of(context).colorScheme;
-    final hairline =
-        context.appColors.dockedHairline;
+    final hairline = context.appColors.dockedHairline;
     final product = detail.product;
     final favouritesCubit = context.watch<FavouritesCubit>();
     final isFavourite = favouritesCubit.isFavourite(product.id);
@@ -354,7 +354,7 @@ class _PriceLabel extends StatelessWidget {
       TextSpan(
         children: [
           TextSpan(
-            text: DailyMartValueConst.formattedPrice(product.price),
+            text: product.price.asPrice,
             style: DailyMartTextStyleConst.bodyLgSemibold(
               tt,
             ).copyWith(color: cs.onSurface),
@@ -417,8 +417,7 @@ class _Tab extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
-    final hairline =
-        context.appColors.dockedHairline;
+    final hairline = context.appColors.dockedHairline;
 
     return InkWell(
       onTap: onTap,

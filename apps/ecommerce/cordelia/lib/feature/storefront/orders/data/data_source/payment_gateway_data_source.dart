@@ -9,7 +9,10 @@ class PaymentGatewayException implements Exception {
   final String message;
   final bool cancelled;
 
-  const PaymentGatewayException({required this.message, this.cancelled = false});
+  const PaymentGatewayException({
+    required this.message,
+    this.cancelled = false,
+  });
 }
 
 /// Drives one payment provider's checkout for a server-created [intent].

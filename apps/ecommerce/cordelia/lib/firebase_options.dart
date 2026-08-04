@@ -63,8 +63,10 @@ class DefaultFirebaseOptions {
     messagingSenderId: '905460690574',
     projectId: 'corderlia-ecom',
     storageBucket: 'corderlia-ecom.appspot.com',
-    androidClientId: '905460690574-7onh4ef26pfvdpihj66equ9gbj2h0t2e.apps.googleusercontent.com',
-    iosClientId: '905460690574-8k7usfvtd30jn9u17v2hm0p2rju4hrb3.apps.googleusercontent.com',
+    androidClientId:
+        '905460690574-7onh4ef26pfvdpihj66equ9gbj2h0t2e.apps.googleusercontent.com',
+    iosClientId:
+        '905460690574-8k7usfvtd30jn9u17v2hm0p2rju4hrb3.apps.googleusercontent.com',
     iosBundleId: 'com.cordeliaapps.superapp',
   );
 }

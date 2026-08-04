@@ -15,12 +15,16 @@ void main() => runApp(const DesignGalleryApp());
 /// Each component has a single "All variants" use case that lays out every
 /// state on one page — no clicking through the tree per variant.
 ///
-/// Not every atom is showcased here — `atoms/file_thumbnail.dart`
-/// (`AppFileThumbnail`) imports `dart:io` to read a local file, which this
-/// app can't have unconditionally: it also builds for web (`make
-/// web-design-gallery`), and `dart:io` doesn't compile there. Per
-/// docs/ai-rules/design.md §1, any other addition should get a showcase
-/// entry — this is a documented exception, not an oversight.
+/// ## Gallery skip-list
+///
+/// THE documented exceptions to docs/ai-rules/design.md §1's rule that every
+/// `core/ui/` addition ships a showcase entry. Anything not listed here must
+/// have an entry — a missing one is an oversight, not an exception:
+///
+/// - `atoms/file_thumbnail.dart` (`AppFileThumbnail`) — imports `dart:io` to
+///   read a local file, which this app can't have unconditionally: it also
+///   builds for web (`make web-design-gallery`), and `dart:io` doesn't
+///   compile there.
 class DesignGalleryApp extends StatelessWidget {
   const DesignGalleryApp({super.key});
 

@@ -18,7 +18,6 @@ class GetCategoriesUseCase
   const GetCategoriesUseCase(this._repository);
 
   @override
-  Future<Either<Failure, CategoriesEntity>> call(
-    GetCategoriesParams params,
-  ) => _repository.getCategories(params.storeId);
+  Future<Either<Failure, CategoriesEntity>> call(GetCategoriesParams params) =>
+      _repository.getCategories(params.storeId);
 }

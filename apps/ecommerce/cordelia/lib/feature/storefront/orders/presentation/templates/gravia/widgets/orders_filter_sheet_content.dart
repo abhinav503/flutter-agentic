@@ -63,7 +63,8 @@ class _OrdersFilterSheetContentState extends State<OrdersFilterSheetContent> {
       title: GraviaValueConst.filterStatusLabel,
       child: RadioOptionsSheetContent<OrderStatus?>(
         options: [null, ...OrderStatus.values],
-        labelOf: (status) => status?.label ?? GraviaValueConst.filterAllStatusesLabel,
+        labelOf: (status) =>
+            status?.label ?? GraviaValueConst.filterAllStatusesLabel,
         selected: _status,
         onSelected: (status) => setState(() => _status = status),
       ),
@@ -105,7 +106,9 @@ class _OrdersFilterSheetContentState extends State<OrdersFilterSheetContent> {
         children: [
           Text(
             GraviaValueConst.filterReasonHeading,
-            style: GraviaTextStyleConst.textMdBold(tt).copyWith(color: cs.onSurface),
+            style: GraviaTextStyleConst.textMdBold(
+              tt,
+            ).copyWith(color: cs.onSurface),
           ),
           const SizedBox(height: AppSpacing.sm),
           for (final period in OrdersFilterPeriod.values)
