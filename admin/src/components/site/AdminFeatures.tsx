@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { SectionShell, SectionHeading } from "./ui";
 
 const groups = [
@@ -57,15 +58,22 @@ export function AdminFeatures() {
         ))}
       </div>
 
-      <div
-        aria-hidden="true"
-        className="mt-10 overflow-hidden rounded-2xl border border-dashed border-border-strong bg-surface p-8 text-center"
-        style={{ aspectRatio: "16 / 6" }}
-      >
-        <p className="text-sm font-semibold text-muted-foreground">
-          Placeholder — admin console screenshot goes here (16:6).
-        </p>
-      </div>
+      {/* The real console, not a mockup. Rendered at the screenshot's own
+          1916×987 ratio rather than the 16:6 the placeholder reserved —
+          16:6 would have cropped about a quarter of the height off, taking
+          the charts row with it. */}
+      <figure className="surface-panel mt-10 overflow-hidden rounded-2xl p-2">
+        <Image
+          src="/images/admin-console.png"
+          alt="The CordeliaApps admin console: revenue, orders and customer totals above charts of orders and reviews per day, order status, and best-selling products."
+          width={1916}
+          height={987}
+          // Below the fold, so it stays lazy (Next's default); `sizes` keeps
+          // the srcset honest at the section's 1152px max width.
+          sizes="(min-width: 1152px) 1104px, 100vw"
+          className="h-auto w-full rounded-xl"
+        />
+      </figure>
     </SectionShell>
   );
 }

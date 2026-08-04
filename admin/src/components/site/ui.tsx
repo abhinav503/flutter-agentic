@@ -4,6 +4,7 @@
  */
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { ghostButtonClasses, primaryButtonClasses } from "./button-classes";
 
 /// Internal app routes navigate through next/link (client-side, prefetched);
 /// same-page anchors and mailto: stay plain <a>, where a router would only
@@ -69,9 +70,6 @@ export function SectionHeading({
   );
 }
 
-const buttonBase =
-  "inline-flex items-center justify-center gap-2 rounded-full text-sm font-semibold transition-colors";
-
 export function PrimaryLink({
   href,
   children,
@@ -81,7 +79,7 @@ export function PrimaryLink({
   children: ReactNode;
   className?: string;
 }) {
-  const classes = `${buttonBase} bg-primary px-5 py-3 text-primary-foreground shadow-[var(--shadow-soft)] hover:bg-primary/90 ${className}`;
+  const classes = `${primaryButtonClasses} ${className}`;
 
   return isInternalRoute(href) ? (
     <Link href={href} className={classes}>
@@ -103,7 +101,7 @@ export function GhostLink({
   children: ReactNode;
   className?: string;
 }) {
-  const classes = `${buttonBase} border border-border-strong bg-surface px-5 py-3 text-foreground hover:bg-secondary ${className}`;
+  const classes = `${ghostButtonClasses} ${className}`;
 
   return isInternalRoute(href) ? (
     <Link href={href} className={classes}>

@@ -10,7 +10,9 @@ import {
   deleteCategory,
 } from "@/lib/categories";
 import type { Category } from "@/lib/types";
+import { matchesSearch } from "@/lib/search";
 import { ImageUploadField } from "@/components/image-upload-field";
+import { SearchField } from "@/components/search-field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -46,6 +48,7 @@ export default function CategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [editing, setEditing] = useState<Category | "new" | null>(null);
   const [deleting, setDeleting] = useState<Category | null>(null);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     if (!storeId) return;
@@ -54,16 +57,28 @@ export default function CategoriesPage() {
 
   if (!storeId) return null;
 
+  const visible = categories.filter((category) =>
+    matchesSearch(search, category.name, category.groupName),
+  );
+
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-4">
         <div>
           <h1 className="text-lg font-semibold">Categories</h1>
           <p className="text-sm text-muted-foreground">
             Categories a product can be linked to.
           </p>
         </div>
-        <Button onClick={() => setEditing("new")}>Add category</Button>
+        <div className="flex shrink-0 items-center gap-3">
+          <SearchField
+            value={search}
+            onChange={setSearch}
+            label="Search categories"
+            placeholder="Search name or group…"
+          />
+          <Button onClick={() => setEditing("new")}>Add category</Button>
+        </div>
       </div>
 
       <Table>
@@ -76,14 +91,14 @@ export default function CategoriesPage() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {categories.length === 0 && (
+          {visible.length === 0 && (
             <TableRow>
               <TableCell colSpan={4} className="text-center text-muted-foreground">
-                No categories yet.
+                {search ? "No categories match your search." : "No categories yet."}
               </TableCell>
             </TableRow>
           )}
-          {categories.map((category) => (
+          {visible.map((category) => (
             <TableRow key={category.id}>
               <TableCell>
                 {category.imageUrl ? (
@@ -140,7 +155,7 @@ export default function CategoriesPage() {
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              className="bg-destructive text-white hover:bg-destructive/90"
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               onClick={async () => {
                 if (!deleting) return;
                 try {

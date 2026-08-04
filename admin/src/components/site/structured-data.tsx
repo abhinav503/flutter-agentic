@@ -2,9 +2,12 @@
  * JSON-LD structured data for the CordeliaApps marketing page.
  * Server-safe: renders static <script type="application/ld+json"> blocks.
  *
- * No aggregateRating and no priced offers are emitted: CordeliaApps has no
- * published ratings and no published pricing, and fabricated rating or price
- * markup is a manual-action risk.
+ * No aggregateRating is emitted: CordeliaApps has no published ratings, and
+ * fabricated rating markup is a manual-action risk.
+ *
+ * A zero-price Offer IS emitted, because the product genuinely is free —
+ * this is the schema.org way to say so, and it is what lets a result show
+ * "Free" rather than nothing. It must be deleted the day anything is charged.
  */
 import { faqItems } from "./faq-data";
 
@@ -36,7 +39,12 @@ const softwareApplication = {
   applicationCategory: "BusinessApplication",
   operatingSystem: "iOS, Android, Web",
   description:
-    "CordeliaApps gives grocery and retail store owners in India a branded shopping app with catalog, cart, coupons and Razorpay checkout, with zero commission on sales.",
+    "CordeliaApps gives grocery and retail store owners in India a branded shopping app with catalog, cart, coupons and Razorpay checkout, free to use and with zero commission on sales.",
+  offers: {
+    "@type": "Offer",
+    price: "0",
+    priceCurrency: "INR",
+  },
   publisher: { "@type": "Organization", name: "CordeliaApps", url: SITE_URL },
 };
 

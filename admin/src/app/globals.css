@@ -10,6 +10,22 @@
   --font-sans: var(--font-sans);
   --font-mono: var(--font-geist-mono);
   --font-heading: var(--font-sans);
+
+  /* Brand utilities the marketing sections introduced. They are registered
+     here and given their values in `:root` below — the palette is now one
+     theme for the whole product, so the dashboard reads the same tokens. */
+  --color-ink: var(--ink);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-border-strong: var(--border-strong);
+  --color-primary-soft: var(--primary-soft);
+  --color-primary-glow: var(--primary-glow);
+  --color-gravia: var(--gravia);
+  --color-gravia-soft: var(--gravia-soft);
+  --color-dailymart: var(--dailymart);
+  --color-dailymart-soft: var(--dailymart-soft);
+  --color-grofast: var(--grofast);
+  --color-grofast-soft: var(--grofast-soft);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -27,6 +43,9 @@
   --color-input: var(--input);
   --color-border: var(--border);
   --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
   --color-muted-foreground: var(--muted-foreground);
@@ -48,143 +67,22 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-:root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
-}
-
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
-}
-
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
-  html {
-    @apply font-sans;
-  }
-}
 /* ─────────────────────────────────────────────────────────────────────────
-   Marketing site (cordeliaapps.com)
+   Brand palette — ONE theme for the marketing site and the admin console.
 
-   The landing page ships its own brand palette — the product's green
-   (#027A60-family), a warmer neutral ramp, and per-template accent colours
-   for the phone mockups. Those tokens are DELIBERATELY scoped to `.site`
-   rather than merged into :root: the dashboard above keeps its own neutral
-   shadcn theme, and a global merge would repaint every admin screen.
-
-   The `@theme inline` block only registers the *new* utility names the
-   marketing components use (bg-surface, text-ink, border-border-strong,
-   bg-primary-soft, the template accents). Tailwind v4 compiles those to
-   var() lookups, so the `.site` scope below is what gives them their values;
-   the fallbacks keep them defined if a component ever renders outside it.
+   These tokens started life scoped to `.site` (the landing page's green
+   brand) while the dashboard kept shadcn's neutral default. They are now
+   `:root`, so a button, an input, a table row and a heading read the same
+   colour and the same typeface wherever they render. Every dashboard screen
+   is already built on the shadcn tokens below, so the swap reaches them
+   without touching a single page.
    ───────────────────────────────────────────────────────────────────────── */
-
-@theme inline {
-  --color-ink: var(--ink);
-  --color-surface: var(--surface);
-  --color-surface-2: var(--surface-2);
-  --color-border-strong: var(--border-strong);
-  --color-primary-soft: var(--primary-soft);
-  --color-primary-glow: var(--primary-glow);
-  --color-gravia: var(--gravia);
-  --color-gravia-soft: var(--gravia-soft);
-  --color-dailymart: var(--dailymart);
-  --color-dailymart-soft: var(--dailymart-soft);
-  --color-grofast: var(--grofast);
-  --color-grofast-soft: var(--grofast-soft);
-}
-
-/* Fallbacks so the new utilities resolve to the admin's own theme if used
-   outside `.site` — they should never look broken, just un-branded. */
 :root {
-  --ink: var(--foreground);
-  --surface: var(--card);
-  --surface-2: var(--muted);
-  --border-strong: var(--border);
-  --primary-soft: var(--accent);
-  --primary-glow: var(--primary);
-  --gravia: var(--primary);
-  --gravia-soft: var(--accent);
-  --dailymart: var(--primary);
-  --dailymart-soft: var(--accent);
-  --grofast: var(--primary);
-  --grofast-soft: var(--accent);
-}
-
-.site {
   --radius: 0.875rem;
 
-  /* The design's typeface. Applied on the element too, not just declared:
-     `html { @apply font-sans }` has already resolved the family above, so
-     redefining the token alone would change nothing here. */
+  /* The brand typeface, self-hosted through next/font in layout.tsx. */
   --font-sans: var(--font-manrope), ui-sans-serif, system-ui, -apple-system,
     "Segoe UI", sans-serif;
-  font-family: var(--font-sans);
 
   --background: oklch(0.99 0.004 157);
   --foreground: oklch(0.21 0.02 172);
@@ -215,10 +113,44 @@
   --destructive: oklch(0.55 0.19 25);
   --destructive-foreground: oklch(0.99 0.004 157);
 
+  /* "Connected", "Paid" — a green distinct enough from the brand primary to
+     not read as a plain badge, and in the same family so it doesn't fight
+     it. Replaces a hardcoded emerald-600 that clashed once the console went
+     green. */
+  --success: oklch(0.55 0.125 158);
+  --success-foreground: oklch(0.99 0.004 157);
+
   --border: oklch(0.912 0.012 167);
   --border-strong: oklch(0.855 0.02 167);
   --input: oklch(0.912 0.012 167);
   --ring: oklch(0.516 0.101 171);
+
+  /* Charts step down the brand hue rather than shadcn's greys, so a graph
+     sits in the same palette as everything around it. */
+  --chart-1: oklch(0.516 0.101 171);
+  --chart-2: oklch(0.66 0.118 170);
+  --chart-3: oklch(0.756 0.086 171);
+  --chart-4: oklch(0.845 0.055 169);
+  --chart-5: oklch(0.905 0.036 168);
+
+  /* Ordinal ramp for the order-status bar — one hue, monotone lightness, so
+     "further along the pipeline" reads in the colour and not just the legend.
+     It needs its own tokens because the chart ramp above is anchored the
+     opposite way per mode (dark-is-more on light, light-is-more on dark), so
+     the same three --chart-* slots are not monotone in both. Both triples are
+     validated as ordinal ramps against their own card surface. */
+  --stage-early: var(--chart-3);
+  --stage-mid: var(--chart-2);
+  --stage-done: var(--chart-1);
+
+  --sidebar: oklch(0.968 0.008 167);
+  --sidebar-foreground: oklch(0.21 0.02 172);
+  --sidebar-primary: oklch(0.516 0.101 171);
+  --sidebar-primary-foreground: oklch(0.99 0.004 157);
+  --sidebar-accent: oklch(0.945 0.026 167);
+  --sidebar-accent-foreground: oklch(0.378 0.073 169);
+  --sidebar-border: oklch(0.912 0.012 167);
+  --sidebar-ring: oklch(0.516 0.101 171);
 
   /* Each template's REAL primary, converted from its Flutter theme preset
      (packages/core/.../app_theme_presets.dart) — gravia #027A60,
@@ -244,7 +176,7 @@
   --shadow-phone: 0 40px 90px -40px oklch(0.21 0.02 172 / 0.45);
 }
 
-.dark .site {
+.dark {
   --background: oklch(0.175 0.017 174);
   --foreground: oklch(0.965 0.008 167);
   --ink: oklch(0.98 0.006 167);
@@ -274,10 +206,34 @@
   --destructive: oklch(0.68 0.17 25);
   --destructive-foreground: oklch(0.16 0.02 173);
 
+  --success: oklch(0.73 0.14 158);
+  --success-foreground: oklch(0.16 0.02 173);
+
   --border: oklch(0.33 0.024 173);
   --border-strong: oklch(0.42 0.03 172);
   --input: oklch(0.33 0.024 173);
   --ring: oklch(0.7 0.13 170);
+
+  --chart-1: oklch(0.7 0.13 170);
+  --chart-2: oklch(0.8 0.13 170);
+  --chart-3: oklch(0.62 0.1 171);
+  --chart-4: oklch(0.5 0.075 172);
+  --chart-5: oklch(0.4 0.055 172);
+
+  /* Same ramp, re-stepped: on a dark surface the prominent end is the light
+     one, so the stages climb in lightness instead of descending. */
+  --stage-early: var(--chart-4);
+  --stage-mid: var(--chart-3);
+  --stage-done: var(--chart-1);
+
+  --sidebar: oklch(0.198 0.019 173);
+  --sidebar-foreground: oklch(0.965 0.008 167);
+  --sidebar-primary: oklch(0.7 0.13 170);
+  --sidebar-primary-foreground: oklch(0.16 0.02 173);
+  --sidebar-accent: oklch(0.3 0.042 172);
+  --sidebar-accent-foreground: oklch(0.93 0.03 167);
+  --sidebar-border: oklch(0.33 0.024 173);
+  --sidebar-ring: oklch(0.7 0.13 170);
 
   /* Same three hues, lifted for dark surfaces — gravia stays the deep one,
      dailyMart the most vivid, grofast the softest. */
@@ -297,4 +253,52 @@
   --shadow-soft: 0 1px 2px oklch(0 0 0 / 0.3), 0 8px 24px -12px oklch(0 0 0 / 0.5);
   --shadow-lift: 0 2px 4px oklch(0 0 0 / 0.3), 0 28px 60px -28px oklch(0 0 0 / 0.7);
   --shadow-phone: 0 40px 90px -40px oklch(0 0 0 / 0.85);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Brand surfaces
+
+   The composite recipes — a panel, the hero's colour wash, the gradient
+   headline — that neither a colour token nor a single utility can express.
+   They live here rather than in the marketing components so the dashboard
+   can reach for the same treatments.
+   ───────────────────────────────────────────────────────────────────────── */
+
+/* A raised card on the page background: brand surface, hairline, soft lift. */
+.surface-panel {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-soft);
+}
+
+/* The tinted glow behind the hero and the closing CTA. */
+.hero-wash {
+  background-image: var(--gradient-hero);
+}
+
+/* Headline words painted with the brand gradient. */
+.text-brand-gradient {
+  background-image: var(--gradient-brand);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* The faint graph-paper backdrop the hero mockup floats over. */
+.rule-grid {
+  background-image: linear-gradient(to right, var(--border) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--border) 1px, transparent 1px);
+  background-size: 44px 44px;
 }

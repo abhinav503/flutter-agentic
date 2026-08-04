@@ -9,7 +9,13 @@ export const faqItems = [
     id: "faq-cut",
     question: "Do you take a cut of my sales?",
     answer:
-      "No. CordeliaApps never takes a commission on your sales, because shopper payments are settled by Razorpay directly into your own Razorpay account and never pass through us. You pay a flat subscription for hosting and the admin console instead of a revenue share.",
+      "No. CordeliaApps never takes a commission on your sales, because shopper payments are settled by Razorpay directly into your own Razorpay account and never pass through us.",
+  },
+  {
+    id: "faq-cost",
+    question: "What does CordeliaApps cost?",
+    answer:
+      "Nothing. The shopper app and the admin console are free to use: there is no subscription, no setup fee and no per-order cut. You will still have your own Razorpay account for taking payments, and Razorpay's own transaction fees are between you and Razorpay.",
   },
   {
     id: "faq-separate-app",

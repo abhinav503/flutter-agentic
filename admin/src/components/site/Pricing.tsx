@@ -1,28 +1,40 @@
-import { SectionShell, SectionHeading, PrimaryLink } from "./ui";
+import { SectionShell, SectionHeading } from "./ui";
+import { AuthCta } from "./AuthCta";
 
+/**
+ * The section keeps its `pricing` id and its place in the page: "what does
+ * this cost?" is the first question a store owner has, and deleting the
+ * section would leave it unanswered rather than answered with "nothing".
+ *
+ * Deliberately says CordeliaApps is free — not that selling is free. A store
+ * still has its own Razorpay account, and Razorpay's gateway fees are between
+ * the store and Razorpay; claiming otherwise here would be a promise this
+ * product doesn't control.
+ */
 export function Pricing() {
   return (
     <SectionShell id="pricing" labelledBy="pricing-heading" className="bg-surface-2/60">
       <SectionHeading
         id="pricing-heading"
         eyebrow="Pricing"
-        title="Sell online without commission on any order"
+        title="Free to use, with no commission on any order"
         align="center"
-        lead="Flat subscription. No commission, ever."
+        lead="No subscription, no per-order cut, no setup fee."
       />
 
       <div className="mx-auto mt-12 max-w-xl">
         <div className="surface-panel rounded-3xl p-9 text-center">
           <h3 className="text-xl font-extrabold tracking-tight text-ink">
-            Flat subscription. No commission, ever.
+            CordeliaApps is free.
           </h3>
           <p className="mt-4 text-sm leading-7 text-muted-foreground">
-            You pay for hosting and the admin console. There is no per-order cut and no settlement
-            delay imposed by us — Razorpay settles shopper payments into your own account on your
-            own schedule.
+            The shopper app and the admin console cost you nothing to use. There is no per-order
+            cut and no settlement delay imposed by us — Razorpay settles shopper payments into
+            your own account on your own schedule.
           </p>
           <ul className="mx-auto mt-7 max-w-sm space-y-2.5 text-left">
             {[
+              "Free shopper app and admin console",
               "No revenue share on any order",
               "No settlement delay imposed by CordeliaApps",
               "Your Razorpay account, your money",
@@ -34,11 +46,8 @@ export function Pricing() {
             ))}
           </ul>
           <div className="mt-8 flex justify-center">
-            <PrimaryLink href="mailto:hello@cordeliaapps.com">Talk to us about pricing</PrimaryLink>
+            <AuthCta mode="signup">Start free — create your store</AuthCta>
           </div>
-          <p className="mt-4 text-xs text-muted-foreground">
-            Pricing is shared at onboarding, once we understand your catalog size and order volume.
-          </p>
         </div>
       </div>
     </SectionShell>

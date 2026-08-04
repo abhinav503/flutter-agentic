@@ -2,6 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { SiteNav } from "@/components/site/SiteNav";
 import { SiteFooter } from "@/components/site/SiteFooter";
+import { AuthDialogProvider } from "@/components/auth-dialog";
+import {
+  ghostButtonClasses,
+  primaryButtonClasses,
+} from "@/components/site/button-classes";
 
 export const metadata: Metadata = {
   title: "Documentation — CordeliaApps",
@@ -19,37 +24,38 @@ export const metadata: Metadata = {
 // above when there is something worth indexing.
 export default function DocsPage() {
   return (
-    <div className="site bg-background text-foreground">
-      <SiteNav />
-      <main id="main" className="mx-auto w-full max-w-3xl px-5 py-24 sm:px-8">
-        <h1 className="text-balance text-4xl font-extrabold tracking-tight text-ink sm:text-5xl">
-          Documentation
-        </h1>
-        <p className="mt-5 text-pretty text-lg leading-8 text-muted-foreground">
-          We&apos;re writing the setup guides — connecting your Razorpay
-          account, building your catalog, choosing a template, and running
-          orders day to day.
-        </p>
-        <p className="mt-4 text-pretty text-base leading-7 text-muted-foreground">
-          Until they&apos;re published, email us and we&apos;ll walk you
-          through any of it directly.
-        </p>
-        <div className="mt-10 flex flex-wrap gap-3">
-          <a
-            href="mailto:hello@cordeliaapps.com"
-            className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-soft)] transition-colors hover:bg-primary/90"
-          >
-            Email the CordeliaApps team
-          </a>
-          <Link
-            href="/"
-            className="inline-flex items-center justify-center gap-2 rounded-full border border-border-strong bg-surface px-5 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-secondary"
-          >
-            Back to the homepage
-          </Link>
-        </div>
-      </main>
-      <SiteFooter />
-    </div>
+    // The nav's Log in / Start free buttons open the shared auth dialog, so
+    // this page needs the provider too.
+    <AuthDialogProvider>
+      <div className="bg-background text-foreground">
+        <SiteNav />
+        <main id="main" className="mx-auto w-full max-w-3xl px-5 py-24 sm:px-8">
+          <h1 className="text-balance text-4xl font-extrabold tracking-tight text-ink sm:text-5xl">
+            Documentation
+          </h1>
+          <p className="mt-5 text-pretty text-lg leading-8 text-muted-foreground">
+            We&apos;re writing the setup guides — connecting your Razorpay
+            account, building your catalog, choosing a template, and running
+            orders day to day.
+          </p>
+          <p className="mt-4 text-pretty text-base leading-7 text-muted-foreground">
+            Until they&apos;re published, email us and we&apos;ll walk you
+            through any of it directly.
+          </p>
+          <div className="mt-10 flex flex-wrap gap-3">
+            <a
+              href="mailto:hello@cordeliaapps.com"
+              className={primaryButtonClasses}
+            >
+              Email the CordeliaApps team
+            </a>
+            <Link href="/" className={ghostButtonClasses}>
+              Back to the homepage
+            </Link>
+          </div>
+        </main>
+        <SiteFooter />
+      </div>
+    </AuthDialogProvider>
   );
 }

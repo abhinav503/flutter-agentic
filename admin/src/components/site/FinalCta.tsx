@@ -1,4 +1,5 @@
-import { PrimaryLink, GhostLink } from "./ui";
+import { GhostLink } from "./ui";
+import { AuthCta } from "./AuthCta";
 
 export function FinalCta() {
   return (
@@ -16,7 +17,7 @@ export function FinalCta() {
             onboarding early stores.
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <PrimaryLink href="/signup">Start free — create your store</PrimaryLink>
+            <AuthCta mode="signup">Start free — create your store</AuthCta>
             <GhostLink href="mailto:hello@cordeliaapps.com">Email the CordeliaApps team</GhostLink>
           </div>
         </div>

@@ -1,6 +1,12 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Hides the floating dev badge so a screenshot of a page is just the page.
+  // Compile and runtime errors are still surfaced — this only removes the
+  // indicator. (`buildActivity`/`buildActivityPosition` were removed in
+  // v16.0.0; `false` and `position` are the whole API now.)
+  // devIndicators: false,
+
   // firebase-admin/auth's verifyIdToken() reaches jwks-rsa -> jose (an ESM
   // package). Turbopack's production bundler 500s at runtime on any route
   // calling verifyIdToken ("ERR_REQUIRE_ESM") — requireStoreOwner and

@@ -311,7 +311,7 @@ export default function SettingsPage() {
               (status?.configured ? (
                 <>
                   <Badge variant="success" className="gap-1">
-                    <span className="size-1.5 rounded-full bg-white" />
+                    <span className="size-1.5 rounded-full bg-current" />
                     Connected
                   </Badge>
                   <Badge variant={status.isTest ? "secondary" : "default"}>
@@ -375,7 +375,7 @@ export default function SettingsPage() {
             {!loading &&
               (status?.webhookConfigured ? (
                 <Badge variant="success" className="gap-1">
-                  <span className="size-1.5 rounded-full bg-white" />
+                  <span className="size-1.5 rounded-full bg-current" />
                   Configured
                 </Badge>
               ) : (

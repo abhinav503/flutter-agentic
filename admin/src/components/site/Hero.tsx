@@ -1,5 +1,6 @@
 import { HeroStorefrontMockup } from "./PhoneMockup";
-import { PrimaryLink, GhostLink } from "./ui";
+import { GhostLink } from "./ui";
+import { AuthCta } from "./AuthCta";
 
 export function Hero() {
   return (
@@ -26,18 +27,21 @@ export function Hero() {
           </p>
 
           <p className="mt-4 max-w-xl text-pretty text-base leading-7 text-muted-foreground">
-            Payments settle straight into your own Razorpay account. We charge a flat subscription
-            for hosting and the admin console — never a share of your revenue.
+            Payments settle straight into your own Razorpay account. CordeliaApps is free to use —
+            no subscription, no setup fee, and never a share of your revenue.
           </p>
 
           <div className="mt-9 flex flex-wrap gap-3">
-            <PrimaryLink href="/signup">Start free — create your store</PrimaryLink>
+            <AuthCta mode="signup">Start free — create your store</AuthCta>
             <GhostLink href="#templates">See the three templates</GhostLink>
           </div>
 
           <dl className="mt-12 grid max-w-lg grid-cols-3 gap-6 border-t border-border pt-8">
             {[
-              ["Commission", "0%"],
+              // Was "Commission 0%". The stronger claim now is the whole
+              // price, and the headline beside it still carries the
+              // commission point.
+              ["Price", "₹0"],
               ["Time to launch", "Minutes"],
               ["App reviews", "None"],
             ].map(([label, value]) => (

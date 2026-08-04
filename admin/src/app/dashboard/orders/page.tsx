@@ -12,6 +12,8 @@ import {
 } from "@/lib/orders-dashboard";
 import type { Address, Order, OrderStatus, RefundStatus } from "@/lib/types";
 import { MAX_RATING } from "@/lib/types";
+import { matchesSearch } from "@/lib/search";
+import { SearchField } from "@/components/search-field";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -114,6 +116,7 @@ export default function OrdersPage() {
   const [cancelling, setCancelling] = useState(false);
   const [refundTarget, setRefundTarget] = useState<Order | null>(null);
   const [refunding, setRefunding] = useState(false);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     if (!storeId) return;
@@ -194,14 +197,37 @@ export default function OrdersPage() {
     }
   }
 
+  // The order id is searchable in full even though the row prints only its
+  // first 8 characters — a support ticket quotes the whole thing.
+  const visible = orders.filter((order) =>
+    matchesSearch(
+      search,
+      order.id,
+      order.deliveryAddress?.name,
+      order.deliveryAddress?.phone,
+      order.deliveryOtp,
+      order.couponCode,
+      STATUS_LABELS[order.status],
+      ...order.items.map((item) => item.productName),
+    ),
+  );
+
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-lg font-semibold">Orders</h1>
-        <p className="text-sm text-muted-foreground">
-          Orders placed by shoppers, most recent first. Click a row for items
-          and delivery details.
-        </p>
+      <div className="flex items-center justify-between gap-4">
+        <div>
+          <h1 className="text-lg font-semibold">Orders</h1>
+          <p className="text-sm text-muted-foreground">
+            Orders placed by shoppers, most recent first. Click a row for items
+            and delivery details.
+          </p>
+        </div>
+        <SearchField
+          value={search}
+          onChange={setSearch}
+          label="Search orders"
+          placeholder="Search id, customer, item…"
+        />
       </div>
 
       <Table>
@@ -219,17 +245,17 @@ export default function OrdersPage() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {orders.length === 0 && (
+          {visible.length === 0 && (
             <TableRow>
               <TableCell
                 colSpan={COLUMN_COUNT}
                 className="text-center text-muted-foreground"
               >
-                No orders yet.
+                {search ? "No orders match your search." : "No orders yet."}
               </TableCell>
             </TableRow>
           )}
-          {orders.map((order) => {
+          {visible.map((order) => {
             const isOpen = expanded.has(order.id);
             const paid = Boolean(order.razorpayPaymentId);
             return (

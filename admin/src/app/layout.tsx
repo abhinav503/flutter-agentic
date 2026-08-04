@@ -1,24 +1,21 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Manrope } from "next/font/google";
+import { Geist_Mono, Manrope } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/lib/auth-context";
 import { StoreProvider } from "@/lib/store-context";
 import { Toaster } from "@/components/ui/sonner";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
+// Geist Sans is gone: the dashboard used to run on it, and now runs on the
+// brand's Manrope like everything else. Geist Mono stays for --font-mono.
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
 
-// The marketing site's typeface. Self-hosted through next/font rather than
-// the Google Fonts <link> the design shipped with — no render-blocking
-// request, no layout shift — and scoped to `.site` in globals.css so the
-// dashboard keeps Geist.
+// The brand typeface — the marketing site's, and since the palette merge the
+// dashboard's too (globals.css binds --font-sans to it). Self-hosted through
+// next/font rather than the Google Fonts <link> the design shipped with: no
+// render-blocking request, no layout shift.
 const manrope = Manrope({
   variable: "--font-manrope",
   subsets: ["latin"],
@@ -37,7 +34,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${manrope.variable} h-full antialiased`}
+      className={`${geistMono.variable} ${manrope.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         <AuthProvider>

@@ -16,7 +16,9 @@ import {
 } from "@/lib/products";
 import type { Brand, Category, Product, UnitType } from "@/lib/types";
 import { UNIT_TYPE_LABELS } from "@/lib/types";
+import { matchesSearch } from "@/lib/search";
 import { ImageUploadField } from "@/components/image-upload-field";
+import { SearchField } from "@/components/search-field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -64,6 +66,7 @@ export default function ProductsPage() {
   const [brands, setBrands] = useState<Brand[]>([]);
   const [editing, setEditing] = useState<Product | "new" | null>(null);
   const [deleting, setDeleting] = useState<Product | null>(null);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     if (!storeId) return;
@@ -83,18 +86,37 @@ export default function ProductsPage() {
     categories.find((c) => c.id === id)?.name ?? "Unknown";
   const brandName = (id: string) => brands.find((b) => b.id === id)?.name;
 
+  // Match on what the row actually shows — searching the description would
+  // return rows with nothing visibly matching the query.
+  const visible = products.filter((product) =>
+    matchesSearch(
+      search,
+      product.name,
+      brandName(product.brandId),
+      ...product.categoryIds.map(categoryName),
+    ),
+  );
+
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-4">
         <div>
           <h1 className="text-lg font-semibold">Products</h1>
           <p className="text-sm text-muted-foreground">
             Manage pricing, stock, and category links.
           </p>
         </div>
-        <Button onClick={() => setEditing("new")} disabled={categories.length === 0}>
-          Add product
-        </Button>
+        <div className="flex shrink-0 items-center gap-3">
+          <SearchField
+            value={search}
+            onChange={setSearch}
+            label="Search products"
+            placeholder="Search name, brand, category…"
+          />
+          <Button onClick={() => setEditing("new")} disabled={categories.length === 0}>
+            Add product
+          </Button>
+        </div>
       </div>
 
       {categories.length === 0 && (
@@ -117,14 +139,14 @@ export default function ProductsPage() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {products.length === 0 && (
+          {visible.length === 0 && (
             <TableRow>
               <TableCell colSpan={8} className="text-center text-muted-foreground">
-                No products yet.
+                {search ? "No products match your search." : "No products yet."}
               </TableCell>
             </TableRow>
           )}
-          {products.map((product) => (
+          {visible.map((product) => (
             <TableRow key={product.id}>
               <TableCell>
                 {product.imageUrl ? (
@@ -227,7 +249,7 @@ export default function ProductsPage() {
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              className="bg-destructive text-white hover:bg-destructive/90"
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               onClick={async () => {
                 if (!deleting) return;
                 try {

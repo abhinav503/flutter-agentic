@@ -7,6 +7,7 @@ import Link from "next/link";
  */
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
+import { AuthCta } from "./AuthCta";
 
 const anchors = [
   { href: "#templates", label: "Templates" },
@@ -51,18 +52,12 @@ export function SiteNav() {
           >
             Documentation
           </Link>
-          <Link
-            href="/login"
-            className="rounded-full border border-border-strong bg-surface px-4 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-secondary"
-          >
+          <AuthCta mode="login" variant="navGhost">
             Log in
-          </Link>
-          <Link
-            href="/signup"
-            className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-soft)] transition-colors hover:bg-primary/90"
-          >
+          </AuthCta>
+          <AuthCta mode="signup" variant="navPrimary">
             Start free
-          </Link>
+          </AuthCta>
         </div>
 
         <button
@@ -97,18 +92,22 @@ export function SiteNav() {
               </Link>
             </li>
             <li className="mt-2 flex gap-2">
-              <Link
-                href="/login"
-                className="flex-1 rounded-full border border-border-strong bg-surface px-4 py-2.5 text-center text-sm font-semibold text-foreground"
+              <AuthCta
+                mode="login"
+                variant="navGhost"
+                className="flex-1"
+                onOpen={() => setOpen(false)}
               >
                 Log in
-              </Link>
-              <Link
-                href="/signup"
-                className="flex-1 rounded-full bg-primary px-4 py-2.5 text-center text-sm font-semibold text-primary-foreground"
+              </AuthCta>
+              <AuthCta
+                mode="signup"
+                variant="navPrimary"
+                className="flex-1"
+                onOpen={() => setOpen(false)}
               >
                 Start free
-              </Link>
+              </AuthCta>
             </li>
           </ul>
         </div>

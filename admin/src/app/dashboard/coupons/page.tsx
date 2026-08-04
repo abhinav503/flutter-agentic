@@ -19,6 +19,8 @@ import type {
   Product,
 } from "@/lib/types";
 import { COUPON_SCOPE_LABELS, COUPON_TYPE_LABELS } from "@/lib/types";
+import { matchesSearch } from "@/lib/search";
+import { SearchField } from "@/components/search-field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -84,6 +86,7 @@ export default function CouponsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [editing, setEditing] = useState<Coupon | "new" | null>(null);
   const [deleting, setDeleting] = useState<Coupon | null>(null);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     if (!storeId) return;
@@ -99,16 +102,34 @@ export default function CouponsPage() {
 
   if (!storeId) return null;
 
+  const visible = coupons.filter((coupon) =>
+    matchesSearch(
+      search,
+      coupon.code,
+      discountLabel(coupon),
+      COUPON_SCOPE_LABELS[coupon.scope],
+      coupon.isActive ? "Active" : "Inactive",
+    ),
+  );
+
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-4">
         <div>
           <h1 className="text-lg font-semibold">Coupons</h1>
           <p className="text-sm text-muted-foreground">
             Discount codes for the whole order, a category, or a product.
           </p>
         </div>
-        <Button onClick={() => setEditing("new")}>Add coupon</Button>
+        <div className="flex shrink-0 items-center gap-3">
+          <SearchField
+            value={search}
+            onChange={setSearch}
+            label="Search coupons"
+            placeholder="Search code or status…"
+          />
+          <Button onClick={() => setEditing("new")}>Add coupon</Button>
+        </div>
       </div>
 
       <Table>
@@ -123,14 +144,14 @@ export default function CouponsPage() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {coupons.length === 0 && (
+          {visible.length === 0 && (
             <TableRow>
               <TableCell colSpan={6} className="text-center text-muted-foreground">
-                No coupons yet.
+                {search ? "No coupons match your search." : "No coupons yet."}
               </TableCell>
             </TableRow>
           )}
-          {coupons.map((coupon) => (
+          {visible.map((coupon) => (
             <TableRow key={coupon.id}>
               <TableCell className="font-medium">{coupon.code}</TableCell>
               <TableCell>{discountLabel(coupon)}</TableCell>
@@ -190,7 +211,7 @@ export default function CouponsPage() {
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              className="bg-destructive text-white hover:bg-destructive/90"
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               onClick={async () => {
                 if (!deleting) return;
                 try {
