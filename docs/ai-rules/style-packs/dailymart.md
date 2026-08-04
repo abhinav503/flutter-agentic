@@ -74,7 +74,7 @@ brand green is the one thing held constant.
 |---|---|---|
 | `ratingStar` | `#F1B826` | The product card's rating star glyph. Matches the fill baked into `star.svg`, so tinting is a no-op — the swatch stays the source of truth for the number beside it |
 | `promoScrim` | `#33000000` | The 20 % black wash over a promo card's photo so white copy stays legible on any image |
-| `reviewAmber` / `onReviewAmber` | `#FACC15` / `#0D121C` | The static Reviews tab's summary stars, star bars, and review-row rating pill (kit `warning/400` + its ink). Pinned because the preset declares no warning role and review amber must stay amber in both modes |
+| `reviewAmber` / `onReviewAmber` | `#FACC15` / `#0D121C` | The Reviews tab's summary stars, star bars, and review-row rating pill (kit `warning/400` + its ink). Pinned because the preset declares no warning role and review amber must stay amber in both modes |
 
 The mint canvas is deliberately **not** a fixed swatch: it's
 `cs.primaryContainer` in light and `cs.surface` in dark, so it lives as
@@ -384,11 +384,13 @@ why they are field-shaped (10 px, bordered) rather than menu-shaped.
   carries a red discount pill top-left and a white 28 px favourite disc
   top-right. Below: name and price stacked at 14/600 on the left, a green
   28 px circular **+** on the right, then a rating row (14 px amber
-  `star.svg` + `4.9 (345)` at 12/500). **The rating row is static placeholder
-  copy and always renders** — `ProductEntity` carries no rating yet, and the
-  kit's card is laid out around the row, so it ships with the kit's own
-  numbers rather than being conditionally hidden (see
-  `DailyMartValueConst.staticRatingLabel`). Its height is part of
+  `star.svg` + `4.9 (345)` at 12/500). **The rating row always renders**,
+  unrated products included — the kit's card is laid out around it, and
+  hiding it on some cards would ripple a height change through the grid; an
+  unrated product greys the star and reads `ValueConst.unratedLabel` rather
+  than printing `0.0`, which would say *badly reviewed* instead of
+  *unreviewed*. The numbers come off `ProductEntity.ratingAverage` /
+  `reviewCount`. Its height is part of
   `DailyMartDimenConst.productCardChromeHeight`, which skeletons size against. It appears in a 2-column grid on Home and Search
   results, and in a rail on Search's "Recently viewed".
 - **The promo carousel.** 286 px cards, radius 16, peeking neighbours, a
@@ -550,6 +552,20 @@ why they are field-shaped (10 px, bordered) rather than menu-shaped.
   (`₹X /pack`) follows the selected chip, and Add To Cart carries the
   selection into the cart line, which then shows that pack size and
   per-size price on the Cart's item cards and Checkout's Order List.
+- **The Reviews tab is live** (kit frame `23 Review product`). The frame's
+  geometry is reproduced verbatim — the bordered summary card with
+  `score/5.0` and its five amber stars beside the five `N Star` bar rows,
+  then the review rows under a hairline — but every value is the store's:
+  the score and count from the product's aggregates, each bar filled to
+  that star's *share of all reviews*, and one row per real review. Two
+  deviations, both for missing data: the row's thumbs up/down counters are
+  gone (nothing votes on a review), and a product with no reviews yet gets
+  an `EmptyState`, which the frame has no equivalent for. The tab also gains
+  what the kit has no frame for — a `DailyMartOutlineButton` opening the
+  pack's write-review sheet (`showDailyMartSheet` over
+  `RatingStarsField` + a multi-line `DailyMartFormField`), and a Delete
+  action on the shopper's *own* row only; everyone else's is moderated from
+  the admin console.
 
 ---
 

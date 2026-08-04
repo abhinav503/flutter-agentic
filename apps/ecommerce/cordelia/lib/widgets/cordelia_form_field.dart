@@ -41,6 +41,11 @@ class CordeliaFormField extends StatelessWidget {
   /// this just wires it through.
   final bool enabled;
 
+  /// Above 1 the field grows into a paragraph box (the review composer) and
+  /// drops the fixed control height — that height only makes sense for a
+  /// single line, the same carve-out `GrofastFormField` makes.
+  final int maxLines;
+
   const CordeliaFormField({
     super.key,
     required this.label,
@@ -53,6 +58,7 @@ class CordeliaFormField extends StatelessWidget {
     this.obscureText = false,
     this.suffix,
     this.enabled = true,
+    this.maxLines = 1,
   });
 
   @override
@@ -77,7 +83,8 @@ class CordeliaFormField extends StatelessWidget {
         tt,
       ).copyWith(color: CordeliaColorConst.gray500),
       labelSpacing: AppSpacing.xs,
-      height: CordeliaDimenConst.controlHeight,
+      height: maxLines == 1 ? CordeliaDimenConst.controlHeight : null,
+      maxLines: maxLines,
       obscureText: obscureText,
       suffix: suffix,
     );

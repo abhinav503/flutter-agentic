@@ -34,8 +34,12 @@ extension CategoryDetailsLoadedX on CategoryDetailsLoaded {
         filtered.sort(
           (a, b) => b.discountPercentage.compareTo(a.discountPercentage),
         );
-      case ProductSortOption.relevance:
       case ProductSortOption.ratingHighToLow:
+        // Unrated products sort last rather than mixing in at 0.0 — nobody
+        // asking for the best-rated wants the never-rated at the bottom of
+        // the good ones, but they do want them after everything rated.
+        filtered.sort((a, b) => b.ratingAverage.compareTo(a.ratingAverage));
+      case ProductSortOption.relevance:
         break;
     }
     return filtered;

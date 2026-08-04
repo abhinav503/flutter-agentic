@@ -12,8 +12,10 @@ import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/network_image.dart';
 import 'package:core/core/ui/atoms/svg_image.dart';
 import 'package:core/core/ui/molecules/error_view.dart';
+import 'package:core/core/ui/molecules/skeleton_rows.dart';
 
 import 'package:cordelia/constants/app_routes.dart';
+import 'package:cordelia/constants/value_const.dart';
 import 'package:cordelia/enums/product_unit_type.dart';
 import 'package:cordelia/feature/storefront/cart/presentation/quantity_selection.dart';
 import 'package:cordelia/feature/storefront/favourites/presentation/cubit/favourites_cubit.dart';
@@ -30,20 +32,27 @@ import 'package:cordelia/templates/dailymart/widgets/dailymart_icon_disc.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_product_grid.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_quantity_stepper.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_section_header.dart';
+import 'package:cordelia/templates/dailymart/widgets/dailymart_sheet.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_top_switcher.dart';
 
+import '../../../../../reviews/domain/entities/product_reviews_entity.dart';
+import '../../../../../reviews/domain/entities/review_entity.dart';
+import '../../../../../reviews/presentation/bloc/product_reviews_bloc.dart';
+import '../../../../../reviews/presentation/product_reviews_actions.dart';
+import '../../../../../reviews/presentation/templates/dailymart/widgets/product_reviews_section.dart';
+import '../../../../../reviews/presentation/templates/dailymart/widgets/write_review_sheet_content.dart';
 import '../../../../domain/entities/product_detail_entity.dart';
 import '../../../../domain/entities/size_variant_entity.dart';
 import '../../../bloc/product_details_bloc.dart';
 import '../../../product_details_actions.dart';
 import '../widgets/product_detail_bottom_bar.dart';
 import '../widgets/product_detail_skeleton_body.dart';
-import '../widgets/product_reviews_section.dart';
 
 /// `dailymart` template's Product Details — kit frames `22`/`23`: header
 /// row, one hero image well, name beside a bordered rating pill, price with
-/// the bare green stepper, Descriptions/Reviews underline tabs (Reviews is
-/// the kit's static frame — see [DailyMartProductReviewsSection]), a
+/// the bare green stepper, Descriptions/Reviews underline tabs (Reviews
+/// renders the store's real reviews — see [DailyMartProductReviewsSection]),
+/// a
 /// Related Products grid, and the floating cart-disc + Add To Cart row over
 /// a bottom fade.
 class ProductDetailsScreen extends BaseScreen {
@@ -56,9 +65,30 @@ class ProductDetailsScreen extends BaseScreen {
 }
 
 class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
-    with QuantitySelection, ProductDetailsActions {
+    with QuantitySelection, ProductDetailsActions, ProductReviewsActions {
   @override
   String get storeId => widget.storeId;
+
+  @override
+  Future<void> showWriteReviewSheet(ReviewEntity? existing) =>
+      showDailyMartSheet<void>(
+        title: ValueConst.reviewSheetTitle,
+        child: DailyMartWriteReviewSheetContent(
+          existing: existing,
+          onSubmit: submitReview,
+          onMessage: showSnackBar,
+        ),
+      );
+
+  @override
+  Future<void> showDeleteReviewSheet({required VoidCallback onConfirm}) =>
+      showDailyMartConfirmSheet(
+        context: context,
+        title: ValueConst.reviewDeleteConfirmTitle,
+        message: ValueConst.reviewDeleteConfirmMessage,
+        confirmLabel: ValueConst.deleteReviewLabel,
+        onConfirm: onConfirm,
+      );
 
   /// UI-local, like a tab index — which of the two content tabs shows.
   bool _showReviews = false;
@@ -69,6 +99,29 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
       DailyMartValueConst.addedToCartMessage(product.name, quantity),
     );
   }
+
+  /// The Reviews tab's body. Its own builder rather than part of the
+  /// details switch: a write re-renders only this subtree, leaving the hero,
+  /// price and stepper untouched.
+  Widget _reviewsTab() => BlocBuilder<ProductReviewsBloc, ProductReviewsState>(
+    builder: (context, state) {
+      final reviews = state.reviewsOrNull;
+      // Only before the seed lands (and while a refresh re-reads) — a
+      // skeleton in the section's own shape, never a spinner.
+      if (reviews == null) return const ShimmerListRow(itemCount: 2);
+
+      return DailyMartProductReviewsSection(
+        reviews: reviews,
+        currentUid: currentUid,
+        // Null while a write is in flight: the CTA stops accepting taps
+        // instead of stacking a second submit on the first.
+        onWriteReview: state.isSubmitting
+            ? null
+            : () => writeReview(reviews.mine(currentUid)),
+        onDeleteReview: state.isSubmitting ? null : confirmDeleteReview,
+      );
+    },
+  );
 
   /// Same landing as Home's "See all" chips — this template has no
   /// Categories tab, so browse means the store-scoped Search screen.
@@ -86,30 +139,40 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
       color: cs.surface,
       child: SafeArea(
         bottom: false,
-        child: BlocConsumer<ProductDetailsBloc, ProductDetailsState>(
-          listener: (context, state) {
-            if (state case ProductDetailsError(:final message)) {
-              showSnackBar(message);
-            }
-          },
-          builder: (context, state) => switch (state) {
-            ProductDetailsError(:final storeId, :final productId) => _Page(
-              onBack: () => context.pop(),
-              body: ErrorView(
-                message: DailyMartValueConst.productDetailsLoadErrorMessage,
-                onRetry: () =>
-                    retryLoad(storeId: storeId, productId: productId),
+        // A review write's outcome is a side effect, not a rebuild — the
+        // section itself repaints from the reloaded list.
+        child: BlocListener<ProductReviewsBloc, ProductReviewsState>(
+          listener: (_, state) => handleReviewsState(state),
+          child: BlocConsumer<ProductDetailsBloc, ProductDetailsState>(
+            listener: (context, state) {
+              if (state case ProductDetailsError(:final message)) {
+                showSnackBar(message);
+              }
+              // Hands the reviews section the page it already loaded, instead
+              // of it fetching the same first page again.
+              if (state case ProductDetailsLoaded(:final detail)) {
+                seedReviews(detail.reviews);
+              }
+            },
+            builder: (context, state) => switch (state) {
+              ProductDetailsError(:final storeId, :final productId) => _Page(
+                onBack: () => context.pop(),
+                body: ErrorView(
+                  message: DailyMartValueConst.productDetailsLoadErrorMessage,
+                  onRetry: () =>
+                      retryLoad(storeId: storeId, productId: productId),
+                ),
               ),
-            ),
-            // Loading and loaded share the header and scroll view, so only
-            // the body swaps — a differently-structured loading state makes
-            // the whole page jump when data lands.
-            ProductDetailsLoading() => _Page(
-              onBack: () => context.pop(),
-              body: const DailyMartProductDetailSkeletonBody(),
-            ),
-            ProductDetailsLoaded(:final detail) => _loaded(detail),
-          },
+              // Loading and loaded share the header and scroll view, so only
+              // the body swaps — a differently-structured loading state makes
+              // the whole page jump when data lands.
+              ProductDetailsLoading() => _Page(
+                onBack: () => context.pop(),
+                body: const DailyMartProductDetailSkeletonBody(),
+              ),
+              ProductDetailsLoaded(:final detail) => _loaded(detail),
+            },
+          ),
         ),
       ),
     );
@@ -175,7 +238,7 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
                     ),
                   ),
                   const SizedBox(width: AppSpacing.xs),
-                  const _RatingPill(),
+                  _RatingPill(product: product),
                 ],
               ),
               const SizedBox(height: AppSpacing.base),
@@ -233,8 +296,9 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
               const SizedBox(height: AppSpacing.lg),
               DailyMartTopSwitcher(
                 child: _showReviews
-                    ? const DailyMartProductReviewsSection(
-                        key: ValueKey('reviews'),
+                    ? KeyedSubtree(
+                        key: const ValueKey('reviews'),
+                        child: _reviewsTab(),
                       )
                     : _DescriptionText(
                         key: const ValueKey('description'),
@@ -365,15 +429,19 @@ class _HeroImage extends StatelessWidget {
   }
 }
 
-/// The bordered rating pill beside the name — static placeholder numbers,
-/// same policy as the product card's rating row.
+/// The bordered rating pill beside the name. An unrated product greys the
+/// star and says so rather than printing 0.0 — same policy as the product
+/// card's rating row.
 class _RatingPill extends StatelessWidget {
-  const _RatingPill();
+  final ProductEntity product;
+
+  const _RatingPill({required this.product});
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
+    final rated = product.hasRating;
 
     return Container(
       height: DailyMartDimenConst.ratingPillHeight,
@@ -389,14 +457,21 @@ class _RatingPill extends StatelessWidget {
             DailyMartImageConst.star,
             width: AppSpacing.lg,
             height: AppSpacing.lg,
-            color: DailyMartColorConst.ratingStar,
+            color: rated
+                ? DailyMartColorConst.ratingStar
+                : cs.surfaceContainerHighest,
           ),
           const SizedBox(width: AppSpacing.xs3),
           Text(
-            DailyMartValueConst.staticRatingLabel,
+            rated
+                ? ValueConst.ratingLabel(
+                    product.ratingAverage,
+                    product.reviewCount,
+                  )
+                : ValueConst.unratedLabel,
             style: DailyMartTextStyleConst.bodyXsMedium(
               tt,
-            ).copyWith(color: cs.onSurface),
+            ).copyWith(color: rated ? cs.onSurface : cs.onSurfaceVariant),
           ),
         ],
       ),

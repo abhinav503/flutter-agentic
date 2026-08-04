@@ -74,6 +74,65 @@ export type Product = {
   // without this, that endpoint would have to fake it by returning
   // everything.
   isPopular: boolean;
+  // Rolled up from the reviews subcollection (see Review below) inside the
+  // same transaction as every review write, so the two can never drift.
+  // Denormalized onto the product deliberately: product docs are
+  // world-readable and already loaded by every grid, so a card can print a
+  // rating with zero extra reads — counting a subcollection per card
+  // couldn't. Not admin-editable (see ProductInput in products.ts).
+  ratingAverage: number;
+  reviewCount: number;
+  ratingBuckets: RatingBuckets;
+};
+
+// Per-star review counts — the histogram dailymart's Reviews frame draws.
+// A plain average can't produce those five bars, which is why the buckets
+// are stored rather than derived.
+export type RatingBuckets = {
+  1: number;
+  2: number;
+  3: number;
+  4: number;
+  5: number;
+};
+
+export const EMPTY_RATING_BUCKETS: RatingBuckets = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+
+// The lowest and highest star a review may carry — one range, used by the
+// write route's validation and by the buckets above.
+export const MIN_RATING = 1;
+export const MAX_RATING = 5;
+
+// One shopper's review of one product —
+// stores/{storeId}/products/{productId}/reviews/{uid}. The doc id IS the
+// reviewer's uid, so a shopper has at most one review per product: posting
+// again edits theirs instead of stacking duplicates, and "have I reviewed
+// this?" is a single get rather than a query.
+//
+// Any signed-in shopper may review, bought or not — rating a *delivered
+// order* is the separate, purchase-gated feature. Reviews are written only
+// through the token-verified API (never the client SDK) because each write
+// must move the product's aggregates in the same transaction.
+export type Review = {
+  uid: string;
+  // Denormalized so the dashboard's store-wide listing can be one
+  // collection-group query instead of one read per product.
+  storeId: string;
+  productId: string;
+  // MIN_RATING..MAX_RATING, whole stars.
+  rating: number;
+  text: string;
+  // Snapshotted from users/{uid} at write time rather than resolved per
+  // read — rendering N reviews would otherwise cost N profile reads. A
+  // later profile rename leaves past reviews reading as they were posted,
+  // the usual trade for this (same reasoning as OrderLineItem's snapshots).
+  userName: string;
+  userAvatarUrl: string;
+  // Derived server-side from the reviewer's delivered orders; never taken
+  // from the request body. Purely a badge — it gates nothing.
+  verifiedPurchase: boolean;
+  createdAt: string;
+  updatedAt: string;
 };
 
 // A merchandising banner for a storefront template's promo carousel (today

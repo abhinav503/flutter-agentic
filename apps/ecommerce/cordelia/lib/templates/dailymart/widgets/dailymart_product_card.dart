@@ -6,6 +6,7 @@ import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/network_image.dart';
 import 'package:core/core/ui/atoms/svg_image.dart';
 
+import 'package:cordelia/constants/value_const.dart';
 import 'package:cordelia/feature/storefront/home/domain/entities/product_entity.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_color_const.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_dimen_const.dart';
@@ -126,7 +127,7 @@ class DailyMartProductCard extends StatelessWidget {
                         ],
                       ),
                       const SizedBox(height: AppSpacing.xs3),
-                      const _RatingRow(),
+                      _RatingRow(product: product),
                     ],
                   ),
                 ),
@@ -228,18 +229,21 @@ class _AddButton extends StatelessWidget {
   }
 }
 
-/// The kit's amber star + `4.9 (345)`. Both values are static placeholder
-/// copy — see [DailyMartValueConst.staticRatingLabel] for why, and for what
-/// to change when reviews reach `ProductEntity`. The row always renders: the
-/// kit's card is laid out around it, and showing it on some cards and not
-/// others would ripple a height change through the grid.
+/// The kit's amber star + the product's rating. The row always renders,
+/// unrated products included: the kit's card is laid out around it, and
+/// showing it on some cards and not others would ripple a height change
+/// through the grid. An unrated product greys the star and says so rather
+/// than printing 0.0, which would read as a badly-reviewed product.
 class _RatingRow extends StatelessWidget {
-  const _RatingRow();
+  final ProductEntity product;
+
+  const _RatingRow({required this.product});
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
+    final rated = product.hasRating;
 
     return Row(
       children: [
@@ -247,14 +251,25 @@ class _RatingRow extends StatelessWidget {
           DailyMartImageConst.star,
           width: AppSpacing.md,
           height: AppSpacing.md,
-          color: DailyMartColorConst.ratingStar,
+          color: rated
+              ? DailyMartColorConst.ratingStar
+              : cs.surfaceContainerHighest,
         ),
         const SizedBox(width: AppSpacing.xs3),
-        Text(
-          DailyMartValueConst.staticRatingLabel,
-          style: DailyMartTextStyleConst.bodyXsMedium(
-            tt,
-          ).copyWith(color: cs.onSurface),
+        Expanded(
+          child: Text(
+            rated
+                ? ValueConst.ratingLabel(
+                    product.ratingAverage,
+                    product.reviewCount,
+                  )
+                : ValueConst.unratedLabel,
+            style: DailyMartTextStyleConst.bodyXsMedium(
+              tt,
+            ).copyWith(color: rated ? cs.onSurface : cs.onSurfaceVariant),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
         ),
       ],
     );

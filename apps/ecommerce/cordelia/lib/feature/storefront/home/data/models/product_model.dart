@@ -24,6 +24,11 @@ abstract class ProductModel with _$ProductModel {
     @JsonKey(name: 'unit_type') required String unitType,
     @JsonKey(name: 'prep_time') required String prepTime,
     @JsonKey(name: 'is_favourite') @Default(false) bool isFavourite,
+    // Defaulted, not required: a store whose products predate reviews (or a
+    // mock fixture) answers without these keys, and an unrated product is
+    // exactly what zeros mean.
+    @JsonKey(name: 'rating_average') @Default(0.0) double ratingAverage,
+    @JsonKey(name: 'review_count') @Default(0) int reviewCount,
   }) = _ProductModel;
 
   factory ProductModel.fromJson(Map<String, dynamic> json) =>
@@ -40,6 +45,8 @@ abstract class ProductModel with _$ProductModel {
     unitType: e.unitType.wireValue,
     prepTime: e.prepTime,
     isFavourite: e.isFavourite,
+    ratingAverage: e.ratingAverage,
+    reviewCount: e.reviewCount,
   );
 
   ProductEntity toEntity() => ProductEntity(
@@ -53,5 +60,7 @@ abstract class ProductModel with _$ProductModel {
     unitType: unitType.toProductUnitType(),
     prepTime: prepTime,
     isFavourite: isFavourite,
+    ratingAverage: ratingAverage,
+    reviewCount: reviewCount,
   );
 }

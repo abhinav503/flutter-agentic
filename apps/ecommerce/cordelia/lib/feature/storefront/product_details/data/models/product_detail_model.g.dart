@@ -30,6 +30,14 @@ _ProductDetailModel _$ProductDetailModelFromJson(Map<String, dynamic> json) =>
       brand: json['brand'] == null
           ? null
           : BrandModel.fromJson(json['brand'] as Map<String, dynamic>),
+      rating: json['rating'] == null
+          ? const ProductRatingModel()
+          : ProductRatingModel.fromJson(json['rating'] as Map<String, dynamic>),
+      reviews:
+          (json['reviews'] as List<dynamic>?)
+              ?.map((e) => ReviewModel.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const <ReviewModel>[],
     );
 
 Map<String, dynamic> _$ProductDetailModelToJson(_ProductDetailModel instance) =>
@@ -42,4 +50,6 @@ Map<String, dynamic> _$ProductDetailModelToJson(_ProductDetailModel instance) =>
       'similar_products': instance.similarProducts,
       'category': instance.category,
       'brand': instance.brand,
+      'rating': instance.rating,
+      'reviews': instance.reviews,
     };

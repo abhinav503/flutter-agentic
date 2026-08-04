@@ -90,6 +90,7 @@ feature → what the template must draw):
 | Search (+ recent searches) | `search` / `SearchBloc` (BlocCache) | route |
 | Category details (+ sort/price filter) | `category_details` / `CategoryDetailsBloc` | route |
 | Product details (+ add to cart) | `product_details` + `ProductDetailsActions` | route |
+| Product reviews (list + write/edit/delete own) | `reviews` / `ProductReviewsBloc` + `ProductReviewsActions`, `WriteReviewForm` mixin | section on Product Details |
 | Cart | `cart` / `CartCubit` | tab and/or route |
 | Checkout + Razorpay + success | `checkout` / `CheckoutBloc` (provider-agnostic) | pack-specific: inline from Cart (gravia) or routed page (dailymart) |
 | Orders (list, cancel) | `orders` / `OrdersBloc` (BlocCache, optimistic cancel) — the list **must** ship a status filter and a **date filter** (sheet on the shared `OrdersFilter`/`OrdersFilterPeriod`; quick picks + range picker + reset); an order list without a date filter is unusable past the first month, so build it with the screen, not as a correction. Search is optional — add it when the pack's own frames draw it | tab or route |

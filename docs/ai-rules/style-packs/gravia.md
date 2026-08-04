@@ -112,6 +112,7 @@ happens — never an inline hex, two homes by scope:
 | Form fields (`GraviaFormField`) | 16, not the pill `shape.input` | Confirmed on the Signup form; screen-local override via `AppTextField.borderRadius`, not a preset change. Search and quick-add keep the pill input untouched |
 | Product Details' brand line | A Text/xs/regular `onSurfaceVariant` line above the product name | The kit predates brands; the line borrows the meta row's muted supporting role. Renders only when the product has a brand |
 | Product Details' "Select QTY" chips | Each size priced by its own variant — the price row, discount meta chip, and bottom bar all follow the selected chip | The kit drew the chips as decoration; per-size pricing (`ProductDetailEntity.sizeVariants`) made them a real choice that travels into the cart line |
+| Product Details' Ratings & Reviews block | A section between Key Info and Similar Products, in the same heading/divider rhythm: the average + `RatingStars` + per-star histogram, a `GraviaActionButton` opening the write-review sheet, then one row per review | The Gravia kit predates reviews and draws no frame for them, so the block is composed from recipes the pack already owns rather than invented chrome. Reviews are a real feature — see `feature/storefront/reviews/`. A product nobody has reviewed renders an `EmptyState`, never `0.0` stars |
 
 ---
 

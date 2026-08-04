@@ -72,6 +72,18 @@ service cloud.firestore {
       match /products/{productId} {
         allow read: if true;
         allow write: if isStoreOwner(storeId);
+
+        // Product reviews, doc id = the reviewer's uid. World-readable like
+        // the product they hang off — a rating is part of a product's public
+        // face. Writes are server-only (the token-verified reviews API,
+        // Admin SDK) even for the review's own author: every write also
+        // moves the product doc's ratingAverage/reviewCount/ratingBuckets in
+        // the same transaction, and a client-SDK write would leave the two
+        // to drift. Same posture as coupons/redemptions.
+        match /reviews/{uid} {
+          allow read: if true;
+          allow write: if false;
+        }
       }
 
       // Promo banners for the storefront's home carousel — same gate as the

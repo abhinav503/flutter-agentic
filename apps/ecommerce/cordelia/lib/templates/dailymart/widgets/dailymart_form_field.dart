@@ -35,6 +35,11 @@ class DailyMartFormField extends StatelessWidget {
   /// control the shopper is typing in would read as a foreign pack.
   final bool obscureText;
 
+  /// Above 1 the field grows into a paragraph box (the review composer) and
+  /// drops the fixed 56px box — that height only makes sense for a single
+  /// line, the same carve-out `GrofastFormField` makes.
+  final int maxLines;
+
   const DailyMartFormField({
     super.key,
     required this.label,
@@ -46,6 +51,7 @@ class DailyMartFormField extends StatelessWidget {
     this.inputFormatters,
     this.enabled = true,
     this.obscureText = false,
+    this.maxLines = 1,
   });
 
   @override
@@ -72,7 +78,8 @@ class DailyMartFormField extends StatelessWidget {
         tt,
       ).copyWith(color: cs.onSurface),
       labelSpacing: AppSpacing.xs,
-      height: DailyMartDimenConst.formFieldHeight,
+      maxLines: maxLines,
+      height: maxLines == 1 ? DailyMartDimenConst.formFieldHeight : null,
     );
   }
 }

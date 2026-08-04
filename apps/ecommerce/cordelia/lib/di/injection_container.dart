@@ -81,6 +81,13 @@ import '../feature/storefront/product_details/data/data_source/product_details_r
 import '../feature/storefront/product_details/data/repository_impl/product_details_repository_impl.dart';
 import '../feature/storefront/product_details/domain/repository/product_details_repository.dart';
 import '../feature/storefront/product_details/domain/usecase/get_product_details_usecase.dart';
+import '../feature/storefront/reviews/data/data_source/reviews_remote_data_source.dart';
+import '../feature/storefront/reviews/data/data_source/reviews_remote_data_source_impl.dart';
+import '../feature/storefront/reviews/data/repository_impl/reviews_repository_impl.dart';
+import '../feature/storefront/reviews/domain/repository/reviews_repository.dart';
+import '../feature/storefront/reviews/domain/usecase/delete_my_review_usecase.dart';
+import '../feature/storefront/reviews/domain/usecase/get_product_reviews_usecase.dart';
+import '../feature/storefront/reviews/domain/usecase/submit_product_review_usecase.dart';
 import '../feature/storefront/profile/data/data_source/profile_remote_data_source.dart';
 import '../feature/storefront/profile/data/data_source/profile_remote_data_source_impl.dart';
 import '../feature/storefront/profile/data/repository_impl/profile_repository_impl.dart';
@@ -205,6 +212,17 @@ Future<void> initDependencies() async {
     () => ProductDetailsRepositoryImpl(sl()),
   );
   sl.registerLazySingleton(() => GetProductDetailsUseCase(sl()));
+
+  // ── Storefront: Product Reviews ─────────────────────────────────────────
+  sl.registerLazySingleton<ReviewsRemoteDataSource>(
+    () => const ReviewsRemoteDataSourceImpl(),
+  );
+  sl.registerLazySingleton<ReviewsRepository>(
+    () => ReviewsRepositoryImpl(sl()),
+  );
+  sl.registerLazySingleton(() => GetProductReviewsUseCase(sl()));
+  sl.registerLazySingleton(() => SubmitProductReviewUseCase(sl()));
+  sl.registerLazySingleton(() => DeleteMyReviewUseCase(sl()));
 
   // ── Storefront: Categories (storeId-scoped catalog) ─────────────────────
   sl.registerLazySingleton<CategoriesRemoteDataSource>(

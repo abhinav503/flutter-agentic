@@ -5,6 +5,8 @@ import type {
   Category,
   Order,
   Product,
+  RatingBuckets,
+  Review,
   SizeVariant,
   Store,
 } from "@/lib/types";
@@ -58,6 +60,44 @@ export function serializeProduct(p: Product, isFavourite = false) {
     // (id-only, same rationale as Banner.targetId).
     brand_id: p.brandId,
     is_favourite: isFavourite,
+    // Every card can print a rating without a second call — the aggregates
+    // ride on the product doc the grid already read. review_count 0 means
+    // "unrated": clients must render that as such, not as 0.0 stars.
+    rating_average: p.ratingAverage,
+    review_count: p.reviewCount,
+  };
+}
+
+// One shopper's product review. `uid` travels because it's the review's
+// identity (it's also the doc id) — a client needs it to tell its own
+// review apart from everyone else's, which is what turns the write CTA into
+// "Edit your review". No email or other profile field is exposed.
+export function serializeReview(r: Review) {
+  return {
+    uid: r.uid,
+    product_id: r.productId,
+    rating: r.rating,
+    text: r.text,
+    user_name: r.userName,
+    user_avatar_url: r.userAvatarUrl,
+    verified_purchase: r.verifiedPurchase,
+    created_at: r.createdAt,
+    updated_at: r.updatedAt,
+  };
+}
+
+// The rating summary a product page renders above its review list — the
+// average, the total, and the per-star histogram. Read off the product doc's
+// denormalized aggregates, never recounted per request.
+export function serializeRatingSummary(p: Product) {
+  return {
+    average: p.ratingAverage,
+    count: p.reviewCount,
+    // Fixed 1→5 order so a client reads it positionally without sorting
+    // string map keys (Firestore hands them back as strings).
+    buckets: [1, 2, 3, 4, 5].map(
+      (star) => p.ratingBuckets[star as keyof RatingBuckets] ?? 0,
+    ),
   };
 }
 

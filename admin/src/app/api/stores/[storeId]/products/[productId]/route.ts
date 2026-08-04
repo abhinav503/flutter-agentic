@@ -2,12 +2,20 @@ import { NextResponse } from "next/server";
 import { getBrands } from "@/lib/brands";
 import { getCategories } from "@/lib/categories";
 import { getProduct, getProducts } from "@/lib/products";
+import { getReviews } from "@/lib/reviews";
 import {
   serializeBrand,
   serializeCategory,
   serializeProduct,
+  serializeRatingSummary,
+  serializeReview,
   serializeSizeVariant,
 } from "@/lib/api/serializers";
+
+// Enough to fill a product page's Reviews tab on arrival without paying for
+// a long tail nobody scrolls to — the full list comes from the product's
+// dedicated reviews route.
+const REVIEW_PREVIEW_LIMIT = 10;
 
 // Matches product_details.json's per-product shape in gravia — { product,
 // images, description, size_options, similar_products }. This schema doesn't
@@ -29,10 +37,11 @@ export async function GET(
     return NextResponse.json({ error: "Product not found" }, { status: 404 });
   }
 
-  const [allProducts, categories, brands] = await Promise.all([
+  const [allProducts, categories, brands, reviews] = await Promise.all([
     getProducts(storeId),
     getCategories(storeId),
     getBrands(storeId),
+    getReviews(storeId, productId, REVIEW_PREVIEW_LIMIT),
   ]);
   const similarProducts = allProducts
     .filter(
@@ -58,5 +67,10 @@ export async function GET(
     // null for unbranded (or a dangling brandId after a brand delete) —
     // resolved here like `category` above, never denormalized onto the doc.
     brand: brand ? serializeBrand(brand) : null,
+    // The rating header plus the first page of reviews, so a details screen
+    // opens its Reviews tab with no second round trip. `rating.count` 0 is
+    // an unrated product — clients render an empty state, not 0.0 stars.
+    rating: serializeRatingSummary(product),
+    reviews: reviews.map(serializeReview),
   });
 }

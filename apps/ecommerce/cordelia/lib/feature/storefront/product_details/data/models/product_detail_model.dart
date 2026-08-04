@@ -2,6 +2,9 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../../home/data/models/category_model.dart';
 import '../../../home/data/models/product_model.dart';
+import '../../../reviews/data/models/product_rating_model.dart';
+import '../../../reviews/data/models/review_model.dart';
+import '../../../reviews/domain/entities/product_reviews_entity.dart';
 import '../../domain/entities/product_detail_entity.dart';
 import 'brand_model.dart';
 import 'size_variant_model.dart';
@@ -34,6 +37,11 @@ abstract class ProductDetailModel with _$ProductDetailModel {
     // Nullable like category — unbranded products (and pre-brand backends)
     // answer without the key.
     BrandModel? brand,
+    // The rating summary and first page of reviews. Both defaulted: a
+    // backend (or mock fixture) that predates reviews answers without them,
+    // which is indistinguishable from an unrated product — as it should be.
+    @Default(ProductRatingModel()) ProductRatingModel rating,
+    @Default(<ReviewModel>[]) List<ReviewModel> reviews,
   }) = _ProductDetailModel;
 
   factory ProductDetailModel.fromJson(Map<String, dynamic> json) =>
@@ -52,6 +60,8 @@ abstract class ProductDetailModel with _$ProductDetailModel {
     similarProducts: e.similarProducts.map(ProductModel.fromEntity).toList(),
     category: e.category == null ? null : CategoryModel.fromEntity(e.category!),
     brand: e.brand == null ? null : BrandModel.fromEntity(e.brand!),
+    rating: ProductRatingModel.fromEntity(e.reviews.rating),
+    reviews: e.reviews.reviews.map(ReviewModel.fromEntity).toList(),
   );
 
   ProductDetailEntity toEntity() => ProductDetailEntity(
@@ -62,5 +72,9 @@ abstract class ProductDetailModel with _$ProductDetailModel {
     similarProducts: similarProducts.map((p) => p.toEntity()).toList(),
     category: category?.toEntity(),
     brand: brand?.toEntity(),
+    reviews: ProductReviewsEntity(
+      rating: rating.toEntity(),
+      reviews: reviews.map((r) => r.toEntity()).toList(),
+    ),
   );
 }

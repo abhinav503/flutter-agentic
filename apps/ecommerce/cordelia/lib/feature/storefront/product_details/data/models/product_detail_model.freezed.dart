@@ -24,7 +24,10 @@ mixin _$ProductDetailModel {
 // stores created before this field shipped answer without the key.
  CategoryModel? get category;// Nullable like category — unbranded products (and pre-brand backends)
 // answer without the key.
- BrandModel? get brand;
+ BrandModel? get brand;// The rating summary and first page of reviews. Both defaulted: a
+// backend (or mock fixture) that predates reviews answers without them,
+// which is indistinguishable from an unrated product — as it should be.
+ ProductRatingModel get rating; List<ReviewModel> get reviews;
 /// Create a copy of ProductDetailModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -37,16 +40,16 @@ $ProductDetailModelCopyWith<ProductDetailModel> get copyWith => _$ProductDetailM
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProductDetailModel&&(identical(other.product, product) || other.product == product)&&const DeepCollectionEquality().equals(other.images, images)&&(identical(other.description, description) || other.description == description)&&const DeepCollectionEquality().equals(other.sizeOptions, sizeOptions)&&const DeepCollectionEquality().equals(other.sizeVariants, sizeVariants)&&const DeepCollectionEquality().equals(other.similarProducts, similarProducts)&&(identical(other.category, category) || other.category == category)&&(identical(other.brand, brand) || other.brand == brand));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProductDetailModel&&(identical(other.product, product) || other.product == product)&&const DeepCollectionEquality().equals(other.images, images)&&(identical(other.description, description) || other.description == description)&&const DeepCollectionEquality().equals(other.sizeOptions, sizeOptions)&&const DeepCollectionEquality().equals(other.sizeVariants, sizeVariants)&&const DeepCollectionEquality().equals(other.similarProducts, similarProducts)&&(identical(other.category, category) || other.category == category)&&(identical(other.brand, brand) || other.brand == brand)&&(identical(other.rating, rating) || other.rating == rating)&&const DeepCollectionEquality().equals(other.reviews, reviews));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,product,const DeepCollectionEquality().hash(images),description,const DeepCollectionEquality().hash(sizeOptions),const DeepCollectionEquality().hash(sizeVariants),const DeepCollectionEquality().hash(similarProducts),category,brand);
+int get hashCode => Object.hash(runtimeType,product,const DeepCollectionEquality().hash(images),description,const DeepCollectionEquality().hash(sizeOptions),const DeepCollectionEquality().hash(sizeVariants),const DeepCollectionEquality().hash(similarProducts),category,brand,rating,const DeepCollectionEquality().hash(reviews));
 
 @override
 String toString() {
-  return 'ProductDetailModel(product: $product, images: $images, description: $description, sizeOptions: $sizeOptions, sizeVariants: $sizeVariants, similarProducts: $similarProducts, category: $category, brand: $brand)';
+  return 'ProductDetailModel(product: $product, images: $images, description: $description, sizeOptions: $sizeOptions, sizeVariants: $sizeVariants, similarProducts: $similarProducts, category: $category, brand: $brand, rating: $rating, reviews: $reviews)';
 }
 
 
@@ -57,11 +60,11 @@ abstract mixin class $ProductDetailModelCopyWith<$Res>  {
   factory $ProductDetailModelCopyWith(ProductDetailModel value, $Res Function(ProductDetailModel) _then) = _$ProductDetailModelCopyWithImpl;
 @useResult
 $Res call({
- ProductModel product, List<String> images, String description,@JsonKey(name: 'size_options') List<double> sizeOptions,@JsonKey(name: 'size_variants') List<SizeVariantModel> sizeVariants,@JsonKey(name: 'similar_products') List<ProductModel> similarProducts, CategoryModel? category, BrandModel? brand
+ ProductModel product, List<String> images, String description,@JsonKey(name: 'size_options') List<double> sizeOptions,@JsonKey(name: 'size_variants') List<SizeVariantModel> sizeVariants,@JsonKey(name: 'similar_products') List<ProductModel> similarProducts, CategoryModel? category, BrandModel? brand, ProductRatingModel rating, List<ReviewModel> reviews
 });
 
 
-$ProductModelCopyWith<$Res> get product;$CategoryModelCopyWith<$Res>? get category;$BrandModelCopyWith<$Res>? get brand;
+$ProductModelCopyWith<$Res> get product;$CategoryModelCopyWith<$Res>? get category;$BrandModelCopyWith<$Res>? get brand;$ProductRatingModelCopyWith<$Res> get rating;
 
 }
 /// @nodoc
@@ -74,7 +77,7 @@ class _$ProductDetailModelCopyWithImpl<$Res>
 
 /// Create a copy of ProductDetailModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? product = null,Object? images = null,Object? description = null,Object? sizeOptions = null,Object? sizeVariants = null,Object? similarProducts = null,Object? category = freezed,Object? brand = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? product = null,Object? images = null,Object? description = null,Object? sizeOptions = null,Object? sizeVariants = null,Object? similarProducts = null,Object? category = freezed,Object? brand = freezed,Object? rating = null,Object? reviews = null,}) {
   return _then(_self.copyWith(
 product: null == product ? _self.product : product // ignore: cast_nullable_to_non_nullable
 as ProductModel,images: null == images ? _self.images : images // ignore: cast_nullable_to_non_nullable
@@ -84,7 +87,9 @@ as List<double>,sizeVariants: null == sizeVariants ? _self.sizeVariants : sizeVa
 as List<SizeVariantModel>,similarProducts: null == similarProducts ? _self.similarProducts : similarProducts // ignore: cast_nullable_to_non_nullable
 as List<ProductModel>,category: freezed == category ? _self.category : category // ignore: cast_nullable_to_non_nullable
 as CategoryModel?,brand: freezed == brand ? _self.brand : brand // ignore: cast_nullable_to_non_nullable
-as BrandModel?,
+as BrandModel?,rating: null == rating ? _self.rating : rating // ignore: cast_nullable_to_non_nullable
+as ProductRatingModel,reviews: null == reviews ? _self.reviews : reviews // ignore: cast_nullable_to_non_nullable
+as List<ReviewModel>,
   ));
 }
 /// Create a copy of ProductDetailModel
@@ -119,6 +124,15 @@ $BrandModelCopyWith<$Res>? get brand {
 
   return $BrandModelCopyWith<$Res>(_self.brand!, (value) {
     return _then(_self.copyWith(brand: value));
+  });
+}/// Create a copy of ProductDetailModel
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$ProductRatingModelCopyWith<$Res> get rating {
+  
+  return $ProductRatingModelCopyWith<$Res>(_self.rating, (value) {
+    return _then(_self.copyWith(rating: value));
   });
 }
 }
@@ -202,10 +216,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( ProductModel product,  List<String> images,  String description, @JsonKey(name: 'size_options')  List<double> sizeOptions, @JsonKey(name: 'size_variants')  List<SizeVariantModel> sizeVariants, @JsonKey(name: 'similar_products')  List<ProductModel> similarProducts,  CategoryModel? category,  BrandModel? brand)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( ProductModel product,  List<String> images,  String description, @JsonKey(name: 'size_options')  List<double> sizeOptions, @JsonKey(name: 'size_variants')  List<SizeVariantModel> sizeVariants, @JsonKey(name: 'similar_products')  List<ProductModel> similarProducts,  CategoryModel? category,  BrandModel? brand,  ProductRatingModel rating,  List<ReviewModel> reviews)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ProductDetailModel() when $default != null:
-return $default(_that.product,_that.images,_that.description,_that.sizeOptions,_that.sizeVariants,_that.similarProducts,_that.category,_that.brand);case _:
+return $default(_that.product,_that.images,_that.description,_that.sizeOptions,_that.sizeVariants,_that.similarProducts,_that.category,_that.brand,_that.rating,_that.reviews);case _:
   return orElse();
 
 }
@@ -223,10 +237,10 @@ return $default(_that.product,_that.images,_that.description,_that.sizeOptions,_
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( ProductModel product,  List<String> images,  String description, @JsonKey(name: 'size_options')  List<double> sizeOptions, @JsonKey(name: 'size_variants')  List<SizeVariantModel> sizeVariants, @JsonKey(name: 'similar_products')  List<ProductModel> similarProducts,  CategoryModel? category,  BrandModel? brand)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( ProductModel product,  List<String> images,  String description, @JsonKey(name: 'size_options')  List<double> sizeOptions, @JsonKey(name: 'size_variants')  List<SizeVariantModel> sizeVariants, @JsonKey(name: 'similar_products')  List<ProductModel> similarProducts,  CategoryModel? category,  BrandModel? brand,  ProductRatingModel rating,  List<ReviewModel> reviews)  $default,) {final _that = this;
 switch (_that) {
 case _ProductDetailModel():
-return $default(_that.product,_that.images,_that.description,_that.sizeOptions,_that.sizeVariants,_that.similarProducts,_that.category,_that.brand);case _:
+return $default(_that.product,_that.images,_that.description,_that.sizeOptions,_that.sizeVariants,_that.similarProducts,_that.category,_that.brand,_that.rating,_that.reviews);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -243,10 +257,10 @@ return $default(_that.product,_that.images,_that.description,_that.sizeOptions,_
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( ProductModel product,  List<String> images,  String description, @JsonKey(name: 'size_options')  List<double> sizeOptions, @JsonKey(name: 'size_variants')  List<SizeVariantModel> sizeVariants, @JsonKey(name: 'similar_products')  List<ProductModel> similarProducts,  CategoryModel? category,  BrandModel? brand)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( ProductModel product,  List<String> images,  String description, @JsonKey(name: 'size_options')  List<double> sizeOptions, @JsonKey(name: 'size_variants')  List<SizeVariantModel> sizeVariants, @JsonKey(name: 'similar_products')  List<ProductModel> similarProducts,  CategoryModel? category,  BrandModel? brand,  ProductRatingModel rating,  List<ReviewModel> reviews)?  $default,) {final _that = this;
 switch (_that) {
 case _ProductDetailModel() when $default != null:
-return $default(_that.product,_that.images,_that.description,_that.sizeOptions,_that.sizeVariants,_that.similarProducts,_that.category,_that.brand);case _:
+return $default(_that.product,_that.images,_that.description,_that.sizeOptions,_that.sizeVariants,_that.similarProducts,_that.category,_that.brand,_that.rating,_that.reviews);case _:
   return null;
 
 }
@@ -258,7 +272,7 @@ return $default(_that.product,_that.images,_that.description,_that.sizeOptions,_
 @JsonSerializable()
 
 class _ProductDetailModel extends ProductDetailModel {
-  const _ProductDetailModel({required this.product, required final  List<String> images, required this.description, @JsonKey(name: 'size_options') required final  List<double> sizeOptions, @JsonKey(name: 'size_variants') final  List<SizeVariantModel> sizeVariants = const <SizeVariantModel>[], @JsonKey(name: 'similar_products') required final  List<ProductModel> similarProducts, this.category, this.brand}): _images = images,_sizeOptions = sizeOptions,_sizeVariants = sizeVariants,_similarProducts = similarProducts,super._();
+  const _ProductDetailModel({required this.product, required final  List<String> images, required this.description, @JsonKey(name: 'size_options') required final  List<double> sizeOptions, @JsonKey(name: 'size_variants') final  List<SizeVariantModel> sizeVariants = const <SizeVariantModel>[], @JsonKey(name: 'similar_products') required final  List<ProductModel> similarProducts, this.category, this.brand, this.rating = const ProductRatingModel(), final  List<ReviewModel> reviews = const <ReviewModel>[]}): _images = images,_sizeOptions = sizeOptions,_sizeVariants = sizeVariants,_similarProducts = similarProducts,_reviews = reviews,super._();
   factory _ProductDetailModel.fromJson(Map<String, dynamic> json) => _$ProductDetailModelFromJson(json);
 
 @override final  ProductModel product;
@@ -307,6 +321,17 @@ class _ProductDetailModel extends ProductDetailModel {
 // Nullable like category — unbranded products (and pre-brand backends)
 // answer without the key.
 @override final  BrandModel? brand;
+// The rating summary and first page of reviews. Both defaulted: a
+// backend (or mock fixture) that predates reviews answers without them,
+// which is indistinguishable from an unrated product — as it should be.
+@override@JsonKey() final  ProductRatingModel rating;
+ final  List<ReviewModel> _reviews;
+@override@JsonKey() List<ReviewModel> get reviews {
+  if (_reviews is EqualUnmodifiableListView) return _reviews;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_reviews);
+}
+
 
 /// Create a copy of ProductDetailModel
 /// with the given fields replaced by the non-null parameter values.
@@ -321,16 +346,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProductDetailModel&&(identical(other.product, product) || other.product == product)&&const DeepCollectionEquality().equals(other._images, _images)&&(identical(other.description, description) || other.description == description)&&const DeepCollectionEquality().equals(other._sizeOptions, _sizeOptions)&&const DeepCollectionEquality().equals(other._sizeVariants, _sizeVariants)&&const DeepCollectionEquality().equals(other._similarProducts, _similarProducts)&&(identical(other.category, category) || other.category == category)&&(identical(other.brand, brand) || other.brand == brand));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProductDetailModel&&(identical(other.product, product) || other.product == product)&&const DeepCollectionEquality().equals(other._images, _images)&&(identical(other.description, description) || other.description == description)&&const DeepCollectionEquality().equals(other._sizeOptions, _sizeOptions)&&const DeepCollectionEquality().equals(other._sizeVariants, _sizeVariants)&&const DeepCollectionEquality().equals(other._similarProducts, _similarProducts)&&(identical(other.category, category) || other.category == category)&&(identical(other.brand, brand) || other.brand == brand)&&(identical(other.rating, rating) || other.rating == rating)&&const DeepCollectionEquality().equals(other._reviews, _reviews));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,product,const DeepCollectionEquality().hash(_images),description,const DeepCollectionEquality().hash(_sizeOptions),const DeepCollectionEquality().hash(_sizeVariants),const DeepCollectionEquality().hash(_similarProducts),category,brand);
+int get hashCode => Object.hash(runtimeType,product,const DeepCollectionEquality().hash(_images),description,const DeepCollectionEquality().hash(_sizeOptions),const DeepCollectionEquality().hash(_sizeVariants),const DeepCollectionEquality().hash(_similarProducts),category,brand,rating,const DeepCollectionEquality().hash(_reviews));
 
 @override
 String toString() {
-  return 'ProductDetailModel(product: $product, images: $images, description: $description, sizeOptions: $sizeOptions, sizeVariants: $sizeVariants, similarProducts: $similarProducts, category: $category, brand: $brand)';
+  return 'ProductDetailModel(product: $product, images: $images, description: $description, sizeOptions: $sizeOptions, sizeVariants: $sizeVariants, similarProducts: $similarProducts, category: $category, brand: $brand, rating: $rating, reviews: $reviews)';
 }
 
 
@@ -341,11 +366,11 @@ abstract mixin class _$ProductDetailModelCopyWith<$Res> implements $ProductDetai
   factory _$ProductDetailModelCopyWith(_ProductDetailModel value, $Res Function(_ProductDetailModel) _then) = __$ProductDetailModelCopyWithImpl;
 @override @useResult
 $Res call({
- ProductModel product, List<String> images, String description,@JsonKey(name: 'size_options') List<double> sizeOptions,@JsonKey(name: 'size_variants') List<SizeVariantModel> sizeVariants,@JsonKey(name: 'similar_products') List<ProductModel> similarProducts, CategoryModel? category, BrandModel? brand
+ ProductModel product, List<String> images, String description,@JsonKey(name: 'size_options') List<double> sizeOptions,@JsonKey(name: 'size_variants') List<SizeVariantModel> sizeVariants,@JsonKey(name: 'similar_products') List<ProductModel> similarProducts, CategoryModel? category, BrandModel? brand, ProductRatingModel rating, List<ReviewModel> reviews
 });
 
 
-@override $ProductModelCopyWith<$Res> get product;@override $CategoryModelCopyWith<$Res>? get category;@override $BrandModelCopyWith<$Res>? get brand;
+@override $ProductModelCopyWith<$Res> get product;@override $CategoryModelCopyWith<$Res>? get category;@override $BrandModelCopyWith<$Res>? get brand;@override $ProductRatingModelCopyWith<$Res> get rating;
 
 }
 /// @nodoc
@@ -358,7 +383,7 @@ class __$ProductDetailModelCopyWithImpl<$Res>
 
 /// Create a copy of ProductDetailModel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? product = null,Object? images = null,Object? description = null,Object? sizeOptions = null,Object? sizeVariants = null,Object? similarProducts = null,Object? category = freezed,Object? brand = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? product = null,Object? images = null,Object? description = null,Object? sizeOptions = null,Object? sizeVariants = null,Object? similarProducts = null,Object? category = freezed,Object? brand = freezed,Object? rating = null,Object? reviews = null,}) {
   return _then(_ProductDetailModel(
 product: null == product ? _self.product : product // ignore: cast_nullable_to_non_nullable
 as ProductModel,images: null == images ? _self._images : images // ignore: cast_nullable_to_non_nullable
@@ -368,7 +393,9 @@ as List<double>,sizeVariants: null == sizeVariants ? _self._sizeVariants : sizeV
 as List<SizeVariantModel>,similarProducts: null == similarProducts ? _self._similarProducts : similarProducts // ignore: cast_nullable_to_non_nullable
 as List<ProductModel>,category: freezed == category ? _self.category : category // ignore: cast_nullable_to_non_nullable
 as CategoryModel?,brand: freezed == brand ? _self.brand : brand // ignore: cast_nullable_to_non_nullable
-as BrandModel?,
+as BrandModel?,rating: null == rating ? _self.rating : rating // ignore: cast_nullable_to_non_nullable
+as ProductRatingModel,reviews: null == reviews ? _self._reviews : reviews // ignore: cast_nullable_to_non_nullable
+as List<ReviewModel>,
   ));
 }
 
@@ -404,6 +431,15 @@ $BrandModelCopyWith<$Res>? get brand {
 
   return $BrandModelCopyWith<$Res>(_self.brand!, (value) {
     return _then(_self.copyWith(brand: value));
+  });
+}/// Create a copy of ProductDetailModel
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$ProductRatingModelCopyWith<$Res> get rating {
+  
+  return $ProductRatingModelCopyWith<$Res>(_self.rating, (value) {
+    return _then(_self.copyWith(rating: value));
   });
 }
 }

@@ -1,5 +1,7 @@
 import '../../../home/domain/entities/category_entity.dart';
 import '../../../home/domain/entities/product_entity.dart';
+import '../../../reviews/domain/entities/product_rating_entity.dart';
+import '../../../reviews/domain/entities/product_reviews_entity.dart';
 import 'brand_entity.dart';
 import 'size_variant_entity.dart';
 
@@ -27,6 +29,12 @@ class ProductDetailEntity {
   /// Null for an unbranded product, or when its brand has since been deleted.
   final BrandEntity? brand;
 
+  /// The rating summary and the first page of reviews, so a details screen
+  /// can paint its reviews section on arrival instead of opening a second
+  /// request. Writes go through `ProductReviewsBloc`, which reloads from the
+  /// reviews endpoint — this is the seed, not the live copy.
+  final ProductReviewsEntity reviews;
+
   const ProductDetailEntity({
     required this.product,
     required this.images,
@@ -35,5 +43,9 @@ class ProductDetailEntity {
     required this.similarProducts,
     this.category,
     this.brand,
+    this.reviews = const ProductReviewsEntity(
+      rating: ProductRatingEntity.empty,
+      reviews: [],
+    ),
   });
 }

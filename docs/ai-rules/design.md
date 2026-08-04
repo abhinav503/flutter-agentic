@@ -81,6 +81,10 @@ them for free — **no new block is needed just because a new pack shows up.**
   so durations can't drift per screen), `AppDropdownMenu`,
   `AppNetworkImage`, `AppSvgImage`, `AppGlassSurface`, `CommonGlassSurface`,
   `AppGlassChip`, `AppConcentricCircles`, `PageIndicator`, `ShimmerBox`,
+  `RatingStars` (a star row for a *fractional* rating — an average lands
+  between stars, so the trailing one fills partially) and its tappable
+  sibling `RatingStarsField` (whole-star 1–5 input; 0 = nothing picked yet,
+  which is what gates a write-review submit),
   `LoadingIndicator`, `LoadingDots`, `DeviceFrame`, `ThemeModeToggle`,
   `AppInlineTextLink`, `LabeledDivider`,
   `AppSurfaceCard` (the tap-card recipe every pack retyped: shadow → fill →

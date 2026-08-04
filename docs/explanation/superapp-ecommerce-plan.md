@@ -1792,3 +1792,122 @@ switched from the raw item sum to `payableTotal` so list and detail agree.
 (`ApiConstants.baseUrl`); everything on these tracks (brands, variants,
 coupons routes + engine) must be deployed there for the app to see it.
 Firestore + Storage rules for brands/coupons are already deployed.
+
+---
+
+## Product reviews — DONE end-to-end (2026-08-04)
+
+Shopper-written product reviews, live in all three templates and moderated
+from the admin console. Workspace analyze clean, cordelia's 11 tests green,
+admin tsc + eslint clean. (The one failing test in the repo,
+`apps/doc_scanner/test/widget_test.dart`, predates this work — verified on a
+clean tree.)
+
+**Eligibility, as the product owner scoped it:** a *product review* is open
+to **any signed-in CordeliaApps user**, bought or not. Rating a **delivered
+order** is a separate feature and is **not** built here — gravia's Orders
+card keeps its "Write A Review" coming-soon snackbar, since that button
+belongs to order rating. The purchase check still runs: the server derives
+`verifiedPurchase` from the reviewer's delivered orders and every template
+badges it, but it gates nothing.
+
+**Schema** — `stores/{id}/products/{productId}/reviews/{uid}`. The doc id
+**is** the reviewer's uid, so a shopper has at most one review per product:
+posting again edits theirs (no duplicate-spam check needed), and "have I
+reviewed this?" is a single get rather than a query. Fields: `rating` (1–5
+int), `text` (optional — a star-only review is a real review), `userName` /
+`userAvatarUrl` snapshotted from `users/{uid}` at write time (rendering N
+reviews would otherwise cost N profile reads), `verifiedPurchase`,
+`createdAt`/`updatedAt`, plus denormalized `storeId`/`productId` so the
+dashboard's store-wide list is one collection-group query.
+
+**Aggregates live on the product doc** — `ratingAverage`, `reviewCount`,
+`ratingBuckets` (per-star 1→5) — and move in the **same transaction** as
+every review write/edit/delete, which is why reviews are server-only in
+`firestore.rules` (world-readable, `allow write: if false`). Two
+consequences worth keeping: product docs are already loaded by every grid,
+so a card prints a rating with **zero** extra reads; and the buckets are
+stored rather than derived because a plain average cannot draw dailymart's
+five-bar histogram. The running sum isn't stored — it's the buckets'
+weighted total, so the average can never disagree with the histogram beside
+it. Aggregates move by *delta* (remove the old star, add the new), never by
+re-reading the subcollection.
+
+**API** — `GET/POST/DELETE /api/stores/{id}/products/{productId}/reviews`
+(GET public; POST/DELETE token-verified and always scoped to the caller's
+own uid) plus the owner-gated `GET /api/stores/{id}/reviews` and
+`DELETE /api/stores/{id}/reviews/{productId}/{uid}` for moderation.
+`serializeProduct` gained `rating_average`/`review_count`; the
+product-details payload gained `rating` + the first 10 `reviews`, so a
+details screen still opens in **one** call. New composite index:
+`reviews` COLLECTION_GROUP on `storeId` + `createdAt` desc.
+
+**Admin** — new `/dashboard/reviews`: date (with an "edited" line when the
+two timestamps differ), product, customer + verified badge, star row, text,
+delete-with-confirm. Fetched over the owner-gated route rather than the
+client SDK the other pages use — a collection-group query would need its own
+`/{path=**}/reviews/{uid}` rule, and deleting has to move the aggregates
+transactionally anyway; the trade is that this one list isn't live, which a
+moderation view can afford. Products table gained a Rating column, and
+`ProductInput` excludes the aggregates so the product form can never write
+them (the `CouponInput`/`usedCount` precedent).
+
+**Cordelia** — one shared `feature/storefront/reviews/` slice (entities,
+repository, three use cases, `ProductReviewsBloc`) with per-template
+presentation. The bloc is **seeded, not fetched**: the details payload
+already carries the first page, so `ProductReviewsEvent.seeded` paints the
+section with no second request; every *write* then reloads from the reviews
+endpoint rather than patching the seed, because a new review changes the
+list's order and the histogram too. The provider wraps the whole screen (not
+just the section) — the write sheet is opened from the screen's own
+`BaseScreenState`, which has to be under it to dispatch.
+
+**A write refreshes the product silently.** The rating beside a product's
+name (dailymart's pill, grofast's badge) reads the *product doc's*
+aggregates, which the reviews bloc's own reload can't touch — so a completed
+write also dispatches `ProductDetailsEvent.refreshed`, which re-reads the
+product **without** emitting `loading`. That's the whole point: the shopper
+is looking at a page they just interacted with, and dropping to the skeleton
+over it would read as the screen resetting. A silent refresh that *fails*
+also emits nothing, leaving the good page alone rather than replacing it
+with an error view. All three templates' loaded branches satisfy
+`Widget.canUpdate` across the re-emit (same type, same key), so their
+switchers repaint in place instead of crossfading, and the size/quantity
+selections survive because they live in screen state, not the bloc.
+
+The signal rides on `ProductReviewsLoaded.afterWrite` rather than the screen
+remembering a write was in flight — the bloc is the one thing that knows
+what just happened. Its companion is a guard in `_onSeeded`: seeding is
+first paint, not a reset, so the refreshed details payload (whose review
+list is only the first page) can't truncate a longer list the section had
+already reloaded.
+
+**Per-template:** dailymart's kit frame `23 Review product` went from
+entirely static to entity-driven with its geometry unchanged (bars now fill
+to each star's *share* of the reviews); gravia and grofast, whose kits draw
+no reviews frame, got sections composed from recipes those packs already
+owned. All three gained a write/edit sheet over the shared
+`WriteReviewForm` mixin, and a Delete on the shopper's **own** row only.
+Every "unrated" state says so rather than printing `0.0` stars, which reads
+as *badly reviewed* instead of *unreviewed*.
+
+**Three things this quietly fixed.** `ProductSortOption.ratingHighToLow` was
+a dead option in gravia's and dailymart's sort sheets (it fell through to
+`break`) — it now sorts, and grofast's filter sheet, which had omitted it on
+purpose, offers it. The two remaining pieces of invented copy in the packs
+(`DailyMartValueConst.staticRatingLabel`, `GrofastValueConst.staticRatingLabel`)
+are deleted. And `CordeliaFormField`/`DailyMartFormField` gained the
+`maxLines` passthrough grofast's field already had.
+
+**Promoted to core:** `RatingStars` (fractional — an average lands between
+stars) and `RatingStarsField` (whole-star input), both with gallery entries.
+`GraviaActionButton` was extracted from `GraviaActionPair`'s private
+`_button` so a single action renders the same pill as a paired one.
+
+**Deploy note.** Same as the coupons track: the new routes must reach the
+Vercel admin, and `firestore.rules` + `firestore.indexes.json` need
+deploying (the collection-group index especially — the dashboard's Reviews
+page 500s without it).
+
+**Still open:** order rating (the delivered-order button), review
+pagination beyond the first 50, and owner replies.

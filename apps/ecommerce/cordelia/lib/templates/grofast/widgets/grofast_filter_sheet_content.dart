@@ -43,14 +43,13 @@ class _GrofastFilterSheetContentState extends State<GrofastFilterSheetContent> {
   late ProductSortOption _sort = widget.initialSort;
   late ProductPriceFilter _priceFilter = widget.initialPriceFilter;
 
-  /// The two axes the shared `CategoryDetailsBloc`/`SearchBloc` expose. Rating
-  /// is omitted from the sort list: no product carries a rating, so the option
-  /// would silently do nothing.
+  /// The two axes the shared `CategoryDetailsBloc`/`SearchBloc` expose.
   static const _sortOptions = [
     ProductSortOption.relevance,
     ProductSortOption.priceLowToHigh,
     ProductSortOption.priceHighToLow,
     ProductSortOption.discountHighToLow,
+    ProductSortOption.ratingHighToLow,
   ];
 
   @override

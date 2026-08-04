@@ -36,16 +36,6 @@ abstract final class DailyMartValueConst {
   static String discountPercentOffLabel(double percentage) =>
       '${percentage.asPercent}% off';
 
-  /// **Placeholder.** The kit shows a rating + review count on every card and
-  /// the layout is built around that row, but neither value exists on
-  /// `ProductEntity` yet (the admin catalog doesn't collect reviews) — so
-  /// every card renders the kit's own numbers verbatim.
-  ///
-  /// This is the one piece of invented copy in the pack. When reviews land,
-  /// replace it with a `ratingLabel(rating, reviewCount)` formatter and take
-  /// the values off the entity; the row's geometry does not change.
-  static const staticRatingLabel = '4.9 (345)';
-
   // ── Bottom navigation (kit tab set) ──────────────────────────────────────
   static const navHome = 'Home';
   static const navWishlist = 'Wishlist';
@@ -108,19 +98,15 @@ abstract final class DailyMartValueConst {
   static String addedToCartMessage(String name, int quantity) =>
       'Added $quantity × $name to your cart.';
 
-  /// The static Reviews tab (kit screen `23 Review product`) — the store
-  /// backend collects no reviews yet, so the whole tab renders the kit's own
-  /// copy verbatim, same policy as [staticRatingLabel].
-  static const staticReviewScore = '5.0/5.0';
-  static const staticReviewCount = '1.53K Reviews';
+  /// The Reviews tab (kit screen `23 Review product`). The kit's own
+  /// numbers were placeholders until reviews landed; these two formatters
+  /// render the real ones in the same shapes the frame drew — "5.0/5.0"
+  /// beside a "5 Star" bar row. The tab's review count reads through the
+  /// app-level `ValueConst.reviewCountLabel`, since that wording is the
+  /// shared reviews feature's, not this pack's.
+  static String reviewScoreLabel(double average) =>
+      '${average.toStringAsFixed(1)}/5.0';
   static String starRowLabel(int stars) => '$stars Star';
-  static const staticReviewerName = 'Shane Watson';
-  static const staticReviewAge = '1 day ago';
-  static const staticReviewText =
-      'It is a long established fact that a reader will be distracted by the '
-      'readable content of a page when looking at its layout.';
-  static const staticReviewLikes = '135';
-  static const staticReviewDislikes = '10';
 
   // ── Cart ─────────────────────────────────────────────────────────────────
   static const myCartTitle = 'My Cart';

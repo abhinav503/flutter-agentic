@@ -1,3 +1,4 @@
+import 'package:cordelia/constants/value_const.dart';
 import 'package:cordelia/enums/product_unit_type.dart';
 import 'package:cordelia/feature/storefront/cart/presentation/quantity_selection.dart';
 import 'package:cordelia/feature/storefront/favourites/presentation/cubit/favourites_cubit.dart';
@@ -24,8 +25,15 @@ import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/blocks/collapsing_header_sheet.dart';
 import 'package:core/core/ui/blocks/ecommerce/product_meta_row.dart';
 import 'package:core/core/ui/molecules/error_view.dart';
+import 'package:core/core/ui/molecules/skeleton_rows.dart';
 
 import '../../../../../home/domain/entities/product_entity.dart';
+import '../../../../../reviews/domain/entities/product_reviews_entity.dart';
+import '../../../../../reviews/domain/entities/review_entity.dart';
+import '../../../../../reviews/presentation/bloc/product_reviews_bloc.dart';
+import '../../../../../reviews/presentation/product_reviews_actions.dart';
+import '../../../../../reviews/presentation/templates/gravia/widgets/product_reviews_section.dart';
+import '../../../../../reviews/presentation/templates/gravia/widgets/write_review_sheet_content.dart';
 import '../../../../domain/entities/product_detail_entity.dart';
 import '../../../bloc/product_details_bloc.dart';
 import '../../../product_details_actions.dart';
@@ -45,12 +53,57 @@ class ProductDetailsScreen extends BaseScreen {
 }
 
 class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
-    with QuantitySelection, ProductDetailsActions {
+    with QuantitySelection, ProductDetailsActions, ProductReviewsActions {
   @override
   String get storeId => widget.storeId;
 
   void _showAddToCartSheet(ProductEntity product) =>
       showGraviaAddToCartSheet(product: product, onAddToCart: addToCart);
+
+  @override
+  Future<void> showWriteReviewSheet(ReviewEntity? existing) =>
+      showGraviaSheet<void>(
+        title: ValueConst.reviewSheetTitle,
+        child: GraviaWriteReviewSheetContent(
+          existing: existing,
+          onSubmit: submitReview,
+          onMessage: showSnackBar,
+        ),
+      );
+
+  @override
+  Future<void> showDeleteReviewSheet({required VoidCallback onConfirm}) =>
+      showGraviaConfirmSheet(
+        context: context,
+        title: ValueConst.reviewDeleteConfirmTitle,
+        message: ValueConst.reviewDeleteConfirmMessage,
+        confirmLabel: ValueConst.deleteReviewLabel,
+        onConfirm: onConfirm,
+      );
+
+  /// The Ratings & Reviews block. Its own builder rather than part of the
+  /// details switch: a write repaints only this section, leaving the hero,
+  /// price and size chips untouched.
+  Widget _reviewsSection() =>
+      BlocBuilder<ProductReviewsBloc, ProductReviewsState>(
+        builder: (context, state) {
+          final reviews = state.reviewsOrNull;
+          // Only before the seed lands (and while a refresh re-reads) — a
+          // skeleton in the section's own shape, never a spinner.
+          if (reviews == null) return const ShimmerListRow(itemCount: 2);
+
+          return GraviaProductReviewsSection(
+            reviews: reviews,
+            currentUid: currentUid,
+            // Null while a write is in flight: the CTA stops accepting taps
+            // instead of stacking a second submit on the first.
+            onWriteReview: state.isSubmitting
+                ? null
+                : () => writeReview(reviews.mine(currentUid)),
+            onDeleteReview: state.isSubmitting ? null : confirmDeleteReview,
+          );
+        },
+      );
 
   @override
   SystemUiOverlayStyle? overlayStyle(BuildContext context) =>
@@ -64,6 +117,11 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
       listener: (context, state) {
         if (state case ProductDetailsError(:final message)) {
           showSnackBar(message);
+        }
+        // Hands the reviews section the page it already loaded, instead of
+        // it fetching the same first page again.
+        if (state case ProductDetailsLoaded(:final detail)) {
+          seedReviews(detail.reviews);
         }
       },
       builder: (context, state) => GraviaSwitcher(
@@ -249,6 +307,10 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
                   Divider(color: hairlineColor, height: 1, thickness: 1),
                   const SizedBox(height: AppSpacing.xl2),
                   ProductDetailKeyInfo(description: detail.description),
+                  const SizedBox(height: AppSpacing.xl2),
+                  Divider(color: hairlineColor, height: 1, thickness: 1),
+                  const SizedBox(height: AppSpacing.xl2),
+                  _reviewsSection(),
                   const SizedBox(height: AppSpacing.xl2),
                   ProductDetailSimilarProducts(
                     products: detail.similarProducts,

@@ -2,6 +2,7 @@
 
 import { useEffect, useState, type FormEvent } from "react";
 import Image from "next/image";
+import { Star } from "lucide-react";
 import { useStore } from "@/lib/store-context";
 import { watchCategories } from "@/lib/categories";
 import { watchBrands } from "@/lib/brands";
@@ -110,6 +111,7 @@ export default function ProductsPage() {
             <TableHead>Brand</TableHead>
             <TableHead>Price</TableHead>
             <TableHead>Stock</TableHead>
+            <TableHead>Rating</TableHead>
             <TableHead>Categories</TableHead>
             <TableHead className="w-32 text-right">Actions</TableHead>
           </TableRow>
@@ -117,7 +119,7 @@ export default function ProductsPage() {
         <TableBody>
           {products.length === 0 && (
             <TableRow>
-              <TableCell colSpan={7} className="text-center text-muted-foreground">
+              <TableCell colSpan={8} className="text-center text-muted-foreground">
                 No products yet.
               </TableCell>
             </TableRow>
@@ -162,6 +164,21 @@ export default function ProductsPage() {
                   product.stock
                 ) : (
                   <Badge variant="destructive">Out of stock</Badge>
+                )}
+              </TableCell>
+              <TableCell className="whitespace-nowrap">
+                {/* Rolled up from the product's reviews (see lib/reviews.ts);
+                    read-only here — the form never writes these. */}
+                {product.reviewCount > 0 ? (
+                  <span className="flex items-center gap-1">
+                    <Star className="size-3.5 fill-amber-400 text-amber-400" />
+                    {product.ratingAverage.toFixed(1)}
+                    <span className="text-xs text-muted-foreground">
+                      ({product.reviewCount})
+                    </span>
+                  </span>
+                ) : (
+                  <span className="text-muted-foreground">—</span>
                 )}
               </TableCell>
               <TableCell>

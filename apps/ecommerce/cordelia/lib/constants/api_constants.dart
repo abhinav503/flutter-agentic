@@ -53,6 +53,12 @@ abstract final class ApiConstants {
   static String productDetailsPath(String storeId, String productId) =>
       '${_storeBase(storeId)}/products/$productId';
 
+  /// A product's reviews. GET is public (a rating is part of a product's
+  /// public face); POST/DELETE are token-authed and act on the caller's own
+  /// review — one path, three verbs.
+  static String productReviewsPath(String storeId, String productId) =>
+      '${productDetailsPath(storeId, productId)}/reviews';
+
   /// Store-agnostic like [usersPath]; token-authed (no userId param).
   static String get addressesPath => '$baseUrl/users/addresses';
 

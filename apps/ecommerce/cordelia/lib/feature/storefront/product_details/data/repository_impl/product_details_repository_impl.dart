@@ -49,6 +49,7 @@ class ProductDetailsRepositoryImpl
         similarProducts: entity.similarProducts,
         category: entity.category,
         brand: entity.brand,
+        reviews: entity.reviews,
       ),
     );
   });

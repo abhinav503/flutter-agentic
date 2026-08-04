@@ -1,3 +1,5 @@
+import 'package:core/core/extensions/num_extensions.dart';
+
 abstract final class ValueConst {
   static const appTitle = 'CordeliaApps';
 
@@ -161,4 +163,58 @@ abstract final class ValueConst {
   static const priceFilter5To10Label = '\$5 - \$10';
   static const priceFilter10To20Label = '\$10 - \$20';
   static const priceFilterOver20Label = 'Over \$20';
+
+  // ── Product reviews — app-level, not per-pack: one shared reviews feature
+  // serves every storefront, and the wording describes the *mechanism*
+  // (ratings, verified purchases, one review per shopper) rather than any
+  // pack's voice. Each template still supplies its own section/sheet titles.
+  static const reviewsSectionTitle = 'Ratings & Reviews';
+  static const writeReviewLabel = 'Write a review';
+  static const editReviewLabel = 'Edit your review';
+  static const deleteReviewLabel = 'Delete';
+  static const reviewSheetTitle = 'Rate this product';
+  static const reviewRatingPrompt = 'How many stars?';
+  static const reviewTextLabel = 'Your review';
+  static const reviewTextHint = 'Tell other shoppers what you thought…';
+  static const reviewSubmitLabel = 'Submit review';
+  static const reviewMissingRatingMessage = 'Pick a star rating first.';
+  static const reviewDeleteConfirmTitle = 'Delete your review?';
+  static const reviewDeleteConfirmMessage =
+      "This removes your rating from the product's average. You can write a "
+      'new one any time.';
+  static const reviewSignedOutMessage = 'Sign in to review this product.';
+  static const verifiedPurchaseLabel = 'Verified purchase';
+  static const reviewsEmptyTitle = 'No reviews yet';
+  static const reviewsEmptySubtitle =
+      'Be the first to rate this product and help other shoppers decide.';
+  static const unratedLabel = 'No ratings yet';
+
+  /// "4.6 (128)" — the compact form a product card prints beside its stars.
+  static String ratingLabel(double average, int count) =>
+      '${average.toStringAsFixed(1)} ($count)';
+
+  /// "128 reviews" / "1 review".
+  static String reviewCountLabel(int count) =>
+      '$count ${count.plural('review')}';
+
+  /// The review's age, as a review list shows it ("2 days ago"). Coarse on
+  /// purpose: the exact minute a review was written is never what a reader
+  /// wants, and a date alone reads as stale for something posted an hour ago.
+  static String reviewAgeLabel(DateTime posted, {DateTime? now}) {
+    final elapsed = (now ?? DateTime.now()).difference(posted);
+    if (elapsed.inMinutes < 1) return 'Just now';
+    if (elapsed.inHours < 1) {
+      return '${elapsed.inMinutes} ${elapsed.inMinutes.plural('minute')} ago';
+    }
+    if (elapsed.inDays < 1) {
+      return '${elapsed.inHours} ${elapsed.inHours.plural('hour')} ago';
+    }
+    if (elapsed.inDays < 30) {
+      return '${elapsed.inDays} ${elapsed.inDays.plural('day')} ago';
+    }
+    final months = elapsed.inDays ~/ 30;
+    if (months < 12) return '$months ${months.plural('month')} ago';
+    final years = elapsed.inDays ~/ 365;
+    return '$years ${years.plural('year')} ago';
+  }
 }

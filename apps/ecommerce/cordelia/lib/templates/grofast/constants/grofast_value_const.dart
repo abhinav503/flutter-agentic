@@ -79,14 +79,6 @@ abstract final class GrofastValueConst {
       'Added $quantity × $name to your bag.';
   static const noDescriptionLabel = 'No description for this product yet.';
 
-  /// **Placeholder**, the pack's only invented copy — same reasoning as
-  /// dailymart's `staticRatingLabel`: the kit sets a rating badge beside the
-  /// category on this screen, but no rating exists on `ProductEntity` (the
-  /// admin catalog collects no reviews), so the badge renders the kit's own
-  /// number. When reviews land, take the value off the entity and delete
-  /// this; the badge's geometry does not change.
-  static const staticRatingLabel = '4.7';
-
   // ── Bag (cart) ───────────────────────────────────────────────────────────
   static const bagTitle = 'My Bag';
   static String bagItemCount(int count) => '$count ${count.plural('item')}';

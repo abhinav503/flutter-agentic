@@ -87,11 +87,12 @@ extension ProductDetailsEventPatterns on ProductDetailsEvent {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( ProductDetailsStarted value)?  started,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( ProductDetailsStarted value)?  started,TResult Function( ProductDetailsRefreshed value)?  refreshed,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case ProductDetailsStarted() when started != null:
-return started(_that);case _:
+return started(_that);case ProductDetailsRefreshed() when refreshed != null:
+return refreshed(_that);case _:
   return orElse();
 
 }
@@ -109,11 +110,12 @@ return started(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( ProductDetailsStarted value)  started,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( ProductDetailsStarted value)  started,required TResult Function( ProductDetailsRefreshed value)  refreshed,}){
 final _that = this;
 switch (_that) {
 case ProductDetailsStarted():
-return started(_that);}
+return started(_that);case ProductDetailsRefreshed():
+return refreshed(_that);}
 }
 /// A variant of `map` that fallback to returning `null`.
 ///
@@ -127,11 +129,12 @@ return started(_that);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( ProductDetailsStarted value)?  started,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( ProductDetailsStarted value)?  started,TResult? Function( ProductDetailsRefreshed value)?  refreshed,}){
 final _that = this;
 switch (_that) {
 case ProductDetailsStarted() when started != null:
-return started(_that);case _:
+return started(_that);case ProductDetailsRefreshed() when refreshed != null:
+return refreshed(_that);case _:
   return null;
 
 }
@@ -148,10 +151,11 @@ return started(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String storeId,  String productId)?  started,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String storeId,  String productId)?  started,TResult Function( String storeId,  String productId)?  refreshed,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case ProductDetailsStarted() when started != null:
-return started(_that.storeId,_that.productId);case _:
+return started(_that.storeId,_that.productId);case ProductDetailsRefreshed() when refreshed != null:
+return refreshed(_that.storeId,_that.productId);case _:
   return orElse();
 
 }
@@ -169,10 +173,11 @@ return started(_that.storeId,_that.productId);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String storeId,  String productId)  started,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String storeId,  String productId)  started,required TResult Function( String storeId,  String productId)  refreshed,}) {final _that = this;
 switch (_that) {
 case ProductDetailsStarted():
-return started(_that.storeId,_that.productId);}
+return started(_that.storeId,_that.productId);case ProductDetailsRefreshed():
+return refreshed(_that.storeId,_that.productId);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -186,10 +191,11 @@ return started(_that.storeId,_that.productId);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String storeId,  String productId)?  started,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String storeId,  String productId)?  started,TResult? Function( String storeId,  String productId)?  refreshed,}) {final _that = this;
 switch (_that) {
 case ProductDetailsStarted() when started != null:
-return started(_that.storeId,_that.productId);case _:
+return started(_that.storeId,_that.productId);case ProductDetailsRefreshed() when refreshed != null:
+return refreshed(_that.storeId,_that.productId);case _:
   return null;
 
 }
@@ -256,6 +262,74 @@ class _$ProductDetailsStartedCopyWithImpl<$Res>
 /// with the given fields replaced by the non-null parameter values.
 @override @pragma('vm:prefer-inline') $Res call({Object? storeId = null,Object? productId = null,}) {
   return _then(ProductDetailsStarted(
+storeId: null == storeId ? _self.storeId : storeId // ignore: cast_nullable_to_non_nullable
+as String,productId: null == productId ? _self.productId : productId // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class ProductDetailsRefreshed implements ProductDetailsEvent {
+  const ProductDetailsRefreshed({required this.storeId, required this.productId});
+  
+
+@override final  String storeId;
+@override final  String productId;
+
+/// Create a copy of ProductDetailsEvent
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$ProductDetailsRefreshedCopyWith<ProductDetailsRefreshed> get copyWith => _$ProductDetailsRefreshedCopyWithImpl<ProductDetailsRefreshed>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProductDetailsRefreshed&&(identical(other.storeId, storeId) || other.storeId == storeId)&&(identical(other.productId, productId) || other.productId == productId));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,storeId,productId);
+
+@override
+String toString() {
+  return 'ProductDetailsEvent.refreshed(storeId: $storeId, productId: $productId)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $ProductDetailsRefreshedCopyWith<$Res> implements $ProductDetailsEventCopyWith<$Res> {
+  factory $ProductDetailsRefreshedCopyWith(ProductDetailsRefreshed value, $Res Function(ProductDetailsRefreshed) _then) = _$ProductDetailsRefreshedCopyWithImpl;
+@override @useResult
+$Res call({
+ String storeId, String productId
+});
+
+
+
+
+}
+/// @nodoc
+class _$ProductDetailsRefreshedCopyWithImpl<$Res>
+    implements $ProductDetailsRefreshedCopyWith<$Res> {
+  _$ProductDetailsRefreshedCopyWithImpl(this._self, this._then);
+
+  final ProductDetailsRefreshed _self;
+  final $Res Function(ProductDetailsRefreshed) _then;
+
+/// Create a copy of ProductDetailsEvent
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? storeId = null,Object? productId = null,}) {
+  return _then(ProductDetailsRefreshed(
 storeId: null == storeId ? _self.storeId : storeId // ignore: cast_nullable_to_non_nullable
 as String,productId: null == productId ? _self.productId : productId // ignore: cast_nullable_to_non_nullable
 as String,

@@ -46,13 +46,24 @@ class GraviaActionPair extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Row(
     children: [
-      Expanded(child: _button(context, left)),
+      Expanded(child: GraviaActionButton(action: left)),
       const SizedBox(width: AppSpacing.base),
-      Expanded(child: _button(context, right)),
+      Expanded(child: GraviaActionButton(action: right)),
     ],
   );
+}
 
-  Widget _button(BuildContext context, GraviaAction action) {
+/// One [GraviaAction] rendered on its own — the pill recipe [GraviaActionPair]
+/// puts in each half, available separately for the rows that carry a single
+/// action (Product Details' write-a-review CTA). Kept in this file so the two
+/// can never drift into different pills.
+class GraviaActionButton extends StatelessWidget {
+  final GraviaAction action;
+
+  const GraviaActionButton({super.key, required this.action});
+
+  @override
+  Widget build(BuildContext context) {
     if (action.kind == GraviaActionKind.tintedError) {
       return GraviaTintedButton(
         label: action.label,

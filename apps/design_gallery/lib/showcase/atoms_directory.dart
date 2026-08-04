@@ -19,6 +19,7 @@ import 'package:core/core/ui/atoms/loading_indicator.dart';
 import 'package:core/core/ui/atoms/network_image.dart';
 import 'package:core/core/ui/atoms/page_indicator.dart';
 import 'package:core/core/ui/atoms/radio_dot.dart';
+import 'package:core/core/ui/atoms/rating_stars.dart';
 import 'package:core/core/ui/atoms/shimmer_box.dart';
 import 'package:core/core/ui/atoms/surface_card.dart';
 import 'package:core/core/ui/atoms/svg_image.dart';
@@ -244,8 +245,9 @@ WidgetbookCategory atomsCategory() {
                 borderRadius: AppRadius.sm,
                 height: 32,
                 padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-                selectedLabelStyle: Theme.of(context).textTheme.labelMedium!
-                    .copyWith(fontWeight: FontWeight.w700),
+                selectedLabelStyle: Theme.of(
+                  context,
+                ).textTheme.labelMedium!.copyWith(fontWeight: FontWeight.w700),
               ),
             ),
           ),
@@ -762,6 +764,38 @@ WidgetbookCategory atomsCategory() {
           Variant(
             'Vertical',
             const PageIndicator(count: 3, currentIndex: 1, axis: Axis.vertical),
+          ),
+        ]),
+      ),
+      allVariants(
+        'RatingStars',
+        (context) => showcase(context, [
+          const Variant('Whole (4)', RatingStars(rating: 4)),
+          // The reason the widget takes a double: an average of many reviews
+          // lands between stars, and the trailing one fills partially.
+          const Variant('Fractional (4.3)', RatingStars(rating: 4.3)),
+          const Variant('Unrated (0)', RatingStars(rating: 0)),
+          const Variant('Full (5)', RatingStars(rating: 5)),
+          const Variant(
+            'Large, pack swatch',
+            RatingStars(rating: 3.5, size: 28, color: Color(0xFFF1B826)),
+          ),
+        ]),
+      ),
+      allVariants(
+        'RatingStarsField',
+        (context) => showcase(context, [
+          // Interactive in the gallery would need per-use-case state; these
+          // render the values a write-review form moves between.
+          Variant(
+            'Nothing picked',
+            RatingStarsField(value: 0, onChanged: (_) {}),
+          ),
+          Variant('3 stars', RatingStarsField(value: 3, onChanged: (_) {})),
+          Variant('5 stars', RatingStarsField(value: 5, onChanged: (_) {})),
+          Variant(
+            'Submitting (disabled)',
+            RatingStarsField(value: 4, onChanged: (_) {}, enabled: false),
           ),
         ]),
       ),

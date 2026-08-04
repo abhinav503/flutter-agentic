@@ -17,6 +17,12 @@ class ProductEntity {
   final String prepTime;
   final bool isFavourite;
 
+  /// The product's rolled-up rating, denormalized onto every product payload
+  /// so a card can print it without loading any reviews. [reviewCount] 0
+  /// means unrated — render that as such, never as 0.0 stars.
+  final double ratingAverage;
+  final int reviewCount;
+
   const ProductEntity({
     required this.id,
     required this.name,
@@ -28,5 +34,11 @@ class ProductEntity {
     required this.unitType,
     required this.prepTime,
     required this.isFavourite,
+    this.ratingAverage = 0,
+    this.reviewCount = 0,
   });
+}
+
+extension ProductEntityRatingX on ProductEntity {
+  bool get hasRating => reviewCount > 0;
 }

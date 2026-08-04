@@ -17,26 +17,47 @@ class ProductDetailsBloc
   }) : _getProductDetails = getProductDetailsUseCase,
        super(const ProductDetailsState.loading()) {
     on<ProductDetailsStarted>(_onStarted);
+    on<ProductDetailsRefreshed>(_onRefreshed);
   }
 
   Future<void> _onStarted(
     ProductDetailsStarted event,
     Emitter<ProductDetailsState> emit,
-  ) async {
+  ) => _load(event.storeId, event.productId, emit);
+
+  Future<void> _onRefreshed(
+    ProductDetailsRefreshed event,
+    Emitter<ProductDetailsState> emit,
+  ) => _load(event.storeId, event.productId, emit, silent: true);
+
+  /// Shared by the first load and the silent refresh — a private method
+  /// rather than one handler re-dispatching the other's event.
+  ///
+  /// [silent] is what makes a background refresh invisible: the screen is
+  /// already showing a good page, so a failure leaves it alone instead of
+  /// replacing it with an error view, and success repaints in place. The
+  /// bloc never emits `loading` here, which is what keeps the skeleton from
+  /// flashing over a page the shopper is already reading.
+  Future<void> _load(
+    String storeId,
+    String productId,
+    Emitter<ProductDetailsState> emit, {
+    bool silent = false,
+  }) async {
     final result = await _getProductDetails(
-      GetProductDetailsParams(
-        storeId: event.storeId,
-        productId: event.productId,
-      ),
+      GetProductDetailsParams(storeId: storeId, productId: productId),
     );
     result.fold(
-      (failure) => emit(
-        ProductDetailsState.error(
-          message: failure.message,
-          storeId: event.storeId,
-          productId: event.productId,
-        ),
-      ),
+      (failure) {
+        if (silent) return;
+        emit(
+          ProductDetailsState.error(
+            message: failure.message,
+            storeId: storeId,
+            productId: productId,
+          ),
+        );
+      },
       (detail) => emit(ProductDetailsState.loaded(detail: detail)),
     );
   }

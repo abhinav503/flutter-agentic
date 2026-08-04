@@ -6,6 +6,7 @@ import 'package:core/core/base/base_screen.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/network_image.dart';
 import 'package:core/core/ui/atoms/shimmer_box.dart';
+import 'package:core/core/ui/molecules/skeleton_rows.dart';
 
 import 'package:cordelia/enums/product_unit_type.dart';
 import 'package:cordelia/feature/storefront/cart/presentation/quantity_selection.dart';
@@ -13,7 +14,14 @@ import 'package:cordelia/feature/storefront/favourites/presentation/cubit/favour
 import 'package:cordelia/feature/storefront/home/domain/entities/product_entity.dart';
 import 'package:cordelia/feature/storefront/product_details/domain/entities/product_detail_entity.dart';
 import 'package:cordelia/feature/storefront/product_details/domain/entities/size_variant_entity.dart';
+import 'package:cordelia/constants/value_const.dart';
 import 'package:cordelia/feature/storefront/product_details/presentation/product_details_actions.dart';
+import 'package:cordelia/feature/storefront/reviews/domain/entities/product_reviews_entity.dart';
+import 'package:cordelia/feature/storefront/reviews/domain/entities/review_entity.dart';
+import 'package:cordelia/feature/storefront/reviews/presentation/bloc/product_reviews_bloc.dart';
+import 'package:cordelia/feature/storefront/reviews/presentation/product_reviews_actions.dart';
+import 'package:cordelia/feature/storefront/reviews/presentation/templates/grofast/widgets/product_reviews_section.dart';
+import 'package:cordelia/feature/storefront/reviews/presentation/templates/grofast/widgets/write_review_sheet_content.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_color_const.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_dimen_const.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_text_style_const.dart';
@@ -27,6 +35,7 @@ import 'package:cordelia/templates/grofast/widgets/grofast_product_card.dart';
 import 'package:cordelia/templates/grofast/widgets/grofast_product_grid.dart';
 import 'package:cordelia/templates/grofast/widgets/grofast_screen_body.dart';
 import 'package:cordelia/templates/grofast/widgets/grofast_section_header.dart';
+import 'package:cordelia/templates/grofast/widgets/grofast_sheet.dart';
 import 'package:cordelia/templates/grofast/widgets/grofast_state_views.dart';
 
 import '../../../bloc/product_details_bloc.dart';
@@ -49,9 +58,53 @@ class ProductDetailsScreen extends BaseScreen {
 }
 
 class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
-    with QuantitySelection, ProductDetailsActions {
+    with QuantitySelection, ProductDetailsActions, ProductReviewsActions {
   @override
   String get storeId => widget.storeId;
+
+  @override
+  Future<void> showWriteReviewSheet(ReviewEntity? existing) =>
+      showGrofastSheet<void>(
+        title: ValueConst.reviewSheetTitle,
+        child: GrofastWriteReviewSheetContent(
+          existing: existing,
+          onSubmit: submitReview,
+          onMessage: showSnackBar,
+        ),
+      );
+
+  @override
+  Future<void> showDeleteReviewSheet({required VoidCallback onConfirm}) =>
+      showGrofastConfirmSheet(
+        context: context,
+        title: ValueConst.reviewDeleteConfirmTitle,
+        message: ValueConst.reviewDeleteConfirmMessage,
+        confirmLabel: ValueConst.deleteReviewLabel,
+        onConfirm: onConfirm,
+      );
+
+  /// The Reviews block, built here and handed to [_DetailsContent] — a write
+  /// repaints only this subtree, leaving the hero, price and chips untouched.
+  Widget _reviewsSection() =>
+      BlocBuilder<ProductReviewsBloc, ProductReviewsState>(
+        builder: (context, state) {
+          final reviews = state.reviewsOrNull;
+          // Only before the seed lands (and while a refresh re-reads) — a
+          // skeleton in the section's own shape, never a spinner.
+          if (reviews == null) return const ShimmerListRow(itemCount: 2);
+
+          return GrofastProductReviewsSection(
+            reviews: reviews,
+            currentUid: currentUid,
+            // Null while a write is in flight: the CTA stops accepting taps
+            // instead of stacking a second submit on the first.
+            onWriteReview: state.isSubmitting
+                ? null
+                : () => writeReview(reviews.mine(currentUid)),
+            onDeleteReview: state.isSubmitting ? null : confirmDeleteReview,
+          );
+        },
+      );
 
   void _addToBag(ProductDetailEntity detail) {
     addSelectedToCart(detail, quantity);
@@ -67,57 +120,72 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
 
   @override
   Widget body(BuildContext context) {
-    return BlocBuilder<ProductDetailsBloc, ProductDetailsState>(
-      builder: (context, state) => GrofastSwitcher(
-        child: switch (state) {
-          ProductDetailsLoading() => _DetailsSkeletonBody(
-            storeId: widget.storeId,
-          ),
-          ProductDetailsError(
-            :final message,
-            :final storeId,
-            :final productId,
-          ) =>
-            SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: GrofastDimenConst.screenGutter,
-                ),
-                child: Column(
-                  children: [
-                    const GrofastHeaderRow(),
-                    Expanded(
-                      child: Center(
-                        child: GrofastErrorView(
-                          message: message,
-                          onRetry: () =>
-                              retryLoad(storeId: storeId, productId: productId),
+    // A review write's outcome is a side effect, not a rebuild — the section
+    // itself repaints from the reloaded list.
+    return BlocListener<ProductReviewsBloc, ProductReviewsState>(
+      listener: (_, state) => handleReviewsState(state),
+      child: BlocConsumer<ProductDetailsBloc, ProductDetailsState>(
+        // Hands the reviews section the page it already loaded, instead of
+        // it fetching the same first page again.
+        listener: (context, state) {
+          if (state case ProductDetailsLoaded(:final detail)) {
+            seedReviews(detail.reviews);
+          }
+        },
+        builder: (context, state) => GrofastSwitcher(
+          child: switch (state) {
+            ProductDetailsLoading() => _DetailsSkeletonBody(
+              storeId: widget.storeId,
+            ),
+            ProductDetailsError(
+              :final message,
+              :final storeId,
+              :final productId,
+            ) =>
+              SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: GrofastDimenConst.screenGutter,
+                  ),
+                  child: Column(
+                    children: [
+                      const GrofastHeaderRow(),
+                      Expanded(
+                        child: Center(
+                          child: GrofastErrorView(
+                            message: message,
+                            onRetry: () => retryLoad(
+                              storeId: storeId,
+                              productId: productId,
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
+            ProductDetailsLoaded(:final detail) => _DetailsContent(
+              detail: detail,
+              storeId: widget.storeId,
+              quantity: quantity,
+              variant: selectedVariant(detail),
+              selectedSizeIndex: effectiveSizeIndex(detail),
+              onSelectSize: selectSize,
+              onIncrement: incrementQuantity,
+              onDecrement: decrementQuantity,
+              onAddToBag: () => _addToBag(detail),
+              onSimilarTap: openProductDetails,
+              onSimilarAdd: (product) {
+                addToCart(product, 1);
+                showSnackBar(
+                  GrofastValueConst.addedToBagMessage(product.name, 1),
+                );
+              },
+              reviewsSection: _reviewsSection(),
             ),
-          ProductDetailsLoaded(:final detail) => _DetailsContent(
-            detail: detail,
-            storeId: widget.storeId,
-            quantity: quantity,
-            variant: selectedVariant(detail),
-            selectedSizeIndex: effectiveSizeIndex(detail),
-            onSelectSize: selectSize,
-            onIncrement: incrementQuantity,
-            onDecrement: decrementQuantity,
-            onAddToBag: () => _addToBag(detail),
-            onSimilarTap: openProductDetails,
-            onSimilarAdd: (product) {
-              addToCart(product, 1);
-              showSnackBar(
-                GrofastValueConst.addedToBagMessage(product.name, 1),
-              );
-            },
-          ),
-        },
+          },
+        ),
       ),
     );
   }
@@ -141,6 +209,10 @@ class _DetailsContent extends StatelessWidget {
   final ValueChanged<ProductEntity> onSimilarTap;
   final ValueChanged<ProductEntity> onSimilarAdd;
 
+  /// Built by the host (it owns the reviews bloc's dispatches) and slotted
+  /// in below the description.
+  final Widget reviewsSection;
+
   const _DetailsContent({
     required this.detail,
     required this.storeId,
@@ -153,6 +225,7 @@ class _DetailsContent extends StatelessWidget {
     required this.onAddToBag,
     required this.onSimilarTap,
     required this.onSimilarAdd,
+    required this.reviewsSection,
   });
 
   @override
@@ -205,12 +278,22 @@ class _DetailsContent extends StatelessWidget {
                             runSpacing: AppSpacing.xs,
                             crossAxisAlignment: WrapCrossAlignment.center,
                             children: [
+                              // An unrated product greys the star and says
+                              // so rather than printing 0.0, which would
+                              // read as a badly-reviewed product.
                               GrofastBadge.outlined(
-                                label: GrofastValueConst.staticRatingLabel,
-                                leading: const Icon(
+                                label: product.hasRating
+                                    ? ValueConst.ratingLabel(
+                                        product.ratingAverage,
+                                        product.reviewCount,
+                                      )
+                                    : ValueConst.unratedLabel,
+                                leading: Icon(
                                   Icons.star_rounded,
                                   size: GrofastDimenConst.badgeLeadingSize,
-                                  color: GrofastColorConst.ratingStar,
+                                  color: product.hasRating
+                                      ? GrofastColorConst.ratingStar
+                                      : cs.onSurfaceVariant,
                                 ),
                               ),
                               if (detail.category case final category?)
@@ -293,6 +376,8 @@ class _DetailsContent extends StatelessWidget {
                         tt,
                       ).copyWith(color: cs.onSurfaceVariant),
                     ),
+                    const SizedBox(height: AppSpacing.xl6),
+                    reviewsSection,
                     if (detail.similarProducts.isNotEmpty) ...[
                       const SizedBox(height: AppSpacing.xl6),
                       const GrofastSectionHeader(
@@ -341,9 +426,7 @@ class _DetailsContent extends StatelessWidget {
           top: MediaQuery.paddingOf(context).top + AppSpacing.base,
           left: GrofastDimenConst.screenGutter,
           right: GrofastDimenConst.screenGutter,
-          child: GrofastHeaderRow(
-            trailing: GrofastBagAction(storeId: storeId),
-          ),
+          child: GrofastHeaderRow(trailing: GrofastBagAction(storeId: storeId)),
         ),
       ],
     );
@@ -560,9 +643,7 @@ class _DetailsSkeletonBody extends StatelessWidget {
           top: topInset + AppSpacing.base,
           left: GrofastDimenConst.screenGutter,
           right: GrofastDimenConst.screenGutter,
-          child: GrofastHeaderRow(
-            trailing: GrofastBagAction(storeId: storeId),
-          ),
+          child: GrofastHeaderRow(trailing: GrofastBagAction(storeId: storeId)),
         ),
       ],
     );

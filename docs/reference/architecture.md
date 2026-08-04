@@ -150,6 +150,10 @@ core/
 │   │   │                        `.placeholder()` factory for seeded stock photos)
 │   │   ├── page_indicator.dart  PageIndicator (dot row for paged flows — onboarding,
 │   │   │                        carousels)
+│   │   ├── rating_stars.dart    RatingStars (star row for a fractional rating — an
+│   │   │                        average lands between stars, so the trailing one
+│   │   │                        fills partially) + RatingStarsField (whole-star
+│   │   │                        1–5 input; 0 = nothing picked yet)
 │   │   ├── text_field.dart      AppTextField (`dense` for compact rows)
 │   │   ├── theme_mode_toggle.dart ThemeModeToggle (System/Light/Dark AppBar action)
 │   │   ├── top_bar.dart         AppTopBar (primary / secondary named constructors)

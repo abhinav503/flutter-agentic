@@ -13,7 +13,13 @@ import {
   type QueryDocumentSnapshot,
 } from "firebase/firestore";
 import { db } from "./firebase";
-import type { Product, SizeVariant, UnitType } from "./types";
+import {
+  EMPTY_RATING_BUCKETS,
+  type Product,
+  type RatingBuckets,
+  type SizeVariant,
+  type UnitType,
+} from "./types";
 
 function productsRef(storeId: string) {
   return collection(db, "stores", storeId, "products");
@@ -113,6 +119,12 @@ function mapProductDoc(d: QueryDocumentSnapshot): Product {
     sizeOptions,
     sizeVariants,
     isPopular: (data.isPopular as boolean) ?? false,
+    // A product with no reviews yet (or one created before reviews existed)
+    // carries no aggregate fields — zeros here, and every surface renders
+    // "no ratings" from count 0 rather than a misleading 0.0 stars.
+    ratingAverage: (data.ratingAverage as number) ?? 0,
+    reviewCount: (data.reviewCount as number) ?? 0,
+    ratingBuckets: (data.ratingBuckets as RatingBuckets) ?? EMPTY_RATING_BUCKETS,
   };
 }
 
@@ -168,14 +180,23 @@ export async function getProduct(
   return mapProductDoc(snap as QueryDocumentSnapshot);
 }
 
-export async function addProduct(storeId: string, data: Omit<Product, "id">) {
+// The rating aggregates are deliberately not accepted here — they belong to
+// the review transaction (Admin SDK), never the dashboard form, exactly as
+// CouponInput excludes usedCount. addProduct omits them entirely so a new
+// product starts unrated by absence, and mapProductDoc's defaults answer.
+export type ProductInput = Omit<
+  Product,
+  "id" | "ratingAverage" | "reviewCount" | "ratingBuckets"
+>;
+
+export async function addProduct(storeId: string, data: ProductInput) {
   await addDoc(productsRef(storeId), { ...data, createdAt: serverTimestamp() });
 }
 
 export async function updateProduct(
   storeId: string,
   id: string,
-  data: Omit<Product, "id">,
+  data: ProductInput,
 ) {
   await updateDoc(doc(db, "stores", storeId, "products", id), {
     ...data,
