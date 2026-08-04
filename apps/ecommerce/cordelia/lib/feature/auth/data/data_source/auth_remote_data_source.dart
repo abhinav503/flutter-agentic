@@ -21,6 +21,12 @@ abstract interface class AuthRemoteDataSource {
 
   Future<void> signOut();
 
+  /// Closes the shopper's account server-side — personal data and every
+  /// review they wrote go; their orders stay with the stores as those
+  /// stores' business records. The server deletes the Firebase Auth user
+  /// last, so the caller only has to clear its own local session after.
+  Future<void> deleteAccount();
+
   Future<void> resendVerificationEmail();
 
   /// Reloads the Firebase user; if now verified, re-syncs the profile

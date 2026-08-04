@@ -10,6 +10,8 @@ import 'package:core/core/ui/atoms/switch.dart';
 import 'package:core/core/ui/molecules/error_view.dart';
 
 import 'package:cordelia/constants/app_routes.dart';
+import 'package:cordelia/constants/value_const.dart';
+import 'package:cordelia/feature/auth/presentation/delete_account.dart';
 import 'package:cordelia/feature/auth/presentation/sign_out.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_text_style_const.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_image_const.dart';
@@ -36,7 +38,16 @@ class ProfileScreen extends BaseScreen {
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends BaseScreenState<ProfileScreen> {
+class _ProfileScreenState extends BaseScreenState<ProfileScreen>
+    with DeleteAccountAction {
+  void _confirmDeleteAccount() => showDailyMartConfirmSheet(
+    context: context,
+    title: ValueConst.deleteAccountTitle,
+    message: ValueConst.deleteAccountConfirmMessage,
+    confirmLabel: ValueConst.deleteAccountLabel,
+    onConfirm: deleteAccount,
+  );
+
   /// Pushes the Edit Profile form prefilled from [profile]; if it returned a
   /// result (Cancel/back pops with none), dispatches it into the shell's
   /// `ProfileBloc` so this screen updates without a re-fetch.
@@ -55,127 +66,141 @@ class _ProfileScreenState extends BaseScreenState<ProfileScreen> {
 
   @override
   Widget body(BuildContext context) {
-    return ColoredBox(
-      color: Theme.of(context).colorScheme.surface,
-      child: SafeArea(
-        bottom: false,
-        child: BlocConsumer<ProfileBloc, ProfileState>(
-          listener: (context, state) {
-            if (state case ProfileError(:final message)) showSnackBar(message);
-          },
-          builder: (context, state) => DailyMartTopSwitcher(
-            child: switch (state) {
-              ProfileLoading() => const _Page(
-                key: ValueKey('loading'),
-                body: DailyMartProfileSkeletonBody(),
-              ),
-              // Error shares the page shell so the branch pays the same
-              // padding as the others.
-              ProfileError() => _Page(
-                key: const ValueKey('error'),
-                body: ErrorView(
-                  message: DailyMartValueConst.profileLoadErrorMessage,
-                  onRetry: () => context.read<ProfileBloc>().add(
-                    const ProfileEvent.started(),
+    return withDeleteAccountProgress(
+      ColoredBox(
+        color: Theme.of(context).colorScheme.surface,
+        child: SafeArea(
+          bottom: false,
+          child: BlocConsumer<ProfileBloc, ProfileState>(
+            listener: (context, state) {
+              if (state case ProfileError(:final message)) {
+                showSnackBar(message);
+              }
+            },
+            builder: (context, state) => DailyMartTopSwitcher(
+              child: switch (state) {
+                ProfileLoading() => const _Page(
+                  key: ValueKey('loading'),
+                  body: DailyMartProfileSkeletonBody(),
+                ),
+                // Error shares the page shell so the branch pays the same
+                // padding as the others.
+                ProfileError() => _Page(
+                  key: const ValueKey('error'),
+                  body: ErrorView(
+                    message: DailyMartValueConst.profileLoadErrorMessage,
+                    onRetry: () => context.read<ProfileBloc>().add(
+                      const ProfileEvent.started(),
+                    ),
                   ),
                 ),
-              ),
-              ProfileLoaded(:final profile) => _Page(
-                key: const ValueKey('loaded'),
-                body: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ProfileIdentityHeader(profile: profile),
-                    const SizedBox(height: AppSpacing.xl5),
-                    _Section(
-                      title: DailyMartValueConst.generalSectionTitle,
-                      rows: [
-                        DailyMartMenuTile(
-                          asset: DailyMartImageConst.menuUser,
-                          label: DailyMartValueConst.editProfileLabel,
-                          onTap: () => _openEditProfile(profile),
-                        ),
-                        DailyMartMenuTile(
-                          asset: DailyMartImageConst.menuLock,
-                          label: DailyMartValueConst.changePasswordLabel,
-                          onTap: () => context.push(AppRoutes.changePassword),
-                        ),
-                        DailyMartMenuTile(
-                          // No kit export for an orders glyph — the kit's own
-                          // list never draws this row.
-                          icon: Icons.shopping_bag_outlined,
-                          label: DailyMartValueConst.myOrdersLabel,
-                          // This template's shell has no Orders tab (gravia
-                          // reaches the same list through one), so the row is
-                          // the way in — a pushed screen, not a tab jump.
-                          onTap: () => context.push(AppRoutes.orders),
-                        ),
-                        DailyMartMenuTile(
-                          asset: DailyMartImageConst.location,
-                          label: DailyMartValueConst.myAddressLabel,
-                          onTap: () => context.push(AppRoutes.selectAddress),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: AppSpacing.xl5),
-                    _Section(
-                      title: DailyMartValueConst.preferencesSectionTitle,
-                      rows: [
-                        DailyMartMenuTile(
-                          icon: Icons.dark_mode_outlined,
-                          label: DailyMartValueConst.darkModeLabel,
-                          // Material's own Switch grows the thumb when
-                          // selected with no public way to equalize the two
-                          // states — AppSwitch keeps one fixed thumb size.
-                          trailing: AppSwitch(
-                            value:
-                                Theme.of(context).brightness == Brightness.dark,
-                            // Greyscale/100 (#DFE1E7) in light — the kit's
-                            // off-track. AppSwitch's own default
-                            // (surfaceContainerHighest) is this pack's near
-                            // white #EFF4FF, which reads as no track at all.
-                            inactiveTrackColor: Theme.of(
-                              context,
-                            ).colorScheme.outlineVariant,
-                            onChanged: (isDark) =>
-                                ThemeModeScope.of(context).setMode(
-                                  isDark ? ThemeMode.dark : ThemeMode.light,
-                                ),
+                ProfileLoaded(:final profile) => _Page(
+                  key: const ValueKey('loaded'),
+                  body: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ProfileIdentityHeader(profile: profile),
+                      const SizedBox(height: AppSpacing.xl5),
+                      _Section(
+                        title: DailyMartValueConst.generalSectionTitle,
+                        rows: [
+                          DailyMartMenuTile(
+                            asset: DailyMartImageConst.menuUser,
+                            label: DailyMartValueConst.editProfileLabel,
+                            onTap: () => _openEditProfile(profile),
                           ),
-                        ),
-                        DailyMartMenuTile(
-                          asset: DailyMartImageConst.menuShieldCheck,
-                          label: DailyMartValueConst.privacyPolicyLabel,
-                          onTap: () => context.push(AppRoutes.privacyPolicy),
-                        ),
-                        DailyMartMenuTile(
-                          icon: Icons.article_outlined,
-                          label: DailyMartValueConst.termsAndConditionsLabel,
-                          onTap: () =>
-                              context.push(AppRoutes.termsAndConditions),
-                        ),
-                        DailyMartMenuTile(
-                          asset: DailyMartImageConst.menuLogout,
-                          // The kit's export points its arrow *into* the
-                          // door; its own frame mirrors the glyph so the
-                          // arrow exits rightwards.
-                          flipIconHorizontally: true,
-                          iconColor: Theme.of(context).colorScheme.error,
-                          label: DailyMartValueConst.logoutLabel,
-                          onTap: () => showDailyMartConfirmSheet(
-                            context: context,
-                            title: DailyMartValueConst.logoutTitle,
-                            message: DailyMartValueConst.logoutConfirmMessage,
-                            confirmLabel: DailyMartValueConst.logoutLabel,
-                            onConfirm: () => signOutAndReturnToLogin(context),
+                          DailyMartMenuTile(
+                            asset: DailyMartImageConst.menuLock,
+                            label: DailyMartValueConst.changePasswordLabel,
+                            onTap: () => context.push(AppRoutes.changePassword),
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
+                          DailyMartMenuTile(
+                            // No kit export for an orders glyph — the kit's own
+                            // list never draws this row.
+                            icon: Icons.shopping_bag_outlined,
+                            label: DailyMartValueConst.myOrdersLabel,
+                            // This template's shell has no Orders tab (gravia
+                            // reaches the same list through one), so the row is
+                            // the way in — a pushed screen, not a tab jump.
+                            onTap: () => context.push(AppRoutes.orders),
+                          ),
+                          DailyMartMenuTile(
+                            asset: DailyMartImageConst.location,
+                            label: DailyMartValueConst.myAddressLabel,
+                            onTap: () => context.push(AppRoutes.selectAddress),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: AppSpacing.xl5),
+                      _Section(
+                        title: DailyMartValueConst.preferencesSectionTitle,
+                        rows: [
+                          DailyMartMenuTile(
+                            icon: Icons.dark_mode_outlined,
+                            label: DailyMartValueConst.darkModeLabel,
+                            // Material's own Switch grows the thumb when
+                            // selected with no public way to equalize the two
+                            // states — AppSwitch keeps one fixed thumb size.
+                            trailing: AppSwitch(
+                              value:
+                                  Theme.of(context).brightness ==
+                                  Brightness.dark,
+                              // Greyscale/100 (#DFE1E7) in light — the kit's
+                              // off-track. AppSwitch's own default
+                              // (surfaceContainerHighest) is this pack's near
+                              // white #EFF4FF, which reads as no track at all.
+                              inactiveTrackColor: Theme.of(
+                                context,
+                              ).colorScheme.outlineVariant,
+                              onChanged: (isDark) =>
+                                  ThemeModeScope.of(context).setMode(
+                                    isDark ? ThemeMode.dark : ThemeMode.light,
+                                  ),
+                            ),
+                          ),
+                          DailyMartMenuTile(
+                            asset: DailyMartImageConst.menuShieldCheck,
+                            label: DailyMartValueConst.privacyPolicyLabel,
+                            onTap: () => context.push(AppRoutes.privacyPolicy),
+                          ),
+                          DailyMartMenuTile(
+                            icon: Icons.article_outlined,
+                            label: DailyMartValueConst.termsAndConditionsLabel,
+                            onTap: () =>
+                                context.push(AppRoutes.termsAndConditions),
+                          ),
+                          DailyMartMenuTile(
+                            asset: DailyMartImageConst.menuLogout,
+                            // The kit's export points its arrow *into* the
+                            // door; its own frame mirrors the glyph so the
+                            // arrow exits rightwards.
+                            flipIconHorizontally: true,
+                            iconColor: Theme.of(context).colorScheme.error,
+                            label: DailyMartValueConst.logoutLabel,
+                            onTap: () => showDailyMartConfirmSheet(
+                              context: context,
+                              title: DailyMartValueConst.logoutTitle,
+                              message: DailyMartValueConst.logoutConfirmMessage,
+                              confirmLabel: DailyMartValueConst.logoutLabel,
+                              onConfirm: () => signOutAndReturnToLogin(context),
+                            ),
+                          ),
+                          // Last row on purpose: the most destructive action
+                          // sits furthest from the ones a shopper opens
+                          // Profile to use.
+                          DailyMartMenuTile(
+                            asset: DailyMartImageConst.delete,
+                            iconColor: Theme.of(context).colorScheme.error,
+                            label: ValueConst.deleteAccountLabel,
+                            onTap: _confirmDeleteAccount,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            },
+              },
+            ),
           ),
         ),
       ),

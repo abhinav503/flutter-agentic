@@ -61,14 +61,15 @@ falls back to another template's screen.
 | Cart | Quantity stepping, swipe-to-delete, live totals | ✅ |
 | Coupons | Apply a promo code at cart — validated live, discount shown in the totals and charged exactly | ✅ |
 | Checkout | Address selection, Razorpay payment (your account), order confirmation | ✅ |
-| Orders | Order history with search + status/date filters, dated status timeline, itemised track-order view | ✅ |
+| Orders | Order history with search + status/date filters, and a track-order view per order — dated status timeline, delivery OTP, itemised contents, what was paid | ✅ |
 | Cancel & refund | Shopper self-cancel before dispatch with automatic refund to source | ✅ |
-| Reviews & ratings | Write a review after delivery; ratings on product pages | 🗓 Roadmap |
+| Product reviews | Any signed-in shopper rates a product 1–5 with optional text — one review each, editable. Product pages show the average, the star breakdown, and every review; a reviewer who bought the item is badged **Verified purchase** | ✅ |
+| Order rating | Rate a **delivered** order and say how it went — private feedback to you, not shown to other shoppers | ✅ |
 | Addresses | Full address book — add, edit, delete, select at checkout | ✅ |
 | Wishlist | Per-store favourites | ✅ |
 | Notifications | Order and promo notifications in-app | 🚧 (in-app feed is template-styled but backend-fed per store is Roadmap) |
 | Profile | Edit profile with avatar upload, change password | ✅ |
-| Account | Email/password sign-up with email verification, forgot/reset password, persistent sessions | ✅ |
+| Account | Email/password sign-up with email verification, forgot/reset password, persistent sessions, and in-app account deletion (removes profile, addresses, cart, wishlist and reviews; orders stay with the stores as their sales records) | ✅ |
 | Legal | Your privacy policy & terms rendered in-template | ✅ |
 
 ## What you get (admin console)
@@ -84,7 +85,7 @@ falls back to another template's screen.
 | Brands | Brand list for your store; assign a brand per product — shown on the product page once assigned | ✅ (shows only for products you've given a brand) |
 | Size variants | Per-size price on a product (250g ≠ 500g price), computed discounts — priced through cart, checkout, and orders | ✅ |
 | Coupons | Create codes scoped to the whole store, a category, or a product — % (with cap) or flat, min order, validity window, total and per-customer limits | ✅ |
-| Review moderation | See and hide customer reviews | 🗓 Roadmap |
+| Reviews | One page, two lists: **product reviews** across your store (delete any — the product's rating recalculates), and **delivery ratings** your customers gave their orders (read-only: private feedback isn't yours to erase). Each product's rating also shows in the catalog table | ✅ |
 | Notifications | Compose per-store notifications your customers see in-app | 🗓 Roadmap |
 
 ## Platform guarantees
@@ -103,6 +104,11 @@ falls back to another template's screen.
   issued twice, even when retried.
 - **Honest order state.** Every status change is timestamped and shown to the
   shopper as a dated timeline — no fake pipeline steps.
+- **Ratings that can't drift.** A product's average, review count, and star
+  breakdown are recalculated in the same atomic write as the review that
+  changed them — so the number on a product card, the histogram on its page,
+  and the reviews under it can never disagree, and deleting a review from the
+  console corrects the rating immediately.
 
 ## Roadmap (committed order)
 
@@ -110,8 +116,14 @@ falls back to another template's screen.
    and all three storefront templates.
 2. **Coupons** — store/category/product-scoped codes, validated and priced
    server-side. ✅ Done 2026-08-04, admin + all three storefront templates.
-3. **Reviews** — delivery-gated product reviews with aggregate ratings and
-   admin moderation.
+3. **Reviews** — product reviews with aggregate ratings and admin
+   moderation, plus delivery ratings on orders. ✅ Done 2026-08-04, admin +
+   all three storefront templates. Built with the gating split in two, which
+   differs from this item as first written: rating an **order** is
+   delivery-gated (only its own shopper, only once delivered), while a
+   **product** review is open to any signed-in shopper — gating those on
+   purchase would silence most of the people willing to write one, and the
+   verified-purchase badge carries the credibility instead.
 4. **Per-store notifications** — admin-composed, backend-fed, with push to
    follow.
 

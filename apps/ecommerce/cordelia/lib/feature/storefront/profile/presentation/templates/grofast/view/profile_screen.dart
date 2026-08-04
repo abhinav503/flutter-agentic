@@ -9,6 +9,8 @@ import 'package:core/core/theme/theme_mode_scope.dart';
 import 'package:core/core/ui/atoms/switch.dart';
 
 import 'package:cordelia/constants/app_routes.dart';
+import 'package:cordelia/constants/value_const.dart';
+import 'package:cordelia/feature/auth/presentation/delete_account.dart';
 import 'package:cordelia/feature/auth/presentation/sign_out.dart';
 import 'package:cordelia/feature/storefront/profile/domain/entities/profile_entity.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_dimen_const.dart';
@@ -39,7 +41,16 @@ class ProfileScreen extends BaseScreen {
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends BaseScreenState<ProfileScreen> {
+class _ProfileScreenState extends BaseScreenState<ProfileScreen>
+    with DeleteAccountAction {
+  void _confirmDeleteAccount() => showGrofastConfirmSheet(
+    context: context,
+    title: ValueConst.deleteAccountTitle,
+    message: ValueConst.deleteAccountConfirmMessage,
+    confirmLabel: ValueConst.deleteAccountLabel,
+    onConfirm: deleteAccount,
+  );
+
   void _openEditProfile(ProfileEntity profile) =>
       context.push(AppRoutes.editProfile, extra: profile);
 
@@ -57,40 +68,43 @@ class _ProfileScreenState extends BaseScreenState<ProfileScreen> {
 
   @override
   Widget body(BuildContext context) {
-    return SafeArea(
-      bottom: false,
-      child: BlocBuilder<ProfileBloc, ProfileState>(
-        builder: (context, state) => GrofastScreenBody(
-          headerRow: GrofastHeaderRow(
-            title: GrofastValueConst.profileTitle,
-            // A tab root has nowhere to pop back to.
-            showBack: false,
-            trailing: GrofastHeaderAction(
-              asset: GrofastImageConst.bell,
-              onTap: () => context.push(AppRoutes.notifications),
-              tooltip: GrofastValueConst.notificationsTitle,
+    return withDeleteAccountProgress(
+      SafeArea(
+        bottom: false,
+        child: BlocBuilder<ProfileBloc, ProfileState>(
+          builder: (context, state) => GrofastScreenBody(
+            headerRow: GrofastHeaderRow(
+              title: GrofastValueConst.profileTitle,
+              // A tab root has nowhere to pop back to.
+              showBack: false,
+              trailing: GrofastHeaderAction(
+                asset: GrofastImageConst.bell,
+                onTap: () => context.push(AppRoutes.notifications),
+                tooltip: GrofastValueConst.notificationsTitle,
+              ),
             ),
-          ),
-          gap: AppSpacing.xl4,
-          // The shell runs `extendBody`, so this scroll view reaches under
-          // the nav: clear the bar, and let the last row pass behind the
-          // dome — that content is what makes the dome visible.
-          bottomInset: GrofastDimenConst.navScrollInset(context),
-          body: GrofastSwitcher(
-            child: switch (state) {
-              ProfileLoading() => const GrofastProfileSkeletonBody(),
-              ProfileError(:final message) => GrofastErrorView(
-                message: message,
-                onRetry: () => context.read<ProfileBloc>().add(
-                  const ProfileEvent.started(),
+            gap: AppSpacing.xl4,
+            // The shell runs `extendBody`, so this scroll view reaches under
+            // the nav: clear the bar, and let the last row pass behind the
+            // dome — that content is what makes the dome visible.
+            bottomInset: GrofastDimenConst.navScrollInset(context),
+            body: GrofastSwitcher(
+              child: switch (state) {
+                ProfileLoading() => const GrofastProfileSkeletonBody(),
+                ProfileError(:final message) => GrofastErrorView(
+                  message: message,
+                  onRetry: () => context.read<ProfileBloc>().add(
+                    const ProfileEvent.started(),
+                  ),
                 ),
-              ),
-              ProfileLoaded(:final profile) => _ProfileContent(
-                profile: profile,
-                onEditProfile: () => _openEditProfile(profile),
-                onSignOut: _confirmSignOut,
-              ),
-            },
+                ProfileLoaded(:final profile) => _ProfileContent(
+                  profile: profile,
+                  onEditProfile: () => _openEditProfile(profile),
+                  onSignOut: _confirmSignOut,
+                  onDeleteAccount: _confirmDeleteAccount,
+                ),
+              },
+            ),
           ),
         ),
       ),
@@ -102,11 +116,13 @@ class _ProfileContent extends StatelessWidget {
   final ProfileEntity profile;
   final VoidCallback onEditProfile;
   final VoidCallback onSignOut;
+  final VoidCallback onDeleteAccount;
 
   const _ProfileContent({
     required this.profile,
     required this.onEditProfile,
     required this.onSignOut,
+    required this.onDeleteAccount,
   });
 
   void _toggleDarkMode(BuildContext context) {
@@ -231,6 +247,16 @@ class _ProfileContent extends StatelessWidget {
           iconColor: cs.error,
           showChevron: false,
           onTap: onSignOut,
+        ),
+        const SizedBox(height: AppSpacing.base),
+        // Last row on purpose: the most destructive action sits furthest
+        // from the ones a shopper opens Profile to use.
+        GrofastMenuTile(
+          label: ValueConst.deleteAccountLabel,
+          asset: GrofastImageConst.delete,
+          iconColor: cs.error,
+          showChevron: false,
+          onTap: onDeleteAccount,
         ),
       ],
     );

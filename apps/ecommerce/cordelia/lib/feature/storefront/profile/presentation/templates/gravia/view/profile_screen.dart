@@ -1,4 +1,6 @@
 import 'package:cordelia/constants/app_routes.dart';
+import 'package:cordelia/constants/value_const.dart';
+import 'package:cordelia/feature/auth/presentation/delete_account.dart';
 import 'package:cordelia/feature/auth/presentation/sign_out.dart';
 import 'package:cordelia/feature/storefront/active_store/presentation/cubit/active_store_cubit.dart';
 import 'package:cordelia/feature/storefront/presentation/view/storefront_page.dart';
@@ -34,7 +36,16 @@ class ProfileScreen extends BaseScreen {
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends BaseScreenState<ProfileScreen> {
+class _ProfileScreenState extends BaseScreenState<ProfileScreen>
+    with DeleteAccountAction {
+  void _confirmDeleteAccount() => showGraviaConfirmSheet(
+    context: context,
+    title: ValueConst.deleteAccountTitle,
+    message: ValueConst.deleteAccountConfirmMessage,
+    confirmLabel: ValueConst.deleteAccountLabel,
+    onConfirm: deleteAccount,
+  );
+
   /// Pushes the Edit Profile form prefilled from [profile]; if it returned a
   /// result (Cancel/back pops with none), dispatches it into this screen's
   /// own `ProfileBloc` so the header updates without a re-fetch.
@@ -53,145 +64,162 @@ class _ProfileScreenState extends BaseScreenState<ProfileScreen> {
 
   @override
   Widget body(BuildContext context) {
-    return BlocConsumer<ProfileBloc, ProfileState>(
-      listener: (context, state) {
-        if (state case ProfileError(:final message)) showSnackBar(message);
-      },
-      builder: (context, state) => GraviaSwitcher(
-        child: switch (state) {
-          ProfileLoading() => const CollapsingHeaderSheet(
-            key: ValueKey('loading'),
-            initialHeaderHeight: GraviaDimenConst.headerHeightIdentity,
-            header: ProfileSkeletonHeader(),
-            body: ProfileSkeletonBody(),
-          ),
-          ProfileError() => SafeArea(
-            key: const ValueKey('error'),
-            child: ErrorView(
-              message: GraviaValueConst.profileLoadErrorMessage,
-              onRetry: () =>
-                  context.read<ProfileBloc>().add(const ProfileEvent.started()),
+    return withDeleteAccountProgress(
+      BlocConsumer<ProfileBloc, ProfileState>(
+        listener: (context, state) {
+          if (state case ProfileError(:final message)) showSnackBar(message);
+        },
+        builder: (context, state) => GraviaSwitcher(
+          child: switch (state) {
+            ProfileLoading() => const CollapsingHeaderSheet(
+              key: ValueKey('loading'),
+              initialHeaderHeight: GraviaDimenConst.headerHeightIdentity,
+              header: ProfileSkeletonHeader(),
+              body: ProfileSkeletonBody(),
             ),
-          ),
-          ProfileLoaded(:final profile) => CollapsingHeaderSheet(
-            key: const ValueKey('loaded'),
-            initialHeaderHeight: GraviaDimenConst.headerHeightIdentity,
-            header: ProfileHeroHeader(
-              profile: profile,
-              onEditTap: () => _openEditProfile(profile),
-            ),
-            body: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.lg,
-                vertical: AppSpacing.xl2,
+            ProfileError() => SafeArea(
+              key: const ValueKey('error'),
+              child: ErrorView(
+                message: GraviaValueConst.profileLoadErrorMessage,
+                onRetry: () => context.read<ProfileBloc>().add(
+                  const ProfileEvent.started(),
+                ),
               ),
-              child: Column(
-                children: [
-                  ProfileMenuTile(
-                    iconBuilder: (color, size) => AppSvgImage.asset(
-                      GraviaImageConst.lock,
-                      color: color,
-                      width: size,
-                      height: size,
+            ),
+            ProfileLoaded(:final profile) => CollapsingHeaderSheet(
+              key: const ValueKey('loaded'),
+              initialHeaderHeight: GraviaDimenConst.headerHeightIdentity,
+              header: ProfileHeroHeader(
+                profile: profile,
+                onEditTap: () => _openEditProfile(profile),
+              ),
+              body: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.lg,
+                  vertical: AppSpacing.xl2,
+                ),
+                child: Column(
+                  children: [
+                    ProfileMenuTile(
+                      iconBuilder: (color, size) => AppSvgImage.asset(
+                        GraviaImageConst.lock,
+                        color: color,
+                        width: size,
+                        height: size,
+                      ),
+                      label: GraviaValueConst.changePasswordLabel,
+                      onTap: () => context.push(AppRoutes.changePassword),
                     ),
-                    label: GraviaValueConst.changePasswordLabel,
-                    onTap: () => context.push(AppRoutes.changePassword),
-                  ),
-                  ProfileMenuTile(
-                    iconBuilder: (color, size) => AppSvgImage.asset(
-                      GraviaImageConst.shoppingBag,
-                      color: color,
-                      width: size,
-                      height: size,
-                    ),
-                    label: GraviaValueConst.myOrdersLabel,
-                    // Orders isn't a standalone route — it's a ShellPage tab
-                    // — so this jumps the shell there directly, same
-                    // mechanism as the Order Placed sheet's "Track Your
-                    // Order" (docs/ai-rules/design.md).
-                    onTap: () => context.go(
-                      AppRoutes.storefront,
-                      extra: StorefrontRouteArgs(
-                        store: context.read<ActiveStoreCubit>().state!,
-                        initialTab: ShellPage.ordersTabIndex,
+                    ProfileMenuTile(
+                      iconBuilder: (color, size) => AppSvgImage.asset(
+                        GraviaImageConst.shoppingBag,
+                        color: color,
+                        width: size,
+                        height: size,
+                      ),
+                      label: GraviaValueConst.myOrdersLabel,
+                      // Orders isn't a standalone route — it's a ShellPage tab
+                      // — so this jumps the shell there directly, same
+                      // mechanism as the Order Placed sheet's "Track Your
+                      // Order" (docs/ai-rules/design.md).
+                      onTap: () => context.go(
+                        AppRoutes.storefront,
+                        extra: StorefrontRouteArgs(
+                          store: context.read<ActiveStoreCubit>().state!,
+                          initialTab: ShellPage.ordersTabIndex,
+                        ),
                       ),
                     ),
-                  ),
-                  ProfileMenuTile(
-                    iconBuilder: (color, size) => AppSvgImage.asset(
-                      GraviaImageConst.locationIcon,
-                      color: color,
-                      width: size,
-                      height: size,
+                    ProfileMenuTile(
+                      iconBuilder: (color, size) => AppSvgImage.asset(
+                        GraviaImageConst.locationIcon,
+                        color: color,
+                        width: size,
+                        height: size,
+                      ),
+                      label: GraviaValueConst.myAddressLabel,
+                      onTap: () => context.push(AppRoutes.selectAddress),
                     ),
-                    label: GraviaValueConst.myAddressLabel,
-                    onTap: () => context.push(AppRoutes.selectAddress),
-                  ),
-                  ProfileMenuTile(
-                    iconBuilder: (color, size) => AppSvgImage.asset(
-                      GraviaImageConst.eye,
-                      color: color,
-                      width: size,
-                      height: size,
+                    ProfileMenuTile(
+                      iconBuilder: (color, size) => AppSvgImage.asset(
+                        GraviaImageConst.eye,
+                        color: color,
+                        width: size,
+                        height: size,
+                      ),
+                      label: GraviaValueConst.darkModeLabel,
+                      // Material's own Switch grows the thumb when selected
+                      // (M3 spec: active radius 12, inactive 8) with no public
+                      // way to equalize them — AppSwitch keeps one fixed thumb
+                      // size in both states instead, plus the exact kit-spec
+                      // track colours (Gray/100 off, Success/500 on).
+                      trailing: AppSwitch(
+                        value: Theme.of(context).brightness == Brightness.dark,
+                        onChanged: (isDark) => ThemeModeScope.of(
+                          context,
+                        ).setMode(isDark ? ThemeMode.dark : ThemeMode.light),
+                        activeTrackColor: GraviaColorConst.success500,
+                        inactiveTrackColor: GraviaColorConst.gray100,
+                      ),
                     ),
-                    label: GraviaValueConst.darkModeLabel,
-                    // Material's own Switch grows the thumb when selected
-                    // (M3 spec: active radius 12, inactive 8) with no public
-                    // way to equalize them — AppSwitch keeps one fixed thumb
-                    // size in both states instead, plus the exact kit-spec
-                    // track colours (Gray/100 off, Success/500 on).
-                    trailing: AppSwitch(
-                      value: Theme.of(context).brightness == Brightness.dark,
-                      onChanged: (isDark) => ThemeModeScope.of(
-                        context,
-                      ).setMode(isDark ? ThemeMode.dark : ThemeMode.light),
-                      activeTrackColor: GraviaColorConst.success500,
-                      inactiveTrackColor: GraviaColorConst.gray100,
+                    ProfileMenuTile(
+                      iconBuilder: (color, size) => AppSvgImage.asset(
+                        GraviaImageConst.shieldCheck,
+                        color: color,
+                        width: size,
+                        height: size,
+                      ),
+                      label: GraviaValueConst.privacyPolicyLabel,
+                      onTap: () => context.push(AppRoutes.privacyPolicy),
                     ),
-                  ),
-                  ProfileMenuTile(
-                    iconBuilder: (color, size) => AppSvgImage.asset(
-                      GraviaImageConst.shieldCheck,
-                      color: color,
-                      width: size,
-                      height: size,
+                    ProfileMenuTile(
+                      iconBuilder: (color, size) => AppSvgImage.asset(
+                        GraviaImageConst.notes,
+                        color: color,
+                        width: size,
+                        height: size,
+                      ),
+                      label: GraviaValueConst.termsAndConditionsLabel,
+                      onTap: () => context.push(AppRoutes.termsAndConditions),
                     ),
-                    label: GraviaValueConst.privacyPolicyLabel,
-                    onTap: () => context.push(AppRoutes.privacyPolicy),
-                  ),
-                  ProfileMenuTile(
-                    iconBuilder: (color, size) => AppSvgImage.asset(
-                      GraviaImageConst.notes,
-                      color: color,
-                      width: size,
-                      height: size,
+                    ProfileMenuTile(
+                      iconBuilder: (color, size) => AppSvgImage.asset(
+                        GraviaImageConst.logout,
+                        color: color,
+                        width: size,
+                        height: size,
+                      ),
+                      label: GraviaValueConst.logoutLabel,
+                      danger: true,
+                      trailing: const SizedBox.shrink(),
+                      onTap: () => showGraviaConfirmSheet(
+                        context: context,
+                        title: GraviaValueConst.logoutTitle,
+                        message: GraviaValueConst.logoutConfirmMessage,
+                        confirmLabel: GraviaValueConst.logoutLabel,
+                        onConfirm: () => signOutAndReturnToLogin(context),
+                      ),
                     ),
-                    label: GraviaValueConst.termsAndConditionsLabel,
-                    onTap: () => context.push(AppRoutes.termsAndConditions),
-                  ),
-                  ProfileMenuTile(
-                    iconBuilder: (color, size) => AppSvgImage.asset(
-                      GraviaImageConst.logout,
-                      color: color,
-                      width: size,
-                      height: size,
+                    // Last row on purpose: the most destructive action sits
+                    // furthest from the ones a shopper opens Profile to use.
+                    ProfileMenuTile(
+                      iconBuilder: (color, size) => AppSvgImage.asset(
+                        GraviaImageConst.trash,
+                        color: color,
+                        width: size,
+                        height: size,
+                      ),
+                      label: ValueConst.deleteAccountLabel,
+                      danger: true,
+                      trailing: const SizedBox.shrink(),
+                      onTap: _confirmDeleteAccount,
                     ),
-                    label: GraviaValueConst.logoutLabel,
-                    danger: true,
-                    trailing: const SizedBox.shrink(),
-                    onTap: () => showGraviaConfirmSheet(
-                      context: context,
-                      title: GraviaValueConst.logoutTitle,
-                      message: GraviaValueConst.logoutConfirmMessage,
-                      confirmLabel: GraviaValueConst.logoutLabel,
-                      onConfirm: () => signOutAndReturnToLogin(context),
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
-        },
+          },
+        ),
       ),
     );
   }

@@ -2016,6 +2016,40 @@ Ran after the above, so the record is current rather than remembered:
   is gone and the asset stays in the pack folder with a note, the policy
   grofast's unused `scan.svg` set.
 
+## Account deletion — DONE (2026-08-04)
+
+Both app stores require an app that lets users create an account to let them
+delete it **in the app** (App Store Review Guideline 5.1.1(v)); Cordelia had
+sign-up and no delete, which is a rejection. Added as the last row of every
+template's Profile, behind that pack's own confirm sheet.
+
+`DELETE /api/users` (token-verified, always the caller's own uid — no admin
+branch) runs `deleteShopperAccount`: the shopper's product reviews first,
+each through `deleteReview` so every product's rating aggregates are
+corrected rather than left permanently over-counted; then the per-user
+subcollections (addresses, carts, favourites, recentSearches); then the
+profile doc; then the Firebase Auth user **last** — deliberately ordered so a
+partial failure leaves an account that can still sign in and retry, rather
+than orphaned data nobody can reach. Needs the collection-group index on
+`reviews.uid` (added as a `fieldOverrides` entry, deployed).
+
+**Orders are deliberately kept.** They are the *store's* business record as
+much as the shopper's — a store needs its sales history for its own books and
+for anything still in dispute, and a shopper closing an account can't
+unilaterally erase a merchant's transaction record. The confirm sheet says so
+in as many words rather than implying everything disappears.
+
+App-side: `DeleteAccountUseCase` → `deleteAccountAndReturnToLogin`, which
+reuses `signOutAndReturnToLogin` for the local teardown (profile cache,
+verify-sheet flag, per-account cubits). On failure nothing is torn down — the
+account still exists, so staying signed in on a working session is correct —
+and the screen snackbars the reason.
+
+**Also worth knowing (not built):** offering Google/Apple social login on iOS
+will make *Sign in with Apple* mandatory (Guideline 4.8). Both buttons are
+still `comingSoon`, so there's no violation today — it's a requirement on
+that future work.
+
 **Still open:** post-delivery returns; gravia's Login social buttons; review
 pagination past the first 50; owner replies to reviews; per-store
 notifications from the backend.

@@ -36,7 +36,6 @@ abstract final class DailyMartImageConst {
   static const plus = '$_icons/plus.svg';
   static const minus = '$_icons/minus.svg';
 
-
   /// The product card's rating star. Ships 14 × 13, not square — render it
   /// inside a square box and let `BoxFit.contain` letterbox it rather than
   /// stretching it to fit.

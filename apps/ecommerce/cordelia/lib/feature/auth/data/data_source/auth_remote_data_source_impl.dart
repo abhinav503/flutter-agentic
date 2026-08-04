@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
 import 'package:core/core/network/http_service.dart';
@@ -39,6 +40,16 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   @override
   Future<void> signOut() => FirebaseAuthService.instance.signOut();
+
+  @override
+  Future<void> deleteAccount() async {
+    final idToken = await FirebaseAuthService.instance.idToken();
+
+    await HttpService.instance.delete<Map<String, dynamic>>(
+      ApiConstants.usersPath,
+      options: Options(headers: {'Authorization': 'Bearer $idToken'}),
+    );
+  }
 
   @override
   Future<void> resendVerificationEmail() =>

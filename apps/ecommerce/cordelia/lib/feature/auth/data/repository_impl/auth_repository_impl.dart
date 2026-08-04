@@ -59,6 +59,12 @@ class AuthRepositoryImpl with BaseRepository implements AuthRepository {
   });
 
   @override
+  Future<Either<Failure, void>> deleteAccount() => handleRequest(() async {
+    await _dataSource.deleteAccount();
+    return right(null);
+  });
+
+  @override
   Future<Either<Failure, void>> resendVerificationEmail() =>
       handleRequest(() async {
         try {

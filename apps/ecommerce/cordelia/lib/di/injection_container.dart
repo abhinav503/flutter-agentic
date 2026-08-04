@@ -5,6 +5,7 @@ import '../feature/auth/data/data_source/auth_remote_data_source_impl.dart';
 import '../feature/auth/data/repository_impl/auth_repository_impl.dart';
 import '../feature/auth/domain/repository/auth_repository.dart';
 import '../feature/auth/domain/usecase/change_password_usecase.dart';
+import '../feature/auth/domain/usecase/delete_account_usecase.dart';
 import '../feature/auth/domain/usecase/check_email_verified_usecase.dart';
 import '../feature/auth/domain/usecase/forgot_password_usecase.dart';
 import '../feature/auth/domain/usecase/resend_verification_email_usecase.dart';
@@ -124,6 +125,7 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton(() => CheckEmailVerifiedUseCase(sl()));
   sl.registerLazySingleton(() => UpdateProfileUseCase(sl()));
   sl.registerLazySingleton(() => ChangePasswordUseCase(sl()));
+  sl.registerLazySingleton(() => DeleteAccountUseCase(sl()));
   sl.registerLazySingleton(() => ForgotPasswordUseCase(sl()));
 
   // ── Home (store discovery) ─────────────────────────────────────────────

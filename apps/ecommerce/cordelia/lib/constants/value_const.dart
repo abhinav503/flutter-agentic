@@ -147,6 +147,18 @@ abstract final class ValueConst {
   static const logoutLabel = 'Logout';
   static const logoutTitle = 'Logout';
   static const logoutConfirmMessage = 'Are you sure you want to log out?';
+  // ── Account deletion — app-level, not per-pack: one shared auth stack
+  // serves every storefront, and both app stores require an in-app way to
+  // close an account (App Store Review Guideline 5.1.1(v)).
+  static const deleteAccountLabel = 'Delete Account';
+  static const deleteAccountTitle = 'Delete your account?';
+  static const deleteAccountConfirmMessage =
+      'This permanently deletes your profile, addresses, cart, wishlist and '
+      'reviews across every store. Orders you have already placed stay with '
+      'those stores as their sales records. This cannot be undone.';
+  static const deleteAccountFailedMessage =
+      'Could not delete your account. Please try again.';
+
   static const profileLoadErrorMessage =
       'Something went wrong loading your profile.';
 

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { adminDb } from "@/lib/firebase-admin";
+import { deleteShopperAccount } from "@/lib/account";
 import { requireAuthedUser, UnauthorizedError } from "@/lib/api/admin-guard";
 
 // Shopper profile — created/updated from gravia's feature/auth. Every write
@@ -87,4 +88,25 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Profile not found" }, { status: 404 });
   }
   return NextResponse.json(serializeUser(auth.uid, snap.data()!));
+}
+
+// Closes the caller's own account — the in-app account deletion both app
+// stores require of any app that lets users create one (App Store Review
+// Guideline 5.1.1(v)).
+//
+// Always the caller's own uid, off the verified token: there is no
+// "delete someone else's account" path here, and no admin branch.
+export async function DELETE(request: Request) {
+  let auth;
+  try {
+    auth = await requireAuthedUser(request);
+  } catch (e) {
+    if (e instanceof UnauthorizedError) {
+      return NextResponse.json({ error: e.message }, { status: 401 });
+    }
+    throw e;
+  }
+
+  await deleteShopperAccount(auth.uid);
+  return NextResponse.json({ ok: true });
 }

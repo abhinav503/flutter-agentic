@@ -20,6 +20,11 @@ abstract interface class AuthRepository {
 
   Future<Either<Failure, void>> signOut();
 
+  /// Closes the account for good. Resolves once the server has deleted the
+  /// shopper's data and their Firebase user; the caller then clears the
+  /// local session (see `deleteAccountAndReturnToLogin`).
+  Future<Either<Failure, void>> deleteAccount();
+
   Future<Either<Failure, void>> resendVerificationEmail();
 
   /// Reloads the Firebase user; if now verified, force-refreshes the ID
