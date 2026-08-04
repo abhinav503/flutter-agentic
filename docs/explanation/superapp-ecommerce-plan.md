@@ -2069,3 +2069,99 @@ that future work.
 **Still open:** post-delivery returns; gravia's Login social buttons; review
 pagination past the first 50; owner replies to reviews; per-store
 notifications from the backend.
+
+## Admin rebrand + catalog sort/filter + "Generate sample data" seeder — DONE (2026-08-05)
+
+Three admin-side moves, then the storefront fixes that testing with real
+seeded data forced.
+
+**Admin rebrand with a crawlable landing page** (commit `c7b7394`). The
+console's brand green (oklch, hue ~170) was promoted from the `.site` scope
+to `:root`, so the marketing site and dashboard share one theme; the root
+route is now a real marketing page with SEO metadata + JSON-LD (plus
+`/login`, `/signup`, `/docs` routes), while the dashboard lives under
+`/dashboard/*` unchanged.
+
+**Catalog sort/filter.** Every catalog list was an unordered full-collection
+`onSnapshot` — rows sat in Firestore doc-ID order, which reads as random to
+a store owner. All client-side over the already-streamed arrays (no query
+changes, no new indexes):
+
+- `lib/sort.ts` (comparators + `applySort`, the counterpart to `search.ts`)
+  and `SortableTableHead` + `useTableSort` (`sortable-table-head.tsx`) —
+  clickable headers with asc/desc arrows and `aria-sort`.
+- Products: Name/Price/Stock/Rating sortable + a new **Added** column, and
+  three filter `Select`s (category, brand incl. "No brand", in/out of
+  stock). Coupons: Code/Used sortable + a new **Valid until** column
+  (`compareIsoDates` — `""` = no expiry sorts last) and a Status filter.
+  Categories: Name/Group (name tiebreak so groups read as blocks). Brands
+  and Banners finally got the `SearchField` they were missing.
+- "Newest first" needed `createdAt` surfaced: the docs always had the
+  serverTimestamp, but every `map*Doc` dropped it. Now mapped as
+  `createdAtMs` (0 = legacy doc / pending latency-compensated timestamp;
+  rows print "—" and default sort stays Name so nothing looks broken).
+  Excluded from every `*Input` — mapper-derived, never written as a field.
+
+**"Generate sample data"** — the console's first seeding feature: a Sparkles
+button on Products opens a preview/confirm dialog and writes a realistic
+Indian quick-commerce catalog (~93 products, 10 Zepto-style category groups,
+32 real brands, 6 working coupons incl. category- and product-scoped ones, 4
+banners) in **one atomic client-SDK `writeBatch`** (~140 docs, well under the
+500 cap — all-or-nothing, so the failure toast can promise a clean slate and
+retry is always safe). Client SDK, not an API route, deliberately: catalog
+writes have no server route, the browser session already holds the owner
+credential, and `proxy.ts` CORS allows only GET. Slugs cross-reference the
+dataset; the seeder pre-mints doc refs locally (`doc(collection(...))`) so
+products can reference categories/brands landing in the same commit. Payloads
+are built as `ProductInput`/`CouponInput` through the same helpers the forms
+use (`computeDiscountPercentage`, `sizeOptions` derived from variants) so the
+seeder can't drift from what the dialogs write. Re-generating warns
+(duplicates, incl. duplicate coupon codes) but doesn't block.
+
+Image sourcing was the real work, all verified live:
+- **Products** — real branded pack shots from Open Food Facts, harvested via
+  their search API per brand (CC-BY-SA, attribution line lives in the
+  dialog). OFF search rate-limits ~10 req/min and wants a User-Agent; never
+  guess barcode image paths — only URLs their API returned.
+- **Banners** — landscape Unsplash photography (`fm=jpg` forced: Flutter
+  can't decode the AVIF their CDN negotiates), picked by eye after
+  downloading candidates; pack shots stretched across a promo slot read
+  wrong.
+- **Brand logos** — hybrid after testing five free sources (Clearbit dead,
+  icon.horse serves the same grey letter tile for Kissan and Kellogg's): 10
+  brands whose sites ship a real ≥64px icon use Google's faviconV2 endpoint
+  (its `fallback_opts` 404s cleanly, so it's machine-verifiable); the other
+  22 get DiceBear monogram discs — a clean generated monogram beats a
+  real-but-16px blur.
+- `npm run verify:seed-images` checks **every** URL in the dataset (137
+  pass); `scripts/patch-seed-images.mjs <storeId>` regex-reads the current
+  dataset (no second copy to drift) and idempotently rewrites banners (by
+  title) + brand logos (by name) in an already-seeded store — ran against
+  the dev store rather than re-generating into duplicates.
+
+**Grofast fixes the seeded data forced** — kit-length copy had been hiding
+real bugs:
+- The promo card's copy column overflowed 30px with sentence-length banner
+  copy — and the budget math showed any 2-line title overflowed even with
+  kit copy. Title capped to 1 line, the pill label no longer wraps (and
+  dropped to a new 10/700 `pillLabelBold` token so it fits the narrow
+  column), and the 28px offer slot became adaptive: `_PromoSubtitle`
+  measures with a `TextPainter` and drops a sentence to body-small on two
+  lines while short "40% Off" copy keeps the kit treatment. The lesson went
+  into `/add-storefront-template` (all three copies) as a new structural
+  convention: fixed-height kit cards must budget for the longest *real*
+  copy, not the kit's.
+- The promo carousel moved to the dailymart pattern by request: full-bleed
+  (no left gutter; default `padEnds` centres the resting page), the 18 gap
+  split across both page edges, opens on the second banner via the shared
+  `restingPage` rule, and a real-`PageView` skeleton replaces the old
+  single-card silhouette so load doesn't jump.
+- All Categories tiles: long names ("Tea, Coffee & Health Drinks") now wrap
+  to two centred lines instead of truncating bottom-left.
+
+**Still open:** post-delivery returns; gravia's Login social buttons; review
+pagination past the first 50; owner replies to reviews; per-store
+notifications from the backend; BYOK "custom store with AI" generation mode
+(free-tier Groq/Gemini — designed, deferred from seeder v1); gravia +
+dailymart untested against the seeded catalog (grofast is); admin catalog
+pagination/server ordering if stores outgrow full-collection streaming.

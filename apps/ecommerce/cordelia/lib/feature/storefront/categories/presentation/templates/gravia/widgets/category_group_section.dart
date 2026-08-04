@@ -46,6 +46,9 @@ class CategoryGroupSection extends StatelessWidget {
             columns: _kColumns,
             spacing: AppSpacing.xs,
             runSpacing: AppSpacing.lg,
+            // Labels wrap to two lines; top-aligning keeps a row's circles
+            // level when its labels take different line counts.
+            crossAxisAlignment: CrossAxisAlignment.start,
             itemBuilder: (context, index) {
               final category = group.categories[index];
               return CategoryTile(
@@ -55,6 +58,9 @@ class CategoryGroupSection extends StatelessWidget {
                   fit: BoxFit.contain,
                 ),
                 label: category.name,
+                // Admin-authored names run long ("Tea, Coffee & Health
+                // Drinks") — two centred lines instead of a truncated one.
+                labelMaxLines: 2,
                 labelStyle: GraviaTextStyleConst.textSmRegular(tt),
                 backgroundColor: tileBackgroundColor,
                 onTap: () => onCategoryTap(category),

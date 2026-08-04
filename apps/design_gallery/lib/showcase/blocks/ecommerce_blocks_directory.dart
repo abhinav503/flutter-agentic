@@ -103,6 +103,18 @@ WidgetbookFolder ecommerceBlocksFolder() {
             ),
           ),
           Variant(
+            'Long label wrapped (labelMaxLines: 2)',
+            SizedBox(
+              width: 88,
+              child: CategoryTile(
+                image: placeholderImage(context, icon: Icons.eco_outlined),
+                label: 'Tea, Coffee & Health Drinks',
+                labelMaxLines: 2,
+                onTap: () {},
+              ),
+            ),
+          ),
+          Variant(
             'Fixed backgroundColor (e.g. gravia Gray/50-950)',
             CategoryTile(
               imagePadding: const EdgeInsets.all(8),

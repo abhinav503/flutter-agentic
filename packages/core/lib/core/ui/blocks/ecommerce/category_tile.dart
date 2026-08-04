@@ -26,6 +26,12 @@ class CategoryTile extends StatelessWidget {
   /// Gray/50-in-light, Gray/950-in-dark pair) rather than the theme role.
   final Color? backgroundColor;
 
+  /// Lines the label may wrap to before ellipsizing. The default keeps the
+  /// single-line rail silhouette; a grid whose category names run long
+  /// (admin-authored stores: "Tea, Coffee & Health Drinks") passes 2 so the
+  /// full name shows instead of truncating.
+  final int labelMaxLines;
+
   const CategoryTile({
     super.key,
     required this.image,
@@ -35,6 +41,7 @@ class CategoryTile extends StatelessWidget {
     this.size = 64,
     this.imagePadding = const EdgeInsets.all(AppSpacing.base),
     this.backgroundColor,
+    this.labelMaxLines = 1,
   });
 
   @override
@@ -61,8 +68,9 @@ class CategoryTile extends StatelessWidget {
           Text(
             label,
             style: labelStyle ?? tt.bodyMedium,
-            maxLines: 1,
+            maxLines: labelMaxLines,
             overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
           ),
         ],
       ),
