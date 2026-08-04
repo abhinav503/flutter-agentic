@@ -2,25 +2,45 @@ import 'package:flutter/material.dart';
 
 import 'package:core/core/theme/app_shapes_extension.dart';
 import 'package:core/core/theme/app_spacing.dart';
+import 'package:core/core/ui/atoms/loading_dots.dart';
 
+import 'package:cordelia/feature/storefront/cart/presentation/cubit/coupon_cubit.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_dimen_const.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_text_style_const.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_value_const.dart';
 
 import 'grofast_primary_button.dart';
 
-/// The Bag's and Checkout's promo-code row (kit frames `129:1144` /
-/// `119:819`): a **dashed** outlined row with the field on the left and the
-/// pack's one ink pill on the right.
-///
-/// There is no coupon backend, so Apply reports the same "coming soon" as the
-/// other two templates' equivalents rather than pretending to work — the row
-/// is drawn because removing it would leave a hole in the kit's Bag layout
-/// (recorded in spec sheet §11).
-class GrofastPromoCodeRow extends StatelessWidget {
-  final VoidCallback onApply;
+/// The Bag's promo-code row (kit frames `129:1144` / `119:819`): a **dashed**
+/// outlined row with the field on the left and the pack's one ink pill on
+/// the right. Live: the typed code is validated by the backend
+/// ([CouponCubit]); once applied the pill flips to Remove, and a rejection
+/// prints the server's reason under the dashes with the code kept in place
+/// for a retry.
+class GrofastPromoCodeRow extends StatefulWidget {
+  final CouponState couponState;
+  final ValueChanged<String> onApply;
+  final VoidCallback onRemove;
 
-  const GrofastPromoCodeRow({super.key, required this.onApply});
+  const GrofastPromoCodeRow({
+    super.key,
+    required this.couponState,
+    required this.onApply,
+    required this.onRemove,
+  });
+
+  @override
+  State<GrofastPromoCodeRow> createState() => _GrofastPromoCodeRowState();
+}
+
+class _GrofastPromoCodeRowState extends State<GrofastPromoCodeRow> {
+  final TextEditingController _code = TextEditingController();
+
+  @override
+  void dispose() {
+    _code.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,45 +48,112 @@ class GrofastPromoCodeRow extends StatelessWidget {
     final tt = Theme.of(context).textTheme;
     final radius = BorderRadius.circular(context.appShapes.cardRadius);
 
-    return DecoratedBox(
-      // Fills like a card and outlines like a voucher: the kit's raised
-      // neutral behind the dashes, not the page.
-      decoration: BoxDecoration(
-        color: cs.surfaceContainerLow,
-        borderRadius: radius,
-      ),
-      child: CustomPaint(
-        painter: _DashedBorderPainter(
-          // The kit's own stroke — the ink at 20%, which no neutral outline
-          // role reproduces on this pack's green-cast palette.
-          color: cs.onSurface.withValues(
-            alpha: GrofastDimenConst.couponBorderOpacity,
+    final applied = switch (widget.couponState) {
+      CouponApplied(:final coupon) => coupon,
+      _ => null,
+    };
+    final errorMessage = switch (widget.couponState) {
+      CouponFailed(:final message) => message,
+      _ => null,
+    };
+    final applying = widget.couponState is CouponApplying;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        DecoratedBox(
+          // Fills like a card and outlines like a voucher: the kit's raised
+          // neutral behind the dashes, not the page.
+          decoration: BoxDecoration(
+            color: cs.surfaceContainerLow,
+            borderRadius: radius,
           ),
-          radius: radius,
-        ),
-        child: SizedBox(
-          height: GrofastDimenConst.couponRowHeight,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    GrofastValueConst.promoCodeHint,
-                    style: GrofastTextStyleConst.bodyMedium(
-                      tt,
-                    ).copyWith(color: cs.onSurfaceVariant),
-                  ),
+          child: CustomPaint(
+            painter: _DashedBorderPainter(
+              // The kit's own stroke — the ink at 20%, which no neutral
+              // outline role reproduces on this pack's green-cast palette.
+              color: cs.onSurface.withValues(
+                alpha: GrofastDimenConst.couponBorderOpacity,
+              ),
+              radius: radius,
+            ),
+            child: SizedBox(
+              height: GrofastDimenConst.couponRowHeight,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: applied != null
+                          ? Text(
+                              GrofastValueConst.promoAppliedLabel(applied.code),
+                              style: GrofastTextStyleConst.bodyMedium(
+                                tt,
+                              ).copyWith(color: cs.onSurface),
+                            )
+                          // The dashed voucher IS the field chrome — every
+                          // border is stripped explicitly, because the
+                          // theme's inputDecorationTheme injects the pack's
+                          // input border even into a collapsed decoration.
+                          : TextField(
+                              controller: _code,
+                              enabled: !applying,
+                              textCapitalization:
+                                  TextCapitalization.characters,
+                              style: GrofastTextStyleConst.bodyMedium(
+                                tt,
+                              ).copyWith(color: cs.onSurface),
+                              decoration: InputDecoration(
+                                isCollapsed: true,
+                                border: InputBorder.none,
+                                enabledBorder: InputBorder.none,
+                                focusedBorder: InputBorder.none,
+                                disabledBorder: InputBorder.none,
+                                hintText: GrofastValueConst.promoCodeHint,
+                                hintStyle: GrofastTextStyleConst.bodyMedium(
+                                  tt,
+                                ).copyWith(color: cs.onSurfaceVariant),
+                              ),
+                              onSubmitted: widget.onApply,
+                              // Same dismissal rule AppTextField bakes in — tapping
+                              // outside drops focus and the keyboard.
+                              onTapOutside: (_) =>
+                                  FocusManager.instance.primaryFocus?.unfocus(),
+                            ),
+                    ),
+                    if (applying)
+                      const LoadingDots()
+                    else
+                      GrofastInkButton(
+                        label: applied != null
+                            ? GrofastValueConst.promoRemoveLabel
+                            : GrofastValueConst.promoApplyLabel,
+                        onTap: applied != null
+                            ? () {
+                                _code.clear();
+                                widget.onRemove();
+                              }
+                            : () => widget.onApply(_code.text),
+                      ),
+                  ],
                 ),
-                GrofastInkButton(
-                  label: GrofastValueConst.promoApplyLabel,
-                  onTap: onApply,
-                ),
-              ],
+              ),
             ),
           ),
         ),
-      ),
+        if (errorMessage != null) ...[
+          const SizedBox(height: AppSpacing.xs),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+            child: Text(
+              errorMessage,
+              style: GrofastTextStyleConst.meta(
+                tt,
+              ).copyWith(color: cs.error),
+            ),
+          ),
+        ],
+      ],
     );
   }
 }

@@ -59,7 +59,7 @@ falls back to another template's screen.
 | Categories | Grouped category browse + category details with sort & price filtering | ✅ |
 | Product details | Images, brand, pricing with strike-through discounts, a size picker where each size has its own price, description, related products | ✅ |
 | Cart | Quantity stepping, swipe-to-delete, live totals | ✅ |
-| Coupons | Apply a promo code at cart | 🗓 Roadmap |
+| Coupons | Apply a promo code at cart — validated live, discount shown in the totals and charged exactly | ✅ |
 | Checkout | Address selection, Razorpay payment (your account), order confirmation | ✅ |
 | Orders | Order history with search + status/date filters, dated status timeline, itemised track-order view | ✅ |
 | Cancel & refund | Shopper self-cancel before dispatch with automatic refund to source | ✅ |
@@ -81,9 +81,9 @@ falls back to another template's screen.
 | Banners | Promo-carousel banners with copy, artwork, tap-targets (product/category), ordering, stage/retire toggle | ✅ |
 | Orders | Live order dashboard: advance statuses, delivery OTP, cancel with restock, refunds with retry | ✅ |
 | Payments | Connect your own Razorpay account (secret stored encrypted); webhook-driven refund settlement | ✅ |
-| Brands | Brand list for your store; assign a brand per product — shown on the product page | ✅ |
+| Brands | Brand list for your store; assign a brand per product — shown on the product page once assigned | ✅ (shows only for products you've given a brand) |
 | Size variants | Per-size price on a product (250g ≠ 500g price), computed discounts — priced through cart, checkout, and orders | ✅ |
-| Coupons | Create codes scoped to the whole store, a category, or a product — % or flat, min order, validity window, usage limits | 🗓 Roadmap |
+| Coupons | Create codes scoped to the whole store, a category, or a product — % (with cap) or flat, min order, validity window, total and per-customer limits | ✅ |
 | Review moderation | See and hide customer reviews | 🗓 Roadmap |
 | Notifications | Compose per-store notifications your customers see in-app | 🗓 Roadmap |
 
@@ -109,7 +109,7 @@ falls back to another template's screen.
 1. **Catalog depth** — brands + per-size pricing. ✅ Done 2026-08-04, admin
    and all three storefront templates.
 2. **Coupons** — store/category/product-scoped codes, validated and priced
-   server-side.
+   server-side. ✅ Done 2026-08-04, admin + all three storefront templates.
 3. **Reviews** — delivery-gated product reviews with aggregate ratings and
    admin moderation.
 4. **Per-store notifications** — admin-composed, backend-fed, with push to

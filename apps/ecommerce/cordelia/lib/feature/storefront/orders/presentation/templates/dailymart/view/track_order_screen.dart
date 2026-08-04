@@ -149,8 +149,19 @@ class _TrackOrderScreenState extends BaseScreenState<TrackOrderScreen> {
               const SizedBox(height: AppSpacing.xs),
               _DetailRow(
                 label: DailyMartValueConst.amountPaidLabel,
-                value: order.totalPrice.asPrice,
+                // Net of the coupon — the figure the server actually charged.
+                value: order.payableTotal.asPrice,
               ),
+              if (order.couponCode.isNotEmpty) ...[
+                const SizedBox(height: AppSpacing.xs3),
+                _DetailRow(
+                  label: DailyMartValueConst.couponDetailLabel,
+                  value: DailyMartValueConst.couponDetailValue(
+                    order.couponCode,
+                    order.couponDiscount.asPrice,
+                  ),
+                ),
+              ],
               const SizedBox(height: AppSpacing.xs3),
               _DetailRow(
                 label: DailyMartValueConst.paymentIdLabel,

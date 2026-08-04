@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:core/core/base/base_screen.dart';
+import 'package:core/core/extensions/num_extensions.dart';
 import 'package:core/core/extensions/text_style_extensions.dart';
 import 'package:core/core/theme/app_radius.dart';
 import 'package:core/core/theme/app_spacing.dart';
@@ -191,6 +192,21 @@ class _TrackOrderContent extends StatelessWidget {
             onCopy: onCopy,
           ),
         ],
+        if (order.couponCode.isNotEmpty) ...[
+          const SizedBox(height: AppSpacing.base),
+          _DetailRow(
+            label: GrofastValueConst.couponDetailLabel,
+            child: Text(
+              GrofastValueConst.couponDetailValue(
+                order.couponCode,
+                order.couponDiscount.asPrice,
+              ),
+              style: GrofastTextStyleConst.bodyMedium(
+                tt,
+              ).copyWith(color: cs.onSurface),
+            ),
+          ),
+        ],
         if (order.status == OrderStatus.inProcess &&
             order.deliveryOtp.isNotEmpty) ...[
           const SizedBox(height: AppSpacing.base),
@@ -241,8 +257,9 @@ class _TrackOrderContent extends StatelessWidget {
           const SizedBox(height: AppSpacing.lg),
         ],
         const SizedBox(height: AppSpacing.lg),
-        // The kit's Total row: quiet label, the pack's big split price. No
-        // subtotal/discount lines — the backend records neither per order.
+        // The kit's Total row: quiet label, the pack's big split price —
+        // net of the coupon (the Coupon detail row above names it), the
+        // figure the server actually charged.
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -253,7 +270,7 @@ class _TrackOrderContent extends StatelessWidget {
               ).copyWith(color: cs.onSurface),
             ),
             GrofastPrice(
-              value: order.totalPrice,
+              value: order.payableTotal,
               scale: GrofastDimenConst.totalPriceScale,
             ),
           ],

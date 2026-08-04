@@ -1,6 +1,16 @@
 import { FieldValue } from "firebase-admin/firestore";
 import { adminDb } from "./firebase-admin";
 import { cartDocRef } from "./cart";
+import {
+  assertCouponUsable,
+  computeDiscount,
+  CouponError,
+  couponRedemptionRef,
+  eligibleSubtotal,
+  findCouponByCode,
+  mapCouponData,
+  type CouponLine,
+} from "./coupon-engine";
 import { resolveLinePricing } from "./products";
 import type {
   Address,
@@ -109,6 +119,8 @@ function toOrder(id: string, data: FirebaseFirestore.DocumentData): Order {
     ],
     razorpayPaymentId: (data.razorpayPaymentId as string) ?? "",
     razorpayOrderId: (data.razorpayOrderId as string) ?? "",
+    couponCode: (data.couponCode as string) ?? "",
+    couponDiscount: (data.couponDiscount as number) ?? 0,
     // Orders placed before the refund axis existed have no field — default to
     // NONE so an un-refunded past order reads correctly.
     refundStatus: (data.refundStatus as RefundStatus) ?? "NONE",
@@ -183,9 +195,20 @@ export async function createOrder(
   addressId: string,
   razorpayPaymentId = "",
   razorpayOrderId = "",
+  couponCode = "",
 ): Promise<Order> {
   if (requestedItems.length === 0) {
     throw new OrderCreationError("Order must contain at least one item");
+  }
+
+  // Resolved outside the transaction (a where-query can't run inside one);
+  // the doc itself is re-read transactionally below, so the limit checks
+  // still see transaction-consistent counts.
+  const foundCoupon = couponCode
+    ? await findCouponByCode(storeId, couponCode)
+    : null;
+  if (couponCode && !foundCoupon) {
+    throw new CouponError("Invalid coupon code");
   }
 
   const orderRef = ordersRef().doc();
@@ -210,8 +233,17 @@ export async function createOrder(
     );
     const productSnaps = await Promise.all(productRefs.map((ref) => tx.get(ref)));
 
+    // Coupon reads join the read phase (Firestore forbids reads after the
+    // stock writes below) — these transaction-consistent counts are what
+    // makes the limit checks race-proof where previewCoupon's aren't.
+    const couponSnap = foundCoupon ? await tx.get(foundCoupon.ref) : null;
+    const redemptionSnap = foundCoupon
+      ? await tx.get(couponRedemptionRef(storeId, foundCoupon.ref.id, uid))
+      : null;
+
     const requiredStock = quantityByProduct(requestedItems);
     const lineItems: OrderLineItem[] = [];
+    const couponLines: CouponLine[] = [];
     let total = 0;
     // Decrement each product once, by its summed quantity — a second
     // tx.update on the same doc would overwrite the first, silently
@@ -249,11 +281,45 @@ export async function createOrder(
         weight: formatWeight(pricing.packSize, unitType),
       });
       total += pricing.price * quantity;
+      couponLines.push({
+        productId,
+        categoryIds: (data.categoryIds as string[]) ?? [],
+        lineTotal: pricing.price * quantity,
+      });
 
       if (!decremented.has(productId)) {
         decremented.add(productId);
         tx.update(productRefs[i], { stock: stock - required });
       }
+    }
+
+    // Re-run the full coupon check on this transaction's own reads, then
+    // count the redemption atomically with the order write — Apply's preview
+    // reserved nothing, so this is where a limit actually binds.
+    let couponDiscount = 0;
+    let appliedCouponCode = "";
+    if (foundCoupon) {
+      if (!couponSnap!.exists) throw new CouponError("Invalid coupon code");
+      const coupon = mapCouponData(couponSnap!.id, couponSnap!.data()!);
+      const eligible = eligibleSubtotal(coupon, couponLines);
+      assertCouponUsable(coupon, {
+        nowIso: new Date().toISOString(),
+        usedCount: coupon.usedCount,
+        userRedemptions: (redemptionSnap!.data()?.count as number) ?? 0,
+        orderSubtotal: total,
+        eligible,
+      });
+      couponDiscount = computeDiscount(coupon, eligible, total);
+      appliedCouponCode = coupon.code;
+      tx.update(foundCoupon.ref, { usedCount: FieldValue.increment(1) });
+      tx.set(
+        couponRedemptionRef(storeId, foundCoupon.ref.id, uid),
+        {
+          count: FieldValue.increment(1),
+          updatedAt: FieldValue.serverTimestamp(),
+        },
+        { merge: true },
+      );
     }
 
     const placedAt = new Date().toISOString();
@@ -264,7 +330,8 @@ export async function createOrder(
       items: lineItems,
       deliveryAddress,
       status: "PENDING",
-      total,
+      // Net of the coupon — the same figure the payment intent charged.
+      total: Math.round((total - couponDiscount) * 100) / 100,
       deliveryOtp: generateOtp(),
       placedAt,
       // Placement is the timeline's first entry, sharing placedAt's exact
@@ -272,6 +339,8 @@ export async function createOrder(
       statusHistory: [{ status: "PENDING", at: placedAt }],
       razorpayPaymentId,
       razorpayOrderId,
+      couponCode: appliedCouponCode,
+      couponDiscount,
       refundStatus: "NONE",
       refundId: "",
     };

@@ -78,7 +78,14 @@ class GrofastInkButton extends StatelessWidget {
       borderRadius: BorderRadius.circular(GrofastDimenConst.applyPillRadius),
       backgroundColor: cs.secondary,
       foregroundColor: cs.onSecondary,
-      labelStyle: GrofastTextStyleConst.labelSemibold(tt),
+      // The colour must be re-pinned here: labelSemibold inherits the
+      // theme's text ink (Dark-Green in light mode — invisible on this
+      // Dark-Green pill), and AppButton lets a labelStyle colour win over
+      // foregroundColor. onSecondary is white in both modes, matching the
+      // pinned Dark-Green fill.
+      labelStyle: GrofastTextStyleConst.labelSemibold(
+        tt,
+      ).copyWith(color: cs.onSecondary),
     );
 
     return width == null ? button : SizedBox(width: width, child: button);

@@ -153,6 +153,52 @@ export type Template = {
   name: string;
 };
 
+export type CouponType = "percent" | "flat";
+
+export const COUPON_TYPE_LABELS: Record<CouponType, string> = {
+  percent: "Percentage off",
+  flat: "Flat amount off (₹)",
+};
+
+// What the discount applies to: the whole order, or only the lines whose
+// product matches targetIds (directly, or through a category) — the
+// banner-target pattern, but multi-select.
+export type CouponScope = "store" | "category" | "product";
+
+export const COUPON_SCOPE_LABELS: Record<CouponScope, string> = {
+  store: "Whole order",
+  category: "Selected categories",
+  product: "Selected products",
+};
+
+// A discount code (stores/{id}/coupons). The code is stored uppercase and
+// unique per store; shoppers never read these docs — validation and pricing
+// go through the token-verified API, which is also the only writer of
+// usedCount (and the per-user redemptions/{uid} subcollection) inside the
+// order transaction.
+export type Coupon = {
+  id: string;
+  code: string;
+  type: CouponType;
+  // Percent (1–100) or flat ₹, per type.
+  value: number;
+  scope: CouponScope;
+  // Category/product doc ids for the scoped kinds; empty for "store".
+  targetIds: string[];
+  // 0 = no floor. Checked against the order's eligible-items subtotal.
+  minOrderValue: number;
+  // Cap for a percent coupon's computed discount; 0 = uncapped.
+  maxDiscount: number;
+  // ISO timestamps; "" = immediately / never.
+  validFrom: string;
+  validUntil: string;
+  // Total redemptions allowed (0 = unlimited) and how many have happened.
+  usageLimit: number;
+  perUserLimit: number;
+  usedCount: number;
+  isActive: boolean;
+};
+
 // Field names mirror AddressEntity in gravia's feature/address. Structured
 // fields, not one text blob — gravia composes its display line client-side
 // (AddressEntityX.displayLine) so edits can't drift from the parts.
@@ -254,6 +300,11 @@ export type Order = {
   // route in is via razorpayPaymentId. Empty on the payment-less path, and on
   // orders placed before this field was added.
   razorpayOrderId: string;
+  // The coupon this order was placed with — "" / 0 when none. `total` is
+  // already net of couponDiscount; the pair is kept for the records
+  // (dashboard, support), not for re-deriving the charge.
+  couponCode: string;
+  couponDiscount: number;
   // The refund axis (see RefundStatus). NONE on every freshly-placed order;
   // set only when the order is cancelled and a refund is attempted.
   refundStatus: RefundStatus;

@@ -9,12 +9,14 @@ import 'package:core/core/ui/molecules/empty_state.dart';
 import 'package:core/core/ui/atoms/button.dart';
 
 import 'package:cordelia/constants/app_routes.dart';
-import 'package:cordelia/constants/value_const.dart';
+import 'package:cordelia/feature/storefront/active_store/presentation/cubit/active_store_cubit.dart';
 import 'package:cordelia/feature/storefront/address/domain/entities/address_entity.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_value_const.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_header_row.dart';
 
+import '../../../../domain/entities/cart_item_entity.dart';
 import '../../../cubit/cart_cubit.dart';
+import '../../../cubit/coupon_cubit.dart';
 import '../widgets/cart_item_card.dart';
 import '../widgets/cart_summary_panel.dart';
 
@@ -40,8 +42,6 @@ class CartScreen extends BaseScreen {
 }
 
 class _CartScreenState extends BaseScreenState<CartScreen> {
-  void _showComingSoon() => showSnackBar(ValueConst.comingSoonMessage);
-
   // Checkout gates on picking a delivery address first — reuses the Select
   // Address screen, which pops with the chosen address (null if the shopper
   // backs out) — then hands off to the Checkout route, which owns the order
@@ -61,9 +61,18 @@ class _CartScreenState extends BaseScreenState<CartScreen> {
   Widget body(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final cartItems = context.watch<CartCubit>().state;
+    final couponState = context.watch<CouponCubit>().state;
+    // The store this cart belongs to — the coupon API is store-scoped.
+    final storeId = context.read<ActiveStoreCubit>().state!.storeId;
 
-    return ColoredBox(
-      color: cs.surface,
+    return BlocListener<CartCubit, List<CartItemEntity>>(
+      // The held discount is only valid for the lines it was priced against
+      // — any cart mutation re-prices the code (or clears it, with the
+      // server's reason shown on the row).
+      listener: (context, items) =>
+          context.read<CouponCubit>().revalidate(storeId, items),
+      child: ColoredBox(
+        color: cs.surface,
       child: SafeArea(
         // The summary panel handles the bottom inset itself so its surface
         // runs to the screen's edge.
@@ -141,7 +150,12 @@ class _CartScreenState extends BaseScreenState<CartScreen> {
                       const SizedBox(height: AppSpacing.xl2),
                       DailyMartCartSummarySection(
                         items: cartItems,
-                        onApplyCoupon: _showComingSoon,
+                        couponState: couponState,
+                        onApplyCoupon: (code) => context
+                            .read<CouponCubit>()
+                            .apply(storeId, code, cartItems),
+                        onRemoveCoupon: () =>
+                            context.read<CouponCubit>().remove(),
                       ),
                     ],
                   ),
@@ -152,6 +166,7 @@ class _CartScreenState extends BaseScreenState<CartScreen> {
               DailyMartCartCheckoutBar(busy: false, onCheckout: _startCheckout),
             ],
           ],
+        ),
         ),
       ),
     );

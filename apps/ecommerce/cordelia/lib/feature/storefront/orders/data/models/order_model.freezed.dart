@@ -21,7 +21,9 @@ mixin _$OrderModel {
 // the fromEntity path.
 @JsonKey(name: 'status_history') List<OrderStatusChangeModel> get statusHistory;@JsonKey(name: 'delivery_otp') String get deliveryOtp;// Defaulted: empty on the payment-less path, and absent from the mock
 // orders and from orders serialized before the field existed.
-@JsonKey(name: 'payment_id') String get paymentId; List<OrderLineItemModel> get items;// Reuses AddressModel — the server serializes the snapshot through the
+@JsonKey(name: 'payment_id') String get paymentId;// Defaulted: orders placed without a coupon (and those predating the
+// feature) omit both.
+@JsonKey(name: 'coupon_code') String get couponCode;@JsonKey(name: 'coupon_discount') double get couponDiscount; List<OrderLineItemModel> get items;// Reuses AddressModel — the server serializes the snapshot through the
 // same shape the /users/addresses endpoints use. Nullable: legacy orders
 // predate the field.
 @JsonKey(name: 'delivery_address') AddressModel? get deliveryAddress;
@@ -37,16 +39,16 @@ $OrderModelCopyWith<OrderModel> get copyWith => _$OrderModelCopyWithImpl<OrderMo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is OrderModel&&(identical(other.id, id) || other.id == id)&&(identical(other.status, status) || other.status == status)&&(identical(other.refundStatus, refundStatus) || other.refundStatus == refundStatus)&&(identical(other.placedAt, placedAt) || other.placedAt == placedAt)&&const DeepCollectionEquality().equals(other.statusHistory, statusHistory)&&(identical(other.deliveryOtp, deliveryOtp) || other.deliveryOtp == deliveryOtp)&&(identical(other.paymentId, paymentId) || other.paymentId == paymentId)&&const DeepCollectionEquality().equals(other.items, items)&&(identical(other.deliveryAddress, deliveryAddress) || other.deliveryAddress == deliveryAddress));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is OrderModel&&(identical(other.id, id) || other.id == id)&&(identical(other.status, status) || other.status == status)&&(identical(other.refundStatus, refundStatus) || other.refundStatus == refundStatus)&&(identical(other.placedAt, placedAt) || other.placedAt == placedAt)&&const DeepCollectionEquality().equals(other.statusHistory, statusHistory)&&(identical(other.deliveryOtp, deliveryOtp) || other.deliveryOtp == deliveryOtp)&&(identical(other.paymentId, paymentId) || other.paymentId == paymentId)&&(identical(other.couponCode, couponCode) || other.couponCode == couponCode)&&(identical(other.couponDiscount, couponDiscount) || other.couponDiscount == couponDiscount)&&const DeepCollectionEquality().equals(other.items, items)&&(identical(other.deliveryAddress, deliveryAddress) || other.deliveryAddress == deliveryAddress));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,status,refundStatus,placedAt,const DeepCollectionEquality().hash(statusHistory),deliveryOtp,paymentId,const DeepCollectionEquality().hash(items),deliveryAddress);
+int get hashCode => Object.hash(runtimeType,id,status,refundStatus,placedAt,const DeepCollectionEquality().hash(statusHistory),deliveryOtp,paymentId,couponCode,couponDiscount,const DeepCollectionEquality().hash(items),deliveryAddress);
 
 @override
 String toString() {
-  return 'OrderModel(id: $id, status: $status, refundStatus: $refundStatus, placedAt: $placedAt, statusHistory: $statusHistory, deliveryOtp: $deliveryOtp, paymentId: $paymentId, items: $items, deliveryAddress: $deliveryAddress)';
+  return 'OrderModel(id: $id, status: $status, refundStatus: $refundStatus, placedAt: $placedAt, statusHistory: $statusHistory, deliveryOtp: $deliveryOtp, paymentId: $paymentId, couponCode: $couponCode, couponDiscount: $couponDiscount, items: $items, deliveryAddress: $deliveryAddress)';
 }
 
 
@@ -57,7 +59,7 @@ abstract mixin class $OrderModelCopyWith<$Res>  {
   factory $OrderModelCopyWith(OrderModel value, $Res Function(OrderModel) _then) = _$OrderModelCopyWithImpl;
 @useResult
 $Res call({
- String id, String status,@JsonKey(name: 'refund_status') String refundStatus,@JsonKey(name: 'placed_at') String placedAt,@JsonKey(name: 'status_history') List<OrderStatusChangeModel> statusHistory,@JsonKey(name: 'delivery_otp') String deliveryOtp,@JsonKey(name: 'payment_id') String paymentId, List<OrderLineItemModel> items,@JsonKey(name: 'delivery_address') AddressModel? deliveryAddress
+ String id, String status,@JsonKey(name: 'refund_status') String refundStatus,@JsonKey(name: 'placed_at') String placedAt,@JsonKey(name: 'status_history') List<OrderStatusChangeModel> statusHistory,@JsonKey(name: 'delivery_otp') String deliveryOtp,@JsonKey(name: 'payment_id') String paymentId,@JsonKey(name: 'coupon_code') String couponCode,@JsonKey(name: 'coupon_discount') double couponDiscount, List<OrderLineItemModel> items,@JsonKey(name: 'delivery_address') AddressModel? deliveryAddress
 });
 
 
@@ -74,7 +76,7 @@ class _$OrderModelCopyWithImpl<$Res>
 
 /// Create a copy of OrderModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? status = null,Object? refundStatus = null,Object? placedAt = null,Object? statusHistory = null,Object? deliveryOtp = null,Object? paymentId = null,Object? items = null,Object? deliveryAddress = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? status = null,Object? refundStatus = null,Object? placedAt = null,Object? statusHistory = null,Object? deliveryOtp = null,Object? paymentId = null,Object? couponCode = null,Object? couponDiscount = null,Object? items = null,Object? deliveryAddress = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
@@ -83,7 +85,9 @@ as String,placedAt: null == placedAt ? _self.placedAt : placedAt // ignore: cast
 as String,statusHistory: null == statusHistory ? _self.statusHistory : statusHistory // ignore: cast_nullable_to_non_nullable
 as List<OrderStatusChangeModel>,deliveryOtp: null == deliveryOtp ? _self.deliveryOtp : deliveryOtp // ignore: cast_nullable_to_non_nullable
 as String,paymentId: null == paymentId ? _self.paymentId : paymentId // ignore: cast_nullable_to_non_nullable
-as String,items: null == items ? _self.items : items // ignore: cast_nullable_to_non_nullable
+as String,couponCode: null == couponCode ? _self.couponCode : couponCode // ignore: cast_nullable_to_non_nullable
+as String,couponDiscount: null == couponDiscount ? _self.couponDiscount : couponDiscount // ignore: cast_nullable_to_non_nullable
+as double,items: null == items ? _self.items : items // ignore: cast_nullable_to_non_nullable
 as List<OrderLineItemModel>,deliveryAddress: freezed == deliveryAddress ? _self.deliveryAddress : deliveryAddress // ignore: cast_nullable_to_non_nullable
 as AddressModel?,
   ));
@@ -182,10 +186,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String status, @JsonKey(name: 'refund_status')  String refundStatus, @JsonKey(name: 'placed_at')  String placedAt, @JsonKey(name: 'status_history')  List<OrderStatusChangeModel> statusHistory, @JsonKey(name: 'delivery_otp')  String deliveryOtp, @JsonKey(name: 'payment_id')  String paymentId,  List<OrderLineItemModel> items, @JsonKey(name: 'delivery_address')  AddressModel? deliveryAddress)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String status, @JsonKey(name: 'refund_status')  String refundStatus, @JsonKey(name: 'placed_at')  String placedAt, @JsonKey(name: 'status_history')  List<OrderStatusChangeModel> statusHistory, @JsonKey(name: 'delivery_otp')  String deliveryOtp, @JsonKey(name: 'payment_id')  String paymentId, @JsonKey(name: 'coupon_code')  String couponCode, @JsonKey(name: 'coupon_discount')  double couponDiscount,  List<OrderLineItemModel> items, @JsonKey(name: 'delivery_address')  AddressModel? deliveryAddress)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _OrderModel() when $default != null:
-return $default(_that.id,_that.status,_that.refundStatus,_that.placedAt,_that.statusHistory,_that.deliveryOtp,_that.paymentId,_that.items,_that.deliveryAddress);case _:
+return $default(_that.id,_that.status,_that.refundStatus,_that.placedAt,_that.statusHistory,_that.deliveryOtp,_that.paymentId,_that.couponCode,_that.couponDiscount,_that.items,_that.deliveryAddress);case _:
   return orElse();
 
 }
@@ -203,10 +207,10 @@ return $default(_that.id,_that.status,_that.refundStatus,_that.placedAt,_that.st
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String status, @JsonKey(name: 'refund_status')  String refundStatus, @JsonKey(name: 'placed_at')  String placedAt, @JsonKey(name: 'status_history')  List<OrderStatusChangeModel> statusHistory, @JsonKey(name: 'delivery_otp')  String deliveryOtp, @JsonKey(name: 'payment_id')  String paymentId,  List<OrderLineItemModel> items, @JsonKey(name: 'delivery_address')  AddressModel? deliveryAddress)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String status, @JsonKey(name: 'refund_status')  String refundStatus, @JsonKey(name: 'placed_at')  String placedAt, @JsonKey(name: 'status_history')  List<OrderStatusChangeModel> statusHistory, @JsonKey(name: 'delivery_otp')  String deliveryOtp, @JsonKey(name: 'payment_id')  String paymentId, @JsonKey(name: 'coupon_code')  String couponCode, @JsonKey(name: 'coupon_discount')  double couponDiscount,  List<OrderLineItemModel> items, @JsonKey(name: 'delivery_address')  AddressModel? deliveryAddress)  $default,) {final _that = this;
 switch (_that) {
 case _OrderModel():
-return $default(_that.id,_that.status,_that.refundStatus,_that.placedAt,_that.statusHistory,_that.deliveryOtp,_that.paymentId,_that.items,_that.deliveryAddress);case _:
+return $default(_that.id,_that.status,_that.refundStatus,_that.placedAt,_that.statusHistory,_that.deliveryOtp,_that.paymentId,_that.couponCode,_that.couponDiscount,_that.items,_that.deliveryAddress);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -223,10 +227,10 @@ return $default(_that.id,_that.status,_that.refundStatus,_that.placedAt,_that.st
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String status, @JsonKey(name: 'refund_status')  String refundStatus, @JsonKey(name: 'placed_at')  String placedAt, @JsonKey(name: 'status_history')  List<OrderStatusChangeModel> statusHistory, @JsonKey(name: 'delivery_otp')  String deliveryOtp, @JsonKey(name: 'payment_id')  String paymentId,  List<OrderLineItemModel> items, @JsonKey(name: 'delivery_address')  AddressModel? deliveryAddress)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String status, @JsonKey(name: 'refund_status')  String refundStatus, @JsonKey(name: 'placed_at')  String placedAt, @JsonKey(name: 'status_history')  List<OrderStatusChangeModel> statusHistory, @JsonKey(name: 'delivery_otp')  String deliveryOtp, @JsonKey(name: 'payment_id')  String paymentId, @JsonKey(name: 'coupon_code')  String couponCode, @JsonKey(name: 'coupon_discount')  double couponDiscount,  List<OrderLineItemModel> items, @JsonKey(name: 'delivery_address')  AddressModel? deliveryAddress)?  $default,) {final _that = this;
 switch (_that) {
 case _OrderModel() when $default != null:
-return $default(_that.id,_that.status,_that.refundStatus,_that.placedAt,_that.statusHistory,_that.deliveryOtp,_that.paymentId,_that.items,_that.deliveryAddress);case _:
+return $default(_that.id,_that.status,_that.refundStatus,_that.placedAt,_that.statusHistory,_that.deliveryOtp,_that.paymentId,_that.couponCode,_that.couponDiscount,_that.items,_that.deliveryAddress);case _:
   return null;
 
 }
@@ -238,7 +242,7 @@ return $default(_that.id,_that.status,_that.refundStatus,_that.placedAt,_that.st
 @JsonSerializable()
 
 class _OrderModel extends OrderModel {
-  const _OrderModel({required this.id, required this.status, @JsonKey(name: 'refund_status') this.refundStatus = 'NONE', @JsonKey(name: 'placed_at') required this.placedAt, @JsonKey(name: 'status_history') final  List<OrderStatusChangeModel> statusHistory = const <OrderStatusChangeModel>[], @JsonKey(name: 'delivery_otp') required this.deliveryOtp, @JsonKey(name: 'payment_id') this.paymentId = '', required final  List<OrderLineItemModel> items, @JsonKey(name: 'delivery_address') this.deliveryAddress}): _statusHistory = statusHistory,_items = items,super._();
+  const _OrderModel({required this.id, required this.status, @JsonKey(name: 'refund_status') this.refundStatus = 'NONE', @JsonKey(name: 'placed_at') required this.placedAt, @JsonKey(name: 'status_history') final  List<OrderStatusChangeModel> statusHistory = const <OrderStatusChangeModel>[], @JsonKey(name: 'delivery_otp') required this.deliveryOtp, @JsonKey(name: 'payment_id') this.paymentId = '', @JsonKey(name: 'coupon_code') this.couponCode = '', @JsonKey(name: 'coupon_discount') this.couponDiscount = 0, required final  List<OrderLineItemModel> items, @JsonKey(name: 'delivery_address') this.deliveryAddress}): _statusHistory = statusHistory,_items = items,super._();
   factory _OrderModel.fromJson(Map<String, dynamic> json) => _$OrderModelFromJson(json);
 
 @override final  String id;
@@ -262,6 +266,10 @@ class _OrderModel extends OrderModel {
 // Defaulted: empty on the payment-less path, and absent from the mock
 // orders and from orders serialized before the field existed.
 @override@JsonKey(name: 'payment_id') final  String paymentId;
+// Defaulted: orders placed without a coupon (and those predating the
+// feature) omit both.
+@override@JsonKey(name: 'coupon_code') final  String couponCode;
+@override@JsonKey(name: 'coupon_discount') final  double couponDiscount;
  final  List<OrderLineItemModel> _items;
 @override List<OrderLineItemModel> get items {
   if (_items is EqualUnmodifiableListView) return _items;
@@ -287,16 +295,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _OrderModel&&(identical(other.id, id) || other.id == id)&&(identical(other.status, status) || other.status == status)&&(identical(other.refundStatus, refundStatus) || other.refundStatus == refundStatus)&&(identical(other.placedAt, placedAt) || other.placedAt == placedAt)&&const DeepCollectionEquality().equals(other._statusHistory, _statusHistory)&&(identical(other.deliveryOtp, deliveryOtp) || other.deliveryOtp == deliveryOtp)&&(identical(other.paymentId, paymentId) || other.paymentId == paymentId)&&const DeepCollectionEquality().equals(other._items, _items)&&(identical(other.deliveryAddress, deliveryAddress) || other.deliveryAddress == deliveryAddress));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _OrderModel&&(identical(other.id, id) || other.id == id)&&(identical(other.status, status) || other.status == status)&&(identical(other.refundStatus, refundStatus) || other.refundStatus == refundStatus)&&(identical(other.placedAt, placedAt) || other.placedAt == placedAt)&&const DeepCollectionEquality().equals(other._statusHistory, _statusHistory)&&(identical(other.deliveryOtp, deliveryOtp) || other.deliveryOtp == deliveryOtp)&&(identical(other.paymentId, paymentId) || other.paymentId == paymentId)&&(identical(other.couponCode, couponCode) || other.couponCode == couponCode)&&(identical(other.couponDiscount, couponDiscount) || other.couponDiscount == couponDiscount)&&const DeepCollectionEquality().equals(other._items, _items)&&(identical(other.deliveryAddress, deliveryAddress) || other.deliveryAddress == deliveryAddress));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,status,refundStatus,placedAt,const DeepCollectionEquality().hash(_statusHistory),deliveryOtp,paymentId,const DeepCollectionEquality().hash(_items),deliveryAddress);
+int get hashCode => Object.hash(runtimeType,id,status,refundStatus,placedAt,const DeepCollectionEquality().hash(_statusHistory),deliveryOtp,paymentId,couponCode,couponDiscount,const DeepCollectionEquality().hash(_items),deliveryAddress);
 
 @override
 String toString() {
-  return 'OrderModel(id: $id, status: $status, refundStatus: $refundStatus, placedAt: $placedAt, statusHistory: $statusHistory, deliveryOtp: $deliveryOtp, paymentId: $paymentId, items: $items, deliveryAddress: $deliveryAddress)';
+  return 'OrderModel(id: $id, status: $status, refundStatus: $refundStatus, placedAt: $placedAt, statusHistory: $statusHistory, deliveryOtp: $deliveryOtp, paymentId: $paymentId, couponCode: $couponCode, couponDiscount: $couponDiscount, items: $items, deliveryAddress: $deliveryAddress)';
 }
 
 
@@ -307,7 +315,7 @@ abstract mixin class _$OrderModelCopyWith<$Res> implements $OrderModelCopyWith<$
   factory _$OrderModelCopyWith(_OrderModel value, $Res Function(_OrderModel) _then) = __$OrderModelCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String status,@JsonKey(name: 'refund_status') String refundStatus,@JsonKey(name: 'placed_at') String placedAt,@JsonKey(name: 'status_history') List<OrderStatusChangeModel> statusHistory,@JsonKey(name: 'delivery_otp') String deliveryOtp,@JsonKey(name: 'payment_id') String paymentId, List<OrderLineItemModel> items,@JsonKey(name: 'delivery_address') AddressModel? deliveryAddress
+ String id, String status,@JsonKey(name: 'refund_status') String refundStatus,@JsonKey(name: 'placed_at') String placedAt,@JsonKey(name: 'status_history') List<OrderStatusChangeModel> statusHistory,@JsonKey(name: 'delivery_otp') String deliveryOtp,@JsonKey(name: 'payment_id') String paymentId,@JsonKey(name: 'coupon_code') String couponCode,@JsonKey(name: 'coupon_discount') double couponDiscount, List<OrderLineItemModel> items,@JsonKey(name: 'delivery_address') AddressModel? deliveryAddress
 });
 
 
@@ -324,7 +332,7 @@ class __$OrderModelCopyWithImpl<$Res>
 
 /// Create a copy of OrderModel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? status = null,Object? refundStatus = null,Object? placedAt = null,Object? statusHistory = null,Object? deliveryOtp = null,Object? paymentId = null,Object? items = null,Object? deliveryAddress = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? status = null,Object? refundStatus = null,Object? placedAt = null,Object? statusHistory = null,Object? deliveryOtp = null,Object? paymentId = null,Object? couponCode = null,Object? couponDiscount = null,Object? items = null,Object? deliveryAddress = freezed,}) {
   return _then(_OrderModel(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
@@ -333,7 +341,9 @@ as String,placedAt: null == placedAt ? _self.placedAt : placedAt // ignore: cast
 as String,statusHistory: null == statusHistory ? _self._statusHistory : statusHistory // ignore: cast_nullable_to_non_nullable
 as List<OrderStatusChangeModel>,deliveryOtp: null == deliveryOtp ? _self.deliveryOtp : deliveryOtp // ignore: cast_nullable_to_non_nullable
 as String,paymentId: null == paymentId ? _self.paymentId : paymentId // ignore: cast_nullable_to_non_nullable
-as String,items: null == items ? _self._items : items // ignore: cast_nullable_to_non_nullable
+as String,couponCode: null == couponCode ? _self.couponCode : couponCode // ignore: cast_nullable_to_non_nullable
+as String,couponDiscount: null == couponDiscount ? _self.couponDiscount : couponDiscount // ignore: cast_nullable_to_non_nullable
+as double,items: null == items ? _self._items : items // ignore: cast_nullable_to_non_nullable
 as List<OrderLineItemModel>,deliveryAddress: freezed == deliveryAddress ? _self.deliveryAddress : deliveryAddress // ignore: cast_nullable_to_non_nullable
 as AddressModel?,
   ));

@@ -19,9 +19,14 @@ import '../feature/home/domain/repository/stores_repository.dart';
 import '../feature/home/domain/usecase/get_stores_usecase.dart';
 import '../feature/storefront/cart/data/data_source/cart_remote_data_source.dart';
 import '../feature/storefront/cart/data/data_source/cart_remote_data_source_impl.dart';
+import '../feature/storefront/cart/data/data_source/coupons_remote_data_source.dart';
+import '../feature/storefront/cart/data/data_source/coupons_remote_data_source_impl.dart';
 import '../feature/storefront/cart/data/repository_impl/cart_repository_impl.dart';
+import '../feature/storefront/cart/data/repository_impl/coupons_repository_impl.dart';
 import '../feature/storefront/cart/domain/repository/cart_repository.dart';
+import '../feature/storefront/cart/domain/repository/coupons_repository.dart';
 import '../feature/storefront/cart/domain/usecase/get_cart_usecase.dart';
+import '../feature/storefront/cart/domain/usecase/validate_coupon_usecase.dart';
 import '../feature/storefront/cart/domain/usecase/save_cart_usecase.dart';
 import '../feature/storefront/address/data/data_source/address_remote_data_source.dart';
 import '../feature/storefront/address/data/data_source/address_remote_data_source_impl.dart';
@@ -152,6 +157,15 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton<CartRepository>(() => CartRepositoryImpl(sl()));
   sl.registerLazySingleton(() => GetCartUseCase(sl()));
   sl.registerLazySingleton(() => SaveCartUseCase(sl()));
+
+  // ── Storefront: Coupons (the cart's promo row) ───────────────────────────
+  sl.registerLazySingleton<CouponsRemoteDataSource>(
+    () => const CouponsRemoteDataSourceImpl(),
+  );
+  sl.registerLazySingleton<CouponsRepository>(
+    () => CouponsRepositoryImpl(sl()),
+  );
+  sl.registerLazySingleton(() => ValidateCouponUseCase(sl()));
 
   // ── Storefront: Favourites ───────────────────────────────────────────────
   sl.registerLazySingleton<FavouritesRemoteDataSource>(

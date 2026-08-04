@@ -160,7 +160,11 @@ class _ProfileContent extends StatelessWidget {
             Expanded(
               child: GrofastQuickTile(
                 label: GrofastValueConst.ordersTileLabel,
-                asset: GrofastImageConst.gift,
+                // Not the kit's gift.svg: that glyph belonged to the Voucher
+                // tile this slot replaced, and a gift reads as rewards, not
+                // orders. The pack has no order/receipt SVG, so this joins
+                // the menu rows' Material-rounded system instead.
+                icon: Icons.receipt_long_rounded,
                 onTap: () => context.push(AppRoutes.orders),
               ),
             ),

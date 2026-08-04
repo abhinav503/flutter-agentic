@@ -7,23 +7,44 @@ import 'package:flutter/material.dart';
 import 'package:core/core/extensions/num_extensions.dart';
 import 'package:core/core/theme/app_radius.dart';
 import 'package:core/core/theme/app_spacing.dart';
+import 'package:core/core/ui/atoms/loading_dots.dart';
 import 'package:core/core/ui/atoms/svg_image.dart';
 import 'package:core/core/ui/blocks/ecommerce/price_breakdown.dart';
+
 import '../../../../domain/entities/cart_item_entity.dart';
+import '../../../cubit/coupon_cubit.dart';
 
 /// Coupon row + the Item Total/Discount/Delivery/Grand Total breakdown,
-/// computed from [CartItemsX] — no coupon backend exists yet, so Apply is a
-/// stub (matches the `onComingSoon` pattern used elsewhere in this app for
-/// unbuilt flows).
-class CartSummarySection extends StatelessWidget {
+/// computed from [CartItemsX]. The coupon row is live: the code is typed
+/// inline in the kit's bordered pill and validated by the backend
+/// ([CouponCubit]); an applied coupon adds its own breakdown line and the
+/// grand total nets it off — the same figure checkout charges.
+class CartSummarySection extends StatefulWidget {
   final List<CartItemEntity> items;
-  final VoidCallback onApplyCoupon;
+  final CouponState couponState;
+  final ValueChanged<String> onApplyCoupon;
+  final VoidCallback onRemoveCoupon;
 
   const CartSummarySection({
     super.key,
     required this.items,
+    required this.couponState,
     required this.onApplyCoupon,
+    required this.onRemoveCoupon,
   });
+
+  @override
+  State<CartSummarySection> createState() => _CartSummarySectionState();
+}
+
+class _CartSummarySectionState extends State<CartSummarySection> {
+  final TextEditingController _code = TextEditingController();
+
+  @override
+  void dispose() {
+    _code.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,50 +52,117 @@ class CartSummarySection extends StatelessWidget {
     final tt = Theme.of(context).textTheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
+    final applied = switch (widget.couponState) {
+      CouponApplied(:final coupon) => coupon,
+      _ => null,
+    };
+    final errorMessage = switch (widget.couponState) {
+      CouponFailed(:final message) => message,
+      _ => null,
+    };
+    final applying = widget.couponState is CouponApplying;
+    final grandTotal = widget.items.grandTotal - (applied?.discount ?? 0);
+
     return PriceBreakdown(
-      leading: GestureDetector(
-        onTap: onApplyCoupon,
-        child: Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.lg,
-            vertical: AppSpacing.base,
-          ),
-          decoration: BoxDecoration(
-            border: Border.all(color: cs.outlineVariant),
-            borderRadius: AppRadius.full,
-          ),
-          child: Row(
-            children: [
-              AppSvgImage.asset(
-                GraviaImageConst.gift,
-                color: isDark ? cs.onPrimary : GraviaColorConst.gray900,
-                width: 20,
-                height: 20,
-              ),
-              const SizedBox(width: AppSpacing.xs),
-              Expanded(
-                child: Text(
-                  GraviaValueConst.couponCodeLabel,
-                  style: GraviaTextStyleConst.textSmRegular(
-                    tt,
-                  ).copyWith(color: cs.onSurfaceVariant),
+      leading: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.lg,
+              vertical: AppSpacing.base,
+            ),
+            decoration: BoxDecoration(
+              border: Border.all(color: cs.outlineVariant),
+              borderRadius: AppRadius.full,
+            ),
+            child: Row(
+              children: [
+                AppSvgImage.asset(
+                  GraviaImageConst.gift,
+                  color: isDark ? cs.onPrimary : GraviaColorConst.gray900,
+                  width: 20,
+                  height: 20,
                 ),
-              ),
-              Text(
-                GraviaValueConst.applyLabel,
-                style: GraviaTextStyleConst.textSmMedium(
-                  tt,
-                ).copyWith(color: cs.primary),
-              ),
-            ],
+                const SizedBox(width: AppSpacing.xs),
+                Expanded(
+                  child: applied != null
+                      ? Text(
+                          GraviaValueConst.couponAppliedLabel(applied.code),
+                          style: GraviaTextStyleConst.textSmMedium(
+                            tt,
+                          ).copyWith(color: cs.onSurface),
+                        )
+                      // The pill IS the field chrome — every border is
+                      // stripped explicitly, because the theme's
+                      // inputDecorationTheme injects the pack's input border
+                      // even into a collapsed decoration.
+                      : TextField(
+                          controller: _code,
+                          enabled: !applying,
+                          textCapitalization: TextCapitalization.characters,
+                          style: GraviaTextStyleConst.textSmRegular(
+                            tt,
+                          ).copyWith(color: cs.onSurface),
+                          decoration: InputDecoration(
+                            isCollapsed: true,
+                            border: InputBorder.none,
+                            enabledBorder: InputBorder.none,
+                            focusedBorder: InputBorder.none,
+                            disabledBorder: InputBorder.none,
+                            hintText: GraviaValueConst.couponCodeLabel,
+                            hintStyle: GraviaTextStyleConst.textSmRegular(
+                              tt,
+                            ).copyWith(color: cs.onSurfaceVariant),
+                          ),
+                          onSubmitted: widget.onApplyCoupon,
+                          // Same dismissal rule AppTextField bakes in — tapping
+                          // outside drops focus and the keyboard.
+                          onTapOutside: (_) =>
+                              FocusManager.instance.primaryFocus?.unfocus(),
+                        ),
+                ),
+                if (applying)
+                  const LoadingDots()
+                else
+                  GestureDetector(
+                    onTap: applied != null
+                        ? () {
+                            _code.clear();
+                            widget.onRemoveCoupon();
+                          }
+                        : () => widget.onApplyCoupon(_code.text),
+                    child: Text(
+                      applied != null
+                          ? GraviaValueConst.couponRemoveLabel
+                          : GraviaValueConst.applyLabel,
+                      style: GraviaTextStyleConst.textSmMedium(tt).copyWith(
+                        color: applied != null ? cs.error : cs.primary,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           ),
-        ),
+          if (errorMessage != null) ...[
+            const SizedBox(height: AppSpacing.xs),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+              child: Text(
+                errorMessage,
+                style: GraviaTextStyleConst.textXsRegular(
+                  tt,
+                ).copyWith(color: cs.error),
+              ),
+            ),
+          ],
+        ],
       ),
       leadingGap: AppSpacing.xl2,
       lines: [
         PriceLine(
           label: GraviaValueConst.itemTotalLabel,
-          value: items.itemTotal.asPrice,
+          value: widget.items.itemTotal.asPrice,
           labelStyle: GraviaTextStyleConst.textSmRegular(
             tt,
           ).copyWith(color: cs.onSurfaceVariant),
@@ -84,7 +172,7 @@ class CartSummarySection extends StatelessWidget {
         ),
         PriceLine(
           label: GraviaValueConst.discountLabel,
-          value: items.discountTotal.asPrice,
+          value: widget.items.discountTotal.asPrice,
           labelStyle: GraviaTextStyleConst.textSmRegular(
             tt,
           ).copyWith(color: cs.onSurfaceVariant),
@@ -92,6 +180,17 @@ class CartSummarySection extends StatelessWidget {
             tt,
           ).copyWith(color: cs.primary),
         ),
+        if (applied != null)
+          PriceLine(
+            label: GraviaValueConst.couponLineLabel(applied.code),
+            value: '- ${applied.discount.asPrice}',
+            labelStyle: GraviaTextStyleConst.textSmRegular(
+              tt,
+            ).copyWith(color: cs.onSurfaceVariant),
+            valueStyle: GraviaTextStyleConst.textSmMedium(
+              tt,
+            ).copyWith(color: cs.primary),
+          ),
         PriceLine(
           label: GraviaValueConst.deliveryLabel,
           value: GraviaValueConst.deliveryFreeLabel,
@@ -105,7 +204,7 @@ class CartSummarySection extends StatelessWidget {
       ],
       total: PriceLine(
         label: GraviaValueConst.grandTotalLabel,
-        value: items.grandTotal.asPrice,
+        value: grandTotal.asPrice,
         labelStyle: GraviaTextStyleConst.textMdBold(
           tt,
         ).copyWith(color: cs.onSurface),

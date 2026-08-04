@@ -8,24 +8,29 @@ abstract interface class OrdersRemoteDataSource {
   Future<List<OrderModel>> getOrders(String storeId);
 
   /// Creates the Razorpay order the checkout sheet opens against. The server
-  /// prices the cart from the live catalog and creates the order with the
-  /// store's own credentials — the client sends only `productId`+`quantity`.
+  /// prices the cart from the live catalog (minus [couponCode]'s discount,
+  /// which it validates itself) and creates the order with the store's own
+  /// credentials — the client sends only line ids/quantities and the code.
   Future<PaymentIntentModel> createPayment(
     String storeId,
     List<CartItemEntity> items,
-    String addressId,
-  );
+    String addressId, {
+    String couponCode,
+  });
 
   /// Server recomputes price/stock from the live catalog — only
-  /// `productId`+`quantity` are sent, read off each [CartItemEntity]. The
-  /// server reads the address doc for [addressId] and snapshots it onto the
-  /// order. [payment] is the verified Razorpay result on mobile; null on the
-  /// web preview, where a test-mode store places a payment-less order.
+  /// `productId`+`quantity`(+`sizeValue`) are sent, read off each
+  /// [CartItemEntity], plus [couponCode], which the server re-validates and
+  /// prices inside the order transaction. The server reads the address doc
+  /// for [addressId] and snapshots it onto the order. [payment] is the
+  /// verified Razorpay result on mobile; null on the web preview, where a
+  /// test-mode store places a payment-less order.
   Future<OrderModel> createOrder(
     String storeId,
     List<CartItemEntity> items,
     String addressId, {
     PaymentResultEntity? payment,
+    String couponCode,
   });
 
   /// Cancels the shopper's own order server-side (restock + refund if it was

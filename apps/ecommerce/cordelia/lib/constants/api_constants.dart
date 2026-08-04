@@ -33,6 +33,9 @@ abstract final class ApiConstants {
 
   static String cartPath(String storeId) => '${_storeBase(storeId)}/cart';
 
+  static String couponValidatePath(String storeId) =>
+      '${_storeBase(storeId)}/coupons/validate';
+
   static String ordersPath(String storeId) => '${_storeBase(storeId)}/orders';
 
   static String paymentsPath(String storeId) =>

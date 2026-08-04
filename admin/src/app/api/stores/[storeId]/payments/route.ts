@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { CouponError, previewCoupon } from "@/lib/coupon-engine";
 import { priceCart, OrderCreationError } from "@/lib/orders";
 import {
   createRazorpayOrder,
@@ -70,6 +71,22 @@ export async function POST(
       );
     }
     throw err;
+  }
+
+  // Same engine as the Apply preview and the order transaction, so the
+  // sheet's amount, the preview's discount, and the recorded order agree.
+  const couponCode =
+    typeof body.couponCode === "string" ? body.couponCode.trim() : "";
+  if (couponCode) {
+    try {
+      const priced = await previewCoupon(storeId, uid, couponCode, items);
+      total = Math.round((total - priced.discount) * 100) / 100;
+    } catch (err) {
+      if (err instanceof CouponError) {
+        return NextResponse.json({ error: err.message }, { status: 400 });
+      }
+      throw err;
+    }
   }
 
   try {

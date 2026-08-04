@@ -13,6 +13,7 @@ import 'package:core/core/ui/molecules/swipe_to_delete_row.dart';
 
 import 'package:cordelia/constants/app_routes.dart';
 import 'package:cordelia/enums/product_unit_type.dart';
+import 'package:cordelia/feature/storefront/active_store/presentation/cubit/active_store_cubit.dart';
 import 'package:cordelia/feature/storefront/address/presentation/templates/grofast/widgets/address_picker_sheet.dart';
 import 'package:cordelia/feature/storefront/cart/domain/entities/cart_item_entity.dart';
 import 'package:cordelia/feature/storefront/favourites/presentation/cubit/favourites_cubit.dart';
@@ -28,6 +29,7 @@ import 'package:cordelia/templates/grofast/widgets/grofast_screen_body.dart';
 import 'package:cordelia/templates/grofast/widgets/grofast_state_views.dart';
 
 import '../../../cubit/cart_cubit.dart';
+import '../../../cubit/coupon_cubit.dart';
 
 /// `grofast` template's Bag (kit frames `129:1262` / `129:1144` / `119:650`)
 /// — served two ways: as the shell's Bag **tab** (back returns Home) and as
@@ -67,8 +69,17 @@ class _CartScreenState extends BaseScreenState<CartScreen> {
   @override
   Widget body(BuildContext context) {
     final items = context.watch<CartCubit>().state;
+    final couponState = context.watch<CouponCubit>().state;
+    // The store this bag belongs to — the coupon API is store-scoped.
+    final storeId = context.read<ActiveStoreCubit>().state!.storeId;
 
-    return SafeArea(
+    return BlocListener<CartCubit, List<CartItemEntity>>(
+      // The held discount is only valid for the lines it was priced against
+      // — any bag mutation re-prices the code (or clears it, with the
+      // server's reason shown on the row).
+      listener: (context, items) =>
+          context.read<CouponCubit>().revalidate(storeId, items),
+      child: SafeArea(
       bottom: false,
       child: GrofastScreenBody(
         // The count belongs to the "My Bag" line, not up here — see
@@ -98,11 +109,17 @@ class _CartScreenState extends BaseScreenState<CartScreen> {
                 )
               : _BagContent(
                   items: items,
-                  onPromoApply: () =>
-                      showSnackBar(GrofastValueConst.promoComingSoonMessage),
+                  couponState: couponState,
+                  onPromoApply: (code) => context.read<CouponCubit>().apply(
+                    storeId,
+                    code,
+                    items,
+                  ),
+                  onPromoRemove: () => context.read<CouponCubit>().remove(),
                   onCheckout: _startCheckout,
                 ),
         ),
+      ),
       ),
     );
   }
@@ -131,16 +148,16 @@ class _ItemCount extends StatelessWidget {
 
 class _BagContent extends StatelessWidget {
   final List<CartItemEntity> items;
-
-  /// Reports the coupon stub through the screen's own `showSnackBar` rather
-  /// than reaching for a ScaffoldMessenger down here.
-  final VoidCallback onPromoApply;
-
+  final CouponState couponState;
+  final ValueChanged<String> onPromoApply;
+  final VoidCallback onPromoRemove;
   final VoidCallback onCheckout;
 
   const _BagContent({
     required this.items,
+    required this.couponState,
     required this.onPromoApply,
+    required this.onPromoRemove,
     required this.onCheckout,
   });
 
@@ -155,6 +172,10 @@ class _BagContent extends StatelessWidget {
       tt,
     ).copyWith(color: cs.onSurfaceVariant);
     final value = GrofastTextStyleConst.price(tt).copyWith(color: cs.primary);
+    final appliedCoupon = switch (couponState) {
+      CouponApplied(:final coupon) => coupon,
+      _ => null,
+    };
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -223,7 +244,11 @@ class _BagContent extends StatelessWidget {
         // uses — a Bag that shows only the final figure asks the shopper to
         // trust it.
         PriceBreakdown(
-          leading: GrofastPromoCodeRow(onApply: onPromoApply),
+          leading: GrofastPromoCodeRow(
+            couponState: couponState,
+            onApply: onPromoApply,
+            onRemove: onPromoRemove,
+          ),
           lines: [
             PriceLine(
               label: GrofastValueConst.subtotalLabel,
@@ -238,10 +263,17 @@ class _BagContent extends StatelessWidget {
                 labelStyle: label,
                 valueStyle: value.copyWith(color: cs.error),
               ),
+            if (appliedCoupon != null)
+              PriceLine(
+                label: GrofastValueConst.couponLineLabel(appliedCoupon.code),
+                value: '- ${appliedCoupon.discount.asPrice}',
+                labelStyle: label,
+                valueStyle: value.copyWith(color: cs.error),
+              ),
           ],
           total: PriceLine(
             label: GrofastValueConst.totalLabel,
-            value: items.grandTotal.asPrice,
+            value: (items.grandTotal - (appliedCoupon?.discount ?? 0)).asPrice,
             labelStyle: GrofastTextStyleConst.rowTitleBold(tt),
             valueStyle: GrofastTextStyleConst.price(
               tt,

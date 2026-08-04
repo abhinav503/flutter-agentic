@@ -29,6 +29,12 @@ class OrderEntity {
   /// native checkout SDK).
   final String paymentId;
 
+  /// The coupon this order was placed with — '' / 0 when none. The server's
+  /// recorded total is already net of [couponDiscount]; client-side,
+  /// [OrderEntityX.payableTotal] applies it over the line-item sum.
+  final String couponCode;
+  final double couponDiscount;
+
   /// 4-digit code the delivery agent verifies on handoff for the whole
   /// order — only meaningful while [status] is [OrderStatus.inProcess];
   /// empty for delivered/cancelled orders (nothing left to hand off).
@@ -54,11 +60,17 @@ class OrderEntity {
     this.deliveryAddress,
     this.statusHistory = const [],
     this.paymentId = '',
+    this.couponCode = '',
+    this.couponDiscount = 0,
   });
 }
 
 extension OrderEntityX on OrderEntity {
   double get totalPrice => items.total;
+
+  /// What was actually charged — the line-item sum net of the coupon, the
+  /// same figure the server recorded as the order's total.
+  double get payableTotal => items.total - couponDiscount;
 
   /// Whether any line item's product name contains [term], case-insensitively
   /// — an order is searchable by what's *in* it, since it has no name of its

@@ -279,7 +279,7 @@ class _OrderCard extends StatelessWidget {
                         style: GrofastTextStyleConst.cardTitleBold(tt),
                       ),
                       const SizedBox(height: AppSpacing.xs3),
-                      GrofastPrice(value: order.totalPrice),
+                      GrofastPrice(value: order.payableTotal),
                       const SizedBox(height: AppSpacing.xs),
                       Divider(height: 1, color: cs.outlineVariant),
                       const SizedBox(height: AppSpacing.xs),

@@ -16,11 +16,16 @@ class CreateOrderParams {
   /// a test-mode store places a payment-less order.
   final PaymentResultEntity? payment;
 
+  /// '' = no coupon. Only the code travels — the server re-validates and
+  /// prices it inside the order transaction.
+  final String couponCode;
+
   const CreateOrderParams({
     required this.storeId,
     required this.items,
     required this.addressId,
     this.payment,
+    this.couponCode = '',
   });
 }
 
@@ -37,5 +42,6 @@ class CreateOrderUseCase
         params.items,
         params.addressId,
         payment: params.payment,
+        couponCode: params.couponCode,
       );
 }

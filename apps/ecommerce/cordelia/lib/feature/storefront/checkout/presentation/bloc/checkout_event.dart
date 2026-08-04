@@ -8,5 +8,8 @@ sealed class CheckoutEvent with _$CheckoutEvent {
   const factory CheckoutEvent.submitted({
     required List<CartItemEntity> items,
     required String addressId,
+    // '' = no coupon. The code the Cart's promo row validated — the server
+    // re-prices it at both the payment intent and the order transaction.
+    @Default('') String couponCode,
   }) = CheckoutSubmitted;
 }

@@ -124,7 +124,13 @@ abstract final class DailyMartValueConst {
 
   // ── Cart ─────────────────────────────────────────────────────────────────
   static const myCartTitle = 'My Cart';
-  static const couponLabel = 'BLACKFRIDAY';
+  static const couponHint = 'Enter coupon code';
+  static const couponRemoveLabel = 'Remove';
+  static const couponDetailLabel = 'Coupon';
+  static String couponAppliedLabel(String code) => '$code applied';
+  static String couponLineLabel(String code) => 'Coupon ($code)';
+  static String couponDetailValue(String code, String discount) =>
+      '$code (- $discount)';
   static const subTotalLabel = 'Sub total';
   static const deliveryLabel = 'Delivery';
   static const deliveryFreeLabel = 'Free';

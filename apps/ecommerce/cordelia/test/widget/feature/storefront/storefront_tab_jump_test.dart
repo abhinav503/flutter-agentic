@@ -1,9 +1,12 @@
 import 'package:cordelia/feature/storefront/active_store/domain/entities/active_store_entity.dart';
 import 'package:cordelia/feature/storefront/active_store/presentation/cubit/active_store_cubit.dart';
 import 'package:cordelia/feature/storefront/cart/domain/entities/cart_item_entity.dart';
+import 'package:cordelia/feature/storefront/cart/domain/entities/applied_coupon_entity.dart';
 import 'package:cordelia/feature/storefront/cart/domain/usecase/get_cart_usecase.dart';
 import 'package:cordelia/feature/storefront/cart/domain/usecase/save_cart_usecase.dart';
+import 'package:cordelia/feature/storefront/cart/domain/usecase/validate_coupon_usecase.dart';
 import 'package:cordelia/feature/storefront/cart/presentation/cubit/cart_cubit.dart';
+import 'package:cordelia/feature/storefront/cart/presentation/cubit/coupon_cubit.dart';
 import 'package:cordelia/feature/storefront/favourites/domain/usecase/add_favourite_usecase.dart';
 import 'package:cordelia/feature/storefront/favourites/domain/usecase/get_favourites_usecase.dart';
 import 'package:cordelia/feature/storefront/favourites/domain/usecase/remove_favourite_usecase.dart';
@@ -43,6 +46,13 @@ class _FakeGetCartUseCase implements GetCartUseCase {
   Future<Either<Failure, List<CartItemEntity>>> call(
     GetCartParams params,
   ) async => right(const []);
+}
+
+class _FakeValidateCouponUseCase implements ValidateCouponUseCase {
+  @override
+  Future<Either<Failure, AppliedCouponEntity>> call(
+    ValidateCouponParams params,
+  ) async => right(const AppliedCouponEntity(code: '', discount: 0));
 }
 
 class _FakeSaveCartUseCase implements SaveCartUseCase {
@@ -130,6 +140,11 @@ void main() {
               create: (_) => CartCubit(
                 getCartUseCase: _FakeGetCartUseCase(),
                 saveCartUseCase: _FakeSaveCartUseCase(),
+              ),
+            ),
+            BlocProvider(
+              create: (_) => CouponCubit(
+                validateCouponUseCase: _FakeValidateCouponUseCase(),
               ),
             ),
             BlocProvider(

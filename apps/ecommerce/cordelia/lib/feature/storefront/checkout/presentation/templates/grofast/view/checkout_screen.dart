@@ -17,6 +17,7 @@ import 'package:cordelia/feature/storefront/address/presentation/templates/grofa
 import 'package:cordelia/feature/storefront/address/presentation/templates/grofast/widgets/grofast_address_tile.dart';
 import 'package:cordelia/feature/storefront/cart/domain/entities/cart_item_entity.dart';
 import 'package:cordelia/feature/storefront/cart/presentation/cubit/cart_cubit.dart';
+import 'package:cordelia/feature/storefront/cart/presentation/cubit/coupon_cubit.dart';
 import 'package:cordelia/feature/storefront/presentation/view/storefront_page.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_text_style_const.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_value_const.dart';
@@ -66,13 +67,22 @@ class _CheckoutScreenState extends BaseScreenState<CheckoutScreen> {
   }
 
   void _submit(List<CartItemEntity> items) => context.read<CheckoutBloc>().add(
-    CheckoutEvent.submitted(items: items, addressId: _address.id),
+    CheckoutEvent.submitted(
+      items: items,
+      addressId: _address.id,
+      // The code the Bag's promo row validated — the server re-prices it.
+      couponCode: switch (context.read<CouponCubit>().state) {
+        CouponApplied(:final coupon) => coupon.code,
+        _ => '',
+      },
+    ),
   );
 
   /// The bag empties only once the server has confirmed the order — never
   /// optimistically on tap — and then the terminal sheet takes over.
   void _onOrderPlaced() {
     context.read<CartCubit>().clear();
+    context.read<CouponCubit>().reset();
     showGrofastSuccessSheet(
       context: context,
       child: GrofastSuccessSheetContent(
@@ -99,6 +109,8 @@ class _CheckoutScreenState extends BaseScreenState<CheckoutScreen> {
   @override
   Widget body(BuildContext context) {
     final items = context.watch<CartCubit>().state;
+    final couponState = context.watch<CouponCubit>().state;
+    final storeId = context.read<ActiveStoreCubit>().state!.storeId;
 
     return SafeArea(
       bottom: false,
@@ -124,9 +136,11 @@ class _CheckoutScreenState extends BaseScreenState<CheckoutScreen> {
           body: _CheckoutForm(
             items: items,
             address: _address,
+            couponState: couponState,
             onChangeAddress: _changeAddress,
-            onPromoApply: () =>
-                showSnackBar(GrofastValueConst.promoComingSoonMessage),
+            onPromoApply: (code) =>
+                context.read<CouponCubit>().apply(storeId, code, items),
+            onPromoRemove: () => context.read<CouponCubit>().remove(),
           ),
         ),
       ),
@@ -137,14 +151,18 @@ class _CheckoutScreenState extends BaseScreenState<CheckoutScreen> {
 class _CheckoutForm extends StatelessWidget {
   final List<CartItemEntity> items;
   final AddressEntity address;
+  final CouponState couponState;
   final VoidCallback onChangeAddress;
-  final VoidCallback onPromoApply;
+  final ValueChanged<String> onPromoApply;
+  final VoidCallback onPromoRemove;
 
   const _CheckoutForm({
     required this.items,
     required this.address,
+    required this.couponState,
     required this.onChangeAddress,
     required this.onPromoApply,
+    required this.onPromoRemove,
   });
 
   @override
@@ -158,6 +176,10 @@ class _CheckoutForm extends StatelessWidget {
     final value = GrofastTextStyleConst.bodyMedium(
       tt,
     ).copyWith(color: cs.onSurface);
+    final appliedCoupon = switch (couponState) {
+      CouponApplied(:final coupon) => coupon,
+      _ => null,
+    };
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -196,7 +218,11 @@ class _CheckoutForm extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.xl4),
         PriceBreakdown(
-          leading: GrofastPromoCodeRow(onApply: onPromoApply),
+          leading: GrofastPromoCodeRow(
+            couponState: couponState,
+            onApply: onPromoApply,
+            onRemove: onPromoRemove,
+          ),
           lines: [
             PriceLine(
               label: GrofastValueConst.subtotalLabel,
@@ -211,10 +237,17 @@ class _CheckoutForm extends StatelessWidget {
                 labelStyle: label,
                 valueStyle: value.copyWith(color: cs.error),
               ),
+            if (appliedCoupon != null)
+              PriceLine(
+                label: GrofastValueConst.couponLineLabel(appliedCoupon.code),
+                value: '- ${appliedCoupon.discount.asPrice}',
+                labelStyle: label,
+                valueStyle: value.copyWith(color: cs.error),
+              ),
           ],
           total: PriceLine(
             label: GrofastValueConst.totalLabel,
-            value: items.grandTotal.asPrice,
+            value: (items.grandTotal - (appliedCoupon?.discount ?? 0)).asPrice,
             labelStyle: GrofastTextStyleConst.rowTitleBold(tt),
             valueStyle: GrofastTextStyleConst.price(
               tt,

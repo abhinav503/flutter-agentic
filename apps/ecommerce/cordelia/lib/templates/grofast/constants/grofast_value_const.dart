@@ -92,6 +92,12 @@ abstract final class GrofastValueConst {
   static String bagItemCount(int count) => '$count ${count.plural('item')}';
   static const promoCodeHint = 'Add Promo Code';
   static const promoApplyLabel = 'Apply';
+  static const promoRemoveLabel = 'Remove';
+  static const couponDetailLabel = 'Coupon';
+  static String promoAppliedLabel(String code) => '$code applied';
+  static String couponLineLabel(String code) => 'Coupon ($code)';
+  static String couponDetailValue(String code, String discount) =>
+      '$code (- $discount)';
   static const promoComingSoonMessage = 'Promo codes are coming soon.';
   static const totalLabel = 'Total';
   static const subtotalLabel = 'Subtotal';

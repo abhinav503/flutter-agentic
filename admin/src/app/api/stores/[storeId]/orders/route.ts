@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { CouponError } from "@/lib/coupon-engine";
 import {
   createOrder,
   getOrdersForStore,
@@ -64,6 +65,7 @@ export async function POST(
   const body = await request.json();
   const items = body.items as CreateOrderItemInput[] | undefined;
   const addressId = body.addressId as string | undefined;
+  const couponCode = typeof body.couponCode === "string" ? body.couponCode : "";
   const razorpayOrderId = body.razorpayOrderId as string | undefined;
   const razorpayPaymentId = body.razorpayPaymentId as string | undefined;
   const razorpaySignature = body.razorpaySignature as string | undefined;
@@ -121,6 +123,7 @@ export async function POST(
       addressId,
       paymentProvided ? razorpayPaymentId! : "",
       paymentProvided ? razorpayOrderId! : "",
+      couponCode,
     );
     return NextResponse.json({ order: serializeOrder(order) }, { status: 201 });
   } catch (err) {
@@ -130,6 +133,11 @@ export async function POST(
         { error: err.message, productId: err.productId },
         { status },
       );
+    }
+    // A coupon that stopped qualifying between Apply and checkout (expired,
+    // raced to its limit) — same shopper-facing 400 shape as above.
+    if (err instanceof CouponError) {
+      return NextResponse.json({ error: err.message }, { status: 400 });
     }
     throw err;
   }

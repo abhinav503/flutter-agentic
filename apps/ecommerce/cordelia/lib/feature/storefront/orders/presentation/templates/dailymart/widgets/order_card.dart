@@ -123,7 +123,7 @@ class DailyMartOrderCard extends StatelessWidget {
                   children: [
                     Expanded(
                       child: Text(
-                        order.totalPrice.asPrice,
+                        order.payableTotal.asPrice,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: DailyMartTextStyleConst.bodyMdSemibold(

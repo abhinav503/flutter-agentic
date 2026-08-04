@@ -16,6 +16,7 @@ import 'package:cordelia/feature/storefront/address/presentation/templates/grofa
 import 'package:cordelia/feature/storefront/address/presentation/templates/gravia/view/address_page.dart'
     as gravia_address;
 import 'package:cordelia/feature/storefront/cart/presentation/cubit/cart_cubit.dart';
+import 'package:cordelia/feature/storefront/cart/presentation/cubit/coupon_cubit.dart';
 // Cart/Search/Product Details follow the Notifications pattern below: every
 // template names the entry class the same, so each needs a prefix to be
 // dispatched from one StorefrontTemplateSwitch.
@@ -611,6 +612,11 @@ class _AppState extends State<App> {
     getCartUseCase: sl(),
     saveCartUseCase: sl(),
   );
+  // Beside CartCubit for the same reason: the promo row (Cart) and the flow
+  // that consumes the code (Checkout) are separate GoRouter pages.
+  late final CouponCubit _couponCubit = CouponCubit(
+    validateCouponUseCase: sl(),
+  );
   late final FavouritesCubit _favouritesCubit = FavouritesCubit(
     getFavouritesUseCase: sl(),
     addFavouriteUseCase: sl(),
@@ -628,6 +634,7 @@ class _AppState extends State<App> {
     _themeMode.dispose();
     _activeTheme.dispose();
     _cartCubit.close();
+    _couponCubit.close();
     _favouritesCubit.close();
     _activeStoreCubit.close();
     super.dispose();
@@ -638,6 +645,7 @@ class _AppState extends State<App> {
     return MultiBlocProvider(
       providers: [
         BlocProvider.value(value: _cartCubit),
+        BlocProvider.value(value: _couponCubit),
         BlocProvider.value(value: _favouritesCubit),
         BlocProvider.value(value: _activeStoreCubit),
       ],

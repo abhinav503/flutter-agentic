@@ -1,17 +1,16 @@
 # Super App Ecommerce (FlutterAgenticEcommerce) — Platform Plan
 
-> Status: **M1a done; catalog CRUD, read API, and gravia catalog wiring done;
-> cart/order-creation/admin-order-management APIs done; shopper-auth trust gap
-> closed (all shopper routes now token-verified); checkout + per-store Razorpay
-> payments + cancel/refund done (both shopper and admin); `cordelia`
-> multi-template storefront **fully ported** (all storefront features + shell +
-> checkout, not just the Phase-1 Home slice); admin-side template
-> management (validated `templateId`, `PUT /api/stores/{id}`, store-profile
-> settings UI) done; the `dailymart` template is now a **real second
-> template** (own design pack + shell + Home + Notifications), not just open
-> seams. Not yet deployed** (last updated 2026-07-29). Turns the
-> `gravia` exemplar into a multi-tenant "app of apps" ecommerce platform.
-> See also `docs/explanation/end-goal.md`.
+> Status: **three complete storefront templates (`gravia`, `dailymart`,
+> `grofast` — every surface, no fall-throughs) over one shared
+> domain/data layer; checkout + per-store Razorpay + cancel/refund live;
+> catalog depth (brands + per-size-priced size variants) and coupons
+> (store/category/product-scoped, server-priced) shipped end-to-end
+> admin→API→all three templates — coupons verified working, brands await a
+> data-seeded verification pass; back-button headers pinned in
+> dailymart/grofast. Product-facing scope contract: `docs/PRODUCT_SPEC.md`.
+> Latest admin/API code not yet deployed to Vercel** (last updated
+> 2026-08-04). Turns the `gravia` exemplar into a multi-tenant "app of
+> apps" ecommerce platform. See also `docs/explanation/end-goal.md`.
 >
 > **Note (2026-07-25): the multi-tenant runtime moved to `cordelia`, and
 > per-store identity became a full swappable template, not just a
@@ -1680,3 +1679,116 @@ three kits predate sizes-with-prices and brands):
 brand-filter axis on the shared search/category blocs — do it with coupons'
 filter work or as its own slice), and per-variant stock (deliberately
 product-level until there's a reason to split it).
+
+## Coupons — DONE end-to-end (2026-08-04)
+
+Roadmap item 2 (PRODUCT_SPEC): store-scoped discount codes, validated and
+priced **only** on the server, applied from every template's promo row.
+Workspace analyze clean, cordelia's 11 tests green, admin lint/tsc/build
+green, firestore rules deployed.
+
+**Schema** — `stores/{id}/coupons`: `code` (uppercase, unique per store),
+`type` percent|flat + `value`, `scope` store|category|product +
+`targetIds[]` (the banner-target pattern, multi-select), `minOrderValue`,
+`maxDiscount` (percent cap), `validFrom/Until` (ISO, "" = open),
+`usageLimit`/`perUserLimit`/`usedCount`, `isActive`. Per-shopper counts in
+`coupons/{id}/redemptions/{uid}`, written only inside the order
+transaction. Rules: owner-only read/write (NOT world-readable — shoppers
+go through the token-verified API), redemptions server-only.
+
+**Admin** — `/dashboard/coupons`: table (code, discount label, scope,
+used/limit, active badge) + dialog (type/value, percent cap, scope with
+category/product checkbox picker, min order, datetime-local validity
+window, limits, active), client-side duplicate-code guard. `usedCount` is
+deliberately not form-writable.
+
+**Engine** (`admin/src/lib/coupon-engine.ts`) — one authority:
+`eligibleSubtotal` (scope over size-variant-resolved lines),
+`assertCouponUsable` (active/window/limits/floor/eligibility, shopper-facing
+messages), `computeDiscount` (percent-with-cap or flat, clamped so the
+payable amount stays ≥ ₹1 — the gateway minimum), and `previewCoupon` (the
+whole non-transactional pipeline). Consumers:
+- `POST /coupons/validate` — the Apply preview (token-verified; reserves
+  nothing).
+- `POST /payments` — intent amount = priceCart − previewCoupon discount.
+- `createOrder` — re-runs every check on **transaction-consistent**
+  coupon/redemption reads, so a code racing to its limit fails the order
+  instead of over-redeeming; counts `usedCount` + `redemptions/{uid}`
+  atomically with the order write; order records `couponCode` +
+  `couponDiscount`, `total` net of it (serializer: `coupon_code`/
+  `coupon_discount`). CouponError → 400 with the reason as the message.
+
+**Cordelia** — coupon slice inside `feature/storefront/cart/`
+(`AppliedCouponEntity` {code, discount}, validate usecase/repo/data source
+posting the same items payload as orders) + app-root `CouponCubit`
+(sealed None/Applying/Applied/Failed — Failed keeps the entered code, the
+retry-context rule). Lifecycle: cart mutations **revalidate** the applied
+code via BlocListener<CartCubit> on the cart screens (a discount never
+lingers on lines it wasn't priced for), storefront entry / sign-out /
+order-placed reset it, and checkout sends only the code
+(`CheckoutEvent.submitted.couponCode` → both use cases → wire).
+
+**Template UIs** — each pack's existing promo-row silhouette went live
+(collapsed TextField inside the pack's own chrome, Apply ↔ Remove, server
+reason under the row): gravia's bordered pill (cart summary), dailymart's
+recessed strip (cart summary), grofast's dashed voucher row (Bag **and**
+Checkout). Applied coupons add a `Coupon (CODE)` line to the
+PriceBreakdowns and the shown grand total nets the discount — the same
+figure the server charges.
+
+**Not done on this track:** admin-side coupon analytics beyond used-count,
+and surfacing `coupon_code`/`coupon_discount` on the shopper's order
+details/track-order screens (the data is on the wire already).
+
+## Post-coupon polish + verification status (2026-08-04)
+
+**Verification status of the two catalog-depth/coupons tracks:**
+- **Coupons — verified working end-to-end** (admin CRUD → Apply on the
+  storefront promo rows → discounted totals → order records the code).
+- **Brands — implemented but not yet seen working in any template.**
+  Expected, not a defect: the storefront's only brand surface is the
+  Product Details brand line/pill, which renders **only when the product
+  doc carries a `brandId`** — i.e. after the store owner creates brands on
+  `/dashboard/brands` and re-saves products with a brand picked. No
+  seeded product has one yet. Verification pass still owed once data
+  exists; if the line still doesn't render then, treat it as a bug.
+
+**Pinned back-button headers (dailymart + grofast).** Both packs' §8 scroll
+contracts changed from "everything scrolls away" to "back-button headers
+pin": `DailyMartScreenBody`/`GrofastScreenBody` gained a `pinnedHeader`
+mode that **auto-pins exactly when the header carries a back control**
+(title+onBack / showBack), leaving tab roots and custom headerRows
+scrolling; grofast Search + Category Details opt their back-carrying
+headerRows in explicitly; dailymart Product Details' `_Page` and Legal
+pinned by hand (Column → docked header → Expanded scroll); grofast Product
+Details pins its floating header row in the screen's outer Stack over the
+scrolling hero (controls carry their own fills), skeleton included. Spec
+sheets §8 updated.
+
+**Coupon on Track Order + order cards.** `OrderEntity`/`OrderModel` now
+parse `coupon_code`/`coupon_discount` (the API already sent them) and gain
+`payableTotal` (line-item sum net of the coupon — the server's recorded
+charge). dailymart Track Order shows a Coupon row in Payment and its
+Amount-paid is coupon-net; grofast Track Order adds a Coupon detail row
+and its Total row is coupon-net; **all three templates' order cards**
+switched from the raw item sum to `payableTotal` so list and detail agree.
+
+**Fix batch, each fed back into the shared rules where generic:**
+- Grofast Apply pill label invisible in light mode — `AppButton` lets a
+  `labelStyle`'s inherited theme ink win over `foregroundColor`; label
+  colour now re-pinned to `onSecondary` on the style. → new forbidden
+  pattern (all 4 rule surfaces).
+- Coupon promo fields drew the pack input border inside their own chrome —
+  the theme's `inputDecorationTheme` injects borders even into
+  `InputDecoration.collapsed`; all four border states now stripped
+  explicitly. And the raw fields didn't unfocus on outside tap —
+  `onTapOutside` unfocus added (AppTextField's own rule). → one combined
+  forbidden pattern (all 4 rule surfaces).
+- Grofast Profile's My Orders quick tile still wore the kit Voucher's
+  gift.svg — now `Icons.receipt_long_rounded` (the pack's Material-rounded
+  menu-row system; it ships no order/receipt SVG).
+
+**Deploy note.** The Flutter app points at the deployed Vercel admin
+(`ApiConstants.baseUrl`); everything on these tracks (brands, variants,
+coupons routes + engine) must be deployed there for the app to see it.
+Firestore + Storage rules for brands/coupons are already deployed.

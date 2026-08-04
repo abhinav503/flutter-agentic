@@ -6,6 +6,7 @@ import 'package:core/core/theme/app_radius.dart';
 import 'package:core/core/theme/app_shapes_extension.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/button.dart';
+import 'package:core/core/ui/atoms/loading_dots.dart';
 import 'package:core/core/ui/blocks/ecommerce/price_breakdown.dart';
 
 import 'package:cordelia/templates/dailymart/constants/dailymart_color_const.dart';
@@ -15,19 +16,27 @@ import 'package:cordelia/templates/dailymart/constants/dailymart_value_const.dar
 import 'package:cordelia/templates/dailymart/widgets/dailymart_primary_button.dart';
 
 import '../../../../domain/entities/cart_item_entity.dart';
+import '../../../cubit/coupon_cubit.dart';
 
 /// The cart's coupon row + totals breakdown (kit frames `24`/`25`) —
 /// rendered inside the cart's scroll, after the item cards, so a long cart
 /// keeps the whole breakdown reachable while only the checkout CTA
-/// ([DailyMartCartCheckoutBar]) stays docked.
+/// ([DailyMartCartCheckoutBar]) stays docked. The coupon row is live: the
+/// code is typed in the kit's recessed strip and validated by the backend
+/// ([CouponCubit]); an applied coupon adds its own line and the total nets
+/// it off — the same figure checkout charges.
 class DailyMartCartSummarySection extends StatelessWidget {
   final List<CartItemEntity> items;
-  final VoidCallback onApplyCoupon;
+  final CouponState couponState;
+  final ValueChanged<String> onApplyCoupon;
+  final VoidCallback onRemoveCoupon;
 
   const DailyMartCartSummarySection({
     super.key,
     required this.items,
+    required this.couponState,
     required this.onApplyCoupon,
+    required this.onRemoveCoupon,
   });
 
   @override
@@ -46,9 +55,18 @@ class DailyMartCartSummarySection extends StatelessWidget {
       tt,
     ).copyWith(color: cs.primary);
 
+    final applied = switch (couponState) {
+      CouponApplied(:final coupon) => coupon,
+      _ => null,
+    };
+
     return PriceBreakdown(
       crossAxisAlignment: CrossAxisAlignment.stretch,
-      leading: _CouponRow(onTap: onApplyCoupon),
+      leading: _CouponRow(
+        couponState: couponState,
+        onApply: onApplyCoupon,
+        onRemove: onRemoveCoupon,
+      ),
       lines: [
         PriceLine(
           label: DailyMartValueConst.subTotalLabel,
@@ -68,10 +86,17 @@ class DailyMartCartSummarySection extends StatelessWidget {
           labelStyle: mutedLabel,
           valueStyle: primaryValue,
         ),
+        if (applied != null)
+          PriceLine(
+            label: DailyMartValueConst.couponLineLabel(applied.code),
+            value: '- ${applied.discount.asPrice}',
+            labelStyle: mutedLabel,
+            valueStyle: primaryValue,
+          ),
       ],
       total: PriceLine(
         label: DailyMartValueConst.totalCostLabel,
-        value: items.grandTotal.asPrice,
+        value: (items.grandTotal - (applied?.discount ?? 0)).asPrice,
         labelStyle: DailyMartTextStyleConst.bodyMdSemibold(
           tt,
         ).copyWith(color: cs.onSurface),
@@ -126,28 +151,59 @@ class DailyMartCartCheckoutBar extends StatelessWidget {
   }
 }
 
-/// The coupon trigger — a recessed field-shaped row (badge glyph, the code,
-/// a chevron). No coupon backend exists yet, so the caller stubs the tap
-/// with the app's coming-soon snackbar, same as gravia's Apply.
-class _CouponRow extends StatelessWidget {
-  final VoidCallback onTap;
+/// The coupon row — the kit's recessed field-shaped strip (badge glyph, the
+/// code, the action), now live: type a code and Apply, or Remove the one
+/// applied. Validation errors print under the strip with the server's
+/// reason, keeping the typed code in place for a retry.
+class _CouponRow extends StatefulWidget {
+  final CouponState couponState;
+  final ValueChanged<String> onApply;
+  final VoidCallback onRemove;
 
-  const _CouponRow({required this.onTap});
+  const _CouponRow({
+    required this.couponState,
+    required this.onApply,
+    required this.onRemove,
+  });
+
+  @override
+  State<_CouponRow> createState() => _CouponRowState();
+}
+
+class _CouponRowState extends State<_CouponRow> {
+  final TextEditingController _code = TextEditingController();
+
+  @override
+  void dispose() {
+    _code.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
 
-    return Material(
-      color: cs.surfaceContainerLow,
-      borderRadius: AppRadius.lg,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: AppRadius.lg,
-        child: Container(
+    final applied = switch (widget.couponState) {
+      CouponApplied(:final coupon) => coupon,
+      _ => null,
+    };
+    final errorMessage = switch (widget.couponState) {
+      CouponFailed(:final message) => message,
+      _ => null,
+    };
+    final applying = widget.couponState is CouponApplying;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
           height: DailyMartDimenConst.controlHeight,
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+          decoration: BoxDecoration(
+            color: cs.surfaceContainerLow,
+            borderRadius: AppRadius.lg,
+          ),
           child: Row(
             children: [
               Icon(
@@ -157,22 +213,77 @@ class _CouponRow extends StatelessWidget {
               ),
               const SizedBox(width: AppSpacing.xs),
               Expanded(
-                child: Text(
-                  DailyMartValueConst.couponLabel,
-                  style: DailyMartTextStyleConst.bodySmSemibold(
-                    tt,
-                  ).copyWith(color: cs.onSurfaceVariant),
+                child: applied != null
+                    ? Text(
+                        DailyMartValueConst.couponAppliedLabel(applied.code),
+                        style: DailyMartTextStyleConst.bodySmSemibold(
+                          tt,
+                        ).copyWith(color: cs.onSurface),
+                      )
+                    // The strip IS the field chrome — every border is
+                    // stripped explicitly, because the theme's
+                    // inputDecorationTheme injects the pack's input border
+                    // even into a collapsed decoration.
+                    : TextField(
+                        controller: _code,
+                        enabled: !applying,
+                        textCapitalization: TextCapitalization.characters,
+                        style: DailyMartTextStyleConst.bodySmSemibold(
+                          tt,
+                        ).copyWith(color: cs.onSurface),
+                        decoration: InputDecoration(
+                          isCollapsed: true,
+                          border: InputBorder.none,
+                          enabledBorder: InputBorder.none,
+                          focusedBorder: InputBorder.none,
+                          disabledBorder: InputBorder.none,
+                          hintText: DailyMartValueConst.couponHint,
+                          hintStyle: DailyMartTextStyleConst.bodySmSemibold(
+                            tt,
+                          ).copyWith(color: cs.onSurfaceVariant),
+                        ),
+                        onSubmitted: widget.onApply,
+                        // Same dismissal rule AppTextField bakes in — tapping
+                        // outside drops focus and the keyboard.
+                        onTapOutside: (_) =>
+                            FocusManager.instance.primaryFocus?.unfocus(),
+                      ),
+              ),
+              if (applying)
+                const LoadingDots()
+              else
+                GestureDetector(
+                  onTap: applied != null
+                      ? () {
+                          _code.clear();
+                          widget.onRemove();
+                        }
+                      : () => widget.onApply(_code.text),
+                  child: Text(
+                    applied != null
+                        ? DailyMartValueConst.couponRemoveLabel
+                        : DailyMartValueConst.applyLabel,
+                    style: DailyMartTextStyleConst.bodySmSemibold(tt).copyWith(
+                      color: applied != null ? cs.error : cs.primary,
+                    ),
+                  ),
                 ),
-              ),
-              Icon(
-                Icons.chevron_right_rounded,
-                size: AppSpacing.xl4,
-                color: cs.onSurfaceVariant,
-              ),
             ],
           ),
         ),
-      ),
+        if (errorMessage != null) ...[
+          const SizedBox(height: AppSpacing.xs),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+            child: Text(
+              errorMessage,
+              style: DailyMartTextStyleConst.bodyXsMedium(
+                tt,
+              ).copyWith(color: cs.error),
+            ),
+          ),
+        ],
+      ],
     );
   }
 }

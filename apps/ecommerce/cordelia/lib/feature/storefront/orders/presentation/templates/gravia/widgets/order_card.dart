@@ -69,7 +69,7 @@ class OrderCard extends StatelessWidget {
                 if (!isUpcoming) _StatusBadge(status: order.status),
                 if (!isUpcoming) const SizedBox(width: AppSpacing.sm),
                 Text(
-                  order.totalPrice.asPrice,
+                  order.payableTotal.asPrice,
                   style: GraviaTextStyleConst.textMdBold(
                     tt,
                   ).copyWith(color: cs.onSurface),

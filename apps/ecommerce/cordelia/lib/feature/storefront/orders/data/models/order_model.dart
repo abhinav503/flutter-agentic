@@ -29,6 +29,10 @@ abstract class OrderModel with _$OrderModel {
     // Defaulted: empty on the payment-less path, and absent from the mock
     // orders and from orders serialized before the field existed.
     @JsonKey(name: 'payment_id') @Default('') String paymentId,
+    // Defaulted: orders placed without a coupon (and those predating the
+    // feature) omit both.
+    @JsonKey(name: 'coupon_code') @Default('') String couponCode,
+    @JsonKey(name: 'coupon_discount') @Default(0) double couponDiscount,
     required List<OrderLineItemModel> items,
     // Reuses AddressModel — the server serializes the snapshot through the
     // same shape the /users/addresses endpoints use. Nullable: legacy orders
@@ -54,6 +58,8 @@ abstract class OrderModel with _$OrderModel {
     placedAt: e.placedAt.toIso8601String(),
     deliveryOtp: e.deliveryOtp,
     paymentId: e.paymentId,
+    couponCode: e.couponCode,
+    couponDiscount: e.couponDiscount,
     items: e.items.map(OrderLineItemModel.fromEntity).toList(),
     deliveryAddress: e.deliveryAddress == null
         ? null
@@ -68,6 +74,8 @@ abstract class OrderModel with _$OrderModel {
     statusHistory: statusHistory.map((m) => m.toEntity()).toList(),
     deliveryOtp: deliveryOtp,
     paymentId: paymentId,
+    couponCode: couponCode,
+    couponDiscount: couponDiscount,
     items: items.map((m) => m.toEntity()).toList(),
     deliveryAddress: deliveryAddress?.toEntity(),
   );

@@ -12,14 +12,16 @@ abstract interface class OrdersRepository {
   Future<Either<Failure, PaymentIntentEntity>> createPayment(
     String storeId,
     List<CartItemEntity> items,
-    String addressId,
-  );
+    String addressId, {
+    String couponCode,
+  });
 
   Future<Either<Failure, OrderEntity>> createOrder(
     String storeId,
     List<CartItemEntity> items,
     String addressId, {
     PaymentResultEntity? payment,
+    String couponCode,
   });
 
   Future<Either<Failure, OrderEntity>> cancelOrder(

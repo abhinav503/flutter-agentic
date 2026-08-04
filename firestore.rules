@@ -89,6 +89,19 @@ service cloud.firestore {
         allow read: if true;
         allow write: if isStoreOwner(storeId);
       }
+
+      // Discount codes — owner-only, NOT world-readable like the catalog:
+      // shoppers validate a code through the token-verified API, so the
+      // codes themselves never need to be listable client-side.
+      match /coupons/{couponId} {
+        allow read, write: if isStoreOwner(storeId);
+
+        // Per-shopper redemption counts, written only inside the order
+        // transaction via the Admin SDK (which bypasses rules).
+        match /redemptions/{uid} {
+          allow read, write: if false;
+        }
+      }
     }
 
     // Storefront template catalog — world-readable so the create-store

@@ -12,6 +12,7 @@ import 'package:cordelia/constants/app_routes.dart';
 import 'package:cordelia/feature/storefront/address/domain/entities/address_entity.dart';
 import 'package:cordelia/feature/storefront/cart/domain/entities/cart_item_entity.dart';
 import 'package:cordelia/feature/storefront/cart/presentation/cubit/cart_cubit.dart';
+import 'package:cordelia/feature/storefront/cart/presentation/cubit/coupon_cubit.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_text_style_const.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_value_const.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_header_row.dart';
@@ -56,12 +57,23 @@ class _CheckoutScreenState extends BaseScreenState<CheckoutScreen> {
   }
 
   void _submit(List<CartItemEntity> items) => context.read<CheckoutBloc>().add(
-    CheckoutEvent.submitted(items: items, addressId: _address.id),
+    CheckoutEvent.submitted(
+      items: items,
+      addressId: _address.id,
+      // The code the Cart's promo row validated — the server re-prices it.
+      couponCode: switch (context.read<CouponCubit>().state) {
+        CouponApplied(:final coupon) => coupon.code,
+        _ => '',
+      },
+    ),
   );
 
   /// The cart empties only once the server has confirmed the order — never
   /// optimistically on tap.
-  void _onOrderPlaced() => context.read<CartCubit>().clear();
+  void _onOrderPlaced() {
+    context.read<CartCubit>().clear();
+    context.read<CouponCubit>().reset();
+  }
 
   /// This template's shell has no Orders tab, so the success CTA pushes the
   /// same routed My Orders screen Profile's row opens rather than switching

@@ -8,6 +8,7 @@ import 'package:cordelia/constants/app_routes.dart';
 import 'package:cordelia/feature/auth/presentation/bloc/auth_bloc.dart'
     show kPendingEmailVerificationPrefKey;
 import 'package:cordelia/feature/storefront/cart/presentation/cubit/cart_cubit.dart';
+import 'package:cordelia/feature/storefront/cart/presentation/cubit/coupon_cubit.dart';
 import 'package:cordelia/feature/storefront/favourites/presentation/cubit/favourites_cubit.dart';
 import 'package:cordelia/services/firebase_auth_service.dart';
 import 'package:cordelia/services/user_profile_cache_service.dart';
@@ -27,6 +28,7 @@ Future<void> signOutAndReturnToLogin(BuildContext context) async {
   );
   if (!context.mounted) return;
   context.read<CartCubit>().reset();
+  context.read<CouponCubit>().reset();
   context.read<FavouritesCubit>().reset();
   context.go(AppRoutes.login);
 }

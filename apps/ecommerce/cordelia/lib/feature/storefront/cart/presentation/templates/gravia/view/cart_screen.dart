@@ -1,5 +1,4 @@
 import 'package:cordelia/constants/app_routes.dart';
-import 'package:cordelia/constants/value_const.dart';
 import 'package:cordelia/feature/storefront/active_store/presentation/cubit/active_store_cubit.dart';
 import 'package:cordelia/feature/storefront/address/domain/entities/address_entity.dart';
 import 'package:cordelia/feature/storefront/home/domain/entities/product_entity.dart';
@@ -29,6 +28,7 @@ import '../../../../domain/entities/cart_item_entity.dart';
 import '../../../bloc/cart_bloc.dart';
 import 'package:cordelia/feature/storefront/checkout/presentation/bloc/checkout_bloc.dart';
 import '../../../cubit/cart_cubit.dart';
+import '../../../cubit/coupon_cubit.dart';
 import '../widgets/cart_item_row.dart';
 import '../widgets/cart_summary_section.dart';
 
@@ -42,8 +42,6 @@ class CartScreen extends BaseScreen {
 }
 
 class _CartScreenState extends BaseScreenState<CartScreen> {
-  void _showComingSoon() => showSnackBar(ValueConst.comingSoonMessage);
-
   // Checkout first gates on picking a delivery address — reuses the Select
   // Address screen, which pops with the chosen address (null if the shopper
   // backs out, in which case no order is placed). Submitting hands the whole
@@ -54,12 +52,20 @@ class _CartScreenState extends BaseScreenState<CartScreen> {
     final address = await context.push<AddressEntity>(AppRoutes.selectAddress);
     if (address == null || !mounted) return;
     context.read<CheckoutBloc>().add(
-      CheckoutEvent.submitted(items: items, addressId: address.id),
+      CheckoutEvent.submitted(
+        items: items,
+        addressId: address.id,
+        couponCode: switch (context.read<CouponCubit>().state) {
+          CouponApplied(:final coupon) => coupon.code,
+          _ => '',
+        },
+      ),
     );
   }
 
   void _onOrderPlaced() {
     context.read<CartCubit>().clear();
+    context.read<CouponCubit>().reset();
     showOrderPlacedSheet(
       onTrackOrder: () => context.go(
         AppRoutes.storefront,
@@ -91,18 +97,30 @@ class _CartScreenState extends BaseScreenState<CartScreen> {
   Widget body(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final cartItems = context.watch<CartCubit>().state;
+    final couponState = context.watch<CouponCubit>().state;
 
-    return BlocListener<CheckoutBloc, CheckoutState>(
-      listener: (context, state) {
-        switch (state) {
-          case CheckoutSuccess():
-            _onOrderPlaced();
-          case CheckoutFailure(:final message):
-            showSnackBar(message);
-          case CheckoutIdle() || CheckoutSubmitting():
-            break;
-        }
-      },
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<CheckoutBloc, CheckoutState>(
+          listener: (context, state) {
+            switch (state) {
+              case CheckoutSuccess():
+                _onOrderPlaced();
+              case CheckoutFailure(:final message):
+                showSnackBar(message);
+              case CheckoutIdle() || CheckoutSubmitting():
+                break;
+            }
+          },
+        ),
+        // The held discount is only valid for the lines it was priced
+        // against — any cart mutation re-prices the code (or clears it,
+        // with the server's reason shown on the row).
+        BlocListener<CartCubit, List<CartItemEntity>>(
+          listener: (context, items) =>
+              context.read<CouponCubit>().revalidate(widget.storeId, items),
+        ),
+      ],
       child: cartItems.isEmpty
           ? Column(
               children: [
@@ -179,7 +197,12 @@ class _CartScreenState extends BaseScreenState<CartScreen> {
                           const SizedBox(height: AppSpacing.xl4),
                           CartSummarySection(
                             items: cartItems,
-                            onApplyCoupon: _showComingSoon,
+                            couponState: couponState,
+                            onApplyCoupon: (code) => context
+                                .read<CouponCubit>()
+                                .apply(widget.storeId, code, cartItems),
+                            onRemoveCoupon: () =>
+                                context.read<CouponCubit>().remove(),
                           ),
                         ],
                       ),

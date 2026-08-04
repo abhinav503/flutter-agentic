@@ -183,6 +183,9 @@ abstract final class GraviaValueConst {
   static const beforeYouCheckoutTitle = 'Before you Checkout';
   static const couponCodeLabel = 'Coupon Code';
   static const applyLabel = 'Apply';
+  static const couponRemoveLabel = 'Remove';
+  static String couponAppliedLabel(String code) => '$code applied';
+  static String couponLineLabel(String code) => 'Coupon ($code)';
   static const itemTotalLabel = 'Item Total';
   static const discountLabel = 'Discount';
   static const deliveryLabel = 'Delivery';

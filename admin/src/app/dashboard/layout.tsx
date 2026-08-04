@@ -15,6 +15,7 @@ const NAV_ITEMS = [
   { href: "/dashboard/brands", label: "Brands" },
   { href: "/dashboard/products", label: "Products" },
   { href: "/dashboard/banners", label: "Banners" },
+  { href: "/dashboard/coupons", label: "Coupons" },
   { href: "/dashboard/orders", label: "Orders" },
   { href: "/dashboard/settings", label: "Settings" },
 ];

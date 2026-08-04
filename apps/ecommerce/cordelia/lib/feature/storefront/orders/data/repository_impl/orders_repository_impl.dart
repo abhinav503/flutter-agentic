@@ -25,9 +25,15 @@ class OrdersRepositoryImpl with BaseRepository implements OrdersRepository {
   Future<Either<Failure, PaymentIntentEntity>> createPayment(
     String storeId,
     List<CartItemEntity> items,
-    String addressId,
-  ) => handleRequest(() async {
-    final model = await _dataSource.createPayment(storeId, items, addressId);
+    String addressId, {
+    String couponCode = '',
+  }) => handleRequest(() async {
+    final model = await _dataSource.createPayment(
+      storeId,
+      items,
+      addressId,
+      couponCode: couponCode,
+    );
     return right(model.toEntity());
   });
 
@@ -37,12 +43,14 @@ class OrdersRepositoryImpl with BaseRepository implements OrdersRepository {
     List<CartItemEntity> items,
     String addressId, {
     PaymentResultEntity? payment,
+    String couponCode = '',
   }) => handleRequest(() async {
     final model = await _dataSource.createOrder(
       storeId,
       items,
       addressId,
       payment: payment,
+      couponCode: couponCode,
     );
     return right(model.toEntity());
   });

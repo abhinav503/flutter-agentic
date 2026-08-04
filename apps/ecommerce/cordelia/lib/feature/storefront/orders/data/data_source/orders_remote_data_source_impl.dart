@@ -35,13 +35,18 @@ class OrdersRemoteDataSourceImpl implements OrdersRemoteDataSource {
   Future<PaymentIntentModel> createPayment(
     String storeId,
     List<CartItemEntity> items,
-    String addressId,
-  ) async {
+    String addressId, {
+    String couponCode = '',
+  }) async {
     final idToken = await FirebaseAuthService.instance.idToken();
 
     final response = await HttpService.instance.post<Map<String, dynamic>>(
       ApiConstants.paymentsPath(storeId),
-      data: {'addressId': addressId, 'items': _itemsPayload(items)},
+      data: {
+        'addressId': addressId,
+        'items': _itemsPayload(items),
+        if (couponCode.isNotEmpty) 'couponCode': couponCode,
+      },
       options: Options(headers: {'Authorization': 'Bearer $idToken'}),
     );
     return PaymentIntentModel.fromJson(response.data!);
@@ -53,6 +58,7 @@ class OrdersRemoteDataSourceImpl implements OrdersRemoteDataSource {
     List<CartItemEntity> items,
     String addressId, {
     PaymentResultEntity? payment,
+    String couponCode = '',
   }) async {
     // Checkout is only reachable while signed in; the server rejects a
     // missing/invalid token with 401, surfaced as a Failure.
@@ -63,6 +69,7 @@ class OrdersRemoteDataSourceImpl implements OrdersRemoteDataSource {
       data: {
         'addressId': addressId,
         'items': _itemsPayload(items),
+        if (couponCode.isNotEmpty) 'couponCode': couponCode,
         // Present only on mobile; the server verifies the signature before
         // placing the order. Omitted on web (test-mode payment-less path).
         if (payment != null) ...{

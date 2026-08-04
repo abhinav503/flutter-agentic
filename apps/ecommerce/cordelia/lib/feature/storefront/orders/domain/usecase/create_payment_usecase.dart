@@ -11,10 +11,15 @@ class CreatePaymentParams {
   final List<CartItemEntity> items;
   final String addressId;
 
+  /// '' = no coupon. Only the code travels — the server validates and
+  /// prices it before the intent amount is created.
+  final String couponCode;
+
   const CreatePaymentParams({
     required this.storeId,
     required this.items,
     required this.addressId,
+    this.couponCode = '',
   });
 }
 
@@ -27,6 +32,10 @@ class CreatePaymentUseCase
   @override
   Future<Either<Failure, PaymentIntentEntity>> call(
     CreatePaymentParams params,
-  ) =>
-      _repository.createPayment(params.storeId, params.items, params.addressId);
+  ) => _repository.createPayment(
+    params.storeId,
+    params.items,
+    params.addressId,
+    couponCode: params.couponCode,
+  );
 }

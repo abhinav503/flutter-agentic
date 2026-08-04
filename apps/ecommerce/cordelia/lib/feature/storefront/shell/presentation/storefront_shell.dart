@@ -6,6 +6,7 @@ import 'package:core/core/ui/atoms/svg_image.dart';
 
 import 'package:cordelia/feature/storefront/active_store/presentation/cubit/active_store_cubit.dart';
 import 'package:cordelia/feature/storefront/cart/presentation/cubit/cart_cubit.dart';
+import 'package:cordelia/feature/storefront/cart/presentation/cubit/coupon_cubit.dart';
 import 'package:cordelia/feature/storefront/favourites/presentation/cubit/favourites_cubit.dart';
 
 /// A `BottomNavBarItem.iconBuilder` for a kit SVG glyph — every template's
@@ -56,6 +57,10 @@ mixin StorefrontShellState<T extends StorefrontShellPage> on BasePageState<T> {
     // every tab switch.
     final storeId = context.read<ActiveStoreCubit>().state!.storeId;
     context.read<CartCubit>().hydrate(storeId);
+    // A coupon is priced against one store's cart — entering a storefront
+    // (fresh shell per visit) always starts without one, so the previous
+    // store's discount can't leak into this one's totals.
+    context.read<CouponCubit>().reset();
     context.read<FavouritesCubit>().hydrate(storeId);
   }
 

@@ -56,7 +56,7 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
 
     // Web preview: no native checkout SDK — place the order straight away.
     if (kIsWeb) {
-      await _placeOrder(event.items, event.addressId, null, emit);
+      await _placeOrder(event, null, emit);
       return;
     }
 
@@ -65,6 +65,7 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
         storeId: storeId,
         items: event.items,
         addressId: event.addressId,
+        couponCode: event.couponCode,
       ),
     );
     await intentResult.fold(
@@ -75,35 +76,28 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
         );
         await paymentResult.fold(
           (failure) async => _emitFailure(emit, failure.message, event),
-          (payment) async =>
-              _placeOrder(event.items, event.addressId, payment, emit),
+          (payment) async => _placeOrder(event, payment, emit),
         );
       },
     );
   }
 
   Future<void> _placeOrder(
-    List<CartItemEntity> items,
-    String addressId,
+    CheckoutSubmitted event,
     PaymentResultEntity? payment,
     Emitter<CheckoutState> emit,
   ) async {
     final result = await _createOrder(
       CreateOrderParams(
         storeId: storeId,
-        items: items,
-        addressId: addressId,
+        items: event.items,
+        addressId: event.addressId,
         payment: payment,
+        couponCode: event.couponCode,
       ),
     );
     result.fold(
-      (failure) => emit(
-        CheckoutState.failure(
-          message: failure.message,
-          items: items,
-          addressId: addressId,
-        ),
-      ),
+      (failure) => _emitFailure(emit, failure.message, event),
       (order) => emit(CheckoutState.success(order: order)),
     );
   }
@@ -117,6 +111,7 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
       message: message,
       items: event.items,
       addressId: event.addressId,
+      couponCode: event.couponCode,
     ),
   );
 }

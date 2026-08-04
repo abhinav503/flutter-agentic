@@ -20,6 +20,8 @@ _OrderModel _$OrderModelFromJson(Map<String, dynamic> json) => _OrderModel(
       const <OrderStatusChangeModel>[],
   deliveryOtp: json['delivery_otp'] as String,
   paymentId: json['payment_id'] as String? ?? '',
+  couponCode: json['coupon_code'] as String? ?? '',
+  couponDiscount: (json['coupon_discount'] as num?)?.toDouble() ?? 0,
   items: (json['items'] as List<dynamic>)
       .map((e) => OrderLineItemModel.fromJson(e as Map<String, dynamic>))
       .toList(),
@@ -37,6 +39,8 @@ Map<String, dynamic> _$OrderModelToJson(_OrderModel instance) =>
       'status_history': instance.statusHistory,
       'delivery_otp': instance.deliveryOtp,
       'payment_id': instance.paymentId,
+      'coupon_code': instance.couponCode,
+      'coupon_discount': instance.couponDiscount,
       'items': instance.items,
       'delivery_address': instance.deliveryAddress,
     };

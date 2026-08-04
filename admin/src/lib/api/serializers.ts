@@ -103,6 +103,10 @@ export function serializeOrder(o: Order) {
     // shopper can't act on, and refund_status already tells them where their
     // money is.
     payment_id: o.razorpayPaymentId,
+    // "" / 0 when the order was placed without one; total is already net of
+    // the discount.
+    coupon_code: o.couponCode,
+    coupon_discount: o.couponDiscount,
     total: o.total,
     // Reuses serializeAddress so the order's snapshot round-trips through
     // gravia's existing AddressModel.fromJson (feature/address) unchanged.
