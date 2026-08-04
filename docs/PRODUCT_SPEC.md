@@ -86,6 +86,8 @@ falls back to another template's screen.
 | Size variants | Per-size price on a product (250g ≠ 500g price), computed discounts — priced through cart, checkout, and orders | ✅ |
 | Coupons | Create codes scoped to the whole store, a category, or a product — % (with cap) or flat, min order, validity window, total and per-customer limits | ✅ |
 | Reviews | One page, two lists: **product reviews** across your store (delete any — the product's rating recalculates), and **delivery ratings** your customers gave their orders (read-only: private feedback isn't yours to erase). Each product's rating also shows in the catalog table | ✅ |
+| Catalog table tools | Every list sorts by column — products by name, price, stock, rating or date added; coupons by code, times used or expiry — with quick filters (category, brand, in/out of stock, coupon status) and search on every screen | ✅ |
+| Sample data | One click fills a fresh store with a realistic grocery catalog — 90+ products with real product photos across 10 categories, 30+ brands, working coupons and promo banners — so you can trial any template before typing a single product of your own | ✅ |
 | Notifications | Compose per-store notifications your customers see in-app | 🗓 Roadmap |
 
 ## Platform guarantees

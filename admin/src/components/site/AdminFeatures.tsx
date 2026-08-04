@@ -10,6 +10,7 @@ const groups = [
       "Brands",
       "Per-size pricing",
       "Promo banners",
+      "Generate a realistic sample catalog in one click",
     ],
   },
   {
@@ -28,6 +29,7 @@ const groups = [
       "Status control on every order",
       "Cancel with restock, and refunds",
       "Review moderation",
+      "Sort, filter and search every catalog list",
     ],
   },
 ];
