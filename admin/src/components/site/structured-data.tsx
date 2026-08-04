@@ -20,12 +20,12 @@ const organization = {
   url: SITE_URL,
   // Replace with the absolute URL of the CordeliaApps logo once hosted.
   logo: "https://cordeliaapps.com/logo.png",
-  email: "hello@cordeliaapps.com",
+  email: "cordeliaapps@gmail.com",
   contactPoint: [
     {
       "@type": "ContactPoint",
       contactType: "sales",
-      email: "hello@cordeliaapps.com",
+      email: "cordeliaapps@gmail.com",
       availableLanguage: ["en"],
     },
   ],
