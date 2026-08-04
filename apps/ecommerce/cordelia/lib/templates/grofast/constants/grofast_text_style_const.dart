@@ -79,6 +79,13 @@ abstract final class GrofastTextStyleConst {
   static TextStyle bodySmall(TextTheme tt) =>
       tt.bodySmall!.copyWith(fontSize: 12).atWeight(FontWeight.w500);
 
+  /// 10/700. The promo card's "claim now" pill — the copy column can get
+  /// narrower than the kit draws it, and at [bodySmall]'s size the label's
+  /// tail clips out of the pill. Two points smaller buys the width back; two
+  /// weights up keeps it legible at that size.
+  static TextStyle pillLabelBold(TextTheme tt) =>
+      tt.labelSmall!.copyWith(fontSize: 10).atWeight(FontWeight.w700);
+
   /// 12/400. Field placeholders — rendered at 40% ink by the field itself, so
   /// this token stays a plain regular weight.
   static TextStyle placeholder(TextTheme tt) =>

@@ -5,7 +5,14 @@ import Image from "next/image";
 import { useStore } from "@/lib/store-context";
 import { watchBrands, addBrand, updateBrand, deleteBrand } from "@/lib/brands";
 import type { Brand } from "@/lib/types";
+import { matchesSearch } from "@/lib/search";
+import { applySort, compareText, type Comparator } from "@/lib/sort";
 import { ImageUploadField } from "@/components/image-upload-field";
+import { SearchField } from "@/components/search-field";
+import {
+  SortableTableHead,
+  useTableSort,
+} from "@/components/sortable-table-head";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -36,11 +43,19 @@ import {
 } from "@/components/ui/table";
 import { toast } from "sonner";
 
+type BrandSortKey = "name";
+
+const BRAND_COMPARATORS: Record<BrandSortKey, Comparator<Brand>> = {
+  name: (a, b) => compareText(a.name, b.name),
+};
+
 export default function BrandsPage() {
   const { storeId } = useStore();
   const [brands, setBrands] = useState<Brand[]>([]);
   const [editing, setEditing] = useState<Brand | "new" | null>(null);
   const [deleting, setDeleting] = useState<Brand | null>(null);
+  const [search, setSearch] = useState("");
+  const { sort, toggle } = useTableSort<BrandSortKey>("name");
 
   useEffect(() => {
     if (!storeId) return;
@@ -49,35 +64,51 @@ export default function BrandsPage() {
 
   if (!storeId) return null;
 
+  const visible = applySort(
+    brands.filter((brand) => matchesSearch(search, brand.name)),
+    sort,
+    BRAND_COMPARATORS,
+  );
+
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-4">
         <div>
           <h1 className="text-lg font-semibold">Brands</h1>
           <p className="text-sm text-muted-foreground">
             Brands a product can be labelled with.
           </p>
         </div>
-        <Button onClick={() => setEditing("new")}>Add brand</Button>
+        <div className="flex shrink-0 items-center gap-3">
+          <SearchField
+            value={search}
+            onChange={setSearch}
+            label="Search brands"
+            placeholder="Search name…"
+          />
+          <Button onClick={() => setEditing("new")}>Add brand</Button>
+        </div>
       </div>
 
       <Table>
         <TableHeader>
           <TableRow>
             <TableHead className="w-16">Logo</TableHead>
-            <TableHead>Name</TableHead>
+            <SortableTableHead columnKey="name" sort={sort} onToggle={toggle}>
+              Name
+            </SortableTableHead>
             <TableHead className="w-32 text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {brands.length === 0 && (
+          {visible.length === 0 && (
             <TableRow>
               <TableCell colSpan={3} className="text-center text-muted-foreground">
-                No brands yet.
+                {search ? "No brands match your search." : "No brands yet."}
               </TableCell>
             </TableRow>
           )}
-          {brands.map((brand) => (
+          {visible.map((brand) => (
             <TableRow key={brand.id}>
               <TableCell>
                 {brand.logoUrl ? (

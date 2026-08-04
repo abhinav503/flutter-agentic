@@ -8,6 +8,7 @@ import {
   getDocs,
   serverTimestamp,
   type QueryDocumentSnapshot,
+  type Timestamp,
 } from "firebase/firestore";
 import { db } from "./firebase";
 import type { Category } from "./types";
@@ -22,6 +23,8 @@ function mapCategoryDoc(d: QueryDocumentSnapshot): Category {
     name: (d.data().name as string) ?? "",
     imageUrl: (d.data().imageUrl as string) ?? "",
     groupName: (d.data().groupName as string) ?? "Uncategorized",
+    createdAtMs:
+      (d.data().createdAt as Timestamp | null | undefined)?.toMillis() ?? 0,
   };
 }
 
@@ -43,7 +46,7 @@ export async function getCategories(storeId: string): Promise<Category[]> {
 
 export async function addCategory(
   storeId: string,
-  data: Omit<Category, "id">,
+  data: Omit<Category, "id" | "createdAtMs">,
 ) {
   await addDoc(categoriesRef(storeId), { ...data, createdAt: serverTimestamp() });
 }
@@ -51,7 +54,7 @@ export async function addCategory(
 export async function updateCategory(
   storeId: string,
   id: string,
-  data: Omit<Category, "id">,
+  data: Omit<Category, "id" | "createdAtMs">,
 ) {
   await updateDoc(doc(db, "stores", storeId, "categories", id), {
     ...data,

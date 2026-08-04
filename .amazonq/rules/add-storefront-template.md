@@ -423,6 +423,18 @@ the next reader wouldn't look:
   can't, so the tab list becomes a method taking what it needs
   (`_tabs({required bool bagHasItems})`) and `buildBottomNav` watches the
   cubit. A permanently-lit dot is a bug the kit screenshot won't show you.
+- **A fixed-height kit card must survive the longest real copy, not the
+  kit's.** Kit frames write one short line per slot ("Fresh Vegetables" /
+  "40% Off"); a store admin writes sentences. For every fixed-height card,
+  sum the slots' *worst-case* line heights against the card's inner budget —
+  a title allowed 2 lines or a pill label allowed to wrap often overflows
+  even with kit-length copy. Cap each slot's lines to what the budget proves,
+  and when a slot's style only suits short text (a 28px offer figure),
+  downgrade the style when the text doesn't fit its line rather than
+  ellipsizing a sentence at display size (grofast's promo card measures with
+  a `TextPainter` and drops the offer slot to body-small on two lines).
+  Seeded/admin sentence-length banner copy is the test case the kit
+  screenshot never shows.
 - **A pack widget that forks a core component says why, in its doc comment.**
   Name the core component and the specific mismatch (`AppMenuTile`'s
   silhouette is an icon circle on a bare surface; this kit's row is a filled

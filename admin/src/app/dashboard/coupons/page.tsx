@@ -20,7 +20,18 @@ import type {
 } from "@/lib/types";
 import { COUPON_SCOPE_LABELS, COUPON_TYPE_LABELS } from "@/lib/types";
 import { matchesSearch } from "@/lib/search";
+import {
+  applySort,
+  compareIsoDates,
+  compareNumbers,
+  compareText,
+  type Comparator,
+} from "@/lib/sort";
 import { SearchField } from "@/components/search-field";
+import {
+  SortableTableHead,
+  useTableSort,
+} from "@/components/sortable-table-head";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -79,6 +90,19 @@ function localInputToIso(value: string): string {
   return value ? new Date(value).toISOString() : "";
 }
 
+type CouponSortKey = "code" | "used" | "validUntil";
+
+// The Discount column is deliberately not sortable — percent and flat values
+// share no unit, so ordering by raw value would interleave "10% off" and
+// "₹10 off" meaninglessly.
+const COUPON_COMPARATORS: Record<CouponSortKey, Comparator<Coupon>> = {
+  code: (a, b) => compareText(a.code, b.code),
+  used: (a, b) => compareNumbers(a.usedCount, b.usedCount),
+  validUntil: (a, b) => compareIsoDates(a.validUntil, b.validUntil),
+};
+
+type StatusFilter = "all" | "active" | "inactive";
+
 export default function CouponsPage() {
   const { storeId } = useStore();
   const [coupons, setCoupons] = useState<Coupon[]>([]);
@@ -87,6 +111,8 @@ export default function CouponsPage() {
   const [editing, setEditing] = useState<Coupon | "new" | null>(null);
   const [deleting, setDeleting] = useState<Coupon | null>(null);
   const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const { sort, toggle } = useTableSort<CouponSortKey>("code");
 
   useEffect(() => {
     if (!storeId) return;
@@ -102,14 +128,24 @@ export default function CouponsPage() {
 
   if (!storeId) return null;
 
-  const visible = coupons.filter((coupon) =>
-    matchesSearch(
-      search,
-      coupon.code,
-      discountLabel(coupon),
-      COUPON_SCOPE_LABELS[coupon.scope],
-      coupon.isActive ? "Active" : "Inactive",
-    ),
+  const visible = applySort(
+    coupons
+      .filter(
+        (coupon) =>
+          statusFilter === "all" ||
+          coupon.isActive === (statusFilter === "active"),
+      )
+      .filter((coupon) =>
+        matchesSearch(
+          search,
+          coupon.code,
+          discountLabel(coupon),
+          COUPON_SCOPE_LABELS[coupon.scope],
+          coupon.isActive ? "Active" : "Inactive",
+        ),
+      ),
+    sort,
+    COUPON_COMPARATORS,
   );
 
   return (
@@ -121,7 +157,20 @@ export default function CouponsPage() {
             Discount codes for the whole order, a category, or a product.
           </p>
         </div>
-        <div className="flex shrink-0 items-center gap-3">
+        <div className="flex shrink-0 flex-wrap items-center justify-end gap-3">
+          <Select
+            value={statusFilter}
+            onValueChange={(value) => setStatusFilter(value as StatusFilter)}
+          >
+            <SelectTrigger size="sm" aria-label="Filter by status">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All statuses</SelectItem>
+              <SelectItem value="active">Active</SelectItem>
+              <SelectItem value="inactive">Inactive</SelectItem>
+            </SelectContent>
+          </Select>
           <SearchField
             value={search}
             onChange={setSearch}
@@ -135,10 +184,26 @@ export default function CouponsPage() {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Code</TableHead>
+            <SortableTableHead columnKey="code" sort={sort} onToggle={toggle}>
+              Code
+            </SortableTableHead>
             <TableHead>Discount</TableHead>
             <TableHead>Applies to</TableHead>
-            <TableHead>Used</TableHead>
+            <SortableTableHead
+              columnKey="used"
+              sort={sort}
+              onToggle={toggle}
+              firstDirection="desc"
+            >
+              Used
+            </SortableTableHead>
+            <SortableTableHead
+              columnKey="validUntil"
+              sort={sort}
+              onToggle={toggle}
+            >
+              Valid until
+            </SortableTableHead>
             <TableHead>Status</TableHead>
             <TableHead className="w-32 text-right">Actions</TableHead>
           </TableRow>
@@ -146,8 +211,10 @@ export default function CouponsPage() {
         <TableBody>
           {visible.length === 0 && (
             <TableRow>
-              <TableCell colSpan={6} className="text-center text-muted-foreground">
-                {search ? "No coupons match your search." : "No coupons yet."}
+              <TableCell colSpan={7} className="text-center text-muted-foreground">
+                {search || statusFilter !== "all"
+                  ? "No coupons match your filters."
+                  : "No coupons yet."}
               </TableCell>
             </TableRow>
           )}
@@ -162,6 +229,11 @@ export default function CouponsPage() {
               <TableCell className="text-muted-foreground">
                 {coupon.usedCount}
                 {coupon.usageLimit > 0 && ` / ${coupon.usageLimit}`}
+              </TableCell>
+              <TableCell className="text-muted-foreground">
+                {coupon.validUntil
+                  ? new Date(coupon.validUntil).toLocaleDateString()
+                  : "No expiry"}
               </TableCell>
               <TableCell>
                 {coupon.isActive ? (

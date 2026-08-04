@@ -11,8 +11,13 @@ import {
 } from "@/lib/categories";
 import type { Category } from "@/lib/types";
 import { matchesSearch } from "@/lib/search";
+import { applySort, compareText, type Comparator } from "@/lib/sort";
 import { ImageUploadField } from "@/components/image-upload-field";
 import { SearchField } from "@/components/search-field";
+import {
+  SortableTableHead,
+  useTableSort,
+} from "@/components/sortable-table-head";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -43,12 +48,22 @@ import {
 } from "@/components/ui/table";
 import { toast } from "sonner";
 
+type CategorySortKey = "name" | "group";
+
+const CATEGORY_COMPARATORS: Record<CategorySortKey, Comparator<Category>> = {
+  name: (a, b) => compareText(a.name, b.name),
+  // Name tiebreak so a group's categories read as one alphabetised block.
+  group: (a, b) =>
+    compareText(a.groupName, b.groupName) || compareText(a.name, b.name),
+};
+
 export default function CategoriesPage() {
   const { storeId } = useStore();
   const [categories, setCategories] = useState<Category[]>([]);
   const [editing, setEditing] = useState<Category | "new" | null>(null);
   const [deleting, setDeleting] = useState<Category | null>(null);
   const [search, setSearch] = useState("");
+  const { sort, toggle } = useTableSort<CategorySortKey>("name");
 
   useEffect(() => {
     if (!storeId) return;
@@ -57,8 +72,12 @@ export default function CategoriesPage() {
 
   if (!storeId) return null;
 
-  const visible = categories.filter((category) =>
-    matchesSearch(search, category.name, category.groupName),
+  const visible = applySort(
+    categories.filter((category) =>
+      matchesSearch(search, category.name, category.groupName),
+    ),
+    sort,
+    CATEGORY_COMPARATORS,
   );
 
   return (
@@ -85,8 +104,12 @@ export default function CategoriesPage() {
         <TableHeader>
           <TableRow>
             <TableHead className="w-16">Image</TableHead>
-            <TableHead>Name</TableHead>
-            <TableHead>Group</TableHead>
+            <SortableTableHead columnKey="name" sort={sort} onToggle={toggle}>
+              Name
+            </SortableTableHead>
+            <SortableTableHead columnKey="group" sort={sort} onToggle={toggle}>
+              Group
+            </SortableTableHead>
             <TableHead className="w-32 text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>

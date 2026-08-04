@@ -7,6 +7,7 @@ import {
   onSnapshot,
   serverTimestamp,
   type QueryDocumentSnapshot,
+  type Timestamp,
 } from "firebase/firestore";
 import { db } from "./firebase";
 import type { Coupon, CouponScope, CouponType } from "./types";
@@ -32,6 +33,8 @@ function mapCouponDoc(d: QueryDocumentSnapshot): Coupon {
     perUserLimit: (data.perUserLimit as number) ?? 0,
     usedCount: (data.usedCount as number) ?? 0,
     isActive: (data.isActive as boolean) ?? true,
+    createdAtMs:
+      (data.createdAt as Timestamp | null | undefined)?.toMillis() ?? 0,
   };
 }
 
@@ -46,7 +49,7 @@ export function watchCoupons(
 
 // usedCount is deliberately not accepted here — it belongs to the order
 // transaction (Admin SDK), never the dashboard form.
-export type CouponInput = Omit<Coupon, "id" | "usedCount">;
+export type CouponInput = Omit<Coupon, "id" | "usedCount" | "createdAtMs">;
 
 export async function addCoupon(storeId: string, data: CouponInput) {
   await addDoc(couponsRef(storeId), {

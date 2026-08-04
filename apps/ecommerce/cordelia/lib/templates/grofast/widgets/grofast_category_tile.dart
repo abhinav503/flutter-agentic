@@ -9,8 +9,9 @@ import 'package:cordelia/templates/grofast/constants/grofast_dimen_const.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_text_style_const.dart';
 
 /// The All Categories grid cell: a square pastel tile at radius 28 with the
-/// artwork floating in the upper half and the name at the bottom-left
-/// (spec sheet §10).
+/// artwork floating in the upper half and the name across the bottom
+/// (spec sheet §10 — the kit draws it bottom-left on one line, but store
+/// category names run long, so the label centres and wraps to two lines).
 ///
 /// The tint comes from `cs.categoryTint(index)` — the kit hand-assigns a
 /// different pastel per category and the backend has no tint field, so the
@@ -62,13 +63,14 @@ class GrofastCategoryTile extends StatelessWidget {
                 ),
               ),
               Positioned(
-                left: AppSpacing.xl,
+                left: AppSpacing.base,
                 right: AppSpacing.base,
-                bottom: AppSpacing.xl,
+                bottom: AppSpacing.lg,
                 child: Text(
                   category.name,
-                  maxLines: 1,
+                  maxLines: 2,
                   overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
                   style: GrofastTextStyleConst.rowTitleBold(tt),
                 ),
               ),

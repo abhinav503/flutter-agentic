@@ -11,6 +11,7 @@ import {
   where,
   serverTimestamp,
   type QueryDocumentSnapshot,
+  type Timestamp,
 } from "firebase/firestore";
 import { db } from "./firebase";
 import {
@@ -125,6 +126,8 @@ function mapProductDoc(d: QueryDocumentSnapshot): Product {
     ratingAverage: (data.ratingAverage as number) ?? 0,
     reviewCount: (data.reviewCount as number) ?? 0,
     ratingBuckets: (data.ratingBuckets as RatingBuckets) ?? EMPTY_RATING_BUCKETS,
+    createdAtMs:
+      (data.createdAt as Timestamp | null | undefined)?.toMillis() ?? 0,
   };
 }
 
@@ -186,7 +189,7 @@ export async function getProduct(
 // product starts unrated by absence, and mapProductDoc's defaults answer.
 export type ProductInput = Omit<
   Product,
-  "id" | "ratingAverage" | "reviewCount" | "ratingBuckets"
+  "id" | "ratingAverage" | "reviewCount" | "ratingBuckets" | "createdAtMs"
 >;
 
 export async function addProduct(storeId: string, data: ProductInput) {

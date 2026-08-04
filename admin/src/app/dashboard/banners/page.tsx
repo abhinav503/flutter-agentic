@@ -18,7 +18,9 @@ import type {
   Product,
 } from "@/lib/types";
 import { BANNER_TARGET_TYPE_LABELS } from "@/lib/types";
+import { matchesSearch } from "@/lib/search";
 import { ImageUploadField } from "@/components/image-upload-field";
+import { SearchField } from "@/components/search-field";
 import { ColorPickerField, isHexColor } from "@/components/color-picker-field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -66,6 +68,7 @@ export default function BannersPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [editing, setEditing] = useState<Banner | "new" | null>(null);
   const [deleting, setDeleting] = useState<Banner | null>(null);
+  const [search, setSearch] = useState("");
 
   // Products and categories are watched only to populate the dialog's link
   // target picker — a banner itself references one by id.
@@ -95,16 +98,30 @@ export default function BannersPage() {
     return "—";
   }
 
+  // Search only — ordering stays bySortOrder from watchBanners, since order
+  // IS the carousel position the admin is managing here.
+  const visible = banners.filter((banner) =>
+    matchesSearch(search, banner.title, banner.subtitle, targetLabel(banner)),
+  );
+
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-4">
         <div>
           <h1 className="text-lg font-semibold">Banners</h1>
           <p className="text-sm text-muted-foreground">
             Promo cards in your storefront&apos;s home carousel, shown in order.
           </p>
         </div>
-        <Button onClick={() => setEditing("new")}>Add banner</Button>
+        <div className="flex shrink-0 items-center gap-3">
+          <SearchField
+            value={search}
+            onChange={setSearch}
+            label="Search banners"
+            placeholder="Search title or target…"
+          />
+          <Button onClick={() => setEditing("new")}>Add banner</Button>
+        </div>
       </div>
 
       <Table>
@@ -119,15 +136,16 @@ export default function BannersPage() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {banners.length === 0 && (
+          {visible.length === 0 && (
             <TableRow>
               <TableCell colSpan={6} className="text-center text-muted-foreground">
-                No banners yet — the carousel falls back to your top-selling
-                products until you add one.
+                {search
+                  ? "No banners match your search."
+                  : "No banners yet — the carousel falls back to your top-selling products until you add one."}
               </TableCell>
             </TableRow>
           )}
-          {banners.map((banner) => (
+          {visible.map((banner) => (
             <TableRow key={banner.id}>
               <TableCell>
                 <div className="flex items-center gap-2">

@@ -2,7 +2,7 @@
 
 import { useEffect, useState, type FormEvent } from "react";
 import Image from "next/image";
-import { Star } from "lucide-react";
+import { Sparkles, Star } from "lucide-react";
 import { useStore } from "@/lib/store-context";
 import { watchCategories } from "@/lib/categories";
 import { watchBrands } from "@/lib/brands";
@@ -17,8 +17,19 @@ import {
 import type { Brand, Category, Product, UnitType } from "@/lib/types";
 import { UNIT_TYPE_LABELS } from "@/lib/types";
 import { matchesSearch } from "@/lib/search";
+import {
+  applySort,
+  compareNumbers,
+  compareText,
+  type Comparator,
+} from "@/lib/sort";
 import { ImageUploadField } from "@/components/image-upload-field";
 import { SearchField } from "@/components/search-field";
+import {
+  SortableTableHead,
+  useTableSort,
+} from "@/components/sortable-table-head";
+import { GenerateGroceryDataDialog } from "@/components/generate-grocery-data-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -59,6 +70,25 @@ import {
 } from "@/components/ui/table";
 import { toast } from "sonner";
 
+type ProductSortKey = "name" | "price" | "stock" | "rating" | "added";
+
+const PRODUCT_COMPARATORS: Record<ProductSortKey, Comparator<Product>> = {
+  name: (a, b) => compareText(a.name, b.name),
+  price: (a, b) => compareNumbers(a.price, b.price),
+  stock: (a, b) => compareNumbers(a.stock, b.stock),
+  // reviewCount tiebreak so among equal averages the better-attested rating
+  // ranks first; unrated products (average 0) sink to the bottom on desc.
+  rating: (a, b) =>
+    compareNumbers(a.ratingAverage, b.ratingAverage) ||
+    compareNumbers(a.reviewCount, b.reviewCount),
+  added: (a, b) => compareNumbers(a.createdAtMs, b.createdAtMs),
+};
+
+// The filter Selects' "no filter" value — Select items can't carry "".
+const ALL = "all";
+
+type StockFilter = "all" | "in" | "out";
+
 export default function ProductsPage() {
   const { storeId } = useStore();
   const [products, setProducts] = useState<Product[]>([]);
@@ -67,6 +97,11 @@ export default function ProductsPage() {
   const [editing, setEditing] = useState<Product | "new" | null>(null);
   const [deleting, setDeleting] = useState<Product | null>(null);
   const [search, setSearch] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState(ALL);
+  const [brandFilter, setBrandFilter] = useState(ALL);
+  const [stockFilter, setStockFilter] = useState<StockFilter>("all");
+  const [generating, setGenerating] = useState(false);
+  const { sort, toggle } = useTableSort<ProductSortKey>("name");
 
   useEffect(() => {
     if (!storeId) return;
@@ -86,15 +121,39 @@ export default function ProductsPage() {
     categories.find((c) => c.id === id)?.name ?? "Unknown";
   const brandName = (id: string) => brands.find((b) => b.id === id)?.name;
 
+  const passesFilters = (product: Product) => {
+    if (categoryFilter !== ALL && !product.categoryIds.includes(categoryFilter))
+      return false;
+    if (brandFilter !== ALL) {
+      if (brandFilter === NO_BRAND) {
+        if (product.brandId !== "") return false;
+      } else if (product.brandId !== brandFilter) {
+        return false;
+      }
+    }
+    if (stockFilter === "in" && product.stock <= 0) return false;
+    if (stockFilter === "out" && product.stock > 0) return false;
+    return true;
+  };
+
+  const hasActiveFilter =
+    categoryFilter !== ALL || brandFilter !== ALL || stockFilter !== "all";
+
   // Match on what the row actually shows — searching the description would
   // return rows with nothing visibly matching the query.
-  const visible = products.filter((product) =>
-    matchesSearch(
-      search,
-      product.name,
-      brandName(product.brandId),
-      ...product.categoryIds.map(categoryName),
-    ),
+  const visible = applySort(
+    products
+      .filter(passesFilters)
+      .filter((product) =>
+        matchesSearch(
+          search,
+          product.name,
+          brandName(product.brandId),
+          ...product.categoryIds.map(categoryName),
+        ),
+      ),
+    sort,
+    PRODUCT_COMPARATORS,
   );
 
   return (
@@ -106,13 +165,57 @@ export default function ProductsPage() {
             Manage pricing, stock, and category links.
           </p>
         </div>
-        <div className="flex shrink-0 items-center gap-3">
+        <div className="flex shrink-0 flex-wrap items-center justify-end gap-3">
+          <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+            <SelectTrigger size="sm" aria-label="Filter by category">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={ALL}>All categories</SelectItem>
+              {categories.map((category) => (
+                <SelectItem key={category.id} value={category.id}>
+                  {category.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={brandFilter} onValueChange={setBrandFilter}>
+            <SelectTrigger size="sm" aria-label="Filter by brand">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={ALL}>All brands</SelectItem>
+              <SelectItem value={NO_BRAND}>No brand</SelectItem>
+              {brands.map((brand) => (
+                <SelectItem key={brand.id} value={brand.id}>
+                  {brand.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select
+            value={stockFilter}
+            onValueChange={(value) => setStockFilter(value as StockFilter)}
+          >
+            <SelectTrigger size="sm" aria-label="Filter by stock">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All stock</SelectItem>
+              <SelectItem value="in">In stock</SelectItem>
+              <SelectItem value="out">Out of stock</SelectItem>
+            </SelectContent>
+          </Select>
           <SearchField
             value={search}
             onChange={setSearch}
             label="Search products"
             placeholder="Search name, brand, category…"
           />
+          <Button variant="outline" onClick={() => setGenerating(true)}>
+            <Sparkles aria-hidden="true" className="size-3.5" />
+            Generate sample data
+          </Button>
           <Button onClick={() => setEditing("new")} disabled={categories.length === 0}>
             Add product
           </Button>
@@ -129,20 +232,43 @@ export default function ProductsPage() {
         <TableHeader>
           <TableRow>
             <TableHead className="w-16">Image</TableHead>
-            <TableHead>Name</TableHead>
+            <SortableTableHead columnKey="name" sort={sort} onToggle={toggle}>
+              Name
+            </SortableTableHead>
             <TableHead>Brand</TableHead>
-            <TableHead>Price</TableHead>
-            <TableHead>Stock</TableHead>
-            <TableHead>Rating</TableHead>
+            <SortableTableHead columnKey="price" sort={sort} onToggle={toggle}>
+              Price
+            </SortableTableHead>
+            <SortableTableHead columnKey="stock" sort={sort} onToggle={toggle}>
+              Stock
+            </SortableTableHead>
+            <SortableTableHead
+              columnKey="rating"
+              sort={sort}
+              onToggle={toggle}
+              firstDirection="desc"
+            >
+              Rating
+            </SortableTableHead>
             <TableHead>Categories</TableHead>
+            <SortableTableHead
+              columnKey="added"
+              sort={sort}
+              onToggle={toggle}
+              firstDirection="desc"
+            >
+              Added
+            </SortableTableHead>
             <TableHead className="w-32 text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {visible.length === 0 && (
             <TableRow>
-              <TableCell colSpan={8} className="text-center text-muted-foreground">
-                {search ? "No products match your search." : "No products yet."}
+              <TableCell colSpan={9} className="text-center text-muted-foreground">
+                {search || hasActiveFilter
+                  ? "No products match your filters."
+                  : "No products yet."}
               </TableCell>
             </TableRow>
           )}
@@ -212,6 +338,12 @@ export default function ProductsPage() {
                   ))}
                 </div>
               </TableCell>
+              <TableCell className="text-muted-foreground">
+                {/* 0 = doc predates the createdAt field (see Category.createdAtMs) */}
+                {product.createdAtMs
+                  ? new Date(product.createdAtMs).toLocaleDateString()
+                  : "—"}
+              </TableCell>
               <TableCell className="text-right">
                 <Button variant="ghost" size="sm" onClick={() => setEditing(product)}>
                   Edit
@@ -237,6 +369,15 @@ export default function ProductsPage() {
           categories={categories}
           brands={brands}
           onClose={() => setEditing(null)}
+        />
+      )}
+
+      {generating && (
+        <GenerateGroceryDataDialog
+          storeId={storeId}
+          existingProductCount={products.length}
+          existingCategoryCount={categories.length}
+          onClose={() => setGenerating(false)}
         />
       )}
 

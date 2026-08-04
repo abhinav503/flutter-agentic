@@ -8,6 +8,7 @@ import {
   getDocs,
   serverTimestamp,
   type QueryDocumentSnapshot,
+  type Timestamp,
 } from "firebase/firestore";
 import { db } from "./firebase";
 import type { Brand } from "./types";
@@ -21,6 +22,8 @@ function mapBrandDoc(d: QueryDocumentSnapshot): Brand {
     id: d.id,
     name: (d.data().name as string) ?? "",
     logoUrl: (d.data().logoUrl as string) ?? "",
+    createdAtMs:
+      (d.data().createdAt as Timestamp | null | undefined)?.toMillis() ?? 0,
   };
 }
 
@@ -40,14 +43,17 @@ export async function getBrands(storeId: string): Promise<Brand[]> {
   return snap.docs.map(mapBrandDoc);
 }
 
-export async function addBrand(storeId: string, data: Omit<Brand, "id">) {
+export async function addBrand(
+  storeId: string,
+  data: Omit<Brand, "id" | "createdAtMs">,
+) {
   await addDoc(brandsRef(storeId), { ...data, createdAt: serverTimestamp() });
 }
 
 export async function updateBrand(
   storeId: string,
   id: string,
-  data: Omit<Brand, "id">,
+  data: Omit<Brand, "id" | "createdAtMs">,
 ) {
   await updateDoc(doc(db, "stores", storeId, "brands", id), {
     ...data,

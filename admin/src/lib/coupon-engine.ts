@@ -47,6 +47,9 @@ export function mapCouponData(
     perUserLimit: (data.perUserLimit as number) ?? 0,
     usedCount: (data.usedCount as number) ?? 0,
     isActive: (data.isActive as boolean) ?? true,
+    createdAtMs:
+      (data.createdAt as FirebaseFirestore.Timestamp | null | undefined)
+        ?.toMillis() ?? 0,
   };
 }
 

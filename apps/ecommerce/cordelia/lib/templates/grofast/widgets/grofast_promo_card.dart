@@ -51,13 +51,17 @@ class GrofastPromoCard extends StatelessWidget {
                   flex: GrofastDimenConst.promoCopyFlex,
                   child: Padding(
                     padding: const EdgeInsets.all(AppSpacing.xl2),
+                    // The card height is kit-fixed, so the copy column has a
+                    // hard budget: one title line + one amount line + the pill
+                    // is all that fits. A wrapping title or pill blew that
+                    // budget the moment a store wrote real copy.
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
                           banner.title,
-                          maxLines: 2,
+                          maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: GrofastTextStyleConst.promoTitle(
                             tt,
@@ -65,14 +69,7 @@ class GrofastPromoCard extends StatelessWidget {
                         ),
                         if (banner.subtitle.isNotEmpty) ...[
                           const SizedBox(height: AppSpacing.xs3),
-                          Text(
-                            banner.subtitle,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: GrofastTextStyleConst.promoAmount(
-                              tt,
-                            ).copyWith(color: GrofastColorConst.promoInk),
-                          ),
+                          _PromoSubtitle(subtitle: banner.subtitle),
                         ],
                         if (banner.hasTarget) ...[
                           const SizedBox(height: AppSpacing.base),
@@ -87,7 +84,10 @@ class GrofastPromoCard extends StatelessWidget {
                             ),
                             child: Text(
                               GrofastValueConst.claimNow,
-                              style: GrofastTextStyleConst.bodySmall(
+                              maxLines: 1,
+                              softWrap: false,
+                              overflow: TextOverflow.fade,
+                              style: GrofastTextStyleConst.pillLabelBold(
                                 tt,
                               ).copyWith(color: cs.onPrimary),
                             ),
@@ -110,6 +110,50 @@ class GrofastPromoCard extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// The kit's offer slot ([GrofastTextStyleConst.promoAmount]) assumes a short
+/// figure — "40% Off". A store admin writes whatever they like, and a
+/// sentence in 28px either truncates to a couple of words or overflows the
+/// fixed-height card. So the style adapts to the copy: the amount treatment
+/// when the text fits its single line, body-small on two lines when it
+/// doesn't — both stay inside the card's height budget.
+class _PromoSubtitle extends StatelessWidget {
+  final String subtitle;
+
+  const _PromoSubtitle({required this.subtitle});
+
+  @override
+  Widget build(BuildContext context) {
+    final tt = Theme.of(context).textTheme;
+    final amountStyle = GrofastTextStyleConst.promoAmount(
+      tt,
+    ).copyWith(color: GrofastColorConst.promoInk);
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final painter = TextPainter(
+          text: TextSpan(text: subtitle, style: amountStyle),
+          maxLines: 1,
+          textDirection: Directionality.of(context),
+          textScaler: MediaQuery.textScalerOf(context),
+        )..layout(maxWidth: constraints.maxWidth);
+        final fitsAsAmount = !painter.didExceedMaxLines;
+        painter.dispose();
+
+        return fitsAsAmount
+            ? Text(subtitle, maxLines: 1, style: amountStyle)
+            : Text(
+                subtitle,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: GrofastTextStyleConst.bodySmall(
+                  tt,
+                ).copyWith(color: GrofastColorConst.promoInk),
+              );
+      },
     );
   }
 }

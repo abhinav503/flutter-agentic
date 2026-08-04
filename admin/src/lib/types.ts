@@ -20,6 +20,12 @@ export type Category = {
   // "Snacks & Drinks", "Grocery & Kitchen") — CategoryGroupEntity in gravia.
   // Free text so an admin can introduce a new group without a schema change.
   groupName: string;
+  // Millis from the doc's createdAt serverTimestamp — what the dashboard's
+  // "newest first" sort orders by. 0 = the doc predates the field, or the
+  // snapshot is latency-compensated and the pending serverTimestamp is still
+  // null. Mapper-derived (never written as a field), so the *Input types all
+  // omit it.
+  createdAtMs: number;
 };
 
 // A product manufacturer/label ("Amul", "Tata") — an entity rather than a
@@ -31,6 +37,8 @@ export type Brand = {
   id: string;
   name: string;
   logoUrl: string;
+  // See Category.createdAtMs.
+  createdAtMs: number;
 };
 
 // One selectable package size on the product page's "Select QTY" row, with
@@ -83,6 +91,8 @@ export type Product = {
   ratingAverage: number;
   reviewCount: number;
   ratingBuckets: RatingBuckets;
+  // See Category.createdAtMs.
+  createdAtMs: number;
 };
 
 // Per-star review counts — the histogram dailymart's Reviews frame draws.
@@ -256,6 +266,8 @@ export type Coupon = {
   perUserLimit: number;
   usedCount: number;
   isActive: boolean;
+  // See Category.createdAtMs.
+  createdAtMs: number;
 };
 
 // Field names mirror AddressEntity in gravia's feature/address. Structured

@@ -12,6 +12,8 @@ import 'package:cordelia/templates/grofast/widgets/grofast_category_tile.dart';
 import 'package:cordelia/templates/grofast/widgets/grofast_product_grid.dart';
 import 'package:cordelia/templates/grofast/widgets/grofast_section_header.dart';
 
+import 'home_promo_carousel.dart';
+
 /// Home's category rail — the kit's tinted squares scrolling under a
 /// "Categories / see all" header.
 class GrofastHomeCategoryRail extends StatelessWidget {
@@ -102,10 +104,7 @@ class GrofastHomeSkeletonBody extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
-          padding: EdgeInsets.only(left: gutter),
-          child: GrofastCardSkeleton(height: GrofastDimenConst.promoCardHeight),
-        ),
+        const GrofastHomePromoCarouselSkeleton(),
         const SizedBox(height: AppSpacing.xl6),
         const Padding(
           padding: EdgeInsets.symmetric(horizontal: gutter),
