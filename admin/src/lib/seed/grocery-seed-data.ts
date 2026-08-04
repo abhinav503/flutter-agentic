@@ -1,13 +1,16 @@
 // The "Generate sample data" catalog — a realistic Indian quick-commerce
 // grocery store (Zepto/Instamart-style groups, real brands, ₹ MRP pricing).
 //
-// Product images are real branded product photos served from Open Food Facts
-// (images.openfoodfacts.org) — © Open Food Facts contributors, CC-BY-SA 4.0,
-// https://world.openfoodfacts.org. The generate dialog shows this attribution.
-// Every URL here was taken from a live OFF API result and is re-verified by
-// scripts/verify-seed-images.mjs; re-run it whenever this file changes. A few
-// products the catalog wants but OFF has no usable photo for (e.g. Vim bar)
-// carry imageUrl "" — every consumer renders a placeholder.
+// Image sources (every URL is verified live by scripts/verify-seed-images.mjs
+// — re-run it whenever this file changes):
+// - Products: real branded product photos from Open Food Facts
+//   (images.openfoodfacts.org) — © Open Food Facts contributors, CC-BY-SA
+//   4.0, https://world.openfoodfacts.org. The generate dialog shows this
+//   attribution. A few products OFF has no usable photo for (e.g. Vim bar)
+//   carry imageUrl "" — every consumer renders a placeholder.
+// - Banners: landscape photography from Unsplash (see the banners block).
+// - Brand logos: Google's favicon endpoint / DiceBear monograms (see the
+//   brands block).
 //
 // Slugs are the cross-reference keys: real Firestore ids are minted at write
 // time by the seeder (seed-grocery.ts), which maps slugs → new doc ids.
@@ -155,39 +158,46 @@ export const GROCERY_SEED: GrocerySeed = {
     },
   ],
 
+  // Logos come from two sources, both verified live by the verify script:
+  // - Google's favicon endpoint (t3.gstatic.com/faviconV2) for the brands
+  //   whose sites serve a real ≥64px icon — actual brand marks, which remain
+  //   trademarks of their owners; demo data only.
+  // - DiceBear monogram discs (api.dicebear.com initials) for the rest —
+  //   most brand sites only ship a 16px favicon, which reads as a blur, so a
+  //   clean generated monogram beats a real-but-tiny icon.
   brands: [
-    { slug: "amul", name: "Amul", logoUrl: "" },
-    { slug: "mother-dairy", name: "Mother Dairy", logoUrl: "" },
-    { slug: "britannia", name: "Britannia", logoUrl: "" },
-    { slug: "parle", name: "Parle", logoUrl: "" },
-    { slug: "maggi", name: "Maggi", logoUrl: "" },
-    { slug: "nescafe", name: "Nescafé", logoUrl: "" },
-    { slug: "tata-sampann", name: "Tata Sampann", logoUrl: "" },
-    { slug: "tata-tea", name: "Tata Tea", logoUrl: "" },
-    { slug: "aashirvaad", name: "Aashirvaad", logoUrl: "" },
-    { slug: "fortune", name: "Fortune", logoUrl: "" },
-    { slug: "saffola", name: "Saffola", logoUrl: "" },
-    { slug: "haldirams", name: "Haldiram's", logoUrl: "" },
-    { slug: "lays", name: "Lay's", logoUrl: "" },
-    { slug: "bingo", name: "Bingo!", logoUrl: "" },
-    { slug: "sunfeast", name: "Sunfeast", logoUrl: "" },
-    { slug: "cadbury", name: "Cadbury", logoUrl: "" },
-    { slug: "coca-cola", name: "Coca-Cola", logoUrl: "" },
-    { slug: "real", name: "Real", logoUrl: "" },
-    { slug: "dabur", name: "Dabur", logoUrl: "" },
-    { slug: "kissan", name: "Kissan", logoUrl: "" },
-    { slug: "everest", name: "Everest", logoUrl: "" },
-    { slug: "mdh", name: "MDH", logoUrl: "" },
-    { slug: "india-gate", name: "India Gate", logoUrl: "" },
-    { slug: "daawat", name: "Daawat", logoUrl: "" },
-    { slug: "kelloggs", name: "Kellogg's", logoUrl: "" },
-    { slug: "red-label", name: "Red Label", logoUrl: "" },
-    { slug: "bru", name: "Bru", logoUrl: "" },
-    { slug: "dettol", name: "Dettol", logoUrl: "" },
-    { slug: "harpic", name: "Harpic", logoUrl: "" },
-    { slug: "colgate", name: "Colgate", logoUrl: "" },
-    { slug: "vim", name: "Vim", logoUrl: "" },
-    { slug: "surf-excel", name: "Surf Excel", logoUrl: "" },
+    { slug: "amul", name: "Amul", logoUrl: "https://api.dicebear.com/9.x/initials/png?seed=Amul&size=128&fontWeight=600" },
+    { slug: "mother-dairy", name: "Mother Dairy", logoUrl: "https://api.dicebear.com/9.x/initials/png?seed=Mother%20Dairy&size=128&fontWeight=600" },
+    { slug: "britannia", name: "Britannia", logoUrl: "https://api.dicebear.com/9.x/initials/png?seed=Britannia&size=128&fontWeight=600" },
+    { slug: "parle", name: "Parle", logoUrl: "https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://parleproducts.com&size=128" },
+    { slug: "maggi", name: "Maggi", logoUrl: "https://api.dicebear.com/9.x/initials/png?seed=Maggi&size=128&fontWeight=600" },
+    { slug: "nescafe", name: "Nescafé", logoUrl: "https://api.dicebear.com/9.x/initials/png?seed=Nescafe&size=128&fontWeight=600" },
+    { slug: "tata-sampann", name: "Tata Sampann", logoUrl: "https://api.dicebear.com/9.x/initials/png?seed=Tata%20Sampann&size=128&fontWeight=600" },
+    { slug: "tata-tea", name: "Tata Tea", logoUrl: "https://api.dicebear.com/9.x/initials/png?seed=Tata%20Tea&size=128&fontWeight=600" },
+    { slug: "aashirvaad", name: "Aashirvaad", logoUrl: "https://api.dicebear.com/9.x/initials/png?seed=Aashirvaad&size=128&fontWeight=600" },
+    { slug: "fortune", name: "Fortune", logoUrl: "https://api.dicebear.com/9.x/initials/png?seed=Fortune&size=128&fontWeight=600" },
+    { slug: "saffola", name: "Saffola", logoUrl: "https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://saffola.in&size=128" },
+    { slug: "haldirams", name: "Haldiram's", logoUrl: "https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://haldirams.com&size=128" },
+    { slug: "lays", name: "Lay's", logoUrl: "https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://lays.com&size=128" },
+    { slug: "bingo", name: "Bingo!", logoUrl: "https://api.dicebear.com/9.x/initials/png?seed=Bingo&size=128&fontWeight=600" },
+    { slug: "sunfeast", name: "Sunfeast", logoUrl: "https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://sunfeastworld.com&size=128" },
+    { slug: "cadbury", name: "Cadbury", logoUrl: "https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://cadbury.co.uk&size=128" },
+    { slug: "coca-cola", name: "Coca-Cola", logoUrl: "https://api.dicebear.com/9.x/initials/png?seed=Coca%20Cola&size=128&fontWeight=600" },
+    { slug: "real", name: "Real", logoUrl: "https://api.dicebear.com/9.x/initials/png?seed=Real&size=128&fontWeight=600" },
+    { slug: "dabur", name: "Dabur", logoUrl: "https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://dabur.com&size=128" },
+    { slug: "kissan", name: "Kissan", logoUrl: "https://api.dicebear.com/9.x/initials/png?seed=Kissan&size=128&fontWeight=600" },
+    { slug: "everest", name: "Everest", logoUrl: "https://api.dicebear.com/9.x/initials/png?seed=Everest&size=128&fontWeight=600" },
+    { slug: "mdh", name: "MDH", logoUrl: "https://api.dicebear.com/9.x/initials/png?seed=MDH&size=128&fontWeight=600" },
+    { slug: "india-gate", name: "India Gate", logoUrl: "https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://indiagatefoods.com&size=128" },
+    { slug: "daawat", name: "Daawat", logoUrl: "https://api.dicebear.com/9.x/initials/png?seed=Daawat&size=128&fontWeight=600" },
+    { slug: "kelloggs", name: "Kellogg's", logoUrl: "https://api.dicebear.com/9.x/initials/png?seed=Kelloggs&size=128&fontWeight=600" },
+    { slug: "red-label", name: "Red Label", logoUrl: "https://api.dicebear.com/9.x/initials/png?seed=Red%20Label&size=128&fontWeight=600" },
+    { slug: "bru", name: "Bru", logoUrl: "https://api.dicebear.com/9.x/initials/png?seed=Bru&size=128&fontWeight=600" },
+    { slug: "dettol", name: "Dettol", logoUrl: "https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://dettol.co.in&size=128" },
+    { slug: "harpic", name: "Harpic", logoUrl: "https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://harpic.co.in&size=128" },
+    { slug: "colgate", name: "Colgate", logoUrl: "https://api.dicebear.com/9.x/initials/png?seed=Colgate&size=128&fontWeight=600" },
+    { slug: "vim", name: "Vim", logoUrl: "https://api.dicebear.com/9.x/initials/png?seed=Vim&size=128&fontWeight=600" },
+    { slug: "surf-excel", name: "Surf Excel", logoUrl: "https://api.dicebear.com/9.x/initials/png?seed=Surf%20Excel&size=128&fontWeight=600" },
   ],
 
   products: [
@@ -1616,11 +1626,17 @@ export const GROCERY_SEED: GrocerySeed = {
     },
   ],
 
+  // Banner artwork is photography, not product pack shots — a front-of-pack
+  // photo reads wrong stretched across a promo slot. Landscape crops from
+  // Unsplash (Unsplash License: free to use, no attribution required),
+  // `fm=jpg` forced because Flutter cannot decode the AVIF their CDN would
+  // otherwise negotiate.
   banners: [
     {
       title: "Fresh picks, daily",
       subtitle: "Farm-fresh fruit & veg, delivered in minutes",
-      imageUrl: `${IMG}/890/429/370/4770/front_en.3.400.jpg`,
+      imageUrl:
+        "https://images.unsplash.com/photo-1542838132-92c53300491e?fm=jpg&q=80&w=1200&h=600&fit=crop",
       targetCategorySlug: "fruits-vegetables",
       sortOrder: 0,
       backgroundColor: "#E7F2EC",
@@ -1628,7 +1644,8 @@ export const GROCERY_SEED: GrocerySeed = {
     {
       title: "Snack o'clock",
       subtitle: "Chips, biscuits & bhujia for every craving",
-      imageUrl: `${IMG}/890/400/440/0731/front_en.4.400.jpg`,
+      imageUrl:
+        "https://images.unsplash.com/photo-1566478989037-eec170784d0b?fm=jpg&q=80&w=1200&h=600&fit=crop",
       targetCategorySlug: "snacks-biscuits",
       sortOrder: 1,
       backgroundColor: "#FDF1E3",
@@ -1636,7 +1653,8 @@ export const GROCERY_SEED: GrocerySeed = {
     {
       title: "Chai time essentials",
       subtitle: "Teas, coffees & the biscuits to dunk in them",
-      imageUrl: `${IMG}/890/105/201/0615/front_en.18.400.jpg`,
+      imageUrl:
+        "https://images.unsplash.com/photo-1544787219-7f47ccb76574?fm=jpg&q=80&w=1200&h=600&fit=crop",
       targetCategorySlug: "tea-coffee",
       sortOrder: 2,
       backgroundColor: "#F3EAE3",
@@ -1644,7 +1662,8 @@ export const GROCERY_SEED: GrocerySeed = {
     {
       title: "Pantry staples, stocked",
       subtitle: "Atta, dal, oil & masala — the weekly list, sorted",
-      imageUrl: `${IMG}/890/172/515/0105/front_en.18.400.jpg`,
+      imageUrl:
+        "https://images.unsplash.com/photo-1506617420156-8e4536971650?fm=jpg&q=80&w=1200&h=600&fit=crop",
       sortOrder: 3,
       backgroundColor: "#EAF0F7",
     },

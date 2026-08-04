@@ -15,13 +15,15 @@ const dataFile = join(
 );
 
 const source = await readFile(dataFile, "utf8");
-// URLs appear as `${IMG}/<path>` template literals over the IMG base constant
-// (plus any fully-written literals).
+// Product URLs appear as `${IMG}/<path>` template literals over the IMG base
+// constant; banner (Unsplash) and brand-logo (gstatic favicon / DiceBear)
+// URLs are plain string literals.
 const base = "https://images.openfoodfacts.org/images/products";
 const urls = [
   ...new Set([
-    ...(source.match(/https:\/\/images\.openfoodfacts\.org\/[^"'`]+/g) ?? [])
-      .filter((url) => url !== base),
+    ...(source.match(/https:\/\/[^"'`\s]+/g) ?? []).filter(
+      (url) => url !== base && !url.startsWith("https://world.openfoodfacts"),
+    ),
     ...[...source.matchAll(/\$\{IMG\}(\/[^`]+)`/g)].map((m) => base + m[1]),
   ]),
 ];
