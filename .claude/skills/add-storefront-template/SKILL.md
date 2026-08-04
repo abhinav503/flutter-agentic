@@ -60,7 +60,9 @@ screen, skeleton bodies as public pack-prefixed files under
 all, since the dock pays the bottom inset), nav badges reading live cubit
 state instead of a `static const` tab list, `*_bloc_provider.dart`
 factories instead of inline bloc construction, `ChromelessStorefrontPage`
-for the no-app-bar pages, and a doc comment on every core-component fork
+for the no-app-bar pages, the Home ↔ Search `HeroSearchFieldFlight` (a
+per-store `heroTagFor` both ends derive from, an inert shuttle, and **no**
+tag on Category Details), and a doc comment on every core-component fork
 naming what didn't fit. Bottom inset on **every** branch, exhaustive
 switches, `ValueConst`-only copy.
 
@@ -68,8 +70,11 @@ switches, `ValueConst`-only copy.
 
 Run `/review-code`, then a reusability sweep across all packs: promote
 duplicates by scope (core + gallery entry / `lib/widgets` `Cordelia*` /
-feature mixin / pack kit). `flutter analyze` clean, `make test`, and a
-switch test walking every surface in each template.
+feature mixin / pack kit). Then a **contract audit** — grep for every
+mechanism the spec sheet names, since Phase 1 writes contracts before the
+screens exist and an unimplemented row fails nothing. `flutter analyze`
+clean, `make test`, and a switch test walking every surface **and
+transition** in each template.
 
 ## Phase 5 — Document
 

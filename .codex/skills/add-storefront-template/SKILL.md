@@ -319,20 +319,35 @@ The template layer is *only* chrome — before writing any widget or screen
 behaviour, check these three shelves in order. Hand-rolling something a
 shelf already has is the #1 review finding on every port.
 
-**a. Warm-start `BlocCache` — copy the wiring, don't re-derive it.** Every
-frequently-revisited storefront screen (`HomeBloc`, `SearchBloc`,
-`OrdersBloc`, `AddressBloc`, `CategoriesBloc`) already caches its fetched
-data in a static `BlocCache` with a `_cachedStoreId` guard, seeds
-`loaded` on construction (`_cache.seed(warm: …, cold: …)`), and refreshes
-silently underneath — so a revisit never re-shimmers, a refresh failure
-under warm content toasts instead of replacing the screen with an error
-view, and a refresh success must **not** reset the shopper's view
-selections (tab/filter/search — see `OrdersBloc._onStarted`). The new
-pack's page files must construct these blocs **identically to the existing
-pack's `*_page.dart`** — open the other template's page file for the same
-feature and mirror its `BlocProvider` wiring (bloc + `..add(started)`)
-exactly; the caching is in the shared bloc, so matching construction is
-all the template has to do. Full pattern: `docs/how-to/design-tab-flow.md`.
+**a. The blocs are already built and already cached — you only provide
+them.** A template writes **no** bloc wiring of its own:
+
+- Every frequently-revisited storefront screen (`HomeBloc`, `SearchBloc`,
+  `OrdersBloc`, `AddressBloc`, `CategoriesBloc`) already warm-starts from a
+  static `ScopedBlocCache<T>` **keyed on `storeId`** — it seeds `loaded` on
+  construction (`_cache.seed(scope: storeId, warm: …, cold: …)`) and
+  refreshes silently underneath. So a revisit never re-shimmers, a refresh
+  failure under warm content toasts instead of replacing the screen with an
+  error view, a refresh success does **not** reset the shopper's view
+  selections (tab/filter/search — see `OrdersBloc._onStarted`), and opening
+  store B never flashes store A's data. The scope is why it's
+  `ScopedBlocCache` and not plain `BlocCache`: this app is multi-tenant.
+  Full pattern: `docs/how-to/design-tab-flow.md`.
+- **Provide blocs through the feature's `*_bloc_provider.dart` factory** —
+  `homeBlocProvider(storeId:, child:)`, `ordersBlocProvider`,
+  `profileBlocProvider`, `searchBlocProvider`, `addressBlocProvider`,
+  `categoriesBlocProvider`, `categoryDetailsBlocProvider`,
+  `productDetailsBlocProvider`, `checkoutBlocProvider`,
+  `notificationsBlocProvider`, `editProfileBlocProvider`,
+  `changePasswordBlocProvider`. Each one owns the construction **and** the
+  `..add(started)` dispatch, so a new pack cannot get the wiring subtly
+  wrong and adding a use case to a bloc stays a one-file change. Never
+  construct a storefront bloc inline in a page; if a feature you need has no
+  factory yet, add one beside its bloc rather than inlining.
+- Shell-level, not per-tab: `ProfileBloc` goes in the shell's
+  `buildBlocProviders` (Home's header and the Profile tab read the same
+  profile), and the app-root `CartCubit`/`FavouritesCubit` are never
+  re-provided.
 
 **b. Shared behaviour that already exists** — mix in / call, never re-type:
 
@@ -349,6 +364,10 @@ all the template has to do. Full pattern: `docs/how-to/design-tab-flow.md`.
 | `FavouritesCubit` / `CartCubit` | app-root wishlist/cart state | provided at app root — never re-provide per tab |
 | `HeroSearchFieldFlight` | Home ↔ Search hero-flight mechanics | `core/ui/blocks/` |
 | `LegalDocumentContent` | privacy/terms copy structure | `feature/legal/` |
+| `ChromelessStorefrontPage` mixin | the `buildAppBar => null` + surface-`backgroundColor` pair every no-app-bar page repeats | `feature/storefront/presentation/chromeless_page.dart` |
+| `OrdersDateFilterState` mixin | the date-filter sheet's whole state: quick-pick windows, calendar range, how the two interact, `selectedFilter` | `orders/presentation/orders_date_filter_state.dart` |
+| `*_bloc_provider.dart` factories | bloc construction + started dispatch, per feature (see shelf **a**) | beside each feature's bloc |
+| `AppEventTransformers` | `debounceRestartable` for search-style events | `lib/utils/event_transformers.dart` |
 
 **c. The design system** — consult `docs/ai-rules/design.md` §2 (the
 catalog is indexed there, not re-listed here) and `review-code.md` §3
@@ -363,7 +382,16 @@ forking a private `_Row`); `SectionRail` for header + horizontal rail;
 `show<Id>Sheet` wrapper) for all sheets; `context.appColors` /
 `context.appShapes` — never hand-typed `Theme.of(context).extension<…>()`;
 core `num`/`int` extensions (`asPrice`, `asPercent`, `plural`) — never
-inline `toStringAsFixed` or `> 1 ? 's' : ''`. App-level `Cordelia*`
+inline `toStringAsFixed` or `> 1 ? 's' : ''`; `DateTimePartsX`
+(`monthAbbr`/`hour12`/`minutePadded`/`meridiem`) — never a local month table.
+The pieces most often missed because a pack "obviously" needs its own:
+`ScreenBody` (wrap it once as `<Pack>ScreenBody` — the header-over-scroll
+page skeleton, including the bottom inset and the floating-CTA fade),
+`AppSurfaceCard` (the shadow → fill → border → ripple tap-card),
+`AppPickerField` (a read-only field-shaped trigger — the reason every pack
+hand-built one is that `AppTextField` demands a controller),
+`ConfirmSheetBody`/`ActionSheetBody`, `ActionPair`, `SwipeToDeleteRow`,
+`BottomFade`, and `AppShadows` for the pack's elevation recipes. App-level `Cordelia*`
 widgets (`lib/widgets/`) serve shared chrome; a pack may `typedef`-alias
 one into its own namespace (gravia's form field/button/glass disc do).
 
@@ -404,6 +432,29 @@ the next reader wouldn't look:
   should touch one file, not one per pack.
 - **Chromeless pages mix in `ChromelessStorefrontPage`** rather than
   re-declaring the `buildAppBar => null` + surface-`backgroundColor` pair.
+- **The Home ↔ Search field flies.** Every pack owes this one shared-element
+  transition, and it is easy to finish a port without noticing it's missing
+  — the screens look right standing still, and the bar simply cross-fades
+  with the page instead. The recipe, identical in all three packs:
+  - a `static Object heroTagFor(String storeId)` on the pack's search-bar
+    widget, and **both** ends derive the tag through it — a fixed tag lets
+    two storefronts running the same pack pair their bars during a
+    storefront-to-storefront transition;
+  - wrap with core's `HeroSearchFieldFlight` (never a bare `Hero`): it
+    supplies the `RectTween` the flight needs, since the default
+    `MaterialRectArcTween` bows the pill sideways mid-flight;
+  - the shuttle must be **inert**. If the pack's bar is one widget in both
+    modes, thread an `interactive` flag through it: the copy keeps its text
+    (so a back-flight from a typed query doesn't blank mid-air) but takes no
+    focus and fires no callbacks — Search autofocuses the instant the route
+    settles, which is while the shuttle is still dismounting. A bar with no
+    interactive state at all uses `HeroSearchFieldFlight.static` instead;
+  - **tag Home and Search only.** Any *other* screen carrying the same bar
+    (Category Details does) must pass no tag: Home → Category Details is
+    itself a route transition, so a shared tag flies the bar on that push
+    too. Assert that the tag isn't combined with a trailing docked control —
+    both flight ends are bare bars, and a docked square would have to fly
+    into whatever the far end docks.
 
 ---
 
@@ -422,8 +473,22 @@ the next reader wouldn't look:
    - pack-only recurring recipe → the pack kit. Extract on the second
      screen that repeats a composition, not the third.
 3. `flutter analyze` at the repo root (must be clean) and `make test`.
-4. **Switch test:** open a store of each template id and walk every surface
-   in the table above — no screen may render another pack's chrome.
+4. **Contract audit — every row of the spec sheet must have a call site.**
+   Phase 1 writes the contracts *before* the screens exist, so a row can
+   describe behaviour nobody ever wired up, and nothing fails: the app
+   compiles, the screen renders, and the doc asserts a feature that isn't
+   there. Grep the codebase for each contract's named mechanism — the motion
+   table is the usual offender (`grofast.md` promised a
+   `HeroSearchFieldFlight` Home ↔ Search flight for a whole release before
+   any `Hero` existed in the pack). Either the code honours the row or the
+   row is rewritten to match what shipped; a contract with no
+   implementation is worse than no contract, because the next reader trusts
+   it.
+5. **Switch test:** open a store of each template id and walk every surface
+   in the table above — no screen may render another pack's chrome. Exercise
+   the *transitions*, not just the screens: Home → Search (the field should
+   fly, not fade), Home → Category Details (it should **not** fly), and each
+   screen's loading → loaded swap.
 
 ---
 

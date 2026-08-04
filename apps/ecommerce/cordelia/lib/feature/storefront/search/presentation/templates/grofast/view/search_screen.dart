@@ -127,6 +127,7 @@ class _SearchScreenState extends BaseScreenState<SearchScreen> {
                 hint: GrofastValueConst.searchHint,
                 controller: _controller,
                 autofocus: true,
+                heroTag: GrofastSearchField.heroTagFor(widget.storeId),
                 onChanged: (query) => context.read<SearchBloc>().add(
                   SearchEvent.queryChanged(query: query),
                 ),

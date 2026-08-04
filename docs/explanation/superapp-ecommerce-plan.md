@@ -872,6 +872,61 @@ copies) so the next port ships them first-go:
   dailymart address card all sit on it, gallery entry shipped) and
   `GrofastBagAction` de-duplicating three header bag controls.
 
+## Three-template utils/reuse sweep — DONE (2026-08-04)
+
+The review that follows a third pack landing. Defects, de-templating,
+consolidation, then a docs pass so the next port can *find* what now exists.
+
+**Defects fixed.** grofast Product Details was the one screen with no pack
+switcher and a skeleton that didn't mirror its loaded `Stack` — it jumped on
+load and left the dock's device inset unpaid while loading; rebuilt on
+`GrofastSwitcher` with a dock-silhouette skeleton. The nav Bag dot was
+`showDot: true` in a `static const` tab list, so it was lit with an empty bag
+— the list is now a method reading `CartCubit`. gravia rebuilt `ProfileBloc`
+per Profile-tab visit (it sat in `buildBody`); hoisted to
+`buildBlocProviders` like the other two packs.
+
+**De-templating.** Notifications' `domain`/`data` took a
+`StorefrontTemplate` through five files; they now take `storeId` + the
+store's `template_id` wire string, so no feature holds the presentation
+enum. `HomeBloc` took `storeId` twice (constructor *and* event) and stored
+neither — it now holds it as a field like every sibling, and its three error
+views retry with a parameterless re-dispatch instead of reaching back into
+`ActiveStoreCubit`.
+
+**Consolidation.** 12 `*_bloc_provider.dart` factories adopted at every call
+site (~25 pages); `ChromelessStorefrontPage` mixin across 28 pages; a shared
+`OrdersDateFilterState` mixin behind dailymart's and grofast's filter sheets;
+`GraviaSwitcher`/`DailyMartSwitcher` so each pack's swap tier is one place;
+grofast's 5 inline `_*SkeletonBody` classes moved to `widgets/` as public
+pack-prefixed files; both `formattedPrice` wrappers deleted for `.asPrice`;
+`IconInfoRow` and `AppButton` reclaimed two grofast forks.
+
+**Then two follow-ups the sweep surfaced.** grofast's dark `secondary` had
+been inverted to a near-white chip, making the promo row's Apply pill the
+brightest thing on a dark Bag — pinned to the kit's Dark-Green `#194B38` in
+both modes (its only consumer is that pill). And grofast shipped with **no**
+`Hero` on its search field at all, despite `grofast.md`'s motion table
+promising a `HeroSearchFieldFlight` Home ↔ Search flight — now wired, tagged
+per store, with an inert shuttle and deliberately no tag on Category Details.
+
+**Docs pass — the part that keeps this from recurring.** The sweep created a
+lot of shared API that no agent-facing doc knew about, which is how the next
+port re-hand-rolls it. Closed: `ScopedBlocCache` documented in
+`design-tab-flow.md` (it existed in code but in zero docs — including *when*
+to pick it over `BlocCache`); `architecture.md`'s core tree updated with ~20
+missing files (the atoms/molecules added across the last three ports plus
+`date_time_extensions`, `text_style_extensions`, `app_shadows_extension`);
+`design.md` §2's catalog gained `AppSurfaceCard`, `BottomFade`,
+`AppPickerField`, `ConfirmSheetBody`/`ActionSheetBody`, `ScreenBody`,
+`ActionPair`, `HeroSearchFieldFlight`, `AppInlineTextLink`,
+`LabeledDivider`; and `/add-storefront-template`'s three reuse shelves were
+rewritten around what a template must now *provide* rather than build
+(factories, mixins, scoped cache), plus a new Phase-4 **contract audit** —
+grep every mechanism the spec sheet names, since Phase 1 writes contracts
+before the screens exist and an unimplemented row fails nothing. All four
+skill surfaces synced.
+
 ## Missing flows (fill these or explicitly defer)
 
 1. **Store onboarding** — how a creator signs up, creates a store, becomes its admin (roles/claims).

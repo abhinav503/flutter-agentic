@@ -74,7 +74,9 @@ core/
 │   ├── base_page.dart           BasePage + BasePageState (Scaffold + getter-based bottom nav)
 │   ├── base_repository.dart     BaseRepository mixin (Dio→Failure mapping; handleRequest + handleStream)
 │   ├── base_screen.dart         BaseScreen + BaseScreenState (showAppBottomSheet, showSnackBar)
-│   └── bloc_cache.dart          BlocCache<T> — warm-start cache a frequently-revisited
+│   └── bloc_cache.dart          BlocCache<T> + ScopedBlocCache<T> (the same cache keyed
+│                                 to a store/user, so switching owners can't flash the
+│                                 previous one's data) — warm-start cache a frequently-revisited
 │                                 screen's BLoC seeds its initial state from
 │                                 (see docs/how-to/design-tab-flow.md)
 ├── constants/
@@ -89,8 +91,12 @@ core/
 │   │                             PluralX (1.plural('item') → 'item', 0 → 'items') —
 │   │                             app ValueConst formatters compose these instead of
 │   │                             re-inlining toStringAsFixed
-│   └── string_extensions.dart   generic String helpers (isSvgUrl) + FieldValidationX
-│                                 predicates (isValidEmail, digitCount)
+│   ├── string_extensions.dart   generic String helpers (isSvgUrl) + FieldValidationX
+│   │                             predicates (isValidEmail, digitCount)
+│   ├── date_time_extensions.dart DateTimePartsX — monthAbbr, hour12, minutePadded,
+│   │                             meridiem; the month table and 12-hour arithmetic
+│   │                             every date-formatting screen was re-deriving
+│   └── text_style_extensions.dart  TextStyle helpers (atWeight) for pack type scales
 ├── mixins/
 │   └── textfield_validations.dart  TextfieldValidations — validate* methods returning
 │                                 user-facing messages (defaults in CoreConst; override
@@ -109,7 +115,10 @@ core/
 │   │                               (dockedHairline/sheetHairline/tintedPrimaryFill);
 │   │                               access via the `context.appColors` accessor it
 │   │                               ships, not a hand-typed Theme.of(...) lookup
-│   ├── app_shapes_extension.dart  ThemeExtension for brand radii (button/chip/card/input/sheet)
+│   ├── app_shapes_extension.dart  ThemeExtension for brand radii (button/chip/card/input/sheet);
+│   │                               read via the `context.appShapes` accessor
+│   ├── app_shadows_extension.dart  ThemeExtension for a pack's elevation recipes, so a
+│   │                               BoxShadow set isn't kept pack-local and re-typed
 │   ├── app_radius.dart            border-radius token scale (defaults behind AppShapes)
 │   ├── app_spacing.dart           spacing token scale
 │   ├── app_theme.dart             AppTheme.fromConfig() → ColorScheme + component themes + extensions
@@ -143,7 +152,21 @@ core/
 │   │   │                        carousels)
 │   │   ├── text_field.dart      AppTextField (`dense` for compact rows)
 │   │   ├── theme_mode_toggle.dart ThemeModeToggle (System/Light/Dark AppBar action)
-│   │   └── top_bar.dart         AppTopBar (primary / secondary named constructors)
+│   │   ├── top_bar.dart         AppTopBar (primary / secondary named constructors)
+│   │   ├── surface_card.dart    AppSurfaceCard (the tap-card recipe: shadow → fill →
+│   │   │                        optional border → ink ripple, one clip; reach for it
+│   │   │                        before stacking DecoratedBox/Material/InkWell by hand)
+│   │   ├── bottom_fade.dart     BottomFade (surface→transparent gradient a floating
+│   │   │                        CTA sits on, so content dissolves under it)
+│   │   ├── shimmer_box.dart     ShimmerBox (the shimmering rectangle every skeleton
+│   │   │                        is built from)
+│   │   ├── svg_image.dart       AppSvgImage (asset/network SVG with tinting)
+│   │   ├── switch.dart          AppSwitch          ├── radio_dot.dart  AppRadioDot
+│   │   ├── glass_surface.dart / common_glass_surface.dart / glass_chip.dart
+│   │   │                        AppGlassSurface / CommonGlassSurface / AppGlassChip
+│   │   ├── concentric_circles.dart  AppConcentricCircles (the ringed status/success mark)
+│   │   ├── inline_text_link.dart    AppInlineTextLink (a tappable span inside a sentence)
+│   │   └── labeled_divider.dart     LabeledDivider ("or" rule between auth options)
 │   ├── molecules/               composed atoms
 │   │   ├── bottom_sheet.dart    AppBottomSheet (static show())
 │   │   ├── dialog.dart          AppDialog (static show())
@@ -156,6 +179,15 @@ core/
 │   │   ├── menu_tile.dart       AppMenuTile (settings/profile row: icon circle +
 │   │   │                        label + chevron/trailing; danger variant)
 │   │   ├── radio_group.dart     AppRadioGroup<T> + AppRadioRow (single-select list)
+│   │   ├── picker_field.dart    AppPickerField (read-only field-shaped trigger for a
+│   │   │                        value chosen elsewhere — a sheet, a date picker. Use
+│   │   │                        instead of faking a disabled AppTextField)
+│   │   ├── confirm_sheet_body.dart / action_sheet_body.dart
+│   │   │                        ConfirmSheetBody (title + message + cancel/confirm) and
+│   │   │                        ActionSheetBody (action list) — the sheet *contents*;
+│   │   │                        the pack's show<Id>Sheet wrapper owns the chrome
+│   │   ├── swipe_to_delete_row.dart  SwipeToDeleteRow (panel painted under the row in
+│   │   │                        one clip; onDelete optimistic / confirmDismiss gated)
 │   │   └── skeleton_rows.dart   ShimmerListRow (disc + two lines, itemCount) +
 │   │                            ShimmerSectionHeader + ShimmerCircleTile — common
 │   │                            skeleton silhouettes

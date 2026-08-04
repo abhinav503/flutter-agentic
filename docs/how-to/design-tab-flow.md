@@ -139,6 +139,48 @@ for (call it in the test file's `setUp`).
 screen — a failed background refetch shouldn't blank it out. It sets a flag
 the screen turns into a snackbar instead of an `ErrorView`.
 
+### `ScopedBlocCache<T>` — when the data belongs to *something*
+
+A `static` cache lives for the app process, which is wrong the moment the
+same screen can show **different** data per store, per user, or per account.
+Cordelia hit this first: a shopper opens store A's Home, backs out, opens
+store B — an unscoped static cache seeds B's screen with A's products for the
+one frame before B's fetch resolves.
+
+`ScopedBlocCache<T>` (same file) is `BlocCache<T>` keyed to an owner. Pass the
+scope to `seed` and to `save`; a scope mismatch drops the stale value rather
+than showing it:
+
+```dart
+static final _cache = ScopedBlocCache<HomeEntity>();
+
+HomeBloc({required GetHomeUseCase getHomeUseCase, required String storeId})
+  : _storeId = storeId,
+    super(_cache.seed(
+      scope: storeId,                                   // ← the owner
+      warm: (home) => HomeState.loaded(home: home),
+      cold: HomeState.loading,
+    ));
+
+void _emitLoaded(HomeEntity home, Emitter<HomeState> emit) {
+  _cache.save(_storeId, home);                          // ← same scope on save
+  emit(HomeState.loaded(home: home));
+}
+```
+
+**Which to reach for:** plain `BlocCache` when the screen's data is the same
+for everyone in the app (a single-tenant app's catalog). `ScopedBlocCache`
+the moment a second owner can exist — and in a multi-tenant app like
+`cordelia` that is *every* storefront bloc (`HomeBloc`, `SearchBloc`,
+`OrdersBloc`, `CategoriesBloc`, `AddressBloc`), scoped on `storeId`. Getting
+this wrong is invisible in single-store testing and obvious the first time
+someone switches stores.
+
+**The bloc also holds the scope.** Keep `storeId` as a field and take it once
+in the constructor — not on the `started` event. Every error state then
+retries with a parameterless re-dispatch instead of the screen reaching back
+into `ActiveStoreCubit` for an id the bloc already has.
+
 ---
 
 ## Orders tab — same pattern + filters
@@ -250,6 +292,7 @@ point is surviving a *tab switch*, not a relaunch.
 |---|---|---|
 | Shell | `AuthBloc` in `buildBlocProviders`, above the tab switch | Verify-gate and session state must outlive every individual tab |
 | Any tab / frequently-reopened screen | `static final _cache = BlocCache<T>()` + `_cache.seed(...)` constructor | Survives the BLoC being rebuilt on every tab switch or push |
+| The same screen showing different data per store/user/account | `ScopedBlocCache<T>` + `seed(scope:)` / `save(scope, …)`, scope held as a bloc field | A process-lifetime static would flash the previous owner's data for a frame after switching |
 | Any tab / frequently-reopened screen | `refreshFailed` flag, not `error`, on a warm refetch failure | Don't blank out content the user can already see |
 | Orders | Cache the fetched list only, not `selectedTab`/`filter` | Those are view state, not server data — reset like a cold load |
 | Optimistic local edits | Route through the same cache-updating helper | Keeps the cache correct if the tab is revisited before the next refetch |

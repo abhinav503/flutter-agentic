@@ -100,6 +100,11 @@ class _CategoryDetailsScreenState
                   trailing: GrofastBagAction(storeId: widget.storeId),
                 ),
                 const SizedBox(height: AppSpacing.xl2),
+                // No `heroTag`: the flight is Home <-> Search only. Sharing
+                // the tag here would also pair this bar with Home's during
+                // the Home -> Category Details push, flying it on a
+                // transition the kit draws as a plain page change (same call
+                // dailymart's Category Details makes).
                 GrofastSearchField(
                   hint: GrofastValueConst.searchHint,
                   onTap: _openSearch,

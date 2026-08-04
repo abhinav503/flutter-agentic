@@ -135,6 +135,7 @@ class _HomeScreenState extends BaseScreenState<HomeScreen>
               GrofastSearchField(
                 hint: GrofastValueConst.searchHint,
                 onTap: _openSearch,
+                heroTag: GrofastSearchField.heroTagFor(_storeId),
               ),
             ],
           ),

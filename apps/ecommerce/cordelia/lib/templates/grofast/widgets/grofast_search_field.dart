@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:core/core/theme/app_shapes_extension.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/svg_image.dart';
+import 'package:core/core/ui/blocks/hero_search_field_flight.dart';
 
 import 'package:cordelia/templates/grofast/constants/grofast_color_const.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_dimen_const.dart';
@@ -18,6 +19,15 @@ import 'package:cordelia/templates/grofast/constants/grofast_text_style_const.da
 /// it a live input (the Search screen itself). A screen passes one or the
 /// other, never both.
 class GrofastSearchField extends StatelessWidget {
+  /// The Home <-> Search flight tag, scoped to one store — same reasoning as
+  /// gravia's `SearchFieldBar.heroTagFor`: a fixed tag would let two
+  /// different storefronts running this pack pair their bars during a
+  /// storefront-to-storefront transition. Both ends of the intended flight
+  /// derive the tag through this one factory, so they cannot drift apart and
+  /// silently stop flying.
+  static Object heroTagFor(String storeId) =>
+      'grofast-search-field-hero-$storeId';
+
   final String hint;
 
   /// Live-input mode.
@@ -34,6 +44,12 @@ class GrofastSearchField extends StatelessWidget {
   /// height, so the pair reads as one 50px band.
   final Widget? trailing;
 
+  /// When set, the field flies Home <-> Search instead of cross-fading with
+  /// the page. Null renders it plain — which is what every *other* screen
+  /// with this bar passes: Category Details carries one too, and sharing the
+  /// tag there would fly it on the Home -> Category Details push as well.
+  final Object? heroTag;
+
   const GrofastSearchField({
     super.key,
     required this.hint,
@@ -43,13 +59,30 @@ class GrofastSearchField extends StatelessWidget {
     this.autofocus = false,
     this.onTap,
     this.trailing,
+    this.heroTag,
   }) : assert(
          onTap == null || controller == null,
          'A field is either a navigation target or a live input, not both.',
+       ),
+       assert(
+         heroTag == null || trailing == null,
+         'Both ends of the flight are bare bars. A docked square would have '
+         'to fly into whatever the other end docks (or nothing), so give the '
+         'row its own Hero around the bar alone if this is ever needed.',
        );
 
   @override
   Widget build(BuildContext context) {
+    if (heroTag == null) return _buildBar(context, interactive: true);
+
+    return HeroSearchFieldFlight(
+      tag: heroTag!,
+      barBuilder: (context, {required interactive}) =>
+          _buildBar(context, interactive: interactive),
+    );
+  }
+
+  Widget _buildBar(BuildContext context, {required bool interactive}) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
     final radius = BorderRadius.circular(context.appShapes.inputRadius);
@@ -84,9 +117,14 @@ class GrofastSearchField extends StatelessWidget {
                   )
                 : TextField(
                     controller: controller,
-                    onChanged: onChanged,
-                    onSubmitted: onSubmitted,
-                    autofocus: autofocus,
+                    // The shuttle copy keeps the text (so a back-flight from
+                    // a typed query doesn't blank mid-air) but takes no focus
+                    // and reports nothing: Search autofocuses the moment the
+                    // route settles, which is while this copy is still
+                    // dismounting.
+                    onChanged: interactive ? onChanged : null,
+                    onSubmitted: interactive ? onSubmitted : null,
+                    autofocus: interactive && autofocus,
                     textInputAction: TextInputAction.search,
                     style: GrofastTextStyleConst.bodySmall(
                       tt,
@@ -107,7 +145,7 @@ class GrofastSearchField extends StatelessWidget {
       ),
     );
 
-    final bar = onTap == null
+    final bar = onTap == null || !interactive
         ? field
         : GestureDetector(
             onTap: onTap,

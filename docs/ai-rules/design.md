@@ -81,7 +81,13 @@ them for free — **no new block is needed just because a new pack shows up.**
   so durations can't drift per screen), `AppDropdownMenu`,
   `AppNetworkImage`, `AppSvgImage`, `AppGlassSurface`, `CommonGlassSurface`,
   `AppGlassChip`, `AppConcentricCircles`, `PageIndicator`, `ShimmerBox`,
-  `LoadingIndicator`, `LoadingDots`, `DeviceFrame`, `ThemeModeToggle`
+  `LoadingIndicator`, `LoadingDots`, `DeviceFrame`, `ThemeModeToggle`,
+  `AppInlineTextLink`, `LabeledDivider`,
+  `AppSurfaceCard` (the tap-card recipe every pack retyped: shadow → fill →
+  optional border → ink ripple, in that order, all clipped to one radius —
+  reach for it before hand-stacking a `DecoratedBox`/`Material`/`InkWell`),
+  `BottomFade` (the surface-to-transparent gradient a floating CTA sits on,
+  so scrolled content dissolves under it instead of running to the edge)
 - **molecules** (`core/ui/molecules/`) — composed atoms: `AppBottomSheet`,
   `AppDialog`, `EmptyState`, `ErrorView`, `AppMenuTile`, `AppRadioGroup`,
   `IconInfoRow` (leading block beside a title, optional subtitle, optional
@@ -96,7 +102,16 @@ them for free — **no new block is needed just because a new pack shows up.**
   `ShimmerListRow` + `ShimmerSectionHeader` + `ShimmerCircleTile` (the
   common skeleton silhouettes — disc + two lines with `itemCount`, title +
   action chip, and circle-over-label category tile — compose these before
-  hand-rolling a `ShimmerBox` layout)
+  hand-rolling a `ShimmerBox` layout),
+  `AppPickerField` (a read-only, field-shaped **trigger** — label + current
+  value + chevron — for a value chosen elsewhere: a picklist sheet, a date
+  picker, a pushed screen. Every pack hand-built one of these purely because
+  `AppTextField` demands a controller and has no non-editable mode; use this
+  instead of a fake disabled text field),
+  `ConfirmSheetBody` + `ActionSheetBody` (the two sheet *bodies*: a
+  destructive/affirmative confirm — title, message, cancel/confirm pair —
+  and a list of actions. Put them inside the pack's `show<Id>Sheet` wrapper;
+  the wrapper owns the chrome, these own the content)
 - **blocks** (`core/ui/blocks/`) — larger compositions, split by scope:
 
 **Root — cross-domain, any style pack can use as-is:**
@@ -113,6 +128,9 @@ them for free — **no new block is needed just because a new pack shows up.**
 | `section_rail.dart` | `SectionRail` — a section header over a horizontally scrolling item rail. Owns the one rule every hand-rolled copy re-derived: the rail takes a **left inset only** (matching the header's gutter) so items scroll to the true screen edge. Params for gutter/spacing/trailing gap/shadow padding |
 | `quantity_stepper.dart` | `QuantityStepper` |
 | `chunked_grid.dart` | `ChunkedGrid` — a fixed-column grid inside a scrollable that isn't sliver-composed, laid out with manual `Row`/`Expanded` chunking rather than `GridView` |
+| `screen_body.dart` | `ScreenBody` — the "header row pinned above a scrolling body" page skeleton for packs that draw no app bar: gutter, header slot, gap, scroll view, and the bottom inset (or the inset + fade a floating CTA needs). A pack wraps it once as `<Pack>ScreenBody`; two packs had near-verbatim private copies before it existed |
+| `action_pair.dart` | `ActionPair` — the side-by-side cancel/confirm button row a sheet or form footer ends with. Widths and styles stay with the caller; the block owns the arrangement |
+| `hero_search_field_flight.dart` | `HeroSearchFieldFlight` — the Home ↔ Search shared-element flight, including the two things every hand-rolled `Hero` got wrong: a plain `RectTween` (the default arc tween bows the pill sideways) and an inert shuttle whose `FocusNode` stays out of the overlay. `.static` for a bar with no interactive state. Every pack owes this flight — see the storefront-template how-to |
 
 > **Why `ChunkedGrid` and not `GridView`.** A `shrinkWrap` `GridView` nested in
 > another scrollable lays every item out up front anyway (no real laziness
