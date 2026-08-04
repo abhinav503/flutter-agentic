@@ -111,9 +111,19 @@ feature → what the template must draw):
 | Profile | `profile` / `ProfileBloc` | tab |
 | Edit profile (+ avatar upload) | `EditProfileBloc` + `EditProfileForm` mixin | route |
 | Change password | `ChangePasswordBloc` + `ChangePasswordForm` mixin | route |
+| Account deletion | `DeleteAccountAction` mixin (owns the in-flight flag + the blocking overlay) → `deleteAccountAndReturnToLogin` | **Required.** The last row of Profile, behind the pack's own confirm sheet |
 | Favourites / wishlist / bookmarks | `FavouritesCubit` (app-root) | tab or route |
 | Notifications | `notifications` / `NotificationsBloc` (per-template mock) | route |
 | Privacy Policy + Terms & Conditions | `legal` / shared `LegalDocumentContent` | routes |
+
+**Account deletion is not optional.** Both app stores require an app that
+lets users create an account to let them delete it *in the app* (App Store
+Review Guideline 5.1.1(v)) — a pack that ships Profile without it is a
+store rejection, not a missing nicety. Put it last, below Log out: the most
+destructive action belongs furthest from the rows a shopper opens Profile to
+use. Use the kit's own delete/trash glyph — all three existing packs export
+one — and the shared mixin, so the copy, the ordering and the busy overlay
+can't drift per template.
 
 **Not templated — do not build:** Login/Signup/verify-email (shared
 Cordelia-brand chrome on `Cordelia*` widgets, reachable from every template

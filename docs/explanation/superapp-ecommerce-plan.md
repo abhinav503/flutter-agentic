@@ -2045,6 +2045,22 @@ verify-sheet flag, per-account cubits). On failure nothing is torn down — the
 account still exists, so staying signed in on a working session is correct —
 and the screen snackbars the reason.
 
+The row and its busy state sit behind the shared `DeleteAccountAction`
+mixin, which owns the in-flight flag, the re-entry guard, and a
+`withDeleteAccountProgress(...)` wrapper each Profile body passes through: a
+**full-screen scrim + spinner**, not a busy state on the row, because the
+action is irreversible and takes a server round trip — the nav bar and every
+other control have to stop responding, not just the tapped one. On success
+the mixin skips its `setState`, since navigating to Login has already
+disposed the screen. Shared rather than per-pack: only the glyph and the
+confirm-sheet chrome should differ between templates, never the copy, the
+ordering or the busy behaviour of an irreversible action.
+
+**Every pack uses its own kit's delete glyph** — gravia `trash.svg`,
+dailymart and grofast `delete.svg`, all three already exported and already
+declared as consts. The first cut used one Material icon across all three,
+which threw away the per-pack icon systems for no reason.
+
 **Also worth knowing (not built):** offering Google/Apple social login on iOS
 will make *Sign in with Apple* mandatory (Guideline 4.8). Both buttons are
 still `comingSoon`, so there's no violation today — it's a requirement on

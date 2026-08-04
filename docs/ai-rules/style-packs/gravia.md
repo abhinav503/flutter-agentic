@@ -112,6 +112,7 @@ happens — never an inline hex, two homes by scope:
 | Form fields (`GraviaFormField`) | 16, not the pill `shape.input` | Confirmed on the Signup form; screen-local override via `AppTextField.borderRadius`, not a preset change. Search and quick-add keep the pill input untouched |
 | Product Details' brand line | A Text/xs/regular `onSurfaceVariant` line above the product name | The kit predates brands; the line borrows the meta row's muted supporting role. Renders only when the product has a brand |
 | Product Details' "Select QTY" chips | Each size priced by its own variant — the price row, discount meta chip, and bottom bar all follow the selected chip | The kit drew the chips as decoration; per-size pricing (`ProductDetailEntity.sizeVariants`) made them a real choice that travels into the cart line |
+| No account-deletion row | Profile's menu ends with **Delete Account** on the kit's `trash.svg`, under Log out, behind `showGraviaConfirmSheet` | Both app stores require in-app account deletion wherever sign-up exists (App Store Review Guideline 5.1.1(v)) — a store requirement no kit has a frame for, so every pack builds the row from its own menu recipe |
 | Track Order | A routed screen the kit never drew: the dated status timeline, the delivery OTP while the order is out, its items, a coupon-aware `PriceBreakdown`, the order/payment ids with tap-to-copy, the delivery address, and a single CTA that is Cancel while the order is coming and Rate Order once it has arrived | The kit has no Track Order frame, so it's composed from recipes the pack owns (`CollapsingHeaderSheet` + `GraviaHeroHeader`, `OrderLineItemRow`, the Cart's `PriceBreakdown`, hairline-divided sections). Both other packs shipped one, so gravia falling through to dailymart's was the last place two packs' languages met on one flow. **Cancel** still pops the order id back to My Orders — that update is optimistic and belongs to the list's bloc — while **rating** writes through this page's own bloc, which has nothing optimistic to reconcile |
 | Timeline steps | Three (Placed / On the way / Delivered), or two for a cancelled order | `OrderStatus` has exactly these; inventing Packed/Shipped rows would imply fulfilment tracking the store never sends. A step reached before the server recorded transitions renders undated rather than guessing |
 | Order rating | The order card's "Write A Review" now rates the **delivery** 1–5 with optional text, and the card shows the stars once given. A cancelled order drops the button entirely rather than pairing View Details with a dead control | Distinct from a product review (which anyone signed in may write): only a delivered order can be rated, and only by the shopper who placed it |
@@ -468,7 +469,10 @@ divider + handle colours). Never re-style `showAppBottomSheet` at a call site.
   interactive row swaps the chevron for a real control (Dark Mode uses
   `AppSwitch`); a destructive row (`danger: true`, e.g. Logout) tints its icon
   circle with `error` at 12% alpha, colours icon + label `error`, and drops the
-  chevron entirely. → `ProfileMenuTile`.
+  chevron entirely. → `ProfileMenuTile`. The list ends with **Log out** and
+  then **Delete Account** (`trash.svg`, also `danger: true`) — the most
+  destructive row furthest from the ones a shopper came for. Deletion is a
+  store requirement, not a pack choice (see §deviations).
 - **Plain splash.** Pure surface (white/near-black), only the centered wordmark:
   black type with the middle glyph in primary green. No coloured canvas, no
   tagline.

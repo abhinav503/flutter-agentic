@@ -555,6 +555,12 @@ why they are field-shaped (10 px, bordered) rather than menu-shaped.
   (`₹X /pack`) follows the selected chip, and Add To Cart carries the
   selection into the cart line, which then shows that pack size and
   per-size price on the Cart's item cards and Checkout's Order List.
+- **Delete Account** closes the Profile menu, under Log out, on the kit's
+  own `delete.svg`. Required by both app stores of any app with sign-up
+  (App Store Review Guideline 5.1.1(v)), so it is not a pack decision; the
+  confirm sheet is `showDailyMartConfirmSheet`, and the busy overlay while
+  the server works comes from the shared `DeleteAccountAction` mixin.
+
 - **Order rating.** Track Order's floating slot holds Cancel Order while an
   order is on its way and **Rate Order** once it has been delivered (Edit
   Rating after the first time); a cancelled order gets neither, since there
