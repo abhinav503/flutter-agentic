@@ -346,6 +346,12 @@ abstract class AppLocalizations {
   /// **'Payment cancelled'**
   String get paymentCancelledMessage;
 
+  /// Coupon rejected for being under its minimum order value. {price} arrives already formatted for the store's currency and the shopper's locale (core's asPrice) — the server sends the bare number precisely because it cannot format or translate it.
+  ///
+  /// In en, this message translates to:
+  /// **'Your order is below this coupon\'s minimum of {price}'**
+  String couponMinOrderMessage(String price);
+
   /// No description provided for @paymentFailedMessage.
   ///
   /// In en, this message translates to:

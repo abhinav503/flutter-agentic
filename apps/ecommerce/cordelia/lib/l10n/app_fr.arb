@@ -40,6 +40,7 @@
   "loginLink": "Se connecter",
   "comingSoonMessage": "Bientôt disponible",
   "paymentCancelledMessage": "Paiement annulé",
+  "couponMinOrderMessage": "Votre commande est inférieure au minimum de {price} requis pour ce code promo",
   "paymentFailedMessage": "Le paiement n'a pas pu être finalisé. Veuillez réessayer.",
   "verifyEmailTitle": "Vérifiez votre e-mail",
   "verifyEmailSubtitle": "Nous avons envoyé un lien de vérification à {email}. Ouvrez-le, puis revenez ici — cette page se mettra à jour automatiquement.",

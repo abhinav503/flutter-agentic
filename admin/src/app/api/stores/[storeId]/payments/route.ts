@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
-import { CouponError, previewCoupon } from "@/lib/coupon-engine";
+import {
+  CouponError,
+  couponErrorBody,
+  previewCoupon,
+} from "@/lib/coupon-engine";
 import { priceCart, OrderCreationError } from "@/lib/orders";
 import {
   createRazorpayOrder,
@@ -83,7 +87,7 @@ export async function POST(
       total = Math.round((total - priced.discount) * 100) / 100;
     } catch (err) {
       if (err instanceof CouponError) {
-        return NextResponse.json({ error: err.message }, { status: 400 });
+        return NextResponse.json(couponErrorBody(err), { status: 400 });
       }
       throw err;
     }

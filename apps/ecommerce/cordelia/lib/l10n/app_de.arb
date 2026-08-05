@@ -40,6 +40,7 @@
   "loginLink": "Anmelden",
   "comingSoonMessage": "Demnächst verfügbar",
   "paymentCancelledMessage": "Zahlung abgebrochen",
+  "couponMinOrderMessage": "Ihre Bestellung liegt unter dem Mindestbestellwert von {price} für diesen Gutschein",
   "paymentFailedMessage": "Die Zahlung konnte nicht abgeschlossen werden. Bitte erneut versuchen.",
   "verifyEmailTitle": "E-Mail-Adresse bestätigen",
   "verifyEmailSubtitle": "Wir haben einen Bestätigungslink an {email} gesendet. Öffnen Sie ihn und kehren Sie dann hierher zurück — die Anzeige aktualisiert sich automatisch.",

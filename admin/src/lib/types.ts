@@ -264,10 +264,17 @@ export type Template = {
 
 export type CouponType = "percent" | "flat";
 
-export const COUPON_TYPE_LABELS: Record<CouponType, string> = {
-  percent: "Percentage off",
-  flat: "Flat amount off (₹)",
-};
+// A function rather than a constant because the flat label names the store's
+// currency (see lib/money.ts) — "Flat amount off (₹)" was wrong the moment a
+// store could charge in euros.
+export function couponTypeLabels(
+  currencySign: string,
+): Record<CouponType, string> {
+  return {
+    percent: "Percentage off",
+    flat: `Flat amount off (${currencySign})`,
+  };
+}
 
 // What the discount applies to: the whole order, or only the lines whose
 // product matches targetIds (directly, or through a category) — the
@@ -289,7 +296,7 @@ export type Coupon = {
   id: string;
   code: string;
   type: CouponType;
-  // Percent (1–100) or flat ₹, per type.
+  // Percent (1–100) or a flat amount in the store's currency, per type.
   value: number;
   scope: CouponScope;
   // Category/product doc ids for the scoped kinds; empty for "store".

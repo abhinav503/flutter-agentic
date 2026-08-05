@@ -13,6 +13,7 @@ import {
 import type { Address, Order, OrderStatus, RefundStatus } from "@/lib/types";
 import { MAX_RATING } from "@/lib/types";
 import { matchesSearch } from "@/lib/search";
+import { formatMoney } from "@/lib/money";
 import { SearchField } from "@/components/search-field";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -109,7 +110,7 @@ function addressLines(address: Address): string {
 
 export default function OrdersPage() {
   const { user } = useAuth();
-  const { storeId } = useStore();
+  const { storeId, storeCurrency } = useStore();
   const [orders, setOrders] = useState<Order[]>([]);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const [cancelTarget, setCancelTarget] = useState<Order | null>(null);
@@ -289,11 +290,11 @@ export default function OrdersPage() {
                   </TableCell>
                   <TableCell>{itemCount(order)}</TableCell>
                   <TableCell>
-                    <div>₹{order.total.toFixed(2)}</div>
+                    <div>{formatMoney(order.total, storeCurrency)}</div>
                     {couponDiscount(order) > 0 && (
                       <div className="text-xs text-muted-foreground">
-                        {order.couponCode || "Coupon"} · −₹
-                        {couponDiscount(order).toFixed(2)}
+                        {order.couponCode || "Coupon"} · −
+                        {formatMoney(couponDiscount(order), storeCurrency)}
                       </div>
                     )}
                   </TableCell>
@@ -363,7 +364,7 @@ export default function OrdersPage() {
                 {isOpen && (
                   <TableRow className="bg-muted/30 hover:bg-muted/30">
                     <TableCell colSpan={COLUMN_COUNT}>
-                      <OrderDetail order={order} paid={paid} />
+                      <OrderDetail order={order} paid={paid} currency={storeCurrency} />
                     </TableCell>
                   </TableRow>
                 )}
@@ -434,7 +435,15 @@ export default function OrdersPage() {
   );
 }
 
-function OrderDetail({ order, paid }: { order: Order; paid: boolean }) {
+function OrderDetail({
+  order,
+  paid,
+  currency,
+}: {
+  order: Order;
+  paid: boolean;
+  currency: string;
+}) {
   const discount = couponDiscount(order);
   return (
     <div className="grid gap-6 p-2 md:grid-cols-[1fr_1.4fr]">
@@ -550,10 +559,10 @@ function OrderDetail({ order, paid }: { order: Order; paid: boolean }) {
               </div>
               <div className="text-right">
                 <div>
-                  {item.quantity} × ₹{item.price.toFixed(2)}
+                  {item.quantity} × {formatMoney(item.price, currency)}
                 </div>
                 <div className="text-xs text-muted-foreground">
-                  ₹{(item.quantity * item.price).toFixed(2)}
+                  {formatMoney(item.quantity * item.price, currency)}
                 </div>
               </div>
             </div>
@@ -564,7 +573,7 @@ function OrderDetail({ order, paid }: { order: Order; paid: boolean }) {
             <>
               <div className="flex justify-between text-muted-foreground">
                 <span>Subtotal</span>
-                <span>₹{itemsSubtotal(order).toFixed(2)}</span>
+                <span>{formatMoney(itemsSubtotal(order), currency)}</span>
               </div>
               <div className="flex justify-between text-muted-foreground">
                 <span className="flex items-center gap-2">
@@ -575,13 +584,13 @@ function OrderDetail({ order, paid }: { order: Order; paid: boolean }) {
                     </Badge>
                   )}
                 </span>
-                <span>−₹{discount.toFixed(2)}</span>
+                <span>−{formatMoney(discount, currency)}</span>
               </div>
             </>
           )}
           <div className="flex justify-between font-semibold">
             <span>Total</span>
-            <span>₹{order.total.toFixed(2)}</span>
+            <span>{formatMoney(order.total, currency)}</span>
           </div>
         </div>
       </div>

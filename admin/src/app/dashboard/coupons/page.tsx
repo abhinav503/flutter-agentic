@@ -18,8 +18,9 @@ import type {
   CouponType,
   Product,
 } from "@/lib/types";
-import { COUPON_SCOPE_LABELS, COUPON_TYPE_LABELS } from "@/lib/types";
+import { COUPON_SCOPE_LABELS, couponTypeLabels } from "@/lib/types";
 import { matchesSearch } from "@/lib/search";
+import { currencySymbol, formatMoney } from "@/lib/money";
 import {
   applySort,
   compareIsoDates,
@@ -71,10 +72,12 @@ import {
 } from "@/components/ui/table";
 import { toast } from "sonner";
 
-function discountLabel(coupon: Coupon): string {
-  if (coupon.type === "flat") return `₹${coupon.value} off`;
+function discountLabel(coupon: Coupon, currency: string): string {
+  if (coupon.type === "flat") {
+    return `${formatMoney(coupon.value, currency)} off`;
+  }
   return coupon.maxDiscount > 0
-    ? `${coupon.value}% off (max ₹${coupon.maxDiscount})`
+    ? `${coupon.value}% off (max ${formatMoney(coupon.maxDiscount, currency)})`
     : `${coupon.value}% off`;
 }
 
@@ -94,7 +97,7 @@ type CouponSortKey = "code" | "used" | "validUntil";
 
 // The Discount column is deliberately not sortable — percent and flat values
 // share no unit, so ordering by raw value would interleave "10% off" and
-// "₹10 off" meaninglessly.
+// a flat amount off meaninglessly.
 const COUPON_COMPARATORS: Record<CouponSortKey, Comparator<Coupon>> = {
   code: (a, b) => compareText(a.code, b.code),
   used: (a, b) => compareNumbers(a.usedCount, b.usedCount),
@@ -104,7 +107,7 @@ const COUPON_COMPARATORS: Record<CouponSortKey, Comparator<Coupon>> = {
 type StatusFilter = "all" | "active" | "inactive";
 
 export default function CouponsPage() {
-  const { storeId } = useStore();
+  const { storeId, storeCurrency } = useStore();
   const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
@@ -139,7 +142,7 @@ export default function CouponsPage() {
         matchesSearch(
           search,
           coupon.code,
-          discountLabel(coupon),
+          discountLabel(coupon, storeCurrency),
           COUPON_SCOPE_LABELS[coupon.scope],
           coupon.isActive ? "Active" : "Inactive",
         ),
@@ -221,7 +224,7 @@ export default function CouponsPage() {
           {visible.map((coupon) => (
             <TableRow key={coupon.id}>
               <TableCell className="font-medium">{coupon.code}</TableCell>
-              <TableCell>{discountLabel(coupon)}</TableCell>
+              <TableCell>{discountLabel(coupon, storeCurrency)}</TableCell>
               <TableCell className="text-muted-foreground">
                 {COUPON_SCOPE_LABELS[coupon.scope]}
                 {coupon.scope !== "store" && ` (${coupon.targetIds.length})`}
@@ -262,6 +265,7 @@ export default function CouponsPage() {
 
       {editing && (
         <CouponDialog
+          currency={storeCurrency}
           storeId={storeId}
           coupon={editing === "new" ? null : editing}
           existingCoupons={coupons}
@@ -312,6 +316,7 @@ function CouponDialog({
   categories,
   products,
   onClose,
+  currency,
 }: {
   storeId: string;
   coupon: Coupon | null;
@@ -319,7 +324,9 @@ function CouponDialog({
   categories: Category[];
   products: Product[];
   onClose: () => void;
+  currency: string;
 }) {
+  const sign = currencySymbol(currency);
   const [code, setCode] = useState(coupon?.code ?? "");
   const [type, setType] = useState<CouponType>(coupon?.type ?? "percent");
   const [value, setValue] = useState(String(coupon?.value ?? ""));
@@ -436,7 +443,7 @@ function CouponDialog({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {Object.entries(COUPON_TYPE_LABELS).map(([v, label]) => (
+                  {Object.entries(couponTypeLabels(sign)).map(([v, label]) => (
                     <SelectItem key={v} value={v}>
                       {label}
                     </SelectItem>
@@ -446,7 +453,7 @@ function CouponDialog({
             </div>
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="coupon-value">
-                {type === "percent" ? "Percent off" : "Amount off (₹)"}
+                {type === "percent" ? "Percent off" : `Amount off (${sign})`}
               </Label>
               <Input
                 id="coupon-value"
@@ -463,7 +470,7 @@ function CouponDialog({
           {type === "percent" && (
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="coupon-max-discount">
-                Maximum discount (₹, optional)
+                Maximum discount ({sign}, optional)
               </Label>
               <Input
                 id="coupon-max-discount"
@@ -523,7 +530,9 @@ function CouponDialog({
           )}
 
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="coupon-min-order">Minimum order value (₹, optional)</Label>
+            <Label htmlFor="coupon-min-order">
+              Minimum order value ({sign}, optional)
+            </Label>
             <Input
               id="coupon-min-order"
               type="number"

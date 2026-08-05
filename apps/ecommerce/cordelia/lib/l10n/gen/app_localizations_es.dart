@@ -144,6 +144,11 @@ class AppLocalizationsEs extends AppLocalizations {
   String get paymentCancelledMessage => 'Pago cancelado';
 
   @override
+  String couponMinOrderMessage(String price) {
+    return 'Tu pedido está por debajo del mínimo de $price de este cupón';
+  }
+
+  @override
   String get paymentFailedMessage =>
       'No se ha podido completar el pago. Inténtalo de nuevo.';
 

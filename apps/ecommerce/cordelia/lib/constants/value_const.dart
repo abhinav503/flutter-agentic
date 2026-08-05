@@ -86,6 +86,11 @@ abstract final class ValueConst {
       L10n.current.paymentCancelledMessage;
   static String get paymentFailedMessage => L10n.current.paymentFailedMessage;
 
+  /// [price] arrives already formatted (core's `asPrice`) — the server sends
+  /// the bare amount because only the client knows the store's currency.
+  static String couponMinOrderMessage(String price) =>
+      L10n.current.couponMinOrderMessage(price);
+
   // ── Auth: verify-email sheet ───────────────────────────────────────────
   static String get verifyEmailTitle => L10n.current.verifyEmailTitle;
   static String verifyEmailSubtitle(String email) =>

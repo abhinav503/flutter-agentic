@@ -143,6 +143,11 @@ class AppLocalizationsHi extends AppLocalizations {
   String get paymentCancelledMessage => 'भुगतान रद्द किया गया';
 
   @override
+  String couponMinOrderMessage(String price) {
+    return 'आपका ऑर्डर इस कूपन की न्यूनतम राशि $price से कम है';
+  }
+
+  @override
   String get paymentFailedMessage =>
       'भुगतान पूरा नहीं हो सका। कृपया दोबारा प्रयास करें।';
 

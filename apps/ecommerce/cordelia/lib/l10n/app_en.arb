@@ -55,6 +55,11 @@
   "loginLink": "Login",
   "comingSoonMessage": "Coming soon",
   "paymentCancelledMessage": "Payment cancelled",
+  "couponMinOrderMessage": "Your order is below this coupon's minimum of {price}",
+  "@couponMinOrderMessage": {
+    "description": "Coupon rejected for being under its minimum order value. {price} arrives already formatted for the store's currency and the shopper's locale (core's asPrice) — the server sends the bare number precisely because it cannot format or translate it.",
+    "placeholders": { "price": { "type": "String" } }
+  },
   "paymentFailedMessage": "Payment could not be completed. Please try again.",
   "verifyEmailTitle": "Verify Your Email",
   "verifyEmailSubtitle": "We've sent a verification link to {email}. Open it, then come back here — this will update automatically.",

@@ -12,7 +12,45 @@ import type { Coupon, CouponScope, CouponType } from "./types";
 
 // A client-input problem (unknown code, expired, floor not met…) — routes
 // map this to a 400 with the message shown to the shopper as-is.
-export class CouponError extends Error {}
+/**
+ * A coupon rejection the shopper is meant to read.
+ *
+ * `code` and `minOrderValue` exist because one of these messages has to name
+ * an amount, and only the storefront knows how to write it: the store's
+ * currency plus the shopper's locale (cordelia's `asPrice`). The server can't
+ * format it without loading the store doc on a payment-adjacent path, and it
+ * couldn't translate it either. So the amount travels as a number and the
+ * client renders the sentence.
+ *
+ * `message` stays a usable English fallback for any caller that ignores the
+ * code — currency-neutral, so it is never *wrong*, only plainer.
+ */
+export class CouponError extends Error {
+  readonly code?: CouponErrorCode;
+  readonly minOrderValue?: number;
+
+  constructor(
+    message: string,
+    details?: { code: CouponErrorCode; minOrderValue?: number },
+  ) {
+    super(message);
+    this.code = details?.code;
+    this.minOrderValue = details?.minOrderValue;
+  }
+}
+
+export type CouponErrorCode = "min_order";
+
+/** The 400 body every coupon route returns, so the three can't drift. */
+export function couponErrorBody(error: CouponError) {
+  return {
+    error: error.message,
+    ...(error.code ? { code: error.code } : {}),
+    ...(error.minOrderValue !== undefined
+      ? { minOrderValue: error.minOrderValue }
+      : {}),
+  };
+}
 
 export function couponRedemptionRef(
   storeId: string,
@@ -123,8 +161,12 @@ export function assertCouponUsable(
     throw new CouponError("You've already used this coupon");
   }
   if (coupon.minOrderValue > 0 && opts.orderSubtotal < coupon.minOrderValue) {
+    // No currency symbol here on purpose — see CouponError. The client
+    // formats `minOrderValue` against the store's currency; this text is only
+    // the fallback for a caller that doesn't read the code.
     throw new CouponError(
-      `This coupon needs a minimum order of ₹${coupon.minOrderValue}`,
+      `Your order is below this coupon's minimum of ${coupon.minOrderValue}`,
+      { code: "min_order", minOrderValue: coupon.minOrderValue },
     );
   }
   if (opts.eligible <= 0) {
@@ -133,7 +175,8 @@ export function assertCouponUsable(
 }
 
 // Pure discount math over the eligible base, clamped so the payable amount
-// stays ≥ ₹1 — the gateway's minimum charge; a coupon can make an order
+// stays ≥ 1 unit of the store's currency — the gateway's minimum charge; a
+// coupon can make an order
 // nearly free, never free.
 export function computeDiscount(
   coupon: Coupon,

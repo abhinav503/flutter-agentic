@@ -18,7 +18,13 @@ class CouponsRepositoryImpl with BaseRepository implements CouponsRepository {
     String code,
     List<CartItemEntity> items,
   ) => handleRequest(() async {
-    final model = await _dataSource.validateCoupon(storeId, code, items);
-    return right(model.toEntity());
+    try {
+      final model = await _dataSource.validateCoupon(storeId, code, items);
+      return right(model.toEntity());
+    } on CouponRejectedException catch (e) {
+      // Already a finished sentence in the shopper's language — handleRequest's
+      // generic mapping would replace it with the server's English fallback.
+      return left(Failure.server(statusCode: 400, message: e.message));
+    }
   });
 }

@@ -40,6 +40,7 @@
   "loginLink": "Iniciar sesión",
   "comingSoonMessage": "Próximamente",
   "paymentCancelledMessage": "Pago cancelado",
+  "couponMinOrderMessage": "Tu pedido está por debajo del mínimo de {price} de este cupón",
   "paymentFailedMessage": "No se ha podido completar el pago. Inténtalo de nuevo.",
   "verifyEmailTitle": "Verifica tu correo electrónico",
   "verifyEmailSubtitle": "Hemos enviado un enlace de verificación a {email}. Ábrelo y vuelve aquí — esto se actualizará automáticamente.",

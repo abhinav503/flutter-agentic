@@ -17,6 +17,7 @@ import {
 import type { Brand, Category, Product, UnitType } from "@/lib/types";
 import { UNIT_TYPE_LABELS } from "@/lib/types";
 import { matchesSearch } from "@/lib/search";
+import { currencySymbol, formatMoney } from "@/lib/money";
 import {
   applySort,
   compareNumbers,
@@ -90,7 +91,7 @@ const ALL = "all";
 type StockFilter = "all" | "in" | "out";
 
 export default function ProductsPage() {
-  const { storeId } = useStore();
+  const { storeId, storeCurrency } = useStore();
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [brands, setBrands] = useState<Brand[]>([]);
@@ -299,10 +300,10 @@ export default function ProductsPage() {
               </TableCell>
               <TableCell>
                 <div className="flex items-center gap-1.5">
-                  <span>₹{product.price}</span>
+                  <span>{formatMoney(product.price, storeCurrency)}</span>
                   {product.discountPercentage > 0 && (
                     <span className="text-xs text-muted-foreground line-through">
-                      ₹{product.originalPrice}
+                      {formatMoney(product.originalPrice, storeCurrency)}
                     </span>
                   )}
                 </div>
@@ -364,6 +365,7 @@ export default function ProductsPage() {
 
       {editing && (
         <ProductDialog
+          currency={storeCurrency}
           storeId={storeId}
           product={editing === "new" ? null : editing}
           categories={categories}
@@ -426,13 +428,16 @@ function ProductDialog({
   categories,
   brands,
   onClose,
+  currency,
 }: {
   storeId: string;
   product: Product | null;
   categories: Category[];
   brands: Brand[];
   onClose: () => void;
+  currency: string;
 }) {
+  const sign = currencySymbol(currency);
   const [name, setName] = useState(product?.name ?? "");
   const [imageUrl, setImageUrl] = useState(product?.imageUrl ?? "");
   const [price, setPrice] = useState(String(product?.price ?? ""));
@@ -580,7 +585,7 @@ function ProductDialog({
 
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="product-price">Price (₹)</Label>
+              <Label htmlFor="product-price">Price ({sign})</Label>
               <Input
                 id="product-price"
                 required
@@ -593,7 +598,7 @@ function ProductDialog({
             </div>
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="product-original-price">
-                Original price (₹, optional)
+                Original price ({sign}, optional)
               </Label>
               <Input
                 id="product-original-price"
@@ -682,8 +687,8 @@ function ProductDialog({
               <div className="flex flex-col gap-2">
                 <div className="grid grid-cols-[1fr_1fr_1fr_3.5rem_2rem] items-center gap-2 text-xs text-muted-foreground">
                   <span>Size ({unitType})</span>
-                  <span>Price (₹)</span>
-                  <span>Original (₹)</span>
+                  <span>Price ({sign})</span>
+                  <span>Original ({sign})</span>
                   <span>Off</span>
                   <span />
                 </div>

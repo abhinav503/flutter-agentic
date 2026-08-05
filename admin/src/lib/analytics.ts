@@ -103,15 +103,6 @@ export function shortDate(date: Date): string {
   return `${date.getDate()} ${MONTHS[date.getMonth()]}`;
 }
 
-/** ₹1,24,500 → "₹1.2L". Keeps a stat tile's value on one line. */
-export function compactCurrency(amount: number): string {
-  const abs = Math.abs(amount);
-  if (abs >= 10_000_000) return `₹${(amount / 10_000_000).toFixed(1)}Cr`;
-  if (abs >= 100_000) return `₹${(amount / 100_000).toFixed(1)}L`;
-  if (abs >= 1_000) return `₹${(amount / 1_000).toFixed(1)}K`;
-  return `₹${Math.round(amount)}`;
-}
-
 /** Whole-number percentage share, guarding the empty-denominator case. */
 export function share(value: number, total: number): number {
   return total > 0 ? (value / total) * 100 : 0;

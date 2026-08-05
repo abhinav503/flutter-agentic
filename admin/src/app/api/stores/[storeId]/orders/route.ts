@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { CouponError } from "@/lib/coupon-engine";
+import { CouponError, couponErrorBody } from "@/lib/coupon-engine";
 import {
   createOrder,
   getOrdersForStore,
@@ -137,7 +137,7 @@ export async function POST(
     // A coupon that stopped qualifying between Apply and checkout (expired,
     // raced to its limit) — same shopper-facing 400 shape as above.
     if (err instanceof CouponError) {
-      return NextResponse.json({ error: err.message }, { status: 400 });
+      return NextResponse.json(couponErrorBody(err), { status: 400 });
     }
     throw err;
   }

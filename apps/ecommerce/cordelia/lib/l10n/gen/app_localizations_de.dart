@@ -143,6 +143,11 @@ class AppLocalizationsDe extends AppLocalizations {
   String get paymentCancelledMessage => 'Zahlung abgebrochen';
 
   @override
+  String couponMinOrderMessage(String price) {
+    return 'Ihre Bestellung liegt unter dem Mindestbestellwert von $price für diesen Gutschein';
+  }
+
+  @override
   String get paymentFailedMessage =>
       'Die Zahlung konnte nicht abgeschlossen werden. Bitte erneut versuchen.';
 

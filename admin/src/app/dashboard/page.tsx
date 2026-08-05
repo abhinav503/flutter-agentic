@@ -7,8 +7,8 @@ import { watchProducts } from "@/lib/products";
 import { watchOrdersForStore } from "@/lib/orders-dashboard";
 import { fetchStoreReviews, type StoreReview } from "@/lib/reviews-dashboard";
 import type { Order, OrderStatus, Product } from "@/lib/types";
+import { compactMoney } from "@/lib/money";
 import {
-  compactCurrency,
   dailyCounts,
   withinLastDays,
 } from "@/lib/analytics";
@@ -41,7 +41,7 @@ const STATUS_SEGMENTS: { status: OrderStatus; label: string; color: string }[] =
 
 export default function DashboardOverviewPage() {
   const { user } = useAuth();
-  const { storeId, storeName } = useStore();
+  const { storeId, storeName, storeCurrency } = useStore();
   // null = the first snapshot hasn't landed yet; [] = genuinely nothing.
   const [orders, setOrders] = useState<Order[] | null>(null);
   const [products, setProducts] = useState<Product[] | null>(null);
@@ -170,7 +170,7 @@ export default function DashboardOverviewPage() {
         <StatTile
           loading={loading}
           label="Revenue"
-          value={compactCurrency(revenue)}
+          value={compactMoney(revenue, storeCurrency)}
           detail={`from ${earningOrders.length} ${earningOrders.length === 1 ? "order" : "orders"}`}
         />
         <StatTile
@@ -188,7 +188,7 @@ export default function DashboardOverviewPage() {
         <StatTile
           loading={loading}
           label="Average order"
-          value={compactCurrency(averageOrderValue)}
+          value={compactMoney(averageOrderValue, storeCurrency)}
           detail="per order placed"
         />
         <StatTile

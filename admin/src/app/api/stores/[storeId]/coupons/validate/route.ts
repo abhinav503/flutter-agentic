@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
-import { CouponError, previewCoupon } from "@/lib/coupon-engine";
+import {
+  CouponError,
+  couponErrorBody,
+  previewCoupon,
+} from "@/lib/coupon-engine";
 import { requireAuthedUser, UnauthorizedError } from "@/lib/api/admin-guard";
 import type { CreateOrderItemInput } from "@/lib/orders";
 
@@ -51,7 +55,7 @@ export async function POST(
     });
   } catch (e) {
     if (e instanceof CouponError) {
-      return NextResponse.json({ error: e.message }, { status: 400 });
+      return NextResponse.json(couponErrorBody(e), { status: 400 });
     }
     throw e;
   }

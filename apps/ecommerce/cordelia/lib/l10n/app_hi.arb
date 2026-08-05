@@ -40,6 +40,7 @@
   "loginLink": "लॉग इन करें",
   "comingSoonMessage": "जल्द आ रहा है",
   "paymentCancelledMessage": "भुगतान रद्द किया गया",
+  "couponMinOrderMessage": "आपका ऑर्डर इस कूपन की न्यूनतम राशि {price} से कम है",
   "paymentFailedMessage": "भुगतान पूरा नहीं हो सका। कृपया दोबारा प्रयास करें।",
   "verifyEmailTitle": "अपना ईमेल सत्यापित करें",
   "verifyEmailSubtitle": "हमने {email} पर एक सत्यापन लिंक भेजा है। उसे खोलें और फिर यहाँ वापस आएँ — यह अपने आप अपडेट हो जाएगा।",

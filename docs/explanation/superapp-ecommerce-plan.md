@@ -2892,3 +2892,104 @@ deliberate boundary this whole line of work has sat inside.
 France and Spain are confirmed working in live stores. Germany, Italy, UK and
 US come off the identical pipeline and pass every gate, but have not been
 opened yet.
+
+## Admin console renders the store's currency — DONE (2026-08-06)
+
+The storefront had been formatting money per store currency since the
+`AppFormat` work; the dashboard was still printing **₹ in 21 places**. An admin
+managing a euro store saw rupee prices for the products that store actually
+sells in euros — the two halves of the same product disagreeing about what a
+number means.
+
+**`lib/money.ts`** is the one place money is rendered now: `formatMoney`,
+`currencySymbol` and `compactMoney`, each taking the currency as an argument
+rather than reaching for React context, so they work from non-React code and
+are trivially testable. Each currency renders in the locale that market writes
+numbers in — `₹1,234.50`, `1.234,50 €`, `£1,234.50`, `$1,234.50`. That mirrors
+the storefront (which pairs the store's currency with the *shopper's* locale)
+with the one difference that the admin has a single UI language, so the
+currency picks the convention.
+
+**`storeCurrency` comes off the snapshot the store context already ran.** It
+watches each owned store's doc for `name`; reading `currency` from the same
+callback costs no extra read and live-updates when Settings changes it.
+
+**Converted:** the Orders table and order detail (line items, subtotal, coupon
+line, total), the Products table and its price/original-price form labels, the
+Coupons table discount labels and all three form labels, the Reviews table's
+order total, and the dashboard's revenue and average-order-value tiles.
+
+Two things that were more than a symbol swap:
+
+- **`compactCurrency` hardcoded lakh and crore.** Right for rupees and worth
+  keeping — that is how Indian business writes large sums — but applying it to
+  dollars would print "$1.2L", which means nothing. `compactMoney` keeps Cr/L
+  for INR and uses K/M everywhere else, so the same revenue reads `₹12.4L` or
+  `$1.2M` depending on the store.
+- **`COUPON_TYPE_LABELS` was a static constant** whose flat entry read "Flat
+  amount off (₹)". It is now `couponTypeLabels(currencySign)` — the label names
+  a currency, so it could not stay a constant.
+
+### One related bug left deliberately unfixed
+
+`coupon-engine.ts` throws `"This coupon needs a minimum order of ₹20"`, and
+that string is **shopper-facing** — it travels through
+`POST /api/stores/{id}/coupons/validate` into cordelia's checkout. A euro
+store's customer sees rupees today.
+
+It is not fixed here because the honest fix has a cost to weigh:
+`previewCoupon` never loads the store doc, so making the message
+currency-correct means adding a Firestore read to a payment-adjacent path.
+The cheap version is to read it lazily inside the failure branch (only the
+error path pays), which requires making `assertCouponUsable` async. Worth
+doing, worth deciding on purpose rather than slipping into a currency cleanup.
+
+Untouched by design: the seed catalogs (each market's prices are in its own
+currency already) and the marketing landing page (not store-scoped).
+
+## Coupon minimum-order message — currency-correct and localized (2026-08-06)
+
+The last hardcoded rupee on a shopper-facing path. `coupon-engine.ts` threw
+`"This coupon needs a minimum order of ₹20"`, and that string travels through
+the validate, payments and orders routes into cordelia's checkout — so a euro
+store's customer was told their basket was under **₹20**. It was also English
+in every storefront, German ones included.
+
+**The amount now crosses the wire as a number, not a sentence.** `CouponError`
+carries an optional `code` and `minOrderValue`; `couponErrorBody()` serializes
+them so the three routes can't drift; the client turns them into copy. That is
+the only place with both halves of the answer — the store's currency *and* the
+shopper's language — and it needs no Firestore read, which is why the server
+doesn't do it: `previewCoupon` never loads the store doc, and adding a read to
+a payment-adjacent path to format an error string is a bad trade.
+
+The server's own `message` stays a usable English fallback, now
+currency-neutral ("…minimum of 20"). A caller that ignores the code gets
+something plainer but never something *wrong*.
+
+**Client side:** `CouponRejectedException` (declared beside the data-source
+contract that raises it) carries a finished sentence; the data source builds it
+from the new `couponMinOrderMessage` arb key plus `asPrice`; the repository maps
+it to a `Failure.server` so `handleRequest`'s generic mapping doesn't overwrite
+it with the server's fallback. Six locales translated, parity intact at 713
+keys.
+
+Only the tagged rejection is rewritten — every other coupon error still shows
+the server's text unchanged, which keeps the blast radius to the one message
+that names money.
+
+**7 tests** cover both directions: the amount renders in the store's currency
+(and never in rupees), it changes with the shopper's language, a rupee store
+still reads in rupees, and four fall-through cases — an untagged error, a
+different code, a tagged body missing the amount, and a bodyless network error
+— are all left alone rather than turned into "minimum of null".
+
+### A near-miss worth recording
+
+The first pass replaced `{ error: e.message }` by regex across the three
+routes, which also caught their **401 and 502 branches** — `UnauthorizedError`
+and `RazorpayError` being handed to a coupon-error serializer. It typechecked,
+because those classes are structurally compatible with `Error`, and it would
+have behaved correctly today since neither carries a `code`. Caught by reading
+the call sites afterwards rather than by any tool. Structural typing plus a
+broad regex is a combination that hides this kind of mistake.

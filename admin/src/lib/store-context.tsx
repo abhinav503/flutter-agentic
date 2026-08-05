@@ -22,6 +22,13 @@ type StoreContextValue = {
   /** The store the dashboard is currently managing (null until one exists). */
   storeId: string | null;
   storeName: string | null;
+  /**
+   * What the active store charges in — every money figure in the dashboard
+   * renders against this (see lib/money.ts). Defaults to INR while the store
+   * doc is still loading and for stores predating the field, which is what
+   * they were already charging.
+   */
+  storeCurrency: string;
   loading: boolean;
   selectStore: (storeId: string) => void;
   createStore: (
@@ -45,6 +52,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const [storeIds, setStoreIds] = useState<string[]>([]);
   const [names, setNames] = useState<Record<string, string>>({});
+  const [currencies, setCurrencies] = useState<Record<string, string>>({});
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -59,6 +67,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     setLastUid(uid);
     setStoreIds([]);
     setNames({});
+    setCurrencies({});
     setSelectedId(null);
     setLoading(uid !== null);
   }
@@ -82,16 +91,22 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     });
   }, [user]);
 
-  // One name listener per owned store — N is small (an admin owns a
-  // handful of stores at most) and the switcher should reflect a rename
-  // made in Settings without a reload.
+  // One listener per owned store — N is small (an admin owns a handful of
+  // stores at most) and the switcher should reflect a rename made in Settings
+  // without a reload. The same snapshot carries the currency, so money
+  // formatting costs no extra read and re-renders when Settings changes it.
   useEffect(() => {
     if (storeIds.length === 0) return;
     const unsubscribes = storeIds.map((id) =>
       onSnapshot(doc(db, "stores", id), (snap) => {
-        const name = (snap.data()?.name as string | undefined) ?? "";
+        const data = snap.data();
+        const name = (data?.name as string | undefined) ?? "";
+        const currency = (data?.currency as string | undefined) ?? "INR";
         setNames((current) =>
           current[id] === name ? current : { ...current, [id]: name },
+        );
+        setCurrencies((current) =>
+          current[id] === currency ? current : { ...current, [id]: currency },
         );
       }),
     );
@@ -145,10 +160,19 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   }));
   const storeId = selectedId;
   const storeName = storeId ? (names[storeId] ?? null) : null;
+  const storeCurrency = (storeId ? currencies[storeId] : null) ?? "INR";
 
   return (
     <StoreContext.Provider
-      value={{ stores, storeId, storeName, loading, selectStore, createStore }}
+      value={{
+        stores,
+        storeId,
+        storeName,
+        storeCurrency,
+        loading,
+        selectStore,
+        createStore,
+      }}
     >
       {children}
     </StoreContext.Provider>

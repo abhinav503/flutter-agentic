@@ -12,6 +12,7 @@ import {
   type StoreReview,
 } from "@/lib/reviews-dashboard";
 import { MAX_RATING } from "@/lib/types";
+import { formatMoney } from "@/lib/money";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -45,7 +46,7 @@ type ReviewKind = "product" | "order";
 
 export default function ReviewsPage() {
   const { user } = useAuth();
-  const { storeId } = useStore();
+  const { storeId, storeCurrency } = useStore();
   const [kind, setKind] = useState<ReviewKind>("product");
   const [reviews, setReviews] = useState<StoreReview[]>([]);
   const [orderReviews, setOrderReviews] = useState<StoreOrderReview[]>([]);
@@ -177,7 +178,8 @@ export default function ReviewsPage() {
       </div>
 
       {kind === "order" ? (
-        <OrderReviewsTable reviews={orderReviews} loading={loading} />
+        <OrderReviewsTable
+          storeCurrency={storeCurrency} reviews={orderReviews} loading={loading} />
       ) : (
         <Table>
           <TableHeader>
@@ -301,9 +303,11 @@ export default function ReviewsPage() {
 function OrderReviewsTable({
   reviews,
   loading,
+  storeCurrency,
 }: {
   reviews: StoreOrderReview[];
   loading: boolean;
+  storeCurrency: string;
 }) {
   return (
     <Table>
@@ -351,7 +355,7 @@ function OrderReviewsTable({
               {/* What the order was, so a row means something without
                   cross-referencing the Orders page for every one. */}
               <div className="text-xs text-muted-foreground">
-                ₹{review.total.toFixed(2)} ·{" "}
+                {formatMoney(review.total, storeCurrency)} ·{" "}
                 {new Date(review.placedAt).toLocaleDateString()}
               </div>
             </TableCell>
