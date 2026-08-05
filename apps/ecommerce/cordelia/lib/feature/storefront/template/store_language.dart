@@ -9,7 +9,7 @@
 /// error. Number and date shape is *not* this enum's job: the locale drives it
 /// through core's `AppFormat`, and what a store charges in is
 /// [StoreCurrency]'s.
-enum StoreLanguage { en, hi, de, fr }
+enum StoreLanguage { en, hi, de, fr, es }
 
 extension StoreLanguageX on StoreLanguage {
   /// Enum → wire value, matching the admin backend's `STORE_LANGUAGES`
@@ -19,6 +19,7 @@ extension StoreLanguageX on StoreLanguage {
     StoreLanguage.hi => 'hi',
     StoreLanguage.de => 'de',
     StoreLanguage.fr => 'fr',
+    StoreLanguage.es => 'es',
   };
 }
 
@@ -30,6 +31,7 @@ extension StoreLanguageParse on String {
     'hi' => StoreLanguage.hi,
     'de' => StoreLanguage.de,
     'fr' => StoreLanguage.fr,
+    'es' => StoreLanguage.es,
     _ => StoreLanguage.en,
   };
 }

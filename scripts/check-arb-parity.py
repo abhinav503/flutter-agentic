@@ -14,6 +14,12 @@ build failure. This is the gate that turns that into a failure.
 writes `app_de.arb` in the template's key order. Without it, an existing
 `app_de.arb` is validated in place.
 
+Beyond the structural checks (key parity, placeholder survival, ICU branches,
+layout-significant whitespace, passthrough values, still-English values,
+hardcoded currency glyphs), LOCALE_RULES adds per-language typography checks —
+Spanish's mandatory opening `¿`/`¡`, French's no-break space before `: ; ! ?`.
+Those defects pass every structural check, so nothing else would catch them.
+
 Run from the repo root. Exits non-zero on the first failing locale.
 """
 import argparse
@@ -35,6 +41,7 @@ PASSTHROUGH = {
     "languageHindi",
     "languageGerman",
     "languageFrench",
+    "languageSpanish",
     "termsAndConditionsBody",
 }
 
@@ -44,6 +51,42 @@ PASSTHROUGH = {
 # `one{Stk.}` reads as a dropped placeholder.
 PLACEHOLDER = re.compile(r"\{([a-zA-Z][a-zA-Z0-9_]*)\}")
 ICU_ARG = re.compile(r"\{\s*([a-zA-Z][a-zA-Z0-9_]*)\s*,\s*(?:plural|select)\b")
+
+
+def spanish_inverted_marks(key, src, dst):
+    """Spanish opens questions with ¿ and exclamations with ¡.
+
+    A translated string carrying only the closing mark is the single most
+    common Spanish localization defect, and it survives every structural check
+    because the key, placeholders and length are all fine.
+    """
+    problems = []
+    if dst.count("?") > dst.count("¿"):
+        problems.append(f"{key}: closing '?' without an opening '¿' — {dst[:50]!r}")
+    if dst.count("!") > dst.count("¡"):
+        problems.append(f"{key}: closing '!' without an opening '¡' — {dst[:50]!r}")
+    return problems
+
+
+def french_punctuation_spacing(key, src, dst):
+    """French puts a no-break space before : ; ! ? — a plain space there lets
+    the punctuation orphan onto the next line, which is what the no-break form
+    exists to prevent. Only flags an ordinary space, never a missing one (some
+    strings legitimately have no space at all)."""
+    problems = []
+    for mark in ("!", "?", ":", ";"):
+        if f" {mark}" in dst:
+            problems.append(
+                f"{key}: ordinary space before '{mark}' — use U+00A0 — {dst[:50]!r}"
+            )
+    return problems
+
+
+# Per-locale typography rules, applied on top of the structural checks.
+LOCALE_RULES = {
+    "es": [spanish_inverted_marks],
+    "fr": [french_punctuation_spacing],
+}
 
 
 def load(path):
@@ -132,6 +175,9 @@ def validate(template, translation, locale):
         for glyph in ("₹", "$", "€", "£"):
             if glyph in dst and glyph not in src:
                 problems.append(f"{k}: introduced a hardcoded '{glyph}'")
+
+        for rule in LOCALE_RULES.get(locale, ()):
+            problems.extend(rule(k, src, dst))
 
     return problems
 

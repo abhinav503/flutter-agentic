@@ -24,6 +24,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get languageFrench => 'Français';
 
   @override
+  String get languageSpanish => 'Español';
+
+  @override
   String unitPiecesLabel(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -1646,7 +1649,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get dailymartOrderStatusTitle => 'Bestellstatus';
 
   @override
-  String get dailymartOrderStepPlacedLabel => 'Bestellung aufgegeben';
+  String get dailymartOrderStepPlacedLabel => 'Aufgegeben';
 
   @override
   String get dailymartOrderStepOnTheWayLabel => 'Unterwegs';
@@ -2370,7 +2373,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get grofastOrderStepPendingLabel => 'Ausstehend';
 
   @override
-  String get grofastStatusPlacedLabel => 'Bestellung aufgegeben';
+  String get grofastStatusPlacedLabel => 'Aufgegeben';
 
   @override
   String get grofastStatusOnDeliveryLabel => 'Unterwegs';

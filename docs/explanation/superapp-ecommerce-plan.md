@@ -2455,3 +2455,46 @@ tight slot, because English itself ships "Refund processing" (17 chars) there �
 so German's 20-character "Rückerstattung läuft" was left alone rather than
 homogenised to fit a cap that never existed. Only the slots where English is
 genuinely short are capped.
+
+### Spanish (es) — fifth locale (2026-08-05, same day)
+
+`app_es.arb` at full 711-key parity, `StoreLanguage.es` registered end-to-end,
+`es` in the admin picklist. Register is **informal "tú"** — deliberately unlike
+the German and French packs: Spanish retail in Spain addresses the shopper as
+"tú", and "usted" reads stiff for a grocery app. Per-language register is a
+market decision, not an inconsistency.
+
+**The es-ES vs es-MX question, settled with evidence.** A probe confirmed `es`
+and `es-ES` both give Spain's `1.234.567,89 €`, while `es-MX` gives
+`€1,234,567.89` (symbol first, comma-grouped). Shipping plain **`es` = Spain**
+now. The Mexico path is verified and small: because `AppFormat` reads
+`Locale.toLanguageTag()` and gen-l10n resolves `es-MX` → `app_es.arb` for
+strings, a Latin-American store needs only a new `StoreLanguage` case
+(`Locale('es','MX')`) — **no new translation file and no formatting code**. The
+one thing that would need touching is the parity test's assumption of one arb
+per enum case.
+
+**A real defect caught here, spanning three locales.** Two translators
+independently flagged that `*OrderStepPlacedLabel` and `*OrderStepPendingLabel`
+had collapsed to the same value. They are not synonyms: the first is a timeline
+*step name* ("Order Placed"), the second marks a step **not yet reached**. The
+cause was this pass's own glossary, which grouped "Pending / Order Placed" into
+one capped rendering — correct for gravia's status chip (whose English is
+literally "Order Placed"), wrong for the step keys. Compounding it,
+`dailymartOrderStepPlacedLabel` and `grofastStatusPlacedLabel` *also* serve as
+their pack's status pill (`DailyMartPill`, grofast's Track Order pill), where
+German had been shipping a 21-character "Bestellung aufgegeben" that the German
+pass missed. Both problems have one fix — short *and* semantically "placed":
+`Aufgegeben` / `Passée` / `Realizado`. Both keys are now in the width test, with
+the reasoning, so neither the collision nor the overflow can recur.
+
+**The gate grew locale-specific typography rules.** `LOCALE_RULES` in
+`scripts/check-arb-parity.py` now checks Spanish's mandatory opening `¿`/`¡` and
+French's no-break space before `: ; ! ?`. Both defects pass every structural
+check — key, placeholders and length are all fine while the copy reads as
+broken — so nothing else would have caught them. The rules were self-tested
+against deliberate violations rather than trusted because they went green.
+
+Spanish also confirmed a trap worth stating plainly: **0 is plural in Spanish
+and singular in French.** Assuming "Romance language, therefore same plural
+rules" would have shipped "0 unités" in French. Both are pinned by test.

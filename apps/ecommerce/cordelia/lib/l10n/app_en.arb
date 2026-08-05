@@ -6,6 +6,7 @@
   "languageHindi": "हिन्दी",
   "languageGerman": "Deutsch",
   "languageFrench": "Français",
+  "languageSpanish": "Español",
   "unitPiecesLabel": "{count, plural, one{pc} other{pcs}}",
   "@unitPiecesLabel": {
     "description": "Unit suffix for a countable pack ('3 pcs'). German collapses both numbers to 'Stk.', so this is a plural key even though English is the only locale that varies.",

@@ -222,7 +222,7 @@ export type Store = {
   currency: string;
 };
 
-export const STORE_LANGUAGES = ["en", "hi", "de", "fr"] as const;
+export const STORE_LANGUAGES = ["en", "hi", "de", "fr", "es"] as const;
 export type StoreLanguage = (typeof STORE_LANGUAGES)[number];
 
 export const STORE_LANGUAGE_LABELS: Record<StoreLanguage, string> = {
@@ -230,6 +230,7 @@ export const STORE_LANGUAGE_LABELS: Record<StoreLanguage, string> = {
   hi: "हिन्दी (Hindi)",
   de: "Deutsch (German)",
   fr: "Français (French)",
+  es: "Español (Spanish)",
 };
 
 // What the store charges in — independent of `language`, since a shopper

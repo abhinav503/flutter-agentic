@@ -125,6 +125,14 @@ void main() {
       'graviaInProcessStatusLabel': 12,
       'graviaDeliveredStatusLabel': 12,
       'graviaCancelledStatusLabel': 12,
+      // These two double as a timeline step name AND their pack's status pill
+      // (dailymart's DailyMartPill, grofast's Track Order pill), so they are
+      // capped even though the sibling *OrderStep* keys are not. They also
+      // have to keep meaning "the order was placed" — rendering them as
+      // "pending" collides with the *OrderStepPendingLabel* that marks a step
+      // not yet reached, which is exactly what fr/es first shipped.
+      'dailymartOrderStepPlacedLabel': 12,
+      'grofastStatusPlacedLabel': 12,
       // Paired card actions: two side-by-side buttons in one card row
       // (gravia's GraviaActionPair), and dailymart's button sharing a Row with
       // the price inside an 88px-thumbnail card.
@@ -191,6 +199,57 @@ void main() {
       expect(L10n.current.unitPiecesLabel(0), 'unité');
       expect(L10n.current.unitPiecesLabel(1), 'unité');
       expect(L10n.current.unitPiecesLabel(3), 'unités');
+    });
+  });
+
+  group('applying the Spanish locale', () {
+    final controller = ActiveLocaleController();
+
+    tearDown(controller.resetToAppDefault);
+
+    test('swaps strings and formatting together', () {
+      controller.apply(StoreLanguage.es.asLocale, currency: StoreCurrency.eur);
+
+      expect(L10n.current.languageSheetTitle, 'Idioma');
+      expect(L10n.current.languageSpanish, 'Español');
+      // Plain 'es' resolves to Spain's conventions — point-grouped, comma
+      // decimal, trailing symbol, the same shape as de/it. A Latin-American
+      // store would register a region-tagged locale instead ('es-MX' formats
+      // as €1,234,567.89, symbol first); AppFormat reads
+      // Locale.toLanguageTag(), so that needs no formatting code, only a new
+      // enum case sharing this same arb.
+      expect(1234567.89.asPrice, '1.234.567,89 €');
+    });
+
+    test('0 takes the plural, unlike French', () {
+      controller.apply(StoreLanguage.es.asLocale, currency: StoreCurrency.eur);
+      // Spanish shares English's plural categories here where French does not,
+      // so both are pinned rather than assumed from "it's a Romance language".
+      expect(L10n.current.unitPiecesLabel(0), 'uds.');
+      expect(L10n.current.unitPiecesLabel(1), 'ud.');
+      expect(L10n.current.unitPiecesLabel(3), 'uds.');
+    });
+
+    test('every question and exclamation carries its opening mark', () {
+      // The commonest Spanish localization defect, and invisible to every
+      // structural check: key, placeholders and length are all fine while the
+      // copy reads as broken Spanish. Enforced across the file by
+      // scripts/check-arb-parity.py; asserted here too so the rule cannot be
+      // dropped from the tool without a test going red.
+      arb('es').forEach((key, value) {
+        if (key.startsWith('@')) return;
+        final text = value as String;
+        expect(
+          text.split('?').length,
+          lessThanOrEqualTo(text.split('¿').length),
+          reason: '$key closes a question it never opened: "$text"',
+        );
+        expect(
+          text.split('!').length,
+          lessThanOrEqualTo(text.split('¡').length),
+          reason: '$key closes an exclamation it never opened: "$text"',
+        );
+      });
     });
   });
 }
