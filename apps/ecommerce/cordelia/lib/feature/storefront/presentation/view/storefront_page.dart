@@ -97,13 +97,20 @@ class _StorefrontPageState extends BasePageState<StorefrontPage> {
   }
 
   /// The shopper's on-device override wins over the admin's store default.
-  /// Every template is bilingual (its pack consts are getters over
+  /// Every template is localized (its pack consts are getters over
   /// `L10n.current`), so the store language applies regardless of template.
+  ///
+  /// The store's currency rides along: the shopper picks the language, the
+  /// store fixes what it charges in, and both land in one call so no frame
+  /// renders one without the other.
   void _applyStoreLocale() {
     final effective =
         StoreLocalePrefs.overrideFor(widget.store.storeId) ??
         widget.store.language;
-    _activeLocale?.apply(effective.asLocale);
+    _activeLocale?.apply(
+      effective.asLocale,
+      currency: widget.store.currency,
+    );
   }
 
   Future<void> _applyTemplateTheme() async {

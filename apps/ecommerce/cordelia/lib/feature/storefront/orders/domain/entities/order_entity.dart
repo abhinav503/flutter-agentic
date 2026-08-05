@@ -1,3 +1,6 @@
+import 'package:core/core/extensions/date_time_extensions.dart';
+
+import 'package:cordelia/constants/value_const.dart';
 import 'package:cordelia/enums/order_status.dart';
 import 'package:cordelia/feature/storefront/address/domain/entities/address_entity.dart';
 
@@ -115,46 +118,28 @@ extension OrderEntityX on OrderEntity {
   }
 }
 
-/// A domain-specific display format ("Mon, Mar 9, 2026 at 10:15 AM"), not a
-/// generic date formatter — no `intl` dependency for one bounded format, and
+/// The order-domain display formats, composed from core's locale-aware
+/// [DateTimePartsX] renderings.
+///
 /// [DateTime.placedAt] is stored/parsed as a naive local timestamp (the mock
-/// JSON's `placed_at` has no timezone suffix), so this never re-interprets
-/// it through the device's own timezone.
+/// JSON's `placed_at` has no timezone suffix), and `DateFormat` formats a
+/// `DateTime` in its own zone, so this still never re-interprets it through
+/// the device's timezone.
 extension OrderPlacedAtX on DateTime {
-  static const _weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-  static const _months = [
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-    'May',
-    'Jun',
-    'Jul',
-    'Aug',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dec',
-  ];
+  /// "Mon, Mar 9, 2026 at 10:15 AM" · de: "Mo., 9. März 2026 um 10:15".
+  /// The connector is copy (it isn't "at" everywhere) and the two operands are
+  /// locale-ordered by their skeletons, so no piece of this is hardcoded.
+  String get orderPlacedLabel =>
+      ValueConst.orderPlacedAtLabel(asWeekdayDate, asTime);
 
-  String get orderPlacedLabel {
-    final weekday = _weekdays[this.weekday - 1];
-    final month = _months[this.month - 1];
-    final hour12 = hour % 12 == 0 ? 12 : hour % 12;
-    final minute = this.minute.toString().padLeft(2, '0');
-    final period = hour < 12 ? 'AM' : 'PM';
-    return '$weekday, $month $day, $year at $hour12:$minute $period';
-  }
-
-  /// The compact date form ("Mar 01, 2026") — zero-padded day, no
-  /// weekday/time, per the kit's Order Filter screen. Used by gravia's filter
-  /// sheet date fields and by dailymart's order card, which has room for a
-  /// date only if it drops the weekday and time. `as*` naming (like core's
-  /// `asPrice`) keeps it from colliding with the sheet's
-  /// `GraviaValueConst.filterDateLabel` copy const.
-  String get asFilterDate {
-    final month = _months[this.month - 1];
-    final paddedDay = day.toString().padLeft(2, '0');
-    return '$month $paddedDay, $year';
-  }
+  /// The compact date form ("Mar 9, 2026") — no weekday or time, per the kit's
+  /// Order Filter screen. Used by gravia's filter sheet date fields and by
+  /// dailymart's order card, which has room for a date only if it drops the
+  /// weekday and time. `as*` naming (like core's `asPrice`) keeps it from
+  /// colliding with the sheet's `GraviaValueConst.filterDateLabel` copy const.
+  ///
+  /// The day is no longer zero-padded: padding was the kit's English-only
+  /// cosmetic, and the locale's own skeleton decides digit width along with
+  /// the piece order it needs anyway.
+  String get asFilterDate => asCompactDate;
 }

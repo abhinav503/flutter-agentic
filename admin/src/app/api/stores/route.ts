@@ -5,7 +5,7 @@ import { requireAuthedUser, UnauthorizedError } from "@/lib/api/admin-guard";
 import { getStores } from "@/lib/stores";
 import { getTemplates } from "@/lib/templates";
 import { serializeStore } from "@/lib/api/serializers";
-import { STORE_LANGUAGES } from "@/lib/types";
+import { STORE_CURRENCIES, STORE_LANGUAGES } from "@/lib/types";
 
 // Store discovery for the CordeliaApps super app — world-readable, no auth
 // (stores/{storeId} is `allow read: if true` in firestore.rules, same
@@ -76,11 +76,28 @@ export async function POST(request: Request) {
     }
   }
 
+  // Ditto — an unknown code would silently fall back to rupees on the client
+  // and misprice the whole catalog. Absent → 'INR'.
+  let currency = "INR";
+  if (body.currency !== undefined) {
+    currency =
+      typeof body.currency === "string" ? body.currency.trim().toUpperCase() : "";
+    if (!(STORE_CURRENCIES as readonly string[]).includes(currency)) {
+      return NextResponse.json(
+        {
+          error: `Unknown currency "${currency}" — valid: ${STORE_CURRENCIES.join(", ")}`,
+        },
+        { status: 400 },
+      );
+    }
+  }
+
   const storeRef = adminDb.collection("stores").doc();
   await storeRef.set({
     name,
     templateId,
     language,
+    currency,
     ownerUid: auth.uid,
     status: "active",
     createdAt: FieldValue.serverTimestamp(),

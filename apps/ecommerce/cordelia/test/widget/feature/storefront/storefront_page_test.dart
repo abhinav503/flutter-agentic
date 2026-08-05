@@ -17,6 +17,7 @@ import 'package:cordelia/feature/storefront/home/domain/usecase/get_home_usecase
 import 'package:cordelia/feature/storefront/home/presentation/bloc/home_bloc.dart';
 import 'package:cordelia/feature/storefront/presentation/view/storefront_page.dart';
 import 'package:cordelia/feature/storefront/shell/presentation/templates/gravia/view/shell_page.dart';
+import 'package:cordelia/feature/storefront/template/store_currency.dart';
 import 'package:cordelia/feature/storefront/template/store_language.dart';
 import 'package:cordelia/feature/storefront/template/storefront_template.dart';
 import 'package:cordelia/l10n/active_locale_controller.dart';
@@ -98,6 +99,7 @@ const _store = ActiveStoreEntity(
   storeName: 'Test Store',
   templateId: StorefrontTemplate.gravia,
   language: StoreLanguage.en,
+  currency: StoreCurrency.inr,
 );
 
 void main() {

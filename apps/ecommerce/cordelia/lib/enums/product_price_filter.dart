@@ -1,3 +1,5 @@
+import 'package:core/core/extensions/num_extensions.dart';
+
 import 'package:cordelia/constants/value_const.dart';
 
 /// Price-range bucket for Category Details' "Price" filter sheet. Used
@@ -6,12 +8,24 @@ enum ProductPriceFilter { all, under100, from100To250, from250To500, over500 }
 
 extension ProductPriceFilterX on ProductPriceFilter {
   /// App-wide wording (not per-pack) — see [ProductSortOptionX.label].
+  ///
+  /// Built from [_bounds] rather than four fixed strings, so the currency
+  /// glyph and separators come from the active store + locale via `asPrice`.
+  /// Baking `'₹100'` into the copy printed rupees at a euro store.
   String get label => switch (this) {
     ProductPriceFilter.all => ValueConst.priceFilterAllLabel,
-    ProductPriceFilter.under100 => ValueConst.priceFilterUnder100Label,
-    ProductPriceFilter.from100To250 => ValueConst.priceFilter100To250Label,
-    ProductPriceFilter.from250To500 => ValueConst.priceFilter250To500Label,
-    ProductPriceFilter.over500 => ValueConst.priceFilterOver500Label,
+    ProductPriceFilter.under100 => ValueConst.priceFilterUnderLabel(
+      100.asPrice,
+    ),
+    ProductPriceFilter.from100To250 => ValueConst.priceFilterRangeLabel(
+      100.asPrice,
+      250.asPrice,
+    ),
+    ProductPriceFilter.from250To500 => ValueConst.priceFilterRangeLabel(
+      250.asPrice,
+      500.asPrice,
+    ),
+    ProductPriceFilter.over500 => ValueConst.priceFilterOverLabel(500.asPrice),
   };
 
   bool matches(double price) => switch (this) {

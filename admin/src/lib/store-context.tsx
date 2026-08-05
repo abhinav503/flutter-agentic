@@ -28,6 +28,7 @@ type StoreContextValue = {
     name: string,
     templateId: string,
     language: string,
+    currency: string,
   ) => Promise<string>;
 };
 
@@ -109,7 +110,12 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   // force-refresh pulls the new claim into this session's ID token so API
   // calls guarded by requireStoreOwner work immediately, not after ≤1h.
   // Returns the new store's id and switches the dashboard to it.
-  async function createStore(name: string, templateId: string, language: string) {
+  async function createStore(
+    name: string,
+    templateId: string,
+    language: string,
+    currency: string,
+  ) {
     if (!user) throw new Error("Not signed in");
     const token = await user.getIdToken();
     const response = await fetch("/api/stores", {
@@ -118,7 +124,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ name, templateId, language }),
+      body: JSON.stringify({ name, templateId, language, currency }),
     });
     if (!response.ok) {
       const body = await response.json().catch(() => ({}));

@@ -1,3 +1,5 @@
+import 'package:core/core/extensions/num_extensions.dart';
+
 /// The base unit a product's numeric unit value is expressed in — mass,
 /// volume, or a bare count — so quantity math (grams × cart quantity,
 /// millilitres × cart quantity, …) never mixes incompatible units.
@@ -44,10 +46,13 @@ extension ProductUnitTypeX on ProductUnitType {
     required String small,
     required String large,
   }) {
+    // toStringAsFixed(0) is locale-safe here — a whole number under 1000 has
+    // neither a decimal mark nor a group separator. The fractional branch does
+    // need the locale, though: "1.5 kg" reads "1,5 kg" in German.
     if (amount < 1000) return '${amount.toStringAsFixed(0)} $small';
     final rolled = amount / 1000;
     final isWhole = rolled == rolled.roundToDouble();
-    return '${isWhole ? rolled.toStringAsFixed(0) : rolled.toStringAsFixed(1)} $large';
+    return '${isWhole ? rolled.toStringAsFixed(0) : rolled.asDecimal()} $large';
   }
 
   // Singular "pc" for a single piece; "pcs" otherwise. Pluralised off the

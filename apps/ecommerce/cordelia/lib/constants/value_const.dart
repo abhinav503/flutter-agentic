@@ -1,3 +1,5 @@
+import 'package:core/core/extensions/num_extensions.dart';
+
 import 'package:cordelia/l10n/l10n.dart';
 
 /// App-level copy shared across storefront templates.
@@ -172,17 +174,20 @@ abstract final class ValueConst {
   static String get sortDiscountHighToLowLabel =>
       L10n.current.sortDiscountHighToLowLabel;
   static String get priceFilterAllLabel => L10n.current.priceFilterAllLabel;
-  // Bands sized for a rupee grocery basket, not converted from the dollar
-  // ones they replaced — ₹5 buys nothing, so a "under ₹5" bucket would
-  // always come back empty.
-  static String get priceFilterUnder100Label =>
-      L10n.current.priceFilterUnder100Label;
-  static String get priceFilter100To250Label =>
-      L10n.current.priceFilter100To250Label;
-  static String get priceFilter250To500Label =>
-      L10n.current.priceFilter250To500Label;
-  static String get priceFilterOver500Label =>
-      L10n.current.priceFilterOver500Label;
+  // The band edges are passed in already formatted (`asPrice`), so the glyph
+  // and separators follow the store's currency and the shopper's locale — the
+  // copy owns only the wording around them.
+  static String priceFilterUnderLabel(String price) =>
+      L10n.current.priceFilterUnderLabel(price);
+  static String priceFilterOverLabel(String price) =>
+      L10n.current.priceFilterOverLabel(price);
+  static String priceFilterRangeLabel(String from, String to) =>
+      L10n.current.priceFilterRangeLabel(from, to);
+
+  /// Both operands arrive already locale-formatted (core's `DateTimePartsX`);
+  /// this key carries only the connector between them.
+  static String orderPlacedAtLabel(String date, String time) =>
+      L10n.current.orderPlacedAtLabel(date, time);
 
   // ── Product reviews — app-level, not per-pack: one shared reviews feature
   // serves every storefront, and the wording describes the *mechanism*
@@ -226,9 +231,10 @@ abstract final class ValueConst {
   static String get yourRatingLabel => L10n.current.yourRatingLabel;
 
   /// "4.6 (128)" — the compact form a product card prints beside its stars.
-  /// Wordless, so no arb key.
+  /// Wordless, so no arb key; the decimal mark still comes from the locale
+  /// (`asDecimal`), which is a comma in the European languages.
   static String ratingLabel(double average, int count) =>
-      '${average.toStringAsFixed(1)} ($count)';
+      '${average.asDecimal()} ($count)';
 
   /// "128 reviews" / "1 review".
   static String reviewCountLabel(int count) =>

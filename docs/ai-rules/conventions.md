@@ -56,6 +56,12 @@ The pre-commit hook formats staged Dart files and runs `flutter analyze` at the 
 - Raw `AnimatedSwitcher` for a skeleton/loaded/error content swap — use `AppSwitcher` (or the pack's preset over it), so the standard duration can't drift per screen
 - Forking `IconInfoRow`'s row silhouette into a private `_Row` — it takes `subtitle`/`trailing`/`onTap`; if a variant is missing, extend it in core
 - Inline `toStringAsFixed` price/percent formatting or `count > 1 ? 's' : ''` pluralization — use core's `num`/`int` extensions (`asPrice`, `asPercent`, `plural`; the `> 1` form renders "0 item" and has shipped as a bug)
+- **Hardcoding a currency glyph, a decimal point, or an English month/AM-PM table.** Money and dates render through core's `AppFormat` — `asPrice`/`asPriceParts` for money, `asWeekdayDate`/`asCompactDate`/`asTime`/`asDateTimeLabel` for dates. German, French, Spanish and Italian all use a decimal **comma**, put the currency symbol **after** the amount, order the date day-first, and read the clock in 24 hours, so each of these prints an English number in a localized storefront:
+  - `'₹${x.toStringAsFixed(2)}'` — the glyph belongs to the store (`StoreCurrency`), its side to the locale
+  - `formatted.indexOf('.')` to split a price for two-size typography — split on `AppFormat.decimalSeparator`, and use `lastIndexOf`, since `'.'` is the *thousands* separator in three of those four languages
+  - a private `_months`/`_weekdays` list, or composing `hour12`/`meridiem` into a time — name a CLDR skeleton instead and let the locale order the pieces
+  - a connector baked into a format string (`'$date at $time'`) — "at" is copy; it goes in the string table with the operands as placeholders, so a translator can move or replace it
+  - a currency amount inside a translated string (`"Under ₹100"`) — pass the amount in already formatted, so one key serves every currency
 - Error states that omit the data needed to retry — every `*Error` state must carry enough context (e.g. `searchTerm`, `page`) for the BLoC to re-dispatch without reading prior state; screens must never inspect preceding states for retry inputs
 - Creating a new entity that is structurally identical to an existing one — reuse the existing entity; a single `JokeEntity` works for both single-result and list-result use cases
 - Adding constructor parameters to data source impls for infrastructure — data sources are `const` no-arg; they reach infrastructure through static singleton `.instance` calls

@@ -29,6 +29,11 @@ dependencies:
   # Functional error handling (Failure / Either across layer boundaries)
   fpdart: ^1.1.0
 
+  # Locale-aware money/date formatting (AppFormat + the num/DateTime
+  # extensions over it) — separators, currency-symbol placement and month
+  # names are CLDR data, never hand-tabulated per language.
+  intl: any
+
   # Preset fonts (AppTheme resolves theme_config fontFamily at runtime —
   # no per-app font bundling)
   google_fonts: ^6.2.1

@@ -201,6 +201,7 @@ export function serializeStore(s: Store) {
     description: s.description,
     template_id: s.templateId,
     language: s.language,
+    currency: s.currency,
   };
 }
 

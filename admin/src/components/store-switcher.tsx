@@ -5,6 +5,8 @@ import { CheckIcon, ChevronsUpDownIcon, PlusIcon } from "lucide-react";
 import { useStore } from "@/lib/store-context";
 import { getTemplates } from "@/lib/templates";
 import {
+  STORE_CURRENCIES,
+  STORE_CURRENCY_LABELS,
   STORE_LANGUAGES,
   STORE_LANGUAGE_LABELS,
   type Template,
@@ -118,6 +120,7 @@ export function CreateStoreForm({
   const [templates, setTemplates] = useState<Template[]>([]);
   const [templateId, setTemplateId] = useState("");
   const [language, setLanguage] = useState<string>("en");
+  const [currency, setCurrency] = useState<string>("INR");
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -133,7 +136,7 @@ export function CreateStoreForm({
     event.preventDefault();
     setSubmitting(true);
     try {
-      await createStore(name.trim(), templateId, language);
+      await createStore(name.trim(), templateId, language, currency);
       toast.success("Store created");
       setName("");
       onCreated?.();
@@ -181,6 +184,21 @@ export function CreateStoreForm({
             {STORE_LANGUAGES.map((code) => (
               <SelectItem key={code} value={code}>
                 {STORE_LANGUAGE_LABELS[code]}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      <div className="flex flex-col gap-1.5">
+        <Label htmlFor="store-currency">Currency</Label>
+        <Select value={currency} onValueChange={setCurrency}>
+          <SelectTrigger id="store-currency" className="w-full">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {STORE_CURRENCIES.map((code) => (
+              <SelectItem key={code} value={code}>
+                {STORE_CURRENCY_LABELS[code]}
               </SelectItem>
             ))}
           </SelectContent>

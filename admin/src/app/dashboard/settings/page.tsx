@@ -6,6 +6,8 @@ import { useStore } from "@/lib/store-context";
 import { getStore } from "@/lib/stores";
 import { getTemplates } from "@/lib/templates";
 import {
+  STORE_CURRENCIES,
+  STORE_CURRENCY_LABELS,
   STORE_LANGUAGES,
   STORE_LANGUAGE_LABELS,
   type Template,
@@ -46,6 +48,7 @@ function StoreProfileCard({ storeId }: { storeId: string }) {
   const [keywords, setKeywords] = useState("");
   const [templateId, setTemplateId] = useState("");
   const [language, setLanguage] = useState<string>("en");
+  const [currency, setCurrency] = useState<string>("INR");
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -61,6 +64,7 @@ function StoreProfileCard({ storeId }: { storeId: string }) {
           setKeywords(store.searchKeywords.join(", "));
           setTemplateId(store.templateId);
           setLanguage(store.language);
+          setCurrency(store.currency);
         }
         setLoading(false);
       })
@@ -95,6 +99,7 @@ function StoreProfileCard({ storeId }: { storeId: string }) {
             .filter(Boolean),
           templateId,
           language,
+          currency,
         }),
       });
       const body = await res.json().catch(() => ({}));
@@ -199,6 +204,27 @@ function StoreProfileCard({ storeId }: { storeId: string }) {
                 The language your storefront&apos;s buttons and labels use, on
                 every template. Shoppers can still switch languages on their
                 own device from the storefront&apos;s Profile.
+              </p>
+            </div>
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="store-profile-currency">Currency</Label>
+              <Select value={currency} onValueChange={setCurrency}>
+                <SelectTrigger id="store-profile-currency" className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {STORE_CURRENCIES.map((code) => (
+                    <SelectItem key={code} value={code}>
+                      {STORE_CURRENCY_LABELS[code]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                What your prices are shown in. Separate from Language — a
+                shopper reading your store in another language still sees this
+                currency. This changes the display only; it does not convert
+                the prices in your catalog.
               </p>
             </div>
             <Button

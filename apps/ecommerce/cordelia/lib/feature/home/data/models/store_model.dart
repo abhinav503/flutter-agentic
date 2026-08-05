@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import 'package:cordelia/feature/storefront/template/store_currency.dart';
 import 'package:cordelia/feature/storefront/template/store_language.dart';
 import 'package:cordelia/feature/storefront/template/storefront_template.dart';
 
@@ -30,6 +31,10 @@ abstract class StoreModel with _$StoreModel {
     // Same defaulted-not-required reasoning as template_id: the wire→enum
     // fallback (''/unknown → en) lives in StoreLanguageParse alone.
     @Default('') String language,
+    // Ditto — ''/unknown → INR, resolved by StoreCurrencyParse. Stores
+    // created before the field existed read back as rupees, which is what
+    // they were already charging.
+    @Default('') String currency,
   }) = _StoreModel;
 
   factory StoreModel.fromJson(Map<String, dynamic> json) =>
@@ -42,6 +47,7 @@ abstract class StoreModel with _$StoreModel {
     description: e.description,
     templateId: e.templateId.wireValue,
     language: e.language.wireValue,
+    currency: e.currency.wireValue,
   );
 
   StoreEntity toEntity() => StoreEntity(
@@ -51,5 +57,6 @@ abstract class StoreModel with _$StoreModel {
     description: description,
     templateId: templateId.toStorefrontTemplate(),
     language: language.toStoreLanguage(),
+    currency: currency.toStoreCurrency(),
   );
 }

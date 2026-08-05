@@ -542,29 +542,23 @@ abstract class AppLocalizations {
   /// **'All Prices'**
   String get priceFilterAllLabel;
 
-  /// No description provided for @priceFilterUnder100Label.
+  /// Price-bucket label. {price} arrives already formatted for the active locale and the store's currency (core's asPrice) — never hardcode a currency glyph in this string.
   ///
   /// In en, this message translates to:
-  /// **'Under ₹100'**
-  String get priceFilterUnder100Label;
+  /// **'Under {price}'**
+  String priceFilterUnderLabel(String price);
 
-  /// No description provided for @priceFilter100To250Label.
+  /// No description provided for @priceFilterOverLabel.
   ///
   /// In en, this message translates to:
-  /// **'₹100 - ₹250'**
-  String get priceFilter100To250Label;
+  /// **'Over {price}'**
+  String priceFilterOverLabel(String price);
 
-  /// No description provided for @priceFilter250To500Label.
+  /// No description provided for @priceFilterRangeLabel.
   ///
   /// In en, this message translates to:
-  /// **'₹250 - ₹500'**
-  String get priceFilter250To500Label;
-
-  /// No description provided for @priceFilterOver500Label.
-  ///
-  /// In en, this message translates to:
-  /// **'Over ₹500'**
-  String get priceFilterOver500Label;
+  /// **'{from} - {to}'**
+  String priceFilterRangeLabel(String from, String to);
 
   /// No description provided for @reviewsSectionTitle.
   ///
@@ -715,6 +709,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your rating'**
   String get yourRatingLabel;
+
+  /// Joins an order's date and time. Both arrive already formatted for the active locale (core's DateTimePartsX) — this string owns only the connector, which is not 'at' in every language.
+  ///
+  /// In en, this message translates to:
+  /// **'{date} at {time}'**
+  String orderPlacedAtLabel(String date, String time);
 
   /// No description provided for @reviewCountLabel.
   ///

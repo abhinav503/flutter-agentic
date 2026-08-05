@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:core/core/extensions/num_extensions.dart';
+import 'package:core/core/formatting/app_format.dart';
 
 import 'package:cordelia/templates/grofast/constants/grofast_text_style_const.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_value_const.dart';
@@ -41,12 +42,22 @@ class GrofastPrice extends StatelessWidget {
     final tt = Theme.of(context).textTheme;
     final accent = color ?? cs.primary;
 
-    // `asPrice` is the app-wide money format ("₹12.50"); this splits it at the
-    // decimal point rather than re-formatting, so the two can't drift.
+    // `asPrice` is the app-wide money format ("₹12.50" / "12,50 €"); this
+    // splits the formatted string rather than re-formatting, so the two can't
+    // drift. The separator itself stays in the large run, which is the pack's
+    // look — and it's the *locale's* separator, since a hardcoded '.' finds
+    // nothing to split in the four European languages (all of which use ',').
     final formatted = value.asPrice;
-    final dot = formatted.indexOf('.');
-    final leading = dot == -1 ? formatted : formatted.substring(0, dot + 1);
-    final decimals = dot == -1 ? '' : formatted.substring(dot + 1);
+    final separator = AppFormat.decimalSeparator;
+    // lastIndexOf: an earlier occurrence would be a thousands group in a
+    // locale whose group separator is '.'.
+    final split = formatted.lastIndexOf(separator);
+    final leading = split == -1
+        ? formatted
+        : formatted.substring(0, split + separator.length);
+    final decimals = split == -1
+        ? ''
+        : formatted.substring(split + separator.length);
 
     final priceStyle = GrofastTextStyleConst.price(tt);
     final decimalStyle = GrofastTextStyleConst.priceDecimal(tt);

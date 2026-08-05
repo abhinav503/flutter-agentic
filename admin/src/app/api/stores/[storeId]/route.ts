@@ -7,7 +7,7 @@ import {
 } from "@/lib/api/admin-guard";
 import { getTemplates } from "@/lib/templates";
 import { serializeStore } from "@/lib/api/serializers";
-import { STORE_LANGUAGES, type Store } from "@/lib/types";
+import { STORE_CURRENCIES, STORE_LANGUAGES, type Store } from "@/lib/types";
 
 // Same doc→Store defaults as mapStoreDoc in src/lib/stores.ts, but over an
 // Admin-SDK snapshot (that helper is typed to the client SDK the dashboard
@@ -26,6 +26,7 @@ function mapAdminStoreDoc(
     searchKeywords: (data.searchKeywords as string[] | undefined) ?? [],
     templateId: (data.templateId as string) ?? "gravia",
     language: (data.language as string) ?? "en",
+    currency: (data.currency as string) ?? "INR",
   };
 }
 
@@ -127,6 +128,21 @@ export async function PUT(
       );
     }
     update.language = language;
+  }
+  if (body.currency !== undefined) {
+    const currency =
+      typeof body.currency === "string" ? body.currency.trim().toUpperCase() : "";
+    // Fail loud like language — cordelia's parse silently falls back to INR,
+    // which would quietly misprice every product in the storefront.
+    if (!(STORE_CURRENCIES as readonly string[]).includes(currency)) {
+      return NextResponse.json(
+        {
+          error: `Unknown currency "${currency}" — valid: ${STORE_CURRENCIES.join(", ")}`,
+        },
+        { status: 400 },
+      );
+    }
+    update.currency = currency;
   }
 
   if (Object.keys(update).length === 0) {

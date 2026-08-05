@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:core/core/theme/app_colors_extension.dart';
+import 'package:core/core/extensions/num_extensions.dart';
 import 'package:core/core/theme/app_radius.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/rating_stars.dart';
@@ -112,7 +113,7 @@ class _Summary extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              rating.average.toStringAsFixed(1),
+              rating.average.asDecimal(),
               style: GraviaTextStyleConst.displayXsBold(
                 tt,
               ).copyWith(color: cs.onSurface),

@@ -88,10 +88,22 @@
   "sortRatingHighToLowLabel": "Rating (High to Low)",
   "sortDiscountHighToLowLabel": "Discount (High to Low)",
   "priceFilterAllLabel": "All Prices",
-  "priceFilterUnder100Label": "Under ₹100",
-  "priceFilter100To250Label": "₹100 - ₹250",
-  "priceFilter250To500Label": "₹250 - ₹500",
-  "priceFilterOver500Label": "Over ₹500",
+  "priceFilterUnderLabel": "Under {price}",
+  "@priceFilterUnderLabel": {
+    "description": "Price-bucket label. {price} arrives already formatted for the active locale and the store's currency (core's asPrice) — never hardcode a currency glyph in this string.",
+    "placeholders": { "price": { "type": "String" } }
+  },
+  "priceFilterOverLabel": "Over {price}",
+  "@priceFilterOverLabel": {
+    "placeholders": { "price": { "type": "String" } }
+  },
+  "priceFilterRangeLabel": "{from} - {to}",
+  "@priceFilterRangeLabel": {
+    "placeholders": {
+      "from": { "type": "String" },
+      "to": { "type": "String" }
+    }
+  },
 
   "reviewsSectionTitle": "Ratings & Reviews",
   "writeReviewLabel": "Write a review",
@@ -119,6 +131,14 @@
   "orderRatingNotDeliveredMessage": "You can rate an order once it has been delivered.",
   "orderRatingFailedMessage": "Could not save your rating. Please try again.",
   "yourRatingLabel": "Your rating",
+  "orderPlacedAtLabel": "{date} at {time}",
+  "@orderPlacedAtLabel": {
+    "description": "Joins an order's date and time. Both arrive already formatted for the active locale (core's DateTimePartsX) — this string owns only the connector, which is not 'at' in every language.",
+    "placeholders": {
+      "date": { "type": "String" },
+      "time": { "type": "String" }
+    }
+  },
 
   "reviewCountLabel": "{count, plural, one{{count} review} other{{count} reviews}}",
   "@reviewCountLabel": {

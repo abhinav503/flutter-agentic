@@ -213,9 +213,13 @@ export type Store = {
   // offers.
   templateId: string;
   // The storefront's UI language ('en' | 'hi') — defaults to 'en' (see
-  // mapStoreDoc). Only the gravia template renders Hindi today; cordelia
-  // forces English for the others regardless of this field.
+  // mapStoreDoc). Every template is localized (its pack constants read the
+  // active string table), so this applies whichever one the store renders.
   language: string;
+  // ISO-4217 code the store charges in ('INR' | 'EUR' | 'GBP' | 'USD') —
+  // defaults to 'INR' (see mapStoreDoc), which is what stores predating the
+  // field were already charging.
+  currency: string;
 };
 
 export const STORE_LANGUAGES = ["en", "hi"] as const;
@@ -224,6 +228,20 @@ export type StoreLanguage = (typeof STORE_LANGUAGES)[number];
 export const STORE_LANGUAGE_LABELS: Record<StoreLanguage, string> = {
   en: "English",
   hi: "हिन्दी (Hindi)",
+};
+
+// What the store charges in — independent of `language`, since a shopper
+// reading a UK store in German still pays in £. Matches cordelia's
+// StoreCurrency enum; the app formats the glyph and separators itself from
+// this code plus the shopper's locale, so nothing here is a symbol.
+export const STORE_CURRENCIES = ["INR", "EUR", "GBP", "USD"] as const;
+export type StoreCurrency = (typeof STORE_CURRENCIES)[number];
+
+export const STORE_CURRENCY_LABELS: Record<StoreCurrency, string> = {
+  INR: "₹ Indian Rupee (INR)",
+  EUR: "€ Euro (EUR)",
+  GBP: "£ Pound Sterling (GBP)",
+  USD: "$ US Dollar (USD)",
 };
 
 // One doc per storefront template the create-store dialog can offer —

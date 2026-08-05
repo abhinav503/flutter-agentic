@@ -2251,3 +2251,83 @@ Admin Settings' language helper text no longer names gravia as the only
 Hindi template. Wordless formatters (`perUnitSuffix`, `orderLineQuantity`,
 `reviewScoreLabel`, date formats incl. `orderStepAt`'s Latin month
 abbreviations) deliberately stay pure Dart in both locales.
+
+## Locale-aware money + date formatting — DONE (2026-08-05)
+
+Groundwork for the four European languages queued next (de/fr/es/it). All
+four use a decimal **comma**, put the currency symbol **after** the amount,
+order dates day-first, and read the clock in 24 hours — none of which the
+formatters supported. Every one of them is left-to-right Latin script, so
+**no RTL or layout-direction work is involved**; the whole problem is number
+and date shape.
+
+**`AppFormat` (`packages/core/lib/core/formatting/app_format.dart`)** — the
+ambient locale + ISO-4217 currency every money/date helper reads, with
+cached `NumberFormat`s rebuilt on `apply()` (a grid formats a price per
+card). Ambient rather than context-derived for the same reason
+`L10n.current` is: the readers are `num`/`DateTime` extensions and static
+`*ValueConst` formatters, 7 of which have no `BuildContext` at all.
+`initCoreDependencies()` calls `AppFormat.init()` so an app can't forget the
+CLDR date tables and silently fall back to English month names. `core` gained
+`intl`.
+
+**Language and currency are separate axes.** A shopper reading a UK store in
+German still pays in £, so the glyph comes from the store
+(`StoreCurrency` — new enum + wire parse, `INR`/`EUR`/`GBP`/`USD`, threaded
+through `StoreEntity`/`StoreModel`/`ActiveStoreEntity`, admin
+`STORE_CURRENCIES` validated fail-loud in `POST`/`PUT /api/stores`, pickers
+in Settings and the create-store dialog, `currency` on `serializeStore`)
+while separators and symbol side come from the locale.
+`ActiveLocaleController.apply(locale, {currency})` is the single entry point
+that swaps strings and formatting together, so no frame can render German
+copy against an English decimal point; the shopper's in-store language switch
+passes no currency, which keeps what the store charges in.
+
+**Converted:** `asPrice`/`asPriceParts` (locale separators, `lastIndexOf` on
+`AppFormat.decimalSeparator` — `'.'` is the *thousands* mark in three of the
+four); new `asDecimal([digits])` as the locale-aware `toStringAsFixed`, applied
+to the 6 rating sites and the fractional-unit branch of `ProductUnitType`;
+`DateTimePartsX` rebuilt on CLDR skeletons (`asWeekdayDate`, `asCompactDate`,
+`asTime`, `asDateTimeLabel`) with the 12-hour `hour12`/`meridiem` pair
+dropped — it was dead code that encoded an English-only clock. The two
+duplicated `_months`/`_weekdays` tables that shadowed it are gone: cordelia's
+`OrderPlacedAtX` now composes core's renderings, and dailymart's
+`orderStepAt` takes its month name and clock from the locale (the
+one-script argument held for Hindi's Devanagari, not for four Latin-script
+languages).
+
+**Copy that carried formatting** now takes pre-formatted operands so one key
+serves every locale: the four `priceFilter*` bucket labels became
+`priceFilterUnderLabel`/`OverLabel`/`RangeLabel` over `asPrice` (they baked in
+`₹100`), and the order date/time connector became `orderPlacedAtLabel`
+(`"{date} at {time}"` — "at" is copy, not punctuation).
+
+**Verified:** 14 new core tests pin the four locales' separators, symbol
+side, lakh grouping, currency-independent-of-language behaviour, and 12- vs
+24-hour clocks; `flutter analyze` clean workspace-wide; core + cordelia
+suites green; `flutter build web` clean. One finding worth keeping: CLDR
+joins an English time to AM/PM with a **narrow no-break space** (U+202F), not
+an ordinary one — asserted explicitly in the test, since the two are
+indistinguishable in a diff.
+
+**Deliberately not converted:** `apps/ecommerce/gravia` (its own hardcoded
+`$` formatter and month table) and `apps/doc_scanner` — single-language
+exemplar apps with no language packs planned; converting gravia would also
+change its shipped price rendering, since it always shows two decimals where
+`asPrice` drops them on a whole amount.
+
+**One English-visible delta:** dailymart's timeline stamp now reads
+"Dec, 20 2025 - 9:30 AM" instead of "9.30 AM" — the kit's period-as-time-
+separator couldn't survive handing the clock to the locale.
+
+### Known gaps for the language tasks
+
+- ~707 ARB keys per locale (full en/hi parity today). Each new language is
+  that many translations, not a handful.
+- `ProductUnitType`'s `'pc'`/`'pcs'` and the unit abbreviations are English
+  literals outside the ARB.
+- The price-filter *thresholds* (100/250/500) are still rupee-sized bands; a
+  €500 grocery bucket is not a meaningful filter, so the numbers — not just
+  their formatting — need a per-currency decision.
+- Catalog content stays single-valued (see `content-i18n-plan.md`); this work
+  covers chrome and numbers only.

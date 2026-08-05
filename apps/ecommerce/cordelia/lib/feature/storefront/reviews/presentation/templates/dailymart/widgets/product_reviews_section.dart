@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:core/core/theme/app_colors_extension.dart';
+import 'package:core/core/extensions/num_extensions.dart';
 import 'package:core/core/theme/app_radius.dart';
 import 'package:core/core/theme/app_shapes_extension.dart';
 import 'package:core/core/theme/app_spacing.dart';
@@ -276,7 +277,7 @@ class _ReviewRow extends StatelessWidget {
                 ),
                 const SizedBox(width: AppSpacing.base),
                 DailyMartPill(
-                  label: review.rating.toStringAsFixed(1),
+                  label: review.rating.asDecimal(),
                   color: DailyMartColorConst.reviewAmber,
                   height: DailyMartDimenConst.ratingPillHeight,
                   style: DailyMartTextStyleConst.bodyXsMedium(

@@ -88,16 +88,29 @@ core/
 ├── error/
 │   └── failure.dart             sealed Failure class; add variants only here
 ├── extensions/
-│   ├── num_extensions.dart      PriceFormatX (asPrice → '$12.50', asPercent) +
-│   │                             PluralX (1.plural('item') → 'item', 0 → 'items') —
-│   │                             app ValueConst formatters compose these instead of
+│   ├── num_extensions.dart      PriceFormatX (asPrice, asPriceParts, asPercent) over
+│   │                             AppFormat — locale separators + the store's currency
+│   │                             glyph on its locale-correct side; PluralX
+│   │                             (1.plural('item') → 'item', 0 → 'items'). App
+│   │                             ValueConst formatters compose these instead of
 │   │                             re-inlining toStringAsFixed
 │   ├── string_extensions.dart   generic String helpers (isSvgUrl) + FieldValidationX
 │   │                             predicates (isValidEmail, digitCount)
-│   ├── date_time_extensions.dart DateTimePartsX — monthAbbr, hour12, minutePadded,
-│   │                             meridiem; the month table and 12-hour arithmetic
-│   │                             every date-formatting screen was re-deriving
+│   ├── date_time_extensions.dart DateTimePartsX — asWeekdayDate, asCompactDate,
+│   │                             asTime, asDateTimeLabel over AppFormat: CLDR
+│   │                             skeletons, so the locale decides piece order and
+│   │                             12- vs 24-hour, not the call site
 │   └── text_style_extensions.dart  TextStyle helpers (atWeight) for pack type scales
+├── formatting/
+│   └── app_format.dart          AppFormat — the ambient locale + ISO-4217 currency
+│                                 every money/date helper reads. Ambient because the
+│                                 readers are num/DateTime extensions and static
+│                                 *ValueConst formatters with no BuildContext (same
+│                                 constraint as an app's L10n.current). Language and
+│                                 currency are separate axes: the store fixes what it
+│                                 charges in, the shopper's locale fixes how it reads.
+│                                 initCoreDependencies() calls AppFormat.init() to
+│                                 load the CLDR date tables
 ├── mixins/
 │   └── textfield_validations.dart  TextfieldValidations — validate* methods returning
 │                                 user-facing messages (defaults in CoreConst; override

@@ -18,6 +18,7 @@ import 'package:cordelia/feature/storefront/home/presentation/bloc/home_bloc.dar
 import 'package:cordelia/feature/storefront/presentation/view/storefront_page.dart';
 import 'package:cordelia/feature/storefront/profile/domain/entities/profile_entity.dart';
 import 'package:cordelia/feature/storefront/profile/domain/usecase/get_profile_usecase.dart';
+import 'package:cordelia/feature/storefront/template/store_currency.dart';
 import 'package:cordelia/feature/storefront/template/store_language.dart';
 import 'package:cordelia/feature/storefront/template/storefront_template.dart';
 import 'package:cordelia/l10n/active_locale_controller.dart';
@@ -109,6 +110,7 @@ const _store = ActiveStoreEntity(
   storeName: 'Test Store',
   templateId: StorefrontTemplate.dailymart,
   language: StoreLanguage.en,
+  currency: StoreCurrency.inr,
 );
 
 void main() {

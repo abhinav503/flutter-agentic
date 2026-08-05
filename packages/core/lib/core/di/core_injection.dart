@@ -1,5 +1,6 @@
 import 'package:get_it/get_it.dart';
 
+import '../formatting/app_format.dart';
 import '../services/shared_pref_service/shared_preference_service.dart';
 
 /// Global service locator shared by every app in the workspace.
@@ -15,4 +16,8 @@ final sl = GetIt.instance;
 Future<void> initCoreDependencies() async {
   // Static singletons — accessed via `.instance`, never registered in GetIt.
   await SharedPreferenceService.instance.init();
+
+  // CLDR date tables for every locale, so a storefront that swaps language
+  // mid-session doesn't fall back to English month names.
+  await AppFormat.init();
 }

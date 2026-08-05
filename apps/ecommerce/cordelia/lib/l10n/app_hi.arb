@@ -82,10 +82,9 @@
   "sortRatingHighToLowLabel": "रेटिंग (ज़्यादा से कम)",
   "sortDiscountHighToLowLabel": "छूट (ज़्यादा से कम)",
   "priceFilterAllLabel": "सभी क़ीमतें",
-  "priceFilterUnder100Label": "₹100 से कम",
-  "priceFilter100To250Label": "₹100 - ₹250",
-  "priceFilter250To500Label": "₹250 - ₹500",
-  "priceFilterOver500Label": "₹500 से अधिक",
+  "priceFilterUnderLabel": "{price} से कम",
+  "priceFilterOverLabel": "{price} से अधिक",
+  "priceFilterRangeLabel": "{from} - {to}",
 
   "reviewsSectionTitle": "रेटिंग और समीक्षाएँ",
   "writeReviewLabel": "समीक्षा लिखें",
@@ -113,6 +112,7 @@
   "orderRatingNotDeliveredMessage": "ऑर्डर डिलीवर होने के बाद ही आप उसे रेट कर सकते हैं।",
   "orderRatingFailedMessage": "आपकी रेटिंग सेव नहीं हो सकी। कृपया दोबारा प्रयास करें।",
   "yourRatingLabel": "आपकी रेटिंग",
+  "orderPlacedAtLabel": "{date}, {time}",
 
   "reviewCountLabel": "{count, plural, one{{count} समीक्षा} other{{count} समीक्षाएँ}}",
   "reviewAgeJustNow": "अभी-अभी",

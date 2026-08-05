@@ -251,16 +251,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get priceFilterAllLabel => 'All Prices';
 
   @override
-  String get priceFilterUnder100Label => 'Under ₹100';
+  String priceFilterUnderLabel(String price) {
+    return 'Under $price';
+  }
 
   @override
-  String get priceFilter100To250Label => '₹100 - ₹250';
+  String priceFilterOverLabel(String price) {
+    return 'Over $price';
+  }
 
   @override
-  String get priceFilter250To500Label => '₹250 - ₹500';
-
-  @override
-  String get priceFilterOver500Label => 'Over ₹500';
+  String priceFilterRangeLabel(String from, String to) {
+    return '$from - $to';
+  }
 
   @override
   String get reviewsSectionTitle => 'Ratings & Reviews';
@@ -340,6 +343,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get yourRatingLabel => 'Your rating';
+
+  @override
+  String orderPlacedAtLabel(String date, String time) {
+    return '$date at $time';
+  }
 
   @override
   String reviewCountLabel(int count) {

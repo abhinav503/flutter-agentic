@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:core/core/theme/app_colors_extension.dart';
+import 'package:core/core/extensions/num_extensions.dart';
 import 'package:core/core/theme/app_radius.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/rating_stars.dart';
@@ -106,7 +107,7 @@ class _Summary extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              rating.average.toStringAsFixed(1),
+              rating.average.asDecimal(),
               style: GrofastTextStyleConst.displayBold(tt),
             ),
             const SizedBox(height: AppSpacing.xs2),
@@ -225,7 +226,7 @@ class _ReviewRow extends StatelessWidget {
             // The same outlined star badge the title row uses for the
             // product's own rating — one rating shape per pack.
             GrofastBadge.outlined(
-              label: review.rating.toStringAsFixed(1),
+              label: review.rating.asDecimal(),
               leading: const Icon(
                 Icons.star_rounded,
                 size: AppSpacing.base,

@@ -1,3 +1,4 @@
+import 'package:core/core/extensions/date_time_extensions.dart';
 import 'package:core/core/extensions/num_extensions.dart';
 
 import 'package:cordelia/enums/order_status.dart';
@@ -132,9 +133,10 @@ abstract final class DailyMartValueConst {
   /// beside a "5 Star" bar row. The tab's review count reads through the
   /// app-level `ValueConst.reviewCountLabel`, since that wording is the
   /// shared reviews feature's, not this pack's.
-  // Wordless ('5.0/5.0'), so no arb key.
+  // Wordless ('5.0/5.0'), so no arb key — but both halves take the locale's
+  // decimal mark, so a German store reads '4,6/5,0' rather than mixing marks.
   static String reviewScoreLabel(double average) =>
-      '${average.toStringAsFixed(1)}/5.0';
+      '${average.asDecimal()}/${5.asDecimal()}';
   static String starRowLabel(int stars) =>
       L10n.current.dailymartStarRowLabel(stars);
 
@@ -455,33 +457,19 @@ abstract final class DailyMartValueConst {
   static String get cancelOrderConfirmLabel =>
       L10n.current.dailymartCancelOrderConfirmLabel;
 
-  /// The kit's timeline stamp — "Dec, 20 2025 - 9.30 AM". Its own formatter
+  /// The kit's timeline stamp — "Dec, 20 2025 - 9:30 AM". Its own formatter
   /// rather than `OrderPlacedAtX`, which renders gravia's card format
   /// ("Mon, Mar 9, 2026 at 10:15 AM"); the two packs date the same value
-  /// differently, so the format belongs with the pack's copy. Latin month
-  /// abbreviations in both locales — dates keep one script, like every
-  /// other date format in the app.
-  static String orderStepAt(DateTime at) {
-    const months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ];
-    final hour = at.hour % 12 == 0 ? 12 : at.hour % 12;
-    final minute = at.minute.toString().padLeft(2, '0');
-    final period = at.hour < 12 ? 'AM' : 'PM';
-    return '${months[at.month - 1]}, ${at.day} ${at.year} - '
-        '$hour.$minute $period';
-  }
+  /// differently, so the *arrangement* belongs with the pack's copy.
+  ///
+  /// The month name and the clock come from the locale, though — the table of
+  /// English abbreviations that used to live here was fine while the choice
+  /// was English or Hindi (a Devanagari month would have broken the one-script
+  /// rule dates follow), but German, French, Spanish and Italian are Latin
+  /// script *and* read the clock in 24 hours, so hardcoding "Dec … 9:30 AM"
+  /// printed English into a German timeline.
+  static String orderStepAt(DateTime at) =>
+      '${at.monthAbbr}, ${at.day} ${at.year} - ${at.asTime}';
 
   // ── Cancel / confirm ─────────────────────────────────────────────────────
   static String get cancelLabel => L10n.current.dailymartCancelLabel;
