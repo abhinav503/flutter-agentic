@@ -75,7 +75,11 @@ class DailyMartCategoryTile extends StatelessWidget {
                       child: Text(
                         label,
                         textAlign: TextAlign.center,
-                        maxLines: 1,
+                        // Two lines — store category names run long and the
+                        // tile is only 78 wide. categoryTileHeight is sized
+                        // to fit both lines; changing one without the other
+                        // overflows.
+                        maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: DailyMartTextStyleConst.bodyXsMedium(
                           tt,

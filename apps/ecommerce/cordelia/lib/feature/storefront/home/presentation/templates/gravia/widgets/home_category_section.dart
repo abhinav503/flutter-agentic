@@ -52,6 +52,10 @@ class HomeCategorySection extends StatelessWidget {
         ).copyWith(color: cs.primary),
       ),
       itemSpacing: AppSpacing.lg,
+      // Labels wrap to two lines; top-aligning keeps the circles level when
+      // adjacent names take different line counts — same call as the
+      // Categories grid.
+      crossAxisAlignment: CrossAxisAlignment.start,
       itemCount: categories.length,
       itemBuilder: (context, i) => SizedBox(
         width: _tileWidth,

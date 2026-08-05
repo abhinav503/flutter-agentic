@@ -108,6 +108,12 @@ class GrofastMenuTile extends StatelessWidget {
 
 /// One of the three square shortcuts under Profile's identity block — glyph
 /// over label on the same filled card.
+///
+/// The label wraps to two lines: the row splits the screen three ways, so a
+/// tile is only ~92dp wide at 360dp, and a translated label overruns that on
+/// one line ("Meine Bestellungen", "Notificaciones"). Two lines fit inside the
+/// existing [GrofastDimenConst.quickTileHeight] — glyph (24) + gap (8) + two
+/// lines (~35) still clears 78 — so the card keeps the kit's proportions.
 class GrofastQuickTile extends StatelessWidget {
   final String label;
   final String? asset;
@@ -154,13 +160,19 @@ class GrofastQuickTile extends StatelessWidget {
                     )
                   : Icon(icon, size: AppSpacing.xl4, color: glyphColor),
               const SizedBox(height: AppSpacing.xs),
-              Text(
-                label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: GrofastTextStyleConst.bodySmall(
-                  tt,
-                ).copyWith(color: cs.onSurfaceVariant),
+              Padding(
+                // Keeps a wrapped second line off the card's edge; the Column
+                // centres the block but says nothing about the text inside it.
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs3),
+                child: Text(
+                  label,
+                  maxLines: 2,
+                  textAlign: TextAlign.center,
+                  overflow: TextOverflow.ellipsis,
+                  style: GrofastTextStyleConst.bodySmall(
+                    tt,
+                  ).copyWith(color: cs.onSurfaceVariant),
+                ),
               ),
             ],
           ),

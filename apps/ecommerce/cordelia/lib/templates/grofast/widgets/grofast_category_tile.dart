@@ -134,8 +134,12 @@ class GrofastCategoryRailTile extends StatelessWidget {
             const SizedBox(height: AppSpacing.xs),
             Text(
               category.name,
-              maxLines: 1,
+              // Two lines, like the All Categories cell — store names run
+              // long ("Nudeln, Reis & Konserven") and one line truncated
+              // most of them away.
+              maxLines: 2,
               overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
               style: GrofastTextStyleConst.bodySmall(
                 tt,
               ).copyWith(color: cs.onSurfaceVariant),

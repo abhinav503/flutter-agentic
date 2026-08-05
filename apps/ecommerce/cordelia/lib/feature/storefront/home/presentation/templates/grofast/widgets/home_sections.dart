@@ -38,6 +38,9 @@ class GrofastHomeCategoryRail extends StatelessWidget {
     gutter: GrofastDimenConst.screenGutter,
     itemSpacing: AppSpacing.sm,
     headerGap: AppSpacing.xl2,
+    // Labels wrap to two lines; top-aligning keeps the tinted squares level
+    // when adjacent names take different line counts.
+    crossAxisAlignment: CrossAxisAlignment.start,
     itemCount: categories.length,
     itemBuilder: (context, index) => GrofastCategoryRailTile(
       category: categories[index],

@@ -35,7 +35,11 @@ abstract final class DailyMartDimenConst {
 
   /// Category tile — a rounded photo tile, not a circle.
   static const double categoryTileWidth = 78;
-  static const double categoryTileHeight = 92;
+  // 4 (image top inset) + 63 (image) + two lines of bodyXsMedium
+  // (12px × 1.55 line height = 18.6 each) = 104.2, rounded up. The tile is a
+  // fixed height so every rail entry matches; the label wraps to two lines
+  // (DailyMartCategoryTile) and one line short of this overflows.
+  static const double categoryTileHeight = 106;
   static const double categoryImageHeight = 63;
 
   /// Promo carousel card. The neighbours peek by design, so this is a
