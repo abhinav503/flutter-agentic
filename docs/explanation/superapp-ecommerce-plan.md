@@ -2781,3 +2781,50 @@ already collected. It now retries and skips.
 **Still open:** Italy (to complete the language-pack set), then UK/US. And the
 standing gap for all three euro markets — nobody has seeded a live store and
 opened the storefront yet.
+
+## Italy sample catalog — DONE (2026-08-06); the language-pack set is complete
+
+Fourth country catalog, and the one that closes the loop: **every language the
+storefront speaks (de/fr/es/it) now has a catalog written in it.**
+
+10 Esselunga/Coop-style aisles in Italian, 69 real Italian brands (Barilla,
+De Cecco, Rummo, Mulino Bianco, Pavesi, Divella, Colussi, Gentilini, Balocco,
+Galbani, Granarolo, Parmalat, Latteria Soresina, Parmareggio, Mutti, Valfrutta,
+Saclà, Rio Mare, Monini, Cirio, Ponti, Findus, Buitoni, Cameo, Fratelli
+Beretta, Rovagnati, Algida, Perugina, Novi, Loacker, San Carlo, Levissima,
+San Pellegrino, Ferrarelle, Uliveto, Santàl, Estathé, Lavazza, illy, Kimbo,
+Segafredo, Bonomelli, …), **107 products named and described in Italian** at
+Italian shelf prices, 7 Italian coupon codes (`BENVENUTO10`, `FRESCHI5`, …) and
+4 banners. 197 docs, one atomic `writeBatch`.
+
+Nothing new broke. The pass was pure execution of the recorded pipeline —
+harvest, single-token staples pass, canonical barcode resolution, generate,
+register in all four gates — which is what a repeatable recipe is supposed to
+feel like by the fourth run.
+
+### Where the seed data now stands
+
+    india   (INR, 103 products, 10–615):     under 100=68  100–250=28  250–500=4  over 500=3
+    germany (EUR,  96 products, 0.49–14.99): under 2=48    2–5=41      5–10=4     over 10=3
+    france  (EUR, 106 products, 0.45–13.99): under 2=33    2–5=69      5–10=2     over 10=2
+    spain   (EUR, 111 products, 0.35–13.75): under 2=46    2–5=56      5–10=7     over 10=2
+    italy   (EUR, 107 products, 0.45–13.45): under 2=43    2–5=57      5–10=4     over 10=3
+
+Five markets, 523 products, **687 image URLs all resolving**. Worth noting that
+the run was clean on the first attempt at 687 URLs — the retry/backoff added
+during the Spanish pass is what makes a check that size trustworthy, and
+without it this run would have reported phantom failures again.
+
+Photo coverage is 78 of 107 for Italy; the 29 placeholders are loose produce
+and the whole *Casa* aisle, the same Open Food Facts boundary every market
+hits.
+
+**France and Spain have been seeded into live stores and render correctly**
+(confirmed 2026-08-06). Germany and Italy have not been opened yet, though they
+come off the identical pipeline.
+
+**Still open:** UK and US. Both currently pre-select the German catalog — right
+price scale for GBP/USD, wrong brands and language. Neither has a language pack
+either, so English copy plus a British or American catalog would be the natural
+pairing; unlike the four European markets, the *language* side is already done
+for them.

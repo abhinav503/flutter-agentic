@@ -10,10 +10,17 @@
 import { FRANCE_SEED } from "./france-seed-data";
 import { GERMANY_SEED } from "./germany-seed-data";
 import { INDIA_SEED } from "./grocery-seed-data";
+import { ITALY_SEED } from "./italy-seed-data";
 import { SPAIN_SEED } from "./spain-seed-data";
 import type { GrocerySeed } from "./seed-types";
 
-export const SEED_MARKETS = ["india", "germany", "france", "spain"] as const;
+export const SEED_MARKETS = [
+  "india",
+  "germany",
+  "france",
+  "spain",
+  "italy",
+] as const;
 export type SeedMarket = (typeof SEED_MARKETS)[number];
 
 export const SEED_MARKET_CATALOGS: Record<SeedMarket, GrocerySeed> = {
@@ -21,6 +28,7 @@ export const SEED_MARKET_CATALOGS: Record<SeedMarket, GrocerySeed> = {
   germany: GERMANY_SEED,
   france: FRANCE_SEED,
   spain: SPAIN_SEED,
+  italy: ITALY_SEED,
 };
 
 export const SEED_MARKET_LABELS: Record<SeedMarket, string> = {
@@ -28,6 +36,7 @@ export const SEED_MARKET_LABELS: Record<SeedMarket, string> = {
   germany: "Germany — €, German brands",
   france: "France — €, French brands",
   spain: "Spain — €, Spanish brands",
+  italy: "Italy — €, Italian brands",
 };
 
 // One line per market, shown under the picker so an owner can tell them apart
@@ -41,6 +50,8 @@ export const SEED_MARKET_DESCRIPTIONS: Record<SeedMarket, string> = {
     "Supermarket aisles in French with brands like Président, Bonne Maman, LU, Evian and Carte Noire, priced in euros.",
   spain:
     "Supermarket aisles in Spanish with brands like Central Lechera Asturiana, Carbonell, Gullón, Font Vella and ColaCao, priced in euros.",
+  italy:
+    "Supermarket aisles in Italian with brands like Barilla, Mulino Bianco, Galbani, Lavazza and Perugina, priced in euros.",
 };
 
 /**
@@ -48,11 +59,11 @@ export const SEED_MARKET_DESCRIPTIONS: Record<SeedMarket, string> = {
  *
  * A *default*, not a derivation — the owner can pick any market, and they have
  * to be able to: EUR alone doesn't say whether a store is German, French,
- * Spanish or Italian, and three of those four now have catalogs.
+ * Spanish or Italian — and all four now have catalogs.
  *
  * Everything non-rupee defaults to Germany, which is arbitrary among the euro
- * catalogs and deliberately so: EUR cannot tell Germany from France or Spain,
- * and guessing from anything else (store name, admin locale) would be a worse
+ * catalogs and deliberately so: EUR cannot tell any of the four euro markets
+ * apart, and guessing from anything else (store name, admin locale) would be a worse
  * kind of wrong — silently confident. GBP and USD land there too because German
  * shelf prices sit in the same 2/5/10 band scale the filter uses for those
  * currencies, so the numbers are at least plausible; the brands and language

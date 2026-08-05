@@ -30,6 +30,7 @@ const MARKETS = [
   { name: "germany", currency: "EUR", file: "germany-seed-data.ts" },
   { name: "france", currency: "EUR", file: "france-seed-data.ts" },
   { name: "spain", currency: "EUR", file: "spain-seed-data.ts" },
+  { name: "italy", currency: "EUR", file: "italy-seed-data.ts" },
 ];
 
 const seedDir = join(dirname(fileURLToPath(import.meta.url)), "../src/lib/seed");
