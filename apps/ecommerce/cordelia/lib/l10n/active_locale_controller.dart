@@ -44,5 +44,6 @@ extension StoreLanguageLocaleX on StoreLanguage {
   Locale get asLocale => switch (this) {
     StoreLanguage.en => const Locale('en'),
     StoreLanguage.hi => const Locale('hi'),
+    StoreLanguage.de => const Locale('de'),
   };
 }

@@ -160,6 +160,12 @@ abstract final class ValueConst {
   static String get languageLabel => L10n.current.languageSheetTitle;
   static String get languageEnglish => L10n.current.languageEnglish;
   static String get languageHindi => L10n.current.languageHindi;
+  static String get languageGerman => L10n.current.languageGerman;
+
+  /// Unit suffix for a countable pack ("3 pcs" / "3 Stk.") — see
+  /// `ProductUnitType.format`.
+  static String unitPiecesLabel(int count) =>
+      L10n.current.unitPiecesLabel(count);
 
   // ── Category Details filters — app-wide, not per-pack: both templates run
   // the same sort model, so the option wording is shared (each pack still

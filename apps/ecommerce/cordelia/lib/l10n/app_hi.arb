@@ -4,6 +4,8 @@
   "languageSheetTitle": "भाषा",
   "languageEnglish": "English",
   "languageHindi": "हिन्दी",
+  "languageGerman": "Deutsch",
+  "unitPiecesLabel": "{count, plural, one{pc} other{pcs}}",
 
   "loginTitle": "CordeliaApps में आपका स्वागत है",
   "loginSubtitle": "ईमेल या सोशल नेटवर्क से अपने खाते में लॉग इन करें",

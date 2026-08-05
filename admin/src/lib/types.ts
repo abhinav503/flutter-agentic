@@ -212,7 +212,7 @@ export type Store = {
   // (world-readable, `getTemplates()`) for the set the create-store dialog
   // offers.
   templateId: string;
-  // The storefront's UI language ('en' | 'hi') — defaults to 'en' (see
+  // The storefront's UI language (see STORE_LANGUAGES) — defaults to 'en' (see
   // mapStoreDoc). Every template is localized (its pack constants read the
   // active string table), so this applies whichever one the store renders.
   language: string;
@@ -222,12 +222,13 @@ export type Store = {
   currency: string;
 };
 
-export const STORE_LANGUAGES = ["en", "hi"] as const;
+export const STORE_LANGUAGES = ["en", "hi", "de"] as const;
 export type StoreLanguage = (typeof STORE_LANGUAGES)[number];
 
 export const STORE_LANGUAGE_LABELS: Record<StoreLanguage, string> = {
   en: "English",
   hi: "हिन्दी (Hindi)",
+  de: "Deutsch (German)",
 };
 
 // What the store charges in — independent of `language`, since a shopper

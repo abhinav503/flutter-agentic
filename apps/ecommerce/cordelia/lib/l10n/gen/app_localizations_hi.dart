@@ -18,6 +18,20 @@ class AppLocalizationsHi extends AppLocalizations {
   String get languageHindi => 'हिन्दी';
 
   @override
+  String get languageGerman => 'Deutsch';
+
+  @override
+  String unitPiecesLabel(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'pcs',
+      one: 'pc',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get loginTitle => 'CordeliaApps में आपका स्वागत है';
 
   @override

@@ -1,5 +1,7 @@
 import 'package:core/core/extensions/num_extensions.dart';
 
+import 'package:cordelia/constants/value_const.dart';
+
 /// The base unit a product's numeric unit value is expressed in — mass,
 /// volume, or a bare count — so quantity math (grams × cart quantity,
 /// millilitres × cart quantity, …) never mixes incompatible units.
@@ -55,11 +57,13 @@ extension ProductUnitTypeX on ProductUnitType {
     return '${isWhole ? rolled.toStringAsFixed(0) : rolled.asDecimal()} $large';
   }
 
-  // Singular "pc" for a single piece; "pcs" otherwise. Pluralised off the
-  // displayed count so it always agrees with the shown number.
+  // Pluralised off the *displayed* count so the word always agrees with the
+  // shown number. Through the arb rather than a `'pc' : 'pcs'` ternary because
+  // not every language splits there — German writes "Stk." for one piece and
+  // for twenty.
   static String _pieces(double amount) {
-    final count = amount.toStringAsFixed(0);
-    return '$count ${count == '1' ? 'pc' : 'pcs'}';
+    final count = amount.round();
+    return '$count ${ValueConst.unitPiecesLabel(count)}';
   }
 }
 

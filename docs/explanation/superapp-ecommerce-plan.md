@@ -2331,3 +2331,55 @@ separator couldn't survive handing the clock to the locale.
   their formatting — need a per-currency decision.
 - Catalog content stays single-valued (see `content-i18n-plan.md`); this work
   covers chrome and numbers only.
+
+### German (de) — third locale, first European one (2026-08-05, same day)
+
+`app_de.arb` at full 709-key parity with the template, so no screen falls back
+to English. `StoreLanguage.de` registered end-to-end (enum case, wire value,
+tolerant parse, `asLocale`, self-named "Deutsch" label) plus `de` in the
+admin's `STORE_LANGUAGES`/`STORE_LANGUAGE_LABELS`. `supportedLocales` needed no
+app change — it derives from the generated `AppLocalizations`, so the arb alone
+wires the locale up.
+
+Nothing about number or date shape needed doing: the `AppFormat` groundwork
+above already handles de's decimal comma, trailing €, day-first dates and
+24-hour clock. German is LTR Latin script, so there was **no** direction or
+mirroring work — the whole cost was translation plus width.
+
+**Translated under a written contract** (register, placeholder/ICU rules,
+mandatory 60-term glossary so "Cart" is `Warenkorb` in all three packs and
+never drifts), then merged by a script that refuses to write the arb unless
+every key matches the template, every placeholder survives, both ICU
+`one`/`other` branches remain, layout-significant leading/trailing spaces and
+`\n` counts are preserved, no value is accidentally still English, and no
+value carries a hardcoded currency glyph. Formal **"Sie"** throughout, since a
+white-label storefront serves many merchants.
+
+**Width overrides** applied after reading the actual widget for each slot, not
+by guesswork: `graviaPendingStatusLabel` → "Aufgegeben" (it renders in a
+`GraviaTintBadge`), `gravia`/`dailymart` Track Order → "Verfolgen" (gravia's is
+one half of a two-up `GraviaActionPair`; dailymart's is an unconstrained button
+sharing a Row with the price inside an 88 px-thumbnail card), both
+`ordersAllTimeLabel` → "Alle" (a date quick-pick chip beside "Letzte Woche"),
+and all three `refundFailedLabel` → "Fehlgeschlagen", which matches how each
+pack already renders the *processed* case as a bare "Erstattet". `grofastNav`
+kept "Kategorien" in the plural — gravia's 5-item bar already ships
+"Bestellungen" (12 chars), so 10 was never the constraint.
+
+**One English-literal gap closed while here:** `ProductUnitType`'s
+`'pc'`/`'pcs'` moved into the arb as an ICU plural, because German writes
+"Stk." for one piece and for twenty — a `count == 1 ? 'pc' : 'pcs'` ternary
+can't express that.
+
+**Verified:** 9 new cordelia tests — arb parity asserted for *every*
+`StoreLanguage` case (so fr/es/it inherit the guard, and gen-l10n's silent
+English fallback becomes a test failure), the string+format swap landing
+together, currency surviving a language-only switch, teardown restoring the app
+default, and the badge/action/nav labels staying inside their measured
+ceilings. `flutter analyze` clean, cordelia + core suites green,
+`flutter build web` clean.
+
+**Not done — needs a device pass:** the overrides above cover the slots the
+port could reason about statically. A real German storefront still wants eyes
+on the checkout totals panel, the filter sheets and the grofast promo cards,
+where copy meets live catalog data.
