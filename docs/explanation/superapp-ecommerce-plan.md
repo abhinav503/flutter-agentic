@@ -2686,3 +2686,54 @@ adding a market means adding its filename to both, or its URLs go unchecked.
 in those currencies pre-selects Germany — right price scale, wrong brands and
 language. `defaultSeedMarketForCurrency` documents that trade-off at the point
 where it is made.
+
+## France sample catalog — DONE (2026-08-06)
+
+The second country catalog, and the one that proved the German pass was
+repeatable. 10 Carrefour/Intermarché-style aisles in French, 71 real French
+brands (Président, Elle & Vire, Bonne Maman, LU, Panzani, Puget, Amora,
+Bénédicta, Findus, Fleury Michon, Evian, Badoit, Carte Noire, Malongo, Ricoré,
+Cassegrain, Bonduelle, …), **106 products named and described in French** at
+French shelf prices, 7 French coupon codes (`BIENVENUE10`, `PRIMEUR5`, …) and 4
+banners. 198 docs, still one atomic `writeBatch`.
+
+Open Food Facts is a French-origin project and it shows: the category sweep
+returned **1095 candidates for France against 723 for Germany**, so brand
+coverage was easier. The gaps are the same ones though — loose produce and the
+whole *Entretien* aisle have no photos (26 of 106 placeholders), because OFF
+holds packaged *food*.
+
+**Two process notes for Spain and Italy.** The by-name harvest only works with
+**single-token queries** — `"Bonne Maman confiture"`, `"L'Or cafe"` and
+`"lait demi-ecreme"` all returned zero hits while `confiture`, `Bonne` and
+`lait` each returned 20. And Google's favicon endpoint 404s for a meaningful
+share of brand domains (8 of 71 here: president.fr, amora.fr, benedicta.fr,
+badoit.com, cassegrain.fr and three more), so expect to fall back to monograms
+and let `verify:seed-images` tell you which. Re-resolving every barcode through
+the product endpoint worked exactly as intended: **zero OFF image failures** on
+the first verify, against one on the German pass before that step existed.
+
+### New gate: `npm run verify:seed-refs`
+
+The seeder resolves slugs → freshly minted doc ids and `.filter()`s away any it
+can't find. That is right at write time — a bad reference shouldn't abort a
+200-doc batch — but it means a typo'd `categorySlug` silently seeds a product
+into **no aisle**, and a typo'd coupon target silently seeds a coupon that
+discounts nothing. Neither is visible to a type check, an image check or a band
+check.
+
+The new script cross-checks every product → category and product → brand
+reference, every coupon and banner target, duplicate slugs, and
+declared-but-unused brands. All three catalogs' references resolve; it earned
+its keep immediately by catching a dead `tipiak` brand doc in the French draft
+(fixed by adding the product it was meant to have).
+
+The seed-data gate is now four scripts, and **adding a market means adding its
+filename to all four** or its data goes unchecked:
+`verify:seed-images`, `verify:seed-bands`, `verify:seed-refs`, plus
+`patch-seed-images.mjs` for retrofitting already-seeded stores.
+
+**Still open:** Spain, Italy and the UK/US. A store in those currencies
+pre-selects Germany — right price scale, wrong brands and language.
+`defaultSeedMarketForCurrency` now says plainly that the euro default is
+arbitrary between Germany and France, and why guessing harder would be worse.

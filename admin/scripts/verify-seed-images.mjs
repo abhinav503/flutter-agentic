@@ -11,7 +11,11 @@ import { dirname, join } from "node:path";
 
 // Every market's catalog (see src/lib/seed/seed-markets.ts). Adding a market
 // means adding its file here, otherwise its URLs go unchecked.
-const dataFiles = ["grocery-seed-data.ts", "germany-seed-data.ts"].map((name) =>
+const dataFiles = [
+  "grocery-seed-data.ts",
+  "germany-seed-data.ts",
+  "france-seed-data.ts",
+].map((name) =>
   join(dirname(fileURLToPath(import.meta.url)), "../src/lib/seed", name),
 );
 
