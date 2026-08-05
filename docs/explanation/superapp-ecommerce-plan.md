@@ -2586,11 +2586,35 @@ Also fixed while rendering the labels across all six locales: Italian's
 "Under" read `Fino a {price}` ("up to", inclusive) against a strictly exclusive
 band. Now `Meno di {price}`, matching the French and Spanish forms.
 
-### Known gap this exposes
+### Known gap this exposes — country-specific seed catalogs (planned, not started)
 
-`admin/src/lib/seed/grocery-seed-data.ts` hardcodes rupee prices (₹10–899) and
-its dialog says "₹ prices". Seeding a euro store writes those numbers as euros,
-so a €22 packet of biscuits puts nearly every item in the top band — the filter
-is inert again, from the *data* side this time. The catalog is also
-Indian-brand specific (Amul, Britannia, Tata), so a non-INR store arguably
-wants a different catalog rather than rescaled numbers. Tracked separately.
+Fixing the bands surfaced the same problem one layer down, in the data.
+"Generate sample data" writes **one hardcoded Indian catalog to every store**
+regardless of country, so a German or French store gets Indian brands (Amul,
+Britannia, Tata), Zepto-style Indian quick-commerce categories, English/Hindi
+product names, and rupee prices (₹10–899) read as euros. That last part
+re-breaks this very filter from the data side: at €10–899 nearly every product
+lands above the top edge and the filter is inert again.
+
+The fix is **per-market catalogs with native prices**, not the Indian catalog
+divided by 90 — a euro catalog should list what a European grocery actually
+sells at what it actually charges. The refactor is well-shaped because the data
+is already isolated: `grocery-seed-data.ts` exports a `GrocerySeed` type and a
+single `GROCERY_SEED` const, so that const becomes a map keyed by market with
+the type untouched; `seed-grocery.ts` takes the market instead of hardcoding it;
+the dialog picks it and reads that market's counts and currency.
+
+Three decisions to make first: how the market is chosen (derived from the
+store's `currency`, or an explicit picker — EUR is ambiguous across DE/FR/ES/IT,
+which argues for a picker defaulting from currency); how many catalogs to
+hand-author (matching the language packs plus UK/US is six or seven, so proving
+the shape with one European catalog first is sensible); and the catalog
+language, since content is single-valued plain strings (catalog i18n is
+deliberately unbuilt — see `content-i18n-plan.md`), meaning a German catalog's
+product names have to be *seeded* in German.
+
+Existing constraints carry over: one atomic 500-write `writeBatch` (today 145
+docs), Open Food Facts photography — which is *better* for Europe, being a
+French-origin project — at ~10 search requests/min, verified-favicon brand logos
+with DiceBear fallbacks, and `verify:seed-images` passing for every new
+catalog. Tracked as its own task.
