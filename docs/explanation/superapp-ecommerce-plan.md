@@ -2066,7 +2066,7 @@ will make *Sign in with Apple* mandatory (Guideline 4.8). Both buttons are
 still `comingSoon`, so there's no violation today — it's a requirement on
 that future work.
 
-**Still open:** post-delivery returns; gravia's Login social buttons; review
+**Still open:** Ola Maps API key not yet provisioned (Krutrim gates credential creation behind Autopay — until `OLA_MAPS_API_KEY` is set, use-my-location/autocomplete error out while pincode autofill and hand-typed addresses work; alternative: swap `admin/src/lib/geo.ts` to LocationIQ/Geoapify); post-delivery returns; gravia's Login social buttons; review
 pagination past the first 50; owner replies to reviews; per-store
 notifications from the backend.
 
