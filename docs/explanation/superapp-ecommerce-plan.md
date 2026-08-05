@@ -2618,3 +2618,71 @@ docs), Open Food Facts photography — which is *better* for Europe, being a
 French-origin project — at ~10 search requests/min, verified-favicon brand logos
 with DiceBear fallbacks, and `verify:seed-images` passing for every new
 catalog. Tracked as its own task.
+
+## Germany sample catalog — DONE (2026-08-05)
+
+The first country-specific seed catalog, and the refactor that makes more of
+them cheap. "Generate sample data" now asks which market to seed and defaults
+that from the store's currency.
+
+**Structure.** `GrocerySeed` and the other `Seed*` types moved to
+`seed-types.ts` so no market's data file has to import another's;
+`grocery-seed-data.ts` keeps the Indian catalog as `INDIA_SEED`;
+`germany-seed-data.ts` holds `GERMANY_SEED`; `seed-markets.ts` is the registry
+(catalogs, labels, descriptions, and `defaultSeedMarketForCurrency`).
+`seedGroceryData` takes a market, and the dialog reads the store doc itself to
+pre-select one — the products page has no reason to know the currency.
+
+**The catalog.** 10 aisles in German supermarket framing (Rewe/Edeka groups —
+*Lebensmittel*, *Snacks & Getränke*, *Haushalt*), 55 real German/European
+brands (Kerrygold, Dr. Oetker, Ritter Sport, Haribo, Bahlsen, Storck, Dallmayr,
+Gerolsteiner, hohes C, Kölln, Hengstenberg, Schwartau, …), **96 products named
+and described in German** with euro shelf prices, 7 coupons with German codes
+(`WILLKOMMEN10`, `FRISCHE5`, …) and 4 banners. 172 docs — still one atomic
+`writeBatch`, well inside the 500-write cap.
+
+Product names are seeded **in German** rather than translated at read time,
+because catalog content is single-valued by design (`content-i18n-plan.md`).
+That is what makes a German storefront coherent without building catalog i18n.
+
+**Prices are German shelf prices, not converted rupees** — and the point is
+measurable. `npm run verify:seed-bands` prints each catalog's spread across the
+price bands its currency uses:
+
+    india   (INR, 103 products, 10–615):   under 100=68  100–250=28  250–500=4  over 500=3
+    germany (EUR,  96 products, 0.49–14.99): under 2=48  2–5=41  5–10=4  over 10=3
+
+Reading the Indian catalog as euros would instead have put **98 of 103 products
+in the single "over €10" band**, which is the concrete way the filter went inert.
+The script fails a market whose prices leave any band unreachable *or* pile >90%
+into one — and it caught a quieter version of the same bug in the first German
+draft, which had nothing over €10, so that chip could never match. Three prices
+were corrected (a kilo of Jacobs beans at €8.99, and two household packs priced
+as small packs while described as bulk) — all three more accurate as well.
+
+### Two findings worth carrying into the next market
+
+**Open Food Facts' search index is stale relative to its product endpoint.**
+Paths harvested from `search.openfoodfacts.org` disagreed with
+`/api/v2/product/<barcode>.json` for **60 of 77 barcodes**: short codes come back
+unpadded from search (`/20462062/…`) where the canonical path is zero-padded and
+split 3/3/3/4 (`/000/002/046/2062/…`), and revision numbers were often behind
+(`front_de.133` vs `.178`). Only *one* of those 404'd on the day, so the image
+verifier passed and gave false confidence while the rest were quietly primed to
+rot. Every path is now re-resolved through the product endpoint. Do that for
+fr/es/it too — and note the product endpoint 429s well below its documented
+ceiling, so the resolver backs off and resumes.
+
+**OFF is a packaged-*food* database.** 19 of 96 German products carry
+`imageUrl: ""` — fresh produce and the entire *Haushalt* aisle, which OFF simply
+does not contain. That matches how the Indian catalog already handles its
+cleaning products, and every consumer renders a placeholder, but it is the
+ceiling on photo coverage for any market: expect ~80%, not 100%.
+
+`verify:seed-images` and `patch-seed-images.mjs` now read every market's file;
+adding a market means adding its filename to both, or its URLs go unchecked.
+
+**Still open:** France, Spain, Italy and the UK/US have no catalog, so a store
+in those currencies pre-selects Germany — right price scale, wrong brands and
+language. `defaultSeedMarketForCurrency` documents that trade-off at the point
+where it is made.

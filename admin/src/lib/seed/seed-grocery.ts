@@ -6,15 +6,16 @@ import {
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { computeDiscountPercentage, type ProductInput } from "@/lib/products";
-import { GROCERY_SEED } from "./grocery-seed-data";
+import { SEED_MARKET_CATALOGS, type SeedMarket } from "./seed-markets";
 
-// Writes the bundled grocery catalog into a store through the client SDK —
-// the same path (and firestore.rules gate) as the dashboard's own forms.
+// Writes one market's bundled grocery catalog into a store through the client
+// SDK — the same path (and firestore.rules gate) as the dashboard's own forms.
 // Deliberately NOT an API route: catalog writes have no server route, and the
 // browser session already holds the owner credential.
 //
-// One atomic writeBatch (~140 docs, well under Firestore's 500-write cap):
-// a mid-way failure leaves zero partial state, so retrying is always safe.
+// One atomic writeBatch (the largest catalog is ~170 docs, well under
+// Firestore's 500-write cap): a mid-way failure leaves zero partial state, so
+// retrying is always safe.
 // If the dataset ever nears the cap, split per collection in dependency
 // order — and change the dialog's failure copy, which promises all-or-nothing.
 
@@ -39,9 +40,10 @@ export type SeedResult = {
 
 export async function seedGroceryData(
   storeId: string,
+  market: SeedMarket,
   onProgress: (progress: SeedProgress) => void,
 ): Promise<SeedResult> {
-  const seed = GROCERY_SEED;
+  const seed = SEED_MARKET_CATALOGS[market];
   const total =
     seed.categories.length +
     seed.brands.length +

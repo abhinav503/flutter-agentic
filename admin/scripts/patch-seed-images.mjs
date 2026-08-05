@@ -1,7 +1,7 @@
 // One-off fixer for stores seeded before the banner/brand image sources
 // changed (banners: OFF pack shots → Unsplash photography; brands: "" →
 // favicon/monogram URLs). Reads the CURRENT urls straight out of
-// grocery-seed-data.ts — no second copy to drift — and rewrites matching
+// every market's *-seed-data.ts — no second copy to drift — and rewrites matching
 // docs (banners by title, brands by name) in the given store. Idempotent.
 //
 // Run (needs the FIREBASE_ADMIN_* env vars from .env.local):
@@ -19,13 +19,18 @@ if (!storeId) {
   process.exit(1);
 }
 
-const source = await readFile(
-  join(
-    dirname(fileURLToPath(import.meta.url)),
-    "../src/lib/seed/grocery-seed-data.ts",
-  ),
-  "utf8",
-);
+// Both markets' catalogs: a store seeded from either one has to be patchable,
+// and banner titles / brand names are unique enough across them to key on.
+const source = (
+  await Promise.all(
+    ["grocery-seed-data.ts", "germany-seed-data.ts"].map((name) =>
+      readFile(
+        join(dirname(fileURLToPath(import.meta.url)), "../src/lib/seed", name),
+        "utf8",
+      ),
+    ),
+  )
+).join("\n");
 
 const brandLogos = new Map(
   [

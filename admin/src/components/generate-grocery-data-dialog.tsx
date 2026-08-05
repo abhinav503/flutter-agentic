@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,7 +10,23 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { GROCERY_SEED } from "@/lib/seed/grocery-seed-data";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { getStore } from "@/lib/stores";
+import {
+  SEED_MARKETS,
+  SEED_MARKET_CATALOGS,
+  SEED_MARKET_DESCRIPTIONS,
+  SEED_MARKET_LABELS,
+  defaultSeedMarketForCurrency,
+  type SeedMarket,
+} from "@/lib/seed/seed-markets";
 import {
   seedGroceryData,
   type SeedPhase,
@@ -27,8 +43,12 @@ const PHASE_LABELS: Record<SeedPhase, string> = {
 };
 
 /**
- * "Generate sample data" — seeds the bundled Indian grocery catalog
- * (lib/seed/grocery-seed-data.ts) into the active store in one atomic batch.
+ * "Generate sample data" — seeds one market's bundled grocery catalog
+ * (lib/seed/seed-markets.ts) into the active store in one atomic batch.
+ *
+ * The market defaults from the store's currency but stays a choice: EUR alone
+ * doesn't identify a country, and a catalog's brands and language are as
+ * market-specific as its prices.
  *
  * Generating into a non-empty store is warned about but not blocked: items
  * are only ever added alongside what exists, and the per-item delete flows
@@ -46,18 +66,35 @@ export function GenerateGroceryDataDialog({
   onClose: () => void;
 }) {
   const [progress, setProgress] = useState<SeedProgress | null>(null);
+  const [market, setMarket] = useState<SeedMarket | null>(null);
   const running = progress !== null;
 
-  const seed = GROCERY_SEED;
+  // The store doc is read here rather than threaded through the products page,
+  // which has no reason to know the currency — one read when the dialog opens.
+  // A failed read is not fatal: the picker just opens on the India default.
+  useEffect(() => {
+    let active = true;
+    getStore(storeId)
+      .then((store) => {
+        if (active) {
+          setMarket(defaultSeedMarketForCurrency(store?.currency ?? "INR"));
+        }
+      })
+      .catch(() => active && setMarket("india"));
+    return () => {
+      active = false;
+    };
+  }, [storeId]);
+
+  const seed = market ? SEED_MARKET_CATALOGS[market] : null;
   const storeHasData = existingProductCount > 0 || existingCategoryCount > 0;
 
   async function handleGenerate() {
+    if (!market) return;
     setProgress({ phase: "categories", done: 0, total: 1 });
     try {
-      const result = await seedGroceryData(storeId, setProgress);
-      toast.success(
-        `Sample data generated — ${result.total} items created`,
-      );
+      const result = await seedGroceryData(storeId, market, setProgress);
+      toast.success(`Sample data generated — ${result.total} items created`);
       onClose();
     } catch {
       // The single batch commit is all-or-nothing, so this copy can promise
@@ -96,16 +133,44 @@ export function GenerateGroceryDataDialog({
           </div>
         ) : (
           <div className="flex flex-col gap-4">
-            <p className="text-sm text-muted-foreground">
-              Fills this store with a realistic Indian grocery catalog — real
-              brands like Amul, Britannia, Tata and Maggi, ₹ prices, product
-              photos, plus ready-made coupons and promo banners:
-            </p>
-            <p className="text-sm font-medium">
-              {seed.categories.length} categories · {seed.brands.length} brands
-              · {seed.products.length} products · {seed.coupons.length} coupons
-              · {seed.banners.length} banners
-            </p>
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="seed-market">Catalog</Label>
+              <Select
+                value={market ?? undefined}
+                onValueChange={(value) => setMarket(value as SeedMarket)}
+              >
+                <SelectTrigger id="seed-market" className="w-full">
+                  <SelectValue placeholder="Loading…" />
+                </SelectTrigger>
+                <SelectContent>
+                  {SEED_MARKETS.map((code) => (
+                    <SelectItem key={code} value={code}>
+                      {SEED_MARKET_LABELS[code]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                Pre-selected from your store&apos;s currency. Prices are that
+                market&apos;s real shelf prices, not converted — so they land in
+                the price bands your storefront&apos;s filter uses.
+              </p>
+            </div>
+
+            {market && (
+              <>
+                <p className="text-sm text-muted-foreground">
+                  {SEED_MARKET_DESCRIPTIONS[market]} Includes product photos plus
+                  ready-made coupons and promo banners:
+                </p>
+                <p className="text-sm font-medium">
+                  {seed!.categories.length} categories · {seed!.brands.length}{" "}
+                  brands · {seed!.products.length} products ·{" "}
+                  {seed!.coupons.length} coupons · {seed!.banners.length} banners
+                </p>
+              </>
+            )}
+
             {storeHasData && (
               <div className="rounded-lg border border-border-strong bg-muted/60 p-3 text-sm">
                 This store already has {existingProductCount} product
@@ -140,7 +205,7 @@ export function GenerateGroceryDataDialog({
             <Button variant="outline" onClick={onClose} disabled={running}>
               Cancel
             </Button>
-            <Button onClick={handleGenerate} disabled={running}>
+            <Button onClick={handleGenerate} disabled={running || !market}>
               {running ? "Generating…" : "Generate"}
             </Button>
           </div>

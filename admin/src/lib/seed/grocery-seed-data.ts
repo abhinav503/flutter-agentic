@@ -1,5 +1,7 @@
-// The "Generate sample data" catalog — a realistic Indian quick-commerce
-// grocery store (Zepto/Instamart-style groups, real brands, ₹ MRP pricing).
+// The **India** sample catalog — a realistic Indian quick-commerce grocery
+// store (Zepto/Instamart-style groups, real brands, ₹ MRP pricing). One market
+// among several; see seed-markets.ts for the registry and germany-seed-data.ts
+// for the euro-priced sibling.
 //
 // Image sources (every URL is verified live by scripts/verify-seed-images.mjs
 // — re-run it whenever this file changes):
@@ -11,90 +13,15 @@
 // - Banners: landscape photography from Unsplash (see the banners block).
 // - Brand logos: Google's favicon endpoint / DiceBear monograms (see the
 //   brands block).
-//
-// Slugs are the cross-reference keys: real Firestore ids are minted at write
-// time by the seeder (seed-grocery.ts), which maps slugs → new doc ids.
 
-import type { CouponScope, CouponType, UnitType } from "@/lib/types";
+import {
+  OFF_IMAGE_BASE,
+  type GrocerySeed,
+} from "./seed-types";
 
-export type SeedCategory = {
-  slug: string;
-  name: string;
-  imageUrl: string;
-  groupName: string;
-};
+const IMG = OFF_IMAGE_BASE;
 
-export type SeedBrand = {
-  slug: string;
-  name: string;
-  // "" throughout v1 — OFF hosts product photos, not brand logos, and logo
-  // files elsewhere are trademark-encumbered. Consumers placeholder-fall-back.
-  logoUrl: string;
-};
-
-export type SeedSizeVariant = {
-  value: number;
-  price: number;
-  // Absent = no per-size discount (originalPrice equals price).
-  originalPrice?: number;
-};
-
-export type SeedProduct = {
-  slug: string;
-  name: string;
-  imageUrl: string;
-  price: number;
-  // Absent = not discounted.
-  originalPrice?: number;
-  unitValue: number;
-  unitType: UnitType;
-  description: string;
-  stock: number;
-  prepTime?: string;
-  categorySlugs: string[];
-  // Absent = unbranded ("").
-  brandSlug?: string;
-  sizeVariants?: SeedSizeVariant[];
-  isPopular?: boolean;
-};
-
-// Always seeded evergreen (validFrom/validUntil "") and active; the target
-// slug list used is the one matching `scope`.
-export type SeedCoupon = {
-  code: string;
-  type: CouponType;
-  value: number;
-  scope: CouponScope;
-  targetCategorySlugs?: string[];
-  targetProductSlugs?: string[];
-  minOrderValue: number;
-  maxDiscount: number;
-  usageLimit: number;
-  perUserLimit: number;
-};
-
-export type SeedBanner = {
-  title: string;
-  subtitle: string;
-  imageUrl: string;
-  // At most one of these; neither = a display-only banner.
-  targetCategorySlug?: string;
-  targetProductSlug?: string;
-  sortOrder: number;
-  backgroundColor: string;
-};
-
-export type GrocerySeed = {
-  categories: SeedCategory[];
-  brands: SeedBrand[];
-  products: SeedProduct[];
-  coupons: SeedCoupon[];
-  banners: SeedBanner[];
-};
-
-const IMG = "https://images.openfoodfacts.org/images/products";
-
-export const GROCERY_SEED: GrocerySeed = {
+export const INDIA_SEED: GrocerySeed = {
   categories: [
     {
       slug: "fruits-vegetables",

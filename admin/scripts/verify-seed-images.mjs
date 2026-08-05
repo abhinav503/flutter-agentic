@@ -1,5 +1,5 @@
-// Verifies every Open Food Facts image URL in the grocery seed dataset still
-// resolves — the canary for URL rot. Run whenever grocery-seed-data.ts
+// Verifies every image URL in EVERY market's grocery seed dataset still
+// resolves — the canary for URL rot. Run whenever a *-seed-data.ts file
 // changes:  npm run verify:seed-images
 //
 // Reads the TS source as text (no TS tooling in scripts/) and extracts URLs
@@ -9,12 +9,15 @@ import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
-const dataFile = join(
-  dirname(fileURLToPath(import.meta.url)),
-  "../src/lib/seed/grocery-seed-data.ts",
+// Every market's catalog (see src/lib/seed/seed-markets.ts). Adding a market
+// means adding its file here, otherwise its URLs go unchecked.
+const dataFiles = ["grocery-seed-data.ts", "germany-seed-data.ts"].map((name) =>
+  join(dirname(fileURLToPath(import.meta.url)), "../src/lib/seed", name),
 );
 
-const source = await readFile(dataFile, "utf8");
+const source = (
+  await Promise.all(dataFiles.map((file) => readFile(file, "utf8")))
+).join("\n");
 // Product URLs appear as `${IMG}/<path>` template literals over the IMG base
 // constant; banner (Unsplash) and brand-logo (gstatic favicon / DiceBear)
 // URLs are plain string literals.
