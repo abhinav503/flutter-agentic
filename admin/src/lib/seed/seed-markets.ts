@@ -12,6 +12,8 @@ import { GERMANY_SEED } from "./germany-seed-data";
 import { INDIA_SEED } from "./grocery-seed-data";
 import { ITALY_SEED } from "./italy-seed-data";
 import { SPAIN_SEED } from "./spain-seed-data";
+import { UK_SEED } from "./uk-seed-data";
+import { US_SEED } from "./us-seed-data";
 import type { GrocerySeed } from "./seed-types";
 
 export const SEED_MARKETS = [
@@ -20,6 +22,8 @@ export const SEED_MARKETS = [
   "france",
   "spain",
   "italy",
+  "uk",
+  "us",
 ] as const;
 export type SeedMarket = (typeof SEED_MARKETS)[number];
 
@@ -29,6 +33,8 @@ export const SEED_MARKET_CATALOGS: Record<SeedMarket, GrocerySeed> = {
   france: FRANCE_SEED,
   spain: SPAIN_SEED,
   italy: ITALY_SEED,
+  uk: UK_SEED,
+  us: US_SEED,
 };
 
 export const SEED_MARKET_LABELS: Record<SeedMarket, string> = {
@@ -37,6 +43,8 @@ export const SEED_MARKET_LABELS: Record<SeedMarket, string> = {
   france: "France — €, French brands",
   spain: "Spain — €, Spanish brands",
   italy: "Italy — €, Italian brands",
+  uk: "United Kingdom — £, British brands",
+  us: "United States — $, American brands",
 };
 
 // One line per market, shown under the picker so an owner can tell them apart
@@ -52,23 +60,33 @@ export const SEED_MARKET_DESCRIPTIONS: Record<SeedMarket, string> = {
     "Supermarket aisles in Spanish with brands like Central Lechera Asturiana, Carbonell, Gullón, Font Vella and ColaCao, priced in euros.",
   italy:
     "Supermarket aisles in Italian with brands like Barilla, Mulino Bianco, Galbani, Lavazza and Perugina, priced in euros.",
+  uk:
+    "Supermarket aisles with brands like Warburtons, Heinz, Cathedral City, Yorkshire Tea and Cadbury, priced in pounds.",
+  us:
+    "Supermarket aisles with brands like Cheerios, Kraft, Chobani, DiGiorno and Folgers, priced in dollars.",
 };
 
 /**
  * Which catalog to pre-select for a store charging `currency`.
  *
- * A *default*, not a derivation — the owner can pick any market, and they have
- * to be able to: EUR alone doesn't say whether a store is German, French,
- * Spanish or Italian — and all four now have catalogs.
+ * A *default*, not a derivation — the owner can pick any market, and for the
+ * euro they have to: EUR cannot tell Germany from France, Spain or Italy, and
+ * all four have catalogs. Germany wins that tie arbitrarily, which is the
+ * honest answer; guessing from anything else (store name, admin locale) would
+ * be wrong more confidently.
  *
- * Everything non-rupee defaults to Germany, which is arbitrary among the euro
- * catalogs and deliberately so: EUR cannot tell any of the four euro markets
- * apart, and guessing from anything else (store name, admin locale) would be a worse
- * kind of wrong — silently confident. GBP and USD land there too because German
- * shelf prices sit in the same 2/5/10 band scale the filter uses for those
- * currencies, so the numbers are at least plausible; the brands and language
- * will not be. A starting point, not an answer.
+ * INR, GBP and USD each map to their own market, so those three are exact
+ * rather than a compromise.
  */
 export function defaultSeedMarketForCurrency(currency: string): SeedMarket {
-  return currency.toUpperCase() === "INR" ? "india" : "germany";
+  switch (currency.toUpperCase()) {
+    case "INR":
+      return "india";
+    case "GBP":
+      return "uk";
+    case "USD":
+      return "us";
+    default:
+      return "germany";
+  }
 }

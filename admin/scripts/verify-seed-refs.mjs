@@ -21,6 +21,8 @@ const FILES = [
   ["france", "france-seed-data.ts"],
   ["spain", "spain-seed-data.ts"],
   ["italy", "italy-seed-data.ts"],
+  ["uk", "uk-seed-data.ts"],
+  ["us", "us-seed-data.ts"],
 ];
 
 const seedDir = join(dirname(fileURLToPath(import.meta.url)), "../src/lib/seed");

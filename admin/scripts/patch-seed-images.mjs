@@ -29,6 +29,8 @@ const source = (
       "france-seed-data.ts",
       "spain-seed-data.ts",
       "italy-seed-data.ts",
+      "uk-seed-data.ts",
+      "us-seed-data.ts",
     ].map(
       (name) =>
       readFile(

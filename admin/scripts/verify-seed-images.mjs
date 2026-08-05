@@ -17,6 +17,8 @@ const dataFiles = [
   "france-seed-data.ts",
   "spain-seed-data.ts",
   "italy-seed-data.ts",
+  "uk-seed-data.ts",
+  "us-seed-data.ts",
 ].map((name) =>
   join(dirname(fileURLToPath(import.meta.url)), "../src/lib/seed", name),
 );

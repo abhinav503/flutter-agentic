@@ -2828,3 +2828,67 @@ price scale for GBP/USD, wrong brands and language. Neither has a language pack
 either, so English copy plus a British or American catalog would be the natural
 pairing; unlike the four European markets, the *language* side is already done
 for them.
+
+## UK and US sample catalogs — DONE (2026-08-06); every market has a catalog
+
+The last two markets, shipped together because they share a property none of
+the others had: **English needs no language pack**, so only the catalog side
+was ever outstanding for them.
+
+Two separate catalogs rather than one English one. The price *scale* is
+identical (GBP and USD both use the 2/5/10 bands), but the brands diverge
+completely — Warburtons/Cathedral City/Yorkshire Tea/Branston against
+Cheerios/Kraft/Chobani/DiGiorno/Folgers — and a British shopper being offered
+Goldfish crackers is the same failure as a German one being offered Amul.
+
+- **UK**: 10 Tesco/Sainsbury's-style aisles, 70 British brands, 102 products at
+  pound shelf prices, 7 coupons, 4 banners. 193 docs.
+- **US**: 10 Kroger/Publix-style aisles, 69 American brands, 100 products at
+  dollar shelf prices, 7 coupons, 4 banners. 190 docs.
+
+### `defaultSeedMarketForCurrency` finally does real work
+
+Until now every non-rupee currency landed on Germany — right price scale for
+GBP and USD, wrong brands and language. With catalogs behind those two
+currencies the mapping is now exact for three of the four: INR to India,
+GBP to UK, USD to US. Only EUR still falls back arbitrarily, and that is
+irreducible: the euro genuinely cannot distinguish Germany from France, Spain
+or Italy, and all four have catalogs. Germany wins that tie, which the doc
+comment says plainly rather than dressing up as inference.
+
+### Seven markets
+
+    india   (INR, 103 products, 10-615):     under 100=68  100-250=28  250-500=4  over 500=3
+    germany (EUR,  96 products, 0.49-14.99): under 2=48    2-5=41      5-10=4     over 10=3
+    france  (EUR, 106 products, 0.45-13.99): under 2=33    2-5=69      5-10=2     over 10=2
+    spain   (EUR, 111 products, 0.35-13.75): under 2=46    2-5=56      5-10=7     over 10=2
+    italy   (EUR, 107 products, 0.45-13.45): under 2=43    2-5=57      5-10=4     over 10=3
+    uk      (GBP, 102 products, 0.65-12.75): under 2=50    2-5=45      5-10=5     over 10=2
+    us      (USD, 100 products, 0.99-13.99): under 2=20    2-5=53      5-10=23    over 10=4
+
+**719 products, 918 image URLs, all resolving.** The verifier stayed clean at
+918 with no false positives — the retry/backoff added during the Spanish pass
+is what makes a check that size trustworthy, and it has now been load-bearing
+twice.
+
+The UK draft initially had a single product in its 5-10 band. That passes the
+band gate (nothing is unreachable) but it is a filter chip returning one item,
+so four prices were corrected upward — premium instant coffee and butter, both
+genuinely underpriced in the draft. The gate catches empty bands; a nearly
+empty one still needs a human to look.
+
+Worth noting the US spread is much flatter than the European ones (20/53/23/4
+against Germany's 48/41/4/3). That is real, not a modelling artefact: American
+grocery packs are larger and priced higher per unit, so the same 2/5/10 edges
+land differently. It makes the US filter the most useful of the seven.
+
+### The remaining gap, unchanged
+
+Catalog *content* is still single-valued (see `content-i18n-plan.md`), so each
+catalog is written in one language and a shopper switching the storefront's
+language sees translated chrome around untranslated product names. That is the
+deliberate boundary this whole line of work has sat inside.
+
+France and Spain are confirmed working in live stores. Germany, Italy, UK and
+US come off the identical pipeline and pass every gate, but have not been
+opened yet.
