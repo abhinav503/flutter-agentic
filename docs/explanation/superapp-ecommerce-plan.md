@@ -2737,3 +2737,47 @@ filename to all four** or its data goes unchecked:
 pre-selects Germany — right price scale, wrong brands and language.
 `defaultSeedMarketForCurrency` now says plainly that the euro default is
 arbitrary between Germany and France, and why guessing harder would be worse.
+
+## Spain sample catalog — DONE (2026-08-06)
+
+Third country catalog. 10 Mercadona/Carrefour-ES style aisles in Spanish, 70
+real Spanish brands (Central Lechera Asturiana, García Baquero, El Caserío,
+Carbonell, Coosur, La Española, Gullón, Fontaneda, Cuétara, Artiach, Nocilla,
+ColaCao, Solís, Litoral, Gallina Blanca, Calvo, Isabel, El Navarrico, Casa
+Tarradellas, Campofrío, Valor, El Almendro, Grefusa, Font Vella, Solán de
+Cabras, Marcilla, Saimaza, Bonka, Hornimans, …), **111 products named and
+described in Spanish** at Spanish shelf prices, 7 Spanish coupon codes
+(`BIENVENIDA10`, `FRESCOS5`, …) and 4 banners. 202 docs, one atomic
+`writeBatch`.
+
+The pipeline ran clean on the third pass — harvest, targeted staples pass,
+canonical barcode resolution, generate, register in all four gates — with the
+only per-market work being curation and pricing. Photo coverage 85/111; the 26
+placeholders are loose produce and the whole *Hogar* aisle, the same OFF gap as
+the other markets.
+
+### The gate itself needed fixing at this scale
+
+`verify:seed-images` now checks **564 URLs** across four catalogs, and at that
+size Open Food Facts' CDN started throttling: the run reported an India
+category image as failed, and a single manual fetch of that exact URL returned
+**200**. The product endpoint also still advertised it. So it was a false
+positive, and a false positive is worse than no check — it is what teaches
+people to ignore a red build.
+
+`check()` now distinguishes the two cases. A **404 or 410 is definitive** and
+fails immediately: that is the URL rot the script exists to catch. A **429, 5xx
+or socket error is transient** and retries up to four times with increasing
+backoff. Failures print their reason (`FAIL (HTTP 404) …`), so a real rot is
+legible at a glance rather than needing a manual curl to confirm. With that in
+place the run is clean at 564 URLs, and the only genuine failures were two
+Spanish brand favicons Google's endpoint 404s for (Pascual, Puleva) — now
+monograms.
+
+The harvest helper was hardened for the same reason: one connect timeout on the
+last of eight search terms was aborting the run and discarding every term
+already collected. It now retries and skips.
+
+**Still open:** Italy (to complete the language-pack set), then UK/US. And the
+standing gap for all three euro markets — nobody has seeded a live store and
+opened the storefront yet.

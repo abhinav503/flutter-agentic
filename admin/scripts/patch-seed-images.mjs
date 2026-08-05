@@ -23,7 +23,12 @@ if (!storeId) {
 // and banner titles / brand names are unique enough across them to key on.
 const source = (
   await Promise.all(
-    ["grocery-seed-data.ts", "germany-seed-data.ts", "france-seed-data.ts"].map(
+    [
+      "grocery-seed-data.ts",
+      "germany-seed-data.ts",
+      "france-seed-data.ts",
+      "spain-seed-data.ts",
+    ].map(
       (name) =>
       readFile(
         join(dirname(fileURLToPath(import.meta.url)), "../src/lib/seed", name),

@@ -15,6 +15,7 @@ const dataFiles = [
   "grocery-seed-data.ts",
   "germany-seed-data.ts",
   "france-seed-data.ts",
+  "spain-seed-data.ts",
 ].map((name) =>
   join(dirname(fileURLToPath(import.meta.url)), "../src/lib/seed", name),
 );
@@ -45,18 +46,38 @@ const headers = {
   "User-Agent": "CordeliaBase-admin-seed-verifier/1.0 (cordeliaapps@gmail.com)",
 };
 
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+// A 404/410 means the image is genuinely gone — that is the URL rot this
+// script exists to catch. A 429 or 5xx or a socket error means the host is
+// throttling us, which at this catalog size it will: the run crossed 550 URLs
+// and started reporting failures that a single manual fetch answered 200 for.
+// Retrying those keeps the gate honest, because a check that cries wolf is one
+// people learn to ignore.
+const DEFINITIVE = new Set([404, 410]);
+
 async function check(url) {
-  try {
-    let res = await fetch(url, { method: "HEAD", headers });
-    if (!res.ok) {
-      // Some CDNs reject HEAD; confirm with a ranged GET before failing.
-      res = await fetch(url, {
-        headers: { ...headers, Range: "bytes=0-0" },
-      });
+  for (let attempt = 0; ; attempt++) {
+    let status = 0;
+    try {
+      let res = await fetch(url, { method: "HEAD", headers });
+      if (!res.ok) {
+        // Some CDNs reject HEAD; confirm with a ranged GET before failing.
+        res = await fetch(url, { headers: { ...headers, Range: "bytes=0-0" } });
+      }
+      if (res.ok) return { ok: true };
+      status = res.status;
+      if (DEFINITIVE.has(status)) return { ok: false, reason: `HTTP ${status}` };
+    } catch (err) {
+      status = 0;
+      if (attempt >= 3) {
+        return { ok: false, reason: err.cause?.code ?? err.name };
+      }
     }
-    return res.ok;
-  } catch {
-    return false;
+    if (attempt >= 3) {
+      return { ok: false, reason: `HTTP ${status} after 4 attempts` };
+    }
+    await sleep(1500 * (attempt + 1));
   }
 }
 
@@ -68,11 +89,11 @@ let checked = 0;
 await Promise.all(
   Array.from({ length: CONCURRENCY }, async () => {
     for (let url = queue.shift(); url; url = queue.shift()) {
-      const ok = await check(url);
+      const { ok, reason } = await check(url);
       checked += 1;
       if (!ok) {
         failures.push(url);
-        console.error(`FAIL ${url}`);
+        console.error(`FAIL (${reason}) ${url}`);
       }
       if (checked % 25 === 0) console.error(`…${checked}/${urls.length}`);
     }
