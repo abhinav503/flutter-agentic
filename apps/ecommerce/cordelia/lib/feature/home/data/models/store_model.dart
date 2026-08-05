@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import 'package:cordelia/feature/storefront/template/store_language.dart';
 import 'package:cordelia/feature/storefront/template/storefront_template.dart';
 
 import '../../domain/entities/store_entity.dart';
@@ -26,6 +27,9 @@ abstract class StoreModel with _$StoreModel {
     // maps ''/unknown → gravia), so this DTO doesn't hold a second copy of
     // that policy.
     @JsonKey(name: 'template_id') @Default('') String templateId,
+    // Same defaulted-not-required reasoning as template_id: the wire→enum
+    // fallback (''/unknown → en) lives in StoreLanguageParse alone.
+    @Default('') String language,
   }) = _StoreModel;
 
   factory StoreModel.fromJson(Map<String, dynamic> json) =>
@@ -37,6 +41,7 @@ abstract class StoreModel with _$StoreModel {
     image: e.logoUrl,
     description: e.description,
     templateId: e.templateId.wireValue,
+    language: e.language.wireValue,
   );
 
   StoreEntity toEntity() => StoreEntity(
@@ -45,5 +50,6 @@ abstract class StoreModel with _$StoreModel {
     logoUrl: image,
     description: description,
     templateId: templateId.toStorefrontTemplate(),
+    language: language.toStoreLanguage(),
   );
 }

@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:core/core/base/base_screen.dart';
 import 'package:core/core/mixins/textfield_validations.dart';
+import 'package:cordelia/utils/localized_validations.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/button.dart';
 
@@ -33,7 +34,7 @@ class ChangePasswordScreen extends BaseScreen {
 }
 
 class _ChangePasswordScreenState extends BaseScreenState<ChangePasswordScreen>
-    with TextfieldValidations, ChangePasswordForm {
+    with TextfieldValidations, LocalizedValidations, ChangePasswordForm {
   @override
   String get passwordUpdatedMessage =>
       DailyMartValueConst.passwordUpdatedMessage;

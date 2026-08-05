@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:core/core/base/base_screen.dart';
 import 'package:core/core/mixins/textfield_validations.dart';
+import 'package:cordelia/utils/localized_validations.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/button.dart';
 import 'package:core/core/ui/atoms/inline_text_link.dart';
@@ -34,7 +35,7 @@ class LoginScreen extends BaseScreen {
 }
 
 class _LoginScreenState extends BaseScreenState<LoginScreen>
-    with TextfieldValidations {
+    with TextfieldValidations, LocalizedValidations {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 

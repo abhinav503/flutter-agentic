@@ -7,7 +7,7 @@ import {
 } from "@/lib/api/admin-guard";
 import { getTemplates } from "@/lib/templates";
 import { serializeStore } from "@/lib/api/serializers";
-import type { Store } from "@/lib/types";
+import { STORE_LANGUAGES, type Store } from "@/lib/types";
 
 // Same doc→Store defaults as mapStoreDoc in src/lib/stores.ts, but over an
 // Admin-SDK snapshot (that helper is typed to the client SDK the dashboard
@@ -25,6 +25,7 @@ function mapAdminStoreDoc(
     status: (data.status as string) ?? "active",
     searchKeywords: (data.searchKeywords as string[] | undefined) ?? [],
     templateId: (data.templateId as string) ?? "gravia",
+    language: (data.language as string) ?? "en",
   };
 }
 
@@ -111,6 +112,21 @@ export async function PUT(
       );
     }
     update.templateId = templateId;
+  }
+  if (body.language !== undefined) {
+    const language =
+      typeof body.language === "string" ? body.language.trim() : "";
+    // Fail loud like templateId — cordelia's parse silently falls back to
+    // English on an unknown value.
+    if (!(STORE_LANGUAGES as readonly string[]).includes(language)) {
+      return NextResponse.json(
+        {
+          error: `Unknown language "${language}" — valid: ${STORE_LANGUAGES.join(", ")}`,
+        },
+        { status: 400 },
+      );
+    }
+    update.language = language;
   }
 
   if (Object.keys(update).length === 0) {

@@ -5,11 +5,16 @@ import 'package:cordelia/feature/auth/presentation/sign_out.dart';
 import 'package:cordelia/feature/storefront/active_store/presentation/cubit/active_store_cubit.dart';
 import 'package:cordelia/feature/storefront/presentation/view/storefront_page.dart';
 import 'package:cordelia/feature/storefront/shell/presentation/templates/gravia/view/shell_page.dart';
+import 'package:cordelia/feature/storefront/template/store_language.dart';
+import 'package:cordelia/l10n/active_locale_controller.dart';
+import 'package:cordelia/l10n/active_locale_scope.dart';
+import 'package:cordelia/l10n/store_locale_prefs.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_color_const.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_image_const.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_dimen_const.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_value_const.dart';
 import 'package:cordelia/templates/gravia/widgets/gravia_sheet.dart';
+import 'package:cordelia/templates/gravia/widgets/radio_options_sheet_content.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -45,6 +50,30 @@ class _ProfileScreenState extends BaseScreenState<ProfileScreen>
     confirmLabel: ValueConst.deleteAccountLabel,
     onConfirm: deleteAccount,
   );
+
+  /// The shopper's per-store override of the admin's store language — saving
+  /// the pref and applying the locale in one tap; the sheet pops itself
+  /// before reporting (see [RadioOptionsSheetContent]).
+  void _showLanguageSheet() {
+    final store = context.read<ActiveStoreCubit>().state!;
+    final current =
+        StoreLocalePrefs.overrideFor(store.storeId) ?? store.language;
+    showGraviaSheet(
+      title: GraviaValueConst.languageLabel,
+      child: RadioOptionsSheetContent<StoreLanguage>(
+        options: StoreLanguage.values,
+        labelOf: (language) => switch (language) {
+          StoreLanguage.en => GraviaValueConst.languageEnglish,
+          StoreLanguage.hi => GraviaValueConst.languageHindi,
+        },
+        selected: current,
+        onSelected: (language) {
+          StoreLocalePrefs.saveOverride(store.storeId, language);
+          ActiveLocaleScope.of(context).apply(language.asLocale);
+        },
+      ),
+    );
+  }
 
   /// Pushes the Edit Profile form prefilled from [profile]; if it returned a
   /// result (Cancel/back pops with none), dispatches it into this screen's
@@ -161,6 +190,15 @@ class _ProfileScreenState extends BaseScreenState<ProfileScreen>
                         activeTrackColor: GraviaColorConst.success500,
                         inactiveTrackColor: GraviaColorConst.gray100,
                       ),
+                    ),
+                    ProfileMenuTile(
+                      // Material glyph, not a pack SVG — the kit ships no
+                      // language row (this affordance is ours), and no
+                      // bundled icon reads as "language".
+                      iconBuilder: (color, size) =>
+                          Icon(Icons.language, color: color, size: size),
+                      label: GraviaValueConst.languageLabel,
+                      onTap: _showLanguageSheet,
                     ),
                     ProfileMenuTile(
                       iconBuilder: (color, size) => AppSvgImage.asset(

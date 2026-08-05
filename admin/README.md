@@ -28,6 +28,9 @@ npm run dev        # http://localhost:4100
 - `NEXT_PUBLIC_FIREBASE_*` — client SDK config (browser auth + dashboard reads).
 - `PAYMENTS_ENC_KEY` — 64 hex chars; AES-256-GCM key that encrypts store
   payment/webhook secrets at rest (`src/lib/crypto.ts`). Never ships to a client.
+- `OLA_MAPS_API_KEY` — Ola Maps key behind the `/api/geo/*` proxy routes
+  (reverse geocode + autocomplete for the shopper address form;
+  `src/lib/geo.ts`). Never ships to a client.
 
 See `.env.local.example` for the full list.
 

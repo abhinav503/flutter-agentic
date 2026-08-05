@@ -160,7 +160,7 @@ class _OrdersScreenState extends BaseScreenState<OrdersScreen>
           vertical: AppSpacing.xl2,
         ),
         child: visible.isEmpty
-            ? const EmptyState(
+            ? EmptyState(
                 iconData: Icons.shopping_bag_outlined,
                 title: GraviaValueConst.ordersEmptyTitle,
                 subtitle: GraviaValueConst.ordersEmptySubtitle,

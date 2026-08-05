@@ -49,8 +49,10 @@ class ShellPage extends StorefrontShellPage {
 class _ShellPageState extends BasePageState<ShellPage>
     with StorefrontShellState {
   // Kit tab set: Home, Categories, Favourite, Orders (bag), Profile — the
-  // cart is not a nav tab in this pack.
-  static final _tabs = [
+  // cart is not a nav tab in this pack. A getter, not `static final`: the
+  // labels come from L10n and a class-lifetime cache would pin whichever
+  // language happened to be active at first build.
+  List<BottomNavBarItem> get _tabs => [
     BottomNavBarItem(
       iconBuilder: svgNavIcon(GraviaImageConst.navHome),
       label: GraviaValueConst.navHome,

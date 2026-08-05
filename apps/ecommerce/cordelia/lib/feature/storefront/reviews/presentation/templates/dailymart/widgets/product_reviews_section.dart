@@ -61,7 +61,7 @@ class DailyMartProductReviewsSection extends StatelessWidget {
         if (reviews.rating.hasReviews)
           _SummaryCard(rating: reviews.rating)
         else
-          const EmptyState(
+          EmptyState(
             iconData: Icons.reviews_outlined,
             title: ValueConst.reviewsEmptyTitle,
             subtitle: ValueConst.reviewsEmptySubtitle,

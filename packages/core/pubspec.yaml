@@ -22,6 +22,9 @@ dependencies:
 
   # Device utilities — core is the shared mobile toolbelt
   image_picker: ^1.1.2
+  # LocationService (device GPS; ships a web implementation, so no
+  # conditional import needed)
+  geolocator: ^14.0.2
 
   # Functional error handling (Failure / Either across layer boundaries)
   fpdart: ^1.1.0

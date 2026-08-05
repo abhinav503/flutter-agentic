@@ -2165,3 +2165,71 @@ notifications from the backend; BYOK "custom store with AI" generation mode
 (free-tier Groq/Gemini — designed, deferred from seeder v1); gravia +
 dailymart untested against the seeded catalog (grofast is); admin catalog
 pagination/server ordering if stores outgrow full-collection streaming.
+
+## Per-store language (EN/हिन्दी, gravia) + real-location address form — DONE (2026-08-05)
+
+Two features landed together; both ride existing per-store mechanisms.
+
+### Per-store language
+
+- **Store schema**: `stores/{storeId}.language` (`'en' | 'hi'`, default
+  `'en'`) — validated fail-loud in POST/PUT `/api/stores` (same reasoning as
+  `templateId`), emitted by `serializeStore` as `language`, selectable in
+  the create-store dialog and Settings' store profile
+  (`STORE_LANGUAGES`/`STORE_LANGUAGE_LABELS` in `admin/src/lib/types.ts`).
+- **Plumbing** mirrors the theme swap exactly: `StoreModel` (`@Default('')`)
+  → `StoreEntity`/`ActiveStoreEntity` carry a `StoreLanguage` enum
+  (wire-parse defaults unknown → `en`, one policy in
+  `store_language.dart`); `StorefrontPage` applies the effective locale
+  post-frame with the session guard and resets it in the same teardown
+  callback as the theme. `ActiveLocaleController extends
+  ValueNotifier<Locale>` + `ActiveLocaleScope` sit above
+  `MaterialApp.router`, which now sets `locale`/`supportedLocales`/
+  `localizationsDelegates`.
+- **Strings**: flutter gen-l10n (`lib/l10n/app_en.arb` + `app_hi.arb`, ~310
+  keys) exposed through the existing const holders — `GraviaValueConst` and
+  the shared user-facing `ValueConst` subset became `static String get`
+  delegating to a static `L10n.current` (reassigned *before* the locale
+  notify), so ~400 call sites didn't change. ICU plurals replaced
+  `num.plural` inside the holders (`cartSummaryLabel`, `reviewCountLabel`,
+  `reviewAgeLabel` buckets). Validation copy localizes via
+  `LocalizedValidations` (overrides core's `TextfieldValidations`; core
+  gains no intl/arb). Gravia's Profile has a Language row (per-store
+  shopper override, `StoreLocalePrefs` in SharedPreferences, wins over the
+  admin default). dailymart/grofast keep const English and are forced `en`.
+  Gotchas encoded in the add-storefront-template skill: no localized copy in
+  `static final` caches (shell `_tabs` became a getter) or `const`
+  constructor defaults (review sheet's `textLabel` went nullable).
+- App chrome outside a storefront (discovery, onboarding, splash) stays
+  English on purpose; auth/legal/reviews/sort copy is localized since a
+  storefront can surface it.
+
+### Real-location address form
+
+- **APIs**: Ola Maps (free 5M calls/month/API) proxied server-side —
+  `admin/src/lib/geo.ts` + token-authed `GET /api/geo/reverse`,
+  `/api/geo/autocomplete`, `/api/geo/pincode/{pincode}` (key in
+  `OLA_MAPS_API_KEY`, payments.ts fetch/typed-error pattern); India Post
+  (`api.postalpincode.in`, keyless, no SLA → best-effort) proxied too so
+  the app has one code path and web dodges CORS.
+- **Address schema** (+ order `delivery_address` snapshots, tolerant both
+  ways): `state` (default `''`), `latitude`/`longitude` (default `null`).
+- **Core**: `LocationService` (geolocator; static singleton, sealed
+  `LocationResult`, in-flight dedupe, 15s fix timeout; web supported) and a
+  `Failure.location` variant (screens match the type and show pack copy,
+  like `Failure.payment`).
+- **cordelia**: new `feature/storefront/geo/` (data source → `/api/geo/*`;
+  `GeoAddressEntity`/`PlaceSuggestionEntity`/`PincodeInfoEntity` pairs; use
+  cases; `AddressLookupBloc` with 350ms debounce+switchMap). The shared
+  `AddressFormFields` mixin: **city picklist → free text** (geo prefill
+  writes real city names; the US-cities lists are gone), optional `state`
+  field, `prefill`/`prefillPincode` hooks, lat/lng carried onto the saved
+  entity. All three packs' forms updated; gravia additionally ships the
+  chrome: "Use my location" tinted button (LoadingDots while resolving),
+  debounced address search with suggestion rows, 6-digit pincode listener.
+  Permissions added: Android `ACCESS_COARSE/FINE_LOCATION`, iOS
+  `NSLocationWhenInUseUsageDescription`.
+- **Deliberately not done**: map pin picker (no map SDK), dailymart/grofast
+  location chrome (pure pack work on the same bloc), standalone
+  `apps/ecommerce/gravia`'s old address feature (unknown JSON keys are
+  ignored), Hindi for catalog content (admin data stays as typed).

@@ -16,7 +16,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cordelia/feature/storefront/active_store/domain/entities/active_store_entity.dart';
 import 'package:cordelia/feature/storefront/active_store/presentation/cubit/active_store_cubit.dart';
+import 'package:cordelia/feature/storefront/template/store_language.dart';
 import 'package:cordelia/feature/storefront/template/storefront_template.dart';
+import 'package:cordelia/l10n/active_locale_controller.dart';
+import 'package:cordelia/l10n/active_locale_scope.dart';
+import 'package:cordelia/l10n/store_locale_prefs.dart';
 import 'package:cordelia/theme/active_theme_controller.dart';
 import 'package:cordelia/theme/active_theme_scope.dart';
 
@@ -52,7 +56,9 @@ class StorefrontPage extends BasePage {
 
 class _StorefrontPageState extends BasePageState<StorefrontPage> {
   ActiveThemeController? _activeTheme;
+  ActiveLocaleController? _activeLocale;
   bool _themeApplyRequested = false;
+  bool _localeApplyRequested = false;
 
   // Captured here (not looked up in dispose) — ancestor lookups from
   // dispose() throw "Looking up a deactivated widget's ancestor is unsafe".
@@ -73,10 +79,34 @@ class _StorefrontPageState extends BasePageState<StorefrontPage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     _activeTheme ??= ActiveThemeScope.of(context);
+    _activeLocale ??= ActiveLocaleScope.of(context);
     if (!_themeApplyRequested) {
       _themeApplyRequested = true;
       _applyTemplateTheme();
     }
+    if (!_localeApplyRequested) {
+      _localeApplyRequested = true;
+      // Post-frame, not synchronous: apply() notifies the app-level
+      // ValueListenableBuilder, and this runs during the mount pass —
+      // marking an ancestor dirty mid-build throws. Also gives it the same
+      // session-guard shape as _applyTemplateTheme.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!_activeStore.isCurrentSession(_storeSession)) return;
+        _applyStoreLocale();
+      });
+    }
+  }
+
+  /// The shopper's on-device override wins over the admin's store default;
+  /// templates other than gravia have no translated copy (their pack consts
+  /// are hardcoded English), so they force English rather than half-apply
+  /// Hindi to only the shared strings.
+  void _applyStoreLocale() {
+    final effective = widget.store.templateId == StorefrontTemplate.gravia
+        ? (StoreLocalePrefs.overrideFor(widget.store.storeId) ??
+              widget.store.language)
+        : StoreLanguage.en;
+    _activeLocale?.apply(effective.asLocale);
   }
 
   Future<void> _applyTemplateTheme() async {
@@ -98,6 +128,7 @@ class _StorefrontPageState extends BasePageState<StorefrontPage> {
     // deferring to a post-frame callback lets those rebuilds happen on the
     // next frame instead of during the locked unmount pass.
     final activeTheme = _activeTheme;
+    final activeLocale = _activeLocale;
     final activeStore = _activeStore;
     final session = _storeSession;
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -106,8 +137,11 @@ class _StorefrontPageState extends BasePageState<StorefrontPage> {
       // which is exactly what a tab jump (`context.go(AppRoutes.storefront,
       // …)`) does. Tearing down then would strand the new storefront with a
       // null store, and its shell reads that non-null on every frame.
+      // Theme and locale reset inside the same guarded callback, so a race
+      // can't reset one but not the other.
       if (!activeStore.isCurrentSession(session)) return;
       activeTheme?.resetToAppDefault();
+      activeLocale?.resetToAppDefault();
       activeStore.closeSession(session);
     });
     super.dispose();

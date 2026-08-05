@@ -465,6 +465,20 @@ the next reader wouldn't look:
     too. Assert that the tag isn't combined with a trailing docked control —
     both flight ends are bare bars, and a docked square would have to fly
     into whatever the far end docks.
+- **Decide the pack's language support up front.** The storefront has
+  per-store language (`stores/{id}.language`, admin-picked, shopper
+  per-store override): `StorefrontPage` applies the locale per visit via
+  `ActiveLocaleController` exactly like the theme swap. A pack that ships
+  translations keeps its copy as **getters over `L10n.current`** (gen-l10n
+  `.arb` keys prefixed with the pack id — gravia is the exemplar); a pack
+  that stays English-only keeps plain `static const` copy and is
+  automatically forced to `en` by `StorefrontPage`'s template check — update
+  that check when a second pack goes bilingual. Either way: never cache a
+  localized label in a `static final` (a class-lifetime cache pins whichever
+  language was active at first build — the shell `_tabs` lesson), and never
+  put a localized default in a `const` constructor parameter (make it
+  nullable and resolve at build time — the review sheet's `textLabel`
+  lesson).
 
 ---
 

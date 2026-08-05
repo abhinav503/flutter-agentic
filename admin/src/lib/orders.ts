@@ -147,10 +147,13 @@ const EMPTY_ADDRESS: Address = {
   addressLine2: "",
   landmark: "",
   city: "",
+  state: "",
   country: "",
   postalCode: "",
   tag: "",
   isDefault: false,
+  latitude: null,
+  longitude: null,
 };
 
 // Server-side price/stock authority — the client only supplies

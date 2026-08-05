@@ -86,14 +86,15 @@ extension FailurePatterns on Failure {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( NetworkFailure value)?  network,TResult Function( ServerFailure value)?  server,TResult Function( UnexpectedFailure value)?  unexpected,TResult Function( PaymentFailure value)?  payment,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( NetworkFailure value)?  network,TResult Function( ServerFailure value)?  server,TResult Function( UnexpectedFailure value)?  unexpected,TResult Function( PaymentFailure value)?  payment,TResult Function( LocationFailure value)?  location,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case NetworkFailure() when network != null:
 return network(_that);case ServerFailure() when server != null:
 return server(_that);case UnexpectedFailure() when unexpected != null:
 return unexpected(_that);case PaymentFailure() when payment != null:
-return payment(_that);case _:
+return payment(_that);case LocationFailure() when location != null:
+return location(_that);case _:
   return orElse();
 
 }
@@ -111,14 +112,15 @@ return payment(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( NetworkFailure value)  network,required TResult Function( ServerFailure value)  server,required TResult Function( UnexpectedFailure value)  unexpected,required TResult Function( PaymentFailure value)  payment,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( NetworkFailure value)  network,required TResult Function( ServerFailure value)  server,required TResult Function( UnexpectedFailure value)  unexpected,required TResult Function( PaymentFailure value)  payment,required TResult Function( LocationFailure value)  location,}){
 final _that = this;
 switch (_that) {
 case NetworkFailure():
 return network(_that);case ServerFailure():
 return server(_that);case UnexpectedFailure():
 return unexpected(_that);case PaymentFailure():
-return payment(_that);}
+return payment(_that);case LocationFailure():
+return location(_that);}
 }
 /// A variant of `map` that fallback to returning `null`.
 ///
@@ -132,14 +134,15 @@ return payment(_that);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( NetworkFailure value)?  network,TResult? Function( ServerFailure value)?  server,TResult? Function( UnexpectedFailure value)?  unexpected,TResult? Function( PaymentFailure value)?  payment,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( NetworkFailure value)?  network,TResult? Function( ServerFailure value)?  server,TResult? Function( UnexpectedFailure value)?  unexpected,TResult? Function( PaymentFailure value)?  payment,TResult? Function( LocationFailure value)?  location,}){
 final _that = this;
 switch (_that) {
 case NetworkFailure() when network != null:
 return network(_that);case ServerFailure() when server != null:
 return server(_that);case UnexpectedFailure() when unexpected != null:
 return unexpected(_that);case PaymentFailure() when payment != null:
-return payment(_that);case _:
+return payment(_that);case LocationFailure() when location != null:
+return location(_that);case _:
   return null;
 
 }
@@ -156,13 +159,14 @@ return payment(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String message)?  network,TResult Function( int statusCode,  String message)?  server,TResult Function( String message)?  unexpected,TResult Function( String message,  bool cancelled)?  payment,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String message)?  network,TResult Function( int statusCode,  String message)?  server,TResult Function( String message)?  unexpected,TResult Function( String message,  bool cancelled)?  payment,TResult Function( String message)?  location,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case NetworkFailure() when network != null:
 return network(_that.message);case ServerFailure() when server != null:
 return server(_that.statusCode,_that.message);case UnexpectedFailure() when unexpected != null:
 return unexpected(_that.message);case PaymentFailure() when payment != null:
-return payment(_that.message,_that.cancelled);case _:
+return payment(_that.message,_that.cancelled);case LocationFailure() when location != null:
+return location(_that.message);case _:
   return orElse();
 
 }
@@ -180,13 +184,14 @@ return payment(_that.message,_that.cancelled);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String message)  network,required TResult Function( int statusCode,  String message)  server,required TResult Function( String message)  unexpected,required TResult Function( String message,  bool cancelled)  payment,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String message)  network,required TResult Function( int statusCode,  String message)  server,required TResult Function( String message)  unexpected,required TResult Function( String message,  bool cancelled)  payment,required TResult Function( String message)  location,}) {final _that = this;
 switch (_that) {
 case NetworkFailure():
 return network(_that.message);case ServerFailure():
 return server(_that.statusCode,_that.message);case UnexpectedFailure():
 return unexpected(_that.message);case PaymentFailure():
-return payment(_that.message,_that.cancelled);}
+return payment(_that.message,_that.cancelled);case LocationFailure():
+return location(_that.message);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -200,13 +205,14 @@ return payment(_that.message,_that.cancelled);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String message)?  network,TResult? Function( int statusCode,  String message)?  server,TResult? Function( String message)?  unexpected,TResult? Function( String message,  bool cancelled)?  payment,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String message)?  network,TResult? Function( int statusCode,  String message)?  server,TResult? Function( String message)?  unexpected,TResult? Function( String message,  bool cancelled)?  payment,TResult? Function( String message)?  location,}) {final _that = this;
 switch (_that) {
 case NetworkFailure() when network != null:
 return network(_that.message);case ServerFailure() when server != null:
 return server(_that.statusCode,_that.message);case UnexpectedFailure() when unexpected != null:
 return unexpected(_that.message);case PaymentFailure() when payment != null:
-return payment(_that.message,_that.cancelled);case _:
+return payment(_that.message,_that.cancelled);case LocationFailure() when location != null:
+return location(_that.message);case _:
   return null;
 
 }
@@ -476,6 +482,72 @@ class _$PaymentFailureCopyWithImpl<$Res>
 message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
 as String,cancelled: null == cancelled ? _self.cancelled : cancelled // ignore: cast_nullable_to_non_nullable
 as bool,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class LocationFailure implements Failure {
+  const LocationFailure({required this.message});
+  
+
+@override final  String message;
+
+/// Create a copy of Failure
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$LocationFailureCopyWith<LocationFailure> get copyWith => _$LocationFailureCopyWithImpl<LocationFailure>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is LocationFailure&&(identical(other.message, message) || other.message == message));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,message);
+
+@override
+String toString() {
+  return 'Failure.location(message: $message)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $LocationFailureCopyWith<$Res> implements $FailureCopyWith<$Res> {
+  factory $LocationFailureCopyWith(LocationFailure value, $Res Function(LocationFailure) _then) = _$LocationFailureCopyWithImpl;
+@override @useResult
+$Res call({
+ String message
+});
+
+
+
+
+}
+/// @nodoc
+class _$LocationFailureCopyWithImpl<$Res>
+    implements $LocationFailureCopyWith<$Res> {
+  _$LocationFailureCopyWithImpl(this._self, this._then);
+
+  final LocationFailure _self;
+  final $Res Function(LocationFailure) _then;
+
+/// Create a copy of Failure
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? message = null,}) {
+  return _then(LocationFailure(
+message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
+as String,
   ));
 }
 

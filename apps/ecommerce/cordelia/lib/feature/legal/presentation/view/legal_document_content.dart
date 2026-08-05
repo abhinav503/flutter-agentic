@@ -28,8 +28,7 @@ class LegalDocumentContent {
     required this.sections,
   });
 
-  factory LegalDocumentContent.termsAndConditions() =>
-      const LegalDocumentContent(
+  factory LegalDocumentContent.termsAndConditions() => LegalDocumentContent(
         title: ValueConst.termsAndConditionsLabel,
         lastUpdated: ValueConst.legalLastUpdatedLabel,
         intro: ValueConst.termsAndConditionsIntro,
@@ -41,7 +40,7 @@ class LegalDocumentContent {
         ],
       );
 
-  factory LegalDocumentContent.privacyPolicy() => const LegalDocumentContent(
+  factory LegalDocumentContent.privacyPolicy() => LegalDocumentContent(
     title: ValueConst.privacyPolicyLabel,
     lastUpdated: ValueConst.legalLastUpdatedLabel,
     intro: ValueConst.privacyPolicyIntro,

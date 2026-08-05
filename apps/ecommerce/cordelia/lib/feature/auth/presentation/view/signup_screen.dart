@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:core/core/base/base_screen.dart';
 import 'package:core/core/mixins/textfield_validations.dart';
+import 'package:cordelia/utils/localized_validations.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/button.dart';
 import 'package:core/core/ui/atoms/checkbox.dart';
@@ -32,7 +33,7 @@ class SignupScreen extends BaseScreen {
 }
 
 class _SignupScreenState extends BaseScreenState<SignupScreen>
-    with TextfieldValidations {
+    with TextfieldValidations, LocalizedValidations {
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _mobileController = TextEditingController();
@@ -180,7 +181,7 @@ class _SignupScreenState extends BaseScreenState<SignupScreen>
                                   ).colorScheme.onSurfaceVariant,
                                 ),
                             children: [
-                              const TextSpan(text: ValueConst.iAgreeLabel),
+                              TextSpan(text: ValueConst.iAgreeLabel),
                               TextSpan(
                                 text: ValueConst.termsAndConditionsLink,
                                 style:

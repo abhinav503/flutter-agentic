@@ -212,6 +212,18 @@ export type Store = {
   // (world-readable, `getTemplates()`) for the set the create-store dialog
   // offers.
   templateId: string;
+  // The storefront's UI language ('en' | 'hi') — defaults to 'en' (see
+  // mapStoreDoc). Only the gravia template renders Hindi today; cordelia
+  // forces English for the others regardless of this field.
+  language: string;
+};
+
+export const STORE_LANGUAGES = ["en", "hi"] as const;
+export type StoreLanguage = (typeof STORE_LANGUAGES)[number];
+
+export const STORE_LANGUAGE_LABELS: Record<StoreLanguage, string> = {
+  en: "English",
+  hi: "हिन्दी (Hindi)",
 };
 
 // One doc per storefront template the create-store dialog can offer —
@@ -281,10 +293,18 @@ export type Address = {
   addressLine2: string;
   landmark: string;
   city: string;
+  // Empty on addresses saved before the location feature (and optional in
+  // the form) — same back-compat posture as latitude/longitude below.
+  state: string;
   country: string;
   postalCode: string;
   tag: string;
   isDefault: boolean;
+  // Set when the address came from GPS/autocomplete; null for hand-typed
+  // ones and for every address (and order delivery_address snapshot) saved
+  // before the location feature.
+  latitude: number | null;
+  longitude: number | null;
 };
 
 // A recent search is the catalog item the shopper tapped from search

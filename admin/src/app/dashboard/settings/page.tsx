@@ -5,7 +5,11 @@ import { useAuth } from "@/lib/auth-context";
 import { useStore } from "@/lib/store-context";
 import { getStore } from "@/lib/stores";
 import { getTemplates } from "@/lib/templates";
-import type { Template } from "@/lib/types";
+import {
+  STORE_LANGUAGES,
+  STORE_LANGUAGE_LABELS,
+  type Template,
+} from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -41,6 +45,7 @@ function StoreProfileCard({ storeId }: { storeId: string }) {
   const [logoUrl, setLogoUrl] = useState("");
   const [keywords, setKeywords] = useState("");
   const [templateId, setTemplateId] = useState("");
+  const [language, setLanguage] = useState<string>("en");
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -55,6 +60,7 @@ function StoreProfileCard({ storeId }: { storeId: string }) {
           setLogoUrl(store.logoUrl);
           setKeywords(store.searchKeywords.join(", "));
           setTemplateId(store.templateId);
+          setLanguage(store.language);
         }
         setLoading(false);
       })
@@ -88,6 +94,7 @@ function StoreProfileCard({ storeId }: { storeId: string }) {
             .map((k) => k.trim())
             .filter(Boolean),
           templateId,
+          language,
         }),
       });
       const body = await res.json().catch(() => ({}));
@@ -172,6 +179,27 @@ function StoreProfileCard({ storeId }: { storeId: string }) {
               <p className="text-xs text-muted-foreground">
                 Changes your storefront&apos;s look the next time shoppers open
                 your store.
+              </p>
+            </div>
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="store-profile-language">Language</Label>
+              <Select value={language} onValueChange={setLanguage}>
+                <SelectTrigger id="store-profile-language" className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {STORE_LANGUAGES.map((code) => (
+                    <SelectItem key={code} value={code}>
+                      {STORE_LANGUAGE_LABELS[code]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                The language your storefront&apos;s buttons and labels use.
+                Hindi is available on the Gravia template; other templates show
+                English for now. Shoppers can still switch languages on their
+                own device.
               </p>
             </div>
             <Button

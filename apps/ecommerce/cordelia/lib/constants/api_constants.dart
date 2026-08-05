@@ -69,4 +69,14 @@ abstract final class ApiConstants {
 
   static String addressPath(String addressId) =>
       '$baseUrl/users/addresses/$addressId';
+
+  /// Geo lookups for the address form — store-agnostic and token-authed
+  /// like [addressesPath]; the server proxies Ola Maps / India Post so no
+  /// key ships in the app and web builds dodge CORS.
+  static String get geoReversePath => '$baseUrl/geo/reverse';
+
+  static String get geoAutocompletePath => '$baseUrl/geo/autocomplete';
+
+  static String geoPincodePath(String pincode) =>
+      '$baseUrl/geo/pincode/$pincode';
 }

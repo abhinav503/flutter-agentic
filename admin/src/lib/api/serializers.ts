@@ -31,10 +31,16 @@ export function serializeAddress(a: Address) {
     address_line2: a.addressLine2,
     landmark: a.landmark,
     city: a.city,
+    // `?? defaults`: this serializer is also fed order delivery_address
+    // snapshots, and docs written before the location feature carry none of
+    // these three fields.
+    state: a.state ?? "",
     country: a.country,
     postal_code: a.postalCode,
     tag: a.tag,
     is_default: a.isDefault,
+    latitude: a.latitude ?? null,
+    longitude: a.longitude ?? null,
   };
 }
 
@@ -194,6 +200,7 @@ export function serializeStore(s: Store) {
     image: s.logoUrl,
     description: s.description,
     template_id: s.templateId,
+    language: s.language,
   };
 }
 

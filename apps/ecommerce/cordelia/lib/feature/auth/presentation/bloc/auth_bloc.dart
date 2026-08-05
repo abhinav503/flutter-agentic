@@ -76,7 +76,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     if (kIsWeb) {
       emit(
-        const AuthState.error(message: ValueConst.authWebUnsupportedMessage),
+        AuthState.error(message: ValueConst.authWebUnsupportedMessage),
       );
       return;
     }
@@ -101,7 +101,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     if (kIsWeb) {
       emit(
-        const AuthState.error(message: ValueConst.authWebUnsupportedMessage),
+        AuthState.error(message: ValueConst.authWebUnsupportedMessage),
       );
       return;
     }
@@ -150,7 +150,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     if (kIsWeb) {
       emit(
-        const AuthState.error(message: ValueConst.authWebUnsupportedMessage),
+        AuthState.error(message: ValueConst.authWebUnsupportedMessage),
       );
       return;
     }

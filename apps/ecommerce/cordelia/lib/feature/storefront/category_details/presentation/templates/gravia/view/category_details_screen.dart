@@ -171,7 +171,7 @@ class _CategoryDetailsScreenState
                 bottom: AppSpacing.xl14,
               ),
               child: products.isEmpty
-                  ? const EmptyState(
+                  ? EmptyState(
                       iconData: Icons.filter_alt_off_outlined,
                       title: GraviaValueConst.categoryDetailsEmptyMessage,
                     )

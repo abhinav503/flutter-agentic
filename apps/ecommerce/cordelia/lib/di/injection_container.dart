@@ -47,6 +47,14 @@ import '../feature/storefront/category_details/data/data_source/category_details
 import '../feature/storefront/category_details/data/repository_impl/category_details_repository_impl.dart';
 import '../feature/storefront/category_details/domain/repository/category_details_repository.dart';
 import '../feature/storefront/category_details/domain/usecase/get_category_details_usecase.dart';
+import '../feature/storefront/geo/data/data_source/geo_remote_data_source.dart';
+import '../feature/storefront/geo/data/data_source/geo_remote_data_source_impl.dart';
+import '../feature/storefront/geo/data/repository_impl/geo_repository_impl.dart';
+import '../feature/storefront/geo/domain/repository/geo_repository.dart';
+import '../feature/storefront/geo/domain/usecase/get_current_location_address_usecase.dart';
+import '../feature/storefront/geo/domain/usecase/lookup_pincode_usecase.dart';
+import '../feature/storefront/geo/domain/usecase/reverse_geocode_usecase.dart';
+import '../feature/storefront/geo/domain/usecase/search_places_usecase.dart';
 import '../feature/storefront/favourites/data/data_source/favourites_remote_data_source.dart';
 import '../feature/storefront/favourites/data/data_source/favourites_remote_data_source_impl.dart';
 import '../feature/storefront/favourites/data/repository_impl/favourites_repository_impl.dart';
@@ -257,6 +265,16 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton(() => CreateAddressUseCase(sl()));
   sl.registerLazySingleton(() => UpdateAddressUseCase(sl()));
   sl.registerLazySingleton(() => DeleteAddressUseCase(sl()));
+
+  // ── Storefront: Geo (user-scoped address-form lookups via /api/geo/*) ───
+  sl.registerLazySingleton<GeoRemoteDataSource>(
+    () => const GeoRemoteDataSourceImpl(),
+  );
+  sl.registerLazySingleton<GeoRepository>(() => GeoRepositoryImpl(sl()));
+  sl.registerLazySingleton(() => GetCurrentLocationAddressUseCase(sl()));
+  sl.registerLazySingleton(() => ReverseGeocodeUseCase(sl()));
+  sl.registerLazySingleton(() => SearchPlacesUseCase(sl()));
+  sl.registerLazySingleton(() => LookupPincodeUseCase(sl()));
 
   // ── Storefront: Notifications (bundled mock, one file per template) ─────
   sl.registerLazySingleton<NotificationsRemoteDataSource>(

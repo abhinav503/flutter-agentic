@@ -4,7 +4,11 @@ import { useEffect, useState, type FormEvent } from "react";
 import { CheckIcon, ChevronsUpDownIcon, PlusIcon } from "lucide-react";
 import { useStore } from "@/lib/store-context";
 import { getTemplates } from "@/lib/templates";
-import type { Template } from "@/lib/types";
+import {
+  STORE_LANGUAGES,
+  STORE_LANGUAGE_LABELS,
+  type Template,
+} from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -113,6 +117,7 @@ export function CreateStoreForm({
   const [name, setName] = useState("");
   const [templates, setTemplates] = useState<Template[]>([]);
   const [templateId, setTemplateId] = useState("");
+  const [language, setLanguage] = useState<string>("en");
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -128,7 +133,7 @@ export function CreateStoreForm({
     event.preventDefault();
     setSubmitting(true);
     try {
-      await createStore(name.trim(), templateId);
+      await createStore(name.trim(), templateId, language);
       toast.success("Store created");
       setName("");
       onCreated?.();
@@ -161,6 +166,21 @@ export function CreateStoreForm({
             {templates.map((t) => (
               <SelectItem key={t.id} value={t.id}>
                 {t.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      <div className="flex flex-col gap-1.5">
+        <Label htmlFor="store-language">Language</Label>
+        <Select value={language} onValueChange={setLanguage}>
+          <SelectTrigger id="store-language" className="w-full">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {STORE_LANGUAGES.map((code) => (
+              <SelectItem key={code} value={code}>
+                {STORE_LANGUAGE_LABELS[code]}
               </SelectItem>
             ))}
           </SelectContent>

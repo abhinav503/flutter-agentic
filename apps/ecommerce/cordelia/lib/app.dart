@@ -116,6 +116,9 @@ import 'feature/onboarding/presentation/view/onboarding_page.dart';
 import 'feature/splash/presentation/view/splash_page.dart';
 import 'feature/storefront/active_store/presentation/cubit/active_store_cubit.dart';
 import 'feature/storefront/presentation/view/storefront_page.dart';
+import 'l10n/active_locale_controller.dart';
+import 'l10n/active_locale_scope.dart';
+import 'l10n/gen/app_localizations.dart';
 import 'services/firebase_auth_service.dart';
 import 'services/user_profile_cache_service.dart';
 import 'theme/active_theme_controller.dart';
@@ -584,7 +587,7 @@ class _SessionExpiredGuardState extends State<_SessionExpiredGuard> {
       false,
     );
     _scaffoldMessengerKey.currentState?.showSnackBar(
-      const SnackBar(content: Text(ValueConst.sessionExpiredMessage)),
+      SnackBar(content: Text(ValueConst.sessionExpiredMessage)),
     );
     _router.go(AppRoutes.login);
   }
@@ -607,6 +610,9 @@ class _AppState extends State<App> {
   late final ActiveThemeController _activeTheme = ActiveThemeController(
     widget.themeConfig,
   );
+  // The theme's language sibling — StorefrontPage applies the store's
+  // language on entry and resets on exit, same lifecycle as _activeTheme.
+  final ActiveLocaleController _activeLocale = ActiveLocaleController();
 
   // Shared across the whole app (Home, Product Details, Search, Cart/
   // Favourite tab) — see CartCubit/FavouritesCubit's own class docs for why:
@@ -637,6 +643,7 @@ class _AppState extends State<App> {
   void dispose() {
     _themeMode.dispose();
     _activeTheme.dispose();
+    _activeLocale.dispose();
     _cartCubit.close();
     _couponCubit.close();
     _favouritesCubit.close();
@@ -657,21 +664,32 @@ class _AppState extends State<App> {
         valueListenable: _themeMode,
         builder: (context, mode, _) => ValueListenableBuilder<AppThemeConfig>(
           valueListenable: _activeTheme,
-          builder: (context, themeConfig, _) => ThemeModeScope(
-            controller: _themeMode,
-            child: ActiveThemeScope(
-              controller: _activeTheme,
-              child: MaterialApp.router(
-                title: ValueConst.appTitle,
-                // Off so debug builds screen-record cleanly — the ribbon is
-                // debug-only, so this changes nothing about release.
-                debugShowCheckedModeBanner: false,
-                routerConfig: _router,
-                theme: AppTheme.fromConfig(themeConfig),
-                darkTheme: AppTheme.fromConfig(themeConfig, dark: true),
-                themeMode: mode,
-                scaffoldMessengerKey: _scaffoldMessengerKey,
-                builder: (context, child) => _SessionExpiredGuard(child: child),
+          builder: (context, themeConfig, _) => ValueListenableBuilder<Locale>(
+            valueListenable: _activeLocale,
+            builder: (context, locale, _) => ThemeModeScope(
+              controller: _themeMode,
+              child: ActiveThemeScope(
+                controller: _activeTheme,
+                child: ActiveLocaleScope(
+                  controller: _activeLocale,
+                  child: MaterialApp.router(
+                    title: ValueConst.appTitle,
+                    // Off so debug builds screen-record cleanly — the ribbon
+                    // is debug-only, so this changes nothing about release.
+                    debugShowCheckedModeBanner: false,
+                    routerConfig: _router,
+                    theme: AppTheme.fromConfig(themeConfig),
+                    darkTheme: AppTheme.fromConfig(themeConfig, dark: true),
+                    themeMode: mode,
+                    locale: locale,
+                    supportedLocales: AppLocalizations.supportedLocales,
+                    localizationsDelegates:
+                        AppLocalizations.localizationsDelegates,
+                    scaffoldMessengerKey: _scaffoldMessengerKey,
+                    builder: (context, child) =>
+                        _SessionExpiredGuard(child: child),
+                  ),
+                ),
               ),
             ),
           ),

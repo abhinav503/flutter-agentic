@@ -217,7 +217,9 @@ abstract final class GrofastValueConst {
   static const landmarkLabel = 'Landmark';
   static const landmarkHint = 'Nearby landmark (optional)';
   static const cityLabel = 'City';
-  static const selectCityTitle = 'Select City';
+  static const cityHint = 'e.g. Bengaluru';
+  static const stateLabel = 'State';
+  static const stateHint = 'e.g. Karnataka (optional)';
   static const countryLabel = 'Country';
   static const selectCountryTitle = 'Select Country';
   static const postalCodeLabel = 'Postal Code';
@@ -230,20 +232,9 @@ abstract final class GrofastValueConst {
   static const updateAddressButtonLabel = 'Update Address';
   static const requiredFieldErrorMessage = 'This field is required';
 
-  /// The picklists behind the City / Country fields. Same shape as the other
-  /// packs': the backend stores free text, so these are a convenience list,
-  /// not an enum.
-  static const addressFormCities = <String>[
-    'Bengaluru',
-    'Chennai',
-    'Delhi',
-    'Hyderabad',
-    'Jakarta',
-    'Kolkata',
-    'Mumbai',
-    'Pune',
-  ];
-
+  /// The picklist behind the Country field (City is free text since geo
+  /// prefill landed): the backend stores free text, so this is a
+  /// convenience list, not an enum.
   static const addressFormCountries = <String>['India', 'Indonesia'];
 
   // ── My Orders ────────────────────────────────────────────────────────────

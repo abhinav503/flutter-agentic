@@ -54,7 +54,7 @@ class SearchSuggestionsSection extends StatelessWidget {
               // The pack's tinted-primary badge — same recipe as the order
               // card's status badge and the address tag, correct in both
               // light and dark.
-              trailing: const GraviaTintBadge(
+              trailing: GraviaTintBadge(
                 text: GraviaValueConst.searchCategoryBadge,
               ),
               onTap: () => onCategoryTap(category),

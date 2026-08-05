@@ -6,10 +6,20 @@ class AddressEntity {
   final String addressLine2;
   final String landmark;
   final String city;
+
+  /// Empty on addresses saved before the location feature (and optional in
+  /// the form) — same posture as [latitude]/[longitude].
+  final String state;
   final String country;
   final String postalCode;
   final String tag;
   final bool isDefault;
+
+  /// Set when the address came from GPS/autocomplete prefill; null for
+  /// hand-typed addresses and for everything saved before the location
+  /// feature.
+  final double? latitude;
+  final double? longitude;
 
   const AddressEntity({
     required this.id,
@@ -19,10 +29,13 @@ class AddressEntity {
     this.addressLine2 = '',
     this.landmark = '',
     required this.city,
+    this.state = '',
     required this.country,
     required this.postalCode,
     required this.tag,
     required this.isDefault,
+    this.latitude,
+    this.longitude,
   });
 }
 

@@ -119,6 +119,8 @@ gen:
 		echo "== gen: $$pkg =="; \
 		(cd $$pkg && $(DART) run build_runner build --delete-conflicting-outputs) || exit 1; \
 	done
+	@echo "== gen-l10n: apps/ecommerce/cordelia =="
+	@(cd apps/ecommerce/cordelia && $(FLUTTER) gen-l10n)
 
 # Clean every package's build output, then re-resolve the whole workspace.
 clean:

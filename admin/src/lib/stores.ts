@@ -26,6 +26,7 @@ function mapStoreDoc(d: QueryDocumentSnapshot | DocumentSnapshot): Store {
     status: (data.status as string) ?? "active",
     searchKeywords: (data.searchKeywords as string[] | undefined) ?? [],
     templateId: (data.templateId as string) ?? "gravia",
+    language: (data.language as string) ?? "en",
   };
 }
 

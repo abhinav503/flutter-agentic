@@ -22,6 +22,20 @@ live in `docs/ai-rules/design.md`.
 | Preset | `packages/core/lib/core/theme/app_theme_presets.dart` → `'gravia'` (full light + dark) |
 | App constants | `apps/ecommerce/gravia/lib/constants/` — `color_const.dart`, `text_style_const.dart`, `dimen_const.dart`, `image_const.dart` |
 
+**Language note (cordelia).** In the cordelia storefront, gravia is the
+(first) **bilingual** template — English + Hindi. Every user-facing string in
+`GraviaValueConst` (and the shared `ValueConst` subset a storefront can
+render) is a getter over `L10n.current`, backed by gen-l10n `.arb` files
+(`apps/ecommerce/cordelia/lib/l10n/app_en.arb` / `app_hi.arb`, `gravia*`
+keys). The store doc's admin-picked `language` (`en`|`hi`) is the default;
+the shopper's per-store override (Profile → Language row) wins; both are
+applied per storefront visit by `StorefrontPage` via
+`ActiveLocaleController` — the exact lifecycle of the template theme swap.
+Never cache a localized label in a `static final` (see the shell's `_tabs`
+getter). Other templates keep hardcoded English consts and force `en`.
+The standalone `apps/ecommerce/gravia` exemplar app is unaffected (English
+consts).
+
 **Sourcing note.** Preset values are the kit's real Figma variables, not
 resampled pixels. **Don't trust a kit's abstract "Design System" foundation
 page over an actual screen instance** — foundation components carry stale

@@ -30,6 +30,8 @@
 		<string>Used to take a new profile photo.</string>
 		<key>NSPhotoLibraryUsageDescription</key>
 		<string>Used to choose a profile photo from your library.</string>
+		<key>NSLocationWhenInUseUsageDescription</key>
+		<string>Used to prefill your delivery address from your current location.</string>
 		<key>UIApplicationSceneManifest</key>
 		<dict>
 			<key>UIApplicationSupportsMultipleScenes</key>

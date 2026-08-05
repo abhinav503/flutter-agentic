@@ -1,5 +1,13 @@
-import 'package:core/core/extensions/num_extensions.dart';
+import 'package:cordelia/l10n/l10n.dart';
 
+/// App-level copy shared across storefront templates.
+///
+/// Two tiers since gravia went bilingual: strings a storefront can render
+/// (auth pushed over a store, legal, reviews, sort/price filters, payment,
+/// account deletion) are getters over [L10n.current] so the store's language
+/// applies; strings only ever shown in CordeliaApps' own chrome (splash,
+/// onboarding, discovery) stay `const` — the locale is always the app
+/// default (English) outside a storefront visit.
 abstract final class ValueConst {
   static const appTitle = 'CordeliaApps';
 
@@ -21,117 +29,101 @@ abstract final class ValueConst {
   static const onboardingGetStarted = 'Get Started';
 
   // ── Auth: Login ─────────────────────────────────────────────────────────
-  static const loginTitle = 'Welcome To CordeliaApps';
-  static const loginSubtitle =
-      'Log in to your account using email or social networks';
-  static const emailLabel = 'Email Address';
-  static const emailHint = 'you@example.com';
-  static const passwordLabel = 'Password';
-  static const passwordHint = 'Enter your password';
-  static const forgotPasswordLabel = 'Forgot Password?';
+  static String get loginTitle => L10n.current.loginTitle;
+  static String get loginSubtitle => L10n.current.loginSubtitle;
+  static String get emailLabel => L10n.current.emailLabel;
+  static String get emailHint => L10n.current.emailHint;
+  static String get passwordLabel => L10n.current.passwordLabel;
+  static String get passwordHint => L10n.current.passwordHint;
+  static String get forgotPasswordLabel => L10n.current.forgotPasswordLabel;
 
   /// Firebase owns the rest of the reset flow — this confirms the email
   /// left our side, nothing more.
   static String passwordResetEmailSentMessage(String email) =>
-      'Password reset link sent to $email';
-  static const continueLabel = 'Continue';
-  static const orLoginWith = 'Or Login with';
-  static const continueWithGoogle = 'Continue with Google';
-  static const continueWithApple = 'Continue with Apple';
-  static const byContinuingAgree = 'By continuing, you agree to our';
-  static const termsOfServiceAndPrivacyPolicy =
-      'Terms of Service & Privacy Policy';
-  static const dontHaveAccount = "Don't have an account? ";
-  static const signupLink = 'Signup';
+      L10n.current.passwordResetEmailSentMessage(email);
+  static String get continueLabel => L10n.current.continueLabel;
+  static String get orLoginWith => L10n.current.orLoginWith;
+  static String get continueWithGoogle => L10n.current.continueWithGoogle;
+  static String get continueWithApple => L10n.current.continueWithApple;
+  static String get byContinuingAgree => L10n.current.byContinuingAgree;
+  static String get termsOfServiceAndPrivacyPolicy =>
+      L10n.current.termsOfServiceAndPrivacyPolicy;
+  static String get dontHaveAccount => L10n.current.dontHaveAccount;
+  static String get signupLink => L10n.current.signupLink;
 
   // ── Auth: Signup ────────────────────────────────────────────────────────
-  static const signupTitle = 'Sign Up Your Account';
-  static const signupSubtitle = 'Enter your information below';
-  static const nameLabel = 'Name';
-  static const nameHint = 'e.g. Mark Shelby';
-  static const mobileLabel = 'Mobile Number';
-  static const mobileHint = '(303) 555-0105';
-  static const iAgreeLabel = 'I Agree ';
-  static const termsAndConditionsLink = 'Terms & Conditions';
-  static const mustAgreeToTermsMessage =
-      'Please agree to the Terms & Conditions to continue.';
+  static String get signupTitle => L10n.current.signupTitle;
+  static String get signupSubtitle => L10n.current.signupSubtitle;
+  static String get nameLabel => L10n.current.nameLabel;
+  static String get nameHint => L10n.current.nameHint;
+  static String get mobileLabel => L10n.current.mobileLabel;
+  static String get mobileHint => L10n.current.mobileHint;
+  static String get iAgreeLabel => L10n.current.iAgreeLabel;
+  static String get termsAndConditionsLink =>
+      L10n.current.termsAndConditionsLink;
+  static String get mustAgreeToTermsMessage =>
+      L10n.current.mustAgreeToTermsMessage;
 
-  // Field-validation messages live in CoreConst (used by core's
-  // TextfieldValidations mixin), not here.
-  static const authWebUnsupportedMessage =
-      'Sign-in is only available on mobile.';
-  static const sessionExpiredMessage =
-      'Your session has expired. Please sign in again.';
-  static const signupButtonLabel = 'Signup';
-  static const alreadyHaveAccount = 'Already have an account? ';
-  static const loginLink = 'Login';
-  static const comingSoonMessage = 'Coming soon';
+  // Field-validation messages live in LocalizedValidations (lib/utils/),
+  // which overrides core's TextfieldValidations with arb-backed copy.
+  static String get authWebUnsupportedMessage =>
+      L10n.current.authWebUnsupportedMessage;
+  static String get sessionExpiredMessage =>
+      L10n.current.sessionExpiredMessage;
+  static String get signupButtonLabel => L10n.current.signupButtonLabel;
+  static String get alreadyHaveAccount => L10n.current.alreadyHaveAccount;
+  static String get loginLink => L10n.current.loginLink;
+  static String get comingSoonMessage => L10n.current.comingSoonMessage;
 
   // ── Payment ────────────────────────────────────────────────────────────
   // App-level, not per-template: the payment gateway sits below the template
   // split (one shared data source serves every storefront), so this copy
   // can't live in a pack's constants without that pack's wording leaking
   // into the others' checkouts.
-  static const paymentCancelledMessage = 'Payment cancelled';
-  static const paymentFailedMessage =
-      'Payment could not be completed. Please try again.';
+  static String get paymentCancelledMessage =>
+      L10n.current.paymentCancelledMessage;
+  static String get paymentFailedMessage => L10n.current.paymentFailedMessage;
 
   // ── Auth: verify-email sheet ───────────────────────────────────────────
-  static const verifyEmailTitle = 'Verify Your Email';
+  static String get verifyEmailTitle => L10n.current.verifyEmailTitle;
   static String verifyEmailSubtitle(String email) =>
-      "We've sent a verification link to $email. Open it, then come back "
-      'here — this will update automatically.';
-  static const verifyEmailChecking = 'Checking…';
-  static const resendEmailLabel = 'Resend email';
+      L10n.current.verifyEmailSubtitle(email);
+  static String get verifyEmailChecking => L10n.current.verifyEmailChecking;
+  static String get resendEmailLabel => L10n.current.resendEmailLabel;
 
   // ── Legal (Terms & Conditions / Privacy Policy) ────────────────────────────
-  // Placeholder copy (matches gravia's own placeholder text) — needs a real
-  // content pass before shipping, not yet written.
-  static const termsAndConditionsLabel = 'Terms & Conditions';
-  static const privacyPolicyLabel = 'Privacy Policy';
-  static const legalLastUpdatedLabel = 'Last update: Mar 09, 2026';
-  static const termsAndConditionsIntro =
-      'Please read these terms of service, carefully before using our app '
-      'operated by us.';
-  static const termsAndConditionsHeading = 'Conditions of Uses';
-  static const termsAndConditionsBody =
-      'It is a long established fact that a reader will be distracted by the '
-      'readable content of a page when looking at its layout. The point of '
-      'using Lorem Ipsum is that it has a more-or-less normal distribution of '
-      "letters, as opposed to using 'Content here, content here', making it "
-      'look like readable English. Many desktop publishing packages and web '
-      "page editors now use Lorem Ipsum as their default model text, and a "
-      "search for 'lorem ipsum' will uncover many web sites still in their "
-      'infancy. Various versions have evolved over the years, sometimes by '
-      'accident, sometimes on purpose (injected humour and the like).';
-  static const privacyPolicyIntro =
-      'Please read these privacy policy, carefully before using our app '
-      'operated by us.';
-  // Real copy (not lorem) — the DailyMart kit's Privacy & Policy frame is a
-  // run of numbered sections, so the document needs enough of them to read
-  // as one; gravia renders the same list under its own header.
-  static const privacyPolicySection1Heading = '1. Information Collection';
-  static const privacyPolicySection1Body =
-      'We collect essential information to enhance your experience. This '
-      'includes details you provide directly, such as account data, as well '
-      'as information gathered through usage analytics and cookies.';
-  static const privacyPolicySection2Heading = '2. Information Usage';
-  static const privacyPolicySection2Body =
-      'The information collected is used to improve our services, provide '
-      'personalized recommendations, and ensure a seamless experience. We do '
-      'not share your data without your explicit consent.';
-  static const privacyPolicySection3Heading = '3. Information Setting';
-  static const privacyPolicySection3Body =
-      'You have full control over your data. Manage your privacy '
-      'preferences, update personal details, and customize your settings to '
-      'match your needs.';
-  static const privacyPolicySection4Heading = '4. Security Measures';
-  static const privacyPolicySection4Body =
-      "We prioritize your data's safety with advanced security protocols, "
-      'encryption methods, and regular audits to protect against '
-      'unauthorized access or breaches.';
+  // T&C body is still placeholder copy (needs a real content pass); the
+  // privacy sections are real and translated.
+  static String get termsAndConditionsLabel =>
+      L10n.current.termsAndConditionsLabel;
+  static String get privacyPolicyLabel => L10n.current.privacyPolicyLabel;
+  static String get legalLastUpdatedLabel =>
+      L10n.current.legalLastUpdatedLabel;
+  static String get termsAndConditionsIntro =>
+      L10n.current.termsAndConditionsIntro;
+  static String get termsAndConditionsHeading =>
+      L10n.current.termsAndConditionsHeading;
+  static String get termsAndConditionsBody =>
+      L10n.current.termsAndConditionsBody;
+  static String get privacyPolicyIntro => L10n.current.privacyPolicyIntro;
+  static String get privacyPolicySection1Heading =>
+      L10n.current.privacyPolicySection1Heading;
+  static String get privacyPolicySection1Body =>
+      L10n.current.privacyPolicySection1Body;
+  static String get privacyPolicySection2Heading =>
+      L10n.current.privacyPolicySection2Heading;
+  static String get privacyPolicySection2Body =>
+      L10n.current.privacyPolicySection2Body;
+  static String get privacyPolicySection3Heading =>
+      L10n.current.privacyPolicySection3Heading;
+  static String get privacyPolicySection3Body =>
+      L10n.current.privacyPolicySection3Body;
+  static String get privacyPolicySection4Heading =>
+      L10n.current.privacyPolicySection4Heading;
+  static String get privacyPolicySection4Body =>
+      L10n.current.privacyPolicySection4Body;
 
-  // ── Store discovery (feature/home) ─────────────────────────────────────
+  // ── Store discovery (feature/home) — app chrome, English-only ──────────
   static const discoveryTitle = 'Find your store';
   static const discoverySearchHint = 'Search stores';
   static const discoveryEmptyTitle = 'No stores found';
@@ -139,111 +131,120 @@ abstract final class ValueConst {
       'Try a different search, or check back soon as more stores join.';
 
   // ── Profile ────────────────────────────────────────────────────────────────
-  static const profilePageTitle = 'Profile';
-  static const changePasswordLabel = 'Change Password';
-  static const myOrdersLabel = 'My Orders';
-  static const myAddressLabel = 'My Address';
-  static const darkModeLabel = 'Dark Mode';
-  static const logoutLabel = 'Logout';
-  static const logoutTitle = 'Logout';
-  static const logoutConfirmMessage = 'Are you sure you want to log out?';
+  static String get profilePageTitle => L10n.current.profilePageTitle;
+  static String get changePasswordLabel => L10n.current.changePasswordLabel;
+  static String get myOrdersLabel => L10n.current.myOrdersLabel;
+  static String get myAddressLabel => L10n.current.myAddressLabel;
+  static String get darkModeLabel => L10n.current.darkModeLabel;
+  static String get logoutLabel => L10n.current.logoutLabel;
+  static String get logoutTitle => L10n.current.logoutTitle;
+  static String get logoutConfirmMessage => L10n.current.logoutConfirmMessage;
   // ── Account deletion — app-level, not per-pack: one shared auth stack
   // serves every storefront, and both app stores require an in-app way to
   // close an account (App Store Review Guideline 5.1.1(v)).
-  static const deleteAccountLabel = 'Delete Account';
-  static const deleteAccountTitle = 'Delete your account?';
-  static const deleteAccountConfirmMessage =
-      'This permanently deletes your profile, addresses, cart, wishlist and '
-      'reviews across every store. Orders you have already placed stay with '
-      'those stores as their sales records. This cannot be undone.';
-  static const deleteAccountFailedMessage =
-      'Could not delete your account. Please try again.';
+  static String get deleteAccountLabel => L10n.current.deleteAccountLabel;
+  static String get deleteAccountTitle => L10n.current.deleteAccountTitle;
+  static String get deleteAccountConfirmMessage =>
+      L10n.current.deleteAccountConfirmMessage;
+  static String get deleteAccountFailedMessage =>
+      L10n.current.deleteAccountFailedMessage;
 
-  static const profileLoadErrorMessage =
-      'Something went wrong loading your profile.';
+  static String get profileLoadErrorMessage =>
+      L10n.current.profileLoadErrorMessage;
 
   // ── Category Details filters — app-wide, not per-pack: both templates run
   // the same sort model, so the option wording is shared (each pack still
   // titles its own sheet).
-  static const sortRelevanceLabel = 'Relevance';
-  static const sortPriceLowToHighLabel = 'Price (Low to High)';
-  static const sortPriceHighToLowLabel = 'Price (High to Low)';
-  static const sortRatingHighToLowLabel = 'Rating (High to Low)';
-  static const sortDiscountHighToLowLabel = 'Discount (High to Low)';
-  static const priceFilterAllLabel = 'All Prices';
+  static String get sortRelevanceLabel => L10n.current.sortRelevanceLabel;
+  static String get sortPriceLowToHighLabel =>
+      L10n.current.sortPriceLowToHighLabel;
+  static String get sortPriceHighToLowLabel =>
+      L10n.current.sortPriceHighToLowLabel;
+  static String get sortRatingHighToLowLabel =>
+      L10n.current.sortRatingHighToLowLabel;
+  static String get sortDiscountHighToLowLabel =>
+      L10n.current.sortDiscountHighToLowLabel;
+  static String get priceFilterAllLabel => L10n.current.priceFilterAllLabel;
   // Bands sized for a rupee grocery basket, not converted from the dollar
   // ones they replaced — ₹5 buys nothing, so a "under ₹5" bucket would
   // always come back empty.
-  static const priceFilterUnder100Label = 'Under ₹100';
-  static const priceFilter100To250Label = '₹100 - ₹250';
-  static const priceFilter250To500Label = '₹250 - ₹500';
-  static const priceFilterOver500Label = 'Over ₹500';
+  static String get priceFilterUnder100Label =>
+      L10n.current.priceFilterUnder100Label;
+  static String get priceFilter100To250Label =>
+      L10n.current.priceFilter100To250Label;
+  static String get priceFilter250To500Label =>
+      L10n.current.priceFilter250To500Label;
+  static String get priceFilterOver500Label =>
+      L10n.current.priceFilterOver500Label;
 
   // ── Product reviews — app-level, not per-pack: one shared reviews feature
   // serves every storefront, and the wording describes the *mechanism*
   // (ratings, verified purchases, one review per shopper) rather than any
   // pack's voice. Each template still supplies its own section/sheet titles.
-  static const reviewsSectionTitle = 'Ratings & Reviews';
-  static const writeReviewLabel = 'Write a review';
-  static const editReviewLabel = 'Edit your review';
-  static const deleteReviewLabel = 'Delete';
-  static const reviewSheetTitle = 'Rate this product';
-  static const reviewRatingPrompt = 'How many stars?';
-  static const reviewTextLabel = 'Your review';
-  static const reviewTextHint = 'Tell other shoppers what you thought…';
-  static const reviewSubmitLabel = 'Submit review';
-  static const reviewMissingRatingMessage = 'Pick a star rating first.';
-  static const reviewDeleteConfirmTitle = 'Delete your review?';
-  static const reviewDeleteConfirmMessage =
-      "This removes your rating from the product's average. You can write a "
-      'new one any time.';
-  static const reviewSignedOutMessage = 'Sign in to review this product.';
-  static const verifiedPurchaseLabel = 'Verified purchase';
-  static const reviewsEmptyTitle = 'No reviews yet';
-  static const reviewsEmptySubtitle =
-      'Be the first to rate this product and help other shoppers decide.';
-  static const unratedLabel = 'No ratings yet';
+  static String get reviewsSectionTitle => L10n.current.reviewsSectionTitle;
+  static String get writeReviewLabel => L10n.current.writeReviewLabel;
+  static String get editReviewLabel => L10n.current.editReviewLabel;
+  static String get deleteReviewLabel => L10n.current.deleteReviewLabel;
+  static String get reviewSheetTitle => L10n.current.reviewSheetTitle;
+  static String get reviewRatingPrompt => L10n.current.reviewRatingPrompt;
+  static String get reviewTextLabel => L10n.current.reviewTextLabel;
+  static String get reviewTextHint => L10n.current.reviewTextHint;
+  static String get reviewSubmitLabel => L10n.current.reviewSubmitLabel;
+  static String get reviewMissingRatingMessage =>
+      L10n.current.reviewMissingRatingMessage;
+  static String get reviewDeleteConfirmTitle =>
+      L10n.current.reviewDeleteConfirmTitle;
+  static String get reviewDeleteConfirmMessage =>
+      L10n.current.reviewDeleteConfirmMessage;
+  static String get reviewSignedOutMessage =>
+      L10n.current.reviewSignedOutMessage;
+  static String get verifiedPurchaseLabel =>
+      L10n.current.verifiedPurchaseLabel;
+  static String get reviewsEmptyTitle => L10n.current.reviewsEmptyTitle;
+  static String get reviewsEmptySubtitle => L10n.current.reviewsEmptySubtitle;
+  static String get unratedLabel => L10n.current.unratedLabel;
 
   // ── Order rating — the shopper's verdict on a *delivery*, not on a
   // product. App-level for the same reason product-review copy is: one
   // shared orders stack serves every storefront.
-  static const rateOrderLabel = 'Rate Order';
-  static const editOrderRatingLabel = 'Edit Rating';
-  static const rateOrderSheetTitle = 'How was this order?';
-  static const rateOrderTextLabel = 'Your feedback';
-  static const rateOrderTextHint = 'How was the delivery?';
-  static const orderRatingNotDeliveredMessage =
-      'You can rate an order once it has been delivered.';
-  static const orderRatingFailedMessage =
-      'Could not save your rating. Please try again.';
-  static const yourRatingLabel = 'Your rating';
+  static String get rateOrderLabel => L10n.current.rateOrderLabel;
+  static String get editOrderRatingLabel => L10n.current.editOrderRatingLabel;
+  static String get rateOrderSheetTitle => L10n.current.rateOrderSheetTitle;
+  static String get rateOrderTextLabel => L10n.current.rateOrderTextLabel;
+  static String get rateOrderTextHint => L10n.current.rateOrderTextHint;
+  static String get orderRatingNotDeliveredMessage =>
+      L10n.current.orderRatingNotDeliveredMessage;
+  static String get orderRatingFailedMessage =>
+      L10n.current.orderRatingFailedMessage;
+  static String get yourRatingLabel => L10n.current.yourRatingLabel;
 
   /// "4.6 (128)" — the compact form a product card prints beside its stars.
+  /// Wordless, so no arb key.
   static String ratingLabel(double average, int count) =>
       '${average.toStringAsFixed(1)} ($count)';
 
   /// "128 reviews" / "1 review".
   static String reviewCountLabel(int count) =>
-      '$count ${count.plural('review')}';
+      L10n.current.reviewCountLabel(count);
 
   /// The review's age, as a review list shows it ("2 days ago"). Coarse on
   /// purpose: the exact minute a review was written is never what a reader
   /// wants, and a date alone reads as stale for something posted an hour ago.
   static String reviewAgeLabel(DateTime posted, {DateTime? now}) {
     final elapsed = (now ?? DateTime.now()).difference(posted);
-    if (elapsed.inMinutes < 1) return 'Just now';
+    if (elapsed.inMinutes < 1) return L10n.current.reviewAgeJustNow;
     if (elapsed.inHours < 1) {
-      return '${elapsed.inMinutes} ${elapsed.inMinutes.plural('minute')} ago';
+      return L10n.current.reviewAgeMinutesAgo(elapsed.inMinutes);
     }
     if (elapsed.inDays < 1) {
-      return '${elapsed.inHours} ${elapsed.inHours.plural('hour')} ago';
+      return L10n.current.reviewAgeHoursAgo(elapsed.inHours);
     }
     if (elapsed.inDays < 30) {
-      return '${elapsed.inDays} ${elapsed.inDays.plural('day')} ago';
+      return L10n.current.reviewAgeDaysAgo(elapsed.inDays);
     }
     final months = elapsed.inDays ~/ 30;
-    if (months < 12) return '$months ${months.plural('month')} ago';
+    if (months < 12) return L10n.current.reviewAgeMonthsAgo(months);
     final years = elapsed.inDays ~/ 365;
-    return '$years ${years.plural('year')} ago';
+    return L10n.current.reviewAgeYearsAgo(years);
   }
 }

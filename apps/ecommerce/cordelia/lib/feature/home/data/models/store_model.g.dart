@@ -12,6 +12,7 @@ _StoreModel _$StoreModelFromJson(Map<String, dynamic> json) => _StoreModel(
   image: json['image'] as String,
   description: json['description'] as String,
   templateId: json['template_id'] as String? ?? '',
+  language: json['language'] as String? ?? '',
 );
 
 Map<String, dynamic> _$StoreModelToJson(_StoreModel instance) =>
@@ -21,4 +22,5 @@ Map<String, dynamic> _$StoreModelToJson(_StoreModel instance) =>
       'image': instance.image,
       'description': instance.description,
       'template_id': instance.templateId,
+      'language': instance.language,
     };

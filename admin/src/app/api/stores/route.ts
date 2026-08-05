@@ -5,6 +5,7 @@ import { requireAuthedUser, UnauthorizedError } from "@/lib/api/admin-guard";
 import { getStores } from "@/lib/stores";
 import { getTemplates } from "@/lib/templates";
 import { serializeStore } from "@/lib/api/serializers";
+import { STORE_LANGUAGES } from "@/lib/types";
 
 // Store discovery for the CordeliaApps super app — world-readable, no auth
 // (stores/{storeId} is `allow read: if true` in firestore.rules, same
@@ -60,10 +61,26 @@ export async function POST(request: Request) {
     }
   }
 
+  // Same fail-loud reasoning as templateId: cordelia's parse falls back to
+  // English on an unknown value, so reject bad writes here. Absent → 'en'.
+  let language = "en";
+  if (body.language !== undefined) {
+    language = typeof body.language === "string" ? body.language.trim() : "";
+    if (!(STORE_LANGUAGES as readonly string[]).includes(language)) {
+      return NextResponse.json(
+        {
+          error: `Unknown language "${language}" — valid: ${STORE_LANGUAGES.join(", ")}`,
+        },
+        { status: 400 },
+      );
+    }
+  }
+
   const storeRef = adminDb.collection("stores").doc();
   await storeRef.set({
     name,
     templateId,
+    language,
     ownerUid: auth.uid,
     status: "active",
     createdAt: FieldValue.serverTimestamp(),

@@ -23,7 +23,7 @@ class ChangePasswordBloc
   ) async {
     if (kIsWeb) {
       emit(
-        const ChangePasswordState.error(
+        ChangePasswordState.error(
           message: ValueConst.authWebUnsupportedMessage,
         ),
       );

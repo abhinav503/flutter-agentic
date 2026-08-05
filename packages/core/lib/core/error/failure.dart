@@ -15,4 +15,10 @@ sealed class Failure with _$Failure {
     required String message,
     @Default(false) bool cancelled,
   }) = PaymentFailure;
+
+  /// Device location could not be resolved into a position/address —
+  /// service off, permission declined, or no fix. [message] is technical
+  /// context; screens match on the type and show their own (localized)
+  /// copy, same as [PaymentFailure].
+  const factory Failure.location({required String message}) = LocationFailure;
 }

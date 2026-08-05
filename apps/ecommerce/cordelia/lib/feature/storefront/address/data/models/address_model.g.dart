@@ -15,10 +15,13 @@ _AddressModel _$AddressModelFromJson(Map<String, dynamic> json) =>
       addressLine2: json['address_line2'] as String? ?? '',
       landmark: json['landmark'] as String? ?? '',
       city: json['city'] as String,
+      state: json['state'] as String? ?? '',
       country: json['country'] as String,
       postalCode: json['postal_code'] as String,
       tag: json['tag'] as String,
       isDefault: json['is_default'] as bool,
+      latitude: (json['latitude'] as num?)?.toDouble(),
+      longitude: (json['longitude'] as num?)?.toDouble(),
     );
 
 Map<String, dynamic> _$AddressModelToJson(_AddressModel instance) =>
@@ -30,8 +33,11 @@ Map<String, dynamic> _$AddressModelToJson(_AddressModel instance) =>
       'address_line2': instance.addressLine2,
       'landmark': instance.landmark,
       'city': instance.city,
+      'state': instance.state,
       'country': instance.country,
       'postal_code': instance.postalCode,
       'tag': instance.tag,
       'is_default': instance.isDefault,
+      'latitude': instance.latitude,
+      'longitude': instance.longitude,
     };

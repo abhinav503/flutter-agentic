@@ -61,7 +61,7 @@ class GrofastProductReviewsSection extends StatelessWidget {
         if (reviews.rating.hasReviews)
           _Summary(rating: reviews.rating)
         else
-          const EmptyState(
+          EmptyState(
             iconData: Icons.reviews_outlined,
             title: ValueConst.reviewsEmptyTitle,
             subtitle: ValueConst.reviewsEmptySubtitle,

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:core/core/base/base_screen.dart';
 import 'package:core/core/mixins/textfield_validations.dart';
+import 'package:cordelia/utils/localized_validations.dart';
 import 'package:core/core/theme/app_spacing.dart';
 
 import 'package:cordelia/templates/dailymart/constants/dailymart_value_const.dart';
@@ -38,16 +39,13 @@ class AddressFormScreen extends BaseScreen {
 }
 
 class _AddressFormScreenState extends BaseScreenState<AddressFormScreen>
-    with TextfieldValidations, AddressFormFields {
+    with TextfieldValidations, LocalizedValidations, AddressFormFields {
   @override
   AddressEntity? get address => widget.address;
 
   @override
   String get requiredFieldErrorMessage =>
       DailyMartValueConst.requiredFieldErrorMessage;
-
-  @override
-  List<String> get cityOptions => DailyMartValueConst.addressFormCities;
 
   @override
   List<String> get countryOptions => DailyMartValueConst.addressFormCountries;
@@ -129,15 +127,17 @@ class _AddressFormScreenState extends BaseScreenState<AddressFormScreen>
                 hint: DailyMartValueConst.landmarkHint,
               ),
               const SizedBox(height: AppSpacing.md),
-              DailyMartDropdownField(
-                label: DailyMartValueConst.cityLabel,
-                value: city,
-                onTap: () => _showOptionPicker(
-                  title: DailyMartValueConst.selectCityTitle,
-                  options: cityOptions,
-                  selected: city,
-                  onSelected: selectCity,
-                ),
+              _field(
+                DailyMartValueConst.cityLabel,
+                cityController,
+                field: AddressField.city,
+                hint: DailyMartValueConst.cityHint,
+              ),
+              const SizedBox(height: AppSpacing.md),
+              _field(
+                DailyMartValueConst.stateLabel,
+                stateController,
+                hint: DailyMartValueConst.stateHint,
               ),
               const SizedBox(height: AppSpacing.md),
               DailyMartDropdownField(

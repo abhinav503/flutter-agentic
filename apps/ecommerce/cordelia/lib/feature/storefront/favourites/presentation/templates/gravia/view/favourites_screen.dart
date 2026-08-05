@@ -75,7 +75,7 @@ class _FavouritesScreenState extends BaseScreenState<FavouritesScreen> {
               body: Padding(
                 padding: const EdgeInsets.all(AppSpacing.lg),
                 child: state.items.isEmpty
-                    ? const EmptyState(
+                    ? EmptyState(
                         iconData: Icons.favorite_outline,
                         title: GraviaValueConst.favouriteEmptyTitle,
                         subtitle: GraviaValueConst.favouriteEmptySubtitle,

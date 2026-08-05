@@ -11,6 +11,13 @@ dependencies:
   flutter:
     sdk: flutter
 
+  # Per-store Hindi (gravia template) — gen-l10n .arb strings exposed via
+  # the L10n.current static holder (lib/l10n/); MaterialApp gets its
+  # delegates + supportedLocales from the generated AppLocalizations.
+  flutter_localizations:
+    sdk: flutter
+  intl: any
+
   core:
     path: ../../../packages/core
 
@@ -70,6 +77,9 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  # Lets `flutter gen-l10n` run (output goes to lib/l10n/gen per l10n.yaml —
+  # no synthetic package involved).
+  generate: true
 
   assets:
     - assets/theme/theme_config.json

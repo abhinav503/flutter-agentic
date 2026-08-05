@@ -12,6 +12,7 @@ import 'package:cordelia/constants/app_routes.dart';
 import 'package:cordelia/constants/value_const.dart';
 import 'package:cordelia/feature/storefront/active_store/domain/entities/active_store_entity.dart';
 import 'package:cordelia/feature/storefront/presentation/view/storefront_page.dart';
+import 'package:cordelia/feature/storefront/template/store_language.dart';
 import 'package:cordelia/feature/storefront/template/storefront_template.dart';
 
 import '../bloc/discovery_bloc.dart';
@@ -38,6 +39,7 @@ class _DiscoveryScreenState extends BaseScreenState<DiscoveryScreen> {
     String storeId,
     String storeName,
     StorefrontTemplate templateId,
+    StoreLanguage language,
   ) => context.push(
     AppRoutes.storefront,
     extra: StorefrontRouteArgs(
@@ -45,6 +47,7 @@ class _DiscoveryScreenState extends BaseScreenState<DiscoveryScreen> {
         storeId: storeId,
         storeName: storeName,
         templateId: templateId,
+        language: language,
       ),
     ),
   );
@@ -108,6 +111,7 @@ class _DiscoveryScreenState extends BaseScreenState<DiscoveryScreen> {
                         stores[i].id,
                         stores[i].name,
                         stores[i].templateId,
+                        stores[i].language,
                       ),
                     ),
                   ),

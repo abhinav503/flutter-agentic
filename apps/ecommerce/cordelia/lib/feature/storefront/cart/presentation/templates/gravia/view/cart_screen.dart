@@ -134,7 +134,7 @@ class _CartScreenState extends BaseScreenState<CartScreen> {
                     // The loaded branch gets its bottom inset from DockedBar's
                     // SafeArea; this branch has no docked bar, so it owns the
                     // inset itself (the surface still bleeds to the edge).
-                    child: const SafeArea(
+                    child: SafeArea(
                       top: false,
                       child: EmptyState(
                         iconData: Icons.shopping_bag_outlined,

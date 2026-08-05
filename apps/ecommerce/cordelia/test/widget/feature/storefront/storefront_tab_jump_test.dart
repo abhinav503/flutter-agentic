@@ -18,7 +18,10 @@ import 'package:cordelia/feature/storefront/home/presentation/bloc/home_bloc.dar
 import 'package:cordelia/feature/storefront/presentation/view/storefront_page.dart';
 import 'package:cordelia/feature/storefront/profile/domain/entities/profile_entity.dart';
 import 'package:cordelia/feature/storefront/profile/domain/usecase/get_profile_usecase.dart';
+import 'package:cordelia/feature/storefront/template/store_language.dart';
 import 'package:cordelia/feature/storefront/template/storefront_template.dart';
+import 'package:cordelia/l10n/active_locale_controller.dart';
+import 'package:cordelia/l10n/active_locale_scope.dart';
 import 'package:cordelia/theme/active_theme_controller.dart';
 import 'package:cordelia/theme/active_theme_scope.dart';
 import 'package:core/core/di/core_injection.dart';
@@ -105,6 +108,7 @@ const _store = ActiveStoreEntity(
   storeId: 'test-store',
   storeName: 'Test Store',
   templateId: StorefrontTemplate.dailymart,
+  language: StoreLanguage.en,
 );
 
 void main() {
@@ -129,8 +133,10 @@ void main() {
     'outgoing storefront tears down',
     (tester) async {
       final activeTheme = ActiveThemeController(AppThemeConfig.defaults);
+      final activeLocale = ActiveLocaleController();
       final activeStore = ActiveStoreCubit();
       addTearDown(activeTheme.dispose);
+      addTearDown(activeLocale.dispose);
       addTearDown(activeStore.close);
 
       await tester.pumpWidget(
@@ -160,9 +166,12 @@ void main() {
             valueListenable: activeTheme,
             builder: (context, config, _) => ActiveThemeScope(
               controller: activeTheme,
-              child: MaterialApp(
-                theme: AppTheme.fromConfig(config),
-                home: const _DiscoveryStub(),
+              child: ActiveLocaleScope(
+                controller: activeLocale,
+                child: MaterialApp(
+                  theme: AppTheme.fromConfig(config),
+                  home: const _DiscoveryStub(),
+                ),
               ),
             ),
           ),

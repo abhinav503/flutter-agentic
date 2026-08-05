@@ -6,16 +6,23 @@ import 'package:cordelia/templates/gravia/widgets/radio_options_sheet_content.da
 import 'package:cordelia/templates/gravia/widgets/gravia_form_field.dart';
 import 'package:cordelia/templates/gravia/widgets/gravia_hero_header.dart';
 import 'package:cordelia/templates/gravia/widgets/gravia_primary_button.dart';
+import 'package:cordelia/templates/gravia/widgets/gravia_tinted_button.dart';
+import 'package:core/core/ui/atoms/loading_dots.dart';
 import 'package:core/core/ui/blocks/docked_bar.dart';
+import 'package:core/core/ui/molecules/icon_info_row.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:core/core/base/base_screen.dart';
 import 'package:core/core/mixins/textfield_validations.dart';
+import 'package:cordelia/utils/localized_validations.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/blocks/collapsing_header_sheet.dart';
 
+import '../../../../../geo/domain/entities/place_suggestion_entity.dart';
+import '../../../../../geo/presentation/bloc/address_lookup_bloc.dart';
 import '../../../../domain/entities/address_entity.dart';
 import '../../../address_form_fields.dart';
 
@@ -37,7 +44,9 @@ class AddressFormScreen extends BaseScreen {
 }
 
 class _AddressFormScreenState extends BaseScreenState<AddressFormScreen>
-    with TextfieldValidations, AddressFormFields {
+    with TextfieldValidations, LocalizedValidations, AddressFormFields {
+  final _searchController = TextEditingController();
+
   @override
   AddressEntity? get address => widget.address;
 
@@ -46,10 +55,39 @@ class _AddressFormScreenState extends BaseScreenState<AddressFormScreen>
       GraviaValueConst.requiredFieldErrorMessage;
 
   @override
-  List<String> get cityOptions => GraviaValueConst.addressFormCities;
+  List<String> get countryOptions => GraviaValueConst.addressFormCountries;
 
   @override
-  List<String> get countryOptions => GraviaValueConst.addressFormCountries;
+  void initState() {
+    super.initState();
+    // Six digits typed into the pincode field trigger the best-effort
+    // city/state autofill; anything shorter is just typing.
+    postalCodeController.addListener(_onPostalCodeChanged);
+  }
+
+  @override
+  void dispose() {
+    postalCodeController.removeListener(_onPostalCodeChanged);
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _onPostalCodeChanged() {
+    final pincode = postalCodeController.text.trim();
+    if (RegExp(r'^\d{6}$').hasMatch(pincode)) {
+      context.read<AddressLookupBloc>().add(
+        AddressLookupEvent.pincodeEntered(pincode: pincode),
+      );
+    }
+  }
+
+  void _selectSuggestion(PlaceSuggestionEntity suggestion) {
+    _searchController.clear();
+    FocusManager.instance.primaryFocus?.unfocus();
+    context.read<AddressLookupBloc>().add(
+      AddressLookupEvent.suggestionSelected(suggestion: suggestion),
+    );
+  }
 
   /// Opens a radio-list bottom sheet for a bounded picklist field — same
   /// "chip opens a sheet" shape as Category Details' Sort/Price filters.
@@ -76,6 +114,20 @@ class _AddressFormScreenState extends BaseScreenState<AddressFormScreen>
 
   @override
   Widget body(BuildContext context) {
+    return BlocConsumer<AddressLookupBloc, AddressLookupState>(
+      listener: (context, state) => switch (state) {
+        AddressLookupPrefillReady(:final address) => prefill(address),
+        AddressLookupPincodeReady(:final info) => prefillPincode(info),
+        AddressLookupError(:final message, :final isLocation) => showSnackBar(
+          isLocation ? GraviaValueConst.locationUnavailableMessage : message,
+        ),
+        _ => null,
+      },
+      builder: (context, state) => _form(context, state),
+    );
+  }
+
+  Widget _form(BuildContext context, AddressLookupState lookupState) {
     return Column(
       children: [
         Expanded(
@@ -92,6 +144,51 @@ class _AddressFormScreenState extends BaseScreenState<AddressFormScreen>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // ── Location helpers: GPS prefill + address type-ahead ──
+                  if (lookupState is AddressLookupLocating)
+                    const SizedBox(
+                      height: GraviaTintedButton.height,
+                      child: Center(child: LoadingDots()),
+                    )
+                  else
+                    GraviaTintedButton(
+                      label: GraviaValueConst.useMyLocationLabel,
+                      leadingIcon: Icon(
+                        Icons.my_location,
+                        size: AppSpacing.lg,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      onTap: () => context.read<AddressLookupBloc>().add(
+                        const AddressLookupEvent.locationRequested(),
+                      ),
+                    ),
+                  const SizedBox(height: AppSpacing.lg),
+                  GraviaFormField(
+                    label: GraviaValueConst.addressSearchLabel,
+                    controller: _searchController,
+                    hint: GraviaValueConst.addressSearchHint,
+                    onChanged: (query) =>
+                        context.read<AddressLookupBloc>().add(
+                          AddressLookupEvent.queryChanged(query: query),
+                        ),
+                  ),
+                  if (lookupState case AddressLookupSuggestions(
+                    :final suggestions,
+                  ))
+                    for (final suggestion in suggestions)
+                      IconInfoRow(
+                        leading: Icon(
+                          Icons.location_on_outlined,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                        title: suggestion.description,
+                        titleMaxLines: 2,
+                        padding: const EdgeInsets.symmetric(
+                          vertical: AppSpacing.sm,
+                        ),
+                        onTap: () => _selectSuggestion(suggestion),
+                      ),
+                  const SizedBox(height: AppSpacing.lg),
                   _field(
                     GraviaValueConst.nameLabel,
                     nameController,
@@ -127,15 +224,17 @@ class _AddressFormScreenState extends BaseScreenState<AddressFormScreen>
                     hint: GraviaValueConst.landmarkHint,
                   ),
                   const SizedBox(height: AppSpacing.lg),
-                  GraviaDropdownField(
-                    label: GraviaValueConst.cityLabel,
-                    value: city,
-                    onTap: () => _showOptionPicker(
-                      title: GraviaValueConst.selectCityTitle,
-                      options: cityOptions,
-                      selected: city,
-                      onSelected: selectCity,
-                    ),
+                  _field(
+                    GraviaValueConst.cityLabel,
+                    cityController,
+                    field: AddressField.city,
+                    hint: GraviaValueConst.cityHint,
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+                  _field(
+                    GraviaValueConst.stateLabel,
+                    stateController,
+                    hint: GraviaValueConst.stateHint,
                   ),
                   const SizedBox(height: AppSpacing.lg),
                   GraviaDropdownField(

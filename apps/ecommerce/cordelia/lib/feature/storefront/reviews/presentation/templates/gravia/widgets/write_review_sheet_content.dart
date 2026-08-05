@@ -27,8 +27,10 @@ class GraviaWriteReviewSheetContent extends StatefulWidget {
   /// The text field's label and hint. Defaulted to the product-review
   /// wording; the order-rating caller passes its own, since it is asking
   /// about a delivery rather than a product.
-  final String textLabel;
-  final String textHint;
+  // Null means the shared default copy (localized at build time — a const
+  // default can't read L10n).
+  final String? textLabel;
+  final String? textHint;
 
   final void Function(int rating, String text) onSubmit;
 
@@ -40,8 +42,8 @@ class GraviaWriteReviewSheetContent extends StatefulWidget {
     super.key,
     this.initialRating = 0,
     this.initialText = '',
-    this.textLabel = ValueConst.reviewTextLabel,
-    this.textHint = ValueConst.reviewTextHint,
+    this.textLabel,
+    this.textHint,
     required this.onSubmit,
     required this.onMessage,
   });
@@ -95,9 +97,9 @@ class _GraviaWriteReviewSheetContentState
           RatingStarsField(value: rating, onChanged: selectRating),
           const SizedBox(height: AppSpacing.lg),
           GraviaFormField(
-            label: widget.textLabel,
+            label: widget.textLabel ?? ValueConst.reviewTextLabel,
             controller: reviewController,
-            hint: widget.textHint,
+            hint: widget.textHint ?? ValueConst.reviewTextHint,
             keyboardType: TextInputType.multiline,
             maxLines: 4,
           ),

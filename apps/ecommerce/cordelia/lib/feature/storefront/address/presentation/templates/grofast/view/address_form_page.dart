@@ -6,6 +6,7 @@ import 'package:core/core/base/base_page.dart';
 import 'package:cordelia/feature/storefront/presentation/chromeless_page.dart';
 import 'package:core/core/base/base_screen.dart';
 import 'package:core/core/mixins/textfield_validations.dart';
+import 'package:cordelia/utils/localized_validations.dart';
 import 'package:core/core/theme/app_spacing.dart';
 
 import 'package:cordelia/feature/storefront/address/domain/entities/address_entity.dart';
@@ -53,7 +54,7 @@ class _AddressFormScreen extends BaseScreen {
 }
 
 class _AddressFormScreenState extends BaseScreenState<_AddressFormScreen>
-    with TextfieldValidations, AddressFormFields {
+    with TextfieldValidations, LocalizedValidations, AddressFormFields {
   @override
   AddressEntity? get address => widget.address;
 
@@ -62,20 +63,7 @@ class _AddressFormScreenState extends BaseScreenState<_AddressFormScreen>
       GrofastValueConst.requiredFieldErrorMessage;
 
   @override
-  List<String> get cityOptions => GrofastValueConst.addressFormCities;
-
-  @override
   List<String> get countryOptions => GrofastValueConst.addressFormCountries;
-
-  Future<void> _pickCity() => showGrofastSheet<void>(
-    title: GrofastValueConst.selectCityTitle,
-    child: GrofastOptionsSheetContent<String>(
-      options: cityOptions,
-      selected: city,
-      labelOf: (value) => value,
-      onSelected: selectCity,
-    ),
-  );
 
   Future<void> _pickCountry() => showGrofastSheet<void>(
     title: GrofastValueConst.selectCountryTitle,
@@ -145,11 +133,17 @@ class _AddressFormScreenState extends BaseScreenState<_AddressFormScreen>
               hint: GrofastValueConst.landmarkHint,
             ),
             const SizedBox(height: AppSpacing.lg),
-            GrofastDropdownField(
-              label: GrofastValueConst.cityLabel,
-              hint: GrofastValueConst.selectCityTitle,
-              value: city,
-              onTap: _pickCity,
+            _field(
+              GrofastValueConst.cityLabel,
+              cityController,
+              field: AddressField.city,
+              hint: GrofastValueConst.cityHint,
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            GrofastFormField(
+              label: GrofastValueConst.stateLabel,
+              controller: stateController,
+              hint: GrofastValueConst.stateHint,
             ),
             const SizedBox(height: AppSpacing.lg),
             GrofastDropdownField(

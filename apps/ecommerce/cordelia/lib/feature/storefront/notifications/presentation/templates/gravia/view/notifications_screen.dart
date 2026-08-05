@@ -88,7 +88,7 @@ class _NotificationsScreenState extends BaseScreenState<NotificationsScreen> {
               onBack: () => context.pop(),
             ),
             body: sections.isEmpty
-                ? const EmptyState(
+                ? EmptyState(
                     iconData: Icons.notifications_none,
                     title: GraviaValueConst.notificationsEmptyTitle,
                     subtitle: GraviaValueConst.notificationsEmptySubtitle,

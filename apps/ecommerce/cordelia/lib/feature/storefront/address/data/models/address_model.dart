@@ -17,10 +17,15 @@ abstract class AddressModel with _$AddressModel {
     @JsonKey(name: 'address_line2') @Default('') String addressLine2,
     @Default('') String landmark,
     required String city,
+    // Defaulted for payloads written before the location feature (old
+    // address docs and order delivery_address snapshots).
+    @Default('') String state,
     required String country,
     @JsonKey(name: 'postal_code') required String postalCode,
     required String tag,
     @JsonKey(name: 'is_default') required bool isDefault,
+    double? latitude,
+    double? longitude,
   }) = _AddressModel;
 
   factory AddressModel.fromJson(Map<String, dynamic> json) =>
@@ -34,10 +39,13 @@ abstract class AddressModel with _$AddressModel {
     addressLine2: e.addressLine2,
     landmark: e.landmark,
     city: e.city,
+    state: e.state,
     country: e.country,
     postalCode: e.postalCode,
     tag: e.tag,
     isDefault: e.isDefault,
+    latitude: e.latitude,
+    longitude: e.longitude,
   );
 
   AddressEntity toEntity() => AddressEntity(
@@ -48,9 +56,12 @@ abstract class AddressModel with _$AddressModel {
     addressLine2: addressLine2,
     landmark: landmark,
     city: city,
+    state: state,
     country: country,
     postalCode: postalCode,
     tag: tag,
     isDefault: isDefault,
+    latitude: latitude,
+    longitude: longitude,
   );
 }

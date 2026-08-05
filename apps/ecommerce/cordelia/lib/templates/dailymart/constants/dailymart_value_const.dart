@@ -240,7 +240,9 @@ abstract final class DailyMartValueConst {
   static const landmarkLabel = 'Landmark';
   static const landmarkHint = 'Nearby landmark (optional)';
   static const cityLabel = 'City';
-  static const selectCityTitle = 'Select City';
+  static const cityHint = 'e.g. New Delhi';
+  static const stateLabel = 'State';
+  static const stateHint = 'e.g. Delhi (optional)';
   static const countryLabel = 'Country';
   static const selectCountryTitle = 'Select Country';
   static const postalCodeLabel = 'Postal Code';
@@ -251,21 +253,15 @@ abstract final class DailyMartValueConst {
   static const updateAddressButtonLabel = 'Update Address';
   static const requiredFieldErrorMessage = 'This field is required';
 
-  static const addressFormCities = <String>[
-    'Richardson',
-    'Allentown',
-    'San Jose',
-    'New York',
-    'Los Angeles',
-    'Chicago',
-    'Houston',
-  ];
+  // City stopped being a picklist when geo prefill landed — real city names
+  // no fixed list could hold. Country stays bounded; India first, since geo
+  // prefill and the pincode lookup are India-centric.
   static const addressFormCountries = <String>[
+    'India',
     'United States',
     'Canada',
     'United Kingdom',
     'Australia',
-    'India',
   ];
 
   // ── My Orders (kit frame `35`) ───────────────────────────────────────────

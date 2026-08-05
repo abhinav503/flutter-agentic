@@ -33,6 +33,9 @@ export function parseAddressInput(body: {
     addressLine2:
       typeof body.address_line2 === "string" ? body.address_line2 : "",
     landmark: typeof body.landmark === "string" ? body.landmark : "",
+    state: typeof body.state === "string" ? body.state : "",
+    latitude: typeof body.latitude === "number" ? body.latitude : null,
+    longitude: typeof body.longitude === "number" ? body.longitude : null,
     isDefault: body.is_default === true,
   };
 }
