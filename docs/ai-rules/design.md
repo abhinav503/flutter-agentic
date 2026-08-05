@@ -231,6 +231,13 @@ Get the shape right before touching a `TextStyle` or a colour.
    selector/chip's selected *and* unselected state resolves to the right token
    (not just whichever state you happened to screenshot), and `flutter analyze`
    is clean.
+7. **Widget tests can prove structure, not fit.** They render with a fallback
+   font whose every glyph is a square of the font size — roughly double a real
+   font's width — so text wraps far earlier than on a device and any assertion
+   comparing a short string's height against a long one's is meaningless. What
+   *does* survive the fake font: no overflow exception, `maxLines` is what you
+   think, tiles in a row share a height, a box is content-sized rather than
+   clipped. Judge whether copy actually *fits* on a device.
 
 Then apply the rules below for the actual polish.
 
@@ -268,6 +275,26 @@ Then apply the rules below for the actual polish.
 - **Images carry the design.** Photo-led apps (commerce, food, travel): big
   images, tight metadata. Always `fit: BoxFit.cover` inside a clipped radius; no
   stretched or letterboxed photos.
+- **Any label fed by store data or translation gets two lines.** A tile label
+  is only as short as English and the seed catalog made it. Category names come
+  from the store's own catalog ("Congelados y Platos Preparados") and UI labels
+  grow 30–40% in German ("My Orders" → "Meine Bestellungen"), so a one-line cap
+  ellipsizes most of them the moment the app leaves English. Three consequences
+  that are easy to get half-right:
+  - **A fixed-height tile must grow with the line count.** `maxLines: 2` inside
+    a `SizedBox(height:)` sized for one line is a `RenderFlex` overflow, not a
+    wrap. Change both together and leave the arithmetic in a comment beside the
+    constant (dailymart's `categoryTileHeight` = image inset + image + two
+    lines). Where the card already has slack — grofast's 78px quick tile holding
+    48px of content — two lines fit for free and the kit's proportions survive.
+  - **A rail of wrapping labels must top-align.** `SectionRail` (and any `Row`)
+    centres children by default, so a one-line tile next to a two-line tile has
+    its artwork sitting lower. Pass `CrossAxisAlignment.start` so labels grow
+    downward and the images stay level.
+  - **Wrapped text needs `textAlign` and an inset of its own.** A `Column` that
+    centres the block says nothing about the lines inside it, and a second line
+    otherwise runs to the card's edge.
+
 - **Touch targets ≥ 44px**; primary CTAs full-width pills at the bottom of
   flows, not small buttons lost mid-screen.
 - **Motion is subtle and tiered.** Pick a duration from the pack's motion
@@ -287,6 +314,12 @@ Then apply the rules below for the actual polish.
 - Spinner centred in a full screen where a skeleton/`EmptyState` belongs
 - `Colors.*`, raw hex, `TextStyle(fontSize:)`, `EdgeInsets.all(13)` — token and
   theme violations (see `conventions.md` forbidden patterns)
+- A tile label capped at one line when its text comes from the catalog or a
+  translation — it reads fine in English and truncates in every other language
+- `maxLines` raised on a label inside a fixed-height box without raising the
+  height to match
+- A rail whose items can differ in height but which centres them, leaving the
+  artwork off-level
 - A hand-rolled composition that an existing block already provides
 - A screen with its own one-off divider/hairline shade instead of the one value
   the app's persistent chrome uses

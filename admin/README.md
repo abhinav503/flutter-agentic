@@ -1,13 +1,18 @@
 # Admin console
 
-The store-owner web console for the `gravia` ecommerce app (Next.js App Router).
-Two jobs in one app:
+The store-owner web console behind the **`cordelia` multi-tenant storefront**
+(Next.js App Router). One deployment serves every store; a shopper opens any of
+them in the same app. Two jobs in one codebase:
 
-1. **Dashboard** (`/dashboard/*`) — a signed-in store owner manages catalog
-   (categories/products + image upload), orders, and Razorpay payment settings.
-2. **REST API** (`/api/*`) — the backend gravia (and any storefront) calls:
-   catalog reads, cart, orders, payments, refunds, addresses, favourites, search.
-   All shopper routes are Firebase-ID-token verified.
+1. **Dashboard** (`/dashboard/*`) — a signed-in owner manages their store's
+   catalog (categories, products, brands, banners, coupons), orders, reviews,
+   store profile, and Razorpay settings.
+2. **REST API** (`/api/*`) — the backend every storefront calls: catalog reads,
+   cart, orders, payments, refunds, addresses, favourites, reviews, search, and
+   the `/api/geo/*` proxy. All shopper routes are Firebase-ID-token verified.
+
+There is also a public marketing landing page at `/`, crawlable and sharing the
+dashboard's palette.
 
 Backing services: Firebase (`corderlia-ecom`) — Firestore (multi-tenant
 catalog/orders), Auth, Storage. Deployed on Vercel. See
@@ -33,6 +38,74 @@ npm run dev        # http://localhost:4100
   `src/lib/geo.ts`). Never ships to a client.
 
 See `.env.local.example` for the full list.
+
+## A store's identity: template, language, currency
+
+Three independent axes on the store doc, all set on **`/dashboard/settings`**.
+
+**Template** (`template_id`) — `gravia` | `dailymart` | `grofast`. Picks which
+UI the storefront renders for this store, at runtime. See
+`docs/how-to/add-storefront-template.md`.
+
+**Language** (`language`) — the storefront's UI language:
+`en`, `de`, `fr`, `es`, `it`, `hi`. Hindi is deliberately last in every
+picklist. This translates **chrome only** — catalog content is single-valued
+plain text, so a German store seeded from the India catalog shows German
+buttons around Indian product names. Seed the matching market instead (below).
+Adding a language: `docs/how-to/add-language-pack.md`.
+
+**Currency** (`currency`) — `INR`, `EUR`, `GBP`, `USD`. What prices are *in*,
+which is a separate question from what language they're *read in*: a shopper
+browsing a UK store in German still pays in £.
+
+Everything money-shaped in the dashboard renders through `src/lib/money.ts` —
+`formatMoney` / `currencySymbol` / `compactMoney` — reading `storeCurrency`
+from `useStore()`. There are no currency literals in components; a hardcoded
+`₹` is a bug, and was one in 21 places before this was centralized. The
+storefront half is core's `AppFormat`.
+
+## Generate sample data
+
+**Products → Generate sample data** writes a realistic grocery catalog into the
+store in one atomic `writeBatch`. Seven markets, each written in its own
+language with its own local brands and shelf prices:
+
+| Market | Currency | Brands you'd recognize |
+|---|---|---|
+| India | ₹ | Amul, Britannia, Tata, Maggi |
+| Germany | € | Kerrygold, Dr. Oetker, Ritter Sport, Haribo |
+| France | € | Président, Bonne Maman, LU, Evian |
+| Spain | € | Central Lechera Asturiana, Carbonell, Gullón |
+| Italy | € | Barilla, Mulino Bianco, Galbani, Lavazza |
+| UK | £ | Warburtons, Heinz, Cathedral City, Cadbury |
+| US | $ | Cheerios, Kraft, Chobani, DiGiorno |
+
+~100 products each (719 total, 918 image URLs). The store's currency
+pre-selects a market (`defaultSeedMarketForCurrency`: INR → india, GBP → uk,
+USD → us, EUR → germany, with the owner free to override).
+
+One catalog per market rather than one catalog rescaled — a market's brands,
+aisle names and shelf prices are all local, and the storefront's price-filter
+bands are per currency, so a euro store seeded from the rupee catalog breaks
+the filter as well as the copy.
+
+Photos come from Open Food Facts (CC-BY-SA, attributed in the dialog), banners
+from Unsplash, brand logos from verified favicons or DiceBear monograms.
+
+### Adding a market
+
+Add `<market>-seed-data.ts`, register it in `seed-markets.ts` — **and add the
+filename to all four gate scripts**, which each hold their own list:
+
+| Gate | Checks |
+|---|---|
+| `npm run verify:seed-images` | every image URL resolves (retries; distinguishes a real 404 from CDN throttling) |
+| `npm run verify:seed-bands` | no price-filter band is empty for that currency, so no chip returns nothing |
+| `npm run verify:seed-refs` | every product's category/brand slug exists in the same seed |
+| `scripts/patch-seed-images.mjs` | retrofits already-seeded stores when URLs change |
+
+A gate catches an *empty* band; a nearly empty one (a chip returning one item)
+still needs a human to look.
 
 ## Payments (per-store Razorpay)
 
@@ -106,6 +179,18 @@ order changes). Overridable env: `ADMIN_BASE_URL` (default `http://localhost:410
 secret configured on the dashboard first; the route returns `400 "not
 configured"` otherwise and the script says so.
 
+## Error responses the client re-writes
+
+Most API errors are shown to the shopper as-is. One is not: an under-minimum
+coupon names an *amount*, and only the client knows both the store's currency
+and the shopper's language. So `CouponError` (`src/lib/coupon-engine.ts`) also
+carries a machine-readable `code` plus the bare number, serialized by
+`couponErrorBody()`, and the storefront writes the sentence. The server's own
+`message` stays a currency-neutral English fallback.
+
+The rule generalizes: **a message that names money or a count can't be
+authored server-side.** Send the operands and a code.
+
 ## Scripts
 
 | Script | What it does |
@@ -115,3 +200,7 @@ configured"` otherwise and the script says so.
 | `npm run start` | Serve the production build |
 | `npm run lint` | ESLint |
 | `npm run test:webhook` | Verify the Razorpay refund webhook (above) |
+| `npm run seed:templates` | One-off: write the `templates` collection the create-store dropdown reads (idempotent; re-run after adding a template) |
+| `npm run verify:seed-images` | Every seed image URL resolves |
+| `npm run verify:seed-bands` | No price-filter band is empty in any seed |
+| `npm run verify:seed-refs` | Every seed product's category/brand slug exists |

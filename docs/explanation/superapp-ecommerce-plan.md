@@ -2993,3 +2993,57 @@ because those classes are structurally compatible with `Error`, and it would
 have behaved correctly today since neither carries a `code`. Caught by reading
 the call sites afterwards rather than by any tool. Structural typing plus a
 broad regex is a combination that hides this kind of mistake.
+
+---
+
+## Long-label layout pass across all three packs — DONE (2026-08-06)
+
+Six languages and seven catalogs later, the copy that broke is not the copy any
+kit was drawn with. Both fixes below are the same defect in two places: a label
+capped at one line whose text arrives from the catalog or from a translation.
+
+**Category names, everywhere they rail.** German grocery categories are
+compounds — "Nudeln, Reis & Konserven", "Molkereiprodukte & Eier" — and every
+pack truncated them to a prefix on Home and on the categories screen. All three
+now wrap to two lines, but each needed a different structural fix, which is the
+part worth remembering:
+
+- **dailymart** draws a fixed-height tile, so a second line needs the tile to
+  grow: `categoryTileHeight` 92 → 106, with the arithmetic (4 inset + 63 image +
+  2 × 18.6 lines) written into the constant so the next person can't change the
+  image height and silently overflow.
+- **grofast** rails a tile with the label *below* it, so the row's cells must
+  top-align — without that, a two-line cell recentres its neighbours and the
+  whole rail bounces.
+- **gravia** already had the room; it only needed the cap lifted.
+
+Wrapped text also needs `textAlign: TextAlign.center` and a horizontal inset it
+never needed on one line — a wrapped label without them reads ragged against the
+tile edge.
+
+**grofast's profile quick tiles** — the three-across row at the top of Profile —
+had the same cap. Translations push those past one line ("Meine Bestellungen",
+"Mis direcciones") where English fits. Two lines, centred, with an `xs3` inset.
+
+**Nine widget tests** (`test/widget/templates/long_label_wrapping_test.dart`)
+cover all four surfaces. They are structural only — see the caveat below.
+
+### What the tests could not tell us
+
+The first version asserted "a long name makes the tile taller" and failed. The
+widget-test fallback font renders **every glyph as a square of the font size**,
+roughly twice a real glyph's width, so even "Bebidas" wraps at 70px and the
+long and short cases produce the same height. The tests were reframed onto
+font-independent properties — `maxLines`, `textAlign`, the tile's declared
+height, `CrossAxisAlignment.start` on the rail — and the fit question was
+answered by opening the storefronts.
+
+This is now rule 7 in `docs/ai-rules/design.md` §3, alongside a new checklist
+bullet ("any label fed by store data or translation gets two lines") and three
+matching screen smells.
+
+### German copy fix shipped alongside
+
+"Benachrichtigung(en)" → "Mitteilung(en)" across all 12 German notification
+strings — shorter, and the word German apps actually use for in-app
+notifications. Applied to every pack, not just the one it was spotted in.
