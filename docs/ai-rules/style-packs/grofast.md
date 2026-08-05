@@ -20,6 +20,17 @@
 | Preset location | `packages/core/lib/core/theme/app_theme_presets.dart` → `'grofast'` |
 | App constants | `apps/ecommerce/cordelia/lib/templates/grofast/constants/` — `grofast_color_const.dart`, `grofast_text_style_const.dart`, `grofast_dimen_const.dart`, `grofast_value_const.dart`, `grofast_image_const.dart` |
 
+**Language note (cordelia).** This pack is bilingual — English + Hindi.
+Every user-facing string in `GrofastValueConst` is a getter over `L10n.current`
+(`grofast*` keys in `apps/ecommerce/cordelia/lib/l10n/app_en.arb` /
+`app_hi.arb`); only wordless number/date formatters and data values stay
+`const`. The store doc's admin-picked `language` is the default; the
+shopper's per-store override (Profile → Language row, wired through
+`StoreLanguageSwitchX`) wins; both are applied per storefront visit by
+`StorefrontPage` via `ActiveLocaleController` — the exact lifecycle of the
+template theme swap. Never cache a localized label in a `static
+final`/`static const` list.
+
 **Sourcing note.** Every value here was measured on a *shipped* frame — Home
 (`17:1`), Product Detail (`27:288`), Bag (`129:1144`), Search Result
 (`148:2151`), Search Option sheet (`23:285`), Category Expanded (`119:796`),

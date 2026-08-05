@@ -152,6 +152,13 @@ abstract final class ValueConst {
   static String get profileLoadErrorMessage =>
       L10n.current.profileLoadErrorMessage;
 
+  // ── Language row (every pack's Profile) — app-level: the row names the
+  // same mechanism everywhere, and the option labels are self-named
+  // (English stays "English" in Hindi and vice versa).
+  static String get languageLabel => L10n.current.languageSheetTitle;
+  static String get languageEnglish => L10n.current.languageEnglish;
+  static String get languageHindi => L10n.current.languageHindi;
+
   // ── Category Details filters — app-wide, not per-pack: both templates run
   // the same sort model, so the option wording is shared (each pack still
   // titles its own sheet).

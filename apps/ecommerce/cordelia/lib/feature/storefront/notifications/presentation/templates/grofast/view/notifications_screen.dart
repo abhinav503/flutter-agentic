@@ -80,7 +80,7 @@ class _NotificationsScreenState extends BaseScreenState<NotificationsScreen> {
               ),
               NotificationsLoaded(:final sections)
                   when sections.every((s) => s.notifications.isEmpty) =>
-                const GrofastEmptyState(
+                GrofastEmptyState(
                   icon: Icons.notifications_none_rounded,
                   title: GrofastValueConst.notificationsEmptyTitle,
                   subtitle: GrofastValueConst.notificationsEmptySubtitle,

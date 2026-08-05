@@ -1,11 +1,11 @@
-import 'package:core/core/extensions/num_extensions.dart';
-
 // RefundStatus ships beside OrderStatus — one file, two axes of the same
 // lifecycle.
 import 'package:cordelia/enums/order_status.dart';
 // For OrderPlacedAtX.asFilterDate — the order's own compact date form, so the
 // card and the filter sheet can't drift into two date formats.
 import 'package:cordelia/feature/storefront/orders/domain/entities/order_entity.dart';
+import 'package:cordelia/l10n/l10n.dart';
+import 'package:core/core/extensions/num_extensions.dart';
 
 /// Copy used only by the `grofast` template's storefront screens — scoped here
 /// rather than the app-wide `ValueConst` so each template words its own
@@ -13,301 +13,394 @@ import 'package:cordelia/feature/storefront/orders/domain/entities/order_entity.
 ///
 /// The voice is the kit's: lowercase inline links ("see all", "add new"),
 /// grocery nouns ("bag", not "cart"), and sentence-case section headers.
+///
+/// Bilingual like gravia: every user-facing string is a getter over
+/// [L10n.current] (`grofast*` keys in `lib/l10n/app_*.arb`), applied per
+/// store visit by `StorefrontPage`. Only wordless number/date formatters and
+/// data values stay `const`.
 abstract final class GrofastValueConst {
   // ── Home ─────────────────────────────────────────────────────────────────
-  static String greeting(String name) => 'Hey $name 👋';
-  static const greetingFallbackName = 'there';
-  static const greetingSubtitle = 'Find fresh groceries you want';
-  static const searchHint = 'Search fresh groceries';
-  static const categoriesTitle = 'Categories';
-  static const popularTitle = 'Popular';
-  static const seeAll = 'see all';
-  static const homeLoadErrorMessage = "Couldn't load this store's catalog.";
-  static const noLocationSelectedLabel = 'Select a location';
-  static const claimNow = 'claim now';
+  static String greeting(String name) => L10n.current.grofastGreeting(name);
+  static String get greetingFallbackName =>
+      L10n.current.grofastGreetingFallbackName;
+  static String get greetingSubtitle => L10n.current.grofastGreetingSubtitle;
+  static String get searchHint => L10n.current.grofastSearchHint;
+  static String get categoriesTitle => L10n.current.grofastCategoriesTitle;
+  static String get popularTitle => L10n.current.grofastPopularTitle;
+  static String get seeAll => L10n.current.grofastSeeAll;
+  static String get homeLoadErrorMessage =>
+      L10n.current.grofastHomeLoadErrorMessage;
+  static String get noLocationSelectedLabel =>
+      L10n.current.grofastNoLocationSelectedLabel;
+  static String get claimNow => L10n.current.grofastClaimNow;
   static String promoDiscountLabel(double percentage) =>
-      '${percentage.asPercent} off';
+      L10n.current.grofastPromoDiscountLabel(percentage.asPercent);
 
   // ── Categories ───────────────────────────────────────────────────────────
-  static const categoriesLoadErrorMessage = "Couldn't load categories.";
-  static const categoriesEmptyTitle = 'No categories yet';
-  static const categoriesEmptySubtitle =
-      'This store has not published any categories.';
+  static String get categoriesLoadErrorMessage =>
+      L10n.current.grofastCategoriesLoadErrorMessage;
+  static String get categoriesEmptyTitle =>
+      L10n.current.grofastCategoriesEmptyTitle;
+  static String get categoriesEmptySubtitle =>
+      L10n.current.grofastCategoriesEmptySubtitle;
 
   // ── Category details ─────────────────────────────────────────────────────
-  static String categoryProductsTitle(String category) => 'All $category';
-  static const categoryDetailsEmptyTitle = 'Nothing here yet';
-  static const categoryDetailsEmptySubtitle =
-      'No products in this category right now.';
-  static const categoryDetailsErrorMessage = "Couldn't load this category.";
+  static String categoryProductsTitle(String category) =>
+      L10n.current.grofastCategoryProductsTitle(category);
+  static String get categoryDetailsEmptyTitle =>
+      L10n.current.grofastCategoryDetailsEmptyTitle;
+  static String get categoryDetailsEmptySubtitle =>
+      L10n.current.grofastCategoryDetailsEmptySubtitle;
+  static String get categoryDetailsErrorMessage =>
+      L10n.current.grofastCategoryDetailsErrorMessage;
 
   // ── Search ───────────────────────────────────────────────────────────────
-  static const searchTitle = 'Search Groceries';
-  static const recentSearchTitle = 'Recent Search';
+  static String get searchTitle => L10n.current.grofastSearchTitle;
+  static String get recentSearchTitle => L10n.current.grofastRecentSearchTitle;
   static String resultsCountLabel(int count) =>
-      'Found $count ${count.plural('Result')}';
-  static const searchLoadErrorMessage = "Couldn't load search.";
-  static const searchResultsErrorMessage = "Couldn't search this store.";
-  static const searchNoResultsTitle = 'No results';
+      L10n.current.grofastResultsCountLabel(count);
+  static String get searchLoadErrorMessage =>
+      L10n.current.grofastSearchLoadErrorMessage;
+  static String get searchResultsErrorMessage =>
+      L10n.current.grofastSearchResultsErrorMessage;
+  static String get searchNoResultsTitle =>
+      L10n.current.grofastSearchNoResultsTitle;
   static String searchNoResultsSubtitle(String query) =>
-      'Nothing matched "$query". Try another word.';
-  static const searchIdleTitle = 'What are you shopping for?';
-  static const searchIdleSubtitle =
-      'Search the whole store by name or category.';
+      L10n.current.grofastSearchNoResultsSubtitle(query);
+  static String get searchIdleTitle => L10n.current.grofastSearchIdleTitle;
+  static String get searchIdleSubtitle =>
+      L10n.current.grofastSearchIdleSubtitle;
 
   // ── Filter sheet (search + category details) ─────────────────────────────
-  static const sortByTitle = 'Sort By';
-  static const priceTitle = 'Price';
-  static const applyLabel = 'Apply';
-  static const resetLabel = 'Reset';
+  static String get sortByTitle => L10n.current.grofastSortByTitle;
+  static String get priceTitle => L10n.current.grofastPriceTitle;
+  static String get applyLabel => L10n.current.grofastApplyLabel;
+  static String get resetLabel => L10n.current.grofastResetLabel;
 
   // ── Product card / grid ──────────────────────────────────────────────────
+  // Wordless ('/kg'), so no arb key.
   static String perUnitSuffix(String unit) => '/$unit';
-  static const addToBagTooltip = 'Add to bag';
-  static const favouriteTooltip = 'Save to wishlist';
-  static const decreaseQuantityLabel = 'Decrease quantity';
-  static const increaseQuantityLabel = 'Increase quantity';
+  static String get addToBagTooltip => L10n.current.grofastAddToBagTooltip;
+  static String get favouriteTooltip => L10n.current.grofastFavouriteTooltip;
+  static String get decreaseQuantityLabel =>
+      L10n.current.grofastDecreaseQuantityLabel;
+  static String get increaseQuantityLabel =>
+      L10n.current.grofastIncreaseQuantityLabel;
 
   // ── Product details ──────────────────────────────────────────────────────
-  static const productDetailsTitle = 'Product Details';
-  static const descriptionTitle = 'Description';
-  static const selectSizeTitle = 'Select Size';
-  static const addToBag = 'Add to bag';
-  static const productDetailsLoadErrorMessage =
-      "Couldn't load this product right now.";
+  static String get productDetailsTitle =>
+      L10n.current.grofastProductDetailsTitle;
+  static String get descriptionTitle => L10n.current.grofastDescriptionTitle;
+  static String get selectSizeTitle => L10n.current.grofastSelectSizeTitle;
+  static String get addToBag => L10n.current.grofastAddToBag;
+  static String get productDetailsLoadErrorMessage =>
+      L10n.current.grofastProductDetailsLoadErrorMessage;
   static String addedToBagMessage(String name, int quantity) =>
-      'Added $quantity × $name to your bag.';
-  static const noDescriptionLabel = 'No description for this product yet.';
+      L10n.current.grofastAddedToBagMessage(quantity, name);
+  static String get noDescriptionLabel =>
+      L10n.current.grofastNoDescriptionLabel;
 
   // ── Bag (cart) ───────────────────────────────────────────────────────────
-  static const bagTitle = 'My Bag';
-  static String bagItemCount(int count) => '$count ${count.plural('item')}';
-  static const promoCodeHint = 'Add Promo Code';
-  static const promoApplyLabel = 'Apply';
-  static const promoRemoveLabel = 'Remove';
-  static const couponDetailLabel = 'Coupon';
-  static String promoAppliedLabel(String code) => '$code applied';
-  static String couponLineLabel(String code) => 'Coupon ($code)';
+  static String get bagTitle => L10n.current.grofastBagTitle;
+  static String bagItemCount(int count) =>
+      L10n.current.grofastBagItemCount(count);
+  static String get promoCodeHint => L10n.current.grofastPromoCodeHint;
+  static String get promoApplyLabel => L10n.current.grofastPromoApplyLabel;
+  static String get promoRemoveLabel => L10n.current.grofastPromoRemoveLabel;
+  static String get couponDetailLabel => L10n.current.grofastCouponDetailLabel;
+  static String promoAppliedLabel(String code) =>
+      L10n.current.grofastPromoApplied(code);
+  static String couponLineLabel(String code) =>
+      L10n.current.grofastCouponLine(code);
+  // Wordless ('CODE (- ₹50)'), so no arb key.
   static String couponDetailValue(String code, String discount) =>
       '$code (- $discount)';
-  static const promoComingSoonMessage = 'Promo codes are coming soon.';
-  static const totalLabel = 'Total';
-  static const subtotalLabel = 'Subtotal';
-  static const discountLabel = 'Discount';
-  static const proceedToCheckoutLabel = 'Proceed To Checkout';
-  static const bagEmptyTitle = 'Your bag is empty';
-  static const bagEmptySubtitle =
-      'Add some fresh groceries and they will show up here.';
-  static const bagExploreAction = 'Start shopping';
-  static const removedFromBagMessage = 'Removed from your bag.';
+  static String get promoComingSoonMessage =>
+      L10n.current.grofastPromoComingSoonMessage;
+  static String get totalLabel => L10n.current.grofastTotalLabel;
+  static String get subtotalLabel => L10n.current.grofastSubtotalLabel;
+  static String get discountLabel => L10n.current.grofastDiscountLabel;
+  static String get proceedToCheckoutLabel =>
+      L10n.current.grofastProceedToCheckoutLabel;
+  static String get bagEmptyTitle => L10n.current.grofastBagEmptyTitle;
+  static String get bagEmptySubtitle => L10n.current.grofastBagEmptySubtitle;
+  static String get bagExploreAction => L10n.current.grofastBagExploreAction;
+  static String get removedFromBagMessage =>
+      L10n.current.grofastRemovedFromBagMessage;
 
   // ── Checkout ─────────────────────────────────────────────────────────────
-  static const checkoutTitle = 'Checkout';
-  static const itemsTitle = 'Items';
-  static const deliveryAddressTitle = 'Delievery Address';
-  static const addNewLabel = 'add new';
-  static const changeAddressLabel = 'change';
-  static const noAddressSelectedLabel = 'Choose where to deliver';
-  static const confirmOrderLabel = 'Confirm Order';
+  static String get checkoutTitle => L10n.current.grofastCheckoutTitle;
+  static String get itemsTitle => L10n.current.grofastItemsTitle;
+  static String get deliveryAddressTitle =>
+      L10n.current.grofastDeliveryAddressTitle;
+  static String get addNewLabel => L10n.current.grofastAddNewLabel;
+  static String get changeAddressLabel =>
+      L10n.current.grofastChangeAddressLabel;
+  static String get noAddressSelectedLabel =>
+      L10n.current.grofastNoAddressSelectedLabel;
+  static String get confirmOrderLabel => L10n.current.grofastConfirmOrderLabel;
+  // Wordless ('× 2'), so no arb key.
   static String orderLineQuantity(int quantity) => '× $quantity';
 
   // ── Order confirmed ──────────────────────────────────────────────────────
-  static const orderPlacedTitle = 'Success!';
-  static const orderPlacedMessage = 'You have successfully created your order.';
-  static const browseHomeLabel = 'Browse Home';
+  static String get orderPlacedTitle => L10n.current.grofastOrderPlacedTitle;
+  static String get orderPlacedMessage =>
+      L10n.current.grofastOrderPlacedMessage;
+  static String get browseHomeLabel => L10n.current.grofastBrowseHomeLabel;
 
   // ── Bottom nav ───────────────────────────────────────────────────────────
-  static const navHome = 'Home';
-  static const navCategories = 'Category';
-  static const navBag = 'Bag';
-  static const navAccount = 'Account';
+  static String get navHome => L10n.current.grofastNavHome;
+  static String get navCategories => L10n.current.grofastNavCategories;
+  static String get navBag => L10n.current.grofastNavBag;
+  static String get navAccount => L10n.current.grofastNavAccount;
 
   // ── Profile ──────────────────────────────────────────────────────────────
-  static const profileTitle = 'Profile';
-  static const notificationTileLabel = 'Notification';
-  static const ordersTileLabel = 'My Orders';
-  static const wishlistTileLabel = 'Wishlist';
-  static const myProfileLabel = 'My Profile';
-  static const changePasswordLabel = 'Change Password';
-  static const darkModeLabel = 'Dark Mode';
-  static const myAddressLabel = 'My Address';
-  static const privacyPolicyLabel = 'Privacy Policy';
-  static const termsAndConditionsLabel = 'Term and Condition';
-  static const logOutLabel = 'Log Out';
-  static const logOutTitle = 'Log out?';
-  static const logOutConfirmMessage =
-      "You'll need to sign in again to place an order.";
-  static const profileLoadErrorMessage = "Couldn't load your profile.";
-  static const profileNameFallback = 'Your account';
+  static String get profileTitle => L10n.current.grofastProfileTitle;
+  static String get notificationTileLabel =>
+      L10n.current.grofastNotificationTileLabel;
+  static String get ordersTileLabel => L10n.current.grofastOrdersTileLabel;
+  static String get wishlistTileLabel => L10n.current.grofastWishlistTileLabel;
+  static String get myProfileLabel => L10n.current.grofastMyProfileLabel;
+  static String get changePasswordLabel =>
+      L10n.current.grofastChangePasswordLabel;
+  static String get darkModeLabel => L10n.current.grofastDarkModeLabel;
+  static String get myAddressLabel => L10n.current.grofastMyAddressLabel;
+  static String get privacyPolicyLabel =>
+      L10n.current.grofastPrivacyPolicyLabel;
+  static String get termsAndConditionsLabel =>
+      L10n.current.grofastTermsAndConditionsLabel;
+  static String get logOutLabel => L10n.current.grofastLogOutLabel;
+  static String get logOutTitle => L10n.current.grofastLogOutTitle;
+  static String get logOutConfirmMessage =>
+      L10n.current.grofastLogOutConfirmMessage;
+  static String get profileLoadErrorMessage =>
+      L10n.current.grofastProfileLoadErrorMessage;
+  static String get profileNameFallback =>
+      L10n.current.grofastProfileNameFallback;
 
   // ── Edit profile ─────────────────────────────────────────────────────────
-  static const editProfileTitle = 'My Profile';
-  static const fullNameLabel = 'Full Name';
-  static const fullNameHint = 'Enter your full name';
-  static const emailLabel = 'Email';
-  static const emailHint = 'you@example.com';
-  static const phoneNumberLabel = 'Phone Number';
-  static const phoneNumberHint = 'Enter your phone number';
-  static const saveChangesLabel = 'Save Changes';
-  static const changePhotoTitle = 'Change Photo';
-  static const takePhotoLabel = 'Take Photo';
-  static const chooseFromGalleryLabel = 'Choose from Gallery';
-  static const avatarPickerMobileOnlyMessage =
-      'Photo picking is only available on mobile.';
-  static const profileUpdatedMessage = 'Your profile has been updated.';
+  static String get editProfileTitle => L10n.current.grofastEditProfileTitle;
+  static String get fullNameLabel => L10n.current.grofastFullNameLabel;
+  static String get fullNameHint => L10n.current.grofastFullNameHint;
+  static String get emailLabel => L10n.current.grofastEmailLabel;
+  static String get emailHint => L10n.current.grofastEmailHint;
+  static String get phoneNumberLabel => L10n.current.grofastPhoneNumberLabel;
+  static String get phoneNumberHint => L10n.current.grofastPhoneNumberHint;
+  static String get saveChangesLabel => L10n.current.grofastSaveChangesLabel;
+  static String get changePhotoTitle => L10n.current.grofastChangePhotoTitle;
+  static String get takePhotoLabel => L10n.current.grofastTakePhotoLabel;
+  static String get chooseFromGalleryLabel =>
+      L10n.current.grofastChooseFromGalleryLabel;
+  static String get avatarPickerMobileOnlyMessage =>
+      L10n.current.grofastAvatarPickerMobileOnlyMessage;
+  static String get profileUpdatedMessage =>
+      L10n.current.grofastProfileUpdatedMessage;
 
   // ── Change password ──────────────────────────────────────────────────────
-  static const changePasswordTitle = 'Change Password';
-  static const currentPasswordLabel = 'Current Password';
-  static const currentPasswordHint = 'Enter your current password';
-  static const newPasswordLabel = 'New Password';
-  static const newPasswordHint = 'Enter your new password';
-  static const confirmNewPasswordLabel = 'Confirm New Password';
-  static const confirmNewPasswordHint = 'Re-enter your new password';
-  static const updatePasswordButtonLabel = 'Update Password';
-  static const passwordUpdatedMessage = 'Your password has been updated.';
+  static String get changePasswordTitle =>
+      L10n.current.grofastChangePasswordTitle;
+  static String get currentPasswordLabel =>
+      L10n.current.grofastCurrentPasswordLabel;
+  static String get currentPasswordHint =>
+      L10n.current.grofastCurrentPasswordHint;
+  static String get newPasswordLabel => L10n.current.grofastNewPasswordLabel;
+  static String get newPasswordHint => L10n.current.grofastNewPasswordHint;
+  static String get confirmNewPasswordLabel =>
+      L10n.current.grofastConfirmNewPasswordLabel;
+  static String get confirmNewPasswordHint =>
+      L10n.current.grofastConfirmNewPasswordHint;
+  static String get updatePasswordButtonLabel =>
+      L10n.current.grofastUpdatePasswordButtonLabel;
+  static String get passwordUpdatedMessage =>
+      L10n.current.grofastPasswordUpdatedMessage;
 
   // ── Wishlist ─────────────────────────────────────────────────────────────
-  static const wishlistTitle = 'Wishlist';
-  static const wishlistEmptyTitle = 'Nothing saved yet';
-  static const wishlistEmptySubtitle =
-      'Tap the heart on anything you want to keep for later.';
-  static const wishlistExploreAction = 'Start shopping';
+  static String get wishlistTitle => L10n.current.grofastWishlistTitle;
+  static String get wishlistEmptyTitle =>
+      L10n.current.grofastWishlistEmptyTitle;
+  static String get wishlistEmptySubtitle =>
+      L10n.current.grofastWishlistEmptySubtitle;
+  static String get wishlistExploreAction =>
+      L10n.current.grofastWishlistExploreAction;
 
   // ── Notifications ────────────────────────────────────────────────────────
-  static const notificationsTitle = 'Notification';
-  static const notificationsFilterAllLabel = 'All';
-  static const notificationsSearchHint = 'Search your Notification';
-  static const notificationsNowTitle = 'Now';
-  static const notificationsPastTitle = 'Past';
-  static const notificationsLoadErrorMessage =
-      "Couldn't load your notifications.";
-  static const notificationsEmptyTitle = 'No notifications yet';
-  static const notificationsEmptySubtitle =
-      "We'll let you know when something happens with your orders.";
-  static const notificationsNoResultsTitle = 'Nothing here';
+  static String get notificationsTitle =>
+      L10n.current.grofastNotificationsTitle;
+  static String get notificationsFilterAllLabel =>
+      L10n.current.grofastNotificationsFilterAllLabel;
+  static String get notificationsSearchHint =>
+      L10n.current.grofastNotificationsSearchHint;
+  static String get notificationsNowTitle =>
+      L10n.current.grofastNotificationsNowTitle;
+  static String get notificationsPastTitle =>
+      L10n.current.grofastNotificationsPastTitle;
+  static String get notificationsLoadErrorMessage =>
+      L10n.current.grofastNotificationsLoadErrorMessage;
+  static String get notificationsEmptyTitle =>
+      L10n.current.grofastNotificationsEmptyTitle;
+  static String get notificationsEmptySubtitle =>
+      L10n.current.grofastNotificationsEmptySubtitle;
+  static String get notificationsNoResultsTitle =>
+      L10n.current.grofastNotificationsNoResultsTitle;
   static String notificationsNoResultsSubtitle(String query) =>
-      'No notification matches "$query".';
+      L10n.current.grofastNotificationsNoResultsSubtitle(query);
 
   // ── Select address ───────────────────────────────────────────────────────
-  static const selectAddressTitle = 'Select Location';
-  static const addNewAddressLabel = 'Add New Address';
-  static const addressLoadErrorMessage = "Couldn't load your addresses.";
-  static const addressEmptyTitle = 'No saved addresses';
-  static const addressEmptySubtitle =
-      'Add one so we know where to bring your groceries.';
-  static const addressSaveFailedMessage = "Couldn't save that address.";
-  static const addressDeleteFailedMessage = "Couldn't delete that address.";
-  static const editAddressTooltip = 'Edit address';
-  static const deleteAddressTitle = 'Delete this address?';
-  static const deleteAddressMessage =
-      "It will be removed from your saved locations. This can't be undone.";
-  static const deleteLabel = 'Delete';
-  static const cancelLabel = 'Cancel';
+  static String get selectAddressTitle =>
+      L10n.current.grofastSelectAddressTitle;
+  static String get addNewAddressLabel =>
+      L10n.current.grofastAddNewAddressLabel;
+  static String get addressLoadErrorMessage =>
+      L10n.current.grofastAddressLoadErrorMessage;
+  static String get addressEmptyTitle => L10n.current.grofastAddressEmptyTitle;
+  static String get addressEmptySubtitle =>
+      L10n.current.grofastAddressEmptySubtitle;
+  static String get addressSaveFailedMessage =>
+      L10n.current.grofastAddressSaveFailedMessage;
+  static String get addressDeleteFailedMessage =>
+      L10n.current.grofastAddressDeleteFailedMessage;
+  static String get editAddressTooltip =>
+      L10n.current.grofastEditAddressTooltip;
+  static String get deleteAddressTitle =>
+      L10n.current.grofastDeleteAddressTitle;
+  static String get deleteAddressMessage =>
+      L10n.current.grofastDeleteAddressMessage;
+  static String get deleteLabel => L10n.current.grofastDeleteLabel;
+  static String get cancelLabel => L10n.current.grofastCancelLabel;
 
   // ── Address form ─────────────────────────────────────────────────────────
-  static const addAddressTitle = 'Add New Address';
-  static const editAddressTitle = 'Edit Address';
-  static const addressNameLabel = 'Name';
-  static const addressNameHint = 'e.g. Yona Angela';
-  static const addressLine1Label = 'Address Line 1';
-  static const addressLine1Hint = 'House no., street name';
-  static const addressLine2Label = 'Address Line 2';
-  static const addressLine2Hint = 'Apartment, suite, etc. (optional)';
-  static const landmarkLabel = 'Landmark';
-  static const landmarkHint = 'Nearby landmark (optional)';
-  static const cityLabel = 'City';
-  static const cityHint = 'e.g. Bengaluru';
-  static const stateLabel = 'State';
-  static const stateHint = 'e.g. Karnataka (optional)';
-  static const countryLabel = 'Country';
-  static const selectCountryTitle = 'Select Country';
-  static const postalCodeLabel = 'Postal Code';
-  static const postalCodeHint = 'e.g. 62639';
-  static const addressTagLabel = 'Tag';
-  static const addressTagHint = 'e.g. Home, Office';
-  static const mobileLabel = 'Mobile Number';
-  static const mobileHint = 'Where we can reach you';
-  static const addAddressButtonLabel = 'Add Address';
-  static const updateAddressButtonLabel = 'Update Address';
-  static const requiredFieldErrorMessage = 'This field is required';
+  static String get addAddressTitle => L10n.current.grofastAddAddressTitle;
+  static String get editAddressTitle => L10n.current.grofastEditAddressTitle;
+  static String get addressNameLabel => L10n.current.grofastAddressNameLabel;
+  static String get addressNameHint => L10n.current.grofastAddressNameHint;
+  static String get addressLine1Label => L10n.current.grofastAddressLine1Label;
+  static String get addressLine1Hint => L10n.current.grofastAddressLine1Hint;
+  static String get addressLine2Label => L10n.current.grofastAddressLine2Label;
+  static String get addressLine2Hint => L10n.current.grofastAddressLine2Hint;
+  static String get landmarkLabel => L10n.current.grofastLandmarkLabel;
+  static String get landmarkHint => L10n.current.grofastLandmarkHint;
+  static String get cityLabel => L10n.current.grofastCityLabel;
+  static String get cityHint => L10n.current.grofastCityHint;
+  static String get stateLabel => L10n.current.grofastStateLabel;
+  static String get stateHint => L10n.current.grofastStateHint;
+  static String get countryLabel => L10n.current.grofastCountryLabel;
+  static String get selectCountryTitle =>
+      L10n.current.grofastSelectCountryTitle;
+  static String get postalCodeLabel => L10n.current.grofastPostalCodeLabel;
+  static String get postalCodeHint => L10n.current.grofastPostalCodeHint;
+  static String get addressTagLabel => L10n.current.grofastAddressTagLabel;
+  static String get addressTagHint => L10n.current.grofastAddressTagHint;
+  static String get mobileLabel => L10n.current.grofastMobileLabel;
+  static String get mobileHint => L10n.current.grofastMobileHint;
+  static String get addAddressButtonLabel =>
+      L10n.current.grofastAddAddressButtonLabel;
+  static String get updateAddressButtonLabel =>
+      L10n.current.grofastUpdateAddressButtonLabel;
+  static String get requiredFieldErrorMessage =>
+      L10n.current.grofastRequiredFieldErrorMessage;
 
   /// The picklist behind the Country field (City is free text since geo
   /// prefill landed): the backend stores free text, so this is a
-  /// convenience list, not an enum.
+  /// convenience list, not an enum. Data values, not copy —
+  /// locale-independent.
   static const addressFormCountries = <String>['India', 'Indonesia'];
 
   // ── My Orders ────────────────────────────────────────────────────────────
-  static const myOrdersTitle = 'My Orders';
-  static const ordersSearchHint = 'Search your orders';
-  static const ordersFilterAllLabel = 'All';
-  static const ordersFilterActiveLabel = 'On Delivery';
-  static const ordersFilterCompletedLabel = 'Delivered';
-  static const ordersFilterCancelledLabel = 'Canceled';
+  static String get myOrdersTitle => L10n.current.grofastMyOrdersTitle;
+  static String get ordersSearchHint => L10n.current.grofastOrdersSearchHint;
+  static String get ordersFilterAllLabel =>
+      L10n.current.grofastOrdersFilterAllLabel;
+  static String get ordersFilterActiveLabel =>
+      L10n.current.grofastOrdersFilterActiveLabel;
+  static String get ordersFilterCompletedLabel =>
+      L10n.current.grofastOrdersFilterCompletedLabel;
+  static String get ordersFilterCancelledLabel =>
+      L10n.current.grofastOrdersFilterCancelledLabel;
 
   /// The filter square's sheet. Dates only — the status axis is already on
   /// the screen as the chip row, and asking for it twice lets the two
   /// disagree (same call as dailymart's sheet).
-  static const ordersDateFilterTitle = 'Filter by date';
-  static const ordersDateRangeLabel = 'Date Range';
-  static const ordersAllTimeLabel = 'All time';
+  static String get ordersDateFilterTitle =>
+      L10n.current.grofastOrdersDateFilterTitle;
+  static String get ordersDateRangeLabel =>
+      L10n.current.grofastOrdersDateRangeLabel;
+  static String get ordersAllTimeLabel =>
+      L10n.current.grofastOrdersAllTimeLabel;
+  // Wordless ('Mar 01 - Mar 09'), so no arb key.
   static String ordersDateRangeValue(DateTime from, DateTime to) =>
       '${from.asFilterDate} - ${to.asFilterDate}';
-  static const ordersFilterLastWeekLabel = 'Last week';
-  static const ordersFilterLastMonthLabel = 'Last month';
-  static const ordersLoadErrorMessage = "Couldn't load your orders.";
-  static const ordersRefreshFailedMessage = "Couldn't refresh your orders.";
-  static const ordersEmptyTitle = 'No orders yet';
-  static const ordersEmptySubtitle =
-      'Your orders will show up here once you place one.';
-  static const ordersNoResultsTitle = 'Nothing here';
-  static const ordersNoResultsSubtitle =
-      'No order matches those filters. Try widening them.';
+  static String get ordersFilterLastWeekLabel =>
+      L10n.current.grofastOrdersFilterLastWeekLabel;
+  static String get ordersFilterLastMonthLabel =>
+      L10n.current.grofastOrdersFilterLastMonthLabel;
+  static String get ordersLoadErrorMessage =>
+      L10n.current.grofastOrdersLoadErrorMessage;
+  static String get ordersRefreshFailedMessage =>
+      L10n.current.grofastOrdersRefreshFailedMessage;
+  static String get ordersEmptyTitle => L10n.current.grofastOrdersEmptyTitle;
+  static String get ordersEmptySubtitle =>
+      L10n.current.grofastOrdersEmptySubtitle;
+  static String get ordersNoResultsTitle =>
+      L10n.current.grofastOrdersNoResultsTitle;
+  static String get ordersNoResultsSubtitle =>
+      L10n.current.grofastOrdersNoResultsSubtitle;
   static String orderNumberLabel(DateTime placedAt) =>
-      'Order ${placedAt.asFilterDate}';
-  static String orderItemCount(int count) => '$count ${count.plural('item')}';
+      L10n.current.grofastOrderNumberLabel(placedAt.asFilterDate);
+  static String orderItemCount(int count) =>
+      L10n.current.grofastOrderItemCount(count);
 
   /// The order card's bottom line (the kit's "Delivered to Yona's Home"),
   /// tensed by where the order actually is.
   static String orderDeliveryLine(String addressLabel, bool delivered) =>
-      '${delivered ? 'Delivered' : 'Delivering'} to $addressLabel';
-  static const orderCancelledLine = 'This order was cancelled';
+      delivered
+      ? L10n.current.grofastOrderDeliveredLine(addressLabel)
+      : L10n.current.grofastOrderDeliveringLine(addressLabel);
+  static String get orderCancelledLine =>
+      L10n.current.grofastOrderCancelledLine;
 
   // ── Order tracking ───────────────────────────────────────────────────────
-  static const trackOrderTitle = 'Track Order';
-  static const orderDetailTitle = 'Order Detail';
-  static const copyTooltip = 'Copy';
-  static String copiedMessage(String label) => '$label copied.';
-  static const trackingDetailTitle = 'Tracking Detail';
-  static const orderStatusLabel = 'Status';
-  static const purchaseDateLabel = 'Purchase Date';
-  static const orderIdLabel = 'Order ID';
-  static const deliveryOtpLabel = 'Delivery OTP';
-  static const paymentIdLabel = 'Payment ID';
-  static const amountPaidLabel = 'Amount Paid';
-  static const noOnlinePaymentLabel = 'Not paid online';
-  static const refundLabel = 'Refund';
-  static const orderReceivedLabel = 'Order Received';
-  static const cancelOrderLabel = 'Cancel Order';
-  static const cancelOrderTitle = 'Cancel this order?';
-  static const cancelOrderMessage =
-      "We'll refund anything you paid. This can't be undone.";
-  static const cancelOrderConfirmLabel = 'Cancel Order';
-  static const orderCancelFailedMessage = "Couldn't cancel that order.";
-  static const orderStepUndatedLabel = 'Time not recorded';
-  static const orderStepPendingLabel = 'Pending';
+  static String get trackOrderTitle => L10n.current.grofastTrackOrderTitle;
+  static String get orderDetailTitle => L10n.current.grofastOrderDetailTitle;
+  static String get copyTooltip => L10n.current.grofastCopyTooltip;
+  static String copiedMessage(String label) =>
+      L10n.current.grofastCopiedMessage(label);
+  static String get trackingDetailTitle =>
+      L10n.current.grofastTrackingDetailTitle;
+  static String get orderStatusLabel => L10n.current.grofastOrderStatusLabel;
+  static String get purchaseDateLabel => L10n.current.grofastPurchaseDateLabel;
+  static String get orderIdLabel => L10n.current.grofastOrderIdLabel;
+  static String get deliveryOtpLabel => L10n.current.grofastDeliveryOtpLabel;
+  static String get paymentIdLabel => L10n.current.grofastPaymentIdLabel;
+  static String get amountPaidLabel => L10n.current.grofastAmountPaidLabel;
+  static String get noOnlinePaymentLabel =>
+      L10n.current.grofastNoOnlinePaymentLabel;
+  static String get refundLabel => L10n.current.grofastRefundLabel;
+  static String get orderReceivedLabel =>
+      L10n.current.grofastOrderReceivedLabel;
+  static String get cancelOrderLabel => L10n.current.grofastCancelOrderLabel;
+  static String get cancelOrderTitle => L10n.current.grofastCancelOrderTitle;
+  static String get cancelOrderMessage =>
+      L10n.current.grofastCancelOrderMessage;
+  static String get cancelOrderConfirmLabel =>
+      L10n.current.grofastCancelOrderConfirmLabel;
+  static String get orderCancelFailedMessage =>
+      L10n.current.grofastOrderCancelFailedMessage;
+  static String get orderStepUndatedLabel =>
+      L10n.current.grofastOrderStepUndatedLabel;
+  static String get orderStepPendingLabel =>
+      L10n.current.grofastOrderStepPendingLabel;
 
   static String orderStatusName(OrderStatus status) => switch (status) {
-    OrderStatus.pending => 'Order Placed',
-    OrderStatus.inProcess => 'On Delivery',
-    OrderStatus.delivered => 'Delivered',
-    OrderStatus.cancelled => 'Canceled',
+    OrderStatus.pending => L10n.current.grofastStatusPlacedLabel,
+    OrderStatus.inProcess => L10n.current.grofastStatusOnDeliveryLabel,
+    OrderStatus.delivered => L10n.current.grofastStatusDeliveredLabel,
+    OrderStatus.cancelled => L10n.current.grofastStatusCancelledLabel,
   };
 
   static String? refundStatusLabel(RefundStatus status) => switch (status) {
     RefundStatus.none => null,
-    RefundStatus.pending => 'Refund on its way',
-    RefundStatus.processed => 'Refunded',
-    RefundStatus.failed => 'Refund failed',
+    RefundStatus.pending => L10n.current.grofastRefundPendingLabel,
+    RefundStatus.processed => L10n.current.grofastRefundProcessedLabel,
+    RefundStatus.failed => L10n.current.grofastRefundFailedLabel,
   };
 }

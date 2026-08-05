@@ -184,7 +184,7 @@ class _CheckoutForm extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const GrofastSectionHeader(title: GrofastValueConst.itemsTitle),
+        GrofastSectionHeader(title: GrofastValueConst.itemsTitle),
         const SizedBox(height: AppSpacing.lg),
         for (final item in items) ...[
           GrofastLineItemRow(

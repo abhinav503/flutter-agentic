@@ -32,9 +32,15 @@ class ProductMetaRow extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
 
+    // An entry with no label would render as a bare orphaned icon (e.g. the
+    // lightning glyph beside an empty prep time) — never intentional, so
+    // the pair is dropped here rather than at every call site.
+    final visible = meta.where((m) => m.label.trim().isNotEmpty).toList();
+    if (visible.isEmpty) return const SizedBox.shrink();
+
     return Row(
       children: [
-        for (final m in meta) ...[
+        for (final m in visible) ...[
           SizedBox(
             width: 14,
             height: 14,

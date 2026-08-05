@@ -118,7 +118,7 @@ class _OrdersScreenState extends BaseScreenState<OrdersScreen> {
                     context.read<OrdersBloc>().add(const OrdersEvent.started()),
               ),
               OrdersLoaded(:final orders) when orders.isEmpty =>
-                const GrofastEmptyState(
+                GrofastEmptyState(
                   icon: Icons.receipt_long_outlined,
                   title: GrofastValueConst.ordersEmptyTitle,
                   subtitle: GrofastValueConst.ordersEmptySubtitle,
@@ -204,7 +204,7 @@ class _OrdersContent extends StatelessWidget {
       ),
       const SizedBox(height: AppSpacing.xl4),
       if (orders.isEmpty)
-        const GrofastEmptyState(
+        GrofastEmptyState(
           icon: Icons.filter_alt_off_outlined,
           title: GrofastValueConst.ordersNoResultsTitle,
           subtitle: GrofastValueConst.ordersNoResultsSubtitle,

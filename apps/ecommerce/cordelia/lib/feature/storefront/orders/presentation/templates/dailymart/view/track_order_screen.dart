@@ -166,7 +166,7 @@ class _TrackOrderScreenState extends BaseScreenState<TrackOrderScreen>
           body: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const DailyMartSectionHeader(
+              DailyMartSectionHeader(
                 title: DailyMartValueConst.orderListLabel,
               ),
               const SizedBox(height: AppSpacing.base),
@@ -175,7 +175,7 @@ class _TrackOrderScreenState extends BaseScreenState<TrackOrderScreen>
                 DailyMartOrderItemRow(item: order.items[i]),
               ],
               const SizedBox(height: AppSpacing.lg),
-              const DailyMartSectionHeader(
+              DailyMartSectionHeader(
                 title: DailyMartValueConst.orderDetailsTitle,
               ),
               const SizedBox(height: AppSpacing.xs),
@@ -192,7 +192,7 @@ class _TrackOrderScreenState extends BaseScreenState<TrackOrderScreen>
                 ),
               ],
               const SizedBox(height: AppSpacing.lg),
-              const DailyMartSectionHeader(
+              DailyMartSectionHeader(
                 title: DailyMartValueConst.paymentTitle,
               ),
               const SizedBox(height: AppSpacing.xs),
@@ -233,7 +233,7 @@ class _TrackOrderScreenState extends BaseScreenState<TrackOrderScreen>
                 ),
               ],
               const SizedBox(height: AppSpacing.lg),
-              const DailyMartSectionHeader(
+              DailyMartSectionHeader(
                 title: DailyMartValueConst.orderStatusTitle,
               ),
               const SizedBox(height: AppSpacing.base),

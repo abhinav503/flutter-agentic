@@ -49,11 +49,11 @@ class _ShellPageState extends BasePageState<ShellPage>
   /// Not a `static const` list: the Bag's dot is the bag's own unread mark,
   /// so it has to follow the cart rather than be lit permanently.
   static List<GrofastNavItem> _tabs({required bool bagHasItems}) => [
-    const GrofastNavItem(
+    GrofastNavItem(
       asset: GrofastImageConst.navHome,
       label: GrofastValueConst.navHome,
     ),
-    const GrofastNavItem(
+    GrofastNavItem(
       asset: GrofastImageConst.grid,
       label: GrofastValueConst.navCategories,
     ),
@@ -62,7 +62,7 @@ class _ShellPageState extends BasePageState<ShellPage>
       label: GrofastValueConst.navBag,
       showDot: bagHasItems,
     ),
-    const GrofastNavItem(
+    GrofastNavItem(
       asset: GrofastImageConst.navAccount,
       label: GrofastValueConst.navAccount,
     ),

@@ -31,7 +31,7 @@ class GrofastRecentSearchSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (items.isEmpty) {
-      return const GrofastEmptyState(
+      return GrofastEmptyState(
         icon: Icons.search_rounded,
         title: GrofastValueConst.searchIdleTitle,
         subtitle: GrofastValueConst.searchIdleSubtitle,
@@ -41,7 +41,7 @@ class GrofastRecentSearchSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const GrofastSectionHeader(title: GrofastValueConst.recentSearchTitle),
+        GrofastSectionHeader(title: GrofastValueConst.recentSearchTitle),
         const SizedBox(height: AppSpacing.lg),
         for (final item in items) _recentRow(context, item),
       ],

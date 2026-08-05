@@ -81,8 +81,8 @@ class _FavouritesScreenState extends BaseScreenState<FavouritesScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Padding(
-              padding: EdgeInsets.fromLTRB(
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
                 AppSpacing.lg,
                 AppSpacing.base,
                 AppSpacing.lg,

@@ -80,7 +80,7 @@ class _NotificationsScreenState extends BaseScreenState<NotificationsScreen> {
               NotificationsLoaded(:final sections) => _page(
                 key: const ValueKey('loaded'),
                 body: sections.isEmpty
-                    ? const EmptyState(
+                    ? EmptyState(
                         iconData: Icons.notifications_none_rounded,
                         title: DailyMartValueConst.notificationsEmptyTitle,
                         subtitle:

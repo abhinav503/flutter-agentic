@@ -1904,6 +1904,2382 @@ abstract class AppLocalizations {
   /// **'Updates about your orders and account will show up here.'**
   String get graviaNotificationsEmptySubtitle;
 
+  /// No description provided for @dailymartTopSellerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Top Seller🔥'**
+  String get dailymartTopSellerTitle;
+
+  /// No description provided for @dailymartCategoriesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Shop by category'**
+  String get dailymartCategoriesTitle;
+
+  /// No description provided for @dailymartPopularProductsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Popular Products'**
+  String get dailymartPopularProductsTitle;
+
+  /// No description provided for @dailymartSeeAll.
+  ///
+  /// In en, this message translates to:
+  /// **'See all'**
+  String get dailymartSeeAll;
+
+  /// No description provided for @dailymartSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search for products'**
+  String get dailymartSearchHint;
+
+  /// No description provided for @dailymartHomeLoadErrorMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load this store\'s catalog.'**
+  String get dailymartHomeLoadErrorMessage;
+
+  /// No description provided for @dailymartNoLocationSelectedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a location'**
+  String get dailymartNoLocationSelectedLabel;
+
+  /// No description provided for @dailymartNotificationsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Notification'**
+  String get dailymartNotificationsTitle;
+
+  /// No description provided for @dailymartNotificationsLoadErrorMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load your notifications.'**
+  String get dailymartNotificationsLoadErrorMessage;
+
+  /// No description provided for @dailymartNotificationsEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No notifications yet'**
+  String get dailymartNotificationsEmptyTitle;
+
+  /// No description provided for @dailymartNotificationsEmptySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Deals and order updates from this store will show up here.'**
+  String get dailymartNotificationsEmptySubtitle;
+
+  /// No description provided for @dailymartOrderNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Order Now'**
+  String get dailymartOrderNow;
+
+  /// No description provided for @dailymartPromoSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enjoy discounts of up to {percent}%\non your order today'**
+  String dailymartPromoSubtitle(String percent);
+
+  /// No description provided for @dailymartDiscountPercentOff.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% off'**
+  String dailymartDiscountPercentOff(String percent);
+
+  /// No description provided for @dailymartNavHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get dailymartNavHome;
+
+  /// No description provided for @dailymartNavWishlist.
+  ///
+  /// In en, this message translates to:
+  /// **'Wishlist'**
+  String get dailymartNavWishlist;
+
+  /// No description provided for @dailymartNavCart.
+  ///
+  /// In en, this message translates to:
+  /// **'Cart'**
+  String get dailymartNavCart;
+
+  /// No description provided for @dailymartNavProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get dailymartNavProfile;
+
+  /// No description provided for @dailymartRecentSearchTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent Search'**
+  String get dailymartRecentSearchTitle;
+
+  /// No description provided for @dailymartRecentlyViewedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Recently viewed'**
+  String get dailymartRecentlyViewedTitle;
+
+  /// No description provided for @dailymartResultsForLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Result for \"{query}\"'**
+  String dailymartResultsForLabel(String query);
+
+  /// No description provided for @dailymartResultsCountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} founds'**
+  String dailymartResultsCountLabel(int count);
+
+  /// No description provided for @dailymartSearchLoadErrorMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load search.'**
+  String get dailymartSearchLoadErrorMessage;
+
+  /// No description provided for @dailymartSearchResultsErrorMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t search this store.'**
+  String get dailymartSearchResultsErrorMessage;
+
+  /// No description provided for @dailymartSearchNoResultsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No results'**
+  String get dailymartSearchNoResultsTitle;
+
+  /// No description provided for @dailymartSearchNoResultsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing in this store matches \"{query}\" yet.'**
+  String dailymartSearchNoResultsSubtitle(String query);
+
+  /// No description provided for @dailymartCategoryBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get dailymartCategoryBadge;
+
+  /// No description provided for @dailymartFilterLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter'**
+  String get dailymartFilterLabel;
+
+  /// No description provided for @dailymartSortSheetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort by'**
+  String get dailymartSortSheetTitle;
+
+  /// No description provided for @dailymartPriceSheetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Price'**
+  String get dailymartPriceSheetTitle;
+
+  /// No description provided for @dailymartCategoryDetailsEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing here'**
+  String get dailymartCategoryDetailsEmptyTitle;
+
+  /// No description provided for @dailymartCategoryDetailsEmptySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No products in this category match those filters.'**
+  String get dailymartCategoryDetailsEmptySubtitle;
+
+  /// No description provided for @dailymartCategoryDetailsErrorMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load this category.'**
+  String get dailymartCategoryDetailsErrorMessage;
+
+  /// No description provided for @dailymartWishlistEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing saved yet'**
+  String get dailymartWishlistEmptyTitle;
+
+  /// No description provided for @dailymartWishlistEmptySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the heart on a product and it will wait for you here.'**
+  String get dailymartWishlistEmptySubtitle;
+
+  /// No description provided for @dailymartWishlistExploreAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Start shopping'**
+  String get dailymartWishlistExploreAction;
+
+  /// No description provided for @dailymartProductDetailsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Product Details'**
+  String get dailymartProductDetailsTitle;
+
+  /// No description provided for @dailymartDescriptionsTabLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Descriptions'**
+  String get dailymartDescriptionsTabLabel;
+
+  /// No description provided for @dailymartReviewsTabLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Reviews'**
+  String get dailymartReviewsTabLabel;
+
+  /// No description provided for @dailymartRelatedProductsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Related Products'**
+  String get dailymartRelatedProductsTitle;
+
+  /// No description provided for @dailymartSelectSizeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Size'**
+  String get dailymartSelectSizeLabel;
+
+  /// No description provided for @dailymartProductDetailsLoadErrorMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load this product\'s details.'**
+  String get dailymartProductDetailsLoadErrorMessage;
+
+  /// No description provided for @dailymartAddToCart.
+  ///
+  /// In en, this message translates to:
+  /// **'Add To Cart'**
+  String get dailymartAddToCart;
+
+  /// No description provided for @dailymartAddToCartSheetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add To Cart'**
+  String get dailymartAddToCartSheetTitle;
+
+  /// No description provided for @dailymartAddedToCartMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Added {count} × {name} to your cart.'**
+  String dailymartAddedToCartMessage(int count, String name);
+
+  /// No description provided for @dailymartStarRowLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{stars} Star'**
+  String dailymartStarRowLabel(int stars);
+
+  /// No description provided for @dailymartMyCartTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My Cart'**
+  String get dailymartMyCartTitle;
+
+  /// No description provided for @dailymartCouponHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter coupon code'**
+  String get dailymartCouponHint;
+
+  /// No description provided for @dailymartCouponRemoveLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get dailymartCouponRemoveLabel;
+
+  /// No description provided for @dailymartCouponDetailLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Coupon'**
+  String get dailymartCouponDetailLabel;
+
+  /// No description provided for @dailymartCouponApplied.
+  ///
+  /// In en, this message translates to:
+  /// **'{code} applied'**
+  String dailymartCouponApplied(String code);
+
+  /// No description provided for @dailymartCouponLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Coupon ({code})'**
+  String dailymartCouponLine(String code);
+
+  /// No description provided for @dailymartSubTotalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Sub total'**
+  String get dailymartSubTotalLabel;
+
+  /// No description provided for @dailymartDeliveryLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery'**
+  String get dailymartDeliveryLabel;
+
+  /// No description provided for @dailymartDeliveryFreeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Free'**
+  String get dailymartDeliveryFreeLabel;
+
+  /// No description provided for @dailymartDiscountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Discount'**
+  String get dailymartDiscountLabel;
+
+  /// No description provided for @dailymartTotalCostLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Total cost'**
+  String get dailymartTotalCostLabel;
+
+  /// No description provided for @dailymartProceedToCheckoutLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Proceed to Checkout'**
+  String get dailymartProceedToCheckoutLabel;
+
+  /// No description provided for @dailymartCartEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your cart is empty'**
+  String get dailymartCartEmptyTitle;
+
+  /// No description provided for @dailymartCartEmptySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Products you add will show up here, ready to check out.'**
+  String get dailymartCartEmptySubtitle;
+
+  /// No description provided for @dailymartCartExploreAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Start shopping'**
+  String get dailymartCartExploreAction;
+
+  /// No description provided for @dailymartRemovedFromCartMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Removed from your cart.'**
+  String get dailymartRemovedFromCartMessage;
+
+  /// No description provided for @dailymartCheckoutTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Checkout'**
+  String get dailymartCheckoutTitle;
+
+  /// No description provided for @dailymartShippingAddressLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Shipping Address'**
+  String get dailymartShippingAddressLabel;
+
+  /// No description provided for @dailymartOrderListLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Order List'**
+  String get dailymartOrderListLabel;
+
+  /// No description provided for @dailymartContinueToPaymentLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue to Payment'**
+  String get dailymartContinueToPaymentLabel;
+
+  /// No description provided for @dailymartOrderPlacedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment Successful!'**
+  String get dailymartOrderPlacedTitle;
+
+  /// No description provided for @dailymartOrderPlacedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Thank you for your purchase! We\'re excited to let you know that your payment has been successfully processed. 🎉'**
+  String get dailymartOrderPlacedMessage;
+
+  /// No description provided for @dailymartTrackOrderLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Track My Order'**
+  String get dailymartTrackOrderLabel;
+
+  /// No description provided for @dailymartCartSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} item} other{{count} items}} | {total}'**
+  String dailymartCartSummary(int count, String total);
+
+  /// No description provided for @dailymartViewCartLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'View Cart'**
+  String get dailymartViewCartLabel;
+
+  /// No description provided for @dailymartGeneralSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'General'**
+  String get dailymartGeneralSectionTitle;
+
+  /// No description provided for @dailymartPreferencesSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Preferences'**
+  String get dailymartPreferencesSectionTitle;
+
+  /// No description provided for @dailymartEditProfileLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Profile'**
+  String get dailymartEditProfileLabel;
+
+  /// No description provided for @dailymartChangePasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Change Password'**
+  String get dailymartChangePasswordLabel;
+
+  /// No description provided for @dailymartMyOrdersLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'My Orders'**
+  String get dailymartMyOrdersLabel;
+
+  /// No description provided for @dailymartMyAddressLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'My Address'**
+  String get dailymartMyAddressLabel;
+
+  /// No description provided for @dailymartDarkModeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark Mode'**
+  String get dailymartDarkModeLabel;
+
+  /// No description provided for @dailymartPrivacyPolicyLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy Policy'**
+  String get dailymartPrivacyPolicyLabel;
+
+  /// No description provided for @dailymartTermsAndConditionsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms & Conditions'**
+  String get dailymartTermsAndConditionsLabel;
+
+  /// No description provided for @dailymartLogoutLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Logout'**
+  String get dailymartLogoutLabel;
+
+  /// No description provided for @dailymartLogoutTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Log out?'**
+  String get dailymartLogoutTitle;
+
+  /// No description provided for @dailymartLogoutConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ll need to sign in again to place an order or track one.'**
+  String get dailymartLogoutConfirmMessage;
+
+  /// No description provided for @dailymartProfileLoadErrorMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load your profile.'**
+  String get dailymartProfileLoadErrorMessage;
+
+  /// No description provided for @dailymartEditProfileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Profile'**
+  String get dailymartEditProfileTitle;
+
+  /// No description provided for @dailymartFullNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Full Name'**
+  String get dailymartFullNameLabel;
+
+  /// No description provided for @dailymartFullNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your full name'**
+  String get dailymartFullNameHint;
+
+  /// No description provided for @dailymartEmailLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get dailymartEmailLabel;
+
+  /// No description provided for @dailymartEmailHint.
+  ///
+  /// In en, this message translates to:
+  /// **'you@example.com'**
+  String get dailymartEmailHint;
+
+  /// No description provided for @dailymartPhoneNumberLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone Number'**
+  String get dailymartPhoneNumberLabel;
+
+  /// No description provided for @dailymartPhoneNumberHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your phone number'**
+  String get dailymartPhoneNumberHint;
+
+  /// No description provided for @dailymartSaveChangesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Changes'**
+  String get dailymartSaveChangesLabel;
+
+  /// No description provided for @dailymartChangePhotoTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Change Photo'**
+  String get dailymartChangePhotoTitle;
+
+  /// No description provided for @dailymartTakePhotoLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Take Photo'**
+  String get dailymartTakePhotoLabel;
+
+  /// No description provided for @dailymartChooseFromGalleryLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose from Gallery'**
+  String get dailymartChooseFromGalleryLabel;
+
+  /// No description provided for @dailymartAvatarPickerMobileOnlyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Choosing a photo is only available on mobile.'**
+  String get dailymartAvatarPickerMobileOnlyMessage;
+
+  /// No description provided for @dailymartChangePasswordTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Change Password'**
+  String get dailymartChangePasswordTitle;
+
+  /// No description provided for @dailymartCurrentPasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Password'**
+  String get dailymartCurrentPasswordLabel;
+
+  /// No description provided for @dailymartCurrentPasswordHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your current password'**
+  String get dailymartCurrentPasswordHint;
+
+  /// No description provided for @dailymartNewPasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'New Password'**
+  String get dailymartNewPasswordLabel;
+
+  /// No description provided for @dailymartNewPasswordHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your new password'**
+  String get dailymartNewPasswordHint;
+
+  /// No description provided for @dailymartConfirmNewPasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm New Password'**
+  String get dailymartConfirmNewPasswordLabel;
+
+  /// No description provided for @dailymartConfirmNewPasswordHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Re-enter your new password'**
+  String get dailymartConfirmNewPasswordHint;
+
+  /// No description provided for @dailymartUpdatePasswordButtonLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Update Password'**
+  String get dailymartUpdatePasswordButtonLabel;
+
+  /// No description provided for @dailymartPasswordUpdatedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Your password has been updated.'**
+  String get dailymartPasswordUpdatedMessage;
+
+  /// No description provided for @dailymartSelectAddressTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Address'**
+  String get dailymartSelectAddressTitle;
+
+  /// No description provided for @dailymartAddNewAddressLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Add New Address'**
+  String get dailymartAddNewAddressLabel;
+
+  /// No description provided for @dailymartAddressLoadErrorMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load your addresses.'**
+  String get dailymartAddressLoadErrorMessage;
+
+  /// No description provided for @dailymartAddressSaveFailedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t save that address.'**
+  String get dailymartAddressSaveFailedMessage;
+
+  /// No description provided for @dailymartAddressEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No saved addresses'**
+  String get dailymartAddressEmptyTitle;
+
+  /// No description provided for @dailymartAddressEmptySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add one to get this store delivering to your door.'**
+  String get dailymartAddressEmptySubtitle;
+
+  /// No description provided for @dailymartAddressDeleteFailedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t delete that address.'**
+  String get dailymartAddressDeleteFailedMessage;
+
+  /// No description provided for @dailymartEditAddressTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit address'**
+  String get dailymartEditAddressTooltip;
+
+  /// No description provided for @dailymartDeleteAddressTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this address?'**
+  String get dailymartDeleteAddressTitle;
+
+  /// No description provided for @dailymartDeleteAddressMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'It\'ll be removed from your saved addresses.'**
+  String get dailymartDeleteAddressMessage;
+
+  /// No description provided for @dailymartDeleteLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get dailymartDeleteLabel;
+
+  /// No description provided for @dailymartAddAddressTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add New Address'**
+  String get dailymartAddAddressTitle;
+
+  /// No description provided for @dailymartEditAddressTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Address'**
+  String get dailymartEditAddressTitle;
+
+  /// No description provided for @dailymartAddressNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get dailymartAddressNameLabel;
+
+  /// No description provided for @dailymartAddressNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Mark Shelby'**
+  String get dailymartAddressNameHint;
+
+  /// No description provided for @dailymartAddressLine1Label.
+  ///
+  /// In en, this message translates to:
+  /// **'Address Line 1'**
+  String get dailymartAddressLine1Label;
+
+  /// No description provided for @dailymartAddressLine1Hint.
+  ///
+  /// In en, this message translates to:
+  /// **'House no., street name'**
+  String get dailymartAddressLine1Hint;
+
+  /// No description provided for @dailymartAddressLine2Label.
+  ///
+  /// In en, this message translates to:
+  /// **'Address Line 2'**
+  String get dailymartAddressLine2Label;
+
+  /// No description provided for @dailymartAddressLine2Hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Apartment, suite, etc. (optional)'**
+  String get dailymartAddressLine2Hint;
+
+  /// No description provided for @dailymartLandmarkLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Landmark'**
+  String get dailymartLandmarkLabel;
+
+  /// No description provided for @dailymartLandmarkHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Nearby landmark (optional)'**
+  String get dailymartLandmarkHint;
+
+  /// No description provided for @dailymartCityLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'City'**
+  String get dailymartCityLabel;
+
+  /// No description provided for @dailymartCityHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. New Delhi'**
+  String get dailymartCityHint;
+
+  /// No description provided for @dailymartStateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'State'**
+  String get dailymartStateLabel;
+
+  /// No description provided for @dailymartStateHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Delhi (optional)'**
+  String get dailymartStateHint;
+
+  /// No description provided for @dailymartCountryLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Country'**
+  String get dailymartCountryLabel;
+
+  /// No description provided for @dailymartSelectCountryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Country'**
+  String get dailymartSelectCountryTitle;
+
+  /// No description provided for @dailymartPostalCodeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Postal Code'**
+  String get dailymartPostalCodeLabel;
+
+  /// No description provided for @dailymartPostalCodeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. 62639'**
+  String get dailymartPostalCodeHint;
+
+  /// No description provided for @dailymartAddressTagLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Tag'**
+  String get dailymartAddressTagLabel;
+
+  /// No description provided for @dailymartAddressTagHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Home, Office'**
+  String get dailymartAddressTagHint;
+
+  /// No description provided for @dailymartAddAddressButtonLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Address'**
+  String get dailymartAddAddressButtonLabel;
+
+  /// No description provided for @dailymartUpdateAddressButtonLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Update Address'**
+  String get dailymartUpdateAddressButtonLabel;
+
+  /// No description provided for @dailymartRequiredFieldErrorMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This field is required'**
+  String get dailymartRequiredFieldErrorMessage;
+
+  /// No description provided for @dailymartMyOrdersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My Orders'**
+  String get dailymartMyOrdersTitle;
+
+  /// No description provided for @dailymartOrdersSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'What are you looking for...'**
+  String get dailymartOrdersSearchHint;
+
+  /// No description provided for @dailymartOrdersFilterAllLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get dailymartOrdersFilterAllLabel;
+
+  /// No description provided for @dailymartOrdersFilterActiveLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get dailymartOrdersFilterActiveLabel;
+
+  /// No description provided for @dailymartOrdersFilterCompletedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get dailymartOrdersFilterCompletedLabel;
+
+  /// No description provided for @dailymartOrdersFilterCancelledLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get dailymartOrdersFilterCancelledLabel;
+
+  /// No description provided for @dailymartOrderSummaryLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} item} other{{count} items}} · {date}'**
+  String dailymartOrderSummaryLabel(int count, String date);
+
+  /// No description provided for @dailymartOrdersDateRangeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Date Range'**
+  String get dailymartOrdersDateRangeLabel;
+
+  /// No description provided for @dailymartOrdersAllTimeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'All time'**
+  String get dailymartOrdersAllTimeLabel;
+
+  /// No description provided for @dailymartOrdersFilterLastWeekLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Last week'**
+  String get dailymartOrdersFilterLastWeekLabel;
+
+  /// No description provided for @dailymartOrdersFilterLastMonthLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Last month'**
+  String get dailymartOrdersFilterLastMonthLabel;
+
+  /// No description provided for @dailymartResetLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get dailymartResetLabel;
+
+  /// No description provided for @dailymartApplyLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply'**
+  String get dailymartApplyLabel;
+
+  /// No description provided for @dailymartOrdersLoadErrorMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load your orders.'**
+  String get dailymartOrdersLoadErrorMessage;
+
+  /// No description provided for @dailymartOrdersEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No orders yet'**
+  String get dailymartOrdersEmptyTitle;
+
+  /// No description provided for @dailymartOrdersEmptySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your orders from this store will show up here.'**
+  String get dailymartOrdersEmptySubtitle;
+
+  /// No description provided for @dailymartOrdersNoResultsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing here'**
+  String get dailymartOrdersNoResultsTitle;
+
+  /// No description provided for @dailymartOrdersNoResultsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No orders match that search or filter.'**
+  String get dailymartOrdersNoResultsSubtitle;
+
+  /// No description provided for @dailymartOrderCancelFailedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t cancel that order.'**
+  String get dailymartOrderCancelFailedMessage;
+
+  /// No description provided for @dailymartOrdersRefreshFailedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t refresh your orders.'**
+  String get dailymartOrdersRefreshFailedMessage;
+
+  /// No description provided for @dailymartTrackOrderTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Track Order'**
+  String get dailymartTrackOrderTitle;
+
+  /// No description provided for @dailymartTrackOrderAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Track Order'**
+  String get dailymartTrackOrderAction;
+
+  /// No description provided for @dailymartOrderDetailsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Order Details'**
+  String get dailymartOrderDetailsTitle;
+
+  /// No description provided for @dailymartOrderIdLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Order ID'**
+  String get dailymartOrderIdLabel;
+
+  /// No description provided for @dailymartDeliveryOtpLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery OTP'**
+  String get dailymartDeliveryOtpLabel;
+
+  /// No description provided for @dailymartPaymentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment'**
+  String get dailymartPaymentTitle;
+
+  /// No description provided for @dailymartAmountPaidLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount Paid'**
+  String get dailymartAmountPaidLabel;
+
+  /// No description provided for @dailymartPaymentIdLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment ID'**
+  String get dailymartPaymentIdLabel;
+
+  /// No description provided for @dailymartRefundLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Refund'**
+  String get dailymartRefundLabel;
+
+  /// No description provided for @dailymartCopiedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied'**
+  String get dailymartCopiedMessage;
+
+  /// No description provided for @dailymartNoOnlinePaymentLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Not paid online'**
+  String get dailymartNoOnlinePaymentLabel;
+
+  /// No description provided for @dailymartRefundPendingLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Processing'**
+  String get dailymartRefundPendingLabel;
+
+  /// No description provided for @dailymartRefundProcessedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Refunded'**
+  String get dailymartRefundProcessedLabel;
+
+  /// No description provided for @dailymartRefundFailedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Refund failed'**
+  String get dailymartRefundFailedLabel;
+
+  /// No description provided for @dailymartOrderStatusTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Order Status'**
+  String get dailymartOrderStatusTitle;
+
+  /// No description provided for @dailymartOrderStepPlacedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Order Placed'**
+  String get dailymartOrderStepPlacedLabel;
+
+  /// No description provided for @dailymartOrderStepOnTheWayLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'On the way'**
+  String get dailymartOrderStepOnTheWayLabel;
+
+  /// No description provided for @dailymartOrderStepDeliveredLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivered'**
+  String get dailymartOrderStepDeliveredLabel;
+
+  /// No description provided for @dailymartOrderStepCancelledLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get dailymartOrderStepCancelledLabel;
+
+  /// No description provided for @dailymartOrderStepUndatedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Time not recorded'**
+  String get dailymartOrderStepUndatedLabel;
+
+  /// No description provided for @dailymartOrderStepPendingLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get dailymartOrderStepPendingLabel;
+
+  /// No description provided for @dailymartCancelOrderLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel Order'**
+  String get dailymartCancelOrderLabel;
+
+  /// No description provided for @dailymartCancelOrderTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel this order?'**
+  String get dailymartCancelOrderTitle;
+
+  /// No description provided for @dailymartCancelOrderMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ll be refunded if the order was paid for.'**
+  String get dailymartCancelOrderMessage;
+
+  /// No description provided for @dailymartCancelOrderConfirmLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel Order'**
+  String get dailymartCancelOrderConfirmLabel;
+
+  /// No description provided for @dailymartCancelLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get dailymartCancelLabel;
+
+  /// No description provided for @grofastGreeting.
+  ///
+  /// In en, this message translates to:
+  /// **'Hey {name} 👋'**
+  String grofastGreeting(String name);
+
+  /// No description provided for @grofastGreetingFallbackName.
+  ///
+  /// In en, this message translates to:
+  /// **'there'**
+  String get grofastGreetingFallbackName;
+
+  /// No description provided for @grofastGreetingSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Find fresh groceries you want'**
+  String get grofastGreetingSubtitle;
+
+  /// No description provided for @grofastSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search fresh groceries'**
+  String get grofastSearchHint;
+
+  /// No description provided for @grofastCategoriesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Categories'**
+  String get grofastCategoriesTitle;
+
+  /// No description provided for @grofastPopularTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Popular'**
+  String get grofastPopularTitle;
+
+  /// No description provided for @grofastSeeAll.
+  ///
+  /// In en, this message translates to:
+  /// **'see all'**
+  String get grofastSeeAll;
+
+  /// No description provided for @grofastHomeLoadErrorMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load this store\'s catalog.'**
+  String get grofastHomeLoadErrorMessage;
+
+  /// No description provided for @grofastNoLocationSelectedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a location'**
+  String get grofastNoLocationSelectedLabel;
+
+  /// No description provided for @grofastClaimNow.
+  ///
+  /// In en, this message translates to:
+  /// **'claim now'**
+  String get grofastClaimNow;
+
+  /// No description provided for @grofastPromoDiscountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent} off'**
+  String grofastPromoDiscountLabel(String percent);
+
+  /// No description provided for @grofastCategoriesLoadErrorMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load categories.'**
+  String get grofastCategoriesLoadErrorMessage;
+
+  /// No description provided for @grofastCategoriesEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No categories yet'**
+  String get grofastCategoriesEmptyTitle;
+
+  /// No description provided for @grofastCategoriesEmptySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This store has not published any categories.'**
+  String get grofastCategoriesEmptySubtitle;
+
+  /// No description provided for @grofastCategoryProductsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'All {category}'**
+  String grofastCategoryProductsTitle(String category);
+
+  /// No description provided for @grofastCategoryDetailsEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing here yet'**
+  String get grofastCategoryDetailsEmptyTitle;
+
+  /// No description provided for @grofastCategoryDetailsEmptySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No products in this category right now.'**
+  String get grofastCategoryDetailsEmptySubtitle;
+
+  /// No description provided for @grofastCategoryDetailsErrorMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load this category.'**
+  String get grofastCategoryDetailsErrorMessage;
+
+  /// No description provided for @grofastSearchTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Search Groceries'**
+  String get grofastSearchTitle;
+
+  /// No description provided for @grofastRecentSearchTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent Search'**
+  String get grofastRecentSearchTitle;
+
+  /// No description provided for @grofastResultsCountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Found {count, plural, one{{count} Result} other{{count} Results}}'**
+  String grofastResultsCountLabel(int count);
+
+  /// No description provided for @grofastSearchLoadErrorMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load search.'**
+  String get grofastSearchLoadErrorMessage;
+
+  /// No description provided for @grofastSearchResultsErrorMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t search this store.'**
+  String get grofastSearchResultsErrorMessage;
+
+  /// No description provided for @grofastSearchNoResultsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No results'**
+  String get grofastSearchNoResultsTitle;
+
+  /// No description provided for @grofastSearchNoResultsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing matched \"{query}\". Try another word.'**
+  String grofastSearchNoResultsSubtitle(String query);
+
+  /// No description provided for @grofastSearchIdleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What are you shopping for?'**
+  String get grofastSearchIdleTitle;
+
+  /// No description provided for @grofastSearchIdleSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Search the whole store by name or category.'**
+  String get grofastSearchIdleSubtitle;
+
+  /// No description provided for @grofastSortByTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort By'**
+  String get grofastSortByTitle;
+
+  /// No description provided for @grofastPriceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Price'**
+  String get grofastPriceTitle;
+
+  /// No description provided for @grofastApplyLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply'**
+  String get grofastApplyLabel;
+
+  /// No description provided for @grofastResetLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get grofastResetLabel;
+
+  /// No description provided for @grofastAddToBagTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to bag'**
+  String get grofastAddToBagTooltip;
+
+  /// No description provided for @grofastFavouriteTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Save to wishlist'**
+  String get grofastFavouriteTooltip;
+
+  /// No description provided for @grofastDecreaseQuantityLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Decrease quantity'**
+  String get grofastDecreaseQuantityLabel;
+
+  /// No description provided for @grofastIncreaseQuantityLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Increase quantity'**
+  String get grofastIncreaseQuantityLabel;
+
+  /// No description provided for @grofastProductDetailsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Product Details'**
+  String get grofastProductDetailsTitle;
+
+  /// No description provided for @grofastDescriptionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get grofastDescriptionTitle;
+
+  /// No description provided for @grofastSelectSizeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Size'**
+  String get grofastSelectSizeTitle;
+
+  /// No description provided for @grofastAddToBag.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to bag'**
+  String get grofastAddToBag;
+
+  /// No description provided for @grofastProductDetailsLoadErrorMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load this product right now.'**
+  String get grofastProductDetailsLoadErrorMessage;
+
+  /// No description provided for @grofastAddedToBagMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Added {count} × {name} to your bag.'**
+  String grofastAddedToBagMessage(int count, String name);
+
+  /// No description provided for @grofastNoDescriptionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'No description for this product yet.'**
+  String get grofastNoDescriptionLabel;
+
+  /// No description provided for @grofastBagTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My Bag'**
+  String get grofastBagTitle;
+
+  /// No description provided for @grofastBagItemCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} item} other{{count} items}}'**
+  String grofastBagItemCount(int count);
+
+  /// No description provided for @grofastPromoCodeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Promo Code'**
+  String get grofastPromoCodeHint;
+
+  /// No description provided for @grofastPromoApplyLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply'**
+  String get grofastPromoApplyLabel;
+
+  /// No description provided for @grofastPromoRemoveLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get grofastPromoRemoveLabel;
+
+  /// No description provided for @grofastCouponDetailLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Coupon'**
+  String get grofastCouponDetailLabel;
+
+  /// No description provided for @grofastPromoApplied.
+  ///
+  /// In en, this message translates to:
+  /// **'{code} applied'**
+  String grofastPromoApplied(String code);
+
+  /// No description provided for @grofastCouponLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Coupon ({code})'**
+  String grofastCouponLine(String code);
+
+  /// No description provided for @grofastPromoComingSoonMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Promo codes are coming soon.'**
+  String get grofastPromoComingSoonMessage;
+
+  /// No description provided for @grofastTotalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get grofastTotalLabel;
+
+  /// No description provided for @grofastSubtotalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Subtotal'**
+  String get grofastSubtotalLabel;
+
+  /// No description provided for @grofastDiscountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Discount'**
+  String get grofastDiscountLabel;
+
+  /// No description provided for @grofastProceedToCheckoutLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Proceed To Checkout'**
+  String get grofastProceedToCheckoutLabel;
+
+  /// No description provided for @grofastBagEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your bag is empty'**
+  String get grofastBagEmptyTitle;
+
+  /// No description provided for @grofastBagEmptySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add some fresh groceries and they will show up here.'**
+  String get grofastBagEmptySubtitle;
+
+  /// No description provided for @grofastBagExploreAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Start shopping'**
+  String get grofastBagExploreAction;
+
+  /// No description provided for @grofastRemovedFromBagMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Removed from your bag.'**
+  String get grofastRemovedFromBagMessage;
+
+  /// No description provided for @grofastCheckoutTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Checkout'**
+  String get grofastCheckoutTitle;
+
+  /// No description provided for @grofastItemsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Items'**
+  String get grofastItemsTitle;
+
+  /// No description provided for @grofastDeliveryAddressTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delievery Address'**
+  String get grofastDeliveryAddressTitle;
+
+  /// No description provided for @grofastAddNewLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'add new'**
+  String get grofastAddNewLabel;
+
+  /// No description provided for @grofastChangeAddressLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'change'**
+  String get grofastChangeAddressLabel;
+
+  /// No description provided for @grofastNoAddressSelectedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose where to deliver'**
+  String get grofastNoAddressSelectedLabel;
+
+  /// No description provided for @grofastConfirmOrderLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Order'**
+  String get grofastConfirmOrderLabel;
+
+  /// No description provided for @grofastOrderPlacedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Success!'**
+  String get grofastOrderPlacedTitle;
+
+  /// No description provided for @grofastOrderPlacedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'You have successfully created your order.'**
+  String get grofastOrderPlacedMessage;
+
+  /// No description provided for @grofastBrowseHomeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Browse Home'**
+  String get grofastBrowseHomeLabel;
+
+  /// No description provided for @grofastNavHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get grofastNavHome;
+
+  /// No description provided for @grofastNavCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get grofastNavCategories;
+
+  /// No description provided for @grofastNavBag.
+  ///
+  /// In en, this message translates to:
+  /// **'Bag'**
+  String get grofastNavBag;
+
+  /// No description provided for @grofastNavAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get grofastNavAccount;
+
+  /// No description provided for @grofastProfileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get grofastProfileTitle;
+
+  /// No description provided for @grofastNotificationTileLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Notification'**
+  String get grofastNotificationTileLabel;
+
+  /// No description provided for @grofastOrdersTileLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'My Orders'**
+  String get grofastOrdersTileLabel;
+
+  /// No description provided for @grofastWishlistTileLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Wishlist'**
+  String get grofastWishlistTileLabel;
+
+  /// No description provided for @grofastMyProfileLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'My Profile'**
+  String get grofastMyProfileLabel;
+
+  /// No description provided for @grofastChangePasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Change Password'**
+  String get grofastChangePasswordLabel;
+
+  /// No description provided for @grofastDarkModeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark Mode'**
+  String get grofastDarkModeLabel;
+
+  /// No description provided for @grofastMyAddressLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'My Address'**
+  String get grofastMyAddressLabel;
+
+  /// No description provided for @grofastPrivacyPolicyLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy Policy'**
+  String get grofastPrivacyPolicyLabel;
+
+  /// No description provided for @grofastTermsAndConditionsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Term and Condition'**
+  String get grofastTermsAndConditionsLabel;
+
+  /// No description provided for @grofastLogOutLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Log Out'**
+  String get grofastLogOutLabel;
+
+  /// No description provided for @grofastLogOutTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Log out?'**
+  String get grofastLogOutTitle;
+
+  /// No description provided for @grofastLogOutConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ll need to sign in again to place an order.'**
+  String get grofastLogOutConfirmMessage;
+
+  /// No description provided for @grofastProfileLoadErrorMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load your profile.'**
+  String get grofastProfileLoadErrorMessage;
+
+  /// No description provided for @grofastProfileNameFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account'**
+  String get grofastProfileNameFallback;
+
+  /// No description provided for @grofastEditProfileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My Profile'**
+  String get grofastEditProfileTitle;
+
+  /// No description provided for @grofastFullNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Full Name'**
+  String get grofastFullNameLabel;
+
+  /// No description provided for @grofastFullNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your full name'**
+  String get grofastFullNameHint;
+
+  /// No description provided for @grofastEmailLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get grofastEmailLabel;
+
+  /// No description provided for @grofastEmailHint.
+  ///
+  /// In en, this message translates to:
+  /// **'you@example.com'**
+  String get grofastEmailHint;
+
+  /// No description provided for @grofastPhoneNumberLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone Number'**
+  String get grofastPhoneNumberLabel;
+
+  /// No description provided for @grofastPhoneNumberHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your phone number'**
+  String get grofastPhoneNumberHint;
+
+  /// No description provided for @grofastSaveChangesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Changes'**
+  String get grofastSaveChangesLabel;
+
+  /// No description provided for @grofastChangePhotoTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Change Photo'**
+  String get grofastChangePhotoTitle;
+
+  /// No description provided for @grofastTakePhotoLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Take Photo'**
+  String get grofastTakePhotoLabel;
+
+  /// No description provided for @grofastChooseFromGalleryLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose from Gallery'**
+  String get grofastChooseFromGalleryLabel;
+
+  /// No description provided for @grofastAvatarPickerMobileOnlyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo picking is only available on mobile.'**
+  String get grofastAvatarPickerMobileOnlyMessage;
+
+  /// No description provided for @grofastProfileUpdatedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Your profile has been updated.'**
+  String get grofastProfileUpdatedMessage;
+
+  /// No description provided for @grofastChangePasswordTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Change Password'**
+  String get grofastChangePasswordTitle;
+
+  /// No description provided for @grofastCurrentPasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Password'**
+  String get grofastCurrentPasswordLabel;
+
+  /// No description provided for @grofastCurrentPasswordHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your current password'**
+  String get grofastCurrentPasswordHint;
+
+  /// No description provided for @grofastNewPasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'New Password'**
+  String get grofastNewPasswordLabel;
+
+  /// No description provided for @grofastNewPasswordHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your new password'**
+  String get grofastNewPasswordHint;
+
+  /// No description provided for @grofastConfirmNewPasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm New Password'**
+  String get grofastConfirmNewPasswordLabel;
+
+  /// No description provided for @grofastConfirmNewPasswordHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Re-enter your new password'**
+  String get grofastConfirmNewPasswordHint;
+
+  /// No description provided for @grofastUpdatePasswordButtonLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Update Password'**
+  String get grofastUpdatePasswordButtonLabel;
+
+  /// No description provided for @grofastPasswordUpdatedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Your password has been updated.'**
+  String get grofastPasswordUpdatedMessage;
+
+  /// No description provided for @grofastWishlistTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Wishlist'**
+  String get grofastWishlistTitle;
+
+  /// No description provided for @grofastWishlistEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing saved yet'**
+  String get grofastWishlistEmptyTitle;
+
+  /// No description provided for @grofastWishlistEmptySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the heart on anything you want to keep for later.'**
+  String get grofastWishlistEmptySubtitle;
+
+  /// No description provided for @grofastWishlistExploreAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Start shopping'**
+  String get grofastWishlistExploreAction;
+
+  /// No description provided for @grofastNotificationsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Notification'**
+  String get grofastNotificationsTitle;
+
+  /// No description provided for @grofastNotificationsFilterAllLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get grofastNotificationsFilterAllLabel;
+
+  /// No description provided for @grofastNotificationsSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search your Notification'**
+  String get grofastNotificationsSearchHint;
+
+  /// No description provided for @grofastNotificationsNowTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Now'**
+  String get grofastNotificationsNowTitle;
+
+  /// No description provided for @grofastNotificationsPastTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Past'**
+  String get grofastNotificationsPastTitle;
+
+  /// No description provided for @grofastNotificationsLoadErrorMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load your notifications.'**
+  String get grofastNotificationsLoadErrorMessage;
+
+  /// No description provided for @grofastNotificationsEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No notifications yet'**
+  String get grofastNotificationsEmptyTitle;
+
+  /// No description provided for @grofastNotificationsEmptySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'We\'ll let you know when something happens with your orders.'**
+  String get grofastNotificationsEmptySubtitle;
+
+  /// No description provided for @grofastNotificationsNoResultsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing here'**
+  String get grofastNotificationsNoResultsTitle;
+
+  /// No description provided for @grofastNotificationsNoResultsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No notification matches \"{query}\".'**
+  String grofastNotificationsNoResultsSubtitle(String query);
+
+  /// No description provided for @grofastSelectAddressTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Location'**
+  String get grofastSelectAddressTitle;
+
+  /// No description provided for @grofastAddNewAddressLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Add New Address'**
+  String get grofastAddNewAddressLabel;
+
+  /// No description provided for @grofastAddressLoadErrorMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load your addresses.'**
+  String get grofastAddressLoadErrorMessage;
+
+  /// No description provided for @grofastAddressEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No saved addresses'**
+  String get grofastAddressEmptyTitle;
+
+  /// No description provided for @grofastAddressEmptySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add one so we know where to bring your groceries.'**
+  String get grofastAddressEmptySubtitle;
+
+  /// No description provided for @grofastAddressSaveFailedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t save that address.'**
+  String get grofastAddressSaveFailedMessage;
+
+  /// No description provided for @grofastAddressDeleteFailedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t delete that address.'**
+  String get grofastAddressDeleteFailedMessage;
+
+  /// No description provided for @grofastEditAddressTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit address'**
+  String get grofastEditAddressTooltip;
+
+  /// No description provided for @grofastDeleteAddressTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this address?'**
+  String get grofastDeleteAddressTitle;
+
+  /// No description provided for @grofastDeleteAddressMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'It will be removed from your saved locations. This can\'t be undone.'**
+  String get grofastDeleteAddressMessage;
+
+  /// No description provided for @grofastDeleteLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get grofastDeleteLabel;
+
+  /// No description provided for @grofastCancelLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get grofastCancelLabel;
+
+  /// No description provided for @grofastAddAddressTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add New Address'**
+  String get grofastAddAddressTitle;
+
+  /// No description provided for @grofastEditAddressTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Address'**
+  String get grofastEditAddressTitle;
+
+  /// No description provided for @grofastAddressNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get grofastAddressNameLabel;
+
+  /// No description provided for @grofastAddressNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Yona Angela'**
+  String get grofastAddressNameHint;
+
+  /// No description provided for @grofastAddressLine1Label.
+  ///
+  /// In en, this message translates to:
+  /// **'Address Line 1'**
+  String get grofastAddressLine1Label;
+
+  /// No description provided for @grofastAddressLine1Hint.
+  ///
+  /// In en, this message translates to:
+  /// **'House no., street name'**
+  String get grofastAddressLine1Hint;
+
+  /// No description provided for @grofastAddressLine2Label.
+  ///
+  /// In en, this message translates to:
+  /// **'Address Line 2'**
+  String get grofastAddressLine2Label;
+
+  /// No description provided for @grofastAddressLine2Hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Apartment, suite, etc. (optional)'**
+  String get grofastAddressLine2Hint;
+
+  /// No description provided for @grofastLandmarkLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Landmark'**
+  String get grofastLandmarkLabel;
+
+  /// No description provided for @grofastLandmarkHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Nearby landmark (optional)'**
+  String get grofastLandmarkHint;
+
+  /// No description provided for @grofastCityLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'City'**
+  String get grofastCityLabel;
+
+  /// No description provided for @grofastCityHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Bengaluru'**
+  String get grofastCityHint;
+
+  /// No description provided for @grofastStateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'State'**
+  String get grofastStateLabel;
+
+  /// No description provided for @grofastStateHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Karnataka (optional)'**
+  String get grofastStateHint;
+
+  /// No description provided for @grofastCountryLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Country'**
+  String get grofastCountryLabel;
+
+  /// No description provided for @grofastSelectCountryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Country'**
+  String get grofastSelectCountryTitle;
+
+  /// No description provided for @grofastPostalCodeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Postal Code'**
+  String get grofastPostalCodeLabel;
+
+  /// No description provided for @grofastPostalCodeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. 62639'**
+  String get grofastPostalCodeHint;
+
+  /// No description provided for @grofastAddressTagLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Tag'**
+  String get grofastAddressTagLabel;
+
+  /// No description provided for @grofastAddressTagHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Home, Office'**
+  String get grofastAddressTagHint;
+
+  /// No description provided for @grofastMobileLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Mobile Number'**
+  String get grofastMobileLabel;
+
+  /// No description provided for @grofastMobileHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Where we can reach you'**
+  String get grofastMobileHint;
+
+  /// No description provided for @grofastAddAddressButtonLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Address'**
+  String get grofastAddAddressButtonLabel;
+
+  /// No description provided for @grofastUpdateAddressButtonLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Update Address'**
+  String get grofastUpdateAddressButtonLabel;
+
+  /// No description provided for @grofastRequiredFieldErrorMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This field is required'**
+  String get grofastRequiredFieldErrorMessage;
+
+  /// No description provided for @grofastMyOrdersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My Orders'**
+  String get grofastMyOrdersTitle;
+
+  /// No description provided for @grofastOrdersSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search your orders'**
+  String get grofastOrdersSearchHint;
+
+  /// No description provided for @grofastOrdersFilterAllLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get grofastOrdersFilterAllLabel;
+
+  /// No description provided for @grofastOrdersFilterActiveLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'On Delivery'**
+  String get grofastOrdersFilterActiveLabel;
+
+  /// No description provided for @grofastOrdersFilterCompletedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivered'**
+  String get grofastOrdersFilterCompletedLabel;
+
+  /// No description provided for @grofastOrdersFilterCancelledLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Canceled'**
+  String get grofastOrdersFilterCancelledLabel;
+
+  /// No description provided for @grofastOrdersDateFilterTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter by date'**
+  String get grofastOrdersDateFilterTitle;
+
+  /// No description provided for @grofastOrdersDateRangeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Date Range'**
+  String get grofastOrdersDateRangeLabel;
+
+  /// No description provided for @grofastOrdersAllTimeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'All time'**
+  String get grofastOrdersAllTimeLabel;
+
+  /// No description provided for @grofastOrdersFilterLastWeekLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Last week'**
+  String get grofastOrdersFilterLastWeekLabel;
+
+  /// No description provided for @grofastOrdersFilterLastMonthLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Last month'**
+  String get grofastOrdersFilterLastMonthLabel;
+
+  /// No description provided for @grofastOrdersLoadErrorMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load your orders.'**
+  String get grofastOrdersLoadErrorMessage;
+
+  /// No description provided for @grofastOrdersRefreshFailedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t refresh your orders.'**
+  String get grofastOrdersRefreshFailedMessage;
+
+  /// No description provided for @grofastOrdersEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No orders yet'**
+  String get grofastOrdersEmptyTitle;
+
+  /// No description provided for @grofastOrdersEmptySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your orders will show up here once you place one.'**
+  String get grofastOrdersEmptySubtitle;
+
+  /// No description provided for @grofastOrdersNoResultsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing here'**
+  String get grofastOrdersNoResultsTitle;
+
+  /// No description provided for @grofastOrdersNoResultsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No order matches those filters. Try widening them.'**
+  String get grofastOrdersNoResultsSubtitle;
+
+  /// No description provided for @grofastOrderNumberLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Order {date}'**
+  String grofastOrderNumberLabel(String date);
+
+  /// No description provided for @grofastOrderItemCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} item} other{{count} items}}'**
+  String grofastOrderItemCount(int count);
+
+  /// No description provided for @grofastOrderDeliveredLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivered to {label}'**
+  String grofastOrderDeliveredLine(String label);
+
+  /// No description provided for @grofastOrderDeliveringLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivering to {label}'**
+  String grofastOrderDeliveringLine(String label);
+
+  /// No description provided for @grofastOrderCancelledLine.
+  ///
+  /// In en, this message translates to:
+  /// **'This order was cancelled'**
+  String get grofastOrderCancelledLine;
+
+  /// No description provided for @grofastTrackOrderTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Track Order'**
+  String get grofastTrackOrderTitle;
+
+  /// No description provided for @grofastOrderDetailTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Order Detail'**
+  String get grofastOrderDetailTitle;
+
+  /// No description provided for @grofastCopyTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get grofastCopyTooltip;
+
+  /// No description provided for @grofastCopiedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'{label} copied.'**
+  String grofastCopiedMessage(String label);
+
+  /// No description provided for @grofastTrackingDetailTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tracking Detail'**
+  String get grofastTrackingDetailTitle;
+
+  /// No description provided for @grofastOrderStatusLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get grofastOrderStatusLabel;
+
+  /// No description provided for @grofastPurchaseDateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase Date'**
+  String get grofastPurchaseDateLabel;
+
+  /// No description provided for @grofastOrderIdLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Order ID'**
+  String get grofastOrderIdLabel;
+
+  /// No description provided for @grofastDeliveryOtpLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery OTP'**
+  String get grofastDeliveryOtpLabel;
+
+  /// No description provided for @grofastPaymentIdLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment ID'**
+  String get grofastPaymentIdLabel;
+
+  /// No description provided for @grofastAmountPaidLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount Paid'**
+  String get grofastAmountPaidLabel;
+
+  /// No description provided for @grofastNoOnlinePaymentLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Not paid online'**
+  String get grofastNoOnlinePaymentLabel;
+
+  /// No description provided for @grofastRefundLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Refund'**
+  String get grofastRefundLabel;
+
+  /// No description provided for @grofastOrderReceivedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Order Received'**
+  String get grofastOrderReceivedLabel;
+
+  /// No description provided for @grofastCancelOrderLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel Order'**
+  String get grofastCancelOrderLabel;
+
+  /// No description provided for @grofastCancelOrderTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel this order?'**
+  String get grofastCancelOrderTitle;
+
+  /// No description provided for @grofastCancelOrderMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'We\'ll refund anything you paid. This can\'t be undone.'**
+  String get grofastCancelOrderMessage;
+
+  /// No description provided for @grofastCancelOrderConfirmLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel Order'**
+  String get grofastCancelOrderConfirmLabel;
+
+  /// No description provided for @grofastOrderCancelFailedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t cancel that order.'**
+  String get grofastOrderCancelFailedMessage;
+
+  /// No description provided for @grofastOrderStepUndatedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Time not recorded'**
+  String get grofastOrderStepUndatedLabel;
+
+  /// No description provided for @grofastOrderStepPendingLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get grofastOrderStepPendingLabel;
+
+  /// No description provided for @grofastStatusPlacedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Order Placed'**
+  String get grofastStatusPlacedLabel;
+
+  /// No description provided for @grofastStatusOnDeliveryLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'On Delivery'**
+  String get grofastStatusOnDeliveryLabel;
+
+  /// No description provided for @grofastStatusDeliveredLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivered'**
+  String get grofastStatusDeliveredLabel;
+
+  /// No description provided for @grofastStatusCancelledLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Canceled'**
+  String get grofastStatusCancelledLabel;
+
+  /// No description provided for @grofastRefundPendingLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Refund on its way'**
+  String get grofastRefundPendingLabel;
+
+  /// No description provided for @grofastRefundProcessedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Refunded'**
+  String get grofastRefundProcessedLabel;
+
+  /// No description provided for @grofastRefundFailedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Refund failed'**
+  String get grofastRefundFailedLabel;
+
   /// No description provided for @validationNameRequired.
   ///
   /// In en, this message translates to:

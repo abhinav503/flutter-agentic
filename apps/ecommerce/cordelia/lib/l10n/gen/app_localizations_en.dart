@@ -1035,6 +1035,1320 @@ class AppLocalizationsEn extends AppLocalizations {
       'Updates about your orders and account will show up here.';
 
   @override
+  String get dailymartTopSellerTitle => 'Top Seller🔥';
+
+  @override
+  String get dailymartCategoriesTitle => 'Shop by category';
+
+  @override
+  String get dailymartPopularProductsTitle => 'Popular Products';
+
+  @override
+  String get dailymartSeeAll => 'See all';
+
+  @override
+  String get dailymartSearchHint => 'Search for products';
+
+  @override
+  String get dailymartHomeLoadErrorMessage =>
+      'Couldn\'t load this store\'s catalog.';
+
+  @override
+  String get dailymartNoLocationSelectedLabel => 'Select a location';
+
+  @override
+  String get dailymartNotificationsTitle => 'Notification';
+
+  @override
+  String get dailymartNotificationsLoadErrorMessage =>
+      'Couldn\'t load your notifications.';
+
+  @override
+  String get dailymartNotificationsEmptyTitle => 'No notifications yet';
+
+  @override
+  String get dailymartNotificationsEmptySubtitle =>
+      'Deals and order updates from this store will show up here.';
+
+  @override
+  String get dailymartOrderNow => 'Order Now';
+
+  @override
+  String dailymartPromoSubtitle(String percent) {
+    return 'Enjoy discounts of up to $percent%\non your order today';
+  }
+
+  @override
+  String dailymartDiscountPercentOff(String percent) {
+    return '$percent% off';
+  }
+
+  @override
+  String get dailymartNavHome => 'Home';
+
+  @override
+  String get dailymartNavWishlist => 'Wishlist';
+
+  @override
+  String get dailymartNavCart => 'Cart';
+
+  @override
+  String get dailymartNavProfile => 'Profile';
+
+  @override
+  String get dailymartRecentSearchTitle => 'Recent Search';
+
+  @override
+  String get dailymartRecentlyViewedTitle => 'Recently viewed';
+
+  @override
+  String dailymartResultsForLabel(String query) {
+    return 'Result for \"$query\"';
+  }
+
+  @override
+  String dailymartResultsCountLabel(int count) {
+    return '$count founds';
+  }
+
+  @override
+  String get dailymartSearchLoadErrorMessage => 'Couldn\'t load search.';
+
+  @override
+  String get dailymartSearchResultsErrorMessage =>
+      'Couldn\'t search this store.';
+
+  @override
+  String get dailymartSearchNoResultsTitle => 'No results';
+
+  @override
+  String dailymartSearchNoResultsSubtitle(String query) {
+    return 'Nothing in this store matches \"$query\" yet.';
+  }
+
+  @override
+  String get dailymartCategoryBadge => 'Category';
+
+  @override
+  String get dailymartFilterLabel => 'Filter';
+
+  @override
+  String get dailymartSortSheetTitle => 'Sort by';
+
+  @override
+  String get dailymartPriceSheetTitle => 'Price';
+
+  @override
+  String get dailymartCategoryDetailsEmptyTitle => 'Nothing here';
+
+  @override
+  String get dailymartCategoryDetailsEmptySubtitle =>
+      'No products in this category match those filters.';
+
+  @override
+  String get dailymartCategoryDetailsErrorMessage =>
+      'Couldn\'t load this category.';
+
+  @override
+  String get dailymartWishlistEmptyTitle => 'Nothing saved yet';
+
+  @override
+  String get dailymartWishlistEmptySubtitle =>
+      'Tap the heart on a product and it will wait for you here.';
+
+  @override
+  String get dailymartWishlistExploreAction => 'Start shopping';
+
+  @override
+  String get dailymartProductDetailsTitle => 'Product Details';
+
+  @override
+  String get dailymartDescriptionsTabLabel => 'Descriptions';
+
+  @override
+  String get dailymartReviewsTabLabel => 'Reviews';
+
+  @override
+  String get dailymartRelatedProductsTitle => 'Related Products';
+
+  @override
+  String get dailymartSelectSizeLabel => 'Select Size';
+
+  @override
+  String get dailymartProductDetailsLoadErrorMessage =>
+      'Couldn\'t load this product\'s details.';
+
+  @override
+  String get dailymartAddToCart => 'Add To Cart';
+
+  @override
+  String get dailymartAddToCartSheetTitle => 'Add To Cart';
+
+  @override
+  String dailymartAddedToCartMessage(int count, String name) {
+    return 'Added $count × $name to your cart.';
+  }
+
+  @override
+  String dailymartStarRowLabel(int stars) {
+    return '$stars Star';
+  }
+
+  @override
+  String get dailymartMyCartTitle => 'My Cart';
+
+  @override
+  String get dailymartCouponHint => 'Enter coupon code';
+
+  @override
+  String get dailymartCouponRemoveLabel => 'Remove';
+
+  @override
+  String get dailymartCouponDetailLabel => 'Coupon';
+
+  @override
+  String dailymartCouponApplied(String code) {
+    return '$code applied';
+  }
+
+  @override
+  String dailymartCouponLine(String code) {
+    return 'Coupon ($code)';
+  }
+
+  @override
+  String get dailymartSubTotalLabel => 'Sub total';
+
+  @override
+  String get dailymartDeliveryLabel => 'Delivery';
+
+  @override
+  String get dailymartDeliveryFreeLabel => 'Free';
+
+  @override
+  String get dailymartDiscountLabel => 'Discount';
+
+  @override
+  String get dailymartTotalCostLabel => 'Total cost';
+
+  @override
+  String get dailymartProceedToCheckoutLabel => 'Proceed to Checkout';
+
+  @override
+  String get dailymartCartEmptyTitle => 'Your cart is empty';
+
+  @override
+  String get dailymartCartEmptySubtitle =>
+      'Products you add will show up here, ready to check out.';
+
+  @override
+  String get dailymartCartExploreAction => 'Start shopping';
+
+  @override
+  String get dailymartRemovedFromCartMessage => 'Removed from your cart.';
+
+  @override
+  String get dailymartCheckoutTitle => 'Checkout';
+
+  @override
+  String get dailymartShippingAddressLabel => 'Shipping Address';
+
+  @override
+  String get dailymartOrderListLabel => 'Order List';
+
+  @override
+  String get dailymartContinueToPaymentLabel => 'Continue to Payment';
+
+  @override
+  String get dailymartOrderPlacedTitle => 'Payment Successful!';
+
+  @override
+  String get dailymartOrderPlacedMessage =>
+      'Thank you for your purchase! We\'re excited to let you know that your payment has been successfully processed. 🎉';
+
+  @override
+  String get dailymartTrackOrderLabel => 'Track My Order';
+
+  @override
+  String dailymartCartSummary(int count, String total) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count items',
+      one: '$count item',
+    );
+    return '$_temp0 | $total';
+  }
+
+  @override
+  String get dailymartViewCartLabel => 'View Cart';
+
+  @override
+  String get dailymartGeneralSectionTitle => 'General';
+
+  @override
+  String get dailymartPreferencesSectionTitle => 'Preferences';
+
+  @override
+  String get dailymartEditProfileLabel => 'Edit Profile';
+
+  @override
+  String get dailymartChangePasswordLabel => 'Change Password';
+
+  @override
+  String get dailymartMyOrdersLabel => 'My Orders';
+
+  @override
+  String get dailymartMyAddressLabel => 'My Address';
+
+  @override
+  String get dailymartDarkModeLabel => 'Dark Mode';
+
+  @override
+  String get dailymartPrivacyPolicyLabel => 'Privacy Policy';
+
+  @override
+  String get dailymartTermsAndConditionsLabel => 'Terms & Conditions';
+
+  @override
+  String get dailymartLogoutLabel => 'Logout';
+
+  @override
+  String get dailymartLogoutTitle => 'Log out?';
+
+  @override
+  String get dailymartLogoutConfirmMessage =>
+      'You\'ll need to sign in again to place an order or track one.';
+
+  @override
+  String get dailymartProfileLoadErrorMessage => 'Couldn\'t load your profile.';
+
+  @override
+  String get dailymartEditProfileTitle => 'Edit Profile';
+
+  @override
+  String get dailymartFullNameLabel => 'Full Name';
+
+  @override
+  String get dailymartFullNameHint => 'Enter your full name';
+
+  @override
+  String get dailymartEmailLabel => 'Email';
+
+  @override
+  String get dailymartEmailHint => 'you@example.com';
+
+  @override
+  String get dailymartPhoneNumberLabel => 'Phone Number';
+
+  @override
+  String get dailymartPhoneNumberHint => 'Enter your phone number';
+
+  @override
+  String get dailymartSaveChangesLabel => 'Save Changes';
+
+  @override
+  String get dailymartChangePhotoTitle => 'Change Photo';
+
+  @override
+  String get dailymartTakePhotoLabel => 'Take Photo';
+
+  @override
+  String get dailymartChooseFromGalleryLabel => 'Choose from Gallery';
+
+  @override
+  String get dailymartAvatarPickerMobileOnlyMessage =>
+      'Choosing a photo is only available on mobile.';
+
+  @override
+  String get dailymartChangePasswordTitle => 'Change Password';
+
+  @override
+  String get dailymartCurrentPasswordLabel => 'Current Password';
+
+  @override
+  String get dailymartCurrentPasswordHint => 'Enter your current password';
+
+  @override
+  String get dailymartNewPasswordLabel => 'New Password';
+
+  @override
+  String get dailymartNewPasswordHint => 'Enter your new password';
+
+  @override
+  String get dailymartConfirmNewPasswordLabel => 'Confirm New Password';
+
+  @override
+  String get dailymartConfirmNewPasswordHint => 'Re-enter your new password';
+
+  @override
+  String get dailymartUpdatePasswordButtonLabel => 'Update Password';
+
+  @override
+  String get dailymartPasswordUpdatedMessage =>
+      'Your password has been updated.';
+
+  @override
+  String get dailymartSelectAddressTitle => 'Select Address';
+
+  @override
+  String get dailymartAddNewAddressLabel => 'Add New Address';
+
+  @override
+  String get dailymartAddressLoadErrorMessage =>
+      'Couldn\'t load your addresses.';
+
+  @override
+  String get dailymartAddressSaveFailedMessage =>
+      'Couldn\'t save that address.';
+
+  @override
+  String get dailymartAddressEmptyTitle => 'No saved addresses';
+
+  @override
+  String get dailymartAddressEmptySubtitle =>
+      'Add one to get this store delivering to your door.';
+
+  @override
+  String get dailymartAddressDeleteFailedMessage =>
+      'Couldn\'t delete that address.';
+
+  @override
+  String get dailymartEditAddressTooltip => 'Edit address';
+
+  @override
+  String get dailymartDeleteAddressTitle => 'Delete this address?';
+
+  @override
+  String get dailymartDeleteAddressMessage =>
+      'It\'ll be removed from your saved addresses.';
+
+  @override
+  String get dailymartDeleteLabel => 'Delete';
+
+  @override
+  String get dailymartAddAddressTitle => 'Add New Address';
+
+  @override
+  String get dailymartEditAddressTitle => 'Edit Address';
+
+  @override
+  String get dailymartAddressNameLabel => 'Name';
+
+  @override
+  String get dailymartAddressNameHint => 'e.g. Mark Shelby';
+
+  @override
+  String get dailymartAddressLine1Label => 'Address Line 1';
+
+  @override
+  String get dailymartAddressLine1Hint => 'House no., street name';
+
+  @override
+  String get dailymartAddressLine2Label => 'Address Line 2';
+
+  @override
+  String get dailymartAddressLine2Hint => 'Apartment, suite, etc. (optional)';
+
+  @override
+  String get dailymartLandmarkLabel => 'Landmark';
+
+  @override
+  String get dailymartLandmarkHint => 'Nearby landmark (optional)';
+
+  @override
+  String get dailymartCityLabel => 'City';
+
+  @override
+  String get dailymartCityHint => 'e.g. New Delhi';
+
+  @override
+  String get dailymartStateLabel => 'State';
+
+  @override
+  String get dailymartStateHint => 'e.g. Delhi (optional)';
+
+  @override
+  String get dailymartCountryLabel => 'Country';
+
+  @override
+  String get dailymartSelectCountryTitle => 'Select Country';
+
+  @override
+  String get dailymartPostalCodeLabel => 'Postal Code';
+
+  @override
+  String get dailymartPostalCodeHint => 'e.g. 62639';
+
+  @override
+  String get dailymartAddressTagLabel => 'Tag';
+
+  @override
+  String get dailymartAddressTagHint => 'e.g. Home, Office';
+
+  @override
+  String get dailymartAddAddressButtonLabel => 'Add Address';
+
+  @override
+  String get dailymartUpdateAddressButtonLabel => 'Update Address';
+
+  @override
+  String get dailymartRequiredFieldErrorMessage => 'This field is required';
+
+  @override
+  String get dailymartMyOrdersTitle => 'My Orders';
+
+  @override
+  String get dailymartOrdersSearchHint => 'What are you looking for...';
+
+  @override
+  String get dailymartOrdersFilterAllLabel => 'All';
+
+  @override
+  String get dailymartOrdersFilterActiveLabel => 'Active';
+
+  @override
+  String get dailymartOrdersFilterCompletedLabel => 'Completed';
+
+  @override
+  String get dailymartOrdersFilterCancelledLabel => 'Cancelled';
+
+  @override
+  String dailymartOrderSummaryLabel(int count, String date) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count items',
+      one: '$count item',
+    );
+    return '$_temp0 · $date';
+  }
+
+  @override
+  String get dailymartOrdersDateRangeLabel => 'Date Range';
+
+  @override
+  String get dailymartOrdersAllTimeLabel => 'All time';
+
+  @override
+  String get dailymartOrdersFilterLastWeekLabel => 'Last week';
+
+  @override
+  String get dailymartOrdersFilterLastMonthLabel => 'Last month';
+
+  @override
+  String get dailymartResetLabel => 'Reset';
+
+  @override
+  String get dailymartApplyLabel => 'Apply';
+
+  @override
+  String get dailymartOrdersLoadErrorMessage => 'Couldn\'t load your orders.';
+
+  @override
+  String get dailymartOrdersEmptyTitle => 'No orders yet';
+
+  @override
+  String get dailymartOrdersEmptySubtitle =>
+      'Your orders from this store will show up here.';
+
+  @override
+  String get dailymartOrdersNoResultsTitle => 'Nothing here';
+
+  @override
+  String get dailymartOrdersNoResultsSubtitle =>
+      'No orders match that search or filter.';
+
+  @override
+  String get dailymartOrderCancelFailedMessage =>
+      'Couldn\'t cancel that order.';
+
+  @override
+  String get dailymartOrdersRefreshFailedMessage =>
+      'Couldn\'t refresh your orders.';
+
+  @override
+  String get dailymartTrackOrderTitle => 'Track Order';
+
+  @override
+  String get dailymartTrackOrderAction => 'Track Order';
+
+  @override
+  String get dailymartOrderDetailsTitle => 'Order Details';
+
+  @override
+  String get dailymartOrderIdLabel => 'Order ID';
+
+  @override
+  String get dailymartDeliveryOtpLabel => 'Delivery OTP';
+
+  @override
+  String get dailymartPaymentTitle => 'Payment';
+
+  @override
+  String get dailymartAmountPaidLabel => 'Amount Paid';
+
+  @override
+  String get dailymartPaymentIdLabel => 'Payment ID';
+
+  @override
+  String get dailymartRefundLabel => 'Refund';
+
+  @override
+  String get dailymartCopiedMessage => 'Copied';
+
+  @override
+  String get dailymartNoOnlinePaymentLabel => 'Not paid online';
+
+  @override
+  String get dailymartRefundPendingLabel => 'Processing';
+
+  @override
+  String get dailymartRefundProcessedLabel => 'Refunded';
+
+  @override
+  String get dailymartRefundFailedLabel => 'Refund failed';
+
+  @override
+  String get dailymartOrderStatusTitle => 'Order Status';
+
+  @override
+  String get dailymartOrderStepPlacedLabel => 'Order Placed';
+
+  @override
+  String get dailymartOrderStepOnTheWayLabel => 'On the way';
+
+  @override
+  String get dailymartOrderStepDeliveredLabel => 'Delivered';
+
+  @override
+  String get dailymartOrderStepCancelledLabel => 'Cancelled';
+
+  @override
+  String get dailymartOrderStepUndatedLabel => 'Time not recorded';
+
+  @override
+  String get dailymartOrderStepPendingLabel => 'Pending';
+
+  @override
+  String get dailymartCancelOrderLabel => 'Cancel Order';
+
+  @override
+  String get dailymartCancelOrderTitle => 'Cancel this order?';
+
+  @override
+  String get dailymartCancelOrderMessage =>
+      'You\'ll be refunded if the order was paid for.';
+
+  @override
+  String get dailymartCancelOrderConfirmLabel => 'Cancel Order';
+
+  @override
+  String get dailymartCancelLabel => 'Cancel';
+
+  @override
+  String grofastGreeting(String name) {
+    return 'Hey $name 👋';
+  }
+
+  @override
+  String get grofastGreetingFallbackName => 'there';
+
+  @override
+  String get grofastGreetingSubtitle => 'Find fresh groceries you want';
+
+  @override
+  String get grofastSearchHint => 'Search fresh groceries';
+
+  @override
+  String get grofastCategoriesTitle => 'Categories';
+
+  @override
+  String get grofastPopularTitle => 'Popular';
+
+  @override
+  String get grofastSeeAll => 'see all';
+
+  @override
+  String get grofastHomeLoadErrorMessage =>
+      'Couldn\'t load this store\'s catalog.';
+
+  @override
+  String get grofastNoLocationSelectedLabel => 'Select a location';
+
+  @override
+  String get grofastClaimNow => 'claim now';
+
+  @override
+  String grofastPromoDiscountLabel(String percent) {
+    return '$percent off';
+  }
+
+  @override
+  String get grofastCategoriesLoadErrorMessage => 'Couldn\'t load categories.';
+
+  @override
+  String get grofastCategoriesEmptyTitle => 'No categories yet';
+
+  @override
+  String get grofastCategoriesEmptySubtitle =>
+      'This store has not published any categories.';
+
+  @override
+  String grofastCategoryProductsTitle(String category) {
+    return 'All $category';
+  }
+
+  @override
+  String get grofastCategoryDetailsEmptyTitle => 'Nothing here yet';
+
+  @override
+  String get grofastCategoryDetailsEmptySubtitle =>
+      'No products in this category right now.';
+
+  @override
+  String get grofastCategoryDetailsErrorMessage =>
+      'Couldn\'t load this category.';
+
+  @override
+  String get grofastSearchTitle => 'Search Groceries';
+
+  @override
+  String get grofastRecentSearchTitle => 'Recent Search';
+
+  @override
+  String grofastResultsCountLabel(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Results',
+      one: '$count Result',
+    );
+    return 'Found $_temp0';
+  }
+
+  @override
+  String get grofastSearchLoadErrorMessage => 'Couldn\'t load search.';
+
+  @override
+  String get grofastSearchResultsErrorMessage => 'Couldn\'t search this store.';
+
+  @override
+  String get grofastSearchNoResultsTitle => 'No results';
+
+  @override
+  String grofastSearchNoResultsSubtitle(String query) {
+    return 'Nothing matched \"$query\". Try another word.';
+  }
+
+  @override
+  String get grofastSearchIdleTitle => 'What are you shopping for?';
+
+  @override
+  String get grofastSearchIdleSubtitle =>
+      'Search the whole store by name or category.';
+
+  @override
+  String get grofastSortByTitle => 'Sort By';
+
+  @override
+  String get grofastPriceTitle => 'Price';
+
+  @override
+  String get grofastApplyLabel => 'Apply';
+
+  @override
+  String get grofastResetLabel => 'Reset';
+
+  @override
+  String get grofastAddToBagTooltip => 'Add to bag';
+
+  @override
+  String get grofastFavouriteTooltip => 'Save to wishlist';
+
+  @override
+  String get grofastDecreaseQuantityLabel => 'Decrease quantity';
+
+  @override
+  String get grofastIncreaseQuantityLabel => 'Increase quantity';
+
+  @override
+  String get grofastProductDetailsTitle => 'Product Details';
+
+  @override
+  String get grofastDescriptionTitle => 'Description';
+
+  @override
+  String get grofastSelectSizeTitle => 'Select Size';
+
+  @override
+  String get grofastAddToBag => 'Add to bag';
+
+  @override
+  String get grofastProductDetailsLoadErrorMessage =>
+      'Couldn\'t load this product right now.';
+
+  @override
+  String grofastAddedToBagMessage(int count, String name) {
+    return 'Added $count × $name to your bag.';
+  }
+
+  @override
+  String get grofastNoDescriptionLabel =>
+      'No description for this product yet.';
+
+  @override
+  String get grofastBagTitle => 'My Bag';
+
+  @override
+  String grofastBagItemCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count items',
+      one: '$count item',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get grofastPromoCodeHint => 'Add Promo Code';
+
+  @override
+  String get grofastPromoApplyLabel => 'Apply';
+
+  @override
+  String get grofastPromoRemoveLabel => 'Remove';
+
+  @override
+  String get grofastCouponDetailLabel => 'Coupon';
+
+  @override
+  String grofastPromoApplied(String code) {
+    return '$code applied';
+  }
+
+  @override
+  String grofastCouponLine(String code) {
+    return 'Coupon ($code)';
+  }
+
+  @override
+  String get grofastPromoComingSoonMessage => 'Promo codes are coming soon.';
+
+  @override
+  String get grofastTotalLabel => 'Total';
+
+  @override
+  String get grofastSubtotalLabel => 'Subtotal';
+
+  @override
+  String get grofastDiscountLabel => 'Discount';
+
+  @override
+  String get grofastProceedToCheckoutLabel => 'Proceed To Checkout';
+
+  @override
+  String get grofastBagEmptyTitle => 'Your bag is empty';
+
+  @override
+  String get grofastBagEmptySubtitle =>
+      'Add some fresh groceries and they will show up here.';
+
+  @override
+  String get grofastBagExploreAction => 'Start shopping';
+
+  @override
+  String get grofastRemovedFromBagMessage => 'Removed from your bag.';
+
+  @override
+  String get grofastCheckoutTitle => 'Checkout';
+
+  @override
+  String get grofastItemsTitle => 'Items';
+
+  @override
+  String get grofastDeliveryAddressTitle => 'Delievery Address';
+
+  @override
+  String get grofastAddNewLabel => 'add new';
+
+  @override
+  String get grofastChangeAddressLabel => 'change';
+
+  @override
+  String get grofastNoAddressSelectedLabel => 'Choose where to deliver';
+
+  @override
+  String get grofastConfirmOrderLabel => 'Confirm Order';
+
+  @override
+  String get grofastOrderPlacedTitle => 'Success!';
+
+  @override
+  String get grofastOrderPlacedMessage =>
+      'You have successfully created your order.';
+
+  @override
+  String get grofastBrowseHomeLabel => 'Browse Home';
+
+  @override
+  String get grofastNavHome => 'Home';
+
+  @override
+  String get grofastNavCategories => 'Category';
+
+  @override
+  String get grofastNavBag => 'Bag';
+
+  @override
+  String get grofastNavAccount => 'Account';
+
+  @override
+  String get grofastProfileTitle => 'Profile';
+
+  @override
+  String get grofastNotificationTileLabel => 'Notification';
+
+  @override
+  String get grofastOrdersTileLabel => 'My Orders';
+
+  @override
+  String get grofastWishlistTileLabel => 'Wishlist';
+
+  @override
+  String get grofastMyProfileLabel => 'My Profile';
+
+  @override
+  String get grofastChangePasswordLabel => 'Change Password';
+
+  @override
+  String get grofastDarkModeLabel => 'Dark Mode';
+
+  @override
+  String get grofastMyAddressLabel => 'My Address';
+
+  @override
+  String get grofastPrivacyPolicyLabel => 'Privacy Policy';
+
+  @override
+  String get grofastTermsAndConditionsLabel => 'Term and Condition';
+
+  @override
+  String get grofastLogOutLabel => 'Log Out';
+
+  @override
+  String get grofastLogOutTitle => 'Log out?';
+
+  @override
+  String get grofastLogOutConfirmMessage =>
+      'You\'ll need to sign in again to place an order.';
+
+  @override
+  String get grofastProfileLoadErrorMessage => 'Couldn\'t load your profile.';
+
+  @override
+  String get grofastProfileNameFallback => 'Your account';
+
+  @override
+  String get grofastEditProfileTitle => 'My Profile';
+
+  @override
+  String get grofastFullNameLabel => 'Full Name';
+
+  @override
+  String get grofastFullNameHint => 'Enter your full name';
+
+  @override
+  String get grofastEmailLabel => 'Email';
+
+  @override
+  String get grofastEmailHint => 'you@example.com';
+
+  @override
+  String get grofastPhoneNumberLabel => 'Phone Number';
+
+  @override
+  String get grofastPhoneNumberHint => 'Enter your phone number';
+
+  @override
+  String get grofastSaveChangesLabel => 'Save Changes';
+
+  @override
+  String get grofastChangePhotoTitle => 'Change Photo';
+
+  @override
+  String get grofastTakePhotoLabel => 'Take Photo';
+
+  @override
+  String get grofastChooseFromGalleryLabel => 'Choose from Gallery';
+
+  @override
+  String get grofastAvatarPickerMobileOnlyMessage =>
+      'Photo picking is only available on mobile.';
+
+  @override
+  String get grofastProfileUpdatedMessage => 'Your profile has been updated.';
+
+  @override
+  String get grofastChangePasswordTitle => 'Change Password';
+
+  @override
+  String get grofastCurrentPasswordLabel => 'Current Password';
+
+  @override
+  String get grofastCurrentPasswordHint => 'Enter your current password';
+
+  @override
+  String get grofastNewPasswordLabel => 'New Password';
+
+  @override
+  String get grofastNewPasswordHint => 'Enter your new password';
+
+  @override
+  String get grofastConfirmNewPasswordLabel => 'Confirm New Password';
+
+  @override
+  String get grofastConfirmNewPasswordHint => 'Re-enter your new password';
+
+  @override
+  String get grofastUpdatePasswordButtonLabel => 'Update Password';
+
+  @override
+  String get grofastPasswordUpdatedMessage => 'Your password has been updated.';
+
+  @override
+  String get grofastWishlistTitle => 'Wishlist';
+
+  @override
+  String get grofastWishlistEmptyTitle => 'Nothing saved yet';
+
+  @override
+  String get grofastWishlistEmptySubtitle =>
+      'Tap the heart on anything you want to keep for later.';
+
+  @override
+  String get grofastWishlistExploreAction => 'Start shopping';
+
+  @override
+  String get grofastNotificationsTitle => 'Notification';
+
+  @override
+  String get grofastNotificationsFilterAllLabel => 'All';
+
+  @override
+  String get grofastNotificationsSearchHint => 'Search your Notification';
+
+  @override
+  String get grofastNotificationsNowTitle => 'Now';
+
+  @override
+  String get grofastNotificationsPastTitle => 'Past';
+
+  @override
+  String get grofastNotificationsLoadErrorMessage =>
+      'Couldn\'t load your notifications.';
+
+  @override
+  String get grofastNotificationsEmptyTitle => 'No notifications yet';
+
+  @override
+  String get grofastNotificationsEmptySubtitle =>
+      'We\'ll let you know when something happens with your orders.';
+
+  @override
+  String get grofastNotificationsNoResultsTitle => 'Nothing here';
+
+  @override
+  String grofastNotificationsNoResultsSubtitle(String query) {
+    return 'No notification matches \"$query\".';
+  }
+
+  @override
+  String get grofastSelectAddressTitle => 'Select Location';
+
+  @override
+  String get grofastAddNewAddressLabel => 'Add New Address';
+
+  @override
+  String get grofastAddressLoadErrorMessage => 'Couldn\'t load your addresses.';
+
+  @override
+  String get grofastAddressEmptyTitle => 'No saved addresses';
+
+  @override
+  String get grofastAddressEmptySubtitle =>
+      'Add one so we know where to bring your groceries.';
+
+  @override
+  String get grofastAddressSaveFailedMessage => 'Couldn\'t save that address.';
+
+  @override
+  String get grofastAddressDeleteFailedMessage =>
+      'Couldn\'t delete that address.';
+
+  @override
+  String get grofastEditAddressTooltip => 'Edit address';
+
+  @override
+  String get grofastDeleteAddressTitle => 'Delete this address?';
+
+  @override
+  String get grofastDeleteAddressMessage =>
+      'It will be removed from your saved locations. This can\'t be undone.';
+
+  @override
+  String get grofastDeleteLabel => 'Delete';
+
+  @override
+  String get grofastCancelLabel => 'Cancel';
+
+  @override
+  String get grofastAddAddressTitle => 'Add New Address';
+
+  @override
+  String get grofastEditAddressTitle => 'Edit Address';
+
+  @override
+  String get grofastAddressNameLabel => 'Name';
+
+  @override
+  String get grofastAddressNameHint => 'e.g. Yona Angela';
+
+  @override
+  String get grofastAddressLine1Label => 'Address Line 1';
+
+  @override
+  String get grofastAddressLine1Hint => 'House no., street name';
+
+  @override
+  String get grofastAddressLine2Label => 'Address Line 2';
+
+  @override
+  String get grofastAddressLine2Hint => 'Apartment, suite, etc. (optional)';
+
+  @override
+  String get grofastLandmarkLabel => 'Landmark';
+
+  @override
+  String get grofastLandmarkHint => 'Nearby landmark (optional)';
+
+  @override
+  String get grofastCityLabel => 'City';
+
+  @override
+  String get grofastCityHint => 'e.g. Bengaluru';
+
+  @override
+  String get grofastStateLabel => 'State';
+
+  @override
+  String get grofastStateHint => 'e.g. Karnataka (optional)';
+
+  @override
+  String get grofastCountryLabel => 'Country';
+
+  @override
+  String get grofastSelectCountryTitle => 'Select Country';
+
+  @override
+  String get grofastPostalCodeLabel => 'Postal Code';
+
+  @override
+  String get grofastPostalCodeHint => 'e.g. 62639';
+
+  @override
+  String get grofastAddressTagLabel => 'Tag';
+
+  @override
+  String get grofastAddressTagHint => 'e.g. Home, Office';
+
+  @override
+  String get grofastMobileLabel => 'Mobile Number';
+
+  @override
+  String get grofastMobileHint => 'Where we can reach you';
+
+  @override
+  String get grofastAddAddressButtonLabel => 'Add Address';
+
+  @override
+  String get grofastUpdateAddressButtonLabel => 'Update Address';
+
+  @override
+  String get grofastRequiredFieldErrorMessage => 'This field is required';
+
+  @override
+  String get grofastMyOrdersTitle => 'My Orders';
+
+  @override
+  String get grofastOrdersSearchHint => 'Search your orders';
+
+  @override
+  String get grofastOrdersFilterAllLabel => 'All';
+
+  @override
+  String get grofastOrdersFilterActiveLabel => 'On Delivery';
+
+  @override
+  String get grofastOrdersFilterCompletedLabel => 'Delivered';
+
+  @override
+  String get grofastOrdersFilterCancelledLabel => 'Canceled';
+
+  @override
+  String get grofastOrdersDateFilterTitle => 'Filter by date';
+
+  @override
+  String get grofastOrdersDateRangeLabel => 'Date Range';
+
+  @override
+  String get grofastOrdersAllTimeLabel => 'All time';
+
+  @override
+  String get grofastOrdersFilterLastWeekLabel => 'Last week';
+
+  @override
+  String get grofastOrdersFilterLastMonthLabel => 'Last month';
+
+  @override
+  String get grofastOrdersLoadErrorMessage => 'Couldn\'t load your orders.';
+
+  @override
+  String get grofastOrdersRefreshFailedMessage =>
+      'Couldn\'t refresh your orders.';
+
+  @override
+  String get grofastOrdersEmptyTitle => 'No orders yet';
+
+  @override
+  String get grofastOrdersEmptySubtitle =>
+      'Your orders will show up here once you place one.';
+
+  @override
+  String get grofastOrdersNoResultsTitle => 'Nothing here';
+
+  @override
+  String get grofastOrdersNoResultsSubtitle =>
+      'No order matches those filters. Try widening them.';
+
+  @override
+  String grofastOrderNumberLabel(String date) {
+    return 'Order $date';
+  }
+
+  @override
+  String grofastOrderItemCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count items',
+      one: '$count item',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String grofastOrderDeliveredLine(String label) {
+    return 'Delivered to $label';
+  }
+
+  @override
+  String grofastOrderDeliveringLine(String label) {
+    return 'Delivering to $label';
+  }
+
+  @override
+  String get grofastOrderCancelledLine => 'This order was cancelled';
+
+  @override
+  String get grofastTrackOrderTitle => 'Track Order';
+
+  @override
+  String get grofastOrderDetailTitle => 'Order Detail';
+
+  @override
+  String get grofastCopyTooltip => 'Copy';
+
+  @override
+  String grofastCopiedMessage(String label) {
+    return '$label copied.';
+  }
+
+  @override
+  String get grofastTrackingDetailTitle => 'Tracking Detail';
+
+  @override
+  String get grofastOrderStatusLabel => 'Status';
+
+  @override
+  String get grofastPurchaseDateLabel => 'Purchase Date';
+
+  @override
+  String get grofastOrderIdLabel => 'Order ID';
+
+  @override
+  String get grofastDeliveryOtpLabel => 'Delivery OTP';
+
+  @override
+  String get grofastPaymentIdLabel => 'Payment ID';
+
+  @override
+  String get grofastAmountPaidLabel => 'Amount Paid';
+
+  @override
+  String get grofastNoOnlinePaymentLabel => 'Not paid online';
+
+  @override
+  String get grofastRefundLabel => 'Refund';
+
+  @override
+  String get grofastOrderReceivedLabel => 'Order Received';
+
+  @override
+  String get grofastCancelOrderLabel => 'Cancel Order';
+
+  @override
+  String get grofastCancelOrderTitle => 'Cancel this order?';
+
+  @override
+  String get grofastCancelOrderMessage =>
+      'We\'ll refund anything you paid. This can\'t be undone.';
+
+  @override
+  String get grofastCancelOrderConfirmLabel => 'Cancel Order';
+
+  @override
+  String get grofastOrderCancelFailedMessage => 'Couldn\'t cancel that order.';
+
+  @override
+  String get grofastOrderStepUndatedLabel => 'Time not recorded';
+
+  @override
+  String get grofastOrderStepPendingLabel => 'Pending';
+
+  @override
+  String get grofastStatusPlacedLabel => 'Order Placed';
+
+  @override
+  String get grofastStatusOnDeliveryLabel => 'On Delivery';
+
+  @override
+  String get grofastStatusDeliveredLabel => 'Delivered';
+
+  @override
+  String get grofastStatusCancelledLabel => 'Canceled';
+
+  @override
+  String get grofastRefundPendingLabel => 'Refund on its way';
+
+  @override
+  String get grofastRefundProcessedLabel => 'Refunded';
+
+  @override
+  String get grofastRefundFailedLabel => 'Refund failed';
+
+  @override
   String get validationNameRequired => 'Please enter your name.';
 
   @override

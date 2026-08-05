@@ -180,7 +180,7 @@ class _TrackOrderContent extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const GrofastSectionHeader(title: GrofastValueConst.orderDetailTitle),
+        GrofastSectionHeader(title: GrofastValueConst.orderDetailTitle),
         const SizedBox(height: AppSpacing.lg),
         // The kit's pair: Status and Purchase Date side by side, each a
         // label over a 33-tall tinted field.
@@ -260,13 +260,13 @@ class _TrackOrderContent extends StatelessWidget {
           ),
         ],
         const SizedBox(height: AppSpacing.xl6),
-        const GrofastSectionHeader(
+        GrofastSectionHeader(
           title: GrofastValueConst.trackingDetailTitle,
         ),
         const SizedBox(height: AppSpacing.lg),
         _TrackingDetail(order: order),
         const SizedBox(height: AppSpacing.xl6),
-        const GrofastSectionHeader(title: GrofastValueConst.itemsTitle),
+        GrofastSectionHeader(title: GrofastValueConst.itemsTitle),
         const SizedBox(height: AppSpacing.lg),
         for (final item in order.items) ...[
           GrofastLineItemRow(

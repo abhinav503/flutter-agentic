@@ -332,8 +332,8 @@ class _LoadedBody extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.lg),
           if (products.isEmpty)
-            const Padding(
-              padding: EdgeInsets.only(top: AppSpacing.xl4),
+            Padding(
+              padding: const EdgeInsets.only(top: AppSpacing.xl4),
               child: EmptyState(
                 iconData: Icons.filter_alt_off_outlined,
                 title: DailyMartValueConst.categoryDetailsEmptyTitle,

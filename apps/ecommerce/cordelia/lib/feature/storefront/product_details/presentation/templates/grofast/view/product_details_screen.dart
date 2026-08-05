@@ -381,7 +381,7 @@ class _DetailsContent extends StatelessWidget {
                     reviewsSection,
                     if (detail.similarProducts.isNotEmpty) ...[
                       const SizedBox(height: AppSpacing.xl6),
-                      const GrofastSectionHeader(
+                      GrofastSectionHeader(
                         title: GrofastValueConst.popularTitle,
                       ),
                       const SizedBox(height: AppSpacing.xl2),

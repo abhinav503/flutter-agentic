@@ -180,7 +180,7 @@ class _CategoryContent extends StatelessWidget {
     final tt = Theme.of(context).textTheme;
 
     if (products.isEmpty) {
-      return const GrofastEmptyState(
+      return GrofastEmptyState(
         icon: Icons.local_grocery_store_outlined,
         title: GrofastValueConst.categoryDetailsEmptyTitle,
         subtitle: GrofastValueConst.categoryDetailsEmptySubtitle,

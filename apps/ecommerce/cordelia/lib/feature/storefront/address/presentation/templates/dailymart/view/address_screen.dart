@@ -130,7 +130,7 @@ class _AddressScreenState extends BaseScreenState<AddressScreen> {
                     _Page(
                       key: const ValueKey('loaded'),
                       body: addresses.isEmpty
-                          ? const EmptyState(
+                          ? EmptyState(
                               iconData: Icons.location_on_outlined,
                               title: DailyMartValueConst.addressEmptyTitle,
                               subtitle:

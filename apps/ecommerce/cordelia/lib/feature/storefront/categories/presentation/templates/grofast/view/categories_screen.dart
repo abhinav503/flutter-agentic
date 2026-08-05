@@ -88,7 +88,7 @@ class _CategoriesScreenState extends BaseScreenState<CategoriesScreen> {
               ),
               CategoriesLoaded(:final categories)
                   when categories.groups.every((g) => g.categories.isEmpty) =>
-                const GrofastEmptyState(
+                GrofastEmptyState(
                   icon: Icons.grid_view_rounded,
                   title: GrofastValueConst.categoriesEmptyTitle,
                   subtitle: GrofastValueConst.categoriesEmptySubtitle,

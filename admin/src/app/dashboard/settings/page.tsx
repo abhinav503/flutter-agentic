@@ -196,10 +196,9 @@ function StoreProfileCard({ storeId }: { storeId: string }) {
                 </SelectContent>
               </Select>
               <p className="text-xs text-muted-foreground">
-                The language your storefront&apos;s buttons and labels use.
-                Hindi is available on the Gravia template; other templates show
-                English for now. Shoppers can still switch languages on their
-                own device.
+                The language your storefront&apos;s buttons and labels use, on
+                every template. Shoppers can still switch languages on their
+                own device from the storefront&apos;s Profile.
               </p>
             </div>
             <Button

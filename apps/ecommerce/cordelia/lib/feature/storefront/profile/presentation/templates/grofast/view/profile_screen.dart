@@ -13,12 +13,15 @@ import 'package:cordelia/constants/value_const.dart';
 import 'package:cordelia/feature/auth/presentation/delete_account.dart';
 import 'package:cordelia/feature/auth/presentation/sign_out.dart';
 import 'package:cordelia/feature/storefront/profile/domain/entities/profile_entity.dart';
+import 'package:cordelia/feature/storefront/template/store_language.dart';
+import 'package:cordelia/l10n/store_language_switch.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_dimen_const.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_image_const.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_text_style_const.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_value_const.dart';
 import 'package:cordelia/templates/grofast/widgets/grofast_header_row.dart';
 import 'package:cordelia/templates/grofast/widgets/grofast_menu_tile.dart';
+import 'package:cordelia/templates/grofast/widgets/grofast_options_sheet_content.dart';
 import 'package:cordelia/templates/grofast/widgets/grofast_screen_body.dart';
 import 'package:cordelia/templates/grofast/widgets/grofast_sheet.dart';
 import 'package:cordelia/templates/grofast/widgets/grofast_state_views.dart';
@@ -53,6 +56,18 @@ class _ProfileScreenState extends BaseScreenState<ProfileScreen>
 
   void _openEditProfile(ProfileEntity profile) =>
       context.push(AppRoutes.editProfile, extra: profile);
+
+  /// The shopper's per-store language override — persists the pick and
+  /// applies the locale in one tap (see [StoreLanguageSwitchX]).
+  void _showLanguageSheet() => showGrofastSheet<void>(
+    title: ValueConst.languageLabel,
+    child: GrofastOptionsSheetContent<StoreLanguage>(
+      options: StoreLanguage.values,
+      labelOf: (language) => language.label,
+      selected: context.currentStoreLanguage,
+      onSelected: context.switchStoreLanguage,
+    ),
+  );
 
   void _confirmSignOut() => showGrofastConfirmSheet(
     context: context,
@@ -100,6 +115,7 @@ class _ProfileScreenState extends BaseScreenState<ProfileScreen>
                 ProfileLoaded(:final profile) => _ProfileContent(
                   profile: profile,
                   onEditProfile: () => _openEditProfile(profile),
+                  onLanguage: _showLanguageSheet,
                   onSignOut: _confirmSignOut,
                   onDeleteAccount: _confirmDeleteAccount,
                 ),
@@ -115,12 +131,14 @@ class _ProfileScreenState extends BaseScreenState<ProfileScreen>
 class _ProfileContent extends StatelessWidget {
   final ProfileEntity profile;
   final VoidCallback onEditProfile;
+  final VoidCallback onLanguage;
   final VoidCallback onSignOut;
   final VoidCallback onDeleteAccount;
 
   const _ProfileContent({
     required this.profile,
     required this.onEditProfile,
+    required this.onLanguage,
     required this.onSignOut,
     required this.onDeleteAccount,
   });
@@ -227,6 +245,14 @@ class _ProfileContent extends StatelessWidget {
             inactiveTrackColor: cs.outlineVariant,
             onChanged: (_) => _toggleDarkMode(context),
           ),
+        ),
+        const SizedBox(height: AppSpacing.base),
+        GrofastMenuTile(
+          // Material glyph, not a kit export — the kit's list has a Language
+          // row but ships no glyph for it.
+          label: ValueConst.languageLabel,
+          icon: Icons.language,
+          onTap: onLanguage,
         ),
         const SizedBox(height: AppSpacing.base),
         GrofastMenuTile(

@@ -56,8 +56,9 @@ class _DailyMartOrdersFilterSheetContentState
   @override
   DateTime get anchor => widget.anchor;
 
-  /// This pack's copy for the shared windows, in the mixin's order.
-  static const _labels = [
+  /// This pack's copy for the shared windows, in the mixin's order. A
+  /// getter, not `static const` — the labels come from L10n.
+  static List<String> get _labels => [
     DailyMartValueConst.ordersFilterLastWeekLabel,
     DailyMartValueConst.ordersFilterLastMonthLabel,
   ];

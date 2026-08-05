@@ -24,6 +24,17 @@ Companion docs: `docs/ai-rules/design.md` (pack-agnostic screen rules),
 | Theme config | `apps/ecommerce/cordelia/assets/theme/templates/dailymart_theme_config.json` (loaded at runtime by `StorefrontPage`, not at boot) |
 | Mock data | `apps/ecommerce/cordelia/assets/data/templates/dailymart/` — one folder per template, keyed by `StorefrontTemplate.wireValue`, so each pack's screens demo their own kit's copy. Threaded from the screen as a call param (`GetNotificationsParams.template`), the same way `storeId` is. Also needs its own `pubspec.yaml` line |
 
+**Language note (cordelia).** This pack is bilingual — English + Hindi.
+Every user-facing string in `DailyMartValueConst` is a getter over `L10n.current`
+(`dailymart*` keys in `apps/ecommerce/cordelia/lib/l10n/app_en.arb` /
+`app_hi.arb`); only wordless number/date formatters and data values stay
+`const`. The store doc's admin-picked `language` is the default; the
+shopper's per-store override (Profile → Language row, wired through
+`StoreLanguageSwitchX`) wins; both are applied per storefront visit by
+`StorefrontPage` via `ActiveLocaleController` — the exact lifecycle of the
+template theme swap. Never cache a localized label in a `static
+final`/`static const` list.
+
 **Sourcing note.** Every value below was sampled from the kit's **real
 screens** — `16 Home`, `17 Home Scroll`, `19 Search product`, `20 Search
 product [result]`, `21 Filter`. The kit's foundation pages lie in two ways,

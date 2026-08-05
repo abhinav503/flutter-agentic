@@ -16,7 +16,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cordelia/feature/storefront/active_store/domain/entities/active_store_entity.dart';
 import 'package:cordelia/feature/storefront/active_store/presentation/cubit/active_store_cubit.dart';
-import 'package:cordelia/feature/storefront/template/store_language.dart';
 import 'package:cordelia/feature/storefront/template/storefront_template.dart';
 import 'package:cordelia/l10n/active_locale_controller.dart';
 import 'package:cordelia/l10n/active_locale_scope.dart';
@@ -97,15 +96,13 @@ class _StorefrontPageState extends BasePageState<StorefrontPage> {
     }
   }
 
-  /// The shopper's on-device override wins over the admin's store default;
-  /// templates other than gravia have no translated copy (their pack consts
-  /// are hardcoded English), so they force English rather than half-apply
-  /// Hindi to only the shared strings.
+  /// The shopper's on-device override wins over the admin's store default.
+  /// Every template is bilingual (its pack consts are getters over
+  /// `L10n.current`), so the store language applies regardless of template.
   void _applyStoreLocale() {
-    final effective = widget.store.templateId == StorefrontTemplate.gravia
-        ? (StoreLocalePrefs.overrideFor(widget.store.storeId) ??
-              widget.store.language)
-        : StoreLanguage.en;
+    final effective =
+        StoreLocalePrefs.overrideFor(widget.store.storeId) ??
+        widget.store.language;
     _activeLocale?.apply(effective.asLocale);
   }
 

@@ -4,99 +4,127 @@ import 'package:cordelia/enums/order_status.dart';
 // For OrderPlacedAtX.asFilterDate — the order's own compact date form, so
 // the card and the filter sheet can't drift into two date formats.
 import 'package:cordelia/feature/storefront/orders/domain/entities/order_entity.dart';
+import 'package:cordelia/l10n/l10n.dart';
 
 /// Copy used only by the `dailymart` template's storefront screens — scoped
 /// here rather than the app-wide `ValueConst` so each template words its own
 /// screens (same split as `GraviaValueConst`).
+///
+/// Bilingual like gravia: every user-facing string is a getter over
+/// [L10n.current] (`dailymart*` keys in `lib/l10n/app_*.arb`), applied per
+/// store visit by `StorefrontPage`. Only wordless number/date formatters and
+/// data values stay `const`.
 abstract final class DailyMartValueConst {
   // ── Home ─────────────────────────────────────────────────────────────────
-  static const topSellerTitle = 'Top Seller🔥';
-  static const categoriesTitle = 'Shop by category';
-  static const popularProductsTitle = 'Popular Products';
-  static const seeAll = 'See all';
-  static const searchHint = 'Search for products';
-  static const homeLoadErrorMessage = "Couldn't load this store's catalog.";
-  static const noLocationSelectedLabel = 'Select a location';
+  static String get topSellerTitle => L10n.current.dailymartTopSellerTitle;
+  static String get categoriesTitle => L10n.current.dailymartCategoriesTitle;
+  static String get popularProductsTitle =>
+      L10n.current.dailymartPopularProductsTitle;
+  static String get seeAll => L10n.current.dailymartSeeAll;
+  static String get searchHint => L10n.current.dailymartSearchHint;
+  static String get homeLoadErrorMessage =>
+      L10n.current.dailymartHomeLoadErrorMessage;
+  static String get noLocationSelectedLabel =>
+      L10n.current.dailymartNoLocationSelectedLabel;
 
   // ── Notifications ────────────────────────────────────────────────────────
   /// Singular, as the kit titles it.
-  static const notificationsTitle = 'Notification';
-  static const notificationsLoadErrorMessage =
-      "Couldn't load your notifications.";
-  static const notificationsEmptyTitle = 'No notifications yet';
-  static const notificationsEmptySubtitle =
-      'Deals and order updates from this store will show up here.';
+  static String get notificationsTitle =>
+      L10n.current.dailymartNotificationsTitle;
+  static String get notificationsLoadErrorMessage =>
+      L10n.current.dailymartNotificationsLoadErrorMessage;
+  static String get notificationsEmptyTitle =>
+      L10n.current.dailymartNotificationsEmptyTitle;
+  static String get notificationsEmptySubtitle =>
+      L10n.current.dailymartNotificationsEmptySubtitle;
 
   // ── Promo card ───────────────────────────────────────────────────────────
-  static const orderNow = 'Order Now';
+  static String get orderNow => L10n.current.dailymartOrderNow;
   static String promoSubtitle(double discountPercentage) =>
-      'Enjoy discounts of up to ${discountPercentage.asPercent}%\non your order today';
+      L10n.current.dailymartPromoSubtitle(discountPercentage.asPercent);
 
   // ── Product card ─────────────────────────────────────────────────────────
   static String discountPercentOffLabel(double percentage) =>
-      '${percentage.asPercent}% off';
+      L10n.current.dailymartDiscountPercentOff(percentage.asPercent);
 
   // ── Bottom navigation (kit tab set) ──────────────────────────────────────
-  static const navHome = 'Home';
-  static const navWishlist = 'Wishlist';
-  static const navCart = 'Cart';
-  static const navProfile = 'Profile';
+  static String get navHome => L10n.current.dailymartNavHome;
+  static String get navWishlist => L10n.current.dailymartNavWishlist;
+  static String get navCart => L10n.current.dailymartNavCart;
+  static String get navProfile => L10n.current.dailymartNavProfile;
 
   // ── Search ───────────────────────────────────────────────────────────────
-  static const recentSearchTitle = 'Recent Search';
-  static const recentlyViewedTitle = 'Recently viewed';
-  static String resultsForLabel(String query) => 'Result for "$query"';
+  static String get recentSearchTitle =>
+      L10n.current.dailymartRecentSearchTitle;
+  static String get recentlyViewedTitle =>
+      L10n.current.dailymartRecentlyViewedTitle;
+  static String resultsForLabel(String query) =>
+      L10n.current.dailymartResultsForLabel(query);
 
   /// The kit's own wording — "founds", not "found" (screen `20 Search
-  /// product [result]`). Reproduced verbatim so the screen matches the pack.
-  static String resultsCountLabel(int count) => '$count founds';
-  static const searchLoadErrorMessage = "Couldn't load search.";
-  static const searchResultsErrorMessage = "Couldn't search this store.";
-  static const searchNoResultsTitle = 'No results';
+  /// product [result]`). Reproduced verbatim (in English) so the screen
+  /// matches the pack.
+  static String resultsCountLabel(int count) =>
+      L10n.current.dailymartResultsCountLabel(count);
+  static String get searchLoadErrorMessage =>
+      L10n.current.dailymartSearchLoadErrorMessage;
+  static String get searchResultsErrorMessage =>
+      L10n.current.dailymartSearchResultsErrorMessage;
+  static String get searchNoResultsTitle =>
+      L10n.current.dailymartSearchNoResultsTitle;
   static String searchNoResultsSubtitle(String query) =>
-      'Nothing in this store matches "$query" yet.';
-  static const categoryBadge = 'Category';
+      L10n.current.dailymartSearchNoResultsSubtitle(query);
+  static String get categoryBadge => L10n.current.dailymartCategoryBadge;
 
   // ── Category details (kit frames `20`/`21`) ──────────────────────────────
   /// The floating pill, and the title of the sheet it opens.
-  static const filterLabel = 'Filter';
+  static String get filterLabel => L10n.current.dailymartFilterLabel;
 
   /// The filter sheet's two field labels, each doubling as the title of the
   /// picklist sheet that field opens. The options themselves are
   /// `ProductSortOption.label` / `ProductPriceFilter.label` (app-wide
   /// `ValueConst` copy) — shared with gravia, since they name a sort model
   /// both templates run rather than anything this pack draws differently.
-  static const sortSheetTitle = 'Sort by';
-  static const priceSheetTitle = 'Price';
-  static const categoryDetailsEmptyTitle = 'Nothing here';
-  static const categoryDetailsEmptySubtitle =
-      'No products in this category match those filters.';
-  static const categoryDetailsErrorMessage = "Couldn't load this category.";
+  static String get sortSheetTitle => L10n.current.dailymartSortSheetTitle;
+  static String get priceSheetTitle => L10n.current.dailymartPriceSheetTitle;
+  static String get categoryDetailsEmptyTitle =>
+      L10n.current.dailymartCategoryDetailsEmptyTitle;
+  static String get categoryDetailsEmptySubtitle =>
+      L10n.current.dailymartCategoryDetailsEmptySubtitle;
+  static String get categoryDetailsErrorMessage =>
+      L10n.current.dailymartCategoryDetailsErrorMessage;
 
   // ── Wishlist ─────────────────────────────────────────────────────────────
   /// Titled from the nav tab ([navWishlist]) rather than its own const — the
   /// kit ships no wishlist frame, and a screen whose header disagreed with
   /// the tab that opened it would read as two different places.
-  static const wishlistEmptyTitle = 'Nothing saved yet';
-  static const wishlistEmptySubtitle =
-      'Tap the heart on a product and it will wait for you here.';
-  static const wishlistExploreAction = 'Start shopping';
+  static String get wishlistEmptyTitle =>
+      L10n.current.dailymartWishlistEmptyTitle;
+  static String get wishlistEmptySubtitle =>
+      L10n.current.dailymartWishlistEmptySubtitle;
+  static String get wishlistExploreAction =>
+      L10n.current.dailymartWishlistExploreAction;
 
   // ── Product details ──────────────────────────────────────────────────────
-  static const productDetailsTitle = 'Product Details';
-  static const descriptionsTabLabel = 'Descriptions';
-  static const reviewsTabLabel = 'Reviews';
-  static const relatedProductsTitle = 'Related Products';
-  static const selectSizeLabel = 'Select Size';
-  static const productDetailsLoadErrorMessage =
-      "Couldn't load this product's details.";
+  static String get productDetailsTitle =>
+      L10n.current.dailymartProductDetailsTitle;
+  static String get descriptionsTabLabel =>
+      L10n.current.dailymartDescriptionsTabLabel;
+  static String get reviewsTabLabel => L10n.current.dailymartReviewsTabLabel;
+  static String get relatedProductsTitle =>
+      L10n.current.dailymartRelatedProductsTitle;
+  static String get selectSizeLabel => L10n.current.dailymartSelectSizeLabel;
+  static String get productDetailsLoadErrorMessage =>
+      L10n.current.dailymartProductDetailsLoadErrorMessage;
+  // Wordless ('/kg'), so no arb key.
   static String perUnitSuffix(String unit) => '/$unit';
 
   // ── Add to cart ──────────────────────────────────────────────────────────
-  static const addToCart = 'Add To Cart';
-  static const addToCartSheetTitle = 'Add To Cart';
+  static String get addToCart => L10n.current.dailymartAddToCart;
+  static String get addToCartSheetTitle =>
+      L10n.current.dailymartAddToCartSheetTitle;
   static String addedToCartMessage(String name, int quantity) =>
-      'Added $quantity × $name to your cart.';
+      L10n.current.dailymartAddedToCartMessage(quantity, name);
 
   /// The Reviews tab (kit screen `23 Review product`). The kit's own
   /// numbers were placeholders until reviews landed; these two formatters
@@ -104,158 +132,200 @@ abstract final class DailyMartValueConst {
   /// beside a "5 Star" bar row. The tab's review count reads through the
   /// app-level `ValueConst.reviewCountLabel`, since that wording is the
   /// shared reviews feature's, not this pack's.
+  // Wordless ('5.0/5.0'), so no arb key.
   static String reviewScoreLabel(double average) =>
       '${average.toStringAsFixed(1)}/5.0';
-  static String starRowLabel(int stars) => '$stars Star';
+  static String starRowLabel(int stars) =>
+      L10n.current.dailymartStarRowLabel(stars);
 
   // ── Cart ─────────────────────────────────────────────────────────────────
-  static const myCartTitle = 'My Cart';
-  static const couponHint = 'Enter coupon code';
-  static const couponRemoveLabel = 'Remove';
-  static const couponDetailLabel = 'Coupon';
-  static String couponAppliedLabel(String code) => '$code applied';
-  static String couponLineLabel(String code) => 'Coupon ($code)';
+  static String get myCartTitle => L10n.current.dailymartMyCartTitle;
+  static String get couponHint => L10n.current.dailymartCouponHint;
+  static String get couponRemoveLabel =>
+      L10n.current.dailymartCouponRemoveLabel;
+  static String get couponDetailLabel =>
+      L10n.current.dailymartCouponDetailLabel;
+  static String couponAppliedLabel(String code) =>
+      L10n.current.dailymartCouponApplied(code);
+  static String couponLineLabel(String code) =>
+      L10n.current.dailymartCouponLine(code);
+  // Wordless ('CODE (- ₹50)'), so no arb key.
   static String couponDetailValue(String code, String discount) =>
       '$code (- $discount)';
-  static const subTotalLabel = 'Sub total';
-  static const deliveryLabel = 'Delivery';
-  static const deliveryFreeLabel = 'Free';
-  static const discountLabel = 'Discount';
-  static const totalCostLabel = 'Total cost';
-  static const proceedToCheckoutLabel = 'Proceed to Checkout';
-  static const cartEmptyTitle = 'Your cart is empty';
-  static const cartEmptySubtitle =
-      'Products you add will show up here, ready to check out.';
-  static const cartExploreAction = 'Start shopping';
-  static const removedFromCartMessage = 'Removed from your cart.';
+  static String get subTotalLabel => L10n.current.dailymartSubTotalLabel;
+  static String get deliveryLabel => L10n.current.dailymartDeliveryLabel;
+  static String get deliveryFreeLabel =>
+      L10n.current.dailymartDeliveryFreeLabel;
+  static String get discountLabel => L10n.current.dailymartDiscountLabel;
+  static String get totalCostLabel => L10n.current.dailymartTotalCostLabel;
+  static String get proceedToCheckoutLabel =>
+      L10n.current.dailymartProceedToCheckoutLabel;
+  static String get cartEmptyTitle => L10n.current.dailymartCartEmptyTitle;
+  static String get cartEmptySubtitle =>
+      L10n.current.dailymartCartEmptySubtitle;
+  static String get cartExploreAction =>
+      L10n.current.dailymartCartExploreAction;
+  static String get removedFromCartMessage =>
+      L10n.current.dailymartRemovedFromCartMessage;
 
   // ── Checkout (kit frames `29 Checkout` / `34 Order Successfully`) ─────────
   /// One title for both states — the kit keeps the header row identical
   /// across the form and the success frame.
-  static const checkoutTitle = 'Checkout';
-  static const shippingAddressLabel = 'Shipping Address';
-  static const orderListLabel = 'Order List';
-  static const continueToPaymentLabel = 'Continue to Payment';
+  static String get checkoutTitle => L10n.current.dailymartCheckoutTitle;
+  static String get shippingAddressLabel =>
+      L10n.current.dailymartShippingAddressLabel;
+  static String get orderListLabel => L10n.current.dailymartOrderListLabel;
+  static String get continueToPaymentLabel =>
+      L10n.current.dailymartContinueToPaymentLabel;
 
   /// Beside each order line, in the slot the Cart's stepper occupies — the
   /// quantity is fixed by this point, so it reads rather than adjusts.
+  // Wordless ('× 2'), so no arb key.
   static String orderLineQuantity(int quantity) => '× $quantity';
 
-  static const orderPlacedTitle = 'Payment Successful!';
-  static const orderPlacedMessage =
-      "Thank you for your purchase! We're excited to let you know that your "
-      'payment has been successfully processed. 🎉';
+  static String get orderPlacedTitle => L10n.current.dailymartOrderPlacedTitle;
+  static String get orderPlacedMessage =>
+      L10n.current.dailymartOrderPlacedMessage;
 
   /// The success frame's one CTA. The kit stacks this over an "E-Receipt"
   /// outline button; that half is dropped — there is no receipt document to
   /// open, and a second CTA that only apologises weakens the real one.
-  static const trackOrderLabel = 'Track My Order';
+  static String get trackOrderLabel => L10n.current.dailymartTrackOrderLabel;
 
   /// The docked cart status pill on screens pushed outside the shell (the
   /// cart tab itself is the in-shell affordance).
   static String cartSummaryLabel(int count, double total) =>
-      '$count ${count.plural('item')} | ${total.asPrice}';
-  static const viewCartLabel = 'View Cart';
+      L10n.current.dailymartCartSummary(count, total.asPrice);
+  static String get viewCartLabel => L10n.current.dailymartViewCartLabel;
 
   // ── Profile ──────────────────────────────────────────────────────────────
   /// The kit groups the rows under "General" and "Preferencess" — the second
   /// is a kit typo and is not reproduced.
-  static const generalSectionTitle = 'General';
-  static const preferencesSectionTitle = 'Preferences';
+  static String get generalSectionTitle =>
+      L10n.current.dailymartGeneralSectionTitle;
+  static String get preferencesSectionTitle =>
+      L10n.current.dailymartPreferencesSectionTitle;
 
   /// The row set is gravia's, not the kit's — same titles, same actions,
   /// only the row silhouette is this pack's (the kit's own list offers
   /// Security / Language / Help & Support, none of which this app has).
-  static const editProfileLabel = 'Edit Profile';
-  static const changePasswordLabel = 'Change Password';
-  static const myOrdersLabel = 'My Orders';
-  static const myAddressLabel = 'My Address';
-  static const darkModeLabel = 'Dark Mode';
-  static const privacyPolicyLabel = 'Privacy Policy';
-  static const termsAndConditionsLabel = 'Terms & Conditions';
-  static const logoutLabel = 'Logout';
-  static const logoutTitle = 'Log out?';
-  static const logoutConfirmMessage =
-      "You'll need to sign in again to place an order or track one.";
-  static const profileLoadErrorMessage = "Couldn't load your profile.";
+  static String get editProfileLabel => L10n.current.dailymartEditProfileLabel;
+  static String get changePasswordLabel =>
+      L10n.current.dailymartChangePasswordLabel;
+  static String get myOrdersLabel => L10n.current.dailymartMyOrdersLabel;
+  static String get myAddressLabel => L10n.current.dailymartMyAddressLabel;
+  static String get darkModeLabel => L10n.current.dailymartDarkModeLabel;
+  static String get privacyPolicyLabel =>
+      L10n.current.dailymartPrivacyPolicyLabel;
+  static String get termsAndConditionsLabel =>
+      L10n.current.dailymartTermsAndConditionsLabel;
+  static String get logoutLabel => L10n.current.dailymartLogoutLabel;
+  static String get logoutTitle => L10n.current.dailymartLogoutTitle;
+  static String get logoutConfirmMessage =>
+      L10n.current.dailymartLogoutConfirmMessage;
+  static String get profileLoadErrorMessage =>
+      L10n.current.dailymartProfileLoadErrorMessage;
 
   // ── Edit Profile ─────────────────────────────────────────────────────────
-  static const editProfileTitle = 'Edit Profile';
-  static const fullNameLabel = 'Full Name';
-  static const fullNameHint = 'Enter your full name';
-  static const emailLabel = 'Email';
-  static const emailHint = 'you@example.com';
-  static const phoneNumberLabel = 'Phone Number';
-  static const phoneNumberHint = 'Enter your phone number';
+  static String get editProfileTitle => L10n.current.dailymartEditProfileTitle;
+  static String get fullNameLabel => L10n.current.dailymartFullNameLabel;
+  static String get fullNameHint => L10n.current.dailymartFullNameHint;
+  static String get emailLabel => L10n.current.dailymartEmailLabel;
+  static String get emailHint => L10n.current.dailymartEmailHint;
+  static String get phoneNumberLabel => L10n.current.dailymartPhoneNumberLabel;
+  static String get phoneNumberHint => L10n.current.dailymartPhoneNumberHint;
 
   /// The kit's own CTA wording on this screen.
-  static const saveChangesLabel = 'Save Changes';
-  static const changePhotoTitle = 'Change Photo';
-  static const takePhotoLabel = 'Take Photo';
-  static const chooseFromGalleryLabel = 'Choose from Gallery';
-  static const avatarPickerMobileOnlyMessage =
-      'Choosing a photo is only available on mobile.';
+  static String get saveChangesLabel => L10n.current.dailymartSaveChangesLabel;
+  static String get changePhotoTitle => L10n.current.dailymartChangePhotoTitle;
+  static String get takePhotoLabel => L10n.current.dailymartTakePhotoLabel;
+  static String get chooseFromGalleryLabel =>
+      L10n.current.dailymartChooseFromGalleryLabel;
+  static String get avatarPickerMobileOnlyMessage =>
+      L10n.current.dailymartAvatarPickerMobileOnlyMessage;
 
   // ── Change Password ──────────────────────────────────────────────────────
   /// The kit's Profile list has no Change Password screen behind its
   /// Security row, so this reuses gravia's wording — only the silhouette
   /// (header row, bordered fields, floating CTA) is this pack's.
-  static const changePasswordTitle = 'Change Password';
-  static const currentPasswordLabel = 'Current Password';
-  static const currentPasswordHint = 'Enter your current password';
-  static const newPasswordLabel = 'New Password';
-  static const newPasswordHint = 'Enter your new password';
-  static const confirmNewPasswordLabel = 'Confirm New Password';
-  static const confirmNewPasswordHint = 'Re-enter your new password';
-  static const updatePasswordButtonLabel = 'Update Password';
-  static const passwordUpdatedMessage = 'Your password has been updated.';
+  static String get changePasswordTitle =>
+      L10n.current.dailymartChangePasswordTitle;
+  static String get currentPasswordLabel =>
+      L10n.current.dailymartCurrentPasswordLabel;
+  static String get currentPasswordHint =>
+      L10n.current.dailymartCurrentPasswordHint;
+  static String get newPasswordLabel => L10n.current.dailymartNewPasswordLabel;
+  static String get newPasswordHint => L10n.current.dailymartNewPasswordHint;
+  static String get confirmNewPasswordLabel =>
+      L10n.current.dailymartConfirmNewPasswordLabel;
+  static String get confirmNewPasswordHint =>
+      L10n.current.dailymartConfirmNewPasswordHint;
+  static String get updatePasswordButtonLabel =>
+      L10n.current.dailymartUpdatePasswordButtonLabel;
+  static String get passwordUpdatedMessage =>
+      L10n.current.dailymartPasswordUpdatedMessage;
 
   // ── Select Address ───────────────────────────────────────────────────────
-  static const selectAddressTitle = 'Select Address';
-  static const addNewAddressLabel = 'Add New Address';
-  static const addressLoadErrorMessage = "Couldn't load your addresses.";
-  static const addressSaveFailedMessage = "Couldn't save that address.";
-  static const addressEmptyTitle = 'No saved addresses';
-  static const addressEmptySubtitle =
-      'Add one to get this store delivering to your door.';
-  static const addressDeleteFailedMessage = "Couldn't delete that address.";
-  static const editAddressTooltip = 'Edit address';
-  static const deleteAddressTitle = 'Delete this address?';
-  static const deleteAddressMessage =
-      "It'll be removed from your saved addresses.";
-  static const deleteLabel = 'Delete';
+  static String get selectAddressTitle =>
+      L10n.current.dailymartSelectAddressTitle;
+  static String get addNewAddressLabel =>
+      L10n.current.dailymartAddNewAddressLabel;
+  static String get addressLoadErrorMessage =>
+      L10n.current.dailymartAddressLoadErrorMessage;
+  static String get addressSaveFailedMessage =>
+      L10n.current.dailymartAddressSaveFailedMessage;
+  static String get addressEmptyTitle =>
+      L10n.current.dailymartAddressEmptyTitle;
+  static String get addressEmptySubtitle =>
+      L10n.current.dailymartAddressEmptySubtitle;
+  static String get addressDeleteFailedMessage =>
+      L10n.current.dailymartAddressDeleteFailedMessage;
+  static String get editAddressTooltip =>
+      L10n.current.dailymartEditAddressTooltip;
+  static String get deleteAddressTitle =>
+      L10n.current.dailymartDeleteAddressTitle;
+  static String get deleteAddressMessage =>
+      L10n.current.dailymartDeleteAddressMessage;
+  static String get deleteLabel => L10n.current.dailymartDeleteLabel;
 
   // ── Add / Edit Address ───────────────────────────────────────────────────
   // Deliberately a second copy of gravia's labels rather than a shared set:
   // pack copy lives with the pack, so this template can reword a field
   // without editing gravia's screens (spec sheet §13).
-  static const addAddressTitle = 'Add New Address';
-  static const editAddressTitle = 'Edit Address';
-  static const addressNameLabel = 'Name';
-  static const addressNameHint = 'e.g. Mark Shelby';
-  static const addressLine1Label = 'Address Line 1';
-  static const addressLine1Hint = 'House no., street name';
-  static const addressLine2Label = 'Address Line 2';
-  static const addressLine2Hint = 'Apartment, suite, etc. (optional)';
-  static const landmarkLabel = 'Landmark';
-  static const landmarkHint = 'Nearby landmark (optional)';
-  static const cityLabel = 'City';
-  static const cityHint = 'e.g. New Delhi';
-  static const stateLabel = 'State';
-  static const stateHint = 'e.g. Delhi (optional)';
-  static const countryLabel = 'Country';
-  static const selectCountryTitle = 'Select Country';
-  static const postalCodeLabel = 'Postal Code';
-  static const postalCodeHint = 'e.g. 62639';
-  static const addressTagLabel = 'Tag';
-  static const addressTagHint = 'e.g. Home, Office';
-  static const addAddressButtonLabel = 'Add Address';
-  static const updateAddressButtonLabel = 'Update Address';
-  static const requiredFieldErrorMessage = 'This field is required';
+  static String get addAddressTitle => L10n.current.dailymartAddAddressTitle;
+  static String get editAddressTitle => L10n.current.dailymartEditAddressTitle;
+  static String get addressNameLabel => L10n.current.dailymartAddressNameLabel;
+  static String get addressNameHint => L10n.current.dailymartAddressNameHint;
+  static String get addressLine1Label =>
+      L10n.current.dailymartAddressLine1Label;
+  static String get addressLine1Hint => L10n.current.dailymartAddressLine1Hint;
+  static String get addressLine2Label =>
+      L10n.current.dailymartAddressLine2Label;
+  static String get addressLine2Hint => L10n.current.dailymartAddressLine2Hint;
+  static String get landmarkLabel => L10n.current.dailymartLandmarkLabel;
+  static String get landmarkHint => L10n.current.dailymartLandmarkHint;
+  static String get cityLabel => L10n.current.dailymartCityLabel;
+  static String get cityHint => L10n.current.dailymartCityHint;
+  static String get stateLabel => L10n.current.dailymartStateLabel;
+  static String get stateHint => L10n.current.dailymartStateHint;
+  static String get countryLabel => L10n.current.dailymartCountryLabel;
+  static String get selectCountryTitle =>
+      L10n.current.dailymartSelectCountryTitle;
+  static String get postalCodeLabel => L10n.current.dailymartPostalCodeLabel;
+  static String get postalCodeHint => L10n.current.dailymartPostalCodeHint;
+  static String get addressTagLabel => L10n.current.dailymartAddressTagLabel;
+  static String get addressTagHint => L10n.current.dailymartAddressTagHint;
+  static String get addAddressButtonLabel =>
+      L10n.current.dailymartAddAddressButtonLabel;
+  static String get updateAddressButtonLabel =>
+      L10n.current.dailymartUpdateAddressButtonLabel;
+  static String get requiredFieldErrorMessage =>
+      L10n.current.dailymartRequiredFieldErrorMessage;
 
   // City stopped being a picklist when geo prefill landed — real city names
   // no fixed list could hold. Country stays bounded; India first, since geo
-  // prefill and the pincode lookup are India-centric.
+  // prefill and the pincode lookup are India-centric. Data values, not copy
+  // — what the picklist stores on the address doc — so locale-independent.
   static const addressFormCountries = <String>[
     'India',
     'United States',
@@ -265,12 +335,16 @@ abstract final class DailyMartValueConst {
   ];
 
   // ── My Orders (kit frame `35`) ───────────────────────────────────────────
-  static const myOrdersTitle = 'My Orders';
-  static const ordersSearchHint = 'What are you looking for...';
-  static const ordersFilterAllLabel = 'All';
-  static const ordersFilterActiveLabel = 'Active';
-  static const ordersFilterCompletedLabel = 'Completed';
-  static const ordersFilterCancelledLabel = 'Cancelled';
+  static String get myOrdersTitle => L10n.current.dailymartMyOrdersTitle;
+  static String get ordersSearchHint => L10n.current.dailymartOrdersSearchHint;
+  static String get ordersFilterAllLabel =>
+      L10n.current.dailymartOrdersFilterAllLabel;
+  static String get ordersFilterActiveLabel =>
+      L10n.current.dailymartOrdersFilterActiveLabel;
+  static String get ordersFilterCompletedLabel =>
+      L10n.current.dailymartOrdersFilterCompletedLabel;
+  static String get ordersFilterCancelledLabel =>
+      L10n.current.dailymartOrdersFilterCancelledLabel;
 
   /// The card's second line. The kit shows a product *category* there, which
   /// an order doesn't have — an order is a basket, not a product — so it
@@ -282,7 +356,7 @@ abstract final class DailyMartValueConst {
   /// time) for the same reason — Track Order's timeline carries the full
   /// stamp for anyone who needs the hour.
   static String orderSummaryLabel(int count, DateTime placedAt) =>
-      '$count ${count.plural('item')} · ${placedAt.asFilterDate}';
+      L10n.current.dailymartOrderSummaryLabel(count, placedAt.asFilterDate);
 
   /// The order card's status pill. Its own copy rather than gravia's
   /// `GraviaOrderStatusLabelX` wording — and the same four words this
@@ -298,75 +372,95 @@ abstract final class DailyMartValueConst {
   /// The floating Filter pill's sheet. Dates only — the status axis is
   /// already on the screen as the chip row, and asking for it twice lets the
   /// two disagree.
-  static const ordersDateRangeLabel = 'Date Range';
-  static const ordersAllTimeLabel = 'All time';
+  static String get ordersDateRangeLabel =>
+      L10n.current.dailymartOrdersDateRangeLabel;
+  static String get ordersAllTimeLabel =>
+      L10n.current.dailymartOrdersAllTimeLabel;
+  // Wordless ('Mar 01 - Mar 09'), so no arb key.
   static String ordersDateRangeValue(DateTime from, DateTime to) =>
       '${from.asFilterDate} - ${to.asFilterDate}';
-  static const ordersFilterLastWeekLabel = 'Last week';
-  static const ordersFilterLastMonthLabel = 'Last month';
+  static String get ordersFilterLastWeekLabel =>
+      L10n.current.dailymartOrdersFilterLastWeekLabel;
+  static String get ordersFilterLastMonthLabel =>
+      L10n.current.dailymartOrdersFilterLastMonthLabel;
 
   /// Shared by both filter sheets (My Orders' and Category Details'), and
   /// the kit's own wording on frame `21` — "Apply", not gravia's "Apply
   /// Filter".
-  static const resetLabel = 'Reset';
-  static const applyLabel = 'Apply';
+  static String get resetLabel => L10n.current.dailymartResetLabel;
+  static String get applyLabel => L10n.current.dailymartApplyLabel;
 
-  static const ordersLoadErrorMessage = "Couldn't load your orders.";
-  static const ordersEmptyTitle = 'No orders yet';
-  static const ordersEmptySubtitle =
-      'Your orders from this store will show up here.';
-  static const ordersNoResultsTitle = 'Nothing here';
-  static const ordersNoResultsSubtitle =
-      'No orders match that search or filter.';
-  static const orderCancelFailedMessage = "Couldn't cancel that order.";
-  static const ordersRefreshFailedMessage = "Couldn't refresh your orders.";
+  static String get ordersLoadErrorMessage =>
+      L10n.current.dailymartOrdersLoadErrorMessage;
+  static String get ordersEmptyTitle => L10n.current.dailymartOrdersEmptyTitle;
+  static String get ordersEmptySubtitle =>
+      L10n.current.dailymartOrdersEmptySubtitle;
+  static String get ordersNoResultsTitle =>
+      L10n.current.dailymartOrdersNoResultsTitle;
+  static String get ordersNoResultsSubtitle =>
+      L10n.current.dailymartOrdersNoResultsSubtitle;
+  static String get orderCancelFailedMessage =>
+      L10n.current.dailymartOrderCancelFailedMessage;
+  static String get ordersRefreshFailedMessage =>
+      L10n.current.dailymartOrdersRefreshFailedMessage;
 
   // ── Track Order (kit frame `36`) ─────────────────────────────────────────
-  static const trackOrderTitle = 'Track Order';
-  static const trackOrderAction = 'Track Order';
-  static const orderDetailsTitle = 'Order Details';
-  static const orderIdLabel = 'Order ID';
-  static const deliveryOtpLabel = 'Delivery OTP';
-  static const paymentTitle = 'Payment';
-  static const amountPaidLabel = 'Amount Paid';
-  static const paymentIdLabel = 'Payment ID';
-  static const refundLabel = 'Refund';
-  static const copiedMessage = 'Copied';
+  static String get trackOrderTitle => L10n.current.dailymartTrackOrderTitle;
+  static String get trackOrderAction => L10n.current.dailymartTrackOrderAction;
+  static String get orderDetailsTitle =>
+      L10n.current.dailymartOrderDetailsTitle;
+  static String get orderIdLabel => L10n.current.dailymartOrderIdLabel;
+  static String get deliveryOtpLabel => L10n.current.dailymartDeliveryOtpLabel;
+  static String get paymentTitle => L10n.current.dailymartPaymentTitle;
+  static String get amountPaidLabel => L10n.current.dailymartAmountPaidLabel;
+  static String get paymentIdLabel => L10n.current.dailymartPaymentIdLabel;
+  static String get refundLabel => L10n.current.dailymartRefundLabel;
+  static String get copiedMessage => L10n.current.dailymartCopiedMessage;
 
   /// Shown in place of a payment id when the order went through the
   /// test-mode payment-less path — there is no gateway reference to quote.
-  static const noOnlinePaymentLabel = 'Not paid online';
+  static String get noOnlinePaymentLabel =>
+      L10n.current.dailymartNoOnlinePaymentLabel;
 
   /// The shopper-facing refund note; null for [RefundStatus.none], where no
   /// money was ever taken back. This pack's own wording rather than
   /// gravia's `GraviaRefundStatusLabelX`.
   static String? refundStatusLabel(RefundStatus status) => switch (status) {
     RefundStatus.none => null,
-    RefundStatus.pending => 'Processing',
-    RefundStatus.processed => 'Refunded',
-    RefundStatus.failed => 'Refund failed',
+    RefundStatus.pending => L10n.current.dailymartRefundPendingLabel,
+    RefundStatus.processed => L10n.current.dailymartRefundProcessedLabel,
+    RefundStatus.failed => L10n.current.dailymartRefundFailedLabel,
   };
-  static const orderStatusTitle = 'Order Status';
-  static const orderStepPlacedLabel = 'Order Placed';
-  static const orderStepOnTheWayLabel = 'On the way';
-  static const orderStepDeliveredLabel = 'Delivered';
-  static const orderStepCancelledLabel = 'Cancelled';
+  static String get orderStatusTitle => L10n.current.dailymartOrderStatusTitle;
+  static String get orderStepPlacedLabel =>
+      L10n.current.dailymartOrderStepPlacedLabel;
+  static String get orderStepOnTheWayLabel =>
+      L10n.current.dailymartOrderStepOnTheWayLabel;
+  static String get orderStepDeliveredLabel =>
+      L10n.current.dailymartOrderStepDeliveredLabel;
+  static String get orderStepCancelledLabel =>
+      L10n.current.dailymartOrderStepCancelledLabel;
 
   /// Shown under a step the order has reached but that predates the server
   /// recording transition times — see `Order.statusHistory` in
   /// `admin/src/lib/types.ts`.
-  static const orderStepUndatedLabel = 'Time not recorded';
-  static const orderStepPendingLabel = 'Pending';
-  static const cancelOrderLabel = 'Cancel Order';
-  static const cancelOrderTitle = 'Cancel this order?';
-  static const cancelOrderMessage =
-      "You'll be refunded if the order was paid for.";
-  static const cancelOrderConfirmLabel = 'Cancel Order';
+  static String get orderStepUndatedLabel =>
+      L10n.current.dailymartOrderStepUndatedLabel;
+  static String get orderStepPendingLabel =>
+      L10n.current.dailymartOrderStepPendingLabel;
+  static String get cancelOrderLabel => L10n.current.dailymartCancelOrderLabel;
+  static String get cancelOrderTitle => L10n.current.dailymartCancelOrderTitle;
+  static String get cancelOrderMessage =>
+      L10n.current.dailymartCancelOrderMessage;
+  static String get cancelOrderConfirmLabel =>
+      L10n.current.dailymartCancelOrderConfirmLabel;
 
   /// The kit's timeline stamp — "Dec, 20 2025 - 9.30 AM". Its own formatter
   /// rather than `OrderPlacedAtX`, which renders gravia's card format
   /// ("Mon, Mar 9, 2026 at 10:15 AM"); the two packs date the same value
-  /// differently, so the format belongs with the pack's copy.
+  /// differently, so the format belongs with the pack's copy. Latin month
+  /// abbreviations in both locales — dates keep one script, like every
+  /// other date format in the app.
   static String orderStepAt(DateTime at) {
     const months = [
       'Jan',
@@ -390,5 +484,5 @@ abstract final class DailyMartValueConst {
   }
 
   // ── Cancel / confirm ─────────────────────────────────────────────────────
-  static const cancelLabel = 'Cancel';
+  static String get cancelLabel => L10n.current.dailymartCancelLabel;
 }

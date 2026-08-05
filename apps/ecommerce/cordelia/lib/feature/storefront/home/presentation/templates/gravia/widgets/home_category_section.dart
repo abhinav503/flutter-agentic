@@ -15,6 +15,12 @@ import '../../../../domain/entities/category_entity.dart';
 /// Category Details; `onSeeAllCategories` jumps the shell to the
 /// Categories tab.
 class HomeCategorySection extends StatelessWidget {
+  /// A rail item is intrinsically sized, so without a bound a long
+  /// admin-authored name ("Tea, Coffee & Health Drinks") widens its tile
+  /// instead of wrapping — this fixes the tile width a little past the
+  /// 64 circle so the label breaks into (up to) two centred lines.
+  static const _tileWidth = 80.0;
+
   final List<CategoryEntity> categories;
   final VoidCallback? onSeeAllCategories;
   final ValueChanged<CategoryEntity>? onCategoryTap;
@@ -47,20 +53,26 @@ class HomeCategorySection extends StatelessWidget {
       ),
       itemSpacing: AppSpacing.lg,
       itemCount: categories.length,
-      itemBuilder: (context, i) => CategoryTile(
-        // Tighter than the default AppSpacing.base padding so the
-        // PNG fills more of the circle without growing the tile.
-        imagePadding: const EdgeInsets.all(AppSpacing.xs),
-        image: AppNetworkImage(
-          url: categories[i].imageUrl,
-          fit: BoxFit.contain,
+      itemBuilder: (context, i) => SizedBox(
+        width: _tileWidth,
+        child: CategoryTile(
+          // Tighter than the default AppSpacing.base padding so the
+          // PNG fills more of the circle without growing the tile.
+          imagePadding: const EdgeInsets.all(AppSpacing.xs),
+          image: AppNetworkImage(
+            url: categories[i].imageUrl,
+            fit: BoxFit.contain,
+          ),
+          label: categories[i].name,
+          // Same call as the Categories screen's grid: long names show as
+          // two centred lines instead of truncating.
+          labelMaxLines: 2,
+          labelStyle: GraviaTextStyleConst.textSmRegular(tt),
+          backgroundColor: cs.surfaceContainerLow,
+          onTap: onCategoryTap == null
+              ? null
+              : () => onCategoryTap!(categories[i]),
         ),
-        label: categories[i].name,
-        labelStyle: GraviaTextStyleConst.textSmRegular(tt),
-        backgroundColor: cs.surfaceContainerLow,
-        onTap: onCategoryTap == null
-            ? null
-            : () => onCategoryTap!(categories[i]),
       ),
     );
   }

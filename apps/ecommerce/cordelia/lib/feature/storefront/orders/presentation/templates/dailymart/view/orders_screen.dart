@@ -180,7 +180,9 @@ class _Controls extends StatelessWidget {
 
   const _Controls({required this.controller, required this.selected});
 
-  static const _chips = <(OrdersStatusFilter, String)>[
+  // A getter, not `static const`: the labels come from L10n and a
+  // class-lifetime cache would pin whichever language was active first.
+  static List<(OrdersStatusFilter, String)> get _chips => [
     (OrdersStatusFilter.all, DailyMartValueConst.ordersFilterAllLabel),
     (OrdersStatusFilter.active, DailyMartValueConst.ordersFilterActiveLabel),
     (

@@ -13,10 +13,13 @@ import 'package:cordelia/constants/app_routes.dart';
 import 'package:cordelia/constants/value_const.dart';
 import 'package:cordelia/feature/auth/presentation/delete_account.dart';
 import 'package:cordelia/feature/auth/presentation/sign_out.dart';
+import 'package:cordelia/feature/storefront/template/store_language.dart';
+import 'package:cordelia/l10n/store_language_switch.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_text_style_const.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_image_const.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_value_const.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_menu_tile.dart';
+import 'package:cordelia/templates/dailymart/widgets/dailymart_radio_sheet_content.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_screen_body.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_sheet.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_top_switcher.dart';
@@ -46,6 +49,18 @@ class _ProfileScreenState extends BaseScreenState<ProfileScreen>
     message: ValueConst.deleteAccountConfirmMessage,
     confirmLabel: ValueConst.deleteAccountLabel,
     onConfirm: deleteAccount,
+  );
+
+  /// The shopper's per-store language override — persists the pick and
+  /// applies the locale in one tap (see [StoreLanguageSwitchX]).
+  void _showLanguageSheet() => showDailyMartSheet<void>(
+    title: ValueConst.languageLabel,
+    child: DailyMartRadioSheetContent<StoreLanguage>(
+      options: StoreLanguage.values,
+      labelOf: (language) => language.label,
+      selected: context.currentStoreLanguage,
+      onSelected: context.switchStoreLanguage,
+    ),
   );
 
   /// Pushes the Edit Profile form prefilled from [profile]; if it returned a
@@ -157,6 +172,14 @@ class _ProfileScreenState extends BaseScreenState<ProfileScreen>
                                     isDark ? ThemeMode.dark : ThemeMode.light,
                                   ),
                             ),
+                          ),
+                          DailyMartMenuTile(
+                            // Material glyph, not a kit export — the kit's
+                            // list has a Language row but ships no glyph for
+                            // it.
+                            icon: Icons.language,
+                            label: ValueConst.languageLabel,
+                            onTap: _showLanguageSheet,
                           ),
                           DailyMartMenuTile(
                             asset: DailyMartImageConst.menuShieldCheck,

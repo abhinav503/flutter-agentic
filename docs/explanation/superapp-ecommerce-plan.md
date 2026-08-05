@@ -2233,3 +2233,21 @@ Two features landed together; both ride existing per-store mechanisms.
   location chrome (pure pack work on the same bloc), standalone
   `apps/ecommerce/gravia`'s old address feature (unknown JSON keys are
   ignored), Hindi for catalog content (admin data stays as typed).
+
+### Hindi extended to dailymart + grofast (2026-08-05, same day)
+
+All three templates are now bilingual. `DailyMartValueConst` (~150 keys) and
+`GrofastValueConst` (~180 keys) converted to `L10n.current` getters with
+`dailymart*`/`grofast*` arb keys (707 keys total per locale, full en/hi
+parity); `StorefrontPage._applyStoreLocale` lost its gravia-only gate — the
+store language now applies on every template. Both packs' Profiles gained
+the Language row (shopper per-store override), deduplicated with gravia's
+onto `StoreLanguageSwitchX` (`lib/l10n/store_language_switch.dart`) and
+app-level `ValueConst.languageLabel/English/Hindi`. The sweep surfaced and
+fixed two more static-cache-of-copy sites beyond the shell `_tabs` class:
+dailymart's orders status chips and both packs' orders date-filter quick-pick
+labels (all now getters). 38 const-context drops across 17 pack files.
+Admin Settings' language helper text no longer names gravia as the only
+Hindi template. Wordless formatters (`perUnitSuffix`, `orderLineQuantity`,
+`reviewScoreLabel`, date formats incl. `orderStepAt`'s Latin month
+abbreviations) deliberately stay pure Dart in both locales.
