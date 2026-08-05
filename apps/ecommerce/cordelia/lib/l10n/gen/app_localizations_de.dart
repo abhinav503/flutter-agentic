@@ -1060,14 +1060,14 @@ class AppLocalizationsDe extends AppLocalizations {
   String get graviaNoLocationSelectedLabel => 'Kein Ort ausgewählt';
 
   @override
-  String get graviaNotificationsTitle => 'Benachrichtigungen';
+  String get graviaNotificationsTitle => 'Mitteilungen';
 
   @override
   String get graviaNotificationsLoadErrorMessage =>
-      'Beim Laden Ihrer Benachrichtigungen ist ein Fehler aufgetreten.';
+      'Beim Laden Ihrer Mitteilungen ist ein Fehler aufgetreten.';
 
   @override
-  String get graviaNotificationsEmptyTitle => 'Noch keine Benachrichtigungen';
+  String get graviaNotificationsEmptyTitle => 'Noch keine Mitteilungen';
 
   @override
   String get graviaNotificationsEmptySubtitle =>
@@ -1096,15 +1096,14 @@ class AppLocalizationsDe extends AppLocalizations {
   String get dailymartNoLocationSelectedLabel => 'Standort wählen';
 
   @override
-  String get dailymartNotificationsTitle => 'Benachrichtigung';
+  String get dailymartNotificationsTitle => 'Mitteilungen';
 
   @override
   String get dailymartNotificationsLoadErrorMessage =>
-      'Ihre Benachrichtigungen konnten nicht geladen werden.';
+      'Ihre Mitteilungen konnten nicht geladen werden.';
 
   @override
-  String get dailymartNotificationsEmptyTitle =>
-      'Noch keine Benachrichtigungen';
+  String get dailymartNotificationsEmptyTitle => 'Noch keine Mitteilungen';
 
   @override
   String get dailymartNotificationsEmptySubtitle =>
@@ -1955,7 +1954,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get grofastProfileTitle => 'Profil';
 
   @override
-  String get grofastNotificationTileLabel => 'Benachrichtigung';
+  String get grofastNotificationTileLabel => 'Mitteilungen';
 
   @override
   String get grofastOrdersTileLabel => 'Meine Bestellungen';
@@ -2080,13 +2079,13 @@ class AppLocalizationsDe extends AppLocalizations {
   String get grofastWishlistExploreAction => 'Jetzt einkaufen';
 
   @override
-  String get grofastNotificationsTitle => 'Benachrichtigungen';
+  String get grofastNotificationsTitle => 'Mitteilungen';
 
   @override
   String get grofastNotificationsFilterAllLabel => 'Alle';
 
   @override
-  String get grofastNotificationsSearchHint => 'Benachrichtigungen suchen';
+  String get grofastNotificationsSearchHint => 'Mitteilungen suchen';
 
   @override
   String get grofastNotificationsNowTitle => 'Jetzt';
@@ -2096,10 +2095,10 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get grofastNotificationsLoadErrorMessage =>
-      'Benachrichtigungen konnten nicht geladen werden.';
+      'Mitteilungen konnten nicht geladen werden.';
 
   @override
-  String get grofastNotificationsEmptyTitle => 'Noch keine Benachrichtigungen';
+  String get grofastNotificationsEmptyTitle => 'Noch keine Mitteilungen';
 
   @override
   String get grofastNotificationsEmptySubtitle =>
@@ -2110,7 +2109,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String grofastNotificationsNoResultsSubtitle(String query) {
-    return 'Keine Benachrichtigung passt zu „$query“.';
+    return 'Keine Mitteilung passt zu „$query“.';
   }
 
   @override
