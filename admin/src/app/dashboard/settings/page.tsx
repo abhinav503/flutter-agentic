@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, type FormEvent } from "react";
+import { Sparkles } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { useStore } from "@/lib/store-context";
 import { getStore } from "@/lib/stores";
@@ -31,7 +32,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
 import { ImageUploadField } from "@/components/image-upload-field";
+import { GenerateGroceryDataDialog } from "@/components/generate-grocery-data-dialog";
 import { toast } from "sonner";
 
 // The store's public face in CordeliaApps discovery + which storefront
@@ -127,7 +135,14 @@ function StoreProfileCard({ storeId }: { storeId: string }) {
         {loading ? (
           <p className="text-sm text-muted-foreground">Loading…</p>
         ) : (
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          // Two columns once there is room for them, so a wide screen doesn't
+          // leave the form as one narrow ribbon. Description, the logo and the
+          // template picker span both — they read as one wide thing; Language
+          // and Currency pair off, which is also how they're described.
+          <form
+            onSubmit={handleSubmit}
+            className="grid grid-cols-1 items-start gap-4 sm:grid-cols-2"
+          >
             <div className="flex flex-col gap-2">
               <Label htmlFor="store-profile-name">Store name</Label>
               <Input
@@ -137,23 +152,6 @@ function StoreProfileCard({ storeId }: { storeId: string }) {
                 onChange={(e) => setName(e.target.value)}
               />
             </div>
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="store-profile-description">Description</Label>
-              <Textarea
-                id="store-profile-description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="A short line shoppers see under your store name"
-              />
-            </div>
-            <ImageUploadField
-              id="store-profile-logo"
-              label="Logo"
-              storeId={storeId}
-              kind="store"
-              value={logoUrl}
-              onChange={setLogoUrl}
-            />
             <div className="flex flex-col gap-2">
               <Label htmlFor="store-profile-keywords">Search keywords</Label>
               <Input
@@ -167,7 +165,27 @@ function StoreProfileCard({ storeId }: { storeId: string }) {
                 store name.
               </p>
             </div>
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-2 sm:col-span-2">
+              <Label htmlFor="store-profile-description">Description</Label>
+              <Textarea
+                id="store-profile-description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="A short line shoppers see under your store name"
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <ImageUploadField
+                id="store-profile-logo"
+                label="Logo"
+                storeId={storeId}
+                kind="store"
+                value={logoUrl}
+                onChange={setLogoUrl}
+                previewSize="lg"
+              />
+            </div>
+            <div className="flex flex-col gap-2 sm:col-span-2">
               <Label htmlFor="store-profile-template">Template</Label>
               <Select value={templateId} onValueChange={setTemplateId}>
                 <SelectTrigger id="store-profile-template" className="w-full">
@@ -230,13 +248,49 @@ function StoreProfileCard({ storeId }: { storeId: string }) {
             <Button
               type="submit"
               disabled={saving || !name.trim() || !templateId}
-              className="self-start"
+              className="justify-self-start sm:col-span-2"
             >
               {saving ? "Saving…" : "Save profile"}
             </Button>
           </form>
         )}
       </CardContent>
+    </Card>
+  );
+}
+
+// Fills an empty store with a market's bundled grocery catalog. It lives here
+// rather than on Products because it writes categories, brands, coupons and
+// banners too — and because setting a store up is what this page is for.
+// The dialog reads the currency and the current counts itself.
+function SampleDataCard({ storeId }: { storeId: string }) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Sample data</CardTitle>
+        <CardDescription>
+          Fill this store with a ready-made grocery catalog — categories,
+          brands, products with photos, coupons and promo banners — so you can
+          see the storefront working before entering your own. Pick the market
+          that matches your currency; prices are that country&apos;s real shelf
+          prices, not converted.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <Button variant="outline" onClick={() => setOpen(true)}>
+          <Sparkles aria-hidden="true" className="size-3.5" />
+          Generate sample data
+        </Button>
+      </CardContent>
+
+      {open && (
+        <GenerateGroceryDataDialog
+          storeId={storeId}
+          onClose={() => setOpen(false)}
+        />
+      )}
     </Card>
   );
 }
@@ -248,9 +302,11 @@ type PaymentStatus = {
   webhookConfigured: boolean;
 };
 
-export default function SettingsPage() {
+// Both Razorpay cards in one component so the payment-config fetch and the two
+// forms stay together — the tab that shows them owns their state, and nothing
+// is fetched until an owner opens it.
+function PaymentsSettings({ storeId }: { storeId: string }) {
   const { user } = useAuth();
-  const { storeId } = useStore();
   const [status, setStatus] = useState<PaymentStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [keyId, setKeyId] = useState("");
@@ -260,12 +316,12 @@ export default function SettingsPage() {
   const [savingWebhook, setSavingWebhook] = useState(false);
 
   const webhookUrl =
-    typeof window !== "undefined" && storeId
+    typeof window !== "undefined"
       ? `${window.location.origin}/api/stores/${storeId}/webhooks/razorpay`
       : "";
 
   useEffect(() => {
-    if (!user || !storeId) return;
+    if (!user) return;
     let active = true;
     (async () => {
       const token = await user.getIdToken();
@@ -283,7 +339,7 @@ export default function SettingsPage() {
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    if (!user || !storeId) return;
+    if (!user) return;
     setSaving(true);
     try {
       const token = await user.getIdToken();
@@ -312,7 +368,7 @@ export default function SettingsPage() {
 
   async function handleWebhookSubmit(e: FormEvent) {
     e.preventDefault();
-    if (!user || !storeId) return;
+    if (!user) return;
     setSavingWebhook(true);
     try {
       const token = await user.getIdToken();
@@ -338,24 +394,8 @@ export default function SettingsPage() {
     }
   }
 
-  if (!storeId) return null;
-
   return (
-    <div className="flex max-w-2xl flex-col gap-6">
-      <div>
-        <h1 className="text-lg font-semibold">Settings</h1>
-        <p className="text-sm text-muted-foreground">
-          This store&apos;s public profile, storefront template, and Razorpay
-          account — plus the account you sign in with.
-        </p>
-      </div>
-
-      <h2 className="-mb-2 text-sm font-semibold text-muted-foreground">
-        Store
-      </h2>
-
-      <StoreProfileCard storeId={storeId} />
-
+    <>
       <Card>
         <CardHeader>
           <CardTitle className="flex flex-wrap items-center gap-2">
@@ -480,12 +520,63 @@ export default function SettingsPage() {
           </form>
         </CardContent>
       </Card>
+    </>
+  );
+}
 
-      <h2 className="-mb-2 text-sm font-semibold text-muted-foreground">
-        Account
-      </h2>
+const TABS = [
+  { value: "store", label: "Store" },
+  { value: "sample-data", label: "Sample data" },
+  { value: "payments", label: "Payments" },
+  { value: "account", label: "Account" },
+] as const;
 
-      <AccountCard />
+export default function SettingsPage() {
+  const { storeId } = useStore();
+
+  if (!storeId) return null;
+
+  return (
+    <div className="flex max-w-5xl flex-col gap-6">
+      <div>
+        <h1 className="text-lg font-semibold">Settings</h1>
+        <p className="text-sm text-muted-foreground">
+          This store&apos;s public profile, storefront template, sample data and
+          Razorpay account — plus the account you sign in with.
+        </p>
+      </div>
+
+      {/* Keyed on the store so switching stores in the sidebar remounts every
+          tab's state — otherwise the previous store's payment status and
+          half-typed profile edits survive the switch. */}
+      <Tabs key={storeId} defaultValue="store">
+        <TabsList>
+          {TABS.map((tab) => (
+            <TabsTrigger key={tab.value} value={tab.value}>
+              {tab.label}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+
+        <TabsContent value="store">
+          <StoreProfileCard storeId={storeId} />
+        </TabsContent>
+
+        {/* Only the store profile has enough fields to earn the full width.
+            The rest are a short form or a read-out, and a 24-character key in
+            an input five times its length reads as a mistake. */}
+        <TabsContent value="sample-data" className="max-w-2xl">
+          <SampleDataCard storeId={storeId} />
+        </TabsContent>
+
+        <TabsContent value="payments" className="max-w-2xl">
+          <PaymentsSettings storeId={storeId} />
+        </TabsContent>
+
+        <TabsContent value="account" className="max-w-2xl">
+          <AccountCard />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

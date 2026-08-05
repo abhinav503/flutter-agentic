@@ -2,7 +2,7 @@
 
 import { useEffect, useState, type FormEvent } from "react";
 import Image from "next/image";
-import { Sparkles, Star } from "lucide-react";
+import { Star } from "lucide-react";
 import { useStore } from "@/lib/store-context";
 import { watchCategories } from "@/lib/categories";
 import { watchBrands } from "@/lib/brands";
@@ -30,7 +30,6 @@ import {
   SortableTableHead,
   useTableSort,
 } from "@/components/sortable-table-head";
-import { GenerateGroceryDataDialog } from "@/components/generate-grocery-data-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -101,7 +100,6 @@ export default function ProductsPage() {
   const [categoryFilter, setCategoryFilter] = useState(ALL);
   const [brandFilter, setBrandFilter] = useState(ALL);
   const [stockFilter, setStockFilter] = useState<StockFilter>("all");
-  const [generating, setGenerating] = useState(false);
   const { sort, toggle } = useTableSort<ProductSortKey>("name");
 
   useEffect(() => {
@@ -213,10 +211,6 @@ export default function ProductsPage() {
             label="Search products"
             placeholder="Search name, brand, category…"
           />
-          <Button variant="outline" onClick={() => setGenerating(true)}>
-            <Sparkles aria-hidden="true" className="size-3.5" />
-            Generate sample data
-          </Button>
           <Button onClick={() => setEditing("new")} disabled={categories.length === 0}>
             Add product
           </Button>
@@ -371,15 +365,6 @@ export default function ProductsPage() {
           categories={categories}
           brands={brands}
           onClose={() => setEditing(null)}
-        />
-      )}
-
-      {generating && (
-        <GenerateGroceryDataDialog
-          storeId={storeId}
-          existingProductCount={products.length}
-          existingCategoryCount={categories.length}
-          onClose={() => setGenerating(false)}
         />
       )}
 

@@ -6,7 +6,22 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { uploadCatalogImage, type CatalogImageKind } from "@/lib/storage";
+import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+
+// The thumbnail beside the URL box. `sm` is the dialog size — a glance-check
+// that the right file landed. `lg` is for a page-level form with room for it,
+// where the preview is the thing being judged rather than confirmed.
+//
+// They also crop differently, and that's the reason the sizes are named rather
+// than passed as a number: at 48px a cropped edge is invisible, at 128px it is
+// the whole point, so the large one contains the image on a plate instead of
+// filling the square with it. A wordmark logo is the case that breaks under
+// `cover`.
+const PREVIEW = {
+  sm: { px: 48, box: "size-12", fit: "object-cover" },
+  lg: { px: 128, box: "size-32 bg-muted p-1", fit: "object-contain" },
+} as const;
 
 export function ImageUploadField({
   id,
@@ -15,6 +30,7 @@ export function ImageUploadField({
   kind,
   value,
   onChange,
+  previewSize = "sm",
 }: {
   id: string;
   label: string;
@@ -22,9 +38,11 @@ export function ImageUploadField({
   kind: CatalogImageKind;
   value: string;
   onChange: (url: string) => void;
+  previewSize?: keyof typeof PREVIEW;
 }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
+  const preview = PREVIEW[previewSize];
 
   async function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
@@ -54,13 +72,22 @@ export function ImageUploadField({
           <Image
             src={value}
             alt=""
-            width={48}
-            height={48}
+            width={preview.px}
+            height={preview.px}
             unoptimized
-            className="size-12 shrink-0 rounded-md border border-border object-cover"
+            className={cn(
+              "shrink-0 rounded-md border border-border",
+              preview.box,
+              preview.fit,
+            )}
           />
         ) : (
-          <div className="size-12 shrink-0 rounded-md border border-dashed border-border" />
+          <div
+            className={cn(
+              "shrink-0 rounded-md border border-dashed border-border",
+              preview.box,
+            )}
+          />
         )}
         <div className="flex flex-1 flex-col gap-2">
           <Input

@@ -5,6 +5,7 @@ import {
   updateDoc,
   deleteDoc,
   onSnapshot,
+  getCountFromServer,
   getDocs,
   getDoc,
   query,
@@ -154,6 +155,14 @@ export function watchProducts(
 export async function getProducts(storeId: string): Promise<Product[]> {
   const snap = await getDocs(productsRef(storeId));
   return snap.docs.map(mapProductDoc);
+}
+
+// An aggregation query — one read, whatever the catalog's size. For callers
+// that only need to know whether the store is empty (the seeder's
+// already-has-data warning), not what is in it.
+export async function countProducts(storeId: string): Promise<number> {
+  const snap = await getCountFromServer(productsRef(storeId));
+  return snap.data().count;
 }
 
 export async function getPopularProducts(storeId: string): Promise<Product[]> {

@@ -5,6 +5,7 @@ import {
   updateDoc,
   deleteDoc,
   onSnapshot,
+  getCountFromServer,
   getDocs,
   serverTimestamp,
   type QueryDocumentSnapshot,
@@ -42,6 +43,14 @@ export function watchCategories(
 export async function getCategories(storeId: string): Promise<Category[]> {
   const snap = await getDocs(categoriesRef(storeId));
   return snap.docs.map(mapCategoryDoc);
+}
+
+// An aggregation query — one read, whatever the catalog's size. For callers
+// that only need to know whether the store is empty (the seeder's
+// already-has-data warning), not what is in it.
+export async function countCategories(storeId: string): Promise<number> {
+  const snap = await getCountFromServer(categoriesRef(storeId));
+  return snap.data().count;
 }
 
 export async function addCategory(

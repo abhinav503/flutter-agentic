@@ -18,6 +18,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { countCategories } from "@/lib/categories";
+import { countProducts } from "@/lib/products";
 import { getStore } from "@/lib/stores";
 import {
   SEED_MARKETS,
@@ -53,25 +55,34 @@ const PHASE_LABELS: Record<SeedPhase, string> = {
  * Generating into a non-empty store is warned about but not blocked: items
  * are only ever added alongside what exists, and the per-item delete flows
  * are the recovery story.
+ *
+ * Takes nothing but the store id: everything it shows it reads itself, so it
+ * can be opened from any page. It lives on Settings, which is where a store is
+ * set up; the Products page — the only page that already held the catalog in
+ * memory — is not where an owner looks for it.
  */
 export function GenerateGroceryDataDialog({
   storeId,
-  existingProductCount,
-  existingCategoryCount,
   onClose,
 }: {
   storeId: string;
-  existingProductCount: number;
-  existingCategoryCount: number;
   onClose: () => void;
 }) {
   const [progress, setProgress] = useState<SeedProgress | null>(null);
   const [market, setMarket] = useState<SeedMarket | null>(null);
+  const [existing, setExisting] = useState<{
+    products: number;
+    categories: number;
+  } | null>(null);
   const running = progress !== null;
 
-  // The store doc is read here rather than threaded through the products page,
-  // which has no reason to know the currency — one read when the dialog opens.
-  // A failed read is not fatal: the picker just opens on the India default.
+  // Read here rather than threaded in from the opening page — the currency
+  // picks the default market, and the two counts drive the already-has-data
+  // warning. Three reads when the dialog opens (the counts are aggregation
+  // queries, so a 500-product store still costs one read each).
+  //
+  // Neither failure is fatal: the picker falls back to the India default, and
+  // a missing count just omits a warning about data the owner can see anyway.
   useEffect(() => {
     let active = true;
     getStore(storeId)
@@ -81,13 +92,20 @@ export function GenerateGroceryDataDialog({
         }
       })
       .catch(() => active && setMarket("india"));
+
+    Promise.all([countProducts(storeId), countCategories(storeId)])
+      .then(([products, categories]) => {
+        if (active) setExisting({ products, categories });
+      })
+      .catch(() => {});
+
     return () => {
       active = false;
     };
   }, [storeId]);
 
   const seed = market ? SEED_MARKET_CATALOGS[market] : null;
-  const storeHasData = existingProductCount > 0 || existingCategoryCount > 0;
+  const storeHasData = !!existing && (existing.products > 0 || existing.categories > 0);
 
   async function handleGenerate() {
     if (!market) return;
@@ -173,10 +191,10 @@ export function GenerateGroceryDataDialog({
 
             {storeHasData && (
               <div className="rounded-lg border border-border-strong bg-muted/60 p-3 text-sm">
-                This store already has {existingProductCount} product
-                {existingProductCount === 1 ? "" : "s"} and{" "}
-                {existingCategoryCount} categor
-                {existingCategoryCount === 1 ? "y" : "ies"}. Generated items
+                This store already has {existing!.products} product
+                {existing!.products === 1 ? "" : "s"} and{" "}
+                {existing!.categories} categor
+                {existing!.categories === 1 ? "y" : "ies"}. Generated items
                 are added alongside them — nothing is deleted or overwritten —
                 but generating again creates duplicates, including duplicate
                 coupon codes. Delete previously generated coupons first if you

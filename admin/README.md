@@ -66,8 +66,8 @@ storefront half is core's `AppFormat`.
 
 ## Generate sample data
 
-**Products → Generate sample data** writes a realistic grocery catalog into the
-store in one atomic `writeBatch`. Seven markets, each written in its own
+**Settings → Sample data → Generate sample data** writes a realistic grocery
+catalog into the store in one atomic `writeBatch`. Seven markets, each written in its own
 language with its own local brands and shelf prices:
 
 | Market | Currency | Brands you'd recognize |
