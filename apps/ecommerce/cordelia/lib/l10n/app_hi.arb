@@ -1,14 +1,13 @@
 {
   "@@locale": "hi",
-
   "languageSheetTitle": "भाषा",
   "languageEnglish": "English",
   "languageHindi": "हिन्दी",
   "languageGerman": "Deutsch",
   "languageFrench": "Français",
   "languageSpanish": "Español",
+  "languageItalian": "Italiano",
   "unitPiecesLabel": "{count, plural, one{नग} other{नग}}",
-
   "loginTitle": "CordeliaApps में आपका स्वागत है",
   "loginSubtitle": "ईमेल या सोशल नेटवर्क से अपने खाते में लॉग इन करें",
   "emailLabel": "ईमेल पता",
@@ -25,7 +24,6 @@
   "termsOfServiceAndPrivacyPolicy": "सेवा की शर्तें और गोपनीयता नीति",
   "dontHaveAccount": "खाता नहीं है? ",
   "signupLink": "साइन अप करें",
-
   "signupTitle": "अपना खाता बनाएँ",
   "signupSubtitle": "नीचे अपनी जानकारी दर्ज करें",
   "nameLabel": "नाम",
@@ -41,15 +39,12 @@
   "alreadyHaveAccount": "पहले से खाता है? ",
   "loginLink": "लॉग इन करें",
   "comingSoonMessage": "जल्द आ रहा है",
-
   "paymentCancelledMessage": "भुगतान रद्द किया गया",
   "paymentFailedMessage": "भुगतान पूरा नहीं हो सका। कृपया दोबारा प्रयास करें।",
-
   "verifyEmailTitle": "अपना ईमेल सत्यापित करें",
   "verifyEmailSubtitle": "हमने {email} पर एक सत्यापन लिंक भेजा है। उसे खोलें और फिर यहाँ वापस आएँ — यह अपने आप अपडेट हो जाएगा।",
   "verifyEmailChecking": "जाँच हो रही है…",
   "resendEmailLabel": "ईमेल दोबारा भेजें",
-
   "termsAndConditionsLabel": "नियम और शर्तें",
   "privacyPolicyLabel": "गोपनीयता नीति",
   "legalLastUpdatedLabel": "अंतिम अपडेट: 09 मार्च 2026",
@@ -65,7 +60,6 @@
   "privacyPolicySection3Body": "आपके डेटा पर पूरा नियंत्रण आपका है। अपनी गोपनीयता प्राथमिकताएँ प्रबंधित करें, व्यक्तिगत विवरण अपडेट करें और सेटिंग्स को अपनी ज़रूरत के अनुसार बदलें।",
   "privacyPolicySection4Heading": "4. सुरक्षा उपाय",
   "privacyPolicySection4Body": "हम उन्नत सुरक्षा प्रोटोकॉल, एन्क्रिप्शन और नियमित ऑडिट के ज़रिए आपके डेटा की सुरक्षा को प्राथमिकता देते हैं, ताकि अनधिकृत पहुँच या सेंध से बचाव हो सके।",
-
   "profilePageTitle": "प्रोफ़ाइल",
   "changePasswordLabel": "पासवर्ड बदलें",
   "myOrdersLabel": "मेरे ऑर्डर",
@@ -79,7 +73,6 @@
   "deleteAccountConfirmMessage": "इससे हर स्टोर पर आपकी प्रोफ़ाइल, पते, कार्ट, विशलिस्ट और समीक्षाएँ स्थायी रूप से हट जाएँगी। आपके पहले से दिए गए ऑर्डर उन स्टोर्स के बिक्री रिकॉर्ड के रूप में बने रहेंगे। इसे पूर्ववत नहीं किया जा सकता।",
   "deleteAccountFailedMessage": "आपका खाता नहीं हटाया जा सका। कृपया दोबारा प्रयास करें।",
   "profileLoadErrorMessage": "आपकी प्रोफ़ाइल लोड करते समय कुछ गड़बड़ हो गई।",
-
   "sortRelevanceLabel": "प्रासंगिकता",
   "sortPriceLowToHighLabel": "क़ीमत (कम से ज़्यादा)",
   "sortPriceHighToLowLabel": "क़ीमत (ज़्यादा से कम)",
@@ -89,7 +82,6 @@
   "priceFilterUnderLabel": "{price} से कम",
   "priceFilterOverLabel": "{price} से अधिक",
   "priceFilterRangeLabel": "{from} - {to}",
-
   "reviewsSectionTitle": "रेटिंग और समीक्षाएँ",
   "writeReviewLabel": "समीक्षा लिखें",
   "editReviewLabel": "अपनी समीक्षा संपादित करें",
@@ -107,7 +99,6 @@
   "reviewsEmptyTitle": "अभी कोई समीक्षा नहीं",
   "reviewsEmptySubtitle": "इस उत्पाद को रेट करने वाले पहले व्यक्ति बनें और दूसरे ख़रीदारों की मदद करें।",
   "unratedLabel": "अभी कोई रेटिंग नहीं",
-
   "rateOrderLabel": "ऑर्डर रेट करें",
   "editOrderRatingLabel": "रेटिंग बदलें",
   "rateOrderSheetTitle": "यह ऑर्डर कैसा रहा?",
@@ -117,7 +108,6 @@
   "orderRatingFailedMessage": "आपकी रेटिंग सेव नहीं हो सकी। कृपया दोबारा प्रयास करें।",
   "yourRatingLabel": "आपकी रेटिंग",
   "orderPlacedAtLabel": "{date}, {time}",
-
   "reviewCountLabel": "{count, plural, one{{count} समीक्षा} other{{count} समीक्षाएँ}}",
   "reviewAgeJustNow": "अभी-अभी",
   "reviewAgeMinutesAgo": "{count, plural, one{{count} मिनट पहले} other{{count} मिनट पहले}}",
@@ -125,45 +115,35 @@
   "reviewAgeDaysAgo": "{count, plural, one{{count} दिन पहले} other{{count} दिन पहले}}",
   "reviewAgeMonthsAgo": "{count, plural, one{{count} महीना पहले} other{{count} महीने पहले}}",
   "reviewAgeYearsAgo": "{count, plural, one{{count} साल पहले} other{{count} साल पहले}}",
-
   "graviaCategoriesTitle": "सभी श्रेणियाँ",
   "graviaSeeAll": "सभी देखें",
   "graviaPopularItemsTitle": "लोकप्रिय आइटम",
   "graviaHomeLoadErrorMessage": "इस स्टोर का कैटलॉग लोड नहीं हो सका।",
-
   "graviaCancel": "रद्द करें",
-
   "graviaDiscountPercentOff": "{percent}% छूट",
   "graviaAddToCart": "कार्ट में डालें",
   "graviaAddToCartSheetTitle": "कार्ट में डालें",
-
   "graviaDeleteLabel": "हटाएँ",
   "graviaDeleteAddressTitle": "पता हटाएँ",
   "graviaDeleteAddressConfirmMessage": "क्या आप वाकई यह पता हटाना चाहते हैं? इसे पूर्ववत नहीं किया जा सकता।",
-
   "graviaClearCartTitle": "कार्ट खाली करें",
   "graviaClearCartConfirmMessage": "क्या आप वाकई कार्ट से सभी आइटम हटाना चाहते हैं?",
   "graviaClearCartConfirmLabel": "कार्ट खाली करें",
-
   "graviaOrderPlacedTitle": "ऑर्डर सफलतापूर्वक हो गया",
   "graviaOrderPlacedSubtitle": "आपके ऑर्डर के लिए धन्यवाद — ऑर्डर सेक्शन में आप अपनी डिलीवरी ट्रैक कर सकते हैं",
   "graviaTrackYourOrderLabel": "अपना ऑर्डर ट्रैक करें",
-
   "graviaSearchHint": "खोजें",
-
   "graviaNavHome": "होम",
   "graviaNavCategories": "श्रेणियाँ",
   "graviaNavFavourite": "पसंदीदा",
   "graviaNavOrders": "ऑर्डर",
   "graviaNavProfile": "प्रोफ़ाइल",
-
   "graviaRecentSearchTitle": "हाल की खोजें",
   "graviaSearchLoadErrorMessage": "खोज लोड करते समय कुछ गड़बड़ हो गई।",
   "graviaSearchResultsErrorMessage": "खोज करते समय कुछ गड़बड़ हो गई।",
   "graviaSearchCategoryBadge": "श्रेणी",
   "graviaSearchNoResultsTitle": "कोई परिणाम नहीं मिला",
   "graviaSearchNoResultsSubtitle": "\"{query}\" से कुछ मेल नहीं खाता। कोई दूसरा शब्द आज़माएँ।",
-
   "graviaProductDetailsTitle": "उत्पाद विवरण",
   "graviaSelectQtyLabel": "मात्रा चुनें",
   "graviaKeyInformationTitle": "मुख्य जानकारी",
@@ -172,17 +152,14 @@
   "graviaSimilarProductsTitle": "मिलते-जुलते उत्पाद",
   "graviaProductDetailsLoadErrorMessage": "यह उत्पाद लोड करते समय कुछ गड़बड़ हो गई।",
   "graviaAddToCartWithPrice": "कार्ट में डालें ({price})",
-
   "graviaCategoriesPageTitle": "श्रेणियाँ",
   "graviaCategoriesLoadErrorMessage": "श्रेणियाँ लोड करते समय कुछ गड़बड़ हो गई।",
   "graviaCategoriesRefreshFailedMessage": "रीफ़्रेश नहीं हो सका — आपकी पिछली लोड की गई श्रेणियाँ दिखाई जा रही हैं।",
-
   "graviaSortLabel": "क्रमबद्ध करें",
   "graviaPriceLabel": "क़ीमत",
   "graviaSortBySheetTitle": "इस क्रम में",
   "graviaPriceSheetTitle": "क़ीमत",
   "graviaCategoryDetailsEmptyMessage": "इन फ़िल्टरों से कोई उत्पाद मेल नहीं खाता।",
-
   "graviaSelectAddressTitle": "पता चुनें",
   "graviaAddNewAddressLabel": "नया पता जोड़ें",
   "graviaDefaultAddressSectionTitle": "डिफ़ॉल्ट पता",
@@ -193,7 +170,6 @@
   "graviaAddressDeleteFailedMessage": "पता हटाया नहीं जा सका। कृपया दोबारा प्रयास करें।",
   "graviaAddressEmptyTitle": "कोई सेव किया हुआ पता नहीं",
   "graviaAddressEmptySubtitle": "शुरू करने के लिए अपना पहला डिलीवरी पता जोड़ें।",
-
   "graviaEditAddressTitle": "पता संपादित करें",
   "graviaNameLabel": "नाम",
   "graviaNameHint": "जैसे: राहुल शर्मा",
@@ -222,7 +198,6 @@
   "graviaLocationUnavailableMessage": "आपका स्थान प्राप्त नहीं हो सका। लोकेशन अनुमति जाँचें और दोबारा प्रयास करें।",
   "graviaAddressSearchLabel": "पता खोजें",
   "graviaAddressSearchHint": "क्षेत्र, गली, लैंडमार्क खोजें…",
-
   "graviaProfilePageTitle": "प्रोफ़ाइल",
   "graviaChangePasswordLabel": "पासवर्ड बदलें",
   "graviaMyOrdersLabel": "मेरे ऑर्डर",
@@ -234,7 +209,6 @@
   "graviaLogoutTitle": "लॉग आउट",
   "graviaLogoutConfirmMessage": "क्या आप वाकई लॉग आउट करना चाहते हैं?",
   "graviaProfileLoadErrorMessage": "आपकी प्रोफ़ाइल लोड करते समय कुछ गड़बड़ हो गई।",
-
   "graviaEditProfileTitle": "प्रोफ़ाइल संपादित करें",
   "graviaEmailAddressLabel": "ईमेल पता",
   "graviaEmailAddressHint": "जैसे: rahul.sharma@example.com",
@@ -244,7 +218,6 @@
   "graviaTakePhotoLabel": "फ़ोटो लें",
   "graviaChooseFromGalleryLabel": "गैलरी से चुनें",
   "graviaAvatarPickerMobileOnlyMessage": "फ़ोटो बदलना केवल मोबाइल पर उपलब्ध है",
-
   "graviaChangePasswordTitle": "पासवर्ड बदलें",
   "graviaCurrentPasswordLabel": "वर्तमान पासवर्ड",
   "graviaCurrentPasswordHint": "अपना वर्तमान पासवर्ड दर्ज करें",
@@ -254,7 +227,6 @@
   "graviaConfirmNewPasswordHint": "अपना नया पासवर्ड दोबारा दर्ज करें",
   "graviaUpdatePasswordButtonLabel": "पासवर्ड अपडेट करें",
   "graviaPasswordUpdatedMessage": "आपका पासवर्ड अपडेट कर दिया गया है।",
-
   "graviaMyCartTitle": "मेरा कार्ट",
   "graviaBeforeYouCheckoutTitle": "चेकआउट से पहले",
   "graviaCouponCodeLabel": "कूपन कोड",
@@ -274,7 +246,6 @@
   "graviaExploreLabel": "देखें",
   "graviaCheckoutLabel": "चेकआउट",
   "graviaCartSummary": "{count, plural, one{{count} आइटम} other{{count} आइटम}} | {total}",
-
   "graviaOrdersPageTitle": "ऑर्डर",
   "graviaUpcomingTabLabel": "आगामी",
   "graviaPastTabLabel": "पिछले",
@@ -287,11 +258,9 @@
   "graviaTrackOrderLabel": "ऑर्डर ट्रैक करें",
   "graviaViewDetailsLabel": "विवरण देखें",
   "graviaWriteReviewLabel": "समीक्षा लिखें",
-
   "graviaRefundPendingLabel": "रिफ़ंड प्रोसेस हो रहा है",
   "graviaRefundProcessedLabel": "रिफ़ंड हो गया",
   "graviaRefundFailedLabel": "रिफ़ंड विफल रहा",
-
   "graviaCancelOrderConfirmTitle": "यह ऑर्डर रद्द करें?",
   "graviaCancelOrderConfirmBody": "इससे आपका ऑर्डर रद्द हो जाएगा। यदि आपने भुगतान किया है, तो पूरी राशि रिफ़ंड कर दी जाएगी।",
   "graviaCancelOrderConfirmCta": "ऑर्डर रद्द करें",
@@ -299,7 +268,6 @@
   "graviaCancelFailedMessage": "ऑर्डर रद्द नहीं हो सका। कृपया दोबारा प्रयास करें।",
   "graviaOrdersLoadErrorMessage": "आपके ऑर्डर लोड करते समय कुछ गड़बड़ हो गई।",
   "graviaOrdersRefreshFailedMessage": "रीफ़्रेश नहीं हो सका — आपके पिछले लोड किए गए ऑर्डर दिखाए जा रहे हैं।",
-
   "graviaTrackOrderTitle": "ऑर्डर ट्रैक करें",
   "graviaOrderStatusTitle": "ऑर्डर की स्थिति",
   "graviaOrderItemsTitle": "आइटम",
@@ -313,13 +281,11 @@
   "graviaRefundLabel": "रिफ़ंड",
   "graviaCopiedMessage": "कॉपी हो गया",
   "graviaOrderTotalLabel": "कुल भुगतान",
-
   "graviaOrderStepPlacedLabel": "ऑर्डर हो गया",
   "graviaOrderStepOnTheWayLabel": "रास्ते में है",
   "graviaOrderStepDeliveredLabel": "डिलीवर हो गया",
   "graviaOrderStepCancelledLabel": "रद्द किया गया",
   "graviaOrderStepUndatedLabel": "समय दर्ज नहीं है",
-
   "graviaOrdersEmptyTitle": "अभी कोई ऑर्डर नहीं",
   "graviaOrdersEmptySubtitle": "आपके पिछले और चालू ऑर्डर यहाँ दिखाई देंगे।",
   "graviaFilterSheetTitle": "फ़िल्टर",
@@ -330,21 +296,16 @@
   "graviaFilterDateLabel": "तारीख़",
   "graviaFilterAllStatusesLabel": "सभी",
   "graviaApplyFilterLabel": "फ़िल्टर लागू करें",
-
   "graviaFavouritePageTitle": "पसंदीदा",
   "graviaFavouriteEmptyTitle": "अभी कोई पसंदीदा नहीं",
   "graviaFavouriteEmptySubtitle": "किसी उत्पाद पर दिल का निशान दबाएँ, वह यहाँ सेव रहेगा।",
-
   "graviaAddedToCartMessage": "{count, plural, one{{name} कार्ट में जोड़ा गया} other{{count} × {name} कार्ट में जोड़े गए}}",
-
   "graviaDeliveryLocationLabel": "डिलीवरी स्थान",
   "graviaNoLocationSelectedLabel": "कोई स्थान चुना नहीं गया",
-
   "graviaNotificationsTitle": "सूचनाएँ",
   "graviaNotificationsLoadErrorMessage": "आपकी सूचनाएँ लोड करते समय कुछ गड़बड़ हो गई।",
   "graviaNotificationsEmptyTitle": "अभी कोई सूचना नहीं",
   "graviaNotificationsEmptySubtitle": "आपके ऑर्डर और खाते से जुड़े अपडेट यहाँ दिखाई देंगे।",
-
   "dailymartTopSellerTitle": "टॉप सेलर🔥",
   "dailymartCategoriesTitle": "श्रेणी के अनुसार ख़रीदें",
   "dailymartPopularProductsTitle": "लोकप्रिय उत्पाद",
@@ -352,21 +313,17 @@
   "dailymartSearchHint": "उत्पाद खोजें",
   "dailymartHomeLoadErrorMessage": "इस स्टोर का कैटलॉग लोड नहीं हो सका।",
   "dailymartNoLocationSelectedLabel": "स्थान चुनें",
-
   "dailymartNotificationsTitle": "सूचना",
   "dailymartNotificationsLoadErrorMessage": "आपकी सूचनाएँ लोड नहीं हो सकीं।",
   "dailymartNotificationsEmptyTitle": "अभी कोई सूचना नहीं",
   "dailymartNotificationsEmptySubtitle": "इस स्टोर के ऑफ़र और ऑर्डर अपडेट यहाँ दिखाई देंगे।",
-
   "dailymartOrderNow": "अभी ऑर्डर करें",
   "dailymartPromoSubtitle": "आज अपने ऑर्डर पर पाएँ\n{percent}% तक की छूट",
   "dailymartDiscountPercentOff": "{percent}% छूट",
-
   "dailymartNavHome": "होम",
   "dailymartNavWishlist": "विशलिस्ट",
   "dailymartNavCart": "कार्ट",
   "dailymartNavProfile": "प्रोफ़ाइल",
-
   "dailymartRecentSearchTitle": "हाल की खोजें",
   "dailymartRecentlyViewedTitle": "हाल में देखे गए",
   "dailymartResultsForLabel": "\"{query}\" के परिणाम",
@@ -376,30 +333,25 @@
   "dailymartSearchNoResultsTitle": "कोई परिणाम नहीं",
   "dailymartSearchNoResultsSubtitle": "इस स्टोर में \"{query}\" से अभी कुछ मेल नहीं खाता।",
   "dailymartCategoryBadge": "श्रेणी",
-
   "dailymartFilterLabel": "फ़िल्टर",
   "dailymartSortSheetTitle": "इस क्रम में",
   "dailymartPriceSheetTitle": "क़ीमत",
   "dailymartCategoryDetailsEmptyTitle": "यहाँ कुछ नहीं है",
   "dailymartCategoryDetailsEmptySubtitle": "इन फ़िल्टरों से इस श्रेणी का कोई उत्पाद मेल नहीं खाता।",
   "dailymartCategoryDetailsErrorMessage": "यह श्रेणी लोड नहीं हो सकी।",
-
   "dailymartWishlistEmptyTitle": "अभी कुछ सेव नहीं है",
   "dailymartWishlistEmptySubtitle": "किसी उत्पाद पर दिल का निशान दबाएँ, वह यहाँ आपका इंतज़ार करेगा।",
   "dailymartWishlistExploreAction": "ख़रीदारी शुरू करें",
-
   "dailymartProductDetailsTitle": "उत्पाद विवरण",
   "dailymartDescriptionsTabLabel": "विवरण",
   "dailymartReviewsTabLabel": "समीक्षाएँ",
   "dailymartRelatedProductsTitle": "मिलते-जुलते उत्पाद",
   "dailymartSelectSizeLabel": "साइज़ चुनें",
   "dailymartProductDetailsLoadErrorMessage": "इस उत्पाद का विवरण लोड नहीं हो सका।",
-
   "dailymartAddToCart": "कार्ट में डालें",
   "dailymartAddToCartSheetTitle": "कार्ट में डालें",
   "dailymartAddedToCartMessage": "{count} × {name} आपके कार्ट में जोड़ा गया।",
   "dailymartStarRowLabel": "{stars} स्टार",
-
   "dailymartMyCartTitle": "मेरा कार्ट",
   "dailymartCouponHint": "कूपन कोड डालें",
   "dailymartCouponRemoveLabel": "हटाएँ",
@@ -416,7 +368,6 @@
   "dailymartCartEmptySubtitle": "आपके जोड़े गए उत्पाद यहाँ दिखेंगे, चेकआउट के लिए तैयार।",
   "dailymartCartExploreAction": "ख़रीदारी शुरू करें",
   "dailymartRemovedFromCartMessage": "आपके कार्ट से हटा दिया गया।",
-
   "dailymartCheckoutTitle": "चेकआउट",
   "dailymartShippingAddressLabel": "शिपिंग पता",
   "dailymartOrderListLabel": "ऑर्डर सूची",
@@ -426,7 +377,6 @@
   "dailymartTrackOrderLabel": "मेरा ऑर्डर ट्रैक करें",
   "dailymartCartSummary": "{count, plural, one{{count} आइटम} other{{count} आइटम}} | {total}",
   "dailymartViewCartLabel": "कार्ट देखें",
-
   "dailymartGeneralSectionTitle": "सामान्य",
   "dailymartPreferencesSectionTitle": "प्राथमिकताएँ",
   "dailymartEditProfileLabel": "प्रोफ़ाइल संपादित करें",
@@ -440,7 +390,6 @@
   "dailymartLogoutTitle": "लॉग आउट करें?",
   "dailymartLogoutConfirmMessage": "ऑर्डर करने या ट्रैक करने के लिए आपको दोबारा साइन इन करना होगा।",
   "dailymartProfileLoadErrorMessage": "आपकी प्रोफ़ाइल लोड नहीं हो सकी।",
-
   "dailymartEditProfileTitle": "प्रोफ़ाइल संपादित करें",
   "dailymartFullNameLabel": "पूरा नाम",
   "dailymartFullNameHint": "अपना पूरा नाम दर्ज करें",
@@ -453,7 +402,6 @@
   "dailymartTakePhotoLabel": "फ़ोटो लें",
   "dailymartChooseFromGalleryLabel": "गैलरी से चुनें",
   "dailymartAvatarPickerMobileOnlyMessage": "फ़ोटो चुनना केवल मोबाइल पर उपलब्ध है।",
-
   "dailymartChangePasswordTitle": "पासवर्ड बदलें",
   "dailymartCurrentPasswordLabel": "वर्तमान पासवर्ड",
   "dailymartCurrentPasswordHint": "अपना वर्तमान पासवर्ड दर्ज करें",
@@ -463,7 +411,6 @@
   "dailymartConfirmNewPasswordHint": "अपना नया पासवर्ड दोबारा दर्ज करें",
   "dailymartUpdatePasswordButtonLabel": "पासवर्ड अपडेट करें",
   "dailymartPasswordUpdatedMessage": "आपका पासवर्ड अपडेट कर दिया गया है।",
-
   "dailymartSelectAddressTitle": "पता चुनें",
   "dailymartAddNewAddressLabel": "नया पता जोड़ें",
   "dailymartAddressLoadErrorMessage": "आपके पते लोड नहीं हो सके।",
@@ -475,7 +422,6 @@
   "dailymartDeleteAddressTitle": "यह पता हटाएँ?",
   "dailymartDeleteAddressMessage": "यह आपके सेव किए गए पतों से हट जाएगा।",
   "dailymartDeleteLabel": "हटाएँ",
-
   "dailymartAddAddressTitle": "नया पता जोड़ें",
   "dailymartEditAddressTitle": "पता संपादित करें",
   "dailymartAddressNameLabel": "नाम",
@@ -499,7 +445,6 @@
   "dailymartAddAddressButtonLabel": "पता जोड़ें",
   "dailymartUpdateAddressButtonLabel": "पता अपडेट करें",
   "dailymartRequiredFieldErrorMessage": "यह फ़ील्ड आवश्यक है",
-
   "dailymartMyOrdersTitle": "मेरे ऑर्डर",
   "dailymartOrdersSearchHint": "आप क्या ढूँढ रहे हैं...",
   "dailymartOrdersFilterAllLabel": "सभी",
@@ -520,7 +465,6 @@
   "dailymartOrdersNoResultsSubtitle": "उस खोज या फ़िल्टर से कोई ऑर्डर मेल नहीं खाता।",
   "dailymartOrderCancelFailedMessage": "वह ऑर्डर रद्द नहीं हो सका।",
   "dailymartOrdersRefreshFailedMessage": "आपके ऑर्डर रीफ़्रेश नहीं हो सके।",
-
   "dailymartTrackOrderTitle": "ऑर्डर ट्रैक करें",
   "dailymartTrackOrderAction": "ऑर्डर ट्रैक करें",
   "dailymartOrderDetailsTitle": "ऑर्डर विवरण",
@@ -547,7 +491,6 @@
   "dailymartCancelOrderMessage": "यदि ऑर्डर का भुगतान हुआ था, तो राशि रिफ़ंड कर दी जाएगी।",
   "dailymartCancelOrderConfirmLabel": "ऑर्डर रद्द करें",
   "dailymartCancelLabel": "रद्द करें",
-
   "grofastGreeting": "नमस्ते {name} 👋",
   "grofastGreetingFallbackName": "दोस्त",
   "grofastGreetingSubtitle": "अपनी पसंद की ताज़ा किराना चीज़ें पाएँ",
@@ -559,16 +502,13 @@
   "grofastNoLocationSelectedLabel": "स्थान चुनें",
   "grofastClaimNow": "अभी पाएँ",
   "grofastPromoDiscountLabel": "{percent} छूट",
-
   "grofastCategoriesLoadErrorMessage": "श्रेणियाँ लोड नहीं हो सकीं।",
   "grofastCategoriesEmptyTitle": "अभी कोई श्रेणी नहीं",
   "grofastCategoriesEmptySubtitle": "इस स्टोर ने अभी कोई श्रेणी प्रकाशित नहीं की है।",
-
   "grofastCategoryProductsTitle": "सभी {category}",
   "grofastCategoryDetailsEmptyTitle": "यहाँ अभी कुछ नहीं है",
   "grofastCategoryDetailsEmptySubtitle": "इस श्रेणी में अभी कोई उत्पाद नहीं है।",
   "grofastCategoryDetailsErrorMessage": "यह श्रेणी लोड नहीं हो सकी।",
-
   "grofastSearchTitle": "किराना खोजें",
   "grofastRecentSearchTitle": "हाल की खोजें",
   "grofastResultsCountLabel": "{count, plural, one{{count} परिणाम मिला} other{{count} परिणाम मिले}}",
@@ -578,17 +518,14 @@
   "grofastSearchNoResultsSubtitle": "\"{query}\" से कुछ मेल नहीं खाता। कोई दूसरा शब्द आज़माएँ।",
   "grofastSearchIdleTitle": "आप क्या ख़रीदना चाहते हैं?",
   "grofastSearchIdleSubtitle": "नाम या श्रेणी से पूरे स्टोर में खोजें।",
-
   "grofastSortByTitle": "इस क्रम में",
   "grofastPriceTitle": "क़ीमत",
   "grofastApplyLabel": "लागू करें",
   "grofastResetLabel": "रीसेट",
-
   "grofastAddToBagTooltip": "बैग में डालें",
   "grofastFavouriteTooltip": "विशलिस्ट में सेव करें",
   "grofastDecreaseQuantityLabel": "मात्रा घटाएँ",
   "grofastIncreaseQuantityLabel": "मात्रा बढ़ाएँ",
-
   "grofastProductDetailsTitle": "उत्पाद विवरण",
   "grofastDescriptionTitle": "विवरण",
   "grofastSelectSizeTitle": "साइज़ चुनें",
@@ -596,7 +533,6 @@
   "grofastProductDetailsLoadErrorMessage": "यह उत्पाद अभी लोड नहीं हो सका।",
   "grofastAddedToBagMessage": "{count} × {name} आपके बैग में जोड़ा गया।",
   "grofastNoDescriptionLabel": "इस उत्पाद का विवरण अभी उपलब्ध नहीं है।",
-
   "grofastBagTitle": "मेरा बैग",
   "grofastBagItemCount": "{count, plural, one{{count} आइटम} other{{count} आइटम}}",
   "grofastPromoCodeHint": "प्रोमो कोड डालें",
@@ -614,7 +550,6 @@
   "grofastBagEmptySubtitle": "कुछ ताज़ा किराना जोड़ें, वह यहाँ दिखाई देगा।",
   "grofastBagExploreAction": "ख़रीदारी शुरू करें",
   "grofastRemovedFromBagMessage": "आपके बैग से हटा दिया गया।",
-
   "grofastCheckoutTitle": "चेकआउट",
   "grofastItemsTitle": "आइटम",
   "grofastDeliveryAddressTitle": "डिलीवरी पता",
@@ -622,16 +557,13 @@
   "grofastChangeAddressLabel": "बदलें",
   "grofastNoAddressSelectedLabel": "डिलीवरी का पता चुनें",
   "grofastConfirmOrderLabel": "ऑर्डर पक्का करें",
-
   "grofastOrderPlacedTitle": "बधाई हो!",
   "grofastOrderPlacedMessage": "आपका ऑर्डर सफलतापूर्वक बन गया है।",
   "grofastBrowseHomeLabel": "होम देखें",
-
   "grofastNavHome": "होम",
   "grofastNavCategories": "श्रेणी",
   "grofastNavBag": "बैग",
   "grofastNavAccount": "खाता",
-
   "grofastProfileTitle": "प्रोफ़ाइल",
   "grofastNotificationTileLabel": "सूचना",
   "grofastOrdersTileLabel": "मेरे ऑर्डर",
@@ -647,7 +579,6 @@
   "grofastLogOutConfirmMessage": "ऑर्डर करने के लिए आपको दोबारा साइन इन करना होगा।",
   "grofastProfileLoadErrorMessage": "आपकी प्रोफ़ाइल लोड नहीं हो सकी।",
   "grofastProfileNameFallback": "आपका खाता",
-
   "grofastEditProfileTitle": "मेरी प्रोफ़ाइल",
   "grofastFullNameLabel": "पूरा नाम",
   "grofastFullNameHint": "अपना पूरा नाम दर्ज करें",
@@ -661,7 +592,6 @@
   "grofastChooseFromGalleryLabel": "गैलरी से चुनें",
   "grofastAvatarPickerMobileOnlyMessage": "फ़ोटो चुनना केवल मोबाइल पर उपलब्ध है।",
   "grofastProfileUpdatedMessage": "आपकी प्रोफ़ाइल अपडेट कर दी गई है।",
-
   "grofastChangePasswordTitle": "पासवर्ड बदलें",
   "grofastCurrentPasswordLabel": "वर्तमान पासवर्ड",
   "grofastCurrentPasswordHint": "अपना वर्तमान पासवर्ड दर्ज करें",
@@ -671,12 +601,10 @@
   "grofastConfirmNewPasswordHint": "अपना नया पासवर्ड दोबारा दर्ज करें",
   "grofastUpdatePasswordButtonLabel": "पासवर्ड अपडेट करें",
   "grofastPasswordUpdatedMessage": "आपका पासवर्ड अपडेट कर दिया गया है।",
-
   "grofastWishlistTitle": "विशलिस्ट",
   "grofastWishlistEmptyTitle": "अभी कुछ सेव नहीं है",
   "grofastWishlistEmptySubtitle": "जो भी बाद के लिए रखना हो, उस पर दिल का निशान दबाएँ।",
   "grofastWishlistExploreAction": "ख़रीदारी शुरू करें",
-
   "grofastNotificationsTitle": "सूचना",
   "grofastNotificationsFilterAllLabel": "सभी",
   "grofastNotificationsSearchHint": "अपनी सूचनाएँ खोजें",
@@ -687,7 +615,6 @@
   "grofastNotificationsEmptySubtitle": "आपके ऑर्डर से जुड़ी कोई भी बात होते ही हम आपको बताएँगे।",
   "grofastNotificationsNoResultsTitle": "यहाँ कुछ नहीं है",
   "grofastNotificationsNoResultsSubtitle": "\"{query}\" से कोई सूचना मेल नहीं खाती।",
-
   "grofastSelectAddressTitle": "स्थान चुनें",
   "grofastAddNewAddressLabel": "नया पता जोड़ें",
   "grofastAddressLoadErrorMessage": "आपके पते लोड नहीं हो सके।",
@@ -700,7 +627,6 @@
   "grofastDeleteAddressMessage": "यह आपके सेव किए गए स्थानों से हट जाएगा। इसे पूर्ववत नहीं किया जा सकता।",
   "grofastDeleteLabel": "हटाएँ",
   "grofastCancelLabel": "रद्द करें",
-
   "grofastAddAddressTitle": "नया पता जोड़ें",
   "grofastEditAddressTitle": "पता संपादित करें",
   "grofastAddressNameLabel": "नाम",
@@ -726,7 +652,6 @@
   "grofastAddAddressButtonLabel": "पता जोड़ें",
   "grofastUpdateAddressButtonLabel": "पता अपडेट करें",
   "grofastRequiredFieldErrorMessage": "यह फ़ील्ड आवश्यक है",
-
   "grofastMyOrdersTitle": "मेरे ऑर्डर",
   "grofastOrdersSearchHint": "अपने ऑर्डर खोजें",
   "grofastOrdersFilterAllLabel": "सभी",
@@ -749,7 +674,6 @@
   "grofastOrderDeliveredLine": "{label} पर डिलीवर हो गया",
   "grofastOrderDeliveringLine": "{label} पर डिलीवर हो रहा है",
   "grofastOrderCancelledLine": "यह ऑर्डर रद्द कर दिया गया था",
-
   "grofastTrackOrderTitle": "ऑर्डर ट्रैक करें",
   "grofastOrderDetailTitle": "ऑर्डर विवरण",
   "grofastCopyTooltip": "कॉपी करें",
@@ -778,7 +702,6 @@
   "grofastRefundPendingLabel": "रिफ़ंड रास्ते में है",
   "grofastRefundProcessedLabel": "रिफ़ंड हो गया",
   "grofastRefundFailedLabel": "रिफ़ंड विफल रहा",
-
   "validationNameRequired": "कृपया अपना नाम दर्ज करें।",
   "validationEmailRequired": "कृपया अपना ईमेल पता दर्ज करें।",
   "validationEmailInvalid": "मान्य ईमेल पता दर्ज करें।",

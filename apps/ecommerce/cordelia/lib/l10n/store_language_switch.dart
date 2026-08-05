@@ -37,5 +37,6 @@ extension StoreLanguageLabelX on StoreLanguage {
     StoreLanguage.de => ValueConst.languageGerman,
     StoreLanguage.fr => ValueConst.languageFrench,
     StoreLanguage.es => ValueConst.languageSpanish,
+    StoreLanguage.it => ValueConst.languageItalian,
   };
 }

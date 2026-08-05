@@ -6,6 +6,7 @@
   "languageGerman": "Deutsch",
   "languageFrench": "Français",
   "languageSpanish": "Español",
+  "languageItalian": "Italiano",
   "unitPiecesLabel": "{count, plural, one{ud.} other{uds.}}",
   "loginTitle": "Te damos la bienvenida a CordeliaApps",
   "loginSubtitle": "Inicia sesión en tu cuenta con tu correo electrónico o tus redes sociales",

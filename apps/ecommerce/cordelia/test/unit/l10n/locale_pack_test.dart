@@ -10,6 +10,13 @@ import 'package:cordelia/feature/storefront/template/store_language.dart';
 import 'package:cordelia/l10n/active_locale_controller.dart';
 import 'package:cordelia/l10n/l10n.dart';
 
+/// The two space characters CLDR puts inside a formatted price. Named rather
+/// than written as literals because they are indistinguishable from an ordinary
+/// space on screen and in a diff — a mistyped plain space here reads as a
+/// formatting bug that isn't there.
+const nbsp = '\u00A0'; // no-break space: before the currency symbol
+const nnbsp = '\u202F'; // narrow no-break space: French thousands separator
+
 /// gen-l10n silently falls back to the template's English for a key a
 /// translation is missing, so a half-finished locale ships as a
 /// half-English screen rather than a build failure. These tests are what
@@ -189,7 +196,7 @@ void main() {
       // French groups with a NARROW no-break space (U+202F) and precedes the
       // symbol with a plain one (U+00A0) — pinned by codepoint in core's
       // app_format_test; here we only assert the locale actually took effect.
-      expect(1234567.89.asPrice, '1 234 567,89 €');
+      expect(1234567.89.asPrice, '1${nnbsp}234${nnbsp}567,89$nbsp€');
     });
 
     test('0 takes the singular, unlike English', () {
@@ -218,7 +225,7 @@ void main() {
       // as €1,234,567.89, symbol first); AppFormat reads
       // Locale.toLanguageTag(), so that needs no formatting code, only a new
       // enum case sharing this same arb.
-      expect(1234567.89.asPrice, '1.234.567,89 €');
+      expect(1234567.89.asPrice, '1.234.567,89$nbsp€');
     });
 
     test('0 takes the plural, unlike French', () {
@@ -251,5 +258,94 @@ void main() {
         );
       });
     });
+  });
+
+  group('applying the Italian locale', () {
+    final controller = ActiveLocaleController();
+
+    tearDown(controller.resetToAppDefault);
+
+    test('swaps strings and formatting together', () {
+      controller.apply(StoreLanguage.it.asLocale, currency: StoreCurrency.eur);
+
+      expect(L10n.current.languageSheetTitle, 'Lingua');
+      expect(L10n.current.languageItalian, 'Italiano');
+      // Italian shares de/es's point-grouped shape, unlike French.
+      expect(1234567.89.asPrice, '1.234.567,89$nbsp€');
+    });
+
+    test('the invariant unit keeps both ICU branches', () {
+      controller.apply(StoreLanguage.it.asLocale, currency: StoreCurrency.eur);
+      // 'pz' does not inflect, so both branches read the same — but both must
+      // still exist, or gen-l10n has nothing to select for one of them.
+      expect(L10n.current.unitPiecesLabel(1), 'pz');
+      expect(L10n.current.unitPiecesLabel(3), 'pz');
+    });
+  });
+
+  // Translating locale-by-locale from a shared contract makes it easy for one
+  // language's convention to bleed into another's file. These are cheap to
+  // check and impossible to spot by reading, since the offending characters
+  // are either punctuation or invisible.
+  group('no locale borrows another\'s typography', () {
+    const spanishOnly = {StoreLanguage.es};
+    const frenchOnly = {StoreLanguage.fr};
+
+    for (final language in StoreLanguage.values.where(
+      (l) => !spanishOnly.contains(l),
+    )) {
+      test('${language.wireValue} has no Spanish inverted marks', () {
+        arb(language.wireValue).forEach((key, value) {
+          if (key.startsWith('@')) return;
+          expect(
+            value as String,
+            isNot(anyOf(contains('¿'), contains('¡'))),
+            reason: '$key uses a Spanish-only mark',
+          );
+        });
+      });
+    }
+
+    for (final language in StoreLanguage.values.where(
+      (l) => !frenchOnly.contains(l),
+    )) {
+      test('${language.wireValue} has no French punctuation spacing', () {
+        arb(language.wireValue).forEach((key, value) {
+          if (key.startsWith('@')) return;
+          for (final mark in ['!', '?', ':', ';']) {
+            expect(
+              value as String,
+              isNot(contains(' $mark')),
+              reason: '$key puts a no-break space before "$mark", which only '
+                  'French does',
+            );
+          }
+        });
+      });
+    }
+  });
+
+  group('order timeline labels stay distinct', () {
+    // A 12-char cap invites collapsing two short labels into one word. These
+    // two mean different things — the step *name* ("Order Placed") versus a
+    // step *not yet reached* ("Pending") — and fr and es both shipped them
+    // identical before this was caught.
+    const pairs = [
+      ('dailymartOrderStepPlacedLabel', 'dailymartOrderStepPendingLabel'),
+      ('grofastStatusPlacedLabel', 'grofastOrderStepPendingLabel'),
+    ];
+
+    for (final language in StoreLanguage.values) {
+      test('${language.wireValue} distinguishes placed from pending', () {
+        final values = arb(language.wireValue);
+        for (final (placed, pending) in pairs) {
+          expect(
+            values[placed],
+            isNot(values[pending]),
+            reason: '$placed and $pending must not read the same',
+          );
+        }
+      });
+    }
   });
 }

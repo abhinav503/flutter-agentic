@@ -42,6 +42,7 @@ PASSTHROUGH = {
     "languageGerman",
     "languageFrench",
     "languageSpanish",
+    "languageItalian",
     "termsAndConditionsBody",
 }
 
@@ -82,11 +83,42 @@ def french_punctuation_spacing(key, src, dst):
     return problems
 
 
+def no_foreign_typography(key, src, dst):
+    """Catch a convention borrowed from the wrong language.
+
+    Translating locale-by-locale from a shared contract makes it easy for
+    Spanish's inverted marks or French's punctuation spacing to bleed into a
+    language that uses neither.
+    """
+    problems = []
+    if "¿" in dst or "¡" in dst:
+        problems.append(f"{key}: Spanish inverted mark in a non-Spanish locale — {dst[:50]!r}")
+    for mark in ("!", "?", ":", ";"):
+        if f" {mark}" in dst:
+            problems.append(
+                f"{key}: French no-break space before '{mark}' in a locale that "
+                f"does not use it — {dst[:50]!r}"
+            )
+    return problems
+
+
 # Per-locale typography rules, applied on top of the structural checks.
 LOCALE_RULES = {
     "es": [spanish_inverted_marks],
     "fr": [french_punctuation_spacing],
+    "it": [no_foreign_typography],
+    "de": [no_foreign_typography],
 }
+
+# Key pairs whose English differs and which must therefore stay distinct in
+# every translation. A capped slot invites collapsing two short labels into one
+# word, and when the two mean different things that is a silent bug: fr and es
+# both shipped the order-timeline *step name* ("Order Placed") rendered as
+# "pending", which is what the sibling key already means.
+DISTINCT_PAIRS = [
+    ("dailymartOrderStepPlacedLabel", "dailymartOrderStepPendingLabel"),
+    ("grofastStatusPlacedLabel", "grofastOrderStepPendingLabel"),
+]
 
 
 def load(path):
@@ -178,6 +210,16 @@ def validate(template, translation, locale):
 
         for rule in LOCALE_RULES.get(locale, ()):
             problems.extend(rule(k, src, dst))
+
+    for a, b in DISTINCT_PAIRS:
+        if a not in translation or b not in translation:
+            continue
+        if template.get(a) != template.get(b) and translation[a] == translation[b]:
+            problems.append(
+                f"{a} and {b} are both {translation[a]!r}, but their English "
+                f"differs ({template.get(a)!r} vs {template.get(b)!r}) — they "
+                f"mean different things and must read differently"
+            )
 
     return problems
 

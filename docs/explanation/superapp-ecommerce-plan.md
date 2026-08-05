@@ -2498,3 +2498,50 @@ against deliberate violations rather than trusted because they went green.
 Spanish also confirmed a trap worth stating plainly: **0 is plural in Spanish
 and singular in French.** Assuming "Romance language, therefore same plural
 rules" would have shipped "0 unités" in French. Both are pinned by test.
+
+### Italian (it) — sixth locale, completing the European set (2026-08-05, same day)
+
+`app_it.arb` at full 712-key parity, `StoreLanguage.it` registered end-to-end,
+`it` in the admin picklist. Informal **"tu"** (like Spanish, unlike German and
+French — per-language register follows each market's retail norm). Italian
+shares the point-grouped `1.234.567,89 €` shape with German and Spanish, so no
+new formatting work.
+
+Merged with **zero overrides**, like French. The two lessons from the Spanish
+round were folded into the dispatch rather than discovered again: the
+placed-vs-pending distinction and the 12-char pill cap were stated per-key in
+the prompts, so the translators produced `Effettuato` / `In attesa` correctly
+first time.
+
+**The gate grew two generic guards**, both self-tested against deliberate
+violations before being trusted:
+
+- `DISTINCT_PAIRS` — key pairs whose English differs and which must therefore
+  stay distinct in every translation. A narrow cap invites collapsing two short
+  labels into one word; when they mean different things that is silent, and it
+  is exactly what fr and es shipped.
+- `no_foreign_typography` — catches one language's convention bleeding into
+  another's file (Spanish's `¿`/`¡`, French's U+00A0 before `: ; ! ?`). Real
+  risk when locales are translated in parallel from a shared contract.
+
+Both are mirrored as tests that loop over `StoreLanguage.values`, so every
+future locale inherits them.
+
+**A note on writing these tests.** A plain space typed where CLDR emits U+00A0
+produces a failure whose expected and actual strings are byte-different and
+visually identical — it cost three false debugging rounds in this file. The
+price expectations now build from named `nbsp`/`nnbsp` constants instead of
+invisible literals. Worth copying in any test that asserts formatted output.
+
+### Where the language work stands
+
+Six locales at full parity: **en, hi, de, fr, es, it**. 38 tests guard them,
+looping over the enum so a seventh inherits every check the day its arb lands:
+key parity, capped-slot widths (Latin scripts only — `String.length` is not a
+width proxy for Devanagari), locale-correct number/date shape, plural-category
+correctness (0 is singular in French, plural everywhere else here), typography
+per language, and cross-locale contamination.
+
+Still open, unchanged by this work: the per-currency price-filter thresholds
+(the bands are still rupee-sized), catalog content (see `content-i18n-plan.md`),
+and a device pass on each new language where copy meets live catalog data.

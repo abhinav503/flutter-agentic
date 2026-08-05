@@ -10,6 +10,7 @@ import 'app_localizations_en.dart';
 import 'app_localizations_es.dart';
 import 'app_localizations_fr.dart';
 import 'app_localizations_hi.dart';
+import 'app_localizations_it.dart';
 
 // ignore_for_file: type=lint
 
@@ -102,6 +103,7 @@ abstract class AppLocalizations {
     Locale('es'),
     Locale('fr'),
     Locale('hi'),
+    Locale('it'),
   ];
 
   /// No description provided for @languageSheetTitle.
@@ -139,6 +141,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Español'**
   String get languageSpanish;
+
+  /// No description provided for @languageItalian.
+  ///
+  /// In en, this message translates to:
+  /// **'Italiano'**
+  String get languageItalian;
 
   /// Unit suffix for a countable pack ('3 pcs'). German collapses both numbers to 'Stk.', so this is a plural key even though English is the only locale that varies.
   ///
@@ -4381,8 +4389,14 @@ class _AppLocalizationsDelegate
   }
 
   @override
-  bool isSupported(Locale locale) =>
-      <String>['de', 'en', 'es', 'fr', 'hi'].contains(locale.languageCode);
+  bool isSupported(Locale locale) => <String>[
+    'de',
+    'en',
+    'es',
+    'fr',
+    'hi',
+    'it',
+  ].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
@@ -4401,6 +4415,8 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
       return AppLocalizationsFr();
     case 'hi':
       return AppLocalizationsHi();
+    case 'it':
+      return AppLocalizationsIt();
   }
 
   throw FlutterError(

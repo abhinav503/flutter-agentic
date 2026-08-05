@@ -163,6 +163,7 @@ abstract final class ValueConst {
   static String get languageGerman => L10n.current.languageGerman;
   static String get languageFrench => L10n.current.languageFrench;
   static String get languageSpanish => L10n.current.languageSpanish;
+  static String get languageItalian => L10n.current.languageItalian;
 
   /// Unit suffix for a countable pack ("3 pcs" / "3 Stk.") — see
   /// `ProductUnitType.format`.

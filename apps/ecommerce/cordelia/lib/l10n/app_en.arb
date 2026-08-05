@@ -1,18 +1,21 @@
 {
   "@@locale": "en",
-
   "languageSheetTitle": "Language",
   "languageEnglish": "English",
   "languageHindi": "हिन्दी",
   "languageGerman": "Deutsch",
   "languageFrench": "Français",
   "languageSpanish": "Español",
+  "languageItalian": "Italiano",
   "unitPiecesLabel": "{count, plural, one{pc} other{pcs}}",
   "@unitPiecesLabel": {
     "description": "Unit suffix for a countable pack ('3 pcs'). German collapses both numbers to 'Stk.', so this is a plural key even though English is the only locale that varies.",
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
-
   "loginTitle": "Welcome To CordeliaApps",
   "loginSubtitle": "Log in to your account using email or social networks",
   "emailLabel": "Email Address",
@@ -22,7 +25,11 @@
   "forgotPasswordLabel": "Forgot Password?",
   "passwordResetEmailSentMessage": "Password reset link sent to {email}",
   "@passwordResetEmailSentMessage": {
-    "placeholders": { "email": { "type": "String" } }
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
   },
   "continueLabel": "Continue",
   "orLoginWith": "Or Login with",
@@ -32,7 +39,6 @@
   "termsOfServiceAndPrivacyPolicy": "Terms of Service & Privacy Policy",
   "dontHaveAccount": "Don't have an account? ",
   "signupLink": "Signup",
-
   "signupTitle": "Sign Up Your Account",
   "signupSubtitle": "Enter your information below",
   "nameLabel": "Name",
@@ -48,18 +54,19 @@
   "alreadyHaveAccount": "Already have an account? ",
   "loginLink": "Login",
   "comingSoonMessage": "Coming soon",
-
   "paymentCancelledMessage": "Payment cancelled",
   "paymentFailedMessage": "Payment could not be completed. Please try again.",
-
   "verifyEmailTitle": "Verify Your Email",
   "verifyEmailSubtitle": "We've sent a verification link to {email}. Open it, then come back here — this will update automatically.",
   "@verifyEmailSubtitle": {
-    "placeholders": { "email": { "type": "String" } }
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
   },
   "verifyEmailChecking": "Checking…",
   "resendEmailLabel": "Resend email",
-
   "termsAndConditionsLabel": "Terms & Conditions",
   "privacyPolicyLabel": "Privacy Policy",
   "legalLastUpdatedLabel": "Last update: Mar 09, 2026",
@@ -75,7 +82,6 @@
   "privacyPolicySection3Body": "You have full control over your data. Manage your privacy preferences, update personal details, and customize your settings to match your needs.",
   "privacyPolicySection4Heading": "4. Security Measures",
   "privacyPolicySection4Body": "We prioritize your data's safety with advanced security protocols, encryption methods, and regular audits to protect against unauthorized access or breaches.",
-
   "profilePageTitle": "Profile",
   "changePasswordLabel": "Change Password",
   "myOrdersLabel": "My Orders",
@@ -89,7 +95,6 @@
   "deleteAccountConfirmMessage": "This permanently deletes your profile, addresses, cart, wishlist and reviews across every store. Orders you have already placed stay with those stores as their sales records. This cannot be undone.",
   "deleteAccountFailedMessage": "Could not delete your account. Please try again.",
   "profileLoadErrorMessage": "Something went wrong loading your profile.",
-
   "sortRelevanceLabel": "Relevance",
   "sortPriceLowToHighLabel": "Price (Low to High)",
   "sortPriceHighToLowLabel": "Price (High to Low)",
@@ -99,20 +104,31 @@
   "priceFilterUnderLabel": "Under {price}",
   "@priceFilterUnderLabel": {
     "description": "Price-bucket label. {price} arrives already formatted for the active locale and the store's currency (core's asPrice) — never hardcode a currency glyph in this string.",
-    "placeholders": { "price": { "type": "String" } }
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
   },
   "priceFilterOverLabel": "Over {price}",
   "@priceFilterOverLabel": {
-    "placeholders": { "price": { "type": "String" } }
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
   },
   "priceFilterRangeLabel": "{from} - {to}",
   "@priceFilterRangeLabel": {
     "placeholders": {
-      "from": { "type": "String" },
-      "to": { "type": "String" }
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
     }
   },
-
   "reviewsSectionTitle": "Ratings & Reviews",
   "writeReviewLabel": "Write a review",
   "editReviewLabel": "Edit your review",
@@ -130,7 +146,6 @@
   "reviewsEmptyTitle": "No reviews yet",
   "reviewsEmptySubtitle": "Be the first to rate this product and help other shoppers decide.",
   "unratedLabel": "No ratings yet",
-
   "rateOrderLabel": "Rate Order",
   "editOrderRatingLabel": "Edit Rating",
   "rateOrderSheetTitle": "How was this order?",
@@ -143,71 +158,93 @@
   "@orderPlacedAtLabel": {
     "description": "Joins an order's date and time. Both arrive already formatted for the active locale (core's DateTimePartsX) — this string owns only the connector, which is not 'at' in every language.",
     "placeholders": {
-      "date": { "type": "String" },
-      "time": { "type": "String" }
+      "date": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
     }
   },
-
   "reviewCountLabel": "{count, plural, one{{count} review} other{{count} reviews}}",
   "@reviewCountLabel": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "reviewAgeJustNow": "Just now",
   "reviewAgeMinutesAgo": "{count, plural, one{{count} minute ago} other{{count} minutes ago}}",
   "@reviewAgeMinutesAgo": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "reviewAgeHoursAgo": "{count, plural, one{{count} hour ago} other{{count} hours ago}}",
   "@reviewAgeHoursAgo": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "reviewAgeDaysAgo": "{count, plural, one{{count} day ago} other{{count} days ago}}",
   "@reviewAgeDaysAgo": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "reviewAgeMonthsAgo": "{count, plural, one{{count} month ago} other{{count} months ago}}",
   "@reviewAgeMonthsAgo": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "reviewAgeYearsAgo": "{count, plural, one{{count} year ago} other{{count} years ago}}",
   "@reviewAgeYearsAgo": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
-
   "graviaCategoriesTitle": "All Categories",
   "graviaSeeAll": "See All",
   "graviaPopularItemsTitle": "Popular Items",
   "graviaHomeLoadErrorMessage": "Couldn't load this store's catalog.",
-
   "graviaCancel": "Cancel",
-
   "graviaDiscountPercentOff": "{percent}% OFF",
   "@graviaDiscountPercentOff": {
-    "placeholders": { "percent": { "type": "String" } }
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
   },
   "graviaAddToCart": "Add To Cart",
   "graviaAddToCartSheetTitle": "Add to Cart",
-
   "graviaDeleteLabel": "Delete",
   "graviaDeleteAddressTitle": "Delete Address",
   "graviaDeleteAddressConfirmMessage": "Are you sure you want to delete this address? This action cannot be undone.",
-
   "graviaClearCartTitle": "Clear Cart",
   "graviaClearCartConfirmMessage": "Are you sure you want to remove all items from your cart?",
   "graviaClearCartConfirmLabel": "Clear Cart",
-
   "graviaOrderPlacedTitle": "Order Placed Successfully",
   "graviaOrderPlacedSubtitle": "Thank you for your order you can track your delivery in the order section",
   "graviaTrackYourOrderLabel": "Track Your Order",
-
   "graviaSearchHint": "Search",
-
   "graviaNavHome": "Home",
   "graviaNavCategories": "Categories",
   "graviaNavFavourite": "Favourite",
   "graviaNavOrders": "Orders",
   "graviaNavProfile": "Profile",
-
   "graviaRecentSearchTitle": "Recent Search",
   "graviaSearchLoadErrorMessage": "Something went wrong loading search.",
   "graviaSearchResultsErrorMessage": "Something went wrong searching.",
@@ -215,9 +252,12 @@
   "graviaSearchNoResultsTitle": "No results found",
   "graviaSearchNoResultsSubtitle": "Nothing matches \"{query}\". Try a different keyword.",
   "@graviaSearchNoResultsSubtitle": {
-    "placeholders": { "query": { "type": "String" } }
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
   },
-
   "graviaProductDetailsTitle": "Product Details",
   "graviaSelectQtyLabel": "Select QTY",
   "graviaKeyInformationTitle": "Key Information",
@@ -227,19 +267,20 @@
   "graviaProductDetailsLoadErrorMessage": "Something went wrong loading this product.",
   "graviaAddToCartWithPrice": "Add to Cart ({price})",
   "@graviaAddToCartWithPrice": {
-    "placeholders": { "price": { "type": "String" } }
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
   },
-
   "graviaCategoriesPageTitle": "Categories",
   "graviaCategoriesLoadErrorMessage": "Something went wrong loading categories.",
   "graviaCategoriesRefreshFailedMessage": "Couldn't refresh — showing your last loaded categories.",
-
   "graviaSortLabel": "Sort",
   "graviaPriceLabel": "Price",
   "graviaSortBySheetTitle": "Sort by",
   "graviaPriceSheetTitle": "Price",
   "graviaCategoryDetailsEmptyMessage": "No products match these filters.",
-
   "graviaSelectAddressTitle": "Select Address",
   "graviaAddNewAddressLabel": "Add New Address",
   "graviaDefaultAddressSectionTitle": "Default Address",
@@ -250,7 +291,6 @@
   "graviaAddressDeleteFailedMessage": "Could not delete the address. Please try again.",
   "graviaAddressEmptyTitle": "No saved addresses",
   "graviaAddressEmptySubtitle": "Add your first delivery address to get started.",
-
   "graviaEditAddressTitle": "Edit Address",
   "graviaNameLabel": "Name",
   "graviaNameHint": "e.g. Mark Shelby",
@@ -279,7 +319,6 @@
   "graviaLocationUnavailableMessage": "Couldn't get your location. Check location permission and try again.",
   "graviaAddressSearchLabel": "Search Address",
   "graviaAddressSearchHint": "Search area, street, landmark…",
-
   "graviaProfilePageTitle": "Profile",
   "graviaChangePasswordLabel": "Change Password",
   "graviaMyOrdersLabel": "My Orders",
@@ -291,7 +330,6 @@
   "graviaLogoutTitle": "Logout",
   "graviaLogoutConfirmMessage": "Are you sure you want to log out?",
   "graviaProfileLoadErrorMessage": "Something went wrong loading your profile.",
-
   "graviaEditProfileTitle": "Edit Profile",
   "graviaEmailAddressLabel": "Email Address",
   "graviaEmailAddressHint": "e.g. mark.shelby@example.com",
@@ -301,7 +339,6 @@
   "graviaTakePhotoLabel": "Take Photo",
   "graviaChooseFromGalleryLabel": "Choose from Gallery",
   "graviaAvatarPickerMobileOnlyMessage": "Changing your photo is only available on mobile",
-
   "graviaChangePasswordTitle": "Change Password",
   "graviaCurrentPasswordLabel": "Current Password",
   "graviaCurrentPasswordHint": "Enter your current password",
@@ -311,7 +348,6 @@
   "graviaConfirmNewPasswordHint": "Re-enter your new password",
   "graviaUpdatePasswordButtonLabel": "Update Password",
   "graviaPasswordUpdatedMessage": "Your password has been updated.",
-
   "graviaMyCartTitle": "My Cart",
   "graviaBeforeYouCheckoutTitle": "Before you Checkout",
   "graviaCouponCodeLabel": "Coupon Code",
@@ -319,11 +355,19 @@
   "graviaCouponRemoveLabel": "Remove",
   "graviaCouponApplied": "{code} applied",
   "@graviaCouponApplied": {
-    "placeholders": { "code": { "type": "String" } }
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
   },
   "graviaCouponLine": "Coupon ({code})",
   "@graviaCouponLine": {
-    "placeholders": { "code": { "type": "String" } }
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
   },
   "graviaItemTotalLabel": "Item Total",
   "graviaDiscountLabel": "Discount",
@@ -339,11 +383,14 @@
   "graviaCartSummary": "{count, plural, one{{count} item} other{{count} items}} | {total}",
   "@graviaCartSummary": {
     "placeholders": {
-      "count": { "type": "int" },
-      "total": { "type": "String" }
+      "count": {
+        "type": "int"
+      },
+      "total": {
+        "type": "String"
+      }
     }
   },
-
   "graviaOrdersPageTitle": "Orders",
   "graviaUpcomingTabLabel": "Upcoming",
   "graviaPastTabLabel": "Past",
@@ -356,11 +403,9 @@
   "graviaTrackOrderLabel": "Track Order",
   "graviaViewDetailsLabel": "View Details",
   "graviaWriteReviewLabel": "Write A Review",
-
   "graviaRefundPendingLabel": "Refund processing",
   "graviaRefundProcessedLabel": "Refunded",
   "graviaRefundFailedLabel": "Refund failed",
-
   "graviaCancelOrderConfirmTitle": "Cancel this order?",
   "graviaCancelOrderConfirmBody": "This will cancel your order. If you paid, you'll be refunded in full.",
   "graviaCancelOrderConfirmCta": "Cancel Order",
@@ -368,7 +413,6 @@
   "graviaCancelFailedMessage": "Could not cancel the order. Please try again.",
   "graviaOrdersLoadErrorMessage": "Something went wrong loading your orders.",
   "graviaOrdersRefreshFailedMessage": "Couldn't refresh — showing your last loaded orders.",
-
   "graviaTrackOrderTitle": "Track Order",
   "graviaOrderStatusTitle": "Order Status",
   "graviaOrderItemsTitle": "Items",
@@ -382,13 +426,11 @@
   "graviaRefundLabel": "Refund",
   "graviaCopiedMessage": "Copied",
   "graviaOrderTotalLabel": "Total Paid",
-
   "graviaOrderStepPlacedLabel": "Order Placed",
   "graviaOrderStepOnTheWayLabel": "On the way",
   "graviaOrderStepDeliveredLabel": "Delivered",
   "graviaOrderStepCancelledLabel": "Cancelled",
   "graviaOrderStepUndatedLabel": "Time not recorded",
-
   "graviaOrdersEmptyTitle": "No orders yet",
   "graviaOrdersEmptySubtitle": "Your past and active orders will show up here.",
   "graviaFilterSheetTitle": "Filter",
@@ -399,27 +441,26 @@
   "graviaFilterDateLabel": "Date",
   "graviaFilterAllStatusesLabel": "All",
   "graviaApplyFilterLabel": "Apply Filter",
-
   "graviaFavouritePageTitle": "Favourite",
   "graviaFavouriteEmptyTitle": "No favourites yet",
   "graviaFavouriteEmptySubtitle": "Tap the heart on a product to keep it here.",
-
   "graviaAddedToCartMessage": "{count, plural, one{{name} added to cart} other{{count} × {name} added to cart}}",
   "@graviaAddedToCartMessage": {
     "placeholders": {
-      "count": { "type": "int" },
-      "name": { "type": "String" }
+      "count": {
+        "type": "int"
+      },
+      "name": {
+        "type": "String"
+      }
     }
   },
-
   "graviaDeliveryLocationLabel": "Delivery Location",
   "graviaNoLocationSelectedLabel": "No Location selected",
-
   "graviaNotificationsTitle": "Notifications",
   "graviaNotificationsLoadErrorMessage": "Something went wrong loading your notifications.",
   "graviaNotificationsEmptyTitle": "No notifications yet",
   "graviaNotificationsEmptySubtitle": "Updates about your orders and account will show up here.",
-
   "dailymartTopSellerTitle": "Top Seller🔥",
   "dailymartCategoriesTitle": "Shop by category",
   "dailymartPopularProductsTitle": "Popular Products",
@@ -427,89 +468,116 @@
   "dailymartSearchHint": "Search for products",
   "dailymartHomeLoadErrorMessage": "Couldn't load this store's catalog.",
   "dailymartNoLocationSelectedLabel": "Select a location",
-
   "dailymartNotificationsTitle": "Notification",
   "dailymartNotificationsLoadErrorMessage": "Couldn't load your notifications.",
   "dailymartNotificationsEmptyTitle": "No notifications yet",
   "dailymartNotificationsEmptySubtitle": "Deals and order updates from this store will show up here.",
-
   "dailymartOrderNow": "Order Now",
   "dailymartPromoSubtitle": "Enjoy discounts of up to {percent}%\non your order today",
   "@dailymartPromoSubtitle": {
-    "placeholders": { "percent": { "type": "String" } }
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
   },
   "dailymartDiscountPercentOff": "{percent}% off",
   "@dailymartDiscountPercentOff": {
-    "placeholders": { "percent": { "type": "String" } }
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
   },
-
   "dailymartNavHome": "Home",
   "dailymartNavWishlist": "Wishlist",
   "dailymartNavCart": "Cart",
   "dailymartNavProfile": "Profile",
-
   "dailymartRecentSearchTitle": "Recent Search",
   "dailymartRecentlyViewedTitle": "Recently viewed",
   "dailymartResultsForLabel": "Result for \"{query}\"",
   "@dailymartResultsForLabel": {
-    "placeholders": { "query": { "type": "String" } }
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
   },
   "dailymartResultsCountLabel": "{count} founds",
   "@dailymartResultsCountLabel": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "dailymartSearchLoadErrorMessage": "Couldn't load search.",
   "dailymartSearchResultsErrorMessage": "Couldn't search this store.",
   "dailymartSearchNoResultsTitle": "No results",
   "dailymartSearchNoResultsSubtitle": "Nothing in this store matches \"{query}\" yet.",
   "@dailymartSearchNoResultsSubtitle": {
-    "placeholders": { "query": { "type": "String" } }
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
   },
   "dailymartCategoryBadge": "Category",
-
   "dailymartFilterLabel": "Filter",
   "dailymartSortSheetTitle": "Sort by",
   "dailymartPriceSheetTitle": "Price",
   "dailymartCategoryDetailsEmptyTitle": "Nothing here",
   "dailymartCategoryDetailsEmptySubtitle": "No products in this category match those filters.",
   "dailymartCategoryDetailsErrorMessage": "Couldn't load this category.",
-
   "dailymartWishlistEmptyTitle": "Nothing saved yet",
   "dailymartWishlistEmptySubtitle": "Tap the heart on a product and it will wait for you here.",
   "dailymartWishlistExploreAction": "Start shopping",
-
   "dailymartProductDetailsTitle": "Product Details",
   "dailymartDescriptionsTabLabel": "Descriptions",
   "dailymartReviewsTabLabel": "Reviews",
   "dailymartRelatedProductsTitle": "Related Products",
   "dailymartSelectSizeLabel": "Select Size",
   "dailymartProductDetailsLoadErrorMessage": "Couldn't load this product's details.",
-
   "dailymartAddToCart": "Add To Cart",
   "dailymartAddToCartSheetTitle": "Add To Cart",
   "dailymartAddedToCartMessage": "Added {count} × {name} to your cart.",
   "@dailymartAddedToCartMessage": {
     "placeholders": {
-      "count": { "type": "int" },
-      "name": { "type": "String" }
+      "count": {
+        "type": "int"
+      },
+      "name": {
+        "type": "String"
+      }
     }
   },
   "dailymartStarRowLabel": "{stars} Star",
   "@dailymartStarRowLabel": {
-    "placeholders": { "stars": { "type": "int" } }
+    "placeholders": {
+      "stars": {
+        "type": "int"
+      }
+    }
   },
-
   "dailymartMyCartTitle": "My Cart",
   "dailymartCouponHint": "Enter coupon code",
   "dailymartCouponRemoveLabel": "Remove",
   "dailymartCouponDetailLabel": "Coupon",
   "dailymartCouponApplied": "{code} applied",
   "@dailymartCouponApplied": {
-    "placeholders": { "code": { "type": "String" } }
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
   },
   "dailymartCouponLine": "Coupon ({code})",
   "@dailymartCouponLine": {
-    "placeholders": { "code": { "type": "String" } }
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
   },
   "dailymartSubTotalLabel": "Sub total",
   "dailymartDeliveryLabel": "Delivery",
@@ -521,7 +589,6 @@
   "dailymartCartEmptySubtitle": "Products you add will show up here, ready to check out.",
   "dailymartCartExploreAction": "Start shopping",
   "dailymartRemovedFromCartMessage": "Removed from your cart.",
-
   "dailymartCheckoutTitle": "Checkout",
   "dailymartShippingAddressLabel": "Shipping Address",
   "dailymartOrderListLabel": "Order List",
@@ -532,12 +599,15 @@
   "dailymartCartSummary": "{count, plural, one{{count} item} other{{count} items}} | {total}",
   "@dailymartCartSummary": {
     "placeholders": {
-      "count": { "type": "int" },
-      "total": { "type": "String" }
+      "count": {
+        "type": "int"
+      },
+      "total": {
+        "type": "String"
+      }
     }
   },
   "dailymartViewCartLabel": "View Cart",
-
   "dailymartGeneralSectionTitle": "General",
   "dailymartPreferencesSectionTitle": "Preferences",
   "dailymartEditProfileLabel": "Edit Profile",
@@ -551,7 +621,6 @@
   "dailymartLogoutTitle": "Log out?",
   "dailymartLogoutConfirmMessage": "You'll need to sign in again to place an order or track one.",
   "dailymartProfileLoadErrorMessage": "Couldn't load your profile.",
-
   "dailymartEditProfileTitle": "Edit Profile",
   "dailymartFullNameLabel": "Full Name",
   "dailymartFullNameHint": "Enter your full name",
@@ -564,7 +633,6 @@
   "dailymartTakePhotoLabel": "Take Photo",
   "dailymartChooseFromGalleryLabel": "Choose from Gallery",
   "dailymartAvatarPickerMobileOnlyMessage": "Choosing a photo is only available on mobile.",
-
   "dailymartChangePasswordTitle": "Change Password",
   "dailymartCurrentPasswordLabel": "Current Password",
   "dailymartCurrentPasswordHint": "Enter your current password",
@@ -574,7 +642,6 @@
   "dailymartConfirmNewPasswordHint": "Re-enter your new password",
   "dailymartUpdatePasswordButtonLabel": "Update Password",
   "dailymartPasswordUpdatedMessage": "Your password has been updated.",
-
   "dailymartSelectAddressTitle": "Select Address",
   "dailymartAddNewAddressLabel": "Add New Address",
   "dailymartAddressLoadErrorMessage": "Couldn't load your addresses.",
@@ -586,7 +653,6 @@
   "dailymartDeleteAddressTitle": "Delete this address?",
   "dailymartDeleteAddressMessage": "It'll be removed from your saved addresses.",
   "dailymartDeleteLabel": "Delete",
-
   "dailymartAddAddressTitle": "Add New Address",
   "dailymartEditAddressTitle": "Edit Address",
   "dailymartAddressNameLabel": "Name",
@@ -610,7 +676,6 @@
   "dailymartAddAddressButtonLabel": "Add Address",
   "dailymartUpdateAddressButtonLabel": "Update Address",
   "dailymartRequiredFieldErrorMessage": "This field is required",
-
   "dailymartMyOrdersTitle": "My Orders",
   "dailymartOrdersSearchHint": "What are you looking for...",
   "dailymartOrdersFilterAllLabel": "All",
@@ -620,8 +685,12 @@
   "dailymartOrderSummaryLabel": "{count, plural, one{{count} item} other{{count} items}} · {date}",
   "@dailymartOrderSummaryLabel": {
     "placeholders": {
-      "count": { "type": "int" },
-      "date": { "type": "String" }
+      "count": {
+        "type": "int"
+      },
+      "date": {
+        "type": "String"
+      }
     }
   },
   "dailymartOrdersDateRangeLabel": "Date Range",
@@ -637,7 +706,6 @@
   "dailymartOrdersNoResultsSubtitle": "No orders match that search or filter.",
   "dailymartOrderCancelFailedMessage": "Couldn't cancel that order.",
   "dailymartOrdersRefreshFailedMessage": "Couldn't refresh your orders.",
-
   "dailymartTrackOrderTitle": "Track Order",
   "dailymartTrackOrderAction": "Track Order",
   "dailymartOrderDetailsTitle": "Order Details",
@@ -664,10 +732,13 @@
   "dailymartCancelOrderMessage": "You'll be refunded if the order was paid for.",
   "dailymartCancelOrderConfirmLabel": "Cancel Order",
   "dailymartCancelLabel": "Cancel",
-
   "grofastGreeting": "Hey {name} 👋",
   "@grofastGreeting": {
-    "placeholders": { "name": { "type": "String" } }
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   },
   "grofastGreetingFallbackName": "there",
   "grofastGreetingSubtitle": "Find fresh groceries you want",
@@ -680,47 +751,57 @@
   "grofastClaimNow": "claim now",
   "grofastPromoDiscountLabel": "{percent} off",
   "@grofastPromoDiscountLabel": {
-    "placeholders": { "percent": { "type": "String" } }
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
   },
-
   "grofastCategoriesLoadErrorMessage": "Couldn't load categories.",
   "grofastCategoriesEmptyTitle": "No categories yet",
   "grofastCategoriesEmptySubtitle": "This store has not published any categories.",
-
   "grofastCategoryProductsTitle": "All {category}",
   "@grofastCategoryProductsTitle": {
-    "placeholders": { "category": { "type": "String" } }
+    "placeholders": {
+      "category": {
+        "type": "String"
+      }
+    }
   },
   "grofastCategoryDetailsEmptyTitle": "Nothing here yet",
   "grofastCategoryDetailsEmptySubtitle": "No products in this category right now.",
   "grofastCategoryDetailsErrorMessage": "Couldn't load this category.",
-
   "grofastSearchTitle": "Search Groceries",
   "grofastRecentSearchTitle": "Recent Search",
   "grofastResultsCountLabel": "Found {count, plural, one{{count} Result} other{{count} Results}}",
   "@grofastResultsCountLabel": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "grofastSearchLoadErrorMessage": "Couldn't load search.",
   "grofastSearchResultsErrorMessage": "Couldn't search this store.",
   "grofastSearchNoResultsTitle": "No results",
   "grofastSearchNoResultsSubtitle": "Nothing matched \"{query}\". Try another word.",
   "@grofastSearchNoResultsSubtitle": {
-    "placeholders": { "query": { "type": "String" } }
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
   },
   "grofastSearchIdleTitle": "What are you shopping for?",
   "grofastSearchIdleSubtitle": "Search the whole store by name or category.",
-
   "grofastSortByTitle": "Sort By",
   "grofastPriceTitle": "Price",
   "grofastApplyLabel": "Apply",
   "grofastResetLabel": "Reset",
-
   "grofastAddToBagTooltip": "Add to bag",
   "grofastFavouriteTooltip": "Save to wishlist",
   "grofastDecreaseQuantityLabel": "Decrease quantity",
   "grofastIncreaseQuantityLabel": "Increase quantity",
-
   "grofastProductDetailsTitle": "Product Details",
   "grofastDescriptionTitle": "Description",
   "grofastSelectSizeTitle": "Select Size",
@@ -729,16 +810,23 @@
   "grofastAddedToBagMessage": "Added {count} × {name} to your bag.",
   "@grofastAddedToBagMessage": {
     "placeholders": {
-      "count": { "type": "int" },
-      "name": { "type": "String" }
+      "count": {
+        "type": "int"
+      },
+      "name": {
+        "type": "String"
+      }
     }
   },
   "grofastNoDescriptionLabel": "No description for this product yet.",
-
   "grofastBagTitle": "My Bag",
   "grofastBagItemCount": "{count, plural, one{{count} item} other{{count} items}}",
   "@grofastBagItemCount": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "grofastPromoCodeHint": "Add Promo Code",
   "grofastPromoApplyLabel": "Apply",
@@ -746,11 +834,19 @@
   "grofastCouponDetailLabel": "Coupon",
   "grofastPromoApplied": "{code} applied",
   "@grofastPromoApplied": {
-    "placeholders": { "code": { "type": "String" } }
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
   },
   "grofastCouponLine": "Coupon ({code})",
   "@grofastCouponLine": {
-    "placeholders": { "code": { "type": "String" } }
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
   },
   "grofastPromoComingSoonMessage": "Promo codes are coming soon.",
   "grofastTotalLabel": "Total",
@@ -761,7 +857,6 @@
   "grofastBagEmptySubtitle": "Add some fresh groceries and they will show up here.",
   "grofastBagExploreAction": "Start shopping",
   "grofastRemovedFromBagMessage": "Removed from your bag.",
-
   "grofastCheckoutTitle": "Checkout",
   "grofastItemsTitle": "Items",
   "grofastDeliveryAddressTitle": "Delievery Address",
@@ -769,16 +864,13 @@
   "grofastChangeAddressLabel": "change",
   "grofastNoAddressSelectedLabel": "Choose where to deliver",
   "grofastConfirmOrderLabel": "Confirm Order",
-
   "grofastOrderPlacedTitle": "Success!",
   "grofastOrderPlacedMessage": "You have successfully created your order.",
   "grofastBrowseHomeLabel": "Browse Home",
-
   "grofastNavHome": "Home",
   "grofastNavCategories": "Category",
   "grofastNavBag": "Bag",
   "grofastNavAccount": "Account",
-
   "grofastProfileTitle": "Profile",
   "grofastNotificationTileLabel": "Notification",
   "grofastOrdersTileLabel": "My Orders",
@@ -794,7 +886,6 @@
   "grofastLogOutConfirmMessage": "You'll need to sign in again to place an order.",
   "grofastProfileLoadErrorMessage": "Couldn't load your profile.",
   "grofastProfileNameFallback": "Your account",
-
   "grofastEditProfileTitle": "My Profile",
   "grofastFullNameLabel": "Full Name",
   "grofastFullNameHint": "Enter your full name",
@@ -808,7 +899,6 @@
   "grofastChooseFromGalleryLabel": "Choose from Gallery",
   "grofastAvatarPickerMobileOnlyMessage": "Photo picking is only available on mobile.",
   "grofastProfileUpdatedMessage": "Your profile has been updated.",
-
   "grofastChangePasswordTitle": "Change Password",
   "grofastCurrentPasswordLabel": "Current Password",
   "grofastCurrentPasswordHint": "Enter your current password",
@@ -818,12 +908,10 @@
   "grofastConfirmNewPasswordHint": "Re-enter your new password",
   "grofastUpdatePasswordButtonLabel": "Update Password",
   "grofastPasswordUpdatedMessage": "Your password has been updated.",
-
   "grofastWishlistTitle": "Wishlist",
   "grofastWishlistEmptyTitle": "Nothing saved yet",
   "grofastWishlistEmptySubtitle": "Tap the heart on anything you want to keep for later.",
   "grofastWishlistExploreAction": "Start shopping",
-
   "grofastNotificationsTitle": "Notification",
   "grofastNotificationsFilterAllLabel": "All",
   "grofastNotificationsSearchHint": "Search your Notification",
@@ -835,9 +923,12 @@
   "grofastNotificationsNoResultsTitle": "Nothing here",
   "grofastNotificationsNoResultsSubtitle": "No notification matches \"{query}\".",
   "@grofastNotificationsNoResultsSubtitle": {
-    "placeholders": { "query": { "type": "String" } }
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
   },
-
   "grofastSelectAddressTitle": "Select Location",
   "grofastAddNewAddressLabel": "Add New Address",
   "grofastAddressLoadErrorMessage": "Couldn't load your addresses.",
@@ -850,7 +941,6 @@
   "grofastDeleteAddressMessage": "It will be removed from your saved locations. This can't be undone.",
   "grofastDeleteLabel": "Delete",
   "grofastCancelLabel": "Cancel",
-
   "grofastAddAddressTitle": "Add New Address",
   "grofastEditAddressTitle": "Edit Address",
   "grofastAddressNameLabel": "Name",
@@ -876,7 +966,6 @@
   "grofastAddAddressButtonLabel": "Add Address",
   "grofastUpdateAddressButtonLabel": "Update Address",
   "grofastRequiredFieldErrorMessage": "This field is required",
-
   "grofastMyOrdersTitle": "My Orders",
   "grofastOrdersSearchHint": "Search your orders",
   "grofastOrdersFilterAllLabel": "All",
@@ -896,28 +985,47 @@
   "grofastOrdersNoResultsSubtitle": "No order matches those filters. Try widening them.",
   "grofastOrderNumberLabel": "Order {date}",
   "@grofastOrderNumberLabel": {
-    "placeholders": { "date": { "type": "String" } }
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
   },
   "grofastOrderItemCount": "{count, plural, one{{count} item} other{{count} items}}",
   "@grofastOrderItemCount": {
-    "placeholders": { "count": { "type": "int" } }
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "grofastOrderDeliveredLine": "Delivered to {label}",
   "@grofastOrderDeliveredLine": {
-    "placeholders": { "label": { "type": "String" } }
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
   },
   "grofastOrderDeliveringLine": "Delivering to {label}",
   "@grofastOrderDeliveringLine": {
-    "placeholders": { "label": { "type": "String" } }
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
   },
   "grofastOrderCancelledLine": "This order was cancelled",
-
   "grofastTrackOrderTitle": "Track Order",
   "grofastOrderDetailTitle": "Order Detail",
   "grofastCopyTooltip": "Copy",
   "grofastCopiedMessage": "{label} copied.",
   "@grofastCopiedMessage": {
-    "placeholders": { "label": { "type": "String" } }
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
   },
   "grofastTrackingDetailTitle": "Tracking Detail",
   "grofastOrderStatusLabel": "Status",
@@ -943,7 +1051,6 @@
   "grofastRefundPendingLabel": "Refund on its way",
   "grofastRefundProcessedLabel": "Refunded",
   "grofastRefundFailedLabel": "Refund failed",
-
   "validationNameRequired": "Please enter your name.",
   "validationEmailRequired": "Please enter your email address.",
   "validationEmailInvalid": "Enter a valid email address.",
