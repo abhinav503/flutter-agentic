@@ -2383,3 +2383,26 @@ ceilings. `flutter analyze` clean, cordelia + core suites green,
 port could reason about statically. A real German storefront still wants eyes
 on the checkout totals panel, the filter sheets and the grofast promo cards,
 where copy meets live catalog data.
+
+#### Reusable gate for the remaining locales
+
+`scripts/check-arb-parity.py` is the German pass's merge/validate step, kept
+rather than thrown away — fr/es/it each run it instead of re-deriving the
+checks:
+
+    scripts/check-arb-parity.py --all                    # CI-shaped gate
+    scripts/check-arb-parity.py fr --merge-from /tmp/x   # assemble then write
+
+It refuses to write an arb unless key parity holds, every placeholder survives,
+ICU branch sets are intact, layout-significant leading/trailing spaces and
+newline counts match, declared passthrough values are untouched, no long value
+is still English, and no value introduces a currency glyph. The non-obvious
+trap it encodes: a naive `{name}` regex also matches an ICU *branch body* like
+the `{pc}` in `one{pc}`, so a correct German `one{Stk.}` reads as a dropped
+placeholder — ICU strings are therefore compared on their argument name
+instead.
+
+Running it across the existing locales immediately caught a real defect the
+German work had otherwise papered over: Hindi's `unitPiecesLabel` was rendering
+the English "pcs" (inherited from the `count == 1 ? 'pc' : 'pcs'` ternary this
+change replaced). Now "नग" in both branches.
