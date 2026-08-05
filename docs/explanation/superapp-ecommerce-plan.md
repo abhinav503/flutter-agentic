@@ -2545,3 +2545,52 @@ per language, and cross-locale contamination.
 Still open, unchanged by this work: the per-currency price-filter thresholds
 (the bands are still rupee-sized), catalog content (see `content-i18n-plan.md`),
 and a device pass on each new language where copy meets live catalog data.
+
+## Per-currency price-filter bands — DONE (2026-08-05)
+
+The last thing blocking a non-INR store. `ProductPriceFilter`'s bands were
+formatted correctly after the locale work but the *numbers* were still
+rupee-sized, so at a euro store every product fell in "Under €100" and the
+filter filtered nothing.
+
+**The edges are now per currency**, on a `StoreCurrencyPriceBandsX` extension:
+INR keeps `100 / 250 / 500` (tuned to the seeded Indian catalog), while EUR,
+GBP and USD use `2 / 5 / 10`. Deliberately **not** converted between each
+other — these are filter-usability numbers, not an exchange rate. ₹100 ≈ €1,
+but a €1 edge would leave nearly every European grocery item in one band, which
+is the same inert filter with different arithmetic. Each set cuts that market's
+catalog into four groups a shopper would actually choose between.
+
+**The enum cases were renamed** `under100 / from100To250 / from250To500 /
+over500` → `underLow / lowToMid / midToHigh / overHigh`. The old names baked
+rupee amounts into identifiers that no longer describe what the case does. Safe
+to rename because the enum is in-memory only (never persisted or sent on the
+wire), and every call site uses `.values` or `.all`.
+
+**Both the label and the predicate read one ambient accessor.** `matches()` is
+called from a state getter with no currency in scope, and `label` already
+resolved currency ambiently through `asPrice`. Threading a parameter into only
+one of them is how a chip ends up advertising "Under €2" while filtering at
+₹100, so both go through the same `AppFormat`-derived accessor and a test proves
+it for every currency rather than trusting the wiring.
+
+**17 tests**, the useful ones being properties rather than examples: the four
+bands *tile* the number line for every currency (probes straddle each edge, so
+a comparison-operator slip shows up as a price matching zero or two bands), and
+every band's label contains the exact formatted edges its predicate uses. The
+asymmetric edge semantics from before this change are preserved — `< low`,
+`[low, mid]`, `(mid, high]`, `> high` — so a price sitting on an edge still
+belongs to the band beneath it.
+
+Also fixed while rendering the labels across all six locales: Italian's
+"Under" read `Fino a {price}` ("up to", inclusive) against a strictly exclusive
+band. Now `Meno di {price}`, matching the French and Spanish forms.
+
+### Known gap this exposes
+
+`admin/src/lib/seed/grocery-seed-data.ts` hardcodes rupee prices (₹10–899) and
+its dialog says "₹ prices". Seeding a euro store writes those numbers as euros,
+so a €22 packet of biscuits puts nearly every item in the top band — the filter
+is inert again, from the *data* side this time. The catalog is also
+Indian-brand specific (Amul, Britannia, Tata), so a non-INR store arguably
+wants a different catalog rather than rescaled numbers. Tracked separately.

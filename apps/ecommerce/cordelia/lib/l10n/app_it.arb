@@ -79,7 +79,7 @@
   "sortRatingHighToLowLabel": "Valutazione (dalla più alta)",
   "sortDiscountHighToLowLabel": "Sconto (dal più alto)",
   "priceFilterAllLabel": "Tutti i prezzi",
-  "priceFilterUnderLabel": "Fino a {price}",
+  "priceFilterUnderLabel": "Meno di {price}",
   "priceFilterOverLabel": "Oltre {price}",
   "priceFilterRangeLabel": "{from} - {to}",
   "reviewsSectionTitle": "Valutazioni e recensioni",

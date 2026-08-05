@@ -275,7 +275,7 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String priceFilterUnderLabel(String price) {
-    return 'Fino a $price';
+    return 'Meno di $price';
   }
 
   @override
