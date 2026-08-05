@@ -96,40 +96,101 @@ void main() {
     });
   });
 
-  group('German copy fits its slot', () {
-    // The slots checked in the widgets during the port: a status badge, the
-    // two-up card action pair, and the narrowest nav tab. German runs 30-40%
-    // longer than English, and these are where that first breaks.
-    setUp(
-      () => ActiveLocaleController().apply(
-        StoreLanguage.de.asLocale,
-        currency: StoreCurrency.eur,
-      ),
-    );
+  // Width caps for the narrow slots, read straight from the arb so this loops
+  // over every locale — a new language inherits the guard the day its arb
+  // lands, which is the same reason the parity group loops.
+  //
+  // Every cap is derived from what English already ships in that slot, not
+  // invented: a bigger number here would not be a budget. Slots where English
+  // itself is long (refund *pending* is "Refund processing", 17) are
+  // deliberately absent — there is no tight budget there to enforce.
+  group('copy fits its narrow slots', () {
+    const caps = <String, int>{
+      // gravia's 5-item bar already ships 'Bestellungen' (12) in German.
+      'graviaNavHome': 12,
+      'graviaNavCategories': 12,
+      'graviaNavFavourite': 12,
+      'graviaNavOrders': 12,
+      'graviaNavProfile': 12,
+      'dailymartNavHome': 12,
+      'dailymartNavWishlist': 12,
+      'dailymartNavCart': 12,
+      'dailymartNavProfile': 12,
+      'grofastNavHome': 12,
+      'grofastNavCategories': 12,
+      'grofastNavBag': 12,
+      'grofastNavAccount': 12,
+      // Small tinted status badges — English 'Order Placed' is 12.
+      'graviaPendingStatusLabel': 12,
+      'graviaInProcessStatusLabel': 12,
+      'graviaDeliveredStatusLabel': 12,
+      'graviaCancelledStatusLabel': 12,
+      // Paired card actions: two side-by-side buttons in one card row
+      // (gravia's GraviaActionPair), and dailymart's button sharing a Row with
+      // the price inside an 88px-thumbnail card.
+      'graviaTrackOrderLabel': 12,
+      'graviaCancelOrderLabel': 12,
+      'dailymartTrackOrderAction': 12,
+      // Status pill; the overflow that forced a German override.
+      'graviaRefundFailedLabel': 14,
+      'dailymartRefundFailedLabel': 14,
+      'grofastRefundFailedLabel': 14,
+      // Date quick-pick chips — English 'All time' is 8.
+      'dailymartOrdersAllTimeLabel': 10,
+      'grofastOrdersAllTimeLabel': 10,
+    };
 
-    test('badge and paired-action labels stay verb-length', () {
-      final l10n = L10n.current;
-      expect(l10n.graviaPendingStatusLabel.length, lessThanOrEqualTo(12));
-      expect(l10n.graviaTrackOrderLabel.length, lessThanOrEqualTo(12));
-      expect(l10n.dailymartTrackOrderAction.length, lessThanOrEqualTo(12));
+    // `String.length` is a width proxy only where one code unit is roughly one
+    // rendered glyph — true for Latin script, false for Devanagari, whose
+    // combining vowel marks and conjuncts count separately but render inside
+    // the same cluster. Hindi's 16-code-unit 'ऑर्डर ट्रैक करें' is 14 clusters
+    // and narrower again on screen; it has shipped in these slots for months.
+    // Judge a non-Latin locale on a device, not with this counter.
+    const nonLatinScript = {StoreLanguage.hi};
+
+    for (final language in StoreLanguage.values.where(
+      (l) => !nonLatinScript.contains(l),
+    )) {
+      test('${language.wireValue} respects every capped slot', () {
+        final values = arb(language.wireValue);
+        for (final entry in caps.entries) {
+          final value = values[entry.key] as String?;
+          expect(value, isNotNull, reason: '${entry.key} missing');
+          expect(
+            value!.length,
+            lessThanOrEqualTo(entry.value),
+            reason:
+                '${entry.key} is ${value.length} chars ("$value") but its slot '
+                'caps at ${entry.value} — shorten it rather than raising the cap',
+          );
+        }
+      });
+    }
+  });
+
+  group('applying the French locale', () {
+    final controller = ActiveLocaleController();
+
+    tearDown(controller.resetToAppDefault);
+
+    test('swaps strings and formatting together', () {
+      controller.apply(StoreLanguage.fr.asLocale, currency: StoreCurrency.eur);
+
+      expect(L10n.current.languageSheetTitle, 'Langue');
+      expect(L10n.current.languageFrench, 'Français');
+      // French groups with a NARROW no-break space (U+202F) and precedes the
+      // symbol with a plain one (U+00A0) — pinned by codepoint in core's
+      // app_format_test; here we only assert the locale actually took effect.
+      expect(1234567.89.asPrice, '1 234 567,89 €');
     });
 
-    test('nav tab labels stay within the widest shipped English pack', () {
-      final l10n = L10n.current;
-      // gravia already ships 'Bestellungen' (12) in a 5-item bar, so that is
-      // the demonstrated ceiling rather than an invented one.
-      for (final label in [
-        l10n.grofastNavHome,
-        l10n.grofastNavCategories,
-        l10n.grofastNavBag,
-        l10n.grofastNavAccount,
-        l10n.dailymartNavHome,
-        l10n.dailymartNavWishlist,
-        l10n.dailymartNavCart,
-        l10n.dailymartNavProfile,
-      ]) {
-        expect(label.length, lessThanOrEqualTo(12), reason: label);
-      }
+    test('0 takes the singular, unlike English', () {
+      controller.apply(StoreLanguage.fr.asLocale, currency: StoreCurrency.eur);
+      // CLDR puts 0 in French's `one` category, so a translator writing only
+      // the plural into `one` would print "0 unités" on every zero-count row.
+      expect(L10n.current.unitPiecesLabel(0), 'unité');
+      expect(L10n.current.unitPiecesLabel(1), 'unité');
+      expect(L10n.current.unitPiecesLabel(3), 'unités');
     });
   });
 }

@@ -45,5 +45,6 @@ extension StoreLanguageLocaleX on StoreLanguage {
     StoreLanguage.en => const Locale('en'),
     StoreLanguage.hi => const Locale('hi'),
     StoreLanguage.de => const Locale('de'),
+    StoreLanguage.fr => const Locale('fr'),
   };
 }

@@ -2406,3 +2406,52 @@ Running it across the existing locales immediately caught a real defect the
 German work had otherwise papered over: Hindi's `unitPiecesLabel` was rendering
 the English "pcs" (inherited from the `count == 1 ? 'pc' : 'pcs'` ternary this
 change replaced). Now "नग" in both branches.
+
+### French (fr) — fourth locale (2026-08-05, same day)
+
+`app_fr.arb` at full 710-key parity, `StoreLanguage.fr` registered end-to-end,
+`fr` in the admin picklist. Merged and validated on the **first pass with zero
+overrides** — the German round's lesson (nine width fixes discovered after the
+fact) went into the translation contract as a *length-budget table with
+pre-decided renderings* for every capped slot, so the translators produced
+in-budget copy instead of it being corrected afterwards.
+
+**The French-specific engineering item, resolved.** A probe confirmed what the
+locale actually emits: `1 234 567,89 €` groups thousands with a **narrow**
+no-break space (**U+202F**) and separates the symbol with a plain one
+(**U+00A0**); de/it/es all group with a point instead. Both codepoints are now
+pinned by exact literal in `packages/core/test/formatting/app_format_test.dart`,
+because they are invisible in a diff and a font subset can lack them.
+
+**Note for the device pass:** U+202F is new to the app as of the formatting
+commit and is not French-only — `asTime` emits it in English too ("10:15 AM"),
+where the previous hand-rolled formatters used a plain space. If a price or
+time ever shows a visible box or breaks mid-number, the one-line mitigation is
+to map U+202F → U+00A0 on the way out of `asPrice`/`asTime`; do not "fix" it by
+substituting a plain space, which is exactly what the no-break forms exist to
+prevent.
+
+French typography applied throughout: U+00A0 before `! ? : ;` — and, on the
+translators' correct initiative, before `%` — plus guillemets `« … »` around
+quoted `{query}` values.
+
+**Two findings worth keeping:**
+
+- *Zero takes the singular in French.* CLDR puts 0 in the `one` plural
+  category, so a translator filling `one` with only the singular sense would
+  print "0 unités" on every empty row. Pinned by a test
+  (`unitPiecesLabel(0) == 'unité'`).
+- *The width test had to become script-aware.* Extending the German
+  slot-width assertions across all locales immediately failed on Hindi, and the
+  cap was wrong, not the copy: `String.length` is a width proxy only where one
+  code unit is about one glyph. Devanagari's combining marks and conjuncts count
+  separately but render in one cluster — Hindi's 16-code-unit
+  'ऑर्डर ट्रैक करें' is 14 clusters and narrower again on screen, and has shipped
+  in that slot for months. The test now excludes non-Latin scripts and says why.
+  Latin locales (es, it) inherit the guard automatically.
+
+Also corrected an assumption of the port's own: refund *pending* is **not** a
+tight slot, because English itself ships "Refund processing" (17 chars) there —
+so German's 20-character "Rückerstattung läuft" was left alone rather than
+homogenised to fit a cap that never existed. Only the slots where English is
+genuinely short are capped.

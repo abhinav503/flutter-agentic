@@ -34,6 +34,7 @@ PASSTHROUGH = {
     "languageEnglish",
     "languageHindi",
     "languageGerman",
+    "languageFrench",
     "termsAndConditionsBody",
 }
 

@@ -49,6 +49,24 @@ void main() {
       expect(price, isNot(contains('1.234')));
     });
 
+    // Pinned by codepoint, not by eyeballing the string: French groups with a
+    // NARROW no-break space (U+202F) and separates the € with a plain no-break
+    // space (U+00A0). Both are invisible in a diff, and both are characters a
+    // font subset can lack — so if a price ever renders with a visible box or
+    // an unexpected line break mid-number, this test names the culprits.
+    test('French separators are the exact no-break codepoints', () {
+      AppFormat.apply(locale: 'fr', currencyCode: 'EUR');
+      expect(1234567.89.asPrice, '1 234 567,89 €');
+      expect(AppFormat.decimalSeparator, ',');
+    });
+
+    test('German, Italian and Spanish group with a point', () {
+      for (final locale in ['de', 'it', 'es']) {
+        AppFormat.apply(locale: locale, currencyCode: 'EUR');
+        expect(1234567.89.asPrice, '1.234.567,89 €', reason: locale);
+      }
+    });
+
     test('Hindi groups in lakhs', () {
       AppFormat.apply(locale: 'hi', currencyCode: 'INR');
       expect(123456.78.asPrice, contains('1,23,456'));

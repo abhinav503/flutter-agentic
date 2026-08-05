@@ -7,6 +7,7 @@ import 'package:intl/intl.dart' as intl;
 
 import 'app_localizations_de.dart';
 import 'app_localizations_en.dart';
+import 'app_localizations_fr.dart';
 import 'app_localizations_hi.dart';
 
 // ignore_for_file: type=lint
@@ -97,6 +98,7 @@ abstract class AppLocalizations {
   static const List<Locale> supportedLocales = <Locale>[
     Locale('de'),
     Locale('en'),
+    Locale('fr'),
     Locale('hi'),
   ];
 
@@ -123,6 +125,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Deutsch'**
   String get languageGerman;
+
+  /// No description provided for @languageFrench.
+  ///
+  /// In en, this message translates to:
+  /// **'Français'**
+  String get languageFrench;
 
   /// Unit suffix for a countable pack ('3 pcs'). German collapses both numbers to 'Stk.', so this is a plural key even though English is the only locale that varies.
   ///
@@ -4366,7 +4374,7 @@ class _AppLocalizationsDelegate
 
   @override
   bool isSupported(Locale locale) =>
-      <String>['de', 'en', 'hi'].contains(locale.languageCode);
+      <String>['de', 'en', 'fr', 'hi'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
@@ -4379,6 +4387,8 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
       return AppLocalizationsDe();
     case 'en':
       return AppLocalizationsEn();
+    case 'fr':
+      return AppLocalizationsFr();
     case 'hi':
       return AppLocalizationsHi();
   }

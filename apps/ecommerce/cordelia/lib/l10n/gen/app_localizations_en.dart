@@ -21,6 +21,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get languageGerman => 'Deutsch';
 
   @override
+  String get languageFrench => 'Français';
+
+  @override
   String unitPiecesLabel(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
