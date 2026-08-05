@@ -27,16 +27,16 @@ extension StoreLanguageSwitchX on BuildContext {
 }
 
 extension StoreLanguageLabelX on StoreLanguage {
-  /// Self-named option labels ("English" / "हिन्दी" / "Deutsch" / "Français" /
-  /// "Español") — a language
+  /// Self-named option labels ("English" / "Deutsch" / "Français" /
+  /// "Español" / "Italiano" / "हिन्दी") — a language
   /// names itself the same way in every locale, so a shopper who can't read
   /// the current one can still find their own in the list.
   String get label => switch (this) {
     StoreLanguage.en => ValueConst.languageEnglish,
-    StoreLanguage.hi => ValueConst.languageHindi,
     StoreLanguage.de => ValueConst.languageGerman,
     StoreLanguage.fr => ValueConst.languageFrench,
     StoreLanguage.es => ValueConst.languageSpanish,
     StoreLanguage.it => ValueConst.languageItalian,
+    StoreLanguage.hi => ValueConst.languageHindi,
   };
 }

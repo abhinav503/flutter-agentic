@@ -9,18 +9,25 @@
 /// error. Number and date shape is *not* this enum's job: the locale drives it
 /// through core's `AppFormat`, and what a store charges in is
 /// [StoreCurrency]'s.
-enum StoreLanguage { en, hi, de, fr, es, it }
+///
+/// **Declaration order is the order the pickers render.** `values` feeds every
+/// pack's Profile → Language sheet directly, so this list is a UI decision as
+/// much as a type: English first as the app default, then the European packs,
+/// **Hindi last**. A new language goes before `hi`, not after it. Nothing reads
+/// these by index and persistence uses [StoreLanguageX.wireValue], so the order
+/// is safe to change — which is exactly why it needs saying out loud.
+enum StoreLanguage { en, de, fr, es, it, hi }
 
 extension StoreLanguageX on StoreLanguage {
   /// Enum → wire value, matching the admin backend's `STORE_LANGUAGES`
   /// (`admin/src/lib/types.ts`).
   String get wireValue => switch (this) {
     StoreLanguage.en => 'en',
-    StoreLanguage.hi => 'hi',
     StoreLanguage.de => 'de',
     StoreLanguage.fr => 'fr',
     StoreLanguage.es => 'es',
     StoreLanguage.it => 'it',
+    StoreLanguage.hi => 'hi',
   };
 }
 
@@ -29,11 +36,11 @@ extension StoreLanguageX on StoreLanguage {
 /// `StorefrontTemplateParse.toStorefrontTemplate`.
 extension StoreLanguageParse on String {
   StoreLanguage toStoreLanguage() => switch (this) {
-    'hi' => StoreLanguage.hi,
     'de' => StoreLanguage.de,
     'fr' => StoreLanguage.fr,
     'es' => StoreLanguage.es,
     'it' => StoreLanguage.it,
+    'hi' => StoreLanguage.hi,
     _ => StoreLanguage.en,
   };
 }

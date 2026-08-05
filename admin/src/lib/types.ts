@@ -222,16 +222,22 @@ export type Store = {
   currency: string;
 };
 
-export const STORE_LANGUAGES = ["en", "hi", "de", "fr", "es", "it"] as const;
+// Array order is the order the language pickers render (Settings, and the
+// create-store dialog): English first as the default, then the European packs,
+// **Hindi last**. A new language goes before "hi", not after it. This is a UI
+// decision living in a constant — nothing keys off the position, and stores
+// persist the code string, so the order is free to change and therefore easy
+// to change back by accident.
+export const STORE_LANGUAGES = ["en", "de", "fr", "es", "it", "hi"] as const;
 export type StoreLanguage = (typeof STORE_LANGUAGES)[number];
 
 export const STORE_LANGUAGE_LABELS: Record<StoreLanguage, string> = {
   en: "English",
-  hi: "हिन्दी (Hindi)",
   de: "Deutsch (German)",
   fr: "Français (French)",
   es: "Español (Spanish)",
   it: "Italiano (Italian)",
+  hi: "हिन्दी (Hindi)",
 };
 
 // What the store charges in — independent of `language`, since a shopper

@@ -64,6 +64,43 @@ void main() {
     });
   });
 
+  group('picker order', () {
+    // `values` order is what every pack's Profile → Language sheet renders,
+    // and the admin's STORE_LANGUAGES mirrors it. Both are plain declaration
+    // order that nothing else depends on, which makes the ordering easy to
+    // undo while tidying — hence a test rather than only a comment.
+    test('English is offered first', () {
+      expect(StoreLanguage.values.first, StoreLanguage.en);
+    });
+
+    test('Hindi is offered last', () {
+      expect(
+        StoreLanguage.values.last,
+        StoreLanguage.hi,
+        reason: 'a new language belongs before hi, not after it',
+      );
+    });
+
+    test('the admin picklist is in the same order', () {
+      // The two lists drive different pickers (shopper vs store owner) and
+      // would drift silently: an owner would set a language from one order and
+      // a shopper would re-pick it from another.
+      final admin = RegExp(r'export const STORE_LANGUAGES = \[([^\]]*)\]')
+          .firstMatch(
+            File('../../../admin/src/lib/types.ts').readAsStringSync(),
+          )!
+          .group(1)!;
+      final codes = RegExp('"([a-z-]+)"')
+          .allMatches(admin)
+          .map((m) => m.group(1))
+          .toList();
+      expect(
+        codes,
+        StoreLanguage.values.map((l) => l.wireValue).toList(),
+      );
+    });
+  });
+
   group('applying a store locale', () {
     final controller = ActiveLocaleController();
 
