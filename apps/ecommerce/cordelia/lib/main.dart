@@ -9,6 +9,7 @@ import 'package:core/core/theme/app_theme_config.dart';
 import 'app.dart';
 import 'di/injection_container.dart';
 import 'firebase_options.dart';
+import 'services/crash_reporter_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,6 +22,11 @@ void main() async {
       options: DefaultFirebaseOptions.currentPlatform,
     );
   }
+
+  // After Firebase.initializeApp (Crashlytics needs the app) and before
+  // runApp, so a failure during startup is still reported rather than lost.
+  // No-ops on web and in debug — see CrashReporterService.
+  CrashReporterService.instance.register();
 
   final config = await _loadThemeConfig();
   await initDependencies();

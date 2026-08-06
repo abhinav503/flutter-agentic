@@ -22,8 +22,13 @@ export const metadata: Metadata = {
  *
  * Every claim here is checked against the code rather than boilerplate — the
  * subcollection list matches USER_SUBCOLLECTIONS in admin/src/lib/account.ts,
- * and the "no analytics, no ads" paragraph is true because the Flutter app
- * ships no analytics, messaging or ads SDK at all.
+ * and §4 is narrow on purpose: the app ships no ads, messaging or behavioural
+ * analytics SDK, but it *does* ship Crashlytics, so §3 discloses that rather
+ * than the page claiming a blanket "no third-party SDKs" it no longer has.
+ *
+ * Keep this in step with the app's dependencies. Adding an SDK that collects
+ * anything means editing this page in the same change — it is published, and
+ * it is the URL Google Play has on file.
  */
 export default function AppPrivacyPage() {
   return (
@@ -87,16 +92,33 @@ export default function AppPrivacyPage() {
         </p>
       </LegalSection>
 
-      <LegalSection title="3. What the app does not do">
+      <LegalSection title="3. Crash reports">
         <p>
-          There is no advertising, no ad identifier, no third-party tracking and
-          no analytics SDK in the app — we do not measure what you browse or
-          build a profile of you. We do not sell your data to anyone, and we do
-          not send marketing email you have not asked for.
+          When the app crashes or hits an error, it sends a diagnostic report to
+          Firebase Crashlytics so we can fix it. That report contains the
+          technical state at the moment of failure — the error and where in the
+          code it happened, your device model, operating system version, app
+          version, and a random identifier for the installation. It does not
+          contain your name, email, address or what you were shopping for.
+        </p>
+        <p>
+          Reports are sent only from the released app, never from a
+          developer&apos;s own build, and we use them for nothing except finding
+          and fixing faults.
         </p>
       </LegalSection>
 
-      <LegalSection title="4. Permissions the app asks for">
+      <LegalSection title="4. What the app does not do">
+        <p>
+          There is no advertising and no ad identifier. Nothing tracks what you
+          browse, and we do not build a profile of you or measure your behaviour
+          — the crash reporting above is the only diagnostic in the app, and it
+          only reports faults. We do not sell your data to anyone, and we do not
+          send marketing email you have not asked for.
+        </p>
+      </LegalSection>
+
+      <LegalSection title="5. Permissions the app asks for">
         <p>
           <strong className="text-foreground">Camera and photos</strong> — only
           when you choose a profile picture. Nothing is read from your library
@@ -110,7 +132,7 @@ export default function AppPrivacyPage() {
         </p>
       </LegalSection>
 
-      <LegalSection title="5. Payments">
+      <LegalSection title="6. Payments">
         <p>
           Payments are handled by the store&apos;s own payment provider. Your
           card, UPI or bank details are entered into the provider&apos;s secure
@@ -120,7 +142,7 @@ export default function AppPrivacyPage() {
         </p>
       </LegalSection>
 
-      <LegalSection title="6. Who else sees it">
+      <LegalSection title="7. Who else sees it">
         <p>
           <strong className="text-foreground">The store you order from</strong>{" "}
           sees your order, your delivery address and your name — it has to, in
@@ -129,7 +151,7 @@ export default function AppPrivacyPage() {
         </p>
         <p>
           <strong className="text-foreground">Google (Firebase)</strong> hosts
-          the sign-in, database and file storage.{" "}
+          the sign-in, database, file storage and the crash reporting above.{" "}
           <strong className="text-foreground">The payment provider</strong>{" "}
           processes the payment. When you use address lookup, the address text
           you type is sent to a mapping service to return suggestions. Each acts
@@ -138,7 +160,7 @@ export default function AppPrivacyPage() {
         </p>
       </LegalSection>
 
-      <LegalSection title="7. Deleting your data">
+      <LegalSection title="8. Deleting your data">
         <p>
           You can delete your account from inside the app at any time —{" "}
           <strong className="text-foreground">
@@ -162,7 +184,7 @@ export default function AppPrivacyPage() {
         </p>
       </LegalSection>
 
-      <LegalSection title="8. Your rights">
+      <LegalSection title="9. Your rights">
         <p>
           You can ask for a copy of your data, ask us to correct it, ask us to
           delete it, or object to how it is used. Email us and we will respond
@@ -172,7 +194,7 @@ export default function AppPrivacyPage() {
         </p>
       </LegalSection>
 
-      <LegalSection title="9. Children">
+      <LegalSection title="10. Children">
         <p>
           The app is not directed at children and is not intended for anyone
           under 13. We do not knowingly collect data from children; if you
@@ -181,7 +203,7 @@ export default function AppPrivacyPage() {
         </p>
       </LegalSection>
 
-      <LegalSection title="10. Changes">
+      <LegalSection title="11. Changes">
         <p>
           We update this policy as the app changes, and the date at the top
           shows when it last changed. Questions go to{" "}

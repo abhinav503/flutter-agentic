@@ -30,6 +30,12 @@ dependencies:
   firebase_core: ^4.1.1
   firebase_auth: ^6.1.0
 
+  # Crash + non-fatal error reporting. Per-app, never in core: core stays
+  # dependency-lean and only this app reports to this Firebase project.
+  # Android/iOS only — the plugin has no web implementation, so every call
+  # site is kIsWeb-guarded (see main.dart and CrashReporter).
+  firebase_crashlytics: ^5.0.5
+
   # Shopper avatars — Edit Profile uploads the picked photo to
   # users/{uid}/avatar.jpg and sends the download URL to the admin API,
   # which stores it on the Firestore profile doc as `avatar_url`.
