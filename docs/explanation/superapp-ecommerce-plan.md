@@ -3325,3 +3325,160 @@ is the *default*, not merely an option — retiring it means naming a new defaul
 and deciding what happens to existing store docs. And the India Post pincode
 lookup plus Ola Maps geo proxy are India-only features that a US/UK/EU-only
 product would have no use for.
+
+---
+
+## Productionisation: brand, domain, analytics, and cordelia on Play — DONE (2026-08-07)
+
+The first end-to-end pass at *shipping* rather than building. Cordelia is now a
+signed release bundle on Google Play, installable from an internal-testing
+link. Everything below is what that turned out to require.
+
+### The domain, and the SEO it quietly fixed
+
+`cordeliaapps.com` was referenced everywhere in code — `metadataBase`, the
+canonical tag, the JSON-LD Organization URL — and **had never been
+registered**. WHOIS returned no match. So every SEO signal pointed at a host
+that did not resolve, which is worse than none: a canonical naming an
+unreachable URL tells Google the real one isn't the one to index.
+
+Registered at Hostinger, DNS pointed at Vercel (A + CNAME), and `www` 308s to
+the apex. That redirect had to go in **`next.config.ts`, not Vercel's Domains
+UI** — Vercel only offers the redirect control on domains it doesn't consider
+production-assigned, and once both hostnames resolve to the project the control
+disappears. Doing it in config also puts the rule in a diff instead of a
+dashboard nobody can review.
+
+Two pre-existing bugs surfaced while verifying:
+
+- **`metadataBase` lived on the home page only**, so `/docs` (and every page
+  added since) emitted a *relative* canonical, `href="/docs"`. Moved to the
+  root layout where every route inherits it.
+- The root fallback `<title>` still read **"FlutterAgentic Admin"** long after
+  the rebrand — the tab title on every dashboard page.
+
+### The brand mark, everywhere
+
+The Figma symbol (`symbol-swift-bird`, node 7:120) replaced the stock Next.js
+favicon and the placeholder purple "C" across web and mobile. The exported SVG
+needed two corrections before it was usable, both found by rendering it rather
+than trusting it:
+
+- **The facet cut was a `#0A0A0B` stroke** — the dark artboard's background
+  painted over the wings. It reads as a gap on that canvas and as a **black
+  slash** on anything else. Reimplemented as a `<mask>`, so the cut is a real
+  transparent gap and the mark sits on any surface.
+- **The artwork was off-centre** in its 80×80 frame (occupying y 11–56), so it
+  hung high in every square container. viewBox tightened to the bounding box;
+  gradients are `userSpaceOnUse` and unaffected.
+
+On the Flutter side, `/add-app-logo` generated every launcher size — and the
+adaptive icon came out visibly smaller than its siblings because
+**`ic_launcher.xml` applies its own `android:inset="16%"` on top of whatever
+foreground you supply**. A 55% foreground lands at ~37% of the final icon.
+Rescaled to 78% so the inset does the safe-zone work.
+
+**The in-app splash was silently broken, and had been.** `cordelia-wordmark.svg`
+set "ordelia Apps" in an SVG `<text>` element — which **flutter_svg does not lay
+out at all**. The splash could only ever have shown the symbol with the name
+missing, and nothing would have complained. Replaced with the mark plus real
+`Text` in the theme's typeface, which also themes and translates correctly.
+Three tests guard it, including that the mark still parses and its cut is still
+a mask.
+
+### Analytics, with consent that actually gates
+
+GA4 via Firebase. The measurement ID had been sitting in `.env.local` and in
+Vercel production since the project was created, unused — `firebase.ts` only
+ever called `getAuth`/`getFirestore`/`getStorage`.
+
+**Nothing loads before consent**, and that is verified rather than asserted:
+`firebase/analytics` is behind a dynamic `import()`, and the build confirms the
+gtag loader lives in its own 20K chunk with zero occurrences in the layout
+entry. A visitor who declines downloads no SDK and sets no cookie — a stronger
+position than Consent Mode's "load but restrict".
+
+Events: `page_view` sent manually (the SDK's automatic one is disabled via
+`send_page_view: false`, or the landing page double-counts), `signup_opened`
+with a `location` naming which of the five CTAs fired, and GA4's recommended
+`sign_up` on success so it lands in built-in reports.
+
+Consent is read with `useSyncExternalStore` rather than mirrored into state —
+the repo's lint forbids `setState` in an effect, and it genuinely *is* external
+state, which also makes a choice in another tab update this one for free.
+
+### Legal pages, and the ones Play demands
+
+Four now exist where the footer previously linked to three 404s:
+
+| | |
+|---|---|
+| `/privacy` | website + console, for **store owners** |
+| `/terms` | platform agreement with a store owner |
+| `/app-privacy` | shopper-facing — the URL submitted to Play |
+| `/delete-account` | Play's required data-deletion URL |
+
+`/app-privacy` is separate from `/privacy` deliberately: different audience,
+different controller. Pointing Play at the store-owner policy would describe
+the wrong processing to the wrong reader. Claims in both are checked against
+the code — the deleted list mirrors `USER_SUBCOLLECTIONS` in `account.ts`, and
+"no advertising, no tracking, no analytics SDK" is true because the Flutter app
+ships none of those packages.
+
+`/refunds` was removed from the footer rather than written: a refund policy for
+a free product invents an obligation that doesn't exist.
+
+A `LegalPage` shell was extracted the moment there were two of these.
+
+### Company email
+
+`support@cordeliaapps.com`, via **ImprovMX** free forwarding (MX + SPF at
+Hostinger, no nameserver move, website records untouched). Zoho's Forever Free
+plan is **no longer offered in its setup flow** — the console shows only paid
+tiers — so the earlier recommendation didn't survive contact.
+
+The Gmail address had been published in **19 files**: the site's privacy,
+terms, docs, footer, final CTA and JSON-LD, plus the app's Terms in all six
+languages. All swapped, localizations regenerated, ARB parity re-gated at 731
+keys. Still receive-only: replies come from Gmail until "Send mail as" is set
+up.
+
+### Cordelia on Google Play
+
+The last hard blocker: release builds were signed **`CN=Android Debug`**, which
+Play rejects outright — confirmed by reading the certificate out of the built
+bundle, not assumed from the TODO comment.
+
+- `build.gradle.kts` now reads `android/key.properties` into a real release
+  `signingConfig`, **falling back to the debug key when absent** so a fresh
+  clone and CI without secrets still build.
+- `version: 0.1.0` → `1.0.0+1`. The build number after `+` is what Play keys
+  uploads on and must increase every time; left implicit it defaults to 1 and
+  silently blocks the second upload.
+- Upload key generated by the user (interactively, so the password never
+  entered a transcript or shell history), stored outside the repo.
+
+Verified on the rebuilt bundle: signer `CN=Abhinav Kumar, O=Cordelia Apps`,
+valid to 2053 (Play requires past 2033), package `com.cordeliaapps.superapp`,
+66.5 MB against Play's 150 MB base limit.
+
+**Android developer verification** turned out to need no work: publishing
+through Play auto-registers the package, and the console showed it Registered.
+The upload key is absent from that key list until the first upload, because
+Play learns it *from* the upload — which is why it looked alarming and wasn't.
+
+Bundle uploaded, internal testing track rolled out, **tester link confirmed
+working**.
+
+### What this leaves open
+
+- **No crash reporting.** The app is now installable by strangers and a
+  production crash is still invisible. This is the highest-value remaining gap.
+- **12 testers × 14 days** of closed testing before production access, if the
+  Play account is personal and post-Nov-2023. Not shortenable — worth starting
+  early.
+- **At least one real live store** before the public listing: a reviewer
+  opening the app to an empty discovery list is a rejection under minimum
+  functionality.
+- Data safety form; iOS signing; the app-level theme is still the old purple
+  (`#7059FF` seed) against the new green mark; `support@` cannot yet send.
