@@ -46,7 +46,7 @@ export function Pricing() {
             ))}
           </ul>
           <div className="mt-8 flex justify-center">
-            <AuthCta mode="signup">Start free — create your store</AuthCta>
+            <AuthCta mode="signup" location="pricing">Start free — create your store</AuthCta>
           </div>
         </div>
       </div>

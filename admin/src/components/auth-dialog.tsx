@@ -11,6 +11,7 @@ import {
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { authErrorMessage } from "@/lib/firebase-errors";
+import { trackSignupCompleted } from "@/lib/telemetry";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -104,6 +105,8 @@ function AuthDialog({
     try {
       if (isSignup) {
         await signUp(email, password);
+        // After the await, so a failed sign-up never counts as a conversion.
+        trackSignupCompleted();
       } else {
         await signIn(email, password);
       }

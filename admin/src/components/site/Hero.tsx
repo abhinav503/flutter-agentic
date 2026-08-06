@@ -32,7 +32,7 @@ export function Hero() {
           </p>
 
           <div className="mt-9 flex flex-wrap gap-3">
-            <AuthCta mode="signup">Start free — create your store</AuthCta>
+            <AuthCta mode="signup" location="hero">Start free — create your store</AuthCta>
             <GhostLink href="#templates">See the three templates</GhostLink>
           </div>
 

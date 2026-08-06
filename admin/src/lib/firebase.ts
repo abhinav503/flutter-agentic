@@ -13,7 +13,10 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
-const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+// Exported for lib/telemetry.ts, which initialises Analytics lazily against
+// this same app — it must not import firebase/analytics at module scope, so it
+// needs the instance rather than the config.
+export const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 
 export const auth = getAuth(app);
 export const db = getFirestore(app);

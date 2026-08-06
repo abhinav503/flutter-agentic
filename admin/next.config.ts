@@ -30,6 +30,30 @@ const nextConfig: NextConfig = {
     return [
       { source: "/login", destination: "/", permanent: false },
       { source: "/signup", destination: "/", permanent: false },
+
+      // Canonical host: www → apex, for every path.
+      //
+      // Done here rather than in Vercel's Domains UI because that screen only
+      // offers a redirect on domains it doesn't consider production-assigned —
+      // once both hostnames resolve to the project the control disappears.
+      // Doing it in config also puts the rule in version control instead of a
+      // dashboard setting nobody can see in a diff.
+      //
+      // Without it both hosts serve the site independently, which costs twice:
+      // Google sees duplicate content whose canonical only names one of them,
+      // and GA4 files the same page under two hostnames, splitting every
+      // per-page number.
+      //
+      // permanent (308) here, unlike the two above: the canonical host is a
+      // settled decision, and a permanent redirect is precisely the signal
+      // that consolidates the duplicate into one. The /login pair stayed
+      // temporary because reinstating those routes is plausible.
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "www.cordeliaapps.com" }],
+        destination: "https://cordeliaapps.com/:path*",
+        permanent: true,
+      },
     ];
   },
 };

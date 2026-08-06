@@ -17,7 +17,7 @@ export function FinalCta() {
             onboarding early stores.
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <AuthCta mode="signup">Start free — create your store</AuthCta>
+            <AuthCta mode="signup" location="final_cta">Start free — create your store</AuthCta>
             <GhostLink href="mailto:cordeliaapps@gmail.com">Email the CordeliaApps team</GhostLink>
           </div>
         </div>

@@ -48,10 +48,10 @@ export function SiteNav() {
           >
             Documentation
           </Link>
-          <AuthCta mode="login" variant="navGhost">
+          <AuthCta mode="login" location="nav" variant="navGhost">
             Log in
           </AuthCta>
-          <AuthCta mode="signup" variant="navPrimary">
+          <AuthCta mode="signup" location="nav" variant="navPrimary">
             Start free
           </AuthCta>
         </div>
@@ -90,6 +90,7 @@ export function SiteNav() {
             <li className="mt-2 flex gap-2">
               <AuthCta
                 mode="login"
+                location="mobile_nav"
                 variant="navGhost"
                 className="flex-1"
                 onOpen={() => setOpen(false)}
@@ -98,6 +99,7 @@ export function SiteNav() {
               </AuthCta>
               <AuthCta
                 mode="signup"
+                location="mobile_nav"
                 variant="navPrimary"
                 className="flex-1"
                 onOpen={() => setOpen(false)}
