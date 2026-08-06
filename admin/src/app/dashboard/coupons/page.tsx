@@ -4,6 +4,13 @@ import { useEffect, useState, type FormEvent } from "react";
 import { useStore } from "@/lib/store-context";
 import { watchCategories } from "@/lib/categories";
 import { watchProducts } from "@/lib/products";
+import { ImportCsvDialog } from "@/components/import-csv-dialog";
+import { importContext } from "@/lib/import/import-context";
+import {
+  COUPON_COLUMNS,
+  buildCouponPlan,
+  sampleCouponCsv,
+} from "@/lib/import/coupon-csv";
 import {
   watchCoupons,
   addCoupon,
@@ -107,13 +114,14 @@ const COUPON_COMPARATORS: Record<CouponSortKey, Comparator<Coupon>> = {
 type StatusFilter = "all" | "active" | "inactive";
 
 export default function CouponsPage() {
-  const { storeId, storeCurrency } = useStore();
+  const { storeId, storeCurrency, storeLanguage } = useStore();
   const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [editing, setEditing] = useState<Coupon | "new" | null>(null);
   const [deleting, setDeleting] = useState<Coupon | null>(null);
   const [search, setSearch] = useState("");
+  const [importing, setImporting] = useState(false);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const { sort, toggle } = useTableSort<CouponSortKey>("code");
 
@@ -180,6 +188,9 @@ export default function CouponsPage() {
             label="Search coupons"
             placeholder="Search code or status…"
           />
+          <Button variant="outline" onClick={() => setImporting(true)}>
+            Import CSV
+          </Button>
           <Button onClick={() => setEditing("new")}>Add coupon</Button>
         </div>
       </div>
@@ -262,6 +273,34 @@ export default function CouponsPage() {
           ))}
         </TableBody>
       </Table>
+
+      {importing && (
+        <ImportCsvDialog
+          storeId={storeId}
+          spec={(() => {
+            const ctx = importContext(storeLanguage, storeCurrency, {
+              products,
+              categories,
+              brands: [],
+            });
+            return {
+              entityPlural: "coupons",
+              entitySingular: "coupon",
+              collectionName: "coupons",
+              matchOn: "coupon code",
+              columns: COUPON_COLUMNS,
+              buildPlan: (csv: string) => buildCouponPlan(csv, ctx.catalog, coupons),
+              sampleCsv: () => sampleCouponCsv(ctx.seed, ctx.catalog),
+              sampleLabel: ctx.sampleLabel,
+              sampleSlug: ctx.sampleSlug,
+              // usedCount belongs to the order transaction, never the form or
+              // a CSV — a create seeds it the way addCoupon does.
+              createDefaults: { usedCount: 0 },
+            };
+          })()}
+          onClose={() => setImporting(false)}
+        />
+      )}
 
       {editing && (
         <CouponDialog

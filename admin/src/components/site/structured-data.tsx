@@ -10,8 +10,11 @@
  * "Free" rather than nothing. It must be deleted the day anything is charged.
  */
 import { faqItems } from "./faq-data";
+import { SITE_URL as ORIGIN } from "@/lib/site";
 
-const SITE_URL = "https://cordeliaapps.com/";
+// JSON-LD `url` values are the site root, so they keep the trailing slash the
+// markup shipped with; the origin itself comes from the one shared const.
+const SITE_URL = `${ORIGIN}/`;
 
 const organization = {
   "@context": "https://schema.org",
@@ -19,7 +22,7 @@ const organization = {
   name: "CordeliaApps",
   url: SITE_URL,
   // Replace with the absolute URL of the CordeliaApps logo once hosted.
-  logo: "https://cordeliaapps.com/logo.png",
+  logo: `${ORIGIN}/logo.png`,
   email: "cordeliaapps@gmail.com",
   contactPoint: [
     {

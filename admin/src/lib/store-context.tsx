@@ -4,12 +4,14 @@ import {
   createContext,
   useContext,
   useEffect,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
-import { doc, onSnapshot } from "firebase/firestore";
+import { doc, onSnapshot, type DocumentSnapshot } from "firebase/firestore";
 import { db } from "./firebase";
 import { useAuth } from "./auth-context";
+import type { User } from "firebase/auth";
 
 export type StoreSummary = {
   id: string;
@@ -29,6 +31,12 @@ type StoreContextValue = {
    * they were already charging.
    */
   storeCurrency: string;
+  /**
+   * The storefront's language. Rides the same store-doc snapshot as the
+   * currency, so it costs no extra read — and it is the only thing that can
+   * tell a French store from a German one, since both charge in euros.
+   */
+  storeLanguage: string;
   loading: boolean;
   selectStore: (storeId: string) => void;
   createStore: (
@@ -48,13 +56,34 @@ function selectionKey(uid: string) {
   return `cordelia-admin-selected-store:${uid}`;
 }
 
+// A sign-up that created the Auth account but failed the admins-doc write
+// leaves a record missing the fields nothing else can put back — see
+// POST /api/admins/ensure, which is the only writer able to repair one.
+// `createdAt` is deliberately not checked: the route won't backfill it onto
+// an existing doc, so requiring it here would re-request a heal forever.
+function isAdminRecordComplete(snap: DocumentSnapshot): boolean {
+  if (!snap.exists()) return false;
+  const data = snap.data() ?? {};
+  return Boolean(data.email) && Boolean(data.role) && Array.isArray(data.storeIds);
+}
+
+async function healAdminRecord(user: User) {
+  const token = await user.getIdToken();
+  await fetch("/api/admins/ensure", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
 export function StoreProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const [storeIds, setStoreIds] = useState<string[]>([]);
   const [names, setNames] = useState<Record<string, string>>({});
   const [currencies, setCurrencies] = useState<Record<string, string>>({});
+  const [languages, setLanguages] = useState<Record<string, string>>({});
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const healAttemptedFor = useRef<string | null>(null);
 
   // Reset derived state synchronously during render when the signed-in
   // user changes — React's documented alternative to an effect-based
@@ -68,6 +97,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     setStoreIds([]);
     setNames({});
     setCurrencies({});
+    setLanguages({});
     setSelectedId(null);
     setLoading(uid !== null);
   }
@@ -75,6 +105,19 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!user) return;
     return onSnapshot(doc(db, "admins", user.uid), (snap) => {
+      // The snapshot already answers "is this record intact?", so the normal
+      // case costs no extra read — and the repair is attempted once per
+      // session, not per snapshot, since the write itself fires this callback
+      // again and a failing route would otherwise retry in a loop.
+      if (!isAdminRecordComplete(snap) && healAttemptedFor.current !== user.uid) {
+        healAttemptedFor.current = user.uid;
+        void healAdminRecord(user).catch(() => {
+          // Nothing to show the user: they can still work, and the next load
+          // gets another attempt. Left silent rather than surfacing a toast
+          // about a record they don't know exists.
+        });
+      }
+
       const ids = (snap.data()?.storeIds as string[] | undefined) ?? [];
       setStoreIds(ids);
       // Keep the selection valid against the fresh list: restore the
@@ -102,11 +145,15 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         const data = snap.data();
         const name = (data?.name as string | undefined) ?? "";
         const currency = (data?.currency as string | undefined) ?? "INR";
+        const language = (data?.language as string | undefined) ?? "en";
         setNames((current) =>
           current[id] === name ? current : { ...current, [id]: name },
         );
         setCurrencies((current) =>
           current[id] === currency ? current : { ...current, [id]: currency },
+        );
+        setLanguages((current) =>
+          current[id] === language ? current : { ...current, [id]: language },
         );
       }),
     );
@@ -161,6 +208,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const storeId = selectedId;
   const storeName = storeId ? (names[storeId] ?? null) : null;
   const storeCurrency = (storeId ? currencies[storeId] : null) ?? "INR";
+  const storeLanguage = (storeId ? languages[storeId] : null) ?? "en";
 
   return (
     <StoreContext.Provider
@@ -169,6 +217,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         storeId,
         storeName,
         storeCurrency,
+        storeLanguage,
         loading,
         selectStore,
         createStore,

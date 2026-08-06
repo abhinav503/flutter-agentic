@@ -9,6 +9,7 @@
     "lint": "eslint",
     "test:webhook": "node scripts/test-refund-webhook.mjs",
     "seed:templates": "node --env-file=.env.local scripts/seed-templates.mjs",
+    "verify:import-csv": "tsx --env-file=.env.local scripts/verify-import-csv.ts",
     "verify:seed-images": "node scripts/verify-seed-images.mjs",
     "verify:seed-bands": "node scripts/verify-seed-bands.mjs",
     "verify:seed-refs": "node scripts/verify-seed-refs.mjs"
@@ -21,6 +22,7 @@
     "lucide-react": "^1.25.0",
     "next": "16.2.9",
     "next-themes": "^0.4.6",
+    "papaparse": "^5.5.4",
     "radix-ui": "^1.6.2",
     "react": "19.2.4",
     "react-dom": "19.2.4",
@@ -32,11 +34,13 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
+    "@types/papaparse": "^5.5.2",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.9",
     "tailwindcss": "^4",
+    "tsx": "^4.23.9",
     "typescript": "^5"
   },
   "overrides": {

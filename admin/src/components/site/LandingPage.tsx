@@ -10,26 +10,18 @@ import { Faq } from "@/components/site/Faq";
 import { FinalCta } from "@/components/site/FinalCta";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { StructuredData } from "@/components/site/structured-data";
-import { AuthDialogProvider, type AuthMode } from "@/components/auth-dialog";
+import { AuthDialogProvider } from "@/components/auth-dialog";
 import { RedirectIfSignedIn } from "@/components/redirect-if-signed-in";
 
 /**
- * The marketing page, shared by `/` and by the `/login` + `/signup` routes.
- *
- * Signing in is a dialog, not a screen — so those two routes render this same
- * page with `initialAuthMode` set, and the dialog is already open on arrival.
- * That keeps old bookmarks and the dashboard's signed-out bounce working
- * without an effect that pops the dialog after hydration.
+ * The marketing page. Signing in is a dialog over it, opened by the nav's
+ * "Log in" or any "Start free" CTA — never on arrival, so what a visitor sees
+ * first is always the page itself.
  */
-export function LandingPage({
-  initialAuthMode,
-}: {
-  initialAuthMode?: AuthMode;
-}) {
+export function LandingPage() {
   return (
-    <AuthDialogProvider initialMode={initialAuthMode}>
-      {/* Signed in already? Straight to the dashboard — including from
-          /login and /signup, which render this same page. */}
+    <AuthDialogProvider>
+      {/* Signed in already? Straight to the dashboard. */}
       <RedirectIfSignedIn />
       <div className="bg-background text-foreground">
         <StructuredData />

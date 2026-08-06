@@ -14,6 +14,13 @@ import { matchesSearch } from "@/lib/search";
 import { applySort, compareText, type Comparator } from "@/lib/sort";
 import { ImageUploadField } from "@/components/image-upload-field";
 import { SearchField } from "@/components/search-field";
+import { ImportCsvDialog } from "@/components/import-csv-dialog";
+import { importContext } from "@/lib/import/import-context";
+import {
+  CATEGORY_COLUMNS,
+  buildCategoryPlan,
+  sampleCategoryCsv,
+} from "@/lib/import/category-csv";
 import {
   SortableTableHead,
   useTableSort,
@@ -58,11 +65,12 @@ const CATEGORY_COMPARATORS: Record<CategorySortKey, Comparator<Category>> = {
 };
 
 export default function CategoriesPage() {
-  const { storeId } = useStore();
+  const { storeId, storeCurrency, storeLanguage } = useStore();
   const [categories, setCategories] = useState<Category[]>([]);
   const [editing, setEditing] = useState<Category | "new" | null>(null);
   const [deleting, setDeleting] = useState<Category | null>(null);
   const [search, setSearch] = useState("");
+  const [importing, setImporting] = useState(false);
   const { sort, toggle } = useTableSort<CategorySortKey>("name");
 
   useEffect(() => {
@@ -96,6 +104,9 @@ export default function CategoriesPage() {
             label="Search categories"
             placeholder="Search name or group…"
           />
+          <Button variant="outline" onClick={() => setImporting(true)}>
+            Import CSV
+          </Button>
           <Button onClick={() => setEditing("new")}>Add category</Button>
         </div>
       </div>
@@ -156,6 +167,31 @@ export default function CategoriesPage() {
           ))}
         </TableBody>
       </Table>
+
+      {importing && (
+        <ImportCsvDialog
+          storeId={storeId}
+          spec={(() => {
+            const ctx = importContext(storeLanguage, storeCurrency, {
+              products: [],
+              categories,
+              brands: [],
+            });
+            return {
+              entityPlural: "categories",
+              entitySingular: "category",
+              collectionName: "categories",
+              matchOn: "category name",
+              columns: CATEGORY_COLUMNS,
+              buildPlan: (csv: string) => buildCategoryPlan(csv, ctx.catalog),
+              sampleCsv: () => sampleCategoryCsv(ctx.seed, ctx.catalog),
+              sampleLabel: ctx.sampleLabel,
+              sampleSlug: ctx.sampleSlug,
+            };
+          })()}
+          onClose={() => setImporting(false)}
+        />
+      )}
 
       {editing && (
         <CategoryDialog

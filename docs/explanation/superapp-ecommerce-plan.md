@@ -3047,3 +3047,215 @@ matching screen smells.
 "Benachrichtigung(en)" → "Mitteilung(en)" across all 12 German notification
 strings — shorter, and the word German apps actually use for in-app
 notifications. Applied to every pack, not just the one it was spotted in.
+
+---
+
+## Admin record self-heal + bulk CSV product import — DONE (2026-08-06)
+
+Two of the productionisation gaps, plus the landing-page and SEO work that
+shipped alongside them.
+
+### `admins/{uid}` self-heal
+
+Sign-up is two steps — create the Firebase Auth account, then write
+`admins/{uid}` — and only the first is atomic. The gap was recorded in M1a as
+"a valid Auth account with no admins doc"; auditing it before fixing it made
+the real severity **narrower and more permanent** than the note said.
+`POST /api/stores` already writes `{ storeIds: arrayUnion(...) }` with
+`{ merge: true }`, so such an account can still create a store and the doc
+appears. What it can never regain is `email` and `role`, because
+`firestore.rules` denies client updates to an existing admins doc
+(`allow update, delete: if false`). So the account works; the *record* is
+permanently half-written, and only the Admin SDK can complete it.
+
+**`POST /api/admins/ensure`** — token-verified, always the caller's own uid, no
+uid parameter and no admin branch. Fills only absent fields, never overwrites.
+`createdAt` is stamped **only when the doc doesn't exist at all**: backfilling
+it onto an older doc would record today as the sign-up date, and a missing
+timestamp beats a wrong one. It is therefore also excluded from the client's
+completeness check, or a doc legitimately lacking it would ask to be healed on
+every load.
+
+**The client detects it for free.** `StoreProvider` already holds an
+`onSnapshot` on that exact doc, so completeness is read off a snapshot it was
+subscribed to anyway — zero extra reads in the normal case. The repair is
+attempted once per session (a `useRef` guard), not once per snapshot, because
+the heal's own write re-fires the callback and a failing route would otherwise
+retry in a loop. A failure is silent: the owner can still work, the next load
+tries again, and there is nothing actionable to say about a record they don't
+know exists.
+
+Nothing reads `role` today — it is written for the claim-based tightening M1a
+still has open (`role: storeAdmin` stamped as a custom claim), which is why the
+field is worth repairing rather than dropping.
+
+### Bulk CSV import — products, categories, banners, coupons (v1)
+
+The M5 line item that had stayed a scratchpad script since July. A store with
+a few hundred SKUs could not be onboarded through the Products dialog, which
+made it the gap most likely to kill a real onboarding.
+
+**CSV, not `.xlsx`** — deliberate. The npm `xlsx` package has been pinned at
+0.18.5 since 2022 with open prototype-pollution advisories (SheetJS moved
+everything newer to their own CDN), and a console that writes store data is
+the wrong place for a known-vulnerable parser. Every spreadsheet tool exports
+CSV in one click. Reading `.xlsx` directly belongs with the **v2 AI mapping**
+work, where an arbitrary sheet is the whole point — at which stage the parser
+runs server-side on a file the owner already chose to hand over.
+
+`papaparse` does the parsing. Hand-rolling was considered and rejected on the
+specific inputs that break hand-rolled parsers and that a real Excel export
+always has: a BOM, CRLF line endings, and quoted fields containing commas.
+
+**Four entities, one implementation.** `lib/import/` splits so the logic is
+checkable without a project — every planner is pure, no Firestore and no React:
+- `csv-core.ts` — parsing, coercion, RFC-4180 quoting, line numbering, and the
+  plan/error shapes. Everything that would otherwise be re-typed per entity, so
+  the four can't disagree about it.
+- `store-catalog.ts` — the store's live contents plus the rules deciding what a
+  *sample* may put in its linking columns.
+- `product-csv.ts`, `category-csv.ts`, `banner-csv.ts`, `coupon-csv.ts` — each
+  declares its columns and validates its own rows.
+- `import-rows.ts` — one batched writer for all four; what differs is only
+  which fields a create seeds (`createDefaults` — coupons start at
+  `usedCount: 0`, the way `addCoupon` does), never the write's shape.
+- `components/import-csv-dialog.tsx` — file → plan → confirm → write, driven by
+  an `ImportSpec` the page supplies (it is the only place holding live data).
+
+Per-entity contracts worth knowing:
+- **Categories** have no cross-references, so their sample is the same whatever
+  the store holds — the one that can't fail.
+- **Banners** take a target by *name*, not doc id: an owner filling a
+  spreadsheet knows "Fresh Fruits", not the 20-character id. A sample whose
+  target doesn't exist in the store is emitted display-only rather than as a
+  failing row.
+- **Coupons** are uppercased on the way in, because `coupon-engine.ts` looks up
+  `code.trim().toUpperCase()` — a lowercase import would create a code no
+  shopper could redeem. A scoped seed coupon is included in the sample **only
+  when every one of its targets resolves**; silently rewriting it to
+  whole-order scope would hand the owner a coupon discounting far more than the
+  one they copied.
+
+**Decisions worth keeping:**
+- **Two-step, never blind.** The file is fully validated *before* anything is
+  written and the owner confirms a plan ("12 to create, 3 to update, 2 cannot
+  be imported") with each bad row named by its line number in their editor.
+  Bad rows are skipped, not fatal — a 400-row sheet with two typos should not
+  be all-or-nothing.
+- **Upsert key:** the optional `id` column when present, otherwise a
+  case-insensitive name match. So re-importing an edited file updates rather
+  than duplicating.
+- **Updates `merge`, never plain `set`.** `ratingAverage`/`reviewCount`/
+  `ratingBuckets` belong to the review transaction and `createdAt` to the
+  original write; a full overwrite would silently reset every imported
+  product's rating. That is the one thing an import must not be able to do.
+- **Unknown categories and brands are row errors, not silent creation** — a
+  typo would otherwise quietly mint "Beverges" and split the catalog in two.
+  The message names the page to fix it on.
+- **Over 500 rows is not atomic** (Firestore's batch cap), and the dialog says
+  so *before* the owner commits rather than after a partial failure. The
+  seeder gets one atomic commit only because a bundled catalog is ~170 docs.
+- **The sample is generated from the store's own market seed catalog**, not a
+  static asset and not invented rows — real products, in the store's language,
+  at that market's prices. The market comes from the store's `language`, with
+  `currency` breaking the tie only for English (India / UK / US all speak it);
+  this is exactly the euro ambiguity `defaultSeedMarketForCurrency` documents
+  and cannot resolve on its own, so `seedMarketForStore` was added beside it.
+  The store's language rides the store-doc snapshot `StoreProvider` already
+  holds, so reading it costs nothing.
+- **The sample must import cleanly into the store that downloaded it.** The
+  first version failed this and the verification hid it: the sample's category
+  and brand columns named a hardcoded Indian catalog, and the check fed the
+  planner a fake store containing exactly those names — proving the parser and
+  nothing else. On a real store every row errored. The linking columns are now
+  resolved against the store's *live* catalog: a seed category the store has is
+  used; if none match but the store has categories, its first one; if the store
+  has none, blank (the column is optional). Brands follow the same three cases.
+  The check now runs **all seven markets × three store shapes**, including a
+  store sharing none of the seed's names.
+- Currency-formatted numbers are accepted (`"₹1,299.00"` → `1299`) — a
+  spreadsheet formats a money column without asking, and the owner believes
+  they typed a number.
+- **Available on an empty store**, unlike "Add product" beside it. The
+  `categories` column is optional, so a fresh store can be bulk-loaded; and
+  when a file does name categories, the per-row errors name exactly which ones
+  to create. Gating the button on `categories.length` (copied from its
+  neighbour on the first pass) disabled the feature precisely in the
+  onboarding case it exists for.
+
+**A line-numbering bug the four-entity checks caught.** Papaparse was reading
+with `skipEmptyLines: "greedy"`, which drops blank rows from the data array —
+and since error line numbers come from that array's index, one blank row in the
+middle of a sheet sent the owner to the wrong line for *every* error after it
+(verified: a row physically on line 4 reported as line 3). Exported
+spreadsheets have blank rows constantly, so this would have misdirected people
+routinely. Blank rows are now skipped inside `eachRow`, after the index has
+been counted, and are skipped rather than rejected — a spacer or a trailing
+newline is an artefact, not something the owner meant to import.
+
+**`npm run verify:import-csv`** — 128 checks over the planners, following the
+existing `verify:seed-*` convention since `admin/` has no test runner. The bulk
+of it is **4 entities × 7 markets × 3 store shapes** — every sample importing
+cleanly into an empty store, a store sharing none of the seed's names, and a
+seeded-looking one. Plus: an Excel-shaped file (BOM + CRLF + re-cased,
+reordered headers), every validation rejection per entity (12 product, 2
+category, 6 banner, 11 coupon), line numbers surviving blank rows,
+`id`-beats-name precedence, case-insensitive matching, pipe-split
+multi-value columns, the currency-glyph number path, the empty-store onboarding
+case, image URLs surviving the round-trip as literal https, and market
+resolution by language.
+
+The lesson worth carrying: **a fixture built to match the thing it checks
+proves nothing.** The sample-vs-store checks now vary the store, not just the
+file.
+
+**Not in v1:** per-size variants (no sensible flat-file shape — an update
+merges, so a product that already has variants keeps them), category/brand
+creation, and image upload (URLs only).
+
+**A pre-existing seed gap this surfaced, deliberately left alone.** Checking
+that every sample row carries a real image URL failed on six of seven markets,
+and the cause is in the seed catalogs themselves: **2–30 products per market
+have no `imageUrl` at all** (india 2, germany 19, france 26, spain 26, italy
+29, uk 29, us 30). "Generate sample data" writes those imageless products
+today — this is not new, and it is not something the import introduced.
+
+The sample now *selects* only products that have an image (every market has far
+more than the eight it needs), which fixes the download without editing a byte
+of seed data: the diff to `lib/seed/` is 36 insertions and zero deletions, all
+of them the new `seedMarketForStore`. All 56 sample image URLs (7 markets × 8
+rows) were confirmed to return HTTP 200.
+
+Filling the missing seed images is its own task — `verify:seed-images` checks
+that the URLs which *exist* resolve, not that every product has one, so a
+catalog can pass it with 30 blanks. Worth adding that assertion when the
+images are authored.
+
+### Landing page: the dialog no longer opens on arrival
+
+`/login` and `/signup` rendered the landing page with the auth dialog seeded
+open, so arriving at either put a sign-in form over a blurred marketing page
+before the visitor had asked for anything — and the dashboard's signed-out
+bounce sent people there, so it did not take a typed URL to hit. The dialog now
+opens **only from a click** (nav "Log in", any "Start free" CTA); `initialMode`
+is gone entirely rather than gated, both routes 307 to `/`, and the dashboard's
+signed-out bounce goes to `/`.
+
+Temporary (307) not permanent: a 308 is cached by browsers indefinitely and
+would make reinstating either route painful.
+
+Consequence accepted on purpose: a signed-out admin landing on `/dashboard`
+now arrives at the marketing page with no prompt and signs in from the nav.
+
+### `sitemap.ts` + `robots.ts`
+
+Both were missing entirely. Two public routes (`/`, `/docs`); `/dashboard/` and
+`/api/` disallowed. `/login` and `/signup` are deliberately **not** disallowed —
+a crawler blocked from fetching a URL never learns it redirects, and would keep
+the dead URL on file instead of dropping it. No `lastModified`: these are cached
+Route Handlers, so `new Date()` would evaluate at build time and claim every
+page changed on every deploy, and Google discounts a lastmod it can't trust.
+
+The site origin was hardcoded in three places; it is now `lib/site.ts`, read by
+`page.tsx`'s `metadataBase`, the JSON-LD blocks, and both new files. A sitemap
+listing a domain the canonical tag doesn't use is worse than no sitemap.

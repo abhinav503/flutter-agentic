@@ -1,11 +1,47 @@
 # Content i18n Plan — Hindi catalog data + Hindi landing page
 
-> Status: **planned, not started** (written 2026-08-05). Companion to the shipped UI-chrome
-> localization (per-store en/hi via gen-l10n, all three templates — see
-> `superapp-ecommerce-plan.md` §2026-08-05). This plan covers the two things that work
-> deliberately left out: **catalog content** (product/category/banner text stays whatever the
-> admin typed) and the **admin console's marketing landing page** (English-only, no locale
-> routing).
+> Status: **decided 2026-08-06 — Part 1 deferred, Part 2 discarded.** Written 2026-08-05 as a
+> companion to the shipped UI-chrome localization (per-store en/hi via gen-l10n, all three
+> templates — see `superapp-ecommerce-plan.md` §2026-08-05). It covered the two things that
+> work deliberately left out: **catalog content** and the **marketing landing page**. Neither
+> is being built now; the reasoning is below and the design is kept because it is still the
+> design we would use.
+
+## Decisions (2026-08-06)
+
+**Catalog content stays single-valued free text — this is the shipped behaviour, not a gap.**
+The admin's catalog fields already accept any language, so a German store owner types German
+names and the storefront prints them end to end with zero code. The `i18n` override map in
+Part 1 buys only a *second* language for the same product, which matters solely because
+`StoreLocalePrefs` lets a shopper pick a language the store didn't author in. Deferred
+because:
+
+- All seven seeded markets are single-language. The bilingual case (India en/hi, Switzerland,
+  Canada) is the only one it bites, and no store is in it.
+- Translating chrome but not product names is what real single-market grocery apps do.
+- The map is purely additive (`i18n?.[lang]?.[field] ?? field`), so deferring forecloses
+  nothing — the migration is non-breaking in both directions.
+- **The cost was never the code.** Without machine translation, every owner types every
+  product name twice, forever; the form ships and most leave it blank, which is today's
+  behaviour with more machinery behind it. So **if Part 1 is ever built, "Translate with AI"
+  ships with it, not after it.**
+
+**"BE-only" is not available**, which is worth knowing before someone proposes it again. The
+shopper's language override lives on-device, so the server can't resolve a language it wasn't
+told. A genuine BE-only variant — resolve from the store doc, ignore the override for catalog
+— gives the store exactly one language, leaving the override map nothing to hold. It collapses
+back to doing nothing. It is this decision or the full Part 1; there is no middle.
+
+**Part 2 (`/hi` landing page) is discarded**, not deferred — a Hindi marketing page for store
+owners isn't wanted.
+
+**Still worth doing, and unrelated to language:** `sitemap.ts` + `robots.ts`, missing entirely
+(§Part 2 item 5). Two public routes today (`/` and `/docs`); `/login`, `/signup`,
+`/dashboard/*` and `/api/*` should be disallowed so crawl budget doesn't go to pages that can
+never rank.
+
+**Already fixed:** the stale `types.ts` (`Store.language`) comment noted below now reads
+correctly.
 
 ## Where things stand today
 
@@ -140,12 +176,16 @@ your customers' language*.
 
 ---
 
-## Suggested order of work
+## Suggested order of work — superseded by the decisions at the top
+
+Kept for the day Part 1 is revived. Steps 1–5 move together; step 2's AI button is not
+optional (see the decisions). Steps 6–7 are discarded along with Part 2 — except
+`sitemap.ts`/`robots.ts`, which is independent of language and still open.
 
 1. Catalog `i18n` map + `?lang=` resolution in the API routes (wire stays frozen)
 2. Admin form fields for Hindi (+ "Translate with AI" button)
 3. Cordelia data-source `lang` param + `ScopedBlocCache` key extension
 4. Search matching across both languages
 5. Seeder Hindi data
-6. `/hi` landing page + hreflang + `sitemap.ts`/`robots.ts`
-7. Language-suggestion banner
+6. ~~`/hi` landing page + hreflang~~ + `sitemap.ts`/`robots.ts`
+7. ~~Language-suggestion banner~~

@@ -5,6 +5,13 @@ import Image from "next/image";
 import { useStore } from "@/lib/store-context";
 import { watchCategories } from "@/lib/categories";
 import { watchProducts } from "@/lib/products";
+import { ImportCsvDialog } from "@/components/import-csv-dialog";
+import { importContext } from "@/lib/import/import-context";
+import {
+  BANNER_COLUMNS,
+  buildBannerPlan,
+  sampleBannerCsv,
+} from "@/lib/import/banner-csv";
 import {
   watchBanners,
   addBanner,
@@ -62,13 +69,14 @@ import {
 import { toast } from "sonner";
 
 export default function BannersPage() {
-  const { storeId } = useStore();
+  const { storeId, storeCurrency, storeLanguage } = useStore();
   const [banners, setBanners] = useState<Banner[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [editing, setEditing] = useState<Banner | "new" | null>(null);
   const [deleting, setDeleting] = useState<Banner | null>(null);
   const [search, setSearch] = useState("");
+  const [importing, setImporting] = useState(false);
 
   // Products and categories are watched only to populate the dialog's link
   // target picker — a banner itself references one by id.
@@ -120,6 +128,9 @@ export default function BannersPage() {
             label="Search banners"
             placeholder="Search title or target…"
           />
+          <Button variant="outline" onClick={() => setImporting(true)}>
+            Import CSV
+          </Button>
           <Button onClick={() => setEditing("new")}>Add banner</Button>
         </div>
       </div>
@@ -208,6 +219,31 @@ export default function BannersPage() {
           ))}
         </TableBody>
       </Table>
+
+      {importing && (
+        <ImportCsvDialog
+          storeId={storeId}
+          spec={(() => {
+            const ctx = importContext(storeLanguage, storeCurrency, {
+              products,
+              categories,
+              brands: [],
+            });
+            return {
+              entityPlural: "banners",
+              entitySingular: "banner",
+              collectionName: "banners",
+              matchOn: "banner title",
+              columns: BANNER_COLUMNS,
+              buildPlan: (csv: string) => buildBannerPlan(csv, ctx.catalog, banners),
+              sampleCsv: () => sampleBannerCsv(ctx.seed, ctx.catalog),
+              sampleLabel: ctx.sampleLabel,
+              sampleSlug: ctx.sampleSlug,
+            };
+          })()}
+          onClose={() => setImporting(false)}
+        />
+      )}
 
       {editing && (
         <BannerDialog

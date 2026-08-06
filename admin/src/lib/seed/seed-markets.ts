@@ -90,3 +90,39 @@ export function defaultSeedMarketForCurrency(currency: string): SeedMarket {
       return "germany";
   }
 }
+
+/**
+ * The catalog whose *language* matches the store, falling back to currency.
+ *
+ * This resolves the euro ambiguity the function above documents: EUR can't
+ * tell Germany from France, Spain or Italy, but `language` can — a store set
+ * to `fr` wants French product names, not German ones. Five of the six store
+ * languages name exactly one market.
+ *
+ * `en` is the exception and genuinely needs the currency: India, the UK and
+ * the US all have English catalogs, and only what the store charges in
+ * separates them.
+ *
+ * Used where the output is *read* in the store's language (the import sample);
+ * the seeder dialog keeps offering the full picker, because writing a whole
+ * catalog is a choice worth making explicitly.
+ */
+export function seedMarketForStore(
+  language: string,
+  currency: string,
+): SeedMarket {
+  switch (language.toLowerCase()) {
+    case "hi":
+      return "india";
+    case "de":
+      return "germany";
+    case "fr":
+      return "france";
+    case "es":
+      return "spain";
+    case "it":
+      return "italy";
+    default:
+      return defaultSeedMarketForCurrency(currency);
+  }
+}

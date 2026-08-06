@@ -43,10 +43,11 @@ export default function DashboardLayout({
   const { storeId, loading: storeLoading } = useStore();
 
   useEffect(() => {
-    // /login is the marketing page with the sign-in dialog already open —
-    // there is no separate sign-in screen to land on.
+    // Home, not /login — that route is gone, and the sign-in dialog only ever
+    // opens from a click now. A signed-out visitor lands on the marketing page
+    // and signs in from its nav.
     if (!authLoading && !user) {
-      router.replace("/login");
+      router.replace("/");
     }
   }, [authLoading, user, router]);
 

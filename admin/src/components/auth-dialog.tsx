@@ -42,20 +42,15 @@ export function useAuthDialog() {
  * whatever the visitor was reading — the page keeps its scroll position, and
  * there is no sign-in screen to bounce through.
  *
- * `initialMode` opens it on arrival: the `/login` and `/signup` routes render
- * the landing page with it set, so a bookmark or the dashboard's signed-out
- * redirect lands on an open dialog. It's the component's *initial* state
- * rather than an effect that pops it open once hydrated — no closed-then-open
- * flash, and nothing here reads the URL.
+ * **It only ever opens from a click** — Log in, or any "Start free" CTA. There
+ * is deliberately no way to request it on arrival: a visitor's first sight of
+ * the marketing page must be the marketing page, not a sign-in form over a
+ * blurred one. `/login` and `/signup` used to render this page with the dialog
+ * pre-opened; both now redirect to `/` (see next.config.ts) precisely because
+ * that is the same thing by another route.
  */
-export function AuthDialogProvider({
-  initialMode,
-  children,
-}: {
-  initialMode?: AuthMode;
-  children: ReactNode;
-}) {
-  const [mode, setMode] = useState<AuthMode | null>(initialMode ?? null);
+export function AuthDialogProvider({ children }: { children: ReactNode }) {
+  const [mode, setMode] = useState<AuthMode | null>(null);
 
   const openAuth = useCallback((next: AuthMode) => setMode(next), []);
 

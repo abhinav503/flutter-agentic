@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { LandingPage } from "@/components/site/LandingPage";
+import { SITE_URL } from "@/lib/site";
 
 const title = "CordeliaApps — Your store's own app, zero commission";
 const description =
@@ -9,7 +10,7 @@ const description =
 // here, so this replaces the framework-specific head() the page shipped with —
 // the same strings through a different mechanism.
 export const metadata: Metadata = {
-  metadataBase: new URL("https://cordeliaapps.com"),
+  metadataBase: new URL(SITE_URL),
   title,
   description,
   alternates: { canonical: "/" },

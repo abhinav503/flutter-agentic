@@ -26,6 +26,13 @@ import {
 } from "@/lib/sort";
 import { ImageUploadField } from "@/components/image-upload-field";
 import { SearchField } from "@/components/search-field";
+import { ImportCsvDialog } from "@/components/import-csv-dialog";
+import { importContext } from "@/lib/import/import-context";
+import {
+  PRODUCT_COLUMNS,
+  buildProductPlan,
+  sampleProductCsv,
+} from "@/lib/import/product-csv";
 import {
   SortableTableHead,
   useTableSort,
@@ -90,12 +97,13 @@ const ALL = "all";
 type StockFilter = "all" | "in" | "out";
 
 export default function ProductsPage() {
-  const { storeId, storeCurrency } = useStore();
+  const { storeId, storeCurrency, storeLanguage } = useStore();
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [brands, setBrands] = useState<Brand[]>([]);
   const [editing, setEditing] = useState<Product | "new" | null>(null);
   const [deleting, setDeleting] = useState<Product | null>(null);
+  const [importing, setImporting] = useState(false);
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState(ALL);
   const [brandFilter, setBrandFilter] = useState(ALL);
@@ -211,6 +219,14 @@ export default function ProductsPage() {
             label="Search products"
             placeholder="Search name, brand, category…"
           />
+          {/* Not gated on categories the way "Add product" is: the CSV's
+              `categories` column is optional, so an empty store can be
+              bulk-loaded — and when a file does name categories, the import's
+              per-row errors name exactly which ones to create, which beats a
+              disabled button that explains nothing. */}
+          <Button variant="outline" onClick={() => setImporting(true)}>
+            Import CSV
+          </Button>
           <Button onClick={() => setEditing("new")} disabled={categories.length === 0}>
             Add product
           </Button>
@@ -365,6 +381,31 @@ export default function ProductsPage() {
           categories={categories}
           brands={brands}
           onClose={() => setEditing(null)}
+        />
+      )}
+
+      {importing && (
+        <ImportCsvDialog
+          storeId={storeId}
+          spec={(() => {
+            const ctx = importContext(storeLanguage, storeCurrency, {
+              products,
+              categories,
+              brands,
+            });
+            return {
+              entityPlural: "products",
+              entitySingular: "product",
+              collectionName: "products",
+              matchOn: "product name",
+              columns: PRODUCT_COLUMNS,
+              buildPlan: (csv: string) => buildProductPlan(csv, ctx.catalog),
+              sampleCsv: () => sampleProductCsv(ctx.seed, ctx.catalog),
+              sampleLabel: ctx.sampleLabel,
+              sampleSlug: ctx.sampleSlug,
+            };
+          })()}
+          onClose={() => setImporting(false)}
         />
       )}
 
