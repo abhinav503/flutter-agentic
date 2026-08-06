@@ -36,5 +36,17 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "yearly",
       priority: 0.3,
     },
+    // Submitted to Google Play as the app's privacy-policy and data-deletion
+    // URLs, so they must stay publicly reachable and indexable.
+    {
+      url: `${SITE_URL}/app-privacy`,
+      changeFrequency: "yearly",
+      priority: 0.3,
+    },
+    {
+      url: `${SITE_URL}/delete-account`,
+      changeFrequency: "yearly",
+      priority: 0.3,
+    },
   ];
 }
