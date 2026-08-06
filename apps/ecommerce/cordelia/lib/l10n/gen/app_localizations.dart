@@ -397,26 +397,134 @@ abstract class AppLocalizations {
   /// No description provided for @legalLastUpdatedLabel.
   ///
   /// In en, this message translates to:
-  /// **'Last update: Mar 09, 2026'**
+  /// **'Last update: Aug 06, 2026'**
   String get legalLastUpdatedLabel;
 
   /// No description provided for @termsAndConditionsIntro.
   ///
   /// In en, this message translates to:
-  /// **'Please read these terms of service, carefully before using our app operated by us.'**
+  /// **'These terms apply whenever you use the CordeliaApps shopping app. Please read them before you order — creating an account or placing an order means you accept them.'**
   String get termsAndConditionsIntro;
 
-  /// No description provided for @termsAndConditionsHeading.
+  /// No description provided for @termsAndConditionsSection1Heading.
   ///
   /// In en, this message translates to:
-  /// **'Conditions of Uses'**
-  String get termsAndConditionsHeading;
+  /// **'1. Who We Are'**
+  String get termsAndConditionsSection1Heading;
 
-  /// No description provided for @termsAndConditionsBody.
+  /// No description provided for @termsAndConditionsSection1Body.
   ///
   /// In en, this message translates to:
-  /// **'It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using \'Content here, content here\', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for \'lorem ipsum\' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like).'**
-  String get termsAndConditionsBody;
+  /// **'CordeliaApps builds and operates this shopping app. We are based in India and work with stores in India, the United Kingdom, the United States and across Europe, so the app is available in several languages and shows prices in each store\'s own currency. Where a translation differs from the English version, the English version is the one we go by.'**
+  String get termsAndConditionsSection1Body;
+
+  /// No description provided for @termsAndConditionsSection2Heading.
+  ///
+  /// In en, this message translates to:
+  /// **'2. Our Role — Who You Buy From'**
+  String get termsAndConditionsSection2Heading;
+
+  /// No description provided for @termsAndConditionsSection2Body.
+  ///
+  /// In en, this message translates to:
+  /// **'CordeliaApps is the platform, not the shop. Every product you see is listed, priced, sold and delivered by the individual store you are browsing, and your purchase agreement is with that store. We are not the seller and we do not take payment for the goods, so questions about an order, a product or a refund are handled by the store, with the app as the place you reach them.'**
+  String get termsAndConditionsSection2Body;
+
+  /// No description provided for @termsAndConditionsSection3Heading.
+  ///
+  /// In en, this message translates to:
+  /// **'3. Your Account'**
+  String get termsAndConditionsSection3Heading;
+
+  /// No description provided for @termsAndConditionsSection3Body.
+  ///
+  /// In en, this message translates to:
+  /// **'You need an account to order. Give accurate details, verify your email address, and keep your password to yourself — anything done through your account is treated as done by you. You can delete your account at any time from your profile. Your past orders stay with the stores that fulfilled them, because those are the stores\' own business records.'**
+  String get termsAndConditionsSection3Body;
+
+  /// No description provided for @termsAndConditionsSection4Heading.
+  ///
+  /// In en, this message translates to:
+  /// **'4. Orders and Payment'**
+  String get termsAndConditionsSection4Heading;
+
+  /// No description provided for @termsAndConditionsSection4Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Placing an order is an offer to buy from the store. The store may decline it — for example if an item has sold out or cannot be delivered to your address — and will refund you in full if it does. Prices are set by the store in its own currency and include applicable taxes unless the store says otherwise. Payment is taken by the store\'s payment provider and settles to the store; CordeliaApps never holds your money.'**
+  String get termsAndConditionsSection4Body;
+
+  /// No description provided for @termsAndConditionsSection5Heading.
+  ///
+  /// In en, this message translates to:
+  /// **'5. Delivery, Cancellations and Refunds'**
+  String get termsAndConditionsSection5Heading;
+
+  /// No description provided for @termsAndConditionsSection5Body.
+  ///
+  /// In en, this message translates to:
+  /// **'The store fulfils and delivers your order, and any delivery time shown is an estimate rather than a promise. You can cancel an order in the app until it is dispatched, and the store refunds it to the payment method you used. Where a refund is due for any other reason, the store issues it. None of this reduces the rights your local law gives you.'**
+  String get termsAndConditionsSection5Body;
+
+  /// No description provided for @termsAndConditionsSection6Heading.
+  ///
+  /// In en, this message translates to:
+  /// **'6. Product Information and Reviews'**
+  String get termsAndConditionsSection6Heading;
+
+  /// No description provided for @termsAndConditionsSection6Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Stores write their own product names, descriptions, images and prices, so that information comes from the store rather than from us. Mistakes can happen, and a store may correct an error or cancel and refund an affected order. If you post a review it must reflect your own experience — you keep ownership of what you write and allow us and the store to show it in the app. We may remove content that is false, offensive or breaks these terms.'**
+  String get termsAndConditionsSection6Body;
+
+  /// No description provided for @termsAndConditionsSection7Heading.
+  ///
+  /// In en, this message translates to:
+  /// **'7. Acceptable Use'**
+  String get termsAndConditionsSection7Heading;
+
+  /// No description provided for @termsAndConditionsSection7Body.
+  ///
+  /// In en, this message translates to:
+  /// **'Use the app for shopping and nothing else. Do not place fraudulent orders, create accounts that are not yours, collect data from the app automatically, interfere with how it works, or use it for anything unlawful. We may suspend or close an account that does.'**
+  String get termsAndConditionsSection7Body;
+
+  /// No description provided for @termsAndConditionsSection8Heading.
+  ///
+  /// In en, this message translates to:
+  /// **'8. Availability and Our Responsibility'**
+  String get termsAndConditionsSection8Heading;
+
+  /// No description provided for @termsAndConditionsSection8Body.
+  ///
+  /// In en, this message translates to:
+  /// **'We work to keep the app running well, but we cannot promise it will always be available or free of faults, and we may change or withdraw features. We are responsible for the app itself. We are not responsible for the goods a store sells, for the accuracy of what a store publishes, or for how a store handles your order. Nothing here limits any liability the law does not allow us to limit.'**
+  String get termsAndConditionsSection8Body;
+
+  /// No description provided for @termsAndConditionsSection9Heading.
+  ///
+  /// In en, this message translates to:
+  /// **'9. Governing Law and Your Local Rights'**
+  String get termsAndConditionsSection9Heading;
+
+  /// No description provided for @termsAndConditionsSection9Body.
+  ///
+  /// In en, this message translates to:
+  /// **'These terms are governed by the laws of India and the courts of India have jurisdiction. Because we serve shoppers in other countries, this does not take away the protection of mandatory consumer law where you live. If you are a consumer in the United Kingdom or the European Union you keep your local statutory rights, including any right to withdraw from a purchase within the period your law allows.'**
+  String get termsAndConditionsSection9Body;
+
+  /// No description provided for @termsAndConditionsSection10Heading.
+  ///
+  /// In en, this message translates to:
+  /// **'10. Changes and Contact'**
+  String get termsAndConditionsSection10Heading;
+
+  /// No description provided for @termsAndConditionsSection10Body.
+  ///
+  /// In en, this message translates to:
+  /// **'We update these terms as the app changes, and the date at the top of this page shows when they last changed. Continuing to use the app after a change means you accept the updated terms. If anything here is unclear, or you need help with an order, write to us at cordeliaapps@gmail.com.'**
+  String get termsAndConditionsSection10Body;
 
   /// No description provided for @privacyPolicyIntro.
   ///

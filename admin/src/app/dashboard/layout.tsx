@@ -19,6 +19,7 @@ import { useAuth } from "@/lib/auth-context";
 import { useStore } from "@/lib/store-context";
 import { StoreSwitcher, CreateStoreForm } from "@/components/store-switcher";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { BrandMark } from "@/components/site/BrandMark";
 
 const NAV_ITEMS = [
   { href: "/dashboard", label: "Overview", icon: LayoutGrid },
@@ -72,12 +73,7 @@ export default function DashboardLayout({
           href="/"
           className="mb-5 flex items-center gap-2.5 px-1 font-extrabold tracking-tight text-ink"
         >
-          <span
-            aria-hidden="true"
-            className="grid size-8 place-items-center rounded-xl bg-[image:var(--gradient-brand)] text-sm font-black text-primary-foreground"
-          >
-            C
-          </span>
+          <BrandMark />
           <span className="text-[0.95rem]">CordeliaApps</span>
         </Link>
 

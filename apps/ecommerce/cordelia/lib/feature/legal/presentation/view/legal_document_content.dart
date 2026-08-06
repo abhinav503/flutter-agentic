@@ -29,16 +29,52 @@ class LegalDocumentContent {
   });
 
   factory LegalDocumentContent.termsAndConditions() => LegalDocumentContent(
-        title: ValueConst.termsAndConditionsLabel,
-        lastUpdated: ValueConst.legalLastUpdatedLabel,
-        intro: ValueConst.termsAndConditionsIntro,
-        sections: [
-          LegalDocumentSection(
-            heading: ValueConst.termsAndConditionsHeading,
-            body: ValueConst.termsAndConditionsBody,
-          ),
-        ],
-      );
+    title: ValueConst.termsAndConditionsLabel,
+    lastUpdated: ValueConst.legalLastUpdatedLabel,
+    intro: ValueConst.termsAndConditionsIntro,
+    sections: [
+      LegalDocumentSection(
+        heading: ValueConst.termsAndConditionsSection1Heading,
+        body: ValueConst.termsAndConditionsSection1Body,
+      ),
+      LegalDocumentSection(
+        heading: ValueConst.termsAndConditionsSection2Heading,
+        body: ValueConst.termsAndConditionsSection2Body,
+      ),
+      LegalDocumentSection(
+        heading: ValueConst.termsAndConditionsSection3Heading,
+        body: ValueConst.termsAndConditionsSection3Body,
+      ),
+      LegalDocumentSection(
+        heading: ValueConst.termsAndConditionsSection4Heading,
+        body: ValueConst.termsAndConditionsSection4Body,
+      ),
+      LegalDocumentSection(
+        heading: ValueConst.termsAndConditionsSection5Heading,
+        body: ValueConst.termsAndConditionsSection5Body,
+      ),
+      LegalDocumentSection(
+        heading: ValueConst.termsAndConditionsSection6Heading,
+        body: ValueConst.termsAndConditionsSection6Body,
+      ),
+      LegalDocumentSection(
+        heading: ValueConst.termsAndConditionsSection7Heading,
+        body: ValueConst.termsAndConditionsSection7Body,
+      ),
+      LegalDocumentSection(
+        heading: ValueConst.termsAndConditionsSection8Heading,
+        body: ValueConst.termsAndConditionsSection8Body,
+      ),
+      LegalDocumentSection(
+        heading: ValueConst.termsAndConditionsSection9Heading,
+        body: ValueConst.termsAndConditionsSection9Body,
+      ),
+      LegalDocumentSection(
+        heading: ValueConst.termsAndConditionsSection10Heading,
+        body: ValueConst.termsAndConditionsSection10Body,
+      ),
+    ],
+  );
 
   factory LegalDocumentContent.privacyPolicy() => LegalDocumentContent(
     title: ValueConst.privacyPolicyLabel,

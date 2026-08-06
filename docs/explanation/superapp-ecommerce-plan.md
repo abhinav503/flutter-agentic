@@ -3259,3 +3259,69 @@ page changed on every deploy, and Google discounts a lastmod it can't trust.
 The site origin was hardcoded in three places; it is now `lib/site.ts`, read by
 `page.tsx`'s `metadataBase`, the JSON-LD blocks, and both new files. A sitemap
 listing a domain the canonical tag doesn't use is worse than no sitemap.
+
+---
+
+## Terms & Conditions — real copy, six locales — DONE (2026-08-06)
+
+The last lorem ipsum in the storefront, and a store-review blocker: the Privacy
+Policy beside it had been rewritten months earlier, but Terms was still the
+"It is a long established fact that a reader will be distracted…" filler — and
+the six-language pass had faithfully translated that filler into all six.
+
+**Shape.** Terms was one heading plus one body; it is now an intro plus **ten
+numbered clauses** using the same `…SectionNHeading`/`Body` naming the Privacy
+Policy already used, so `LegalDocumentContent` builds both documents
+identically and all three packs render it with no template change. 713 → 731
+keys per locale, at full parity.
+
+**The three facts that shaped it**, decided rather than assumed:
+
+- **The store is the merchant of record, not CordeliaApps.** This follows what
+  the payments layer already does — each store settles into its own Razorpay
+  account and the platform never holds shopper money — so the Terms say the
+  purchase agreement is with the store, and that orders, products and refunds
+  are the store's responsibility with the app as the channel. Writing it the
+  other way round would have contradicted the code.
+- **Operated from India, serving stores worldwide.** §1 says so plainly, notes
+  the app is available in several languages with prices in each store's own
+  currency, and names the English version as controlling where a translation
+  differs — the standard way to keep six translations from becoming six
+  slightly different contracts.
+- **Indian law, with a consumer carve-out.** §9 names Indian law and Indian
+  courts, then says explicitly that this does not remove mandatory local
+  consumer protection — UK and EU shoppers keep their statutory rights,
+  including any withdrawal right. A single governing-law clause naming India
+  and stopping there would have been wrong for four of the seven markets that
+  now have catalogs.
+
+The operator is named as **"CordeliaApps"**, a trading name — no registered
+entity is claimed, because none was given. Both app stores want a real
+operator identity on a submission, so the registered name and address still
+need to be added before one.
+
+**Not legal advice.** These are working terms written to be accurate about how
+the product actually behaves; they have not been reviewed by a lawyer, and the
+EU/UK consumer clause in particular is the part worth having checked once a
+real European store is live.
+
+**Gates:** `scripts/check-arb-parity.py --all` green at 731 keys across de, es,
+fr, hi, it (including French's no-break space before `:` and the still-English
+detector); `flutter analyze` clean; all 85 cordelia tests pass.
+
+### A pivot considered and reversed, worth recording
+
+Mid-task the direction was briefly to drop Hindi and INR entirely and target
+US/UK/EU only. It was reversed before landing, and the reason it was worth
+pausing over is the one that will come back: **Razorpay only works for Indian
+merchants.** It spans 62 files — per-store keys, encrypted secrets, webhooks,
+refunds, the whole checkout — and settles INR into Indian bank accounts, so a
+German, UK or US store cannot onboard to it at all. Any real move to those
+markets is a Stripe migration first and a copy change second.
+
+Two smaller facts found while scoping it, both still true: `toStoreCurrency()`
+falls back to `StoreCurrency.inr` and `money.ts` has `FALLBACK: "INR"`, so INR
+is the *default*, not merely an option — retiring it means naming a new default
+and deciding what happens to existing store docs. And the India Post pincode
+lookup plus Ola Maps geo proxy are India-only features that a US/UK/EU-only
+product would have no use for.

@@ -172,18 +172,86 @@ class AppLocalizationsHi extends AppLocalizations {
   String get privacyPolicyLabel => 'गोपनीयता नीति';
 
   @override
-  String get legalLastUpdatedLabel => 'अंतिम अपडेट: 09 मार्च 2026';
+  String get legalLastUpdatedLabel => 'अंतिम अपडेट: 06 अगस्त 2026';
 
   @override
   String get termsAndConditionsIntro =>
-      'हमारे द्वारा संचालित इस ऐप का उपयोग करने से पहले कृपया ये सेवा शर्तें ध्यान से पढ़ें।';
+      'ये शर्तें तब लागू होती हैं जब आप CordeliaApps शॉपिंग ऐप का उपयोग करते हैं। ऑर्डर करने से पहले इन्हें पढ़ें — खाता बनाना या ऑर्डर देना इनकी स्वीकृति माना जाएगा।';
 
   @override
-  String get termsAndConditionsHeading => 'उपयोग की शर्तें';
+  String get termsAndConditionsSection1Heading => '1. हम कौन हैं';
 
   @override
-  String get termsAndConditionsBody =>
-      'It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using \'Content here, content here\', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for \'lorem ipsum\' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like).';
+  String get termsAndConditionsSection1Body =>
+      'CordeliaApps इस शॉपिंग ऐप को बनाता और संचालित करता है। हम भारत से काम करते हैं और भारत, यूनाइटेड किंगडम, संयुक्त राज्य अमेरिका तथा पूरे यूरोप के स्टोर के साथ जुड़े हैं, इसलिए ऐप कई भाषाओं में उपलब्ध है और हर स्टोर की अपनी मुद्रा में कीमतें दिखाता है। यदि किसी अनुवाद और अंग्रेज़ी संस्करण में अंतर हो, तो अंग्रेज़ी संस्करण ही मान्य होगा।';
+
+  @override
+  String get termsAndConditionsSection2Heading =>
+      '2. हमारी भूमिका — आप किससे खरीदते हैं';
+
+  @override
+  String get termsAndConditionsSection2Body =>
+      'CordeliaApps एक मंच है, दुकान नहीं। आपको दिखने वाला हर उत्पाद उसी स्टोर द्वारा सूचीबद्ध, मूल्यांकित, बेचा और वितरित किया जाता है जिसे आप देख रहे हैं, और आपका खरीद अनुबंध उसी स्टोर के साथ होता है। हम विक्रेता नहीं हैं और सामान का भुगतान नहीं लेते, इसलिए ऑर्डर, उत्पाद या रिफ़ंड से जुड़े प्रश्न स्टोर ही संभालता है और ऐप वह जगह है जहाँ आप उस तक पहुँचते हैं।';
+
+  @override
+  String get termsAndConditionsSection3Heading => '3. आपका खाता';
+
+  @override
+  String get termsAndConditionsSection3Body =>
+      'ऑर्डर करने के लिए खाता आवश्यक है। सही जानकारी दें, अपना ईमेल पता सत्यापित करें और पासवर्ड गोपनीय रखें — आपके खाते से की गई हर गतिविधि आपकी ही मानी जाएगी। आप अपनी प्रोफ़ाइल से कभी भी खाता हटा सकते हैं। आपके पिछले ऑर्डर उन स्टोर के पास रहते हैं जिन्होंने उन्हें पूरा किया, क्योंकि वे उनके अपने व्यावसायिक रिकॉर्ड हैं।';
+
+  @override
+  String get termsAndConditionsSection4Heading => '4. ऑर्डर और भुगतान';
+
+  @override
+  String get termsAndConditionsSection4Body =>
+      'ऑर्डर देना स्टोर से खरीदने का प्रस्ताव है। स्टोर उसे अस्वीकार कर सकता है — उदाहरण के लिए यदि वस्तु समाप्त हो गई हो या आपके पते पर वितरण संभव न हो — और ऐसा होने पर पूरी राशि लौटा देगा। कीमतें स्टोर अपनी मुद्रा में तय करता है और जब तक स्टोर अन्यथा न कहे, उनमें लागू कर शामिल होते हैं। भुगतान स्टोर के भुगतान प्रदाता के माध्यम से लिया जाता है और स्टोर तक पहुँचता है; CordeliaApps आपका पैसा कभी अपने पास नहीं रखता।';
+
+  @override
+  String get termsAndConditionsSection5Heading =>
+      '5. डिलीवरी, रद्दीकरण और रिफ़ंड';
+
+  @override
+  String get termsAndConditionsSection5Body =>
+      'आपका ऑर्डर स्टोर ही पूरा करता और पहुँचाता है, और दिखाया गया डिलीवरी समय एक अनुमान है, वादा नहीं। ऑर्डर भेजे जाने तक आप उसे ऐप में रद्द कर सकते हैं, और स्टोर उसी भुगतान माध्यम में राशि लौटा देता है जिससे आपने भुगतान किया था। किसी अन्य कारण से रिफ़ंड बनता हो तो वह भी स्टोर ही जारी करता है। इनमें से कोई भी बात आपके स्थानीय कानून से मिले अधिकारों को कम नहीं करती।';
+
+  @override
+  String get termsAndConditionsSection6Heading =>
+      '6. उत्पाद जानकारी और समीक्षाएँ';
+
+  @override
+  String get termsAndConditionsSection6Body =>
+      'स्टोर अपने उत्पादों के नाम, विवरण, चित्र और कीमतें स्वयं लिखते हैं, इसलिए यह जानकारी हमारी नहीं बल्कि स्टोर की होती है। गलतियाँ हो सकती हैं, और स्टोर किसी त्रुटि को सुधार सकता है या प्रभावित ऑर्डर रद्द कर राशि लौटा सकता है। यदि आप समीक्षा लिखते हैं तो वह आपके अपने अनुभव पर आधारित होनी चाहिए — जो आप लिखते हैं उसका स्वामित्व आपका रहता है और आप हमें तथा स्टोर को उसे ऐप में दिखाने की अनुमति देते हैं। हम ऐसी सामग्री हटा सकते हैं जो झूठी, आपत्तिजनक हो या इन शर्तों का उल्लंघन करती हो।';
+
+  @override
+  String get termsAndConditionsSection7Heading => '7. स्वीकार्य उपयोग';
+
+  @override
+  String get termsAndConditionsSection7Body =>
+      'ऐप का उपयोग केवल खरीदारी के लिए करें। धोखाधड़ी वाले ऑर्डर न दें, ऐसे खाते न बनाएँ जो आपके नहीं हैं, ऐप से स्वतः डेटा एकत्र न करें, उसके संचालन में बाधा न डालें और उसका किसी भी गैरकानूनी काम के लिए उपयोग न करें। ऐसा करने वाले खाते को हम निलंबित या बंद कर सकते हैं।';
+
+  @override
+  String get termsAndConditionsSection8Heading =>
+      '8. उपलब्धता और हमारी ज़िम्मेदारी';
+
+  @override
+  String get termsAndConditionsSection8Body =>
+      'हम ऐप को सुचारु रखने का प्रयास करते हैं, पर यह वादा नहीं कर सकते कि वह हमेशा उपलब्ध या त्रुटिरहित रहेगा, और हम सुविधाएँ बदल या हटा सकते हैं। हम ऐप के लिए ज़िम्मेदार हैं। हम स्टोर द्वारा बेचे गए सामान, स्टोर द्वारा प्रकाशित जानकारी की सटीकता, या स्टोर द्वारा आपके ऑर्डर के संचालन के लिए ज़िम्मेदार नहीं हैं। यहाँ कुछ भी उस दायित्व को सीमित नहीं करता जिसे कानून सीमित करने की अनुमति नहीं देता।';
+
+  @override
+  String get termsAndConditionsSection9Heading =>
+      '9. लागू कानून और आपके स्थानीय अधिकार';
+
+  @override
+  String get termsAndConditionsSection9Body =>
+      'ये शर्तें भारत के कानूनों द्वारा शासित हैं और भारत की अदालतों को अधिकार क्षेत्र प्राप्त है। चूँकि हम अन्य देशों के ग्राहकों को भी सेवा देते हैं, इससे आपके निवास स्थान के अनिवार्य उपभोक्ता कानून का संरक्षण समाप्त नहीं होता। यदि आप यूनाइटेड किंगडम या यूरोपीय संघ में उपभोक्ता हैं, तो आपके स्थानीय वैधानिक अधिकार बने रहते हैं, जिनमें आपके कानून द्वारा दी गई अवधि में खरीद से पीछे हटने का अधिकार भी शामिल है।';
+
+  @override
+  String get termsAndConditionsSection10Heading => '10. बदलाव और संपर्क';
+
+  @override
+  String get termsAndConditionsSection10Body =>
+      'जैसे-जैसे ऐप बदलता है, हम इन शर्तों को अद्यतन करते हैं, और इस पृष्ठ के शीर्ष पर दी गई तारीख बताती है कि वे अंतिम बार कब बदली थीं। बदलाव के बाद ऐप का उपयोग जारी रखना अद्यतन शर्तों की स्वीकृति माना जाएगा। यदि यहाँ कुछ स्पष्ट न हो, या ऑर्डर में सहायता चाहिए, तो हमें cordeliaapps@gmail.com पर लिखें।';
 
   @override
   String get privacyPolicyIntro =>

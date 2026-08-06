@@ -173,18 +173,86 @@ class AppLocalizationsEn extends AppLocalizations {
   String get privacyPolicyLabel => 'Privacy Policy';
 
   @override
-  String get legalLastUpdatedLabel => 'Last update: Mar 09, 2026';
+  String get legalLastUpdatedLabel => 'Last update: Aug 06, 2026';
 
   @override
   String get termsAndConditionsIntro =>
-      'Please read these terms of service, carefully before using our app operated by us.';
+      'These terms apply whenever you use the CordeliaApps shopping app. Please read them before you order — creating an account or placing an order means you accept them.';
 
   @override
-  String get termsAndConditionsHeading => 'Conditions of Uses';
+  String get termsAndConditionsSection1Heading => '1. Who We Are';
 
   @override
-  String get termsAndConditionsBody =>
-      'It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using \'Content here, content here\', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for \'lorem ipsum\' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like).';
+  String get termsAndConditionsSection1Body =>
+      'CordeliaApps builds and operates this shopping app. We are based in India and work with stores in India, the United Kingdom, the United States and across Europe, so the app is available in several languages and shows prices in each store\'s own currency. Where a translation differs from the English version, the English version is the one we go by.';
+
+  @override
+  String get termsAndConditionsSection2Heading =>
+      '2. Our Role — Who You Buy From';
+
+  @override
+  String get termsAndConditionsSection2Body =>
+      'CordeliaApps is the platform, not the shop. Every product you see is listed, priced, sold and delivered by the individual store you are browsing, and your purchase agreement is with that store. We are not the seller and we do not take payment for the goods, so questions about an order, a product or a refund are handled by the store, with the app as the place you reach them.';
+
+  @override
+  String get termsAndConditionsSection3Heading => '3. Your Account';
+
+  @override
+  String get termsAndConditionsSection3Body =>
+      'You need an account to order. Give accurate details, verify your email address, and keep your password to yourself — anything done through your account is treated as done by you. You can delete your account at any time from your profile. Your past orders stay with the stores that fulfilled them, because those are the stores\' own business records.';
+
+  @override
+  String get termsAndConditionsSection4Heading => '4. Orders and Payment';
+
+  @override
+  String get termsAndConditionsSection4Body =>
+      'Placing an order is an offer to buy from the store. The store may decline it — for example if an item has sold out or cannot be delivered to your address — and will refund you in full if it does. Prices are set by the store in its own currency and include applicable taxes unless the store says otherwise. Payment is taken by the store\'s payment provider and settles to the store; CordeliaApps never holds your money.';
+
+  @override
+  String get termsAndConditionsSection5Heading =>
+      '5. Delivery, Cancellations and Refunds';
+
+  @override
+  String get termsAndConditionsSection5Body =>
+      'The store fulfils and delivers your order, and any delivery time shown is an estimate rather than a promise. You can cancel an order in the app until it is dispatched, and the store refunds it to the payment method you used. Where a refund is due for any other reason, the store issues it. None of this reduces the rights your local law gives you.';
+
+  @override
+  String get termsAndConditionsSection6Heading =>
+      '6. Product Information and Reviews';
+
+  @override
+  String get termsAndConditionsSection6Body =>
+      'Stores write their own product names, descriptions, images and prices, so that information comes from the store rather than from us. Mistakes can happen, and a store may correct an error or cancel and refund an affected order. If you post a review it must reflect your own experience — you keep ownership of what you write and allow us and the store to show it in the app. We may remove content that is false, offensive or breaks these terms.';
+
+  @override
+  String get termsAndConditionsSection7Heading => '7. Acceptable Use';
+
+  @override
+  String get termsAndConditionsSection7Body =>
+      'Use the app for shopping and nothing else. Do not place fraudulent orders, create accounts that are not yours, collect data from the app automatically, interfere with how it works, or use it for anything unlawful. We may suspend or close an account that does.';
+
+  @override
+  String get termsAndConditionsSection8Heading =>
+      '8. Availability and Our Responsibility';
+
+  @override
+  String get termsAndConditionsSection8Body =>
+      'We work to keep the app running well, but we cannot promise it will always be available or free of faults, and we may change or withdraw features. We are responsible for the app itself. We are not responsible for the goods a store sells, for the accuracy of what a store publishes, or for how a store handles your order. Nothing here limits any liability the law does not allow us to limit.';
+
+  @override
+  String get termsAndConditionsSection9Heading =>
+      '9. Governing Law and Your Local Rights';
+
+  @override
+  String get termsAndConditionsSection9Body =>
+      'These terms are governed by the laws of India and the courts of India have jurisdiction. Because we serve shoppers in other countries, this does not take away the protection of mandatory consumer law where you live. If you are a consumer in the United Kingdom or the European Union you keep your local statutory rights, including any right to withdraw from a purchase within the period your law allows.';
+
+  @override
+  String get termsAndConditionsSection10Heading => '10. Changes and Contact';
+
+  @override
+  String get termsAndConditionsSection10Body =>
+      'We update these terms as the app changes, and the date at the top of this page shows when they last changed. Continuing to use the app after a change means you accept the updated terms. If anything here is unclear, or you need help with an order, write to us at cordeliaapps@gmail.com.';
 
   @override
   String get privacyPolicyIntro =>

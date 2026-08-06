@@ -8,6 +8,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import { AuthCta } from "./AuthCta";
+import { BrandMark } from "./BrandMark";
 
 const anchors = [
   { href: "#templates", label: "Templates" },
@@ -23,12 +24,7 @@ export function SiteNav() {
     <header className="sticky top-0 z-50 border-b border-border bg-background/85 backdrop-blur-md">
       <nav aria-label="Primary" className="mx-auto flex w-full max-w-6xl items-center gap-4 px-5 py-3.5 sm:px-8">
         <Link href="/" className="flex items-center gap-2.5 font-extrabold tracking-tight text-ink">
-          <span
-            aria-hidden="true"
-            className="grid size-8 place-items-center rounded-xl bg-[image:var(--gradient-brand)] text-sm font-black text-primary-foreground"
-          >
-            C
-          </span>
+          <BrandMark />
           <span className="text-[0.98rem]">CordeliaApps</span>
         </Link>
 

@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" role="img" aria-label="CordeliaApps">
+  <!--
+    App icon: the CordeliaApps swift mark (public/brand/mark.svg, exported from
+    Figma node 7:120) on the identity board's near-black square.
+
+    A dark backdrop rather than transparency, for three reasons: the mark is
+    gradient-filled so it needs a surface to hold contrast, iOS rejects alpha
+    in app icons, and #0A0A0B is the colour the mark was designed against.
+
+    The mark is scaled to ~69% of the canvas and centred, keeping every part of
+    it inside the middle 66% that Android adaptive icons are guaranteed not to
+    crop.
+  -->
+  <defs>
+    <linearGradient id="ic-wing-top" x1="6.67" y1="10" x2="71.0683" y2="27.2555" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#007A60"/>
+      <stop offset="1" stop-color="#2DA987"/>
+    </linearGradient>
+    <linearGradient id="ic-wing-bottom" x1="16.67" y1="33.33" x2="71.409" y2="18.6627" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#007A60"/>
+      <stop offset="1" stop-color="#2DA987"/>
+    </linearGradient>
+    <linearGradient id="ic-head" x1="56.67" y1="14.67" x2="48.2176" y2="32.7962" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#007A60"/>
+      <stop offset="1" stop-color="#2DA987"/>
+    </linearGradient>
+    <mask id="ic-facet-cut" maskUnits="userSpaceOnUse" x="0" y="0" width="80" height="80">
+      <rect width="80" height="80" fill="#fff"/>
+      <line x1="10.3746" y1="32.4028" x2="62.9181" y2="53.6318" stroke="#000" stroke-width="2"/>
+    </mask>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="#0A0A0B"/>
+  <g transform="translate(6.712 10.444) scale(0.6372)">
+    <g mask="url(#ic-facet-cut)">
+      <path d="M38.8691 18.6277L60.931 47.8329L5.16044 32.8892L38.8691 18.6277Z" fill="url(#ic-wing-top)"/>
+      <path d="M44.0395 25.9964L74.212 43.791L26.8067 56.4932L44.0395 25.9964Z" fill="url(#ic-wing-bottom)"/>
+      <path d="M52.4438 23.7331L38.8122 26.9321L46.1321 11.2344L52.4438 23.7331Z" fill="url(#ic-head)"/>
+    </g>
+  </g>
+</svg>

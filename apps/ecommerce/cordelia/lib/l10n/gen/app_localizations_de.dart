@@ -172,18 +172,86 @@ class AppLocalizationsDe extends AppLocalizations {
   String get privacyPolicyLabel => 'Datenschutzerklärung';
 
   @override
-  String get legalLastUpdatedLabel => 'Zuletzt aktualisiert: 09. März 2026';
+  String get legalLastUpdatedLabel => 'Zuletzt aktualisiert: 06. August 2026';
 
   @override
   String get termsAndConditionsIntro =>
-      'Bitte lesen Sie diese Nutzungsbedingungen sorgfältig, bevor Sie unsere App nutzen.';
+      'Diese Bedingungen gelten immer, wenn Sie die CordeliaApps-Shopping-App nutzen. Bitte lesen Sie sie vor Ihrer Bestellung — mit der Erstellung eines Kontos oder einer Bestellung erkennen Sie sie an.';
 
   @override
-  String get termsAndConditionsHeading => 'Nutzungsbedingungen';
+  String get termsAndConditionsSection1Heading => '1. Wer wir sind';
 
   @override
-  String get termsAndConditionsBody =>
-      'It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using \'Content here, content here\', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for \'lorem ipsum\' will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like).';
+  String get termsAndConditionsSection1Body =>
+      'CordeliaApps entwickelt und betreibt diese Shopping-App. Wir sind in Indien ansässig und arbeiten mit Geschäften in Indien, dem Vereinigten Königreich, den Vereinigten Staaten und in ganz Europa zusammen. Deshalb ist die App in mehreren Sprachen verfügbar und zeigt Preise in der jeweiligen Währung des Geschäfts. Weicht eine Übersetzung von der englischen Fassung ab, gilt die englische Fassung.';
+
+  @override
+  String get termsAndConditionsSection2Heading =>
+      '2. Unsere Rolle — bei wem Sie kaufen';
+
+  @override
+  String get termsAndConditionsSection2Body =>
+      'CordeliaApps ist die Plattform, nicht das Geschäft. Jedes Produkt, das Sie sehen, wird von dem jeweiligen Geschäft eingestellt, bepreist, verkauft und geliefert, und Ihr Kaufvertrag kommt mit diesem Geschäft zustande. Wir sind nicht der Verkäufer und nehmen kein Geld für die Waren entgegen. Fragen zu einer Bestellung, einem Produkt oder einer Rückerstattung bearbeitet daher das Geschäft, und die App ist der Ort, an dem Sie es erreichen.';
+
+  @override
+  String get termsAndConditionsSection3Heading => '3. Ihr Konto';
+
+  @override
+  String get termsAndConditionsSection3Body =>
+      'Für eine Bestellung benötigen Sie ein Konto. Geben Sie zutreffende Daten an, bestätigen Sie Ihre E-Mail-Adresse und behalten Sie Ihr Passwort für sich — alles, was über Ihr Konto geschieht, gilt als von Ihnen veranlasst. Sie können Ihr Konto jederzeit in Ihrem Profil löschen. Ihre bisherigen Bestellungen verbleiben bei den Geschäften, die sie ausgeführt haben, denn sie sind deren eigene Geschäftsunterlagen.';
+
+  @override
+  String get termsAndConditionsSection4Heading => '4. Bestellungen und Zahlung';
+
+  @override
+  String get termsAndConditionsSection4Body =>
+      'Eine Bestellung ist ein Angebot an das Geschäft. Das Geschäft kann sie ablehnen — etwa wenn ein Artikel ausverkauft ist oder nicht an Ihre Adresse geliefert werden kann — und erstattet Ihnen in diesem Fall den vollen Betrag. Die Preise legt das Geschäft in seiner eigenen Währung fest; sie enthalten die anfallenden Steuern, sofern das Geschäft nichts anderes angibt. Die Zahlung wird über den Zahlungsdienstleister des Geschäfts eingezogen und an das Geschäft ausgezahlt. CordeliaApps hält Ihr Geld zu keinem Zeitpunkt.';
+
+  @override
+  String get termsAndConditionsSection5Heading =>
+      '5. Lieferung, Stornierung und Rückerstattung';
+
+  @override
+  String get termsAndConditionsSection5Body =>
+      'Das Geschäft führt Ihre Bestellung aus und liefert sie, und jede angezeigte Lieferzeit ist eine Schätzung, keine Zusage. Sie können eine Bestellung in der App stornieren, solange sie nicht versandt wurde; das Geschäft erstattet den Betrag auf das von Ihnen genutzte Zahlungsmittel. Steht Ihnen aus einem anderen Grund eine Erstattung zu, nimmt das Geschäft sie vor. Nichts davon schmälert die Rechte, die Ihnen Ihr örtliches Recht gewährt.';
+
+  @override
+  String get termsAndConditionsSection6Heading =>
+      '6. Produktangaben und Bewertungen';
+
+  @override
+  String get termsAndConditionsSection6Body =>
+      'Geschäfte verfassen Produktnamen, Beschreibungen, Bilder und Preise selbst; diese Angaben stammen also vom Geschäft und nicht von uns. Fehler sind möglich, und ein Geschäft darf einen Fehler berichtigen oder eine betroffene Bestellung stornieren und erstatten. Wenn Sie eine Bewertung schreiben, muss sie Ihre eigene Erfahrung wiedergeben — die Rechte an Ihrem Text behalten Sie und erlauben uns und dem Geschäft, ihn in der App anzuzeigen. Inhalte, die unwahr oder beleidigend sind oder gegen diese Bedingungen verstoßen, können wir entfernen.';
+
+  @override
+  String get termsAndConditionsSection7Heading => '7. Zulässige Nutzung';
+
+  @override
+  String get termsAndConditionsSection7Body =>
+      'Nutzen Sie die App zum Einkaufen und zu nichts anderem. Geben Sie keine betrügerischen Bestellungen auf, legen Sie keine Konten an, die nicht Ihnen gehören, erfassen Sie keine Daten automatisiert, stören Sie den Betrieb nicht und nutzen Sie die App nicht für rechtswidrige Zwecke. Konten, die dagegen verstoßen, können wir sperren oder schließen.';
+
+  @override
+  String get termsAndConditionsSection8Heading =>
+      '8. Verfügbarkeit und unsere Verantwortung';
+
+  @override
+  String get termsAndConditionsSection8Body =>
+      'Wir arbeiten daran, die App zuverlässig bereitzustellen, können aber nicht zusichern, dass sie stets verfügbar oder fehlerfrei ist, und wir können Funktionen ändern oder einstellen. Für die App selbst sind wir verantwortlich. Für die Waren eines Geschäfts, für die Richtigkeit der vom Geschäft veröffentlichten Angaben und für die Bearbeitung Ihrer Bestellung durch das Geschäft sind wir nicht verantwortlich. Nichts hier beschränkt eine Haftung, deren Beschränkung das Gesetz nicht zulässt.';
+
+  @override
+  String get termsAndConditionsSection9Heading =>
+      '9. Anwendbares Recht und Ihre örtlichen Rechte';
+
+  @override
+  String get termsAndConditionsSection9Body =>
+      'Diese Bedingungen unterliegen dem Recht Indiens, und die Gerichte Indiens sind zuständig. Da wir auch Kundinnen und Kunden in anderen Ländern bedienen, entzieht Ihnen das nicht den Schutz zwingenden Verbraucherrechts an Ihrem Wohnort. Als Verbraucherin oder Verbraucher im Vereinigten Königreich oder in der Europäischen Union behalten Sie Ihre gesetzlichen Rechte, einschließlich eines etwaigen Widerrufsrechts innerhalb der nach Ihrem Recht geltenden Frist.';
+
+  @override
+  String get termsAndConditionsSection10Heading => '10. Änderungen und Kontakt';
+
+  @override
+  String get termsAndConditionsSection10Body =>
+      'Wir aktualisieren diese Bedingungen, wenn sich die App ändert; das Datum oben auf dieser Seite zeigt die letzte Änderung. Wenn Sie die App nach einer Änderung weiter nutzen, erkennen Sie die aktualisierten Bedingungen an. Ist etwas unklar oder brauchen Sie Hilfe bei einer Bestellung, schreiben Sie uns an cordeliaapps@gmail.com.';
 
   @override
   String get privacyPolicyIntro =>

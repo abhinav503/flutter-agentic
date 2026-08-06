@@ -111,7 +111,12 @@ flutter_launcher_icons:
   ios: true
   remove_alpha_ios: true
   image_path: branding/app_icon.png
-  adaptive_icon_background: "#FFFFFF"
+  # The identity board's near-black, matching the full-bleed icon and the web
+  # console's favicon. Not white: the swift mark is a mid-tone teal gradient,
+  # so on a white adaptive background it loses the contrast the brand mark is
+  # drawn to have — and the two icon shapes Android may render (full-bleed vs
+  # adaptive) would no longer look like the same icon.
+  adaptive_icon_background: "#0A0A0B"
   adaptive_icon_foreground: branding/app_icon_foreground.png
   web:
     generate: true

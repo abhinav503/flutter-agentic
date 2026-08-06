@@ -5,11 +5,15 @@
 /// template's own const class against `assets/icons/templates/<id>/` (see
 /// [GraviaImageConst]), so two packs can ship different `search.svg`s.
 abstract final class ImageConst {
+  /// The swift mark — the brand's only symbol, shared with the launcher icon
+  /// and the web console. There is no wordmark asset: the splash sets the name
+  /// as real text beside this, so it picks up the theme's typeface rather than
+  /// baking one into an SVG (`flutter_svg` cannot lay out `<text>` anyway —
+  /// the wordmark this replaced carried a `<text>` element for "ordelia Apps").
   static const cordeliaBrandIcon = 'assets/icons/cordelia-icon.svg';
   static const arrowLeft = 'assets/icons/arrow-left.svg';
   static const googleIcon = 'assets/icons/google_icon.svg';
   static const appleIcon = 'assets/icons/apple_icon.svg';
-  static const cordeliaWordmarkIcon = 'assets/icons/cordelia-wordmark.svg';
 
   /// The shopper's fallback avatar photo — the shopper is the same person in
   /// every storefront, so the default portrait is app-level, not per-pack.

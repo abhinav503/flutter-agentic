@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BrandMark } from "./BrandMark";
 
 const columns = [
   {
@@ -35,12 +36,7 @@ export function SiteFooter() {
       <div className="mx-auto grid w-full max-w-6xl gap-10 px-5 sm:px-8 md:grid-cols-[1.4fr_repeat(3,1fr)]">
         <div>
           <Link href="/" className="flex items-center gap-2.5 font-extrabold tracking-tight text-ink">
-            <span
-              aria-hidden="true"
-              className="grid size-8 place-items-center rounded-xl bg-[image:var(--gradient-brand)] text-sm font-black text-primary-foreground"
-            >
-              C
-            </span>
+            <BrandMark />
             CordeliaApps
           </Link>
           <p className="mt-4 max-w-xs text-sm leading-6 text-muted-foreground">

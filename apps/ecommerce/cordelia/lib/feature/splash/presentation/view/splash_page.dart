@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:cordelia/constants/app_routes.dart';
 import 'package:cordelia/constants/image_const.dart';
+import 'package:cordelia/constants/value_const.dart';
 import 'package:cordelia/feature/onboarding/presentation/view/onboarding_page.dart';
 import 'package:cordelia/services/firebase_auth_service.dart';
 
@@ -46,16 +47,32 @@ class _SplashPageState extends BasePageState<SplashPage> {
 
   @override
   Widget buildBody(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
 
     return SafeArea(
       child: Column(
         children: [
           Expanded(
             child: Center(
-              child: SvgPicture.asset(
-                ImageConst.cordeliaWordmarkIcon,
-                height: 45,
+              // Mark plus live text, not one baked wordmark SVG: the name then
+              // renders in the theme's own typeface and inverts with the theme,
+              // neither of which an exported wordmark can do. (The previous
+              // asset set its text in an SVG `<text>` element, which
+              // flutter_svg does not lay out at all.)
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SvgPicture.asset(ImageConst.cordeliaBrandIcon, height: 34),
+                  const SizedBox(width: AppSpacing.sm),
+                  Text(
+                    ValueConst.appTitle,
+                    style: theme.textTheme.headlineSmall?.copyWith(
+                      color: cs.onSurface,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),

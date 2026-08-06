@@ -108,10 +108,46 @@ abstract final class ValueConst {
       L10n.current.legalLastUpdatedLabel;
   static String get termsAndConditionsIntro =>
       L10n.current.termsAndConditionsIntro;
-  static String get termsAndConditionsHeading =>
-      L10n.current.termsAndConditionsHeading;
-  static String get termsAndConditionsBody =>
-      L10n.current.termsAndConditionsBody;
+  static String get termsAndConditionsSection1Heading =>
+      L10n.current.termsAndConditionsSection1Heading;
+  static String get termsAndConditionsSection1Body =>
+      L10n.current.termsAndConditionsSection1Body;
+  static String get termsAndConditionsSection2Heading =>
+      L10n.current.termsAndConditionsSection2Heading;
+  static String get termsAndConditionsSection2Body =>
+      L10n.current.termsAndConditionsSection2Body;
+  static String get termsAndConditionsSection3Heading =>
+      L10n.current.termsAndConditionsSection3Heading;
+  static String get termsAndConditionsSection3Body =>
+      L10n.current.termsAndConditionsSection3Body;
+  static String get termsAndConditionsSection4Heading =>
+      L10n.current.termsAndConditionsSection4Heading;
+  static String get termsAndConditionsSection4Body =>
+      L10n.current.termsAndConditionsSection4Body;
+  static String get termsAndConditionsSection5Heading =>
+      L10n.current.termsAndConditionsSection5Heading;
+  static String get termsAndConditionsSection5Body =>
+      L10n.current.termsAndConditionsSection5Body;
+  static String get termsAndConditionsSection6Heading =>
+      L10n.current.termsAndConditionsSection6Heading;
+  static String get termsAndConditionsSection6Body =>
+      L10n.current.termsAndConditionsSection6Body;
+  static String get termsAndConditionsSection7Heading =>
+      L10n.current.termsAndConditionsSection7Heading;
+  static String get termsAndConditionsSection7Body =>
+      L10n.current.termsAndConditionsSection7Body;
+  static String get termsAndConditionsSection8Heading =>
+      L10n.current.termsAndConditionsSection8Heading;
+  static String get termsAndConditionsSection8Body =>
+      L10n.current.termsAndConditionsSection8Body;
+  static String get termsAndConditionsSection9Heading =>
+      L10n.current.termsAndConditionsSection9Heading;
+  static String get termsAndConditionsSection9Body =>
+      L10n.current.termsAndConditionsSection9Body;
+  static String get termsAndConditionsSection10Heading =>
+      L10n.current.termsAndConditionsSection10Heading;
+  static String get termsAndConditionsSection10Body =>
+      L10n.current.termsAndConditionsSection10Body;
   static String get privacyPolicyIntro => L10n.current.privacyPolicyIntro;
   static String get privacyPolicySection1Heading =>
       L10n.current.privacyPolicySection1Heading;
