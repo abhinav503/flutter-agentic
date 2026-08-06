@@ -1,7 +1,11 @@
 name: cordelia
 description: CordeliaApps — the multi-store super app entry point (store discovery, shared shopper auth).
 publish_to: 'none'
-version: 0.1.0
+# <versionName>+<versionCode>. The build number after `+` is what Play keys
+# uploads on: it must increase for every single upload, even a re-upload of the
+# same version to a test track. Left implicit it defaults to 1, which quietly
+# blocks the second upload — so it is written out.
+version: 1.0.0+1
 resolution: workspace
 
 environment:

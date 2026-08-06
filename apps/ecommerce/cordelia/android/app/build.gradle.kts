@@ -1,3 +1,16 @@
+import java.util.Properties
+
+// Release signing credentials, kept out of the repo (.gitignore covers
+// key.properties, *.jks and *.keystore). Absent on a fresh clone and in CI
+// without secrets — the release build falls back to the debug key there, so
+// `flutter run --release` still works for anyone without the upload key.
+// A build that must be uploadable is verified after the fact, not assumed.
+val keystoreProperties = Properties().apply {
+    val file = rootProject.file("key.properties")
+    if (file.exists()) file.inputStream().use { load(it) }
+}
+val hasReleaseKey = keystoreProperties.getProperty("storeFile") != null
+
 plugins {
     id("com.android.application")
     // START: FlutterFire Configuration
@@ -28,11 +41,26 @@ android {
         versionName = flutter.versionName
     }
 
+    signingConfigs {
+        if (hasReleaseKey) {
+            create("release") {
+                keyAlias = keystoreProperties.getProperty("keyAlias")
+                keyPassword = keystoreProperties.getProperty("keyPassword")
+                storeFile = rootProject.file(keystoreProperties.getProperty("storeFile"))
+                storePassword = keystoreProperties.getProperty("storePassword")
+            }
+        }
+    }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            // The upload key when it is available, the debug key otherwise.
+            // Play rejects a debug-signed bundle outright, so a missing key
+            // shows up as a rejected upload rather than a silently wrong build
+            // — `verify-signing` below is what catches it before that.
+            signingConfig = signingConfigs.getByName(
+                if (hasReleaseKey) "release" else "debug",
+            )
         }
     }
 }
