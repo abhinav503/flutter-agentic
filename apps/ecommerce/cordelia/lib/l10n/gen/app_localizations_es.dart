@@ -253,7 +253,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get termsAndConditionsSection10Body =>
-      'Actualizamos estas condiciones a medida que la aplicación cambia, y la fecha que figura al principio de esta página indica la última modificación. Seguir usando la aplicación tras un cambio implica que aceptas las condiciones actualizadas. Si algo no te queda claro o necesitas ayuda con un pedido, escríbenos a cordeliaapps@gmail.com.';
+      'Actualizamos estas condiciones a medida que la aplicación cambia, y la fecha que figura al principio de esta página indica la última modificación. Seguir usando la aplicación tras un cambio implica que aceptas las condiciones actualizadas. Si algo no te queda claro o necesitas ayuda con un pedido, escríbenos a support@cordeliaapps.com.';
 
   @override
   String get privacyPolicyIntro =>

@@ -43,10 +43,10 @@ export function SiteFooter() {
             settlement into your own account.
           </p>
           <a
-            href="mailto:cordeliaapps@gmail.com"
+            href="mailto:support@cordeliaapps.com"
             className="mt-4 inline-block text-sm font-semibold text-primary hover:underline"
           >
-            cordeliaapps@gmail.com
+            support@cordeliaapps.com
           </a>
         </div>
 

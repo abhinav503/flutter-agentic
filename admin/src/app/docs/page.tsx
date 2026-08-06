@@ -44,7 +44,7 @@ export default function DocsPage() {
           </p>
           <div className="mt-10 flex flex-wrap gap-3">
             <a
-              href="mailto:cordeliaapps@gmail.com"
+              href="mailto:support@cordeliaapps.com"
               className={primaryButtonClasses}
             >
               Email the CordeliaApps team

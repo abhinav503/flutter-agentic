@@ -523,7 +523,7 @@ abstract class AppLocalizations {
   /// No description provided for @termsAndConditionsSection10Body.
   ///
   /// In en, this message translates to:
-  /// **'We update these terms as the app changes, and the date at the top of this page shows when they last changed. Continuing to use the app after a change means you accept the updated terms. If anything here is unclear, or you need help with an order, write to us at cordeliaapps@gmail.com.'**
+  /// **'We update these terms as the app changes, and the date at the top of this page shows when they last changed. Continuing to use the app after a change means you accept the updated terms. If anything here is unclear, or you need help with an order, write to us at support@cordeliaapps.com.'**
   String get termsAndConditionsSection10Body;
 
   /// No description provided for @privacyPolicyIntro.

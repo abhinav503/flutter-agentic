@@ -44,10 +44,10 @@ export default function PrivacyPage() {
           Europe. For the data described below, we are the controller, and you
           can reach us at{" "}
           <a
-            href="mailto:cordeliaapps@gmail.com"
+            href="mailto:support@cordeliaapps.com"
             className="font-semibold text-primary hover:underline"
           >
-            cordeliaapps@gmail.com
+            support@cordeliaapps.com
           </a>
           .
         </p>

@@ -161,10 +161,10 @@ export default function TermsPage() {
           shows when they last changed. Continuing to use CordeliaApps after a
           change means you accept the updated terms. Questions go to{" "}
           <a
-            href="mailto:cordeliaapps@gmail.com"
+            href="mailto:support@cordeliaapps.com"
             className="font-semibold text-primary hover:underline"
           >
-            cordeliaapps@gmail.com
+            support@cordeliaapps.com
           </a>
           .
         </p>

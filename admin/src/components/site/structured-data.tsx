@@ -24,12 +24,12 @@ const organization = {
   // 512px render of the app icon (public/brand/logo.png). Google wants a real,
   // fetchable raster here — this pointed at /logo.png, which never existed.
   logo: `${ORIGIN}/brand/logo.png`,
-  email: "cordeliaapps@gmail.com",
+  email: "support@cordeliaapps.com",
   contactPoint: [
     {
       "@type": "ContactPoint",
       contactType: "sales",
-      email: "cordeliaapps@gmail.com",
+      email: "support@cordeliaapps.com",
       availableLanguage: ["en"],
     },
   ],

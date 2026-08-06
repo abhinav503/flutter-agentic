@@ -251,7 +251,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get termsAndConditionsSection10Body =>
-      'Wir aktualisieren diese Bedingungen, wenn sich die App ändert; das Datum oben auf dieser Seite zeigt die letzte Änderung. Wenn Sie die App nach einer Änderung weiter nutzen, erkennen Sie die aktualisierten Bedingungen an. Ist etwas unklar oder brauchen Sie Hilfe bei einer Bestellung, schreiben Sie uns an cordeliaapps@gmail.com.';
+      'Wir aktualisieren diese Bedingungen, wenn sich die App ändert; das Datum oben auf dieser Seite zeigt die letzte Änderung. Wenn Sie die App nach einer Änderung weiter nutzen, erkennen Sie die aktualisierten Bedingungen an. Ist etwas unklar oder brauchen Sie Hilfe bei einer Bestellung, schreiben Sie uns an support@cordeliaapps.com.';
 
   @override
   String get privacyPolicyIntro =>
