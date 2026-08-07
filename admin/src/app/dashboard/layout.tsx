@@ -6,9 +6,11 @@ import { usePathname, useRouter } from "next/navigation";
 import {
   Award,
   BadgePercent,
+  Bell,
   Images,
   LayoutGrid,
   LogOut,
+  Megaphone,
   Package,
   ReceiptText,
   Settings,
@@ -30,7 +32,19 @@ const NAV_ITEMS = [
   { href: "/dashboard/coupons", label: "Coupons", icon: BadgePercent },
   { href: "/dashboard/orders", label: "Orders", icon: ReceiptText },
   { href: "/dashboard/reviews", label: "Reviews", icon: Star },
+  { href: "/dashboard/notifications", label: "Notifications", icon: Bell },
   { href: "/dashboard/settings", label: "Settings", icon: Settings },
+];
+
+// Rendered only for a superadmin, below a divider — it addresses every store's
+// shoppers, not the one in the switcher above, and sitting inside the same
+// list would read as another store-scoped page.
+const PLATFORM_NAV_ITEMS = [
+  {
+    href: "/dashboard/platform-notifications",
+    label: "Admin notifications",
+    icon: Megaphone,
+  },
 ];
 
 export default function DashboardLayout({
@@ -41,7 +55,7 @@ export default function DashboardLayout({
   const router = useRouter();
   const pathname = usePathname();
   const { user, loading: authLoading, signOutUser } = useAuth();
-  const { storeId, loading: storeLoading } = useStore();
+  const { storeId, isSuperAdmin, loading: storeLoading } = useStore();
 
   useEffect(() => {
     // Home, not /login — that route is gone, and the sign-in dialog only ever
@@ -84,24 +98,20 @@ export default function DashboardLayout({
         </div>
 
         <nav className="flex flex-1 flex-col gap-0.5">
-          {NAV_ITEMS.map((item) => {
-            const active = pathname === item.href;
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                aria-current={active ? "page" : undefined}
-                className={`flex items-center gap-2.5 rounded-full px-3 py-2 text-sm font-semibold transition-colors ${
-                  active
-                    ? "bg-primary text-primary-foreground shadow-[var(--shadow-soft)]"
-                    : "text-muted-foreground hover:bg-primary-soft hover:text-accent-foreground"
-                }`}
-              >
-                <item.icon aria-hidden="true" className="size-4 shrink-0" />
-                {item.label}
-              </Link>
-            );
-          })}
+          {NAV_ITEMS.map((item) => (
+            <NavLink key={item.href} item={item} pathname={pathname} />
+          ))}
+
+          {isSuperAdmin && (
+            <>
+              <p className="mt-5 px-3 pb-1 text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                Platform
+              </p>
+              {PLATFORM_NAV_ITEMS.map((item) => (
+                <NavLink key={item.href} item={item} pathname={pathname} />
+              ))}
+            </>
+          )}
         </nav>
 
         <button
@@ -120,6 +130,30 @@ export default function DashboardLayout({
         {children}
       </main>
     </div>
+  );
+}
+
+function NavLink({
+  item,
+  pathname,
+}: {
+  item: { href: string; label: string; icon: React.ElementType };
+  pathname: string;
+}) {
+  const active = pathname === item.href;
+  return (
+    <Link
+      href={item.href}
+      aria-current={active ? "page" : undefined}
+      className={`flex items-center gap-2.5 rounded-full px-3 py-2 text-sm font-semibold transition-colors ${
+        active
+          ? "bg-primary text-primary-foreground shadow-[var(--shadow-soft)]"
+          : "text-muted-foreground hover:bg-primary-soft hover:text-accent-foreground"
+      }`}
+    >
+      <item.icon aria-hidden="true" className="size-4 shrink-0" />
+      {item.label}
+    </Link>
   );
 }
 

@@ -24,12 +24,30 @@ service cloud.firestore {
         get(/databases/$(database)/documents/stores/$(storeId)).data.ownerUid == request.auth.uid;
     }
 
+    // CordeliaApps staff, for the handful of surfaces that address every
+    // store at once. Read off the custom claim rather than the admins doc so
+    // it costs no document read and cannot be granted by any client write —
+    // only admin/scripts/grant-superadmin.mjs (Admin SDK) can set it. The
+    // console's `isSuperAdmin` flag reads the mirrored `admins/{uid}.role`
+    // field for rendering; this is the authority.
+    function isSuperAdmin() {
+      return isSignedIn() && request.auth.token.role == 'superAdmin';
+    }
+
     // Shopper profile — created on gravia sign-up.
     match /users/{uid} {
       allow read, write: if isOwner(uid);
 
       match /carts/{storeId} {
         allow read, write: if isOwner(uid);
+      }
+
+      // Read receipts, doc id = the notification's id. Server-only, unlike
+      // the cart above: the same token-verified API call that serves the feed
+      // marks it read, so letting the client write here would give a
+      // server-owned value a second source of truth.
+      match /notificationReads/{notificationId} {
+        allow read, write: if false;
       }
     }
 
@@ -102,6 +120,16 @@ service cloud.firestore {
         allow write: if isStoreOwner(storeId);
       }
 
+      // In-app notifications this store sends its own shoppers. Not
+      // world-readable and not client-readable at all: shoppers receive them
+      // through GET /api/stores/{id}/notifications, which merges this feed
+      // with the platform one and stamps each shopper's read state — a
+      // client-SDK read would return neither. The owner reads its own list to
+      // manage it, which `isStoreOwner` already covers.
+      match /notifications/{notificationId} {
+        allow read, write: if isStoreOwner(storeId);
+      }
+
       // Discount codes — owner-only, NOT world-readable like the catalog:
       // shoppers validate a code through the token-verified API, so the
       // codes themselves never need to be listable client-side.
@@ -122,6 +150,15 @@ service cloud.firestore {
     match /templates/{templateId} {
       allow read: if true;
       allow write: if false;
+    }
+
+    // Platform-wide notifications from CordeliaApps, shown in every store's
+    // app alongside that store's own. Superadmin-only, and a separate
+    // collection from the per-store one precisely so authority is a path: a
+    // store owner has no rule that could ever reach this one. Shoppers read
+    // it through the notifications API (Admin SDK), never directly.
+    match /notifications/{notificationId} {
+      allow read, write: if isSuperAdmin();
     }
 
     // Orders — a shopper creates/reads their own; the owning store can read

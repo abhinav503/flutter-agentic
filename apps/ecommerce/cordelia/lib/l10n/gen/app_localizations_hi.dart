@@ -2486,4 +2486,13 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get retryButton => 'फिर से कोशिश करें';
+
+  @override
+  String get notificationsSectionToday => 'आज';
+
+  @override
+  String get notificationsSectionYesterday => 'कल';
+
+  @override
+  String get notificationsSectionEarlier => 'इससे पहले';
 }

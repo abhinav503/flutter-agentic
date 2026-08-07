@@ -37,6 +37,17 @@ type StoreContextValue = {
    * tell a French store from a German one, since both charge in euros.
    */
   storeLanguage: string;
+  /**
+   * Whether this admin may reach platform-wide surfaces (today: sending a
+   * notification to every store's shoppers).
+   *
+   * Rides the `admins/{uid}` snapshot this provider already holds, so it
+   * costs no extra read. **Presentation only** — it decides whether a nav
+   * item renders, nothing more. The authority that matters is the
+   * `role: 'superAdmin'` custom claim checked server-side by
+   * `requireSuperAdmin`, which a client cannot set on itself.
+   */
+  isSuperAdmin: boolean;
   loading: boolean;
   selectStore: (storeId: string) => void;
   createStore: (
@@ -82,6 +93,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [currencies, setCurrencies] = useState<Record<string, string>>({});
   const [languages, setLanguages] = useState<Record<string, string>>({});
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const healAttemptedFor = useRef<string | null>(null);
 
@@ -99,6 +111,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     setCurrencies({});
     setLanguages({});
     setSelectedId(null);
+    setIsSuperAdmin(false);
     setLoading(uid !== null);
   }
 
@@ -120,6 +133,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
       const ids = (snap.data()?.storeIds as string[] | undefined) ?? [];
       setStoreIds(ids);
+      setIsSuperAdmin((snap.data()?.role as string | undefined) === "superAdmin");
       // Keep the selection valid against the fresh list: restore the
       // persisted pick when it still exists, otherwise fall back to the
       // first store (covers first load, a deleted store, and an account
@@ -218,6 +232,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         storeName,
         storeCurrency,
         storeLanguage,
+        isSuperAdmin,
         loading,
         selectStore,
         createStore,

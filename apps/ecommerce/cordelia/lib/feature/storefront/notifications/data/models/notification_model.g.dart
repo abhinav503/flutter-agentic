@@ -12,6 +12,9 @@ _NotificationModel _$NotificationModelFromJson(Map<String, dynamic> json) =>
       kind: json['kind'] as String,
       title: json['title'] as String,
       message: json['message'] as String,
+      source: json['source'] as String,
+      createdAtMs: (json['created_at_ms'] as num).toInt(),
+      isRead: json['is_read'] as bool,
     );
 
 Map<String, dynamic> _$NotificationModelToJson(_NotificationModel instance) =>
@@ -20,4 +23,7 @@ Map<String, dynamic> _$NotificationModelToJson(_NotificationModel instance) =>
       'kind': instance.kind,
       'title': instance.title,
       'message': instance.message,
+      'source': instance.source,
+      'created_at_ms': instance.createdAtMs,
+      'is_read': instance.isRead,
     };

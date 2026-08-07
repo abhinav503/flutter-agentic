@@ -5,7 +5,6 @@ import 'package:core/core/base/base_page.dart';
 import 'package:cordelia/feature/storefront/presentation/chromeless_page.dart';
 
 import 'package:cordelia/feature/storefront/active_store/presentation/cubit/active_store_cubit.dart';
-import 'package:cordelia/feature/storefront/template/storefront_template.dart';
 
 import '../../../bloc/notifications_bloc_provider.dart';
 import 'notifications_screen.dart';
@@ -28,7 +27,6 @@ class _NotificationsPageState extends BasePageState<NotificationsPage>
 
     return notificationsBlocProvider(
       storeId: store.storeId,
-      templateId: store.templateId.wireValue,
       child: const NotificationsScreen(),
     );
   }

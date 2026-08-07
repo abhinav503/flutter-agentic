@@ -317,6 +317,50 @@ export type Coupon = {
   createdAtMs: number;
 };
 
+// Mirrors NotificationKind in cordelia's lib/enums — what a notification is
+// *about*, never how it's drawn. Each storefront template maps a kind to its
+// own pack glyph, so an icon/asset path must never reach this data.
+export const NOTIFICATION_KINDS = [
+  "discount",
+  "orderPlaced",
+  "orderDelivered",
+  "payment",
+  "account",
+  "security",
+] as const;
+
+export type NotificationKind = (typeof NOTIFICATION_KINDS)[number];
+
+export const NOTIFICATION_KIND_LABELS: Record<NotificationKind, string> = {
+  discount: "Offer or discount",
+  orderPlaced: "Order placed",
+  orderDelivered: "Order delivered",
+  payment: "Payment",
+  account: "Account",
+  security: "Security",
+};
+
+// Who authored a notification, which is also who can delete it. A shopper's
+// feed merges both sources; the app labels a platform one so a store isn't
+// blamed for a message it didn't write.
+//
+// Not stored on the platform docs themselves — it's derived from which
+// collection a notification came out of (`notifications` vs
+// `stores/{id}/notifications`), so the two can never disagree.
+export type NotificationSource = "store" | "platform";
+
+export type StoreNotification = {
+  id: string;
+  kind: NotificationKind;
+  title: string;
+  message: string;
+  source: NotificationSource;
+  // See Category.createdAtMs. Also what the storefront groups the feed by —
+  // the "Today"/"Yesterday" section titles are derived from this server-side,
+  // so the app keeps taking sections as opaque data.
+  createdAtMs: number;
+};
+
 // Field names mirror AddressEntity in gravia's feature/address. Structured
 // fields, not one text blob — gravia composes its display line client-side
 // (AddressEntityX.displayLine) so edits can't drift from the parts.

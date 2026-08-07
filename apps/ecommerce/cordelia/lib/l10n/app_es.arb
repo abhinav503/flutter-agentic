@@ -730,5 +730,8 @@
   "validationWeakPassword": "La contraseña debe tener al menos 6 caracteres.",
   "validationConfirmPasswordRequired": "Confirma tu nueva contraseña.",
   "validationPasswordsDontMatch": "Las contraseñas no coinciden.",
-  "retryButton": "Reintentar"
+  "retryButton": "Reintentar",
+  "notificationsSectionToday": "Hoy",
+  "notificationsSectionYesterday": "Ayer",
+  "notificationsSectionEarlier": "Antes"
 }

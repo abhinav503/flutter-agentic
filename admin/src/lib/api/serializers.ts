@@ -10,6 +10,7 @@ import type {
   SizeVariant,
   Store,
 } from "@/lib/types";
+import type { FeedNotification } from "@/lib/notifications-feed";
 import { computeDiscountPercentage } from "@/lib/products";
 
 // Shapes match gravia's existing mock JSON / *Model.fromJson() wire format
@@ -232,4 +233,21 @@ export function groupCategories(categories: Category[]) {
     name,
     categories: categoriesInGroup.map(serializeCategory),
   }));
+}
+
+// Deliberately flat and undated-in-words: no "Today"/"Yesterday" section
+// titles are composed here. cordelia groups the feed itself so the headings
+// come from its own string table — a server-authored heading would print
+// English into a Hindi, German, French, Spanish or Italian storefront, which
+// is the exact trap docs/how-to/add-language-pack.md warns about.
+export function serializeNotification(n: FeedNotification) {
+  return {
+    id: n.id,
+    kind: n.kind,
+    title: n.title,
+    message: n.message,
+    source: n.source,
+    created_at_ms: n.createdAtMs,
+    is_read: n.isRead,
+  };
 }

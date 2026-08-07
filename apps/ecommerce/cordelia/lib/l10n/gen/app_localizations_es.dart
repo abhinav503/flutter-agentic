@@ -2501,4 +2501,13 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get retryButton => 'Reintentar';
+
+  @override
+  String get notificationsSectionToday => 'Hoy';
+
+  @override
+  String get notificationsSectionYesterday => 'Ayer';
+
+  @override
+  String get notificationsSectionEarlier => 'Antes';
 }

@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$NotificationModel {
 
- String get id; String get kind; String get title; String get message;
+ String get id; String get kind; String get title; String get message; String get source;@JsonKey(name: 'created_at_ms') int get createdAtMs;@JsonKey(name: 'is_read') bool get isRead;
 /// Create a copy of NotificationModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $NotificationModelCopyWith<NotificationModel> get copyWith => _$NotificationMode
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is NotificationModel&&(identical(other.id, id) || other.id == id)&&(identical(other.kind, kind) || other.kind == kind)&&(identical(other.title, title) || other.title == title)&&(identical(other.message, message) || other.message == message));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is NotificationModel&&(identical(other.id, id) || other.id == id)&&(identical(other.kind, kind) || other.kind == kind)&&(identical(other.title, title) || other.title == title)&&(identical(other.message, message) || other.message == message)&&(identical(other.source, source) || other.source == source)&&(identical(other.createdAtMs, createdAtMs) || other.createdAtMs == createdAtMs)&&(identical(other.isRead, isRead) || other.isRead == isRead));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,kind,title,message);
+int get hashCode => Object.hash(runtimeType,id,kind,title,message,source,createdAtMs,isRead);
 
 @override
 String toString() {
-  return 'NotificationModel(id: $id, kind: $kind, title: $title, message: $message)';
+  return 'NotificationModel(id: $id, kind: $kind, title: $title, message: $message, source: $source, createdAtMs: $createdAtMs, isRead: $isRead)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $NotificationModelCopyWith<$Res>  {
   factory $NotificationModelCopyWith(NotificationModel value, $Res Function(NotificationModel) _then) = _$NotificationModelCopyWithImpl;
 @useResult
 $Res call({
- String id, String kind, String title, String message
+ String id, String kind, String title, String message, String source,@JsonKey(name: 'created_at_ms') int createdAtMs,@JsonKey(name: 'is_read') bool isRead
 });
 
 
@@ -65,13 +65,16 @@ class _$NotificationModelCopyWithImpl<$Res>
 
 /// Create a copy of NotificationModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? kind = null,Object? title = null,Object? message = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? kind = null,Object? title = null,Object? message = null,Object? source = null,Object? createdAtMs = null,Object? isRead = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,kind: null == kind ? _self.kind : kind // ignore: cast_nullable_to_non_nullable
 as String,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String,message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
-as String,
+as String,source: null == source ? _self.source : source // ignore: cast_nullable_to_non_nullable
+as String,createdAtMs: null == createdAtMs ? _self.createdAtMs : createdAtMs // ignore: cast_nullable_to_non_nullable
+as int,isRead: null == isRead ? _self.isRead : isRead // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 
@@ -156,10 +159,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String kind,  String title,  String message)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String kind,  String title,  String message,  String source, @JsonKey(name: 'created_at_ms')  int createdAtMs, @JsonKey(name: 'is_read')  bool isRead)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _NotificationModel() when $default != null:
-return $default(_that.id,_that.kind,_that.title,_that.message);case _:
+return $default(_that.id,_that.kind,_that.title,_that.message,_that.source,_that.createdAtMs,_that.isRead);case _:
   return orElse();
 
 }
@@ -177,10 +180,10 @@ return $default(_that.id,_that.kind,_that.title,_that.message);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String kind,  String title,  String message)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String kind,  String title,  String message,  String source, @JsonKey(name: 'created_at_ms')  int createdAtMs, @JsonKey(name: 'is_read')  bool isRead)  $default,) {final _that = this;
 switch (_that) {
 case _NotificationModel():
-return $default(_that.id,_that.kind,_that.title,_that.message);case _:
+return $default(_that.id,_that.kind,_that.title,_that.message,_that.source,_that.createdAtMs,_that.isRead);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -197,10 +200,10 @@ return $default(_that.id,_that.kind,_that.title,_that.message);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String kind,  String title,  String message)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String kind,  String title,  String message,  String source, @JsonKey(name: 'created_at_ms')  int createdAtMs, @JsonKey(name: 'is_read')  bool isRead)?  $default,) {final _that = this;
 switch (_that) {
 case _NotificationModel() when $default != null:
-return $default(_that.id,_that.kind,_that.title,_that.message);case _:
+return $default(_that.id,_that.kind,_that.title,_that.message,_that.source,_that.createdAtMs,_that.isRead);case _:
   return null;
 
 }
@@ -212,13 +215,16 @@ return $default(_that.id,_that.kind,_that.title,_that.message);case _:
 @JsonSerializable()
 
 class _NotificationModel extends NotificationModel {
-  const _NotificationModel({required this.id, required this.kind, required this.title, required this.message}): super._();
+  const _NotificationModel({required this.id, required this.kind, required this.title, required this.message, required this.source, @JsonKey(name: 'created_at_ms') required this.createdAtMs, @JsonKey(name: 'is_read') required this.isRead}): super._();
   factory _NotificationModel.fromJson(Map<String, dynamic> json) => _$NotificationModelFromJson(json);
 
 @override final  String id;
 @override final  String kind;
 @override final  String title;
 @override final  String message;
+@override final  String source;
+@override@JsonKey(name: 'created_at_ms') final  int createdAtMs;
+@override@JsonKey(name: 'is_read') final  bool isRead;
 
 /// Create a copy of NotificationModel
 /// with the given fields replaced by the non-null parameter values.
@@ -233,16 +239,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _NotificationModel&&(identical(other.id, id) || other.id == id)&&(identical(other.kind, kind) || other.kind == kind)&&(identical(other.title, title) || other.title == title)&&(identical(other.message, message) || other.message == message));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _NotificationModel&&(identical(other.id, id) || other.id == id)&&(identical(other.kind, kind) || other.kind == kind)&&(identical(other.title, title) || other.title == title)&&(identical(other.message, message) || other.message == message)&&(identical(other.source, source) || other.source == source)&&(identical(other.createdAtMs, createdAtMs) || other.createdAtMs == createdAtMs)&&(identical(other.isRead, isRead) || other.isRead == isRead));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,kind,title,message);
+int get hashCode => Object.hash(runtimeType,id,kind,title,message,source,createdAtMs,isRead);
 
 @override
 String toString() {
-  return 'NotificationModel(id: $id, kind: $kind, title: $title, message: $message)';
+  return 'NotificationModel(id: $id, kind: $kind, title: $title, message: $message, source: $source, createdAtMs: $createdAtMs, isRead: $isRead)';
 }
 
 
@@ -253,7 +259,7 @@ abstract mixin class _$NotificationModelCopyWith<$Res> implements $NotificationM
   factory _$NotificationModelCopyWith(_NotificationModel value, $Res Function(_NotificationModel) _then) = __$NotificationModelCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String kind, String title, String message
+ String id, String kind, String title, String message, String source,@JsonKey(name: 'created_at_ms') int createdAtMs,@JsonKey(name: 'is_read') bool isRead
 });
 
 
@@ -270,13 +276,16 @@ class __$NotificationModelCopyWithImpl<$Res>
 
 /// Create a copy of NotificationModel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? kind = null,Object? title = null,Object? message = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? kind = null,Object? title = null,Object? message = null,Object? source = null,Object? createdAtMs = null,Object? isRead = null,}) {
   return _then(_NotificationModel(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,kind: null == kind ? _self.kind : kind // ignore: cast_nullable_to_non_nullable
 as String,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String,message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
-as String,
+as String,source: null == source ? _self.source : source // ignore: cast_nullable_to_non_nullable
+as String,createdAtMs: null == createdAtMs ? _self.createdAtMs : createdAtMs // ignore: cast_nullable_to_non_nullable
+as int,isRead: null == isRead ? _self.isRead : isRead // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 

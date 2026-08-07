@@ -72,6 +72,7 @@ import '../feature/storefront/notifications/data/data_source/notifications_remot
 import '../feature/storefront/notifications/data/repository_impl/notifications_repository_impl.dart';
 import '../feature/storefront/notifications/domain/repository/notifications_repository.dart';
 import '../feature/storefront/notifications/domain/usecase/get_notifications_usecase.dart';
+import '../feature/storefront/notifications/domain/usecase/mark_notifications_read_usecase.dart';
 import '../feature/storefront/orders/data/data_source/orders_remote_data_source.dart';
 import '../feature/storefront/orders/data/data_source/orders_remote_data_source_impl.dart';
 import '../feature/storefront/orders/data/data_source/payment_gateway_data_source.dart';
@@ -276,7 +277,8 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton(() => SearchPlacesUseCase(sl()));
   sl.registerLazySingleton(() => LookupPincodeUseCase(sl()));
 
-  // ── Storefront: Notifications (bundled mock, one file per template) ─────
+  // ── Storefront: Notifications (store feed + CordeliaApps platform feed,
+  // merged server-side) ───────────────────────────────────────────────────
   sl.registerLazySingleton<NotificationsRemoteDataSource>(
     () => const NotificationsRemoteDataSourceImpl(),
   );
@@ -284,4 +286,5 @@ Future<void> initDependencies() async {
     () => NotificationsRepositoryImpl(sl()),
   );
   sl.registerLazySingleton(() => GetNotificationsUseCase(sl()));
+  sl.registerLazySingleton(() => MarkNotificationsReadUseCase(sl()));
 }

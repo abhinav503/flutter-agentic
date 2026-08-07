@@ -4491,6 +4491,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Retry'**
   String get retryButton;
+
+  /// Heading over notifications received today, on the Notifications screen. Grouped client-side so the heading is translated — the server sends only timestamps.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get notificationsSectionToday;
+
+  /// Heading over notifications received yesterday, on the Notifications screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday'**
+  String get notificationsSectionYesterday;
+
+  /// Heading over notifications older than yesterday, on the Notifications screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Earlier'**
+  String get notificationsSectionEarlier;
 }
 
 class _AppLocalizationsDelegate

@@ -730,5 +730,8 @@
   "validationWeakPassword": "Das Passwort muss mindestens 6 Zeichen lang sein.",
   "validationConfirmPasswordRequired": "Bitte bestätigen Sie Ihr neues Passwort.",
   "validationPasswordsDontMatch": "Die Passwörter stimmen nicht überein.",
-  "retryButton": "Erneut versuchen"
+  "retryButton": "Erneut versuchen",
+  "notificationsSectionToday": "Heute",
+  "notificationsSectionYesterday": "Gestern",
+  "notificationsSectionEarlier": "Früher"
 }

@@ -2483,4 +2483,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get retryButton => 'Retry';
+
+  @override
+  String get notificationsSectionToday => 'Today';
+
+  @override
+  String get notificationsSectionYesterday => 'Yesterday';
+
+  @override
+  String get notificationsSectionEarlier => 'Earlier';
 }

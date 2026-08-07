@@ -2504,4 +2504,13 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get retryButton => 'Erneut versuchen';
+
+  @override
+  String get notificationsSectionToday => 'Heute';
+
+  @override
+  String get notificationsSectionYesterday => 'Gestern';
+
+  @override
+  String get notificationsSectionEarlier => 'Früher';
 }

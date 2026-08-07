@@ -52,6 +52,12 @@ abstract final class ApiConstants {
   static String favouritesPath(String storeId) =>
       '${_storeBase(storeId)}/favourites';
 
+  /// GET returns this store's notifications merged with CordeliaApps'
+  /// platform-wide feed; POST marks ids read for the caller. One path for
+  /// both because they are the same list read and acknowledged.
+  static String notificationsPath(String storeId) =>
+      '${_storeBase(storeId)}/notifications';
+
   static String categoryProductsPath(String storeId, String categoryId) =>
       '${_storeBase(storeId)}/categories/$categoryId/products';
 

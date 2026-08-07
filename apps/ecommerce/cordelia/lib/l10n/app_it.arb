@@ -730,5 +730,8 @@
   "validationWeakPassword": "La password deve contenere almeno 6 caratteri.",
   "validationConfirmPasswordRequired": "Conferma la tua nuova password.",
   "validationPasswordsDontMatch": "Le password non corrispondono.",
-  "retryButton": "Riprova"
+  "retryButton": "Riprova",
+  "notificationsSectionToday": "Oggi",
+  "notificationsSectionYesterday": "Ieri",
+  "notificationsSectionEarlier": "Prima"
 }

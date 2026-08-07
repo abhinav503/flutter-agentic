@@ -2506,4 +2506,13 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get retryButton => 'Riprova';
+
+  @override
+  String get notificationsSectionToday => 'Oggi';
+
+  @override
+  String get notificationsSectionYesterday => 'Ieri';
+
+  @override
+  String get notificationsSectionEarlier => 'Prima';
 }

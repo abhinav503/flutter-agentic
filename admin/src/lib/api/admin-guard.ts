@@ -49,6 +49,31 @@ export async function requireStoreOwner(
   return decoded.uid;
 }
 
+// Guards the platform-wide surfaces (today: writing the CordeliaApps
+// notification feed every store's shoppers see). Trusts the `role`
+// custom claim, which only scripts/grant-superadmin.mjs can set — the
+// mirrored `admins/{uid}.role` field is for the console's rendering and is
+// deliberately NOT consulted here, because that doc is client-creatable at
+// sign-up. Reading it as authority would let anyone sign up as a superadmin.
+export async function requireSuperAdmin(request: Request): Promise<string> {
+  const authHeader = request.headers.get("authorization") ?? "";
+  const match = authHeader.match(/^Bearer (.+)$/);
+  if (!match) throw new UnauthorizedError("Missing bearer token");
+
+  let decoded;
+  try {
+    decoded = await adminAuth.verifyIdToken(match[1]);
+  } catch {
+    throw new UnauthorizedError("Invalid or expired token");
+  }
+
+  if (decoded.role !== "superAdmin") {
+    throw new ForbiddenError("Not a superadmin");
+  }
+
+  return decoded.uid;
+}
+
 // Guards the shopper profile endpoint (/api/users) — any signed-in Firebase
 // user, no store-ownership check. `emailVerified` comes off the token's own
 // `email_verified` claim, which only reflects reality once the client has

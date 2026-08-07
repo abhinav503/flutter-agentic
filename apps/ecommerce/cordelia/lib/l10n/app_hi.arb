@@ -730,5 +730,8 @@
   "validationWeakPassword": "पासवर्ड कम से कम 6 अक्षरों का होना चाहिए।",
   "validationConfirmPasswordRequired": "कृपया अपने नए पासवर्ड की पुष्टि करें।",
   "validationPasswordsDontMatch": "पासवर्ड मेल नहीं खाते।",
-  "retryButton": "फिर से कोशिश करें"
+  "retryButton": "फिर से कोशिश करें",
+  "notificationsSectionToday": "आज",
+  "notificationsSectionYesterday": "कल",
+  "notificationsSectionEarlier": "इससे पहले"
 }

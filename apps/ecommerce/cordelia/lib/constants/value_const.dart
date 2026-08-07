@@ -239,6 +239,18 @@ abstract final class ValueConst {
   static String orderPlacedAtLabel(String date, String time) =>
       L10n.current.orderPlacedAtLabel(date, time);
 
+  // ── Notification feed section headings — app-level for the same reason as
+  // reviews below: every pack groups the one shared feed the same way, and
+  // these name a date range rather than speak in any pack's voice. Grouping
+  // happens in NotificationsRepositoryImpl precisely so these stay
+  // translatable; a heading composed by the API could only be in one language.
+  static String get notificationsSectionToday =>
+      L10n.current.notificationsSectionToday;
+  static String get notificationsSectionYesterday =>
+      L10n.current.notificationsSectionYesterday;
+  static String get notificationsSectionEarlier =>
+      L10n.current.notificationsSectionEarlier;
+
   // ── Product reviews — app-level, not per-pack: one shared reviews feature
   // serves every storefront, and the wording describes the *mechanism*
   // (ratings, verified purchases, one review per shopper) rather than any

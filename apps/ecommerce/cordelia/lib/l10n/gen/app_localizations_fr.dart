@@ -2519,4 +2519,13 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get retryButton => 'Réessayer';
+
+  @override
+  String get notificationsSectionToday => 'Aujourd\'hui';
+
+  @override
+  String get notificationsSectionYesterday => 'Hier';
+
+  @override
+  String get notificationsSectionEarlier => 'Plus tôt';
 }
