@@ -54,10 +54,17 @@ add products+images, and manage orders.
 
 ## Decisions locked in (2026-07-18)
 
-- **Monetization = SaaS**, not marketplace. Each store connects its **own** payment
-  provider; the platform **never touches shopper money**. Revenue = store owners pay
-  a **subscription** to host their store app + get the admin panel. This drops all
-  marketplace complexity (no Stripe Connect payouts, KYC, commission splits, tax).
+- **Not a marketplace.** Each store connects its **own** payment provider; the platform
+  **never touches shopper money**. This drops all marketplace complexity (no Stripe
+  Connect payouts, KYC, commission splits, tax) and is what keeps us out of
+  payment-aggregator classification — it remains load-bearing for every payments
+  decision in this doc.
+- **Monetization — OUT OF SCOPE (2026-08-07).** This bullet previously read "Revenue =
+  store owners pay a subscription to host their store app + get the admin panel."
+  That is no longer the plan for what ships: **v1 is free for every store, in India and
+  outside it, with no commission on any order.** Charging belongs to v2 (per-store
+  branded apps), where App Store guideline 4.2.6 imposes a real per-merchant cost floor
+  — see "Competitive landscape" below. Nothing in the current milestones bills anyone.
 - **Shopper PSP = provider-agnostic for now** ("decide later"). Design the checkout →
   order-write boundary so a real PSP drops in behind a `PaymentService` interface;
   the store's chosen provider is configured per-store later.
@@ -69,9 +76,85 @@ add products+images, and manage orders.
   centrally-hosted** app, so it can't live inside per-user workspace infra. `admin/`
   sits alongside `apps/`, `packages/`, `web-terminal/` at repo root; it also hosts the
   Cloud Functions (the "Node BE") since they share one Firebase project.
-- **Store-owner subscription billing** (how the platform gets paid) is its own later
-  phase — it lives on the console/admin side (e.g. Stripe Billing for the store owner),
-  separate from shopper checkout. Not in the first milestones.
+- **Store-owner subscription billing — OUT OF SCOPE (2026-08-07).** Superseded by the
+  bullet above: there is no subscription to build. If it returns with v2 it lives on the
+  console/admin side, separate from shopper checkout, and is a fresh decision rather than
+  a deferred one.
+
+## Competitive landscape (surveyed 2026-08-07)
+
+Who else sells a store owner a shopping app, and where `cordelia` actually differs.
+Recorded because the answer moved the roadmap: it is the reason v1 stays free and the
+reason v2 cannot.
+
+**1. Indian SMB store builders — the direct rivals.**
+
+| Player | What it is | The gap we exploit |
+|---|---|---|
+| **Dukaan** | Bengaluru, 2020, mobile-first, explicitly targets kiranas and solo sellers. The closest analog to this product. | Charges **1.99–4.99% per order on every plan**. We charge zero and never touch shopper money |
+| **Bikayi** | WhatsApp-first store builder for Indian SMBs; web storefront with a mobile admin | Web-led; no native shopper app |
+| **DotPe** | Digital storefronts + payments, strong in restaurants and retail | Payments-led — they sit *in* the funds flow, we deliberately don't |
+| **Instamojo** | Online store bolted onto a payments product | Same: payments-first |
+| **Zopping** | Grocery-specific store builder | Tightest vertical overlap. Verify their app story before positioning against them |
+| **StoreHippo** | Indian mobile-first commerce — **does ship native apps**, so treat as a category-3 rival, not a storefront builder | Closer to us than the others in this row |
+
+**2. Global storefront platforms** — Shopify (~$29+/mo), WooCommerce, BigCommerce, Wix,
+Ecwid, Square Online. All web-first. A merchant on any of them needs a *separate*
+product to get a mobile app, which is category 3. They are the reference point people
+name, not the competitor.
+
+**3. Branded mobile-app builders** — what we most resemble functionally, and the
+expensive end: **Tapcart** ($250–$1,000+/mo, mid-market/enterprise DTC), **Superfans**
+(formerly Vajro, pivoted to community/live commerce), **MageNative**, **Appmaker.xyz**,
+**Shopney**, **AppBrew**, **Plobal** (entry level from ~$49/mo). Every one of them
+*requires an existing Shopify or WooCommerce store* — they are a bolt-on. We are the
+whole stack, which is the real advantage for a kirana with no storefront at all.
+
+**4. What actually competes for a kirana's attention** — **WhatsApp Business + a UPI QR
+code**. Free, already installed, zero learning curve. A harder competitor than Dukaan.
+**ONDC** is the structural wildcard: government-backed open network, actively onboarding
+kiranas.
+
+### Why this shapes v1 vs v2
+
+**App Store Review Guideline 4.2.6** rejects apps built from a commercialized template
+"unless they are submitted directly by the provider of the app's content" — but it
+names an acceptable alternative outright: a **single binary hosting all client content
+in an aggregated or "picker" model** (Apple's own example is a restaurant finder with a
+customized entry per client restaurant).
+
+That is exactly what `cordelia` is. The one-app/many-templates architecture is not a
+stepping stone to the real product — it is **the pattern Apple sanctions**, and it is
+why this shipped through Play cleanly.
+
+The planned v2 (each store gets its own branded app) lands on the other side of the same
+guideline, and the cost is per-merchant and non-amortisable:
+
+```
+per merchant, per year:
+  Apple Developer account   $99/yr   — their account; Apple forbids us submitting for them
+  Google Play               $25      one-time
+  + review cycles, listing assets, and rejections we cannot fix unilaterally
+```
+
+Roughly **$10/month per merchant before earning anything**, scaling linearly. This is
+precisely why Tapcart charges what it charges. **v2 is where pricing has to exist**, and
+it cannot be free — while v1, which costs us nothing per merchant, can be.
+
+### Where we're differentiated
+
+- **Zero commission, free** against Dukaan's 1.99–4.99% per order — a sharp wedge, but a
+  wedge, not a moat: Dukaan is funded and could zero-rate a tier to match.
+- **Store keeps its own PSP account** — money never passes through us, which is also what
+  keeps us out of payment-aggregator classification (see the Razorpay per-store design).
+- **Per-store language packs** — the most defensible item on the list and the least
+  obvious. Competitors above are English-first; ~710 keys per language with CLDR plural
+  handling and per-language typography is slow to copy. Against Dukaan, lead with this
+  plus zero commission, not with a feature checklist everyone matches.
+
+> Sourced from vendor sites and 2026 market write-ups, not from each vendor's live
+> pricing page. This space churns — re-verify Dukaan's and Zopping's current plans
+> before using any number in marketing copy.
 
 ## Backend recommendation (answers "our nodejs BE?")
 
