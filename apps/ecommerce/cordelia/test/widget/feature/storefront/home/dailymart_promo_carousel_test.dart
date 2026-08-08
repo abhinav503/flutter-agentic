@@ -100,23 +100,24 @@ void main() {
       expect(_activeDotIndex(tester), 1);
     });
 
-    testWidgets('falls back to the last page when a refresh shortens the list', (
-      tester,
-    ) async {
-      await _pumpCarousel(tester, 3);
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: DailyMartHomePromoCarousel(
-              banners: _banners(1),
-              onBannerTap: (_) {},
+    testWidgets(
+      'falls back to the last page when a refresh shortens the list',
+      (tester) async {
+        await _pumpCarousel(tester, 3);
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: DailyMartHomePromoCarousel(
+                banners: _banners(1),
+                onBannerTap: (_) {},
+              ),
             ),
           ),
-        ),
-      );
-      await tester.pumpAndSettle();
+        );
+        await tester.pumpAndSettle();
 
-      expect(_activeDotIndex(tester), 0);
-    });
+        expect(_activeDotIndex(tester), 0);
+      },
+    );
   });
 }

@@ -174,6 +174,16 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
   }
 
+  // Bumped once per request so consecutive answers differ. Bloc drops an
+  // emit whose state equals the current one, and both outcomes below are
+  // one-shot snackbar signals rather than rendered state — so tapping
+  // "Forgot password" a second time on the same address, exactly what
+  // someone does when the first mail hasn't arrived, emitted an identical
+  // state and was swallowed: no snackbar, button apparently dead. Every
+  // other producer of those states passes through `loading` first and so
+  // already changes state; this handler deliberately does not (below).
+  int _forgotPasswordAttempt = 0;
+
   // No `AuthState.loading()` here — Login's submit button derives its
   // spinner from that state, and this is an unrelated, near-instant
   // fire-and-forget (Firebase just enqueues the email); reusing it would
@@ -182,16 +192,25 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     AuthForgotPasswordRequested event,
     Emitter<AuthState> emit,
   ) async {
+    final attempt = ++_forgotPasswordAttempt;
     if (kIsWeb) {
-      emit(AuthState.error(message: ValueConst.authWebUnsupportedMessage));
+      emit(
+        AuthState.error(
+          message: ValueConst.authWebUnsupportedMessage,
+          attempt: attempt,
+        ),
+      );
       return;
     }
     final result = await _forgotPassword(
       ForgotPasswordParams(email: event.email),
     );
     result.fold(
-      (failure) => emit(AuthState.error(message: failure.message)),
-      (_) => emit(AuthState.passwordResetEmailSent(email: event.email)),
+      (failure) =>
+          emit(AuthState.error(message: failure.message, attempt: attempt)),
+      (_) => emit(
+        AuthState.passwordResetEmailSent(email: event.email, attempt: attempt),
+      ),
     );
   }
 

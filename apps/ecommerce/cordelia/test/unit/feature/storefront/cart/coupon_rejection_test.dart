@@ -64,8 +64,10 @@ void main() {
 
     test('a rupee store still reads in rupees', () {
       controller.apply(StoreLanguage.en.asLocale, currency: StoreCurrency.inr);
-      expect(source.rejectionFrom(minOrderResponse(500))!.message,
-          contains('₹500'));
+      expect(
+        source.rejectionFrom(minOrderResponse(500))!.message,
+        contains('₹500'),
+      );
     });
   });
 
@@ -83,13 +85,17 @@ void main() {
         );
 
     test('an untagged coupon error is left alone', () {
-      expect(source.rejectionFrom(plain({'error': 'This coupon has expired'})),
-          isNull);
+      expect(
+        source.rejectionFrom(plain({'error': 'This coupon has expired'})),
+        isNull,
+      );
     });
 
     test('a different code is left alone', () {
       expect(
-        source.rejectionFrom(plain({'error': 'nope', 'code': 'something_else'})),
+        source.rejectionFrom(
+          plain({'error': 'nope', 'code': 'something_else'}),
+        ),
         isNull,
       );
     });

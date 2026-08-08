@@ -14,7 +14,8 @@
     <application
         android:label="CordeliaApps"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:enableOnBackInvokedCallback="true">
         <!-- Channel a *backgrounded* push is drawn on. Must match
              LocalNotificationService._channelId, which creates it. -->
         <meta-data

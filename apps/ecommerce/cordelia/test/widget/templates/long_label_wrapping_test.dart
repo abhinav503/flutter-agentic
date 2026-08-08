@@ -111,11 +111,12 @@ void main() {
       // Height is exactly square + gap + label, i.e. nothing is fixed and
       // nothing is clipped — the extra line grows the entry downward, which
       // the rail's top alignment then keeps level with its neighbours.
-      final tile = tester
-          .getSize(find.byType(GrofastCategoryRailTile))
-          .height;
+      final tile = tester.getSize(find.byType(GrofastCategoryRailTile)).height;
       final label = tester.getSize(find.text(longest)).height;
-      expect(tile, GrofastDimenConst.categoryRailTileSize + AppSpacing.xs + label);
+      expect(
+        tile,
+        GrofastDimenConst.categoryRailTileSize + AppSpacing.xs + label,
+      );
     });
   });
 
@@ -181,10 +182,7 @@ void main() {
                 ),
                 SizedBox(width: 12),
                 Expanded(
-                  child: GrofastQuickTile(
-                    label: 'Merkliste',
-                    icon: Icons.star,
-                  ),
+                  child: GrofastQuickTile(label: 'Merkliste', icon: Icons.star),
                 ),
               ],
             ),

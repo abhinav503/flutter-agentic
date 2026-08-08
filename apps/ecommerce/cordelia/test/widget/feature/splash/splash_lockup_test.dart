@@ -20,7 +20,8 @@ void main() {
     expect(
       svg.contains('<mask'),
       isTrue,
-      reason: 'the cut must stay a mask, not a stroke in the page colour — a '
+      reason:
+          'the cut must stay a mask, not a stroke in the page colour — a '
           'stroked cut only works on the surface it was drawn against',
     );
 

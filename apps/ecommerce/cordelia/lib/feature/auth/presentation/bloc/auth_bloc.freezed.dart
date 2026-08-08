@@ -620,7 +620,7 @@ return error(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function( String email)?  awaitingVerification,TResult Function( UserEntity user)?  authenticated,TResult Function()?  unauthenticated,TResult Function( String email)?  passwordResetEmailSent,TResult Function( String message)?  error,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function( String email)?  awaitingVerification,TResult Function( UserEntity user)?  authenticated,TResult Function()?  unauthenticated,TResult Function( String email,  int attempt)?  passwordResetEmailSent,TResult Function( String message,  int attempt)?  error,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case AuthInitial() when initial != null:
 return initial();case AuthLoading() when loading != null:
@@ -628,8 +628,8 @@ return loading();case AuthAwaitingVerification() when awaitingVerification != nu
 return awaitingVerification(_that.email);case AuthAuthenticated() when authenticated != null:
 return authenticated(_that.user);case AuthUnauthenticated() when unauthenticated != null:
 return unauthenticated();case AuthPasswordResetEmailSent() when passwordResetEmailSent != null:
-return passwordResetEmailSent(_that.email);case AuthError() when error != null:
-return error(_that.message);case _:
+return passwordResetEmailSent(_that.email,_that.attempt);case AuthError() when error != null:
+return error(_that.message,_that.attempt);case _:
   return orElse();
 
 }
@@ -647,7 +647,7 @@ return error(_that.message);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function( String email)  awaitingVerification,required TResult Function( UserEntity user)  authenticated,required TResult Function()  unauthenticated,required TResult Function( String email)  passwordResetEmailSent,required TResult Function( String message)  error,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function( String email)  awaitingVerification,required TResult Function( UserEntity user)  authenticated,required TResult Function()  unauthenticated,required TResult Function( String email,  int attempt)  passwordResetEmailSent,required TResult Function( String message,  int attempt)  error,}) {final _that = this;
 switch (_that) {
 case AuthInitial():
 return initial();case AuthLoading():
@@ -655,8 +655,8 @@ return loading();case AuthAwaitingVerification():
 return awaitingVerification(_that.email);case AuthAuthenticated():
 return authenticated(_that.user);case AuthUnauthenticated():
 return unauthenticated();case AuthPasswordResetEmailSent():
-return passwordResetEmailSent(_that.email);case AuthError():
-return error(_that.message);}
+return passwordResetEmailSent(_that.email,_that.attempt);case AuthError():
+return error(_that.message,_that.attempt);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -670,7 +670,7 @@ return error(_that.message);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function( String email)?  awaitingVerification,TResult? Function( UserEntity user)?  authenticated,TResult? Function()?  unauthenticated,TResult? Function( String email)?  passwordResetEmailSent,TResult? Function( String message)?  error,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function( String email)?  awaitingVerification,TResult? Function( UserEntity user)?  authenticated,TResult? Function()?  unauthenticated,TResult? Function( String email,  int attempt)?  passwordResetEmailSent,TResult? Function( String message,  int attempt)?  error,}) {final _that = this;
 switch (_that) {
 case AuthInitial() when initial != null:
 return initial();case AuthLoading() when loading != null:
@@ -678,8 +678,8 @@ return loading();case AuthAwaitingVerification() when awaitingVerification != nu
 return awaitingVerification(_that.email);case AuthAuthenticated() when authenticated != null:
 return authenticated(_that.user);case AuthUnauthenticated() when unauthenticated != null:
 return unauthenticated();case AuthPasswordResetEmailSent() when passwordResetEmailSent != null:
-return passwordResetEmailSent(_that.email);case AuthError() when error != null:
-return error(_that.message);case _:
+return passwordResetEmailSent(_that.email,_that.attempt);case AuthError() when error != null:
+return error(_that.message,_that.attempt);case _:
   return null;
 
 }
@@ -919,10 +919,11 @@ String toString() {
 
 
 class AuthPasswordResetEmailSent implements AuthState {
-  const AuthPasswordResetEmailSent({required this.email});
+  const AuthPasswordResetEmailSent({required this.email, required this.attempt});
   
 
  final  String email;
+ final  int attempt;
 
 /// Create a copy of AuthState
 /// with the given fields replaced by the non-null parameter values.
@@ -934,16 +935,16 @@ $AuthPasswordResetEmailSentCopyWith<AuthPasswordResetEmailSent> get copyWith => 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthPasswordResetEmailSent&&(identical(other.email, email) || other.email == email));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthPasswordResetEmailSent&&(identical(other.email, email) || other.email == email)&&(identical(other.attempt, attempt) || other.attempt == attempt));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,email);
+int get hashCode => Object.hash(runtimeType,email,attempt);
 
 @override
 String toString() {
-  return 'AuthState.passwordResetEmailSent(email: $email)';
+  return 'AuthState.passwordResetEmailSent(email: $email, attempt: $attempt)';
 }
 
 
@@ -954,7 +955,7 @@ abstract mixin class $AuthPasswordResetEmailSentCopyWith<$Res> implements $AuthS
   factory $AuthPasswordResetEmailSentCopyWith(AuthPasswordResetEmailSent value, $Res Function(AuthPasswordResetEmailSent) _then) = _$AuthPasswordResetEmailSentCopyWithImpl;
 @useResult
 $Res call({
- String email
+ String email, int attempt
 });
 
 
@@ -971,10 +972,11 @@ class _$AuthPasswordResetEmailSentCopyWithImpl<$Res>
 
 /// Create a copy of AuthState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? email = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? email = null,Object? attempt = null,}) {
   return _then(AuthPasswordResetEmailSent(
 email: null == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
-as String,
+as String,attempt: null == attempt ? _self.attempt : attempt // ignore: cast_nullable_to_non_nullable
+as int,
   ));
 }
 
@@ -985,10 +987,11 @@ as String,
 
 
 class AuthError implements AuthState {
-  const AuthError({required this.message});
+  const AuthError({required this.message, this.attempt = 0});
   
 
  final  String message;
+@JsonKey() final  int attempt;
 
 /// Create a copy of AuthState
 /// with the given fields replaced by the non-null parameter values.
@@ -1000,16 +1003,16 @@ $AuthErrorCopyWith<AuthError> get copyWith => _$AuthErrorCopyWithImpl<AuthError>
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthError&&(identical(other.message, message) || other.message == message));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthError&&(identical(other.message, message) || other.message == message)&&(identical(other.attempt, attempt) || other.attempt == attempt));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,message);
+int get hashCode => Object.hash(runtimeType,message,attempt);
 
 @override
 String toString() {
-  return 'AuthState.error(message: $message)';
+  return 'AuthState.error(message: $message, attempt: $attempt)';
 }
 
 
@@ -1020,7 +1023,7 @@ abstract mixin class $AuthErrorCopyWith<$Res> implements $AuthStateCopyWith<$Res
   factory $AuthErrorCopyWith(AuthError value, $Res Function(AuthError) _then) = _$AuthErrorCopyWithImpl;
 @useResult
 $Res call({
- String message
+ String message, int attempt
 });
 
 
@@ -1037,10 +1040,11 @@ class _$AuthErrorCopyWithImpl<$Res>
 
 /// Create a copy of AuthState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? message = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? message = null,Object? attempt = null,}) {
   return _then(AuthError(
 message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
-as String,
+as String,attempt: null == attempt ? _self.attempt : attempt // ignore: cast_nullable_to_non_nullable
+as int,
   ));
 }
 

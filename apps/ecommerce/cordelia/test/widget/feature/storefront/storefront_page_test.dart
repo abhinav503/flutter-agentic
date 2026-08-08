@@ -38,9 +38,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class _FakeGetHomeUseCase implements GetHomeUseCase {
   @override
   Future<Either<Failure, HomeEntity>> call(GetHomeParams params) async =>
-      right(
-        const HomeEntity(categories: [], popularProducts: [], banners: []),
-      );
+      right(const HomeEntity(categories: [], popularProducts: [], banners: []));
 }
 
 class _FakeGetCartUseCase implements GetCartUseCase {

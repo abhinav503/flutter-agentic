@@ -24,9 +24,9 @@ const nnbsp = '\u202F'; // narrow no-break space: French thousands separator
 void main() {
   setUpAll(AppFormat.init);
 
-  Map<String, dynamic> arb(String code) => jsonDecode(
-    File('lib/l10n/app_$code.arb').readAsStringSync(),
-  ) as Map<String, dynamic>;
+  Map<String, dynamic> arb(String code) =>
+      jsonDecode(File('lib/l10n/app_$code.arb').readAsStringSync())
+          as Map<String, dynamic>;
 
   List<String> keysOf(String code) =>
       arb(code).keys.where((k) => !k.startsWith('@')).toList();
@@ -90,14 +90,10 @@ void main() {
             File('../../../admin/src/lib/types.ts').readAsStringSync(),
           )!
           .group(1)!;
-      final codes = RegExp('"([a-z-]+)"')
-          .allMatches(admin)
-          .map((m) => m.group(1))
-          .toList();
-      expect(
-        codes,
-        StoreLanguage.values.map((l) => l.wireValue).toList(),
-      );
+      final codes = RegExp(
+        '"([a-z-]+)"',
+      ).allMatches(admin).map((m) => m.group(1)).toList();
+      expect(codes, StoreLanguage.values.map((l) => l.wireValue).toList());
     });
   });
 
@@ -353,7 +349,8 @@ void main() {
             expect(
               value as String,
               isNot(contains(' $mark')),
-              reason: '$key puts a no-break space before "$mark", which only '
+              reason:
+                  '$key puts a no-break space before "$mark", which only '
                   'French does',
             );
           }
