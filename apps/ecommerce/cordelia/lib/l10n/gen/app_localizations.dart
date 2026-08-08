@@ -3535,7 +3535,7 @@ abstract class AppLocalizations {
   /// No description provided for @grofastDeliveryAddressTitle.
   ///
   /// In en, this message translates to:
-  /// **'Delievery Address'**
+  /// **'Delivery Address'**
   String get grofastDeliveryAddressTitle;
 
   /// No description provided for @grofastAddNewLabel.

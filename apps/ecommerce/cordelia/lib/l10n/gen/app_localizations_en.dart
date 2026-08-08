@@ -1972,7 +1972,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get grofastItemsTitle => 'Items';
 
   @override
-  String get grofastDeliveryAddressTitle => 'Delievery Address';
+  String get grofastDeliveryAddressTitle => 'Delivery Address';
 
   @override
   String get grofastAddNewLabel => 'add new';

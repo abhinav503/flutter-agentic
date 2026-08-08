@@ -112,10 +112,9 @@ class _DiscoveryScreenState extends BaseScreenState<DiscoveryScreen> {
           AppSpacing.xl2 + MediaQuery.paddingOf(context).bottom,
         ),
         child: switch (state) {
-          DiscoveryLoading() => const Padding(
-            padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-            child: StoreListSkeleton(),
-          ),
+          // No gutter here: the skeleton insets each of its own sections, so
+          // its rail can bleed to the screen edge like the loaded one.
+          DiscoveryLoading() => const StoreListSkeleton(),
           DiscoveryError(:final message, :final query) => _centered(
             ErrorView(
               message: message,

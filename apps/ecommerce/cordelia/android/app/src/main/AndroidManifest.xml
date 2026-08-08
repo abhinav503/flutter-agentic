@@ -3,10 +3,15 @@
     <!-- Android 13+ runtime notification permission; firebase_messaging's
          requestPermission() is what raises the prompt. -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <!-- Edit Profile's "take a photo" avatar option. -->
     <uses-permission android:name="android.permission.CAMERA"/>
-    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
-        android:maxSdkVersion="32"/>
+    <!-- No READ_MEDIA_IMAGES / READ_EXTERNAL_STORAGE on purpose. The only
+         gallery read in the app is Edit Profile's avatar picker, which runs
+         through the Android Photo Picker (ImagePickerService opts in via
+         `useAndroidPhotoPicker`). The picker hands back a single URI the user
+         chose, so it needs no storage permission at all — and declaring one
+         anyway trips Google Play's Photo and Video Permissions policy, which
+         reserves it for apps with a frequent need. -->
     <!-- Address form's "use my location" prefill (geolocator). -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>

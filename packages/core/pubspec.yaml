@@ -22,6 +22,13 @@ dependencies:
 
   # Device utilities — core is the shared mobile toolbelt
   image_picker: ^1.1.2
+  # Imported directly by ImagePickerService to opt into the Android Photo
+  # Picker — the flag lives on the Android implementation class, so the
+  # federated plugin's own package has to be a direct dependency. Neither
+  # package touches dart:io, so this stays web-safe with no conditional
+  # import (see the platform-code rule in docs/ai-rules/conventions.md).
+  image_picker_android: ^0.8.13
+  image_picker_platform_interface: ^2.10.0
   # LocationService (device GPS; ships a web implementation, so no
   # conditional import needed)
   geolocator: ^14.0.2

@@ -54,7 +54,9 @@ class _CountingGetHomeUseCase implements GetHomeUseCase {
   @override
   Future<Either<Failure, HomeEntity>> call(GetHomeParams params) async {
     calls++;
-    return right(const HomeEntity(categories: [], popularProducts: [], banners: []));
+    return right(
+      const HomeEntity(categories: [], popularProducts: [], banners: []),
+    );
   }
 }
 
@@ -144,80 +146,90 @@ void main() {
     HomeBloc.resetCache();
   });
 
-  testWidgets('entering a storefront fetches home, cart and favourites once each', (
-    tester,
-  ) async {
-    final activeTheme = ActiveThemeController(AppThemeConfig.defaults);
-    final activeLocale = ActiveLocaleController();
-    final activeStore = ActiveStoreCubit();
-    addTearDown(activeTheme.dispose);
-    addTearDown(activeLocale.dispose);
-    addTearDown(activeStore.close);
+  testWidgets(
+    'entering a storefront fetches home, cart and favourites once each',
+    (tester) async {
+      final activeTheme = ActiveThemeController(AppThemeConfig.defaults);
+      final activeLocale = ActiveLocaleController();
+      final activeStore = ActiveStoreCubit();
+      addTearDown(activeTheme.dispose);
+      addTearDown(activeLocale.dispose);
+      addTearDown(activeStore.close);
 
-    await tester.pumpWidget(
-      MultiBlocProvider(
-        providers: [
-          BlocProvider(
-            create: (_) => CartCubit(
-              getCartUseCase: getCart,
-              saveCartUseCase: _FakeSaveCartUseCase(),
+      await tester.pumpWidget(
+        MultiBlocProvider(
+          providers: [
+            BlocProvider(
+              create: (_) => CartCubit(
+                getCartUseCase: getCart,
+                saveCartUseCase: _FakeSaveCartUseCase(),
+              ),
             ),
-          ),
-          BlocProvider(
-            create: (_) =>
-                CouponCubit(validateCouponUseCase: _FakeValidateCouponUseCase()),
-          ),
-          BlocProvider(
-            create: (_) => FavouritesCubit(
-              getFavouritesUseCase: getFavourites,
-              addFavouriteUseCase: _FakeAddFavouriteUseCase(),
-              removeFavouriteUseCase: _FakeRemoveFavouriteUseCase(),
+            BlocProvider(
+              create: (_) => CouponCubit(
+                validateCouponUseCase: _FakeValidateCouponUseCase(),
+              ),
             ),
-          ),
-          BlocProvider.value(value: activeStore),
-        ],
-        // Mirrors _AppState: BOTH the theme and the locale sit in
-        // ValueListenableBuilders above MaterialApp, and StorefrontPage
-        // notifies both after mount.
-        child: ValueListenableBuilder<AppThemeConfig>(
-          valueListenable: activeTheme,
-          builder: (context, config, _) => ValueListenableBuilder<Locale>(
-            valueListenable: activeLocale,
-            builder: (context, locale, _) => ActiveThemeScope(
-              controller: activeTheme,
-              child: ActiveLocaleScope(
-                controller: activeLocale,
-                child: MaterialApp(
-                  theme: AppTheme.fromConfig(config),
-                  locale: locale,
-                  home: const _DiscoveryStub(),
+            BlocProvider(
+              create: (_) => FavouritesCubit(
+                getFavouritesUseCase: getFavourites,
+                addFavouriteUseCase: _FakeAddFavouriteUseCase(),
+                removeFavouriteUseCase: _FakeRemoveFavouriteUseCase(),
+              ),
+            ),
+            BlocProvider.value(value: activeStore),
+          ],
+          // Mirrors _AppState: BOTH the theme and the locale sit in
+          // ValueListenableBuilders above MaterialApp, and StorefrontPage
+          // notifies both after mount.
+          child: ValueListenableBuilder<AppThemeConfig>(
+            valueListenable: activeTheme,
+            builder: (context, config, _) => ValueListenableBuilder<Locale>(
+              valueListenable: activeLocale,
+              builder: (context, locale, _) => ActiveThemeScope(
+                controller: activeTheme,
+                child: ActiveLocaleScope(
+                  controller: activeLocale,
+                  child: MaterialApp(
+                    theme: AppTheme.fromConfig(config),
+                    locale: locale,
+                    home: const _DiscoveryStub(),
+                  ),
                 ),
               ),
             ),
           ),
         ),
-      ),
-    );
+      );
 
-    tester.state<NavigatorState>(find.byType(Navigator)).push(
-      MaterialPageRoute<void>(builder: (_) => const StorefrontPage(store: _store)),
-    );
+      tester
+          .state<NavigatorState>(find.byType(Navigator))
+          .push(
+            MaterialPageRoute<void>(
+              builder: (_) => const StorefrontPage(store: _store),
+            ),
+          );
 
-    // Long enough for the route transition, the async template-theme asset
-    // load, and the post-frame locale apply to all have landed.
-    await tester.pump();
-    await tester.pump(const Duration(seconds: 2));
-    await tester.pump(const Duration(seconds: 2));
+      // Long enough for the route transition, the async template-theme asset
+      // load, and the post-frame locale apply to all have landed.
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 2));
+      await tester.pump(const Duration(seconds: 2));
 
-    expect(find.byType(ShellPage), findsOneWidget);
-    expect(tester.takeException(), isNull);
+      expect(find.byType(ShellPage), findsOneWidget);
+      expect(tester.takeException(), isNull);
 
-    expect(getCart.calls, 1, reason: 'cart hydrated more than once per visit');
-    expect(
-      getFavourites.calls,
-      1,
-      reason: 'favourites hydrated more than once per visit',
-    );
-    expect(getHome.calls, 1, reason: 'home loaded more than once per visit');
-  });
+      expect(
+        getCart.calls,
+        1,
+        reason: 'cart hydrated more than once per visit',
+      );
+      expect(
+        getFavourites.calls,
+        1,
+        reason: 'favourites hydrated more than once per visit',
+      );
+      expect(getHome.calls, 1, reason: 'home loaded more than once per visit');
+    },
+  );
 }

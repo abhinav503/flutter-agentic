@@ -5,9 +5,14 @@ import 'package:core/core/theme/app_theme.dart';
 import 'package:core/core/theme/app_theme_config.dart';
 import 'package:core/core/ui/atoms/text_field.dart';
 
+import 'package:core/core/services/shared_pref_service/shared_preference_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import 'package:cordelia/constants/cordelia_dimen_const.dart';
 import 'package:cordelia/constants/value_const.dart';
+import 'package:cordelia/feature/home/presentation/recent_stores_prefs.dart';
 import 'package:cordelia/feature/home/presentation/widgets/discovery_header.dart';
+import 'package:cordelia/feature/home/presentation/widgets/store_list_skeleton.dart';
 import 'package:cordelia/feature/storefront/profile/domain/entities/profile_entity.dart';
 import 'package:cordelia/widgets/cordelia_brand_mark.dart';
 
@@ -78,5 +83,37 @@ void main() {
 
     expect(find.byType(CordeliaBrandMark), findsOneWidget);
     expect(find.text(ValueConst.appTitle), findsOneWidget);
+  });
+
+  // A full rail is 6 tiles at an 84px pitch — 504px, wider than the content
+  // width of any phone. The skeleton's rail must scroll like the loaded one;
+  // as a bare Row it overflowed by 53px on a 411dp screen the moment a
+  // shopper had remembered six stores.
+  testWidgets('a full recents rail scrolls rather than overflowing', (
+    tester,
+  ) async {
+    SharedPreferences.setMockInitialValues(const {});
+    await SharedPreferenceService.instance.init();
+    for (var i = 0; i < kRecentStoresLimit; i++) {
+      await recordRecentStore('store-$i');
+    }
+    expect(readRecentStoreIds(), hasLength(kRecentStoresLimit));
+
+    tester.view.physicalSize = const Size(1080, 2400);
+    tester.view.devicePixelRatio = 2.625; // 411dp wide — a common phone.
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.fromConfig(AppThemeConfig.defaults),
+        home: const Scaffold(
+          body: SingleChildScrollView(child: StoreListSkeleton()),
+        ),
+      ),
+    );
+    await tester.pump();
+
+    expect(tester.takeException(), isNull);
   });
 }
