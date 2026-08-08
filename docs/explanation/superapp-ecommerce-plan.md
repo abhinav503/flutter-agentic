@@ -3563,8 +3563,9 @@ working**.
 - **At least one real live store** before the public listing: a reviewer
   opening the app to an empty discovery list is a rejection under minimum
   functionality.
-- Data safety form; iOS signing; the app-level theme is still the old purple
-  (`#7059FF` seed) against the new green mark; `support@` cannot yet send.
+- Data safety form; iOS signing; `support@` cannot yet send. *(The app-level
+  theme's purple/green clash is closed — see "Discovery + brand chrome"
+  below.)*
 
 ## Notifications — push + in-app centre, end-to-end — DONE (2026-08-08)
 
@@ -3835,3 +3836,89 @@ existing choice, not a notification bug.
 - **The feed doesn't page.** 50 per source is well past a scroll, and a chatty
   store can't push the platform's messages off the end because the cap is per
   source — but it is still a cap, not pagination.
+
+## Discovery + brand chrome — DONE (2026-08-08)
+
+The shopper's first two screens were the least designed in the app. Login
+and Discovery are the platform's own surfaces — they run before any store's
+template takes over — and neither had an identity of its own.
+
+### The theme was a colour, not a palette
+
+`assets/theme/theme_config.json` was an inlined copy of the shared `gravia`
+preset with `primary`/`onPrimary` swapped to `#7059FF`. Every other role —
+`primaryContainer` `#D0FBE8`, `secondary` `#0D9488`, `tintedPrimaryFill`
+`#ECFDF6` — was still gravia's mint/teal family, so a purple button sat above
+mint containers and a green brand mark.
+
+It is now a real palette derived from the mark's own gradient stops
+(`#007A60` → `#2DA987`, `assets/icons/cordelia-icon.svg`), light and dark.
+Dark keeps `primary` identical to light for the same reason gravia does: the
+header canvas and every filled button pair it with `onPrimary` white, and a
+lighter dark-mode primary breaks that contrast. `web/manifest.json`'s
+`theme_color` moved with it.
+
+The cost, accepted deliberately: gravia's own primary is `#027A60`, so the
+CordeliaApps shell now reads close to a gravia storefront. Tying the shell to
+its own mark beat tying it to a colour the mark contradicts — and the shell
+is only ever seen *outside* a store, never beside one.
+
+### The chrome's header and CTA are a gradient, not a role
+
+`#02291F` → `#027A60`, in `CordeliaColorConst`. Two orientations, and the
+difference is load-bearing rather than taste:
+
+- **Headers** ramp strictly top→bottom. `CollapsingHeaderSheet` paints
+  `headerColor` flat behind the sheet's rounded top corners, so only a
+  vertical ramp leaves the header's whole bottom edge at `#027A60` — any
+  diagonal parks one corner mid-gradient and seams visibly. Every screen
+  using it therefore passes `headerColor: brandGradientEnd`.
+- **Pill CTAs** ramp left→right. The same vertical ramp across a 45px pill
+  reads as a bevel on the control, not as a brand sweep.
+
+`HeaderCanvas` gained an optional `gradient` (flat `cs.primary` still the
+default, so no pack moved) with a gallery variant. `CordeliaPrimaryButton`
+gained one too — opt-in, *not* the default, because that widget is also
+`GraviaPrimaryButton` via typedef: defaulting it would repaint every gravia
+storefront's Cart, Address and Edit Profile CTA in the platform's brand
+instead of the store's. Only Login's Continue and Signup's Create Account
+pass it; the social buttons stay secondary and the resend link stays text.
+
+### The mark now reaches users who never see the splash
+
+It had exactly one consumer, the splash, which is gone in under a second.
+`CordeliaBrandMark` (`lib/widgets/`) is the mark on an `onPrimary` disc,
+optionally followed by the app name as live text. The disc is load-bearing,
+not decoration: the mark's greens are fixed (a gradient, not tintable), and
+the canvas it sits on is now the same green.
+
+It opens Login's header, shares Signup's back-button row (name-less — the
+title already says what the screen is), and opens Discovery's.
+
+### Discovery
+
+Was: an `AppTopBar`, a title, a `dense` search field about 40px tall, and a
+flat `ListView` of every store. Now the `HeaderCanvas` + `CollapsingHeaderSheet`
+composition the storefront packs already use —
+
+- **Header** — brand lockup and the shopper's avatar, a time-of-day greeting
+  by first name, and the search field on the canvas at a real 52px. The
+  greeting renders name-less until the profile resolves rather than flashing
+  a placeholder; `ProfileBloc` is hoisted to `DiscoveryPage` so it survives
+  every list rebuild.
+- **Body** — a "Jump back in" rail over "All stores". Both headers disappear
+  while a search is active: a result list is one flat answer to what was typed.
+
+### Recents are ids, not a cache
+
+`recent_stores_prefs.dart` stores up to six store **ids**, most-recent first;
+re-opening promotes rather than duplicates. The bloc resolves them against the
+store list it just loaded, so a renamed, restyled or removed store can never
+show a stale card — and there is no serialization of `StorefrontTemplate` /
+`StoreLanguage` / `StoreCurrency` to keep in sync. Recorded on the way *into* a
+storefront so the rail is already reordered on the way back out, and cleared
+by `signOutAndReturnToLogin` (which account deletion also runs) — which stores
+someone shops is personal.
+
+The loading skeleton reads the same prefs synchronously, so a first-time
+shopper doesn't get a shimmering rail that never arrives.

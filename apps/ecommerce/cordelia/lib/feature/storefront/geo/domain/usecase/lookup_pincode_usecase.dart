@@ -11,12 +11,12 @@ class LookupPincodeParams {
 }
 
 class LookupPincodeUseCase
-    extends
-        UseCase<Either<Failure, PincodeInfoEntity?>, LookupPincodeParams> {
+    extends UseCase<Either<Failure, PincodeInfoEntity?>, LookupPincodeParams> {
   final GeoRepository _repository;
   const LookupPincodeUseCase(this._repository);
 
   @override
-  Future<Either<Failure, PincodeInfoEntity?>> call(LookupPincodeParams params) =>
-      _repository.lookupPincode(params.pincode);
+  Future<Either<Failure, PincodeInfoEntity?>> call(
+    LookupPincodeParams params,
+  ) => _repository.lookupPincode(params.pincode);
 }

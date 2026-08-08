@@ -194,8 +194,7 @@ class _AppTextFieldState extends State<AppTextField> {
         ? (widget.focusedBorderColor ?? cs.primary)
         : cs.outline;
 
-    final shapes =
-        context.appShapes;
+    final shapes = context.appShapes;
     final radius =
         widget.borderRadius ?? BorderRadius.circular(shapes.inputRadius);
 

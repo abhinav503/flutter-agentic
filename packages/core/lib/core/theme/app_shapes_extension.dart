@@ -53,23 +53,22 @@ class AppShapes extends ThemeExtension<AppShapes> {
     double? cardRadius,
     double? inputRadius,
     double? sheetRadius,
-  }) =>
-      AppShapes(
-        buttonRadius: buttonRadius ?? this.buttonRadius,
-        chipRadius: chipRadius ?? this.chipRadius,
-        cardRadius: cardRadius ?? this.cardRadius,
-        inputRadius: inputRadius ?? this.inputRadius,
-        sheetRadius: sheetRadius ?? this.sheetRadius,
-      );
+  }) => AppShapes(
+    buttonRadius: buttonRadius ?? this.buttonRadius,
+    chipRadius: chipRadius ?? this.chipRadius,
+    cardRadius: cardRadius ?? this.cardRadius,
+    inputRadius: inputRadius ?? this.inputRadius,
+    sheetRadius: sheetRadius ?? this.sheetRadius,
+  );
 
   @override
   AppShapes lerp(AppShapes other, double t) => AppShapes(
-        buttonRadius: _lerp(buttonRadius, other.buttonRadius, t),
-        chipRadius: _lerp(chipRadius, other.chipRadius, t),
-        cardRadius: _lerp(cardRadius, other.cardRadius, t),
-        inputRadius: _lerp(inputRadius, other.inputRadius, t),
-        sheetRadius: _lerp(sheetRadius, other.sheetRadius, t),
-      );
+    buttonRadius: _lerp(buttonRadius, other.buttonRadius, t),
+    chipRadius: _lerp(chipRadius, other.chipRadius, t),
+    cardRadius: _lerp(cardRadius, other.cardRadius, t),
+    inputRadius: _lerp(inputRadius, other.inputRadius, t),
+    sheetRadius: _lerp(sheetRadius, other.sheetRadius, t),
+  );
 }
 
 /// The one way to read the theme's shapes — with the [AppShapes.standard]

@@ -37,9 +37,7 @@ class LocationService {
   Future<LocationResult> _resolve() async {
     try {
       if (!await Geolocator.isLocationServiceEnabled()) {
-        return const LocationUnavailable(
-          LocationFailureReason.serviceDisabled,
-        );
+        return const LocationUnavailable(LocationFailureReason.serviceDisabled);
       }
       var permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {

@@ -65,12 +65,18 @@ WidgetbookCategory moleculesCategory() {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     alignment: Alignment.center,
-                    child: Icon(Icons.image_outlined, color: cs.onSurfaceVariant),
+                    child: Icon(
+                      Icons.image_outlined,
+                      color: cs.onSurfaceVariant,
+                    ),
                   ),
                   title: 'Fresh Avocado',
                   titleMaxLines: 1,
                   subtitle: '₹4.99',
-                  trailing: Icon(Icons.chevron_right, color: cs.onSurfaceVariant),
+                  trailing: Icon(
+                    Icons.chevron_right,
+                    color: cs.onSurfaceVariant,
+                  ),
                   onTap: () {},
                 );
               },
@@ -112,16 +118,8 @@ WidgetbookCategory moleculesCategory() {
       allVariants(
         'ShimmerListRow',
         (context) => showcase(context, [
-          Variant(
-            'Single row',
-            const ShimmerListRow(),
-            width: 320,
-          ),
-          Variant(
-            'List of 3',
-            const ShimmerListRow(itemCount: 3),
-            width: 320,
-          ),
+          Variant('Single row', const ShimmerListRow(), width: 320),
+          Variant('List of 3', const ShimmerListRow(itemCount: 3), width: 320),
           Variant(
             'Trailing slot (trailingWidth: 48)',
             const ShimmerListRow(trailingWidth: 48),
@@ -176,9 +174,9 @@ WidgetbookCategory moleculesCategory() {
                 iconData: Icons.favorite_border,
                 iconColor: Theme.of(context).colorScheme.primary,
                 title: 'No favourites yet',
-                titleStyle: Theme.of(context).textTheme.titleLarge!.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
+                titleStyle: Theme.of(
+                  context,
+                ).textTheme.titleLarge!.copyWith(fontWeight: FontWeight.w700),
                 subtitle: 'Tap the heart on a product to save it here.',
                 padding: const EdgeInsets.all(AppSpacing.lg),
               ),
@@ -518,7 +516,11 @@ WidgetbookCategory moleculesCategory() {
                   fullWidth: true,
                   onTap: () {},
                 ),
-                second: AppButton(label: 'Remove', fullWidth: true, onTap: () {}),
+                second: AppButton(
+                  label: 'Remove',
+                  fullWidth: true,
+                  onTap: () {},
+                ),
               ),
             ),
             width: 320,
@@ -527,7 +529,11 @@ WidgetbookCategory moleculesCategory() {
             'Message only (title: null)',
             ConfirmSheetBody(
               message: 'Are you sure you want to log out?',
-              actions: AppButton(label: 'Log Out', fullWidth: true, onTap: () {}),
+              actions: AppButton(
+                label: 'Log Out',
+                fullWidth: true,
+                onTap: () {},
+              ),
             ),
             width: 320,
           ),

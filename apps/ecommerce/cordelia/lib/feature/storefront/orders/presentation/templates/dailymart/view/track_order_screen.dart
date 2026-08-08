@@ -166,9 +166,7 @@ class _TrackOrderScreenState extends BaseScreenState<TrackOrderScreen>
           body: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              DailyMartSectionHeader(
-                title: DailyMartValueConst.orderListLabel,
-              ),
+              DailyMartSectionHeader(title: DailyMartValueConst.orderListLabel),
               const SizedBox(height: AppSpacing.base),
               for (var i = 0; i < order.items.length; i++) ...[
                 if (i > 0) const SizedBox(height: AppSpacing.base),
@@ -192,9 +190,7 @@ class _TrackOrderScreenState extends BaseScreenState<TrackOrderScreen>
                 ),
               ],
               const SizedBox(height: AppSpacing.lg),
-              DailyMartSectionHeader(
-                title: DailyMartValueConst.paymentTitle,
-              ),
+              DailyMartSectionHeader(title: DailyMartValueConst.paymentTitle),
               const SizedBox(height: AppSpacing.xs),
               _DetailRow(
                 label: DailyMartValueConst.amountPaidLabel,

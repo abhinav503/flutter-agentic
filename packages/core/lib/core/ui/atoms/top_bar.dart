@@ -72,9 +72,9 @@ class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
     this.toolbarHeight = kToolbarHeight,
     this.bottomBorderColor,
     this.bottomBorderWidth = 0.5,
-  })  : showBackButton = false,
-        onBackTap = null,
-        leading = null;
+  }) : showBackButton = false,
+       onBackTap = null,
+       leading = null;
 
   /// Detail / inner screens — back button on the left.
   const AppTopBar.secondary({
@@ -89,8 +89,8 @@ class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
     this.toolbarHeight = kToolbarHeight,
     this.bottomBorderColor,
     this.bottomBorderWidth = 0.5,
-  })  : showBackButton = true,
-        leading = null;
+  }) : showBackButton = true,
+       leading = null;
 
   @override
   Widget build(BuildContext context) {
@@ -110,10 +110,8 @@ class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
       // Keep status-bar icons readable against the AppBar background.
       systemOverlayStyle: SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
-        statusBarIconBrightness:
-            isDark ? Brightness.light : Brightness.dark,
-        statusBarBrightness:
-            isDark ? Brightness.dark : Brightness.light,
+        statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
+        statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
       ),
       leading: _buildLeading(context, cs, bg),
       leadingWidth: showBackButton ? 48 : null,
@@ -121,15 +119,25 @@ class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
       actions: actions,
       bottom: bottom,
       shape: bottomBorderColor != null
-          ? Border(bottom: BorderSide(color: bottomBorderColor!, width: bottomBorderWidth))
+          ? Border(
+              bottom: BorderSide(
+                color: bottomBorderColor!,
+                width: bottomBorderWidth,
+              ),
+            )
           : null,
     );
   }
 
-  Widget? _buildLeading(BuildContext context, ColorScheme cs, Color effectiveBg) {
+  Widget? _buildLeading(
+    BuildContext context,
+    ColorScheme cs,
+    Color effectiveBg,
+  ) {
     if (leading != null) return leading;
     if (!showBackButton) return null;
-    final iconColor = ThemeData.estimateBrightnessForColor(effectiveBg) == Brightness.dark
+    final iconColor =
+        ThemeData.estimateBrightnessForColor(effectiveBg) == Brightness.dark
         ? cs.onInverseSurface
         : cs.onSurface;
     return IconButton(
@@ -143,14 +151,14 @@ class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
     if (titleWidget != null) return titleWidget;
     if (title == null || title!.isEmpty) return null;
     // Pick the foreground colour that M3 guarantees readable on effectiveBg.
-    final fg = ThemeData.estimateBrightnessForColor(effectiveBg) == Brightness.dark
+    final fg =
+        ThemeData.estimateBrightnessForColor(effectiveBg) == Brightness.dark
         ? cs.onInverseSurface
         : cs.onSurface;
     return Text(title!, style: tt.titleLarge!.copyWith(color: fg));
   }
 
   @override
-  Size get preferredSize => Size.fromHeight(
-        toolbarHeight + (bottom?.preferredSize.height ?? 0),
-      );
+  Size get preferredSize =>
+      Size.fromHeight(toolbarHeight + (bottom?.preferredSize.height ?? 0));
 }

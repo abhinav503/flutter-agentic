@@ -113,8 +113,7 @@ class AppRadioRow extends StatelessWidget {
             const SizedBox(width: AppSpacing.base),
             Text(
               label,
-              style:
-                  labelStyle ?? tt.bodyLarge!.copyWith(color: cs.onSurface),
+              style: labelStyle ?? tt.bodyLarge!.copyWith(color: cs.onSurface),
             ),
           ],
         ),

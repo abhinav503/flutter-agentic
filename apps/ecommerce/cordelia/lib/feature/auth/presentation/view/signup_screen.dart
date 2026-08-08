@@ -13,6 +13,7 @@ import 'package:core/core/ui/atoms/inline_text_link.dart';
 import 'package:core/core/ui/blocks/collapsing_header_sheet.dart';
 
 import 'package:cordelia/constants/app_routes.dart';
+import 'package:cordelia/constants/cordelia_color_const.dart';
 import 'package:cordelia/constants/cordelia_dimen_const.dart';
 import 'package:cordelia/constants/cordelia_text_style_const.dart';
 import 'package:cordelia/constants/value_const.dart';
@@ -103,6 +104,8 @@ class _SignupScreenState extends BaseScreenState<SignupScreen>
       },
       child: CollapsingHeaderSheet(
         initialHeaderHeight: CordeliaDimenConst.authHeaderHeightSignup,
+        // The colour the header's gradient ends on — see LoginScreen.
+        headerColor: CordeliaColorConst.brandGradientEnd,
         header: SignupHeader(onBack: () => context.pop()),
         body: Padding(
           // The sheet's scroll content bleeds to the device edge, so the last
@@ -206,6 +209,7 @@ class _SignupScreenState extends BaseScreenState<SignupScreen>
                   const SizedBox(height: AppSpacing.xl2),
                   CordeliaPrimaryButton(
                     label: ValueConst.signupButtonLabel,
+                    gradient: CordeliaColorConst.brandButtonGradient,
                     state: isLoading
                         ? AppButtonState.loading
                         : AppButtonState.idle,

@@ -35,7 +35,9 @@ class LoggingInterceptor extends Interceptor {
       }
       if (err.response?.data != null) {
         final body = err.response!.data.toString();
-        debugPrint('[ERR] body: ${body.length > 400 ? '${body.substring(0, 400)}…' : body}');
+        debugPrint(
+          '[ERR] body: ${body.length > 400 ? '${body.substring(0, 400)}…' : body}',
+        );
       }
     }
     handler.next(err);

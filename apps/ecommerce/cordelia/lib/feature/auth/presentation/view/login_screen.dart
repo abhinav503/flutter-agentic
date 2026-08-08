@@ -13,6 +13,7 @@ import 'package:core/core/ui/atoms/svg_image.dart';
 import 'package:core/core/ui/blocks/collapsing_header_sheet.dart';
 
 import 'package:cordelia/constants/app_routes.dart';
+import 'package:cordelia/constants/cordelia_color_const.dart';
 import 'package:cordelia/constants/cordelia_dimen_const.dart';
 import 'package:cordelia/constants/image_const.dart';
 import 'package:cordelia/constants/cordelia_text_style_const.dart';
@@ -111,6 +112,10 @@ class _LoginScreenState extends BaseScreenState<LoginScreen>
           Expanded(
             child: CollapsingHeaderSheet(
               initialHeaderHeight: CordeliaDimenConst.authHeaderHeightLogin,
+              // The colour the header's gradient ends on — this is painted
+              // flat behind the sheet's rounded top corners, so anything else
+              // draws a hard line right under the header.
+              headerColor: CordeliaColorConst.brandGradientEnd,
               header: const LoginHeader(),
               body: Padding(
                 padding: const EdgeInsets.fromLTRB(
@@ -159,6 +164,7 @@ class _LoginScreenState extends BaseScreenState<LoginScreen>
                         const SizedBox(height: AppSpacing.lg),
                         CordeliaPrimaryButton(
                           label: ValueConst.continueLabel,
+                          gradient: CordeliaColorConst.brandButtonGradient,
                           state: isLoading
                               ? AppButtonState.loading
                               : AppButtonState.idle,

@@ -170,6 +170,17 @@ abstract final class ValueConst {
   static const discoveryEmptyTitle = 'No stores found';
   static const discoveryEmptySubtitle =
       'Try a different search, or check back soon as more stores join.';
+  static const discoveryPrompt = 'Where are you shopping today?';
+  static const discoveryRecentTitle = 'Jump back in';
+  static const discoveryAllStoresTitle = 'All stores';
+
+  // Greeting halves are separate so the name can be omitted entirely before
+  // the profile resolves — a placeholder name would flash and then change.
+  static const discoveryGreetingMorning = 'Good morning';
+  static const discoveryGreetingAfternoon = 'Good afternoon';
+  static const discoveryGreetingEvening = 'Good evening';
+  static String discoveryGreeting(String greeting, String? name) =>
+      name == null || name.isEmpty ? greeting : '$greeting, $name';
 
   // ── Profile ────────────────────────────────────────────────────────────────
   static String get profilePageTitle => L10n.current.profilePageTitle;

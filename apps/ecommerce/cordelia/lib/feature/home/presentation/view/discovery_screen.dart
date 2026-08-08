@@ -1,22 +1,30 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:core/core/base/base_screen.dart';
 import 'package:core/core/theme/app_spacing.dart';
-import 'package:core/core/ui/atoms/text_field.dart';
+import 'package:core/core/ui/blocks/collapsing_header_sheet.dart';
+import 'package:core/core/ui/blocks/section_header.dart';
+import 'package:core/core/ui/blocks/section_rail.dart';
 import 'package:core/core/ui/molecules/empty_state.dart';
 import 'package:core/core/ui/molecules/error_view.dart';
 
 import 'package:cordelia/constants/app_routes.dart';
+import 'package:cordelia/constants/cordelia_color_const.dart';
+import 'package:cordelia/constants/cordelia_dimen_const.dart';
 import 'package:cordelia/constants/value_const.dart';
 import 'package:cordelia/feature/storefront/active_store/domain/entities/active_store_entity.dart';
 import 'package:cordelia/feature/storefront/presentation/view/storefront_page.dart';
+import 'package:cordelia/feature/storefront/profile/presentation/bloc/profile_bloc.dart';
 import 'package:cordelia/services/notification/firebase_messaging_service.dart';
 
 import '../../domain/entities/store_entity.dart';
 import '../bloc/discovery_bloc.dart';
+import '../widgets/discovery_header.dart';
+import '../widgets/recent_store_tile.dart';
 import '../widgets/store_card.dart';
 import '../widgets/store_list_skeleton.dart';
 
@@ -49,83 +57,140 @@ class _DiscoveryScreenState extends BaseScreenState<DiscoveryScreen> {
     super.dispose();
   }
 
-  void _openStore(StoreEntity store) => context.push(
-    AppRoutes.storefront,
-    extra: StorefrontRouteArgs(
-      store: ActiveStoreEntity(
-        storeId: store.id,
-        storeName: store.name,
-        templateId: store.templateId,
-        language: store.language,
-        currency: store.currency,
+  // The header canvas runs under the status bar.
+  @override
+  SystemUiOverlayStyle? overlayStyle(BuildContext context) =>
+      BaseScreenState.lightStatusIcons;
+
+  void _openStore(StoreEntity store) {
+    // Recorded before the push, so the rail is already reordered underneath
+    // by the time the shopper comes back out of the storefront.
+    context.read<DiscoveryBloc>().add(
+      DiscoveryEvent.storeOpened(storeId: store.id),
+    );
+    context.push(
+      AppRoutes.storefront,
+      extra: StorefrontRouteArgs(
+        store: ActiveStoreEntity(
+          storeId: store.id,
+          storeName: store.name,
+          templateId: store.templateId,
+          language: store.language,
+          currency: store.currency,
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget body(BuildContext context) => CollapsingHeaderSheet(
+    initialHeaderHeight: CordeliaDimenConst.discoveryHeaderHeight,
+    // The colour the header's gradient ends on — this is painted flat behind
+    // the sheet's rounded top corners, so anything else draws a hard line
+    // right under the header.
+    headerColor: CordeliaColorConst.brandGradientEnd,
+    header: BlocBuilder<ProfileBloc, ProfileState>(
+      builder: (context, state) => DiscoveryHeader(
+        profile: switch (state) {
+          ProfileLoaded(:final profile) => profile,
+          ProfileLoading() || ProfileError() => null,
+        },
+        searchController: _searchController,
+        onQueryChanged: (query) => context.read<DiscoveryBloc>().add(
+          DiscoveryEvent.queryChanged(query: query),
+        ),
+      ),
+    ),
+    body: BlocBuilder<DiscoveryBloc, DiscoveryState>(
+      builder: (context, state) => Padding(
+        // The sheet bleeds to the device edge, so every arm below pays its
+        // own bottom inset here rather than each re-adding one.
+        padding: EdgeInsets.fromLTRB(
+          0,
+          AppSpacing.xl2,
+          0,
+          AppSpacing.xl2 + MediaQuery.paddingOf(context).bottom,
+        ),
+        child: switch (state) {
+          DiscoveryLoading() => const Padding(
+            padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+            child: StoreListSkeleton(),
+          ),
+          DiscoveryError(:final message, :final query) => _centered(
+            ErrorView(
+              message: message,
+              onRetry: () => context.read<DiscoveryBloc>().add(
+                DiscoveryEvent.queryChanged(query: query),
+              ),
+            ),
+          ),
+          DiscoveryEmpty() => _centered(
+            EmptyState(
+              iconData: Icons.storefront_outlined,
+              title: ValueConst.discoveryEmptyTitle,
+              subtitle: ValueConst.discoveryEmptySubtitle,
+            ),
+          ),
+          DiscoveryLoaded(:final stores, :final recentStores) => _content(
+            stores: stores,
+            recentStores: recentStores,
+          ),
+        },
       ),
     ),
   );
 
-  @override
-  Widget body(BuildContext context) {
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(
-          AppSpacing.lg,
-          AppSpacing.lg,
-          AppSpacing.lg,
-          0,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              ValueConst.discoveryTitle,
-              style: Theme.of(context).textTheme.headlineSmall!.copyWith(
-                color: Theme.of(context).colorScheme.onSurface,
-                fontWeight: FontWeight.w700,
-              ),
+  /// Error and empty are short blocks in a sheet tall enough to hold a full
+  /// list — without breathing room they cling to the sheet's top edge.
+  Widget _centered(Widget child) => Padding(
+    padding: const EdgeInsets.fromLTRB(
+      AppSpacing.lg,
+      AppSpacing.xl10,
+      AppSpacing.lg,
+      AppSpacing.xl10,
+    ),
+    child: child,
+  );
+
+  Widget _content({
+    required List<StoreEntity> stores,
+    required List<StoreEntity> recentStores,
+  }) {
+    // A search result is one flat answer to what was typed — no section
+    // headers, and the recents rail is already suppressed by the bloc.
+    final isBrowsing = recentStores.isNotEmpty;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (isBrowsing) ...[
+          SectionRail(
+            header: const SectionHeader(title: ValueConst.discoveryRecentTitle),
+            itemCount: recentStores.length,
+            itemBuilder: (context, i) => RecentStoreTile(
+              store: recentStores[i],
+              onTap: () => _openStore(recentStores[i]),
             ),
-            const SizedBox(height: AppSpacing.base),
-            AppTextField(
-              controller: _searchController,
-              hint: ValueConst.discoverySearchHint,
-              dense: true,
-              prefix: const Padding(
-                padding: EdgeInsets.symmetric(horizontal: AppSpacing.base),
-                child: Icon(Icons.search),
-              ),
-              onChanged: (query) => context.read<DiscoveryBloc>().add(
-                DiscoveryEvent.queryChanged(query: query),
-              ),
+            crossAxisAlignment: CrossAxisAlignment.start,
+          ),
+          const SizedBox(height: AppSpacing.xl4),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+            child: SectionHeader(title: ValueConst.discoveryAllStoresTitle),
+          ),
+          const SizedBox(height: AppSpacing.base),
+        ],
+        for (var i = 0; i < stores.length; i++) ...[
+          if (i > 0) const SizedBox(height: AppSpacing.base),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+            child: StoreCard(
+              store: stores[i],
+              onTap: () => _openStore(stores[i]),
             ),
-            const SizedBox(height: AppSpacing.lg),
-            Expanded(
-              child: BlocBuilder<DiscoveryBloc, DiscoveryState>(
-                builder: (context, state) => switch (state) {
-                  DiscoveryLoading() => const StoreListSkeleton(),
-                  DiscoveryError(:final message, :final query) => ErrorView(
-                    message: message,
-                    onRetry: () => context.read<DiscoveryBloc>().add(
-                      DiscoveryEvent.queryChanged(query: query),
-                    ),
-                  ),
-                  DiscoveryEmpty() => EmptyState(
-                    iconData: Icons.storefront_outlined,
-                    title: ValueConst.discoveryEmptyTitle,
-                    subtitle: ValueConst.discoveryEmptySubtitle,
-                  ),
-                  DiscoveryLoaded(:final stores) => ListView.separated(
-                    itemCount: stores.length,
-                    separatorBuilder: (_, _) =>
-                        const SizedBox(height: AppSpacing.base),
-                    itemBuilder: (context, i) => StoreCard(
-                      store: stores[i],
-                      onTap: () => _openStore(stores[i]),
-                    ),
-                  ),
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
+          ),
+        ],
+      ],
     );
   }
 }

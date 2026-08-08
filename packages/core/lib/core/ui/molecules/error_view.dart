@@ -54,7 +54,8 @@ class ErrorView extends StatelessWidget {
             Text(
               message,
               textAlign: TextAlign.center,
-              style: messageStyle ?? tt.bodyMedium!.copyWith(color: cs.onSurface),
+              style:
+                  messageStyle ?? tt.bodyMedium!.copyWith(color: cs.onSurface),
             ),
             if (action != null) ...[
               const SizedBox(height: AppSpacing.base),

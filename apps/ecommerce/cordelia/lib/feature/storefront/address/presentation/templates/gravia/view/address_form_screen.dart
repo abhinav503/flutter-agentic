@@ -167,10 +167,9 @@ class _AddressFormScreenState extends BaseScreenState<AddressFormScreen>
                     label: GraviaValueConst.addressSearchLabel,
                     controller: _searchController,
                     hint: GraviaValueConst.addressSearchHint,
-                    onChanged: (query) =>
-                        context.read<AddressLookupBloc>().add(
-                          AddressLookupEvent.queryChanged(query: query),
-                        ),
+                    onChanged: (query) => context.read<AddressLookupBloc>().add(
+                      AddressLookupEvent.queryChanged(query: query),
+                    ),
                   ),
                   if (lookupState case AddressLookupSuggestions(
                     :final suggestions,

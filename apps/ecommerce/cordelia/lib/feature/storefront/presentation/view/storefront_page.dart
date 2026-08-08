@@ -115,10 +115,7 @@ class _StorefrontPageState extends BasePageState<StorefrontPage> {
     final effective =
         StoreLocalePrefs.overrideFor(widget.store.storeId) ??
         widget.store.language;
-    _activeLocale?.apply(
-      effective.asLocale,
-      currency: widget.store.currency,
-    );
+    _activeLocale?.apply(effective.asLocale, currency: widget.store.currency);
   }
 
   Future<void> _applyTemplateTheme() async {

@@ -55,7 +55,8 @@ class AppGlassChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fg = foregroundColor ??
+    final fg =
+        foregroundColor ??
         Theme.of(context).extension<AppColorsExtension>()!.onOverlay;
 
     return GestureDetector(
@@ -75,20 +76,25 @@ class AppGlassChip extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 if (leading != null) ...[
-                  IconTheme(data: IconThemeData(color: fg, size: 16), child: leading!),
+                  IconTheme(
+                    data: IconThemeData(color: fg, size: 16),
+                    child: leading!,
+                  ),
                   const SizedBox(width: AppSpacing.xs3),
                 ],
-                if (leading == null) ...[
-                  const SizedBox(width: AppSpacing.xs3),
-                ],
+                if (leading == null) ...[const SizedBox(width: AppSpacing.xs3)],
                 Text(
                   label,
-                  style: (labelStyle ?? Theme.of(context).textTheme.labelMedium)!
-                      .copyWith(color: fg),
+                  style:
+                      (labelStyle ?? Theme.of(context).textTheme.labelMedium)!
+                          .copyWith(color: fg),
                 ),
                 if (trailing != null) ...[
                   const SizedBox(width: AppSpacing.xs4),
-                  IconTheme(data: IconThemeData(color: fg, size: 18), child: trailing!),
+                  IconTheme(
+                    data: IconThemeData(color: fg, size: 18),
+                    child: trailing!,
+                  ),
                 ],
               ],
             ),

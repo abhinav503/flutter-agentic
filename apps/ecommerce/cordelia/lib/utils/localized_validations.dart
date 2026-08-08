@@ -20,8 +20,7 @@ mixin LocalizedValidations on TextfieldValidations {
   @override
   String? validateEmail(String value) => switch (super.validateEmail(value)) {
     null => null,
-    CoreConst.emailRequiredErrorMessage =>
-      L10n.current.validationEmailRequired,
+    CoreConst.emailRequiredErrorMessage => L10n.current.validationEmailRequired,
     _ => L10n.current.validationEmailInvalid,
   };
 
@@ -34,14 +33,13 @@ mixin LocalizedValidations on TextfieldValidations {
   };
 
   @override
-  String? validatePassword(String value) => switch (super.validatePassword(
-    value,
-  )) {
-    null => null,
-    CoreConst.passwordRequiredErrorMessage =>
-      L10n.current.validationPasswordRequired,
-    _ => L10n.current.validationWeakPassword,
-  };
+  String? validatePassword(String value) =>
+      switch (super.validatePassword(value)) {
+        null => null,
+        CoreConst.passwordRequiredErrorMessage =>
+          L10n.current.validationPasswordRequired,
+        _ => L10n.current.validationWeakPassword,
+      };
 
   @override
   String? validateConfirmPassword(String value, String original) =>

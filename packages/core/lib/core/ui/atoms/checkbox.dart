@@ -35,10 +35,7 @@ class AppCheckbox extends StatelessWidget {
             ? BorderRadius.circular(4)
             : null,
         color: value ? cs.primary : Colors.transparent,
-        border: Border.all(
-          color: value ? cs.primary : cs.outline,
-          width: 2,
-        ),
+        border: Border.all(color: value ? cs.primary : cs.outline, width: 2),
       ),
       child: value && showCheckIcon
           ? Icon(Icons.check, size: size * 0.64, color: cs.onPrimary)

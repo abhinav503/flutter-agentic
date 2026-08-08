@@ -29,7 +29,8 @@ class _LoadingDotsState extends State<LoadingDots>
 
   @override
   Widget build(BuildContext context) {
-    final color = widget.color ?? Theme.of(context).colorScheme.onSurfaceVariant;
+    final color =
+        widget.color ?? Theme.of(context).colorScheme.onSurfaceVariant;
     return SizedBox(
       height: AppSpacing.lg,
       child: AnimatedBuilder(

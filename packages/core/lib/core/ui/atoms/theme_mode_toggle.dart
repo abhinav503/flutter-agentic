@@ -17,23 +17,19 @@ class ThemeModeToggle extends StatelessWidget {
   Widget build(BuildContext context) {
     final (IconData icon, String tooltip) = switch (mode) {
       ThemeMode.system => (
-          Icons.brightness_auto_outlined,
-          CoreConst.themeModeSystemTooltip,
-        ),
+        Icons.brightness_auto_outlined,
+        CoreConst.themeModeSystemTooltip,
+      ),
       ThemeMode.light => (
-          Icons.light_mode_outlined,
-          CoreConst.themeModeLightTooltip,
-        ),
+        Icons.light_mode_outlined,
+        CoreConst.themeModeLightTooltip,
+      ),
       ThemeMode.dark => (
-          Icons.dark_mode_outlined,
-          CoreConst.themeModeDarkTooltip,
-        ),
+        Icons.dark_mode_outlined,
+        CoreConst.themeModeDarkTooltip,
+      ),
     };
 
-    return IconButton(
-      onPressed: onTap,
-      icon: Icon(icon),
-      tooltip: tooltip,
-    );
+    return IconButton(onPressed: onTap, icon: Icon(icon), tooltip: tooltip);
   }
 }

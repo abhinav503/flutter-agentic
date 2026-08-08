@@ -120,13 +120,15 @@ class AppMenuTile extends StatelessWidget {
       ],
     );
 
-    final decorated = backgroundColor != null ||
+    final decorated =
+        backgroundColor != null ||
             borderColor != null ||
             borderRadius != null ||
             height != null
         ? Container(
             height: height,
-            padding: padding ??
+            padding:
+                padding ??
                 const EdgeInsets.symmetric(horizontal: AppSpacing.base),
             decoration: BoxDecoration(
               color: backgroundColor,
@@ -138,8 +140,8 @@ class AppMenuTile extends StatelessWidget {
             child: row,
           )
         : Padding(
-            padding: padding ??
-                const EdgeInsets.symmetric(vertical: AppSpacing.sm),
+            padding:
+                padding ?? const EdgeInsets.symmetric(vertical: AppSpacing.sm),
             child: row,
           );
 

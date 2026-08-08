@@ -94,24 +94,24 @@ class AppColorsExtension extends ThemeExtension<AppColorsExtension> {
 
   /// Default light-mode values.
   static const AppColorsExtension light = AppColorsExtension(
-    successContainer:   Color(0xFFD4EDDA),
+    successContainer: Color(0xFFD4EDDA),
     onSuccessContainer: Color(0xFF155724),
-    warningContainer:   Color(0xFFFFF3CD),
+    warningContainer: Color(0xFFFFF3CD),
     onWarningContainer: Color(0xFF856404),
   );
 
   /// Default dark-mode values.
   static const AppColorsExtension dark = AppColorsExtension(
-    successContainer:   Color(0xFF1B4332),
+    successContainer: Color(0xFF1B4332),
     onSuccessContainer: Color(0xFF8DD5B2),
-    warningContainer:   Color(0xFF3D2C00),
+    warningContainer: Color(0xFF3D2C00),
     onWarningContainer: Color(0xFFFFD60A),
-    tintedPrimaryFill:  Color(0x336750A4),
-    dockedHairline:     Color(0x33FFFFFF),
-    sheetHairline:      Color(0x33FFFFFF),
-    tintedErrorFill:    Color(0x33B3261E),
-    fieldFill:          Color(0xFF2A2A2A),
-    canvas:             Color(0xFF121212),
+    tintedPrimaryFill: Color(0x336750A4),
+    dockedHairline: Color(0x33FFFFFF),
+    sheetHairline: Color(0x33FFFFFF),
+    tintedErrorFill: Color(0x33B3261E),
+    fieldFill: Color(0xFF2A2A2A),
+    canvas: Color(0xFF121212),
   );
 
   @override
@@ -128,38 +128,51 @@ class AppColorsExtension extends ThemeExtension<AppColorsExtension> {
     Color? tintedErrorFill,
     Color? fieldFill,
     Color? canvas,
-  }) =>
-      AppColorsExtension(
-        successContainer:   successContainer   ?? this.successContainer,
-        onSuccessContainer: onSuccessContainer ?? this.onSuccessContainer,
-        warningContainer:   warningContainer   ?? this.warningContainer,
-        onWarningContainer: onWarningContainer ?? this.onWarningContainer,
-        onOverlay:          onOverlay          ?? this.onOverlay,
-        tintedPrimaryFill:  tintedPrimaryFill  ?? this.tintedPrimaryFill,
-        dockedHairline:     dockedHairline     ?? this.dockedHairline,
-        sheetHairline:      sheetHairline      ?? this.sheetHairline,
-        onSheetMuted:       onSheetMuted       ?? this.onSheetMuted,
-        tintedErrorFill:    tintedErrorFill    ?? this.tintedErrorFill,
-        fieldFill:          fieldFill          ?? this.fieldFill,
-        canvas:             canvas             ?? this.canvas,
-      );
+  }) => AppColorsExtension(
+    successContainer: successContainer ?? this.successContainer,
+    onSuccessContainer: onSuccessContainer ?? this.onSuccessContainer,
+    warningContainer: warningContainer ?? this.warningContainer,
+    onWarningContainer: onWarningContainer ?? this.onWarningContainer,
+    onOverlay: onOverlay ?? this.onOverlay,
+    tintedPrimaryFill: tintedPrimaryFill ?? this.tintedPrimaryFill,
+    dockedHairline: dockedHairline ?? this.dockedHairline,
+    sheetHairline: sheetHairline ?? this.sheetHairline,
+    onSheetMuted: onSheetMuted ?? this.onSheetMuted,
+    tintedErrorFill: tintedErrorFill ?? this.tintedErrorFill,
+    fieldFill: fieldFill ?? this.fieldFill,
+    canvas: canvas ?? this.canvas,
+  );
 
   @override
-  AppColorsExtension lerp(AppColorsExtension other, double t) =>
-      AppColorsExtension(
-        successContainer:   Color.lerp(successContainer,   other.successContainer,   t)!,
-        onSuccessContainer: Color.lerp(onSuccessContainer, other.onSuccessContainer, t)!,
-        warningContainer:   Color.lerp(warningContainer,   other.warningContainer,   t)!,
-        onWarningContainer: Color.lerp(onWarningContainer, other.onWarningContainer, t)!,
-        onOverlay:          Color.lerp(onOverlay,          other.onOverlay,          t)!,
-        tintedPrimaryFill:  Color.lerp(tintedPrimaryFill,  other.tintedPrimaryFill,  t)!,
-        dockedHairline:     Color.lerp(dockedHairline,     other.dockedHairline,     t)!,
-        sheetHairline:      Color.lerp(sheetHairline,      other.sheetHairline,      t)!,
-        onSheetMuted:       Color.lerp(onSheetMuted,       other.onSheetMuted,       t)!,
-        tintedErrorFill:    Color.lerp(tintedErrorFill,    other.tintedErrorFill,    t)!,
-        fieldFill:          Color.lerp(fieldFill,          other.fieldFill,          t)!,
-        canvas:             Color.lerp(canvas,             other.canvas,             t)!,
-      );
+  AppColorsExtension lerp(
+    AppColorsExtension other,
+    double t,
+  ) => AppColorsExtension(
+    successContainer: Color.lerp(successContainer, other.successContainer, t)!,
+    onSuccessContainer: Color.lerp(
+      onSuccessContainer,
+      other.onSuccessContainer,
+      t,
+    )!,
+    warningContainer: Color.lerp(warningContainer, other.warningContainer, t)!,
+    onWarningContainer: Color.lerp(
+      onWarningContainer,
+      other.onWarningContainer,
+      t,
+    )!,
+    onOverlay: Color.lerp(onOverlay, other.onOverlay, t)!,
+    tintedPrimaryFill: Color.lerp(
+      tintedPrimaryFill,
+      other.tintedPrimaryFill,
+      t,
+    )!,
+    dockedHairline: Color.lerp(dockedHairline, other.dockedHairline, t)!,
+    sheetHairline: Color.lerp(sheetHairline, other.sheetHairline, t)!,
+    onSheetMuted: Color.lerp(onSheetMuted, other.onSheetMuted, t)!,
+    tintedErrorFill: Color.lerp(tintedErrorFill, other.tintedErrorFill, t)!,
+    fieldFill: Color.lerp(fieldFill, other.fieldFill, t)!,
+    canvas: Color.lerp(canvas, other.canvas, t)!,
+  );
 }
 
 /// Sugar for the lookup every call site was already spelling by hand —

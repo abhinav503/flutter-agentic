@@ -19,8 +19,7 @@ class HttpService {
     String url, {
     Map<String, dynamic>? queryParameters,
     Options? options,
-  }) =>
-      _dio.get<T>(url, queryParameters: queryParameters, options: options);
+  }) => _dio.get<T>(url, queryParameters: queryParameters, options: options);
 
   Future<Response<T>> post<T>(
     String url, {
@@ -28,15 +27,14 @@ class HttpService {
     Map<String, dynamic>? queryParameters,
     Map<String, dynamic>? headers,
     Options? options,
-  }) =>
-      _dio.post<T>(
-        url,
-        data: data,
-        queryParameters: queryParameters,
-        options: headers != null
-            ? (options ?? Options()).copyWith(headers: headers)
-            : options,
-      );
+  }) => _dio.post<T>(
+    url,
+    data: data,
+    queryParameters: queryParameters,
+    options: headers != null
+        ? (options ?? Options()).copyWith(headers: headers)
+        : options,
+  );
 
   Future<Response<T>> put<T>(
     String url, {
@@ -44,15 +42,14 @@ class HttpService {
     Map<String, dynamic>? queryParameters,
     Map<String, dynamic>? headers,
     Options? options,
-  }) =>
-      _dio.put<T>(
-        url,
-        data: data,
-        queryParameters: queryParameters,
-        options: headers != null
-            ? (options ?? Options()).copyWith(headers: headers)
-            : options,
-      );
+  }) => _dio.put<T>(
+    url,
+    data: data,
+    queryParameters: queryParameters,
+    options: headers != null
+        ? (options ?? Options()).copyWith(headers: headers)
+        : options,
+  );
 
   Future<Response<T>> delete<T>(
     String url, {
@@ -60,15 +57,14 @@ class HttpService {
     Map<String, dynamic>? queryParameters,
     Map<String, dynamic>? headers,
     Options? options,
-  }) =>
-      _dio.delete<T>(
-        url,
-        data: data,
-        queryParameters: queryParameters,
-        options: headers != null
-            ? (options ?? Options()).copyWith(headers: headers)
-            : options,
-      );
+  }) => _dio.delete<T>(
+    url,
+    data: data,
+    queryParameters: queryParameters,
+    options: headers != null
+        ? (options ?? Options()).copyWith(headers: headers)
+        : options,
+  );
 
   /// Streaming POST for server-sent events (SSE) and other chunked responses.
   ///
@@ -80,14 +76,13 @@ class HttpService {
     String url, {
     dynamic data,
     Map<String, dynamic>? headers,
-  }) =>
-      _dio.post<ResponseBody>(
-        url,
-        data: data,
-        options: Options(
-          responseType: ResponseType.stream,
-          receiveTimeout: const Duration(minutes: 5),
-          headers: headers,
-        ),
-      );
+  }) => _dio.post<ResponseBody>(
+    url,
+    data: data,
+    options: Options(
+      responseType: ResponseType.stream,
+      receiveTimeout: const Duration(minutes: 5),
+      headers: headers,
+    ),
+  );
 }

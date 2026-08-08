@@ -24,11 +24,7 @@ class AppDialog extends StatelessWidget {
     return showDialog<T>(
       context: context,
       barrierDismissible: barrierDismissible,
-      builder: (_) => AppDialog(
-        title: title,
-        actions: actions,
-        child: child,
-      ),
+      builder: (_) => AppDialog(title: title, actions: actions, child: child),
     );
   }
 
@@ -41,10 +37,9 @@ class AppDialog extends StatelessWidget {
       surfaceTintColor: Colors.transparent,
       title: Text(
         title,
-        style: Theme.of(context)
-            .textTheme
-            .titleMedium
-            ?.copyWith(color: cs.onSurface),
+        style: Theme.of(
+          context,
+        ).textTheme.titleMedium?.copyWith(color: cs.onSurface),
       ),
       contentPadding: const EdgeInsets.fromLTRB(
         AppSpacing.lg,

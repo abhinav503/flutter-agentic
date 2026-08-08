@@ -38,15 +38,20 @@ class AppBadge extends StatelessWidget {
     final bg = backgroundColor ?? intentBg;
     final tt = Theme.of(context).textTheme;
     final baseStyle =
-        textStyle ?? (size == AppBadgeSize.small ? tt.labelSmall : tt.labelMedium);
+        textStyle ??
+        (size == AppBadgeSize.small ? tt.labelSmall : tt.labelMedium);
     final resolvedStyle = baseStyle!.copyWith(color: textStyle?.color ?? fg);
 
     return Container(
       padding: size == AppBadgeSize.small
           ? const EdgeInsets.symmetric(
-              horizontal: AppSpacing.xs, vertical: AppSpacing.xs4)
+              horizontal: AppSpacing.xs,
+              vertical: AppSpacing.xs4,
+            )
           : const EdgeInsets.symmetric(
-              horizontal: AppSpacing.sm, vertical: AppSpacing.xs3),
+              horizontal: AppSpacing.sm,
+              vertical: AppSpacing.xs3,
+            ),
       decoration: BoxDecoration(color: bg, borderRadius: AppRadius.full),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -54,7 +59,9 @@ class AppBadge extends StatelessWidget {
           if (icon != null) ...[
             IconTheme(
               data: IconThemeData(
-                  color: fg, size: size == AppBadgeSize.small ? 10 : 12),
+                color: fg,
+                size: size == AppBadgeSize.small ? 10 : 12,
+              ),
               child: icon!,
             ),
             const SizedBox(width: AppSpacing.xs4),
@@ -81,15 +88,18 @@ class AppBadge extends StatelessWidget {
   }
 
   (Color, Color) _colors(BuildContext context) {
-    final cs  = Theme.of(context).colorScheme;
+    final cs = Theme.of(context).colorScheme;
     final ext = Theme.of(context).extension<AppColorsExtension>()!;
 
     return switch (intent) {
-      AppBadgeIntent.neutral => (cs.surfaceContainerHighest, cs.onSurfaceVariant),
-      AppBadgeIntent.info    => (cs.secondaryContainer,      cs.onSecondaryContainer),
-      AppBadgeIntent.error   => (cs.errorContainer,          cs.onErrorContainer),
-      AppBadgeIntent.success => (ext.successContainer,       ext.onSuccessContainer),
-      AppBadgeIntent.warning => (ext.warningContainer,       ext.onWarningContainer),
+      AppBadgeIntent.neutral => (
+        cs.surfaceContainerHighest,
+        cs.onSurfaceVariant,
+      ),
+      AppBadgeIntent.info => (cs.secondaryContainer, cs.onSecondaryContainer),
+      AppBadgeIntent.error => (cs.errorContainer, cs.onErrorContainer),
+      AppBadgeIntent.success => (ext.successContainer, ext.onSuccessContainer),
+      AppBadgeIntent.warning => (ext.warningContainer, ext.onWarningContainer),
     };
   }
 }

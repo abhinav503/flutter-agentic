@@ -21,11 +21,22 @@ class CordeliaPrimaryButton extends StatelessWidget {
   /// caller is unaffected.
   final AppButtonState state;
 
+  /// Paints the pill with a gradient instead of flat `cs.primary` — for the
+  /// app's own chrome, which uses `CordeliaColorConst.brandButtonGradient`.
+  ///
+  /// Opt-in rather than the default because this widget is *also* the gravia
+  /// pack's CTA (`GraviaPrimaryButton` is a typedef of it): defaulting to the
+  /// CordeliaApps gradient would repaint every gravia storefront's Cart,
+  /// Address and Edit Profile button in the platform's brand, not the
+  /// store's.
+  final Gradient? gradient;
+
   const CordeliaPrimaryButton({
     super.key,
     required this.label,
     this.onTap,
     this.state = AppButtonState.idle,
+    this.gradient,
   });
 
   @override
@@ -39,6 +50,10 @@ class CordeliaPrimaryButton extends StatelessWidget {
       size: AppButtonSize.large,
       height: barHeight,
       state: state,
+      gradient: gradient,
+      // Pinned rather than left to inherit: the label sits on the gradient's
+      // own dark end regardless of theme, so a textTheme role's ink would
+      // silently win over the button's foreground colour and go invisible.
       labelStyle: CordeliaTextStyleConst.textMdMedium(
         tt,
       ).copyWith(color: cs.onPrimary),

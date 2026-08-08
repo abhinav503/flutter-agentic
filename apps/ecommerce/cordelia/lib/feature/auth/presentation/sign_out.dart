@@ -9,16 +9,18 @@ import 'package:cordelia/feature/auth/presentation/bloc/auth_bloc.dart'
     show kPendingEmailVerificationPrefKey;
 import 'package:cordelia/feature/storefront/cart/presentation/cubit/cart_cubit.dart';
 import 'package:cordelia/feature/storefront/cart/presentation/cubit/coupon_cubit.dart';
+import 'package:cordelia/feature/home/presentation/recent_stores_prefs.dart';
 import 'package:cordelia/feature/storefront/favourites/presentation/cubit/favourites_cubit.dart';
 import 'package:cordelia/services/firebase_auth_service.dart';
 import 'package:cordelia/services/user_profile_cache_service.dart';
 
 /// The full sign-out sequence, shared by both templates' Profile screens:
-/// Firebase sign-out, local profile-cache clear, verify-sheet flag reset,
-/// per-account cubit resets, then back to Login.
+/// Firebase sign-out, local profile-cache clear, recent-stores clear,
+/// verify-sheet flag reset, per-account cubit resets, then back to Login.
 Future<void> signOutAndReturnToLogin(BuildContext context) async {
   await FirebaseAuthService.instance.signOut();
   await UserProfileCacheService.instance.clear();
+  await clearRecentStores();
   // Defensive — Profile is only reachable once AuthAuthenticated has fired,
   // which already clears this key, but a stale flag here would wrongly
   // reopen the verify sheet for the next account signing in on this device.

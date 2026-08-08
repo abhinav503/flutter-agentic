@@ -74,8 +74,7 @@ class IconInfoRow extends StatelessWidget {
               Text(
                 title,
                 style:
-                    titleStyle ??
-                    tt.titleMedium!.copyWith(color: cs.onSurface),
+                    titleStyle ?? tt.titleMedium!.copyWith(color: cs.onSurface),
                 maxLines: titleMaxLines,
                 overflow: titleMaxLines == null ? null : TextOverflow.ellipsis,
               ),

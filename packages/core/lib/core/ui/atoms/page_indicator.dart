@@ -41,7 +41,11 @@ class PageIndicator extends StatelessWidget {
 
     final dots = [
       for (var i = 0; i < count; i++) ...[
-        if (i > 0) SizedBox(width: isHorizontal ? AppSpacing.xs2 : 0, height: isHorizontal ? 0 : AppSpacing.xs2),
+        if (i > 0)
+          SizedBox(
+            width: isHorizontal ? AppSpacing.xs2 : 0,
+            height: isHorizontal ? 0 : AppSpacing.xs2,
+          ),
         AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           width: isHorizontal ? (i == currentIndex ? 20 : 6) : 6,

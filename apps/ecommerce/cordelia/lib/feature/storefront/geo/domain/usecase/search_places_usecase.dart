@@ -12,7 +12,10 @@ class SearchPlacesParams {
 
 class SearchPlacesUseCase
     extends
-        UseCase<Either<Failure, List<PlaceSuggestionEntity>>, SearchPlacesParams> {
+        UseCase<
+          Either<Failure, List<PlaceSuggestionEntity>>,
+          SearchPlacesParams
+        > {
   final GeoRepository _repository;
   const SearchPlacesUseCase(this._repository);
 

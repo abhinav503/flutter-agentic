@@ -49,7 +49,10 @@ extension PriceFormatX on num {
     final split = price.lastIndexOf(AppFormat.decimalSeparator);
     return split == -1
         ? (integer: price, decimals: null)
-        : (integer: price.substring(0, split), decimals: price.substring(split));
+        : (
+            integer: price.substring(0, split),
+            decimals: price.substring(split),
+          );
   }
 }
 

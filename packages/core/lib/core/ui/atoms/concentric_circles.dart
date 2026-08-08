@@ -59,8 +59,7 @@ class AppConcentricCircles extends StatefulWidget {
     key: key,
     radii: radii,
     colors: [
-      for (var i = 0; i < radii.length - 1; i++)
-        color.withValues(alpha: 0.1),
+      for (var i = 0; i < radii.length - 1; i++) color.withValues(alpha: 0.1),
       color,
     ],
     animate: animate,
@@ -96,8 +95,10 @@ class _AppConcentricCirclesState extends State<AppConcentricCircles>
       final start = totalMs == 0 ? 0.0 : startMs / totalMs;
       final end = totalMs == 0
           ? 1.0
-          : ((startMs + widget.circleDuration.inMilliseconds) / totalMs)
-                .clamp(0.0, 1.0);
+          : ((startMs + widget.circleDuration.inMilliseconds) / totalMs).clamp(
+              0.0,
+              1.0,
+            );
       return CurvedAnimation(
         parent: _controller,
         // Interval requires begin <= end strictly when both are 1.0 — the

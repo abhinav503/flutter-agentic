@@ -85,8 +85,10 @@ class _CollapsingHeaderSheetState extends State<CollapsingHeaderSheet> {
             // Below-viewport minimum for the sheet sliver — otherwise a
             // body shorter than (viewport - header) leaves a gap in the
             // scroll view where the canvas colour behind it shows through.
-            final minBodyHeight =
-                (constraints.maxHeight - _headerHeight).clamp(0.0, double.infinity);
+            final minBodyHeight = (constraints.maxHeight - _headerHeight).clamp(
+              0.0,
+              double.infinity,
+            );
 
             return Stack(
               children: [

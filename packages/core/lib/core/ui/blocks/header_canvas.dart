@@ -20,10 +20,21 @@ class HeaderCanvas extends StatelessWidget {
   /// tighter value.
   final double bottomPadding;
 
+  /// Paints the canvas with this gradient instead of flat `cs.primary` — for
+  /// a brand whose header is a ramp, which no single `ColorScheme` role can
+  /// express. Omit for the usual solid canvas.
+  ///
+  /// A gradient header sitting in a [CollapsingHeaderSheet] must also pass
+  /// that block's `headerColor`, set to the colour this gradient ends on:
+  /// the sheet paints it flat behind its own rounded top corners, and a
+  /// mismatch shows as a hard line under the header.
+  final Gradient? gradient;
+
   const HeaderCanvas({
     super.key,
     required this.child,
     this.bottomPadding = AppSpacing.xl2,
+    this.gradient,
   });
 
   @override
@@ -32,7 +43,12 @@ class HeaderCanvas extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      color: Theme.of(context).colorScheme.primary,
+      // `color` and `decoration` are mutually exclusive on Container, so the
+      // gradient case has to carry the flat fill inside the decoration too.
+      decoration: BoxDecoration(
+        color: gradient == null ? Theme.of(context).colorScheme.primary : null,
+        gradient: gradient,
+      ),
       padding: EdgeInsets.fromLTRB(
         AppSpacing.lg,
         topInset + AppSpacing.xs,

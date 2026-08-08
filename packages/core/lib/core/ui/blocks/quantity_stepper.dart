@@ -121,12 +121,11 @@ class QuantityStepper extends StatelessWidget {
           iconSize: iconSize,
         ),
         Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: valueGap ?? AppSpacing.xs2,
-          ),
+          padding: EdgeInsets.symmetric(horizontal: valueGap ?? AppSpacing.xs2),
           child: Text(
             '$value',
-            style: valueTextStyle ??
+            style:
+                valueTextStyle ??
                 tt.titleMedium!.copyWith(fontWeight: FontWeight.w700),
           ),
         ),
@@ -202,7 +201,10 @@ class _StepButton extends StatelessWidget {
     // A fixed [size] centres the glyph in an exact square key; the default
     // keeps the padding-driven hit area.
     final content = size != null
-        ? SizedBox.square(dimension: size, child: Center(child: glyph))
+        ? SizedBox.square(
+            dimension: size,
+            child: Center(child: glyph),
+          )
         : Padding(padding: const EdgeInsets.all(AppSpacing.sm), child: glyph);
 
     if (fillColor == null) {

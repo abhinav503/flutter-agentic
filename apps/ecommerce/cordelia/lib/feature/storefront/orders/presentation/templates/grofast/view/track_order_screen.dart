@@ -260,9 +260,7 @@ class _TrackOrderContent extends StatelessWidget {
           ),
         ],
         const SizedBox(height: AppSpacing.xl6),
-        GrofastSectionHeader(
-          title: GrofastValueConst.trackingDetailTitle,
-        ),
+        GrofastSectionHeader(title: GrofastValueConst.trackingDetailTitle),
         const SizedBox(height: AppSpacing.lg),
         _TrackingDetail(order: order),
         const SizedBox(height: AppSpacing.xl6),

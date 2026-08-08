@@ -81,7 +81,9 @@ class _GlassCirclePainter extends CustomPainter {
       ..strokeWidth = highlightThickness;
     canvas.drawArc(
       Rect.fromCircle(
-          center: Offset(center.dx, center.dy - 1), radius: radius - 2),
+        center: Offset(center.dx, center.dy - 1),
+        radius: radius - 2,
+      ),
       -2.2,
       4.4,
       false,
@@ -96,7 +98,9 @@ class _GlassCirclePainter extends CustomPainter {
       ..strokeWidth = highlightThickness;
     canvas.drawArc(
       Rect.fromCircle(
-          center: Offset(center.dx, center.dy + 1), radius: radius - 2),
+        center: Offset(center.dx, center.dy + 1),
+        radius: radius - 2,
+      ),
       0.9,
       4.4,
       false,

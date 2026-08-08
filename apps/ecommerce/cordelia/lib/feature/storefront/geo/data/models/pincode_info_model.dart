@@ -18,11 +18,8 @@ abstract class PincodeInfoModel with _$PincodeInfoModel {
   factory PincodeInfoModel.fromJson(Map<String, dynamic> json) =>
       _$PincodeInfoModelFromJson(json);
 
-  factory PincodeInfoModel.fromEntity(PincodeInfoEntity e) => PincodeInfoModel(
-    city: e.city,
-    state: e.state,
-    country: e.country,
-  );
+  factory PincodeInfoModel.fromEntity(PincodeInfoEntity e) =>
+      PincodeInfoModel(city: e.city, state: e.state, country: e.country);
 
   PincodeInfoEntity toEntity() =>
       PincodeInfoEntity(city: city, state: state, country: country);

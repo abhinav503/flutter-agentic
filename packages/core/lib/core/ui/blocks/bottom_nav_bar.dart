@@ -89,7 +89,9 @@ class BottomNavBar extends StatelessWidget {
       decoration: BoxDecoration(
         color: cs.surface,
         border: topBorderColor != null
-            ? Border(top: BorderSide(color: topBorderColor!, width: topBorderWidth))
+            ? Border(
+                top: BorderSide(color: topBorderColor!, width: topBorderWidth),
+              )
             : null,
         boxShadow: shadows,
       ),
@@ -105,24 +107,23 @@ class BottomNavBar extends StatelessWidget {
               for (final (index, item) in items.indexed)
                 switch (variant) {
                   BottomNavBarVariant.pill => _NavTab(
-                      item: item,
-                      isActive: index == currentIndex,
-                      onTap: () => onTap(index),
-                      inactiveIconColor: inactiveIconColor,
-                    ),
+                    item: item,
+                    isActive: index == currentIndex,
+                    onTap: () => onTap(index),
+                    inactiveIconColor: inactiveIconColor,
+                  ),
                   // Expanded, not intrinsic: stacked labels vary in width
                   // ("Cart" vs "Wishlist"), and equal shares keep the icons
                   // evenly spaced instead of bunching toward the long label.
                   BottomNavBarVariant.stacked => Expanded(
-                      child: _StackedNavTab(
-                        item: item,
-                        isActive: index == currentIndex,
-                        onTap: () => onTap(index),
-                        activeColor: activeColor ?? cs.primary,
-                        inactiveColor:
-                            inactiveIconColor ?? cs.onSurfaceVariant,
-                      ),
+                    child: _StackedNavTab(
+                      item: item,
+                      isActive: index == currentIndex,
+                      onTap: () => onTap(index),
+                      activeColor: activeColor ?? cs.primary,
+                      inactiveColor: inactiveIconColor ?? cs.onSurfaceVariant,
                     ),
+                  ),
                 },
             ],
           ),
@@ -201,11 +202,15 @@ class _NavTab extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
-    final onOverlay = Theme.of(context).extension<AppColorsExtension>()!.onOverlay;
+    final onOverlay = Theme.of(
+      context,
+    ).extension<AppColorsExtension>()!.onOverlay;
     // Active pill sits on `cs.primary` — a colour block, not contrast-paired
     // text, so it uses the fixed `onOverlay` role rather than `cs.onPrimary`
     // (which would invert dark in dark theme).
-    final iconColor = isActive ? onOverlay : (inactiveIconColor ?? cs.onSurfaceVariant);
+    final iconColor = isActive
+        ? onOverlay
+        : (inactiveIconColor ?? cs.onSurfaceVariant);
 
     return GestureDetector(
       onTap: onTap,

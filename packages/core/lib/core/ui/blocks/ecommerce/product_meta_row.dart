@@ -55,8 +55,9 @@ class ProductMetaRow extends StatelessWidget {
           const SizedBox(width: AppSpacing.xs4),
           Text(
             m.label,
-            style: (labelStyle ?? tt.labelSmall)!
-                .copyWith(color: labelStyle?.color ?? cs.onSurfaceVariant),
+            style: (labelStyle ?? tt.labelSmall)!.copyWith(
+              color: labelStyle?.color ?? cs.onSurfaceVariant,
+            ),
           ),
           const SizedBox(width: AppSpacing.xs),
         ],

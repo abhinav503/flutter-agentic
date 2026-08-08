@@ -85,9 +85,9 @@ class AppChip extends StatelessWidget {
     final bg = selected
         ? (selectedBackgroundColor ?? cs.primaryContainer)
         : (backgroundColor ?? cs.surfaceContainerHighest);
-    final baseLabelStyle =
-        (selected ? selectedLabelStyle : null) ?? labelStyle;
-    final fg = baseLabelStyle?.color ??
+    final baseLabelStyle = (selected ? selectedLabelStyle : null) ?? labelStyle;
+    final fg =
+        baseLabelStyle?.color ??
         (selected ? cs.onPrimaryContainer : cs.onSurfaceVariant);
     final border = selected
         ? BorderSide(color: selectedBorderColor ?? cs.primary)
@@ -99,7 +99,8 @@ class AppChip extends StatelessWidget {
         duration: animationDuration,
         height: height,
         alignment: height != null ? Alignment.center : null,
-        padding: padding ??
+        padding:
+            padding ??
             const EdgeInsets.symmetric(
               horizontal: AppSpacing.base,
               vertical: AppSpacing.xs3,
@@ -129,8 +130,7 @@ class AppChip extends StatelessWidget {
             AnimatedDefaultTextStyle(
               duration: animationDuration,
               style:
-                  (baseLabelStyle ??
-                          Theme.of(context).textTheme.labelMedium)!
+                  (baseLabelStyle ?? Theme.of(context).textTheme.labelMedium)!
                       .copyWith(color: fg),
               child: Text(label),
             ),

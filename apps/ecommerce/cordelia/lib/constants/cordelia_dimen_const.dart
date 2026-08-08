@@ -9,9 +9,43 @@ abstract final class CordeliaDimenConst {
 
   // ── CollapsingHeaderSheet `initialHeaderHeight` for the auth screens —
   // named here so a screen's loading/error/loaded arms can't drift apart.
-  /// Login: glass back disc + title + subtitle block.
-  static const double authHeaderHeightLogin = 210;
+  /// Login: brand lockup + title + subtitle block.
+  static const double authHeaderHeightLogin = 270;
 
-  /// Signup: glass back disc + title row (no subtitle).
+  /// Signup: glass back disc + brand mark row, then title + subtitle. The
+  /// mark shares the back disc's row, so adding it cost no height.
   static const double authHeaderHeightSignup = 170;
+
+  /// Discovery: brand row + greeting block + the search field sitting on the
+  /// canvas. Taller than either auth header because of that third row.
+  static const double discoveryHeaderHeight = 260;
+
+  /// The brand mark's disc in a coloured header — the mark is a green
+  /// gradient, so on the (now also green) primary canvas it only reads
+  /// against a light disc of its own.
+  static const double brandMarkDisc = 40;
+
+  /// The mark inside [brandMarkDisc], inset so it doesn't touch the edge.
+  static const double brandMarkGlyph = 24;
+
+  /// The shopper's avatar in the discovery header — matches the brand disc
+  /// opposite it so the row reads as a balanced pair.
+  static const double discoveryAvatar = 40;
+
+  /// A recents-rail store logo. Large enough to recognise a brand at a
+  /// glance, small enough that six fit within two swipes.
+  static const double recentStoreLogo = 60;
+
+  /// Width of a recents-rail item — the logo plus room for a two-line name
+  /// under it, fixed so names of different lengths don't stagger the rail.
+  static const double recentStoreTile = 72;
+
+  /// A store card's logo on the discovery list.
+  static const double storeCardLogo = 56;
+
+  /// Discovery's search field. Taller than [controlHeight] on purpose — it is
+  /// the header's one interactive target, sits alone on the canvas, and at
+  /// the form-field height read as a cramped strip against the greeting
+  /// block above it.
+  static const double discoverySearchHeight = 52;
 }

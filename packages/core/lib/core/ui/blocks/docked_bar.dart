@@ -20,7 +20,7 @@ class DockedBar extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final hairline =
         Theme.of(context).extension<AppColorsExtension>()?.dockedHairline ??
-            cs.outlineVariant;
+        cs.outlineVariant;
 
     return DecoratedBox(
       decoration: BoxDecoration(

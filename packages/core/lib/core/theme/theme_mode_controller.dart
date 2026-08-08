@@ -39,7 +39,8 @@ class ThemeModeController extends ValueNotifier<ThemeMode> {
 
   Future<void> setMode(ThemeMode mode) async {
     if (mode == value) return;
-    value = mode; // update in-memory first so the UI reacts even if persist fails
+    value =
+        mode; // update in-memory first so the UI reacts even if persist fails
     try {
       await SharedPreferenceService.instance.setString(_key, mode.name);
     } catch (_) {
@@ -50,14 +51,14 @@ class ThemeModeController extends ValueNotifier<ThemeMode> {
 
   /// System → Light → Dark → System (for a single cycling toggle button).
   Future<void> cycle() => setMode(switch (value) {
-        ThemeMode.system => ThemeMode.light,
-        ThemeMode.light => ThemeMode.dark,
-        ThemeMode.dark => ThemeMode.system,
-      });
+    ThemeMode.system => ThemeMode.light,
+    ThemeMode.light => ThemeMode.dark,
+    ThemeMode.dark => ThemeMode.system,
+  });
 
   static ThemeMode _fromName(String? name) => switch (name) {
-        'light' => ThemeMode.light,
-        'dark' => ThemeMode.dark,
-        _ => ThemeMode.system,
-      };
+    'light' => ThemeMode.light,
+    'dark' => ThemeMode.dark,
+    _ => ThemeMode.system,
+  };
 }

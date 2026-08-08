@@ -43,7 +43,10 @@ class CommonGlassSurface extends StatelessWidget {
 }
 
 class _GlassRectPainter extends CustomPainter {
-  const _GlassRectPainter({required this.tintColor, required this.borderRadius});
+  const _GlassRectPainter({
+    required this.tintColor,
+    required this.borderRadius,
+  });
 
   final Color tintColor;
   final BorderRadius borderRadius;

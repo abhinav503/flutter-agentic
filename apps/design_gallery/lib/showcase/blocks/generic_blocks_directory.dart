@@ -159,8 +159,7 @@ WidgetbookFolder genericBlocksFolder() {
             Builder(
               builder: (context) {
                 final cs = Theme.of(context).colorScheme;
-                final shapes =
-                    context.appShapes;
+                final shapes = context.appShapes;
                 return DockedBarOverlap(
                   overlap: shapes.sheetRadius,
                   bar: DecoratedBox(
@@ -314,10 +313,12 @@ WidgetbookFolder genericBlocksFolder() {
                     Builder(
                       builder: (context) => AppIconButton(
                         icon: Icons.arrow_back_rounded,
-                        backgroundColor:
-                            Theme.of(context).colorScheme.surfaceContainer,
-                        foregroundColor:
-                            Theme.of(context).colorScheme.onSurface,
+                        backgroundColor: Theme.of(
+                          context,
+                        ).colorScheme.surfaceContainer,
+                        foregroundColor: Theme.of(
+                          context,
+                        ).colorScheme.onSurface,
                         onTap: () {},
                       ),
                     ),
@@ -410,8 +411,7 @@ WidgetbookFolder genericBlocksFolder() {
             Builder(
               builder: (context) {
                 final cs = Theme.of(context).colorScheme;
-                final shapes =
-                    context.appShapes;
+                final shapes = context.appShapes;
                 return DockedBar(
                   child: Container(
                     height: 45,
@@ -440,6 +440,25 @@ WidgetbookFolder genericBlocksFolder() {
               child: Builder(
                 builder: (context) => Text(
                   'Header content\n(e.g. a location row, a search field)',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onPrimary,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Variant(
+            'Gradient — for a brand whose header is a ramp, not one role',
+            HeaderCanvas(
+              gradient: const LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [Color(0xFF02291F), Color(0xFF027A60)],
+              ),
+              child: Builder(
+                builder: (context) => Text(
+                  'Pair with CollapsingHeaderSheet.headerColor set to the\n'
+                  'gradient\'s end colour, or the sheet seams under it.',
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.onPrimary,
                   ),

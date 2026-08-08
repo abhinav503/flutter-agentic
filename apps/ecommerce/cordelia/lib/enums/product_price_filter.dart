@@ -82,10 +82,8 @@ extension ProductPriceFilterX on ProductPriceFilter {
     return switch (this) {
       ProductPriceFilter.all => true,
       ProductPriceFilter.underLow => price < bands.low,
-      ProductPriceFilter.lowToMid =>
-        price >= bands.low && price <= bands.mid,
-      ProductPriceFilter.midToHigh =>
-        price > bands.mid && price <= bands.high,
+      ProductPriceFilter.lowToMid => price >= bands.low && price <= bands.mid,
+      ProductPriceFilter.midToHigh => price > bands.mid && price <= bands.high,
       ProductPriceFilter.overHigh => price > bands.high,
     };
   }

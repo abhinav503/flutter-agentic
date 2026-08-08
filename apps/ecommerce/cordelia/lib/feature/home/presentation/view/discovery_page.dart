@@ -1,12 +1,11 @@
 import 'package:core/core/base/base_page.dart';
-import 'package:core/core/ui/atoms/top_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'package:cordelia/constants/value_const.dart';
 import 'package:cordelia/di/injection_container.dart';
 import 'package:cordelia/feature/auth/presentation/bloc/auth_bloc.dart';
 import 'package:cordelia/feature/home/presentation/bloc/discovery_bloc.dart';
+import 'package:cordelia/feature/storefront/profile/presentation/bloc/profile_bloc_provider.dart';
 import 'package:cordelia/widgets/cordelia_sheet.dart';
 
 import 'discovery_screen.dart';
@@ -77,15 +76,16 @@ class _DiscoveryPageState extends BasePageState<DiscoveryPage> {
     }
   }
 
-  @override
-  PreferredSizeWidget buildAppBar(BuildContext context) =>
-      AppTopBar.primary(title: ValueConst.appTitle);
-
+  // No app bar: the screen opens on its own coloured header canvas, which
+  // carries the brand lockup a title bar used to.
   @override
   Widget buildBody(BuildContext context) => BlocProvider(
     create: (_) =>
         DiscoveryBloc(getStoresUseCase: sl())
           ..add(const DiscoveryEvent.started()),
-    child: const DiscoveryScreen(),
+    // Hoisted above the screen so the greeting/avatar survive a rebuild of
+    // the discovery list, and so the profile is fetched once per visit
+    // rather than once per query.
+    child: profileBlocProvider(child: const DiscoveryScreen()),
   );
 }

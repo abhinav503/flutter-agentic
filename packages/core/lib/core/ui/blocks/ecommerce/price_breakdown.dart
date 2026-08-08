@@ -72,7 +72,8 @@ class PriceBreakdown extends StatelessWidget {
         ),
         Text(
           line.value,
-          style: line.valueStyle ?? tt.bodyMedium!.copyWith(color: cs.onSurface),
+          style:
+              line.valueStyle ?? tt.bodyMedium!.copyWith(color: cs.onSurface),
         ),
       ],
     );

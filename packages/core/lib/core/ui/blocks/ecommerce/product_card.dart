@@ -115,7 +115,9 @@ class ProductCard extends StatelessWidget {
           const SizedBox(height: AppSpacing.xs2),
           Text(
             title,
-            style: titleStyle ?? tt.titleMedium!.copyWith(fontWeight: FontWeight.w700),
+            style:
+                titleStyle ??
+                tt.titleMedium!.copyWith(fontWeight: FontWeight.w700),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
@@ -128,9 +130,13 @@ class ProductCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.baseline,
             textBaseline: TextBaseline.alphabetic,
             children: [
-              Text(price,
-                  style: tt.titleMedium!
-                      .copyWith(fontWeight: FontWeight.w700, color: cs.onSurface)),
+              Text(
+                price,
+                style: tt.titleMedium!.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: cs.onSurface,
+                ),
+              ),
               if (originalPrice != null) ...[
                 const SizedBox(width: AppSpacing.xs2),
                 Text(

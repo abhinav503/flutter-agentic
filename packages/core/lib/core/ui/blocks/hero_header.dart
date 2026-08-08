@@ -66,9 +66,9 @@ class HeroHeader extends StatelessWidget {
     this.bottom,
     this.bottomGap = AppSpacing.base,
     this.canvasBottomPadding = AppSpacing.xl2,
-  })  : leading = null,
-        leadingBalanceWidth = null,
-        _pageTitle = true;
+  }) : leading = null,
+       leadingBalanceWidth = null,
+       _pageTitle = true;
 
   @override
   Widget build(BuildContext context) {
@@ -78,11 +78,13 @@ class HeroHeader extends StatelessWidget {
     // role that can flip dark in dark mode.
     final onOverlay =
         Theme.of(context).extension<AppColorsExtension>()?.onOverlay ??
-            Colors.white;
+        Colors.white;
 
-    final style = titleStyle ??
-        (_pageTitle ? tt.titleLarge : tt.titleMedium)!
-            .copyWith(color: onOverlay);
+    final style =
+        titleStyle ??
+        (_pageTitle ? tt.titleLarge : tt.titleMedium)!.copyWith(
+          color: onOverlay,
+        );
 
     final titleRow = Row(
       children: [

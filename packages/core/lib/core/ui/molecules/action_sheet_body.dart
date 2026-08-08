@@ -9,7 +9,11 @@ class AppSheetAction<T> {
   final T value;
   final Widget? leading;
 
-  const AppSheetAction({required this.label, required this.value, this.leading});
+  const AppSheetAction({
+    required this.label,
+    required this.value,
+    this.leading,
+  });
 }
 
 /// An **action list** sheet body (not a selection list — no radio state):

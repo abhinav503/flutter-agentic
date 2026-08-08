@@ -8,10 +8,7 @@ import '../repository/geo_repository.dart';
 class ReverseGeocodeParams {
   final double latitude;
   final double longitude;
-  const ReverseGeocodeParams({
-    required this.latitude,
-    required this.longitude,
-  });
+  const ReverseGeocodeParams({required this.latitude, required this.longitude});
 }
 
 class ReverseGeocodeUseCase

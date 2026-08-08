@@ -22,9 +22,10 @@ discovery/home screen, since this app has no tabs).
 
 ## What's implemented
 
-- **Theme** — `assets/theme/theme_config.json` inlines the shared `gravia`
-  preset with `primary`/`onPrimary` overridden to CordeliaApps' brand color
-  (`#7059FF`) — same layout/shape/typography as gravia, own accent color.
+- **Theme** — `assets/theme/theme_config.json` holds CordeliaApps' own brand
+  palette, a green scale derived from the brand mark's gradient stops
+  (`#007A60` → `#2DA987`). Shape and typography are still the gravia kit's —
+  those metrics are pack-neutral and CordeliaApps has no kit of its own.
 - **App identity** — launcher icon + native boot splash generated from the
   CordeliaApps brand mark in `branding/`. Android/iOS id:
   `com.cordeliaapps.superapp`.

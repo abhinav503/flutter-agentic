@@ -26,8 +26,16 @@ abstract final class AppFormat {
 
   // Rebuilt on apply(), not per call: a product grid formats a price per card
   // and NumberFormat re-parses the locale's pattern in its constructor.
-  static NumberFormat _money = _buildMoney(_fallbackLocale, _fallbackCurrency, 2);
-  static NumberFormat _wholeMoney = _buildMoney(_fallbackLocale, _fallbackCurrency, 0);
+  static NumberFormat _money = _buildMoney(
+    _fallbackLocale,
+    _fallbackCurrency,
+    2,
+  );
+  static NumberFormat _wholeMoney = _buildMoney(
+    _fallbackLocale,
+    _fallbackCurrency,
+    0,
+  );
 
   static String get locale => _locale;
   static String get currencyCode => _currencyCode;
@@ -55,7 +63,8 @@ abstract final class AppFormat {
 
   /// The formatter behind [PriceFormatX.asPrice]; [whole] picks the
   /// decimal-less variant that a round amount renders through.
-  static NumberFormat money({required bool whole}) => whole ? _wholeMoney : _money;
+  static NumberFormat money({required bool whole}) =>
+      whole ? _wholeMoney : _money;
 
   // Keyed by fraction digits and cleared on apply(), for the same
   // reason the money formatters are rebuilt there: a rating renders per
@@ -78,10 +87,13 @@ abstract final class AppFormat {
   /// [PriceFormatX.asPriceParts], which can't assume a point.
   static String get decimalSeparator => _money.symbols.DECIMAL_SEP;
 
-  static NumberFormat _buildMoney(String locale, String code, int decimalDigits) =>
-      NumberFormat.simpleCurrency(
-        locale: locale,
-        name: code,
-        decimalDigits: decimalDigits,
-      );
+  static NumberFormat _buildMoney(
+    String locale,
+    String code,
+    int decimalDigits,
+  ) => NumberFormat.simpleCurrency(
+    locale: locale,
+    name: code,
+    decimalDigits: decimalDigits,
+  );
 }

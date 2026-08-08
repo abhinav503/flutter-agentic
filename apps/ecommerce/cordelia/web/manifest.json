@@ -4,7 +4,7 @@
     "start_url": ".",
     "display": "standalone",
     "background_color": "#FFFFFF",
-    "theme_color": "#7059FF",
+    "theme_color": "#007A60",
     "description": "CordeliaApps — discover and shop stores, all in one app.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,

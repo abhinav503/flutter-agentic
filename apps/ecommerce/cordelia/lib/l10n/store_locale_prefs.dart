@@ -9,10 +9,10 @@ import 'package:cordelia/feature/storefront/template/store_language.dart';
 abstract final class StoreLocalePrefs {
   static String _key(String storeId) => 'store_language_$storeId';
 
-  static StoreLanguage? overrideFor(String storeId) =>
-      SharedPreferenceService.instance
-          .getString(_key(storeId))
-          ?.toStoreLanguage();
+  static StoreLanguage? overrideFor(String storeId) => SharedPreferenceService
+      .instance
+      .getString(_key(storeId))
+      ?.toStoreLanguage();
 
   static Future<void> saveOverride(String storeId, StoreLanguage language) =>
       SharedPreferenceService.instance.setString(

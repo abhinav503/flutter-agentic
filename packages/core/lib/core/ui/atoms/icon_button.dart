@@ -120,9 +120,9 @@ class AppIconButton extends StatelessWidget {
     this.dotColor,
     this.dotSize = 8,
   }) : assert(
-          icon != null || iconBuilder != null,
-          'AppIconButton requires either icon or iconBuilder',
-        );
+         icon != null || iconBuilder != null,
+         'AppIconButton requires either icon or iconBuilder',
+       );
 
   @override
   Widget build(BuildContext context) {

@@ -10,25 +10,23 @@ class ImagePickerService {
   final _picker = ImagePicker();
   bool _isOpen = false;
 
-  Future<List<XFile>> fromCamera() => _pick(
-        () async {
-          final image = await _picker.pickImage(
-            source: ImageSource.camera,
-            imageQuality: CoreConst.imagePickerQuality,
-            maxWidth: CoreConst.imagePickerMaxWidth.toDouble(),
-            maxHeight: CoreConst.imagePickerMaxHeight.toDouble(),
-          );
-          return image == null ? [] : [image];
-        },
-      );
+  Future<List<XFile>> fromCamera() => _pick(() async {
+    final image = await _picker.pickImage(
+      source: ImageSource.camera,
+      imageQuality: CoreConst.imagePickerQuality,
+      maxWidth: CoreConst.imagePickerMaxWidth.toDouble(),
+      maxHeight: CoreConst.imagePickerMaxHeight.toDouble(),
+    );
+    return image == null ? [] : [image];
+  });
 
   Future<List<XFile>> fromGallery() => _pick(
-        () => _picker.pickMultiImage(
-          imageQuality: CoreConst.imagePickerQuality,
-          maxWidth: CoreConst.imagePickerMaxWidth.toDouble(),
-          maxHeight: CoreConst.imagePickerMaxHeight.toDouble(),
-        ),
-      );
+    () => _picker.pickMultiImage(
+      imageQuality: CoreConst.imagePickerQuality,
+      maxWidth: CoreConst.imagePickerMaxWidth.toDouble(),
+      maxHeight: CoreConst.imagePickerMaxHeight.toDouble(),
+    ),
+  );
 
   Future<List<XFile>> _pick(Future<List<XFile>> Function() fn) async {
     if (_isOpen) return [];

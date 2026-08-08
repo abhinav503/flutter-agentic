@@ -18,9 +18,7 @@ class ThemeModeScope extends InheritedWidget {
   });
 
   static ThemeModeController? maybeOf(BuildContext context) =>
-      context
-          .dependOnInheritedWidgetOfExactType<ThemeModeScope>()
-          ?.controller;
+      context.dependOnInheritedWidgetOfExactType<ThemeModeScope>()?.controller;
 
   static ThemeModeController of(BuildContext context) {
     final controller = maybeOf(context);

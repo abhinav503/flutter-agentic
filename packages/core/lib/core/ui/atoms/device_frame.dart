@@ -50,8 +50,9 @@ class DeviceFrame extends StatelessWidget {
                   borderRadius: BorderRadius.circular(cornerRadius),
                 ),
                 child: ClipRRect(
-                  borderRadius:
-                      BorderRadius.circular(cornerRadius - bezelWidth),
+                  borderRadius: BorderRadius.circular(
+                    cornerRadius - bezelWidth,
+                  ),
                   child: Stack(
                     alignment: Alignment.topCenter,
                     children: [
@@ -63,8 +64,9 @@ class DeviceFrame extends StatelessWidget {
                           height: notchHeight,
                           decoration: BoxDecoration(
                             color: bezel,
-                            borderRadius:
-                                BorderRadius.circular(notchHeight / 2),
+                            borderRadius: BorderRadius.circular(
+                              notchHeight / 2,
+                            ),
                           ),
                         ),
                       ),

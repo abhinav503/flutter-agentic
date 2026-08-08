@@ -49,17 +49,15 @@ class AppTheme {
   static ThemeData light({
     Color seed = const Color(0xFF6750A4),
     String? fontFamily,
-  }) =>
-      _build(ColorScheme.fromSeed(seedColor: seed), fontFamily: fontFamily);
+  }) => _build(ColorScheme.fromSeed(seedColor: seed), fontFamily: fontFamily);
 
   static ThemeData dark({
     Color seed = const Color(0xFF6750A4),
     String? fontFamily,
-  }) =>
-      _build(
-        ColorScheme.fromSeed(seedColor: seed, brightness: Brightness.dark),
-        fontFamily: fontFamily,
-      );
+  }) => _build(
+    ColorScheme.fromSeed(seedColor: seed, brightness: Brightness.dark),
+    fontFamily: fontFamily,
+  );
 
   /// Resolves a config's font family into the type scale.
   ///
@@ -156,25 +154,100 @@ class AppTheme {
   static TextTheme _textTheme(String? fontFamily) {
     const TextTheme scale = TextTheme(
       // ── Display ────────────────────────────────────────────────────────────
-      displayLarge:  TextStyle(fontSize: 57, fontWeight: FontWeight.w400, letterSpacing: -0.25, height: 1.12),
-      displayMedium: TextStyle(fontSize: 45, fontWeight: FontWeight.w400, letterSpacing:  0,    height: 1.16),
-      displaySmall:  TextStyle(fontSize: 36, fontWeight: FontWeight.w400, letterSpacing:  0,    height: 1.22),
+      displayLarge: TextStyle(
+        fontSize: 57,
+        fontWeight: FontWeight.w400,
+        letterSpacing: -0.25,
+        height: 1.12,
+      ),
+      displayMedium: TextStyle(
+        fontSize: 45,
+        fontWeight: FontWeight.w400,
+        letterSpacing: 0,
+        height: 1.16,
+      ),
+      displaySmall: TextStyle(
+        fontSize: 36,
+        fontWeight: FontWeight.w400,
+        letterSpacing: 0,
+        height: 1.22,
+      ),
       // ── Headline ───────────────────────────────────────────────────────────
-      headlineLarge:  TextStyle(fontSize: 32, fontWeight: FontWeight.w400, letterSpacing: 0, height: 1.25),
-      headlineMedium: TextStyle(fontSize: 28, fontWeight: FontWeight.w400, letterSpacing: 0, height: 1.29),
-      headlineSmall:  TextStyle(fontSize: 24, fontWeight: FontWeight.w400, letterSpacing: 0, height: 1.33),
+      headlineLarge: TextStyle(
+        fontSize: 32,
+        fontWeight: FontWeight.w400,
+        letterSpacing: 0,
+        height: 1.25,
+      ),
+      headlineMedium: TextStyle(
+        fontSize: 28,
+        fontWeight: FontWeight.w400,
+        letterSpacing: 0,
+        height: 1.29,
+      ),
+      headlineSmall: TextStyle(
+        fontSize: 24,
+        fontWeight: FontWeight.w400,
+        letterSpacing: 0,
+        height: 1.33,
+      ),
       // ── Title ──────────────────────────────────────────────────────────────
-      titleLarge:  TextStyle(fontSize: 22, fontWeight: FontWeight.w500, letterSpacing: 0,    height: 1.27),
-      titleMedium: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, letterSpacing: 0.15, height: 1.50),
-      titleSmall:  TextStyle(fontSize: 14, fontWeight: FontWeight.w500, letterSpacing: 0.1,  height: 1.43),
+      titleLarge: TextStyle(
+        fontSize: 22,
+        fontWeight: FontWeight.w500,
+        letterSpacing: 0,
+        height: 1.27,
+      ),
+      titleMedium: TextStyle(
+        fontSize: 16,
+        fontWeight: FontWeight.w500,
+        letterSpacing: 0.15,
+        height: 1.50,
+      ),
+      titleSmall: TextStyle(
+        fontSize: 14,
+        fontWeight: FontWeight.w500,
+        letterSpacing: 0.1,
+        height: 1.43,
+      ),
       // ── Body ───────────────────────────────────────────────────────────────
-      bodyLarge:   TextStyle(fontSize: 16, fontWeight: FontWeight.w400, letterSpacing: 0.5,  height: 1.50),
-      bodyMedium:  TextStyle(fontSize: 14, fontWeight: FontWeight.w400, letterSpacing: 0.25, height: 1.43),
-      bodySmall:   TextStyle(fontSize: 12, fontWeight: FontWeight.w400, letterSpacing: 0.4,  height: 1.33),
+      bodyLarge: TextStyle(
+        fontSize: 16,
+        fontWeight: FontWeight.w400,
+        letterSpacing: 0.5,
+        height: 1.50,
+      ),
+      bodyMedium: TextStyle(
+        fontSize: 14,
+        fontWeight: FontWeight.w400,
+        letterSpacing: 0.25,
+        height: 1.43,
+      ),
+      bodySmall: TextStyle(
+        fontSize: 12,
+        fontWeight: FontWeight.w400,
+        letterSpacing: 0.4,
+        height: 1.33,
+      ),
       // ── Label ──────────────────────────────────────────────────────────────
-      labelLarge:  TextStyle(fontSize: 14, fontWeight: FontWeight.w500, letterSpacing: 0.1,  height: 1.43),
-      labelMedium: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, letterSpacing: 0.5,  height: 1.33),
-      labelSmall:  TextStyle(fontSize: 11, fontWeight: FontWeight.w500, letterSpacing: 0.5,  height: 1.45),
+      labelLarge: TextStyle(
+        fontSize: 14,
+        fontWeight: FontWeight.w500,
+        letterSpacing: 0.1,
+        height: 1.43,
+      ),
+      labelMedium: TextStyle(
+        fontSize: 12,
+        fontWeight: FontWeight.w500,
+        letterSpacing: 0.5,
+        height: 1.33,
+      ),
+      labelSmall: TextStyle(
+        fontSize: 11,
+        fontWeight: FontWeight.w500,
+        letterSpacing: 0.5,
+        height: 1.45,
+      ),
     );
 
     return fontFamily != null ? fontResolver(fontFamily, scale) : scale;
@@ -197,16 +270,18 @@ class AppTheme {
     // _applyOverrides, so both readers can consume the same map.
     final colors = (isDark ? AppColorsExtension.dark : AppColorsExtension.light)
         .copyWith(
-      tintedPrimaryFill: colorOverrides['tintedPrimaryFill'] ??
-          cs.primary.withValues(alpha: isDark ? 0.20 : 0.10),
-      dockedHairline: colorOverrides['dockedHairline'] ?? cs.outlineVariant,
-      sheetHairline: colorOverrides['sheetHairline'] ?? cs.outlineVariant,
-      onSheetMuted: colorOverrides['onSheetMuted'] ?? cs.onSurfaceVariant,
-      tintedErrorFill: colorOverrides['tintedErrorFill'] ??
-          cs.error.withValues(alpha: isDark ? 0.20 : 0.10),
-      fieldFill: colorOverrides['fieldFill'] ?? cs.surfaceContainerLow,
-      canvas: colorOverrides['canvas'] ?? cs.surface,
-    );
+          tintedPrimaryFill:
+              colorOverrides['tintedPrimaryFill'] ??
+              cs.primary.withValues(alpha: isDark ? 0.20 : 0.10),
+          dockedHairline: colorOverrides['dockedHairline'] ?? cs.outlineVariant,
+          sheetHairline: colorOverrides['sheetHairline'] ?? cs.outlineVariant,
+          onSheetMuted: colorOverrides['onSheetMuted'] ?? cs.onSurfaceVariant,
+          tintedErrorFill:
+              colorOverrides['tintedErrorFill'] ??
+              cs.error.withValues(alpha: isDark ? 0.20 : 0.10),
+          fieldFill: colorOverrides['fieldFill'] ?? cs.surfaceContainerLow,
+          canvas: colorOverrides['canvas'] ?? cs.surface,
+        );
 
     // Every brand shape is derived from the config's radii, so raw Material
     // widgets (ElevatedButton, Chip, Card…) and our atoms — which read the same
@@ -236,11 +311,7 @@ class AppTheme {
       // ── Custom theme extensions ───────────────────────────────────────────
       // success/warning colours via AppColorsExtension; brand radii via
       // AppShapes — atoms read both from Theme.of(context).extension<…>().
-      extensions: [
-        colors,
-        shapes,
-        shadows,
-      ],
+      extensions: [colors, shapes, shadows],
 
       // ── Text theme ────────────────────────────────────────────────────────
       // Explicit M3 type scale — change sizes/weights here, not in widgets.
@@ -250,25 +321,31 @@ class AppTheme {
       // ── Component themes (make RAW Material widgets on-brand) ──────────────
       // Colours already come from the ColorScheme automatically; these add the
       // brand shape so a plain ElevatedButton looks exactly like an AppButton.
-      elevatedButtonTheme:
-          ElevatedButtonThemeData(style: ElevatedButton.styleFrom(shape: buttonShape)),
-      filledButtonTheme:
-          FilledButtonThemeData(style: FilledButton.styleFrom(shape: buttonShape)),
-      outlinedButtonTheme:
-          OutlinedButtonThemeData(style: OutlinedButton.styleFrom(shape: buttonShape)),
-      textButtonTheme:
-          TextButtonThemeData(style: TextButton.styleFrom(shape: buttonShape)),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(shape: buttonShape),
+      ),
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(shape: buttonShape),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(shape: buttonShape),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(shape: buttonShape),
+      ),
       chipTheme: ChipThemeData(shape: chipShape),
       cardTheme: CardThemeData(clipBehavior: Clip.antiAlias, shape: cardShape),
       dialogTheme: DialogThemeData(shape: cardShape),
       bottomSheetTheme: BottomSheetThemeData(
         shape: RoundedRectangleBorder(
-          borderRadius:
-              BorderRadius.vertical(top: Radius.circular(shapes.sheetRadius)),
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(shapes.sheetRadius),
+          ),
         ),
       ),
-      floatingActionButtonTheme:
-          FloatingActionButtonThemeData(shape: buttonShape),
+      floatingActionButtonTheme: FloatingActionButtonThemeData(
+        shape: buttonShape,
+      ),
 
       // ── Input fields ──────────────────────────────────────────────────────
       // M3 default uses an underline border. This switches every TextFormField
