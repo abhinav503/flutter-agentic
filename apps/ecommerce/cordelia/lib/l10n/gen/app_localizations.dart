@@ -4509,6 +4509,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Earlier'**
   String get notificationsSectionEarlier;
+
+  /// Title of the prompt shown on the Notifications screen when the OS is not allowing this app to notify. Shared by every storefront template — the wording is functional, not brand voice.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications are off'**
+  String get notificationsPermissionTitle;
+
+  /// Subtitle under notificationsPermissionTitle, saying what the shopper gets by allowing notifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn them on to get order updates and offers from this store.'**
+  String get notificationsPermissionSubtitle;
+
+  /// Button that raises the operating system's notification permission dialog. Sits on a full-width CTA, so length is not tightly constrained.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable notifications'**
+  String get notificationsPermissionCta;
+
+  /// Snackbar shown when the shopper taps Enable but the OS refuses to prompt again, because they already declined. Only the device settings can change it from there. CordeliaApps is the app name and is never translated.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications are blocked for CordeliaApps. Turn them on in your device settings.'**
+  String get notificationsPermissionBlockedMessage;
 }
 
 class _AppLocalizationsDelegate

@@ -1,5 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- Android 13+ runtime notification permission; firebase_messaging's
+         requestPermission() is what raises the prompt. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <uses-permission android:name="android.permission.CAMERA"/>
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
@@ -12,6 +15,20 @@
         android:label="CordeliaApps"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+        <!-- Channel a *backgrounded* push is drawn on. Must match
+             LocalNotificationService._channelId, which creates it. -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="default_channel"/>
+        <!-- A backgrounded push is drawn by the OS, which never runs our Dart
+             — without these it falls back to the launcher icon and renders
+             the same donut the foreground path used to. -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_notification"/>
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/notification_accent"/>
         <activity
             android:name=".MainActivity"
             android:exported="true"

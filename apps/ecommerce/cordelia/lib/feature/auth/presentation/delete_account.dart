@@ -68,7 +68,9 @@ mixin DeleteAccountAction<T extends BaseScreen> on BaseScreenState<T> {
         Positioned.fill(
           child: AbsorbPointer(
             child: ColoredBox(
-              color: Theme.of(context).colorScheme.scrim.withValues(alpha: 0.33),
+              color: Theme.of(
+                context,
+              ).colorScheme.scrim.withValues(alpha: 0.33),
               child: const Center(child: LoadingIndicator()),
             ),
           ),

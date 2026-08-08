@@ -70,8 +70,7 @@ abstract final class ValueConst {
   // which overrides core's TextfieldValidations with arb-backed copy.
   static String get authWebUnsupportedMessage =>
       L10n.current.authWebUnsupportedMessage;
-  static String get sessionExpiredMessage =>
-      L10n.current.sessionExpiredMessage;
+  static String get sessionExpiredMessage => L10n.current.sessionExpiredMessage;
   static String get signupButtonLabel => L10n.current.signupButtonLabel;
   static String get alreadyHaveAccount => L10n.current.alreadyHaveAccount;
   static String get loginLink => L10n.current.loginLink;
@@ -104,8 +103,7 @@ abstract final class ValueConst {
   static String get termsAndConditionsLabel =>
       L10n.current.termsAndConditionsLabel;
   static String get privacyPolicyLabel => L10n.current.privacyPolicyLabel;
-  static String get legalLastUpdatedLabel =>
-      L10n.current.legalLastUpdatedLabel;
+  static String get legalLastUpdatedLabel => L10n.current.legalLastUpdatedLabel;
   static String get termsAndConditionsIntro =>
       L10n.current.termsAndConditionsIntro;
   static String get termsAndConditionsSection1Heading =>
@@ -251,6 +249,18 @@ abstract final class ValueConst {
   static String get notificationsSectionEarlier =>
       L10n.current.notificationsSectionEarlier;
 
+  // App-level, not per-pack like the empty/error copy beside it: the
+  // permission prompt is functional rather than brand voice, and one wording
+  // across the three templates is one wording to translate.
+  static String get notificationsPermissionTitle =>
+      L10n.current.notificationsPermissionTitle;
+  static String get notificationsPermissionSubtitle =>
+      L10n.current.notificationsPermissionSubtitle;
+  static String get notificationsPermissionCta =>
+      L10n.current.notificationsPermissionCta;
+  static String get notificationsPermissionBlockedMessage =>
+      L10n.current.notificationsPermissionBlockedMessage;
+
   // ── Product reviews — app-level, not per-pack: one shared reviews feature
   // serves every storefront, and the wording describes the *mechanism*
   // (ratings, verified purchases, one review per shopper) rather than any
@@ -272,8 +282,7 @@ abstract final class ValueConst {
       L10n.current.reviewDeleteConfirmMessage;
   static String get reviewSignedOutMessage =>
       L10n.current.reviewSignedOutMessage;
-  static String get verifiedPurchaseLabel =>
-      L10n.current.verifiedPurchaseLabel;
+  static String get verifiedPurchaseLabel => L10n.current.verifiedPurchaseLabel;
   static String get reviewsEmptyTitle => L10n.current.reviewsEmptyTitle;
   static String get reviewsEmptySubtitle => L10n.current.reviewsEmptySubtitle;
   static String get unratedLabel => L10n.current.unratedLabel;

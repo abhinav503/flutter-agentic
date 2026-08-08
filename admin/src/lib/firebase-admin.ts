@@ -1,6 +1,7 @@
 import { cert, getApps, getApp, initializeApp } from "firebase-admin/app";
 import { getAuth } from "firebase-admin/auth";
 import { getFirestore } from "firebase-admin/firestore";
+import { getMessaging } from "firebase-admin/messaging";
 
 // Trusted server-side path — bypasses firestore.rules entirely (same as a
 // Cloud Function would). Only cart/order writes and admin-token verification
@@ -18,6 +19,7 @@ const app = getApps().length
 
 export const adminDb = getFirestore(app);
 export const adminAuth = getAuth(app);
+export const adminMessaging = getMessaging(app);
 
 // Admin SDK's Firestore client defaults to gRPC, which hangs on DNS
 // resolution to firestore.googleapis.com in this environment (and is a

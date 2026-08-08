@@ -17,6 +17,7 @@ import '../feature/home/data/data_source/stores_remote_data_source.dart';
 import '../feature/home/data/data_source/stores_remote_data_source_impl.dart';
 import '../feature/home/data/repository_impl/stores_repository_impl.dart';
 import '../feature/home/domain/repository/stores_repository.dart';
+import '../feature/home/domain/usecase/get_store_usecase.dart';
 import '../feature/home/domain/usecase/get_stores_usecase.dart';
 import '../feature/storefront/cart/data/data_source/cart_remote_data_source.dart';
 import '../feature/storefront/cart/data/data_source/cart_remote_data_source_impl.dart';
@@ -143,6 +144,7 @@ Future<void> initDependencies() async {
   );
   sl.registerLazySingleton<StoresRepository>(() => StoresRepositoryImpl(sl()));
   sl.registerLazySingleton(() => GetStoresUseCase(sl()));
+  sl.registerLazySingleton(() => GetStoreUseCase(sl()));
 
   // ── Storefront: Home ────────────────────────────────────────────────────
   sl.registerLazySingleton<HomeRemoteDataSource>(

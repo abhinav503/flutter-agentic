@@ -122,9 +122,12 @@ import 'l10n/gen/app_localizations.dart';
 import 'services/firebase_auth_service.dart';
 import 'services/user_profile_cache_service.dart';
 import 'theme/active_theme_controller.dart';
+import 'services/notification/notification_navigator.dart';
 import 'theme/active_theme_scope.dart';
 
 final _router = GoRouter(
+  // Lets a notification tap navigate from outside the widget tree.
+  navigatorKey: rootNavigatorKey,
   routes: [
     GoRoute(
       path: AppRoutes.splash,

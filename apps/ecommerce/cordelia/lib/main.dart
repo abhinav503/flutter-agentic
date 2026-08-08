@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -10,6 +11,13 @@ import 'app.dart';
 import 'di/injection_container.dart';
 import 'firebase_options.dart';
 import 'services/crash_reporter_service.dart';
+
+/// Runs in its own isolate when a push arrives with the app backgrounded or
+/// killed. Deliberately empty: the OS already draws the notification, and the
+/// tap is what routes (onMessageOpenedApp / getInitialMessage). Navigation
+/// from here would have no mounted navigator to run against.
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,6 +29,8 @@ void main() async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
+    // Must be registered before runApp, and the handler must stay top-level.
+    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   }
 
   // After Firebase.initializeApp (Crashlytics needs the app) and before

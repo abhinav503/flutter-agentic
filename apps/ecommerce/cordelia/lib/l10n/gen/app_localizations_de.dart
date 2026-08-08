@@ -2513,4 +2513,18 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get notificationsSectionEarlier => 'Früher';
+
+  @override
+  String get notificationsPermissionTitle => 'Benachrichtigungen sind aus';
+
+  @override
+  String get notificationsPermissionSubtitle =>
+      'Aktivieren Sie sie, um Bestellupdates und Angebote dieses Shops zu erhalten.';
+
+  @override
+  String get notificationsPermissionCta => 'Benachrichtigungen aktivieren';
+
+  @override
+  String get notificationsPermissionBlockedMessage =>
+      'Benachrichtigungen für CordeliaApps sind blockiert. Aktivieren Sie sie in den Einstellungen Ihres Geräts.';
 }

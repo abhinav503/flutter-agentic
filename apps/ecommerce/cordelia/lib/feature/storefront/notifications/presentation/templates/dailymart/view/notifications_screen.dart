@@ -7,15 +7,19 @@ import 'package:cordelia/templates/dailymart/widgets/dailymart_switcher.dart';
 import 'package:core/core/base/base_screen.dart';
 import 'package:core/core/theme/app_colors_extension.dart';
 import 'package:core/core/theme/app_spacing.dart';
+import 'package:core/core/ui/atoms/button.dart';
 import 'package:core/core/ui/molecules/empty_state.dart';
 import 'package:core/core/ui/molecules/error_view.dart';
 
+import 'package:cordelia/constants/value_const.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_text_style_const.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_value_const.dart';
+import 'package:cordelia/templates/dailymart/widgets/dailymart_primary_button.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_screen_body.dart';
 
 import '../../../../domain/entities/notification_section_entity.dart';
 import '../../../bloc/notifications_bloc.dart';
+import '../../../notifications_permission_body.dart';
 import '../widgets/notification_row.dart';
 import '../widgets/notifications_skeleton_body.dart';
 
@@ -55,6 +59,11 @@ class _NotificationsScreenState extends BaseScreenState<NotificationsScreen> {
             if (state case NotificationsError(:final message)) {
               showSnackBar(message);
             }
+            // The OS declined to ask again — the only thing left to say is
+            // where the switch actually is.
+            if (state case NotificationsPermissionRequired(blocked: true)) {
+              showSnackBar(ValueConst.notificationsPermissionBlockedMessage);
+            }
           },
           builder: (context, state) => DailyMartSwitcher(
             curve: Curves.easeInOut,
@@ -67,6 +76,21 @@ class _NotificationsScreenState extends BaseScreenState<NotificationsScreen> {
                   message: DailyMartValueConst.notificationsLoadErrorMessage,
                   onRetry: () => context.read<NotificationsBloc>().add(
                     const NotificationsEvent.started(),
+                  ),
+                ),
+              ),
+              NotificationsPermissionRequired(:final requesting) => _page(
+                key: const ValueKey('permission'),
+                body: NotificationsPermissionBody(
+                  icon: Icons.notifications_off_rounded,
+                  action: DailyMartPrimaryButton(
+                    label: ValueConst.notificationsPermissionCta,
+                    state: requesting
+                        ? AppButtonState.loading
+                        : AppButtonState.idle,
+                    onTap: () => context.read<NotificationsBloc>().add(
+                      const NotificationsEvent.permissionRequested(),
+                    ),
                   ),
                 ),
               ),

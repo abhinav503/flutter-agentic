@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -12,6 +13,7 @@ import 'package:cordelia/constants/app_routes.dart';
 import 'package:cordelia/constants/value_const.dart';
 import 'package:cordelia/feature/storefront/active_store/domain/entities/active_store_entity.dart';
 import 'package:cordelia/feature/storefront/presentation/view/storefront_page.dart';
+import 'package:cordelia/services/notification/firebase_messaging_service.dart';
 
 import '../../domain/entities/store_entity.dart';
 import '../bloc/discovery_bloc.dart';
@@ -27,6 +29,19 @@ class DiscoveryScreen extends BaseScreen {
 
 class _DiscoveryScreenState extends BaseScreenState<DiscoveryScreen> {
   final _searchController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    // Messaging starts from the first frame of the app's home screen, never
+    // from main(): on iOS, querying the launch notification before the
+    // navigator is mounted drops the tap that opened the app from a killed
+    // state. FCM is the sole entry to the native notification stack, so this
+    // one guard keeps the Flutter Web preview off every native-only plugin.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!kIsWeb) FirebaseMessagingService.instance.init();
+    });
+  }
 
   @override
   void dispose() {

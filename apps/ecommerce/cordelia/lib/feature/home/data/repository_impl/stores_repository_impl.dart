@@ -17,4 +17,11 @@ class StoresRepositoryImpl with BaseRepository implements StoresRepository {
         final models = await _dataSource.getStores(query: query);
         return right(models.map((m) => m.toEntity()).toList());
       });
+
+  @override
+  Future<Either<Failure, StoreEntity>> getStore({required String storeId}) =>
+      handleRequest(() async {
+        final model = await _dataSource.getStore(storeId: storeId);
+        return right(model.toEntity());
+      });
 }

@@ -36,6 +36,13 @@ npm run dev        # http://localhost:4100
 - `OLA_MAPS_API_KEY` — Ola Maps key behind the `/api/geo/*` proxy routes
   (reverse geocode + autocomplete for the shopper address form;
   `src/lib/geo.ts`). Never ships to a client.
+- `CRON_SECRET` — **TODO, not set yet.** What Vercel Cron sends as
+  `Authorization: Bearer …` when it calls `/api/devices/prune` (the weekly
+  sweep of FCM device rows nobody has refreshed in 270 days, scheduled in
+  `vercel.json`). Until it is set the schedule can't authenticate and the
+  prune is effectively off — deliberately, since an open prune endpoint would
+  delete every shopper's device registrations. A superadmin can still run it
+  by hand meanwhile.
 
 See `.env.local.example` for the full list.
 

@@ -3565,3 +3565,273 @@ working**.
   functionality.
 - Data safety form; iOS signing; the app-level theme is still the old purple
   (`#7059FF` seed) against the new green mark; `support@` cannot yet send.
+
+## Notifications — push + in-app centre, end-to-end — DONE (2026-08-08)
+
+The last per-template mock is gone. Notifications were the one storefront
+surface still reading a bundled JSON file keyed on the *template*, so every
+store on `dailymart` showed the same invented list. They are now real data,
+composed in the console or by the platform, delivered as a push and kept in
+the notification centre.
+
+### Sending is one operation, not two
+
+`admin/src/lib/push.ts` writes the Firestore record **and** calls FCM. Nothing
+else may do either half. That is why the console composes through an API route
+rather than the client SDK it uses everywhere else: only the Admin SDK can
+reach FCM, so a client-side `addDoc` would inevitably drift into "saved but
+never pushed".
+
+The write comes first, and only *its* failure fails the call. A saved
+notification with no push is one the shopper still finds on their next visit; a
+push with no record is a banner that vanishes and leaves nothing behind. A dead
+FCM path therefore degrades to in-app-only and reports `pushed: false`, which
+the console surfaces as "Saved, but the push could not be delivered" instead of
+claiming a delivery that didn't happen.
+
+### Topics, not a token registry
+
+Every push today addresses a **topic** — `platform`, `store_{storeId}`,
+`user_{uid}`. No fan-out, no stale-token cleanup, and a reinstall
+re-subscribes itself. The store topic is subscribed as a storefront session
+opens and dropped as it closes (inside the same session guard as the theme and
+locale reset, or a tab jump that replaced the visit would silence its
+successor). The user topic follows `authStateChanges` rather than the sign-in
+and sign-out call sites, because five different things change who should
+receive order pushes and only one of them is a button — and dropping the old
+topic matters more than adding the new one, or the next person to sign in on
+that handset keeps getting the previous account's order updates.
+
+Device tokens are filed anyway (`devices/{token}` — see the ownership section
+below). **Nothing sends to them yet.** They exist because a topic can address
+an audience but never a device, and because the row is the record of who
+accepted the permission and on what.
+
+### Server-authored copy, and the localization trap
+
+Order updates are composed on the server because the events are server-side:
+the shopper who needs to hear "delivered" is by definition not the person who
+pressed the button. That creates the problem `docs/how-to/add-language-pack.md`
+warns about — server copy can't be localized by the app. So the four events are
+written out per language in `order-notifications.ts` and picked by the
+**store's** language. Imperfect and knowingly so: a shopper who overrode the
+language on their own device still gets the store's default, because nothing
+server-side knows about an on-device override.
+
+Two smaller calls in the same file: no amount is interpolated into any string
+(a currency figure inside translated copy is its own trap), and a cancellation
+sends under the `payment` kind — there is no `cancelled` kind, and adding one
+would mean touching all three packs' glyph maps for a message that is a refund
+from the shopper's side anyway.
+
+### Permission and init timing
+
+The permission prompt belongs to **signing in**, not launch: a visitor still
+deciding whether to make an account shouldn't be interrupted by a dialog they
+have no reason to accept, and iOS only ever offers it once. `init()` runs from
+Discovery's first frame, never `main()` — on iOS, querying the launch
+notification before the navigator is mounted drops the tap that opened the app
+from a terminated state.
+
+### Where a tap lands
+
+Originally every tap opened Discovery, because a storefront page needs a live
+session the push can't carry — it holds only a store id. Fixed by making the
+router *earn* the session: it fetches the store by id (new
+`GET /api/stores/{storeId}` consumer: `GetStoreUseCase`), mounts that
+storefront, and pushes the notification centre one frame later, once
+`StorefrontPage.initState` has seeded `ActiveStoreCubit`. If the shopper is
+already inside the sending store it pushes directly rather than re-mounting,
+which would reset the shell to its home tab and drop whatever they had above
+it. Platform notifications belong to no store and still land on Discovery,
+as does anything unroutable — a deactivated store, or no network on a cold
+start.
+
+### Three things Android made us find out
+
+- **`@mipmap/ic_launcher` is wrong as a notification icon.** Android keeps only
+  a small icon's alpha channel and fills it white, so the round adaptive
+  launcher rendered as a filled donut. A flat monochrome `ic_notification`
+  drawable, plus the `default_notification_icon`/`_color` manifest meta-data
+  the OS reads when a *backgrounded* push is drawn without running our Dart.
+- **`flutter_local_notifications` needs core-library desugaring** — without
+  `isCoreLibraryDesugaringEnabled` the Gradle build fails outright.
+- **FCM silently drops a push image over ~300 KB** — the push still arrives,
+  just with no picture and no error anywhere. Enforced at upload time in the
+  console so the sender finds out there rather than from a complaint.
+
+### Also shipped in this pass
+
+Artwork now renders in the notification centre, not just the banner: a
+full-width 2:1 block under the row in each pack's own corner (gravia's
+`AppRadius.lg`, dailymart's card radius, grofast's tile radius inset inside the
+card). Full width rather than aligned to the text column — it reads as the
+banner it was uploaded as, and doesn't have to track the leading disc's size.
+
+### The screen asks before it shows
+
+The notification centre now checks the OS permission first: granted → the
+loading/loaded/empty states as before; not granted → a shared prompt
+(`NotificationsPermissionBody`) with the pack's own CTA, which raises the
+system dialog and loads the feed on a yes.
+
+The check lives in `NotificationsBloc`, not in a screen's `setState` — it is
+state the screen renders from, and putting it in the bloc is what gives all
+three templates the same gate for one implementation. It reaches
+`FirebaseMessagingService.instance` directly, the same way `AddressBloc`
+reaches `SharedPreferenceService.instance`: static-singleton services are
+ambient infrastructure here, not GetIt entries or repository dependencies.
+
+Two behaviours worth knowing:
+
+- **The button always works, even after a refusal.** Both platforms return the
+  standing decision from `requestPermission()` rather than re-prompting, so a
+  shopper who denied earlier gets `false` with no dialog — the bloc marks the
+  state `blocked` and every template snackbars where the switch is. If they
+  then enable it in Settings and come back, the same button returns granted
+  and loads the feed, so no app-lifecycle listener is needed to recover.
+- **A failed status read reports granted.** `isPermissionGranted()` swallows
+  its errors optimistically, because the cost of being wrong in that direction
+  is a prompt that shouldn't have appeared, while the other direction hides a
+  feed that loads fine. On web it returns granted outright — Firebase isn't
+  initialised there, so there is nothing to enable.
+
+Copy is app-level (`ValueConst.notificationsPermission*`, four new keys at 738
+across six locales) rather than per-pack like the empty/error strings beside
+it: the wording is functional, not brand voice.
+
+**Known trade-off:** while permission is off, the in-app feed is behind the
+prompt — including notifications that arrived earlier. The centre itself works
+without push permission, so this is a deliberate "ask first" choice, not a
+technical limit; making it a dismissible banner over the list is a one-branch
+change if it reads as too aggressive in use.
+
+### One phone, two shoppers — DONE (2026-08-08)
+
+A handset gets sold, lent, or shared. Asking "is this device token still
+active?" turned out to be the wrong question — it conflates two: is the
+install *alive* (a timestamp can estimate that) and *whose* is it (a timestamp
+can never say). Checking the code found the ownership half broken in two
+places and the liveness half measuring the wrong thing.
+
+**The topic leak was live, not theoretical.** Order updates are addressed to
+`user_{uid}`, and the unsubscribe on sign-out was best-effort with the
+subscribed uid held only in memory. Sign out with no network — or kill the app
+while signed out — and the handset stayed subscribed to the previous account
+forever, with nothing left that knew to undo it. The next shopper to sign in
+received their order notifications.
+
+Fixed by persisting what the device believes it is subscribed to
+(`fcm_subscribed_topics` in SharedPreferences, written only after FCM accepts
+each call) and reconciling on the first auth report of every launch: exactly
+two subscriptions are legitimate then — `platform` and the signed-in
+shopper's — so anything else is left over and gets dropped, retried each
+launch until it sticks. That also collects store topics whose storefront never
+got to tear down.
+
+**The registry's DELETE could never have run.** `_unregisterDevice` fetched
+its ID token from `FirebaseAuth.instance.currentUser`, but it was called from
+the `authStateChanges` listener — which fires *after* sign-out completes, when
+`currentUser` is already null. It returned early every single time, so A's row
+survived and B's registration wrote a second row for the same token.
+
+The fix is the data model, not the call: a device is now `devices/{token}` at
+the top level with `uid` as a **field**. The token is unique per install, so
+the document *is* the handset — signing in takes ownership by writing it, and
+two accounts can never hold one phone. Filing under `users/{uid}/devices`
+encoded ownership in the path, which is precisely what changes here. Release
+on sign-out survives as hygiene (`releaseDevice`, now called from
+`FirebaseAuthService.signOut` *before* the sign-out, which is the only moment
+an ID token still exists), and it's transactionally guarded to no-op if the
+row has since been claimed by someone else — a late release must not
+unregister the new owner.
+
+Two smaller holes closed with it: a rotated token used to leave its
+predecessor behind forever (`onTokenRefresh` now releases the outgoing row
+first), and account deletion never touched devices, `notifications` or
+`notificationReads` — the first now swept by uid, the other two added to
+`USER_SUBCOLLECTIONS`.
+
+**Liveness now measures liveness.** `updatedAt` moves on every launch, but
+registration used to be skipped entirely when permission wasn't granted — so
+revoking notifications in Settings froze the timestamp and looked exactly like
+an uninstall. The device registers either way now, with `granted` on the row.
+A weekly `POST /api/devices/prune` (Vercel Cron via `CRON_SECRET`, or a
+superadmin by hand) deletes rows untouched for 270 days — FCM's own staleness
+horizon, so the sweep cannot discard a device FCM would still have delivered
+to.
+
+The real reaper is still missing and always will be until something sends by
+token: the authoritative signal that a token is dead is FCM answering
+`messaging/registration-token-not-registered`, which no amount of timestamp
+arithmetic substitutes for.
+
+### Audit pass — six defects and two rough edges (2026-08-08)
+
+A read-through of the whole notification path, after the device-ownership
+work, found more than the ownership half:
+
+- **A repeated status PATCH re-pushed.** `updateOrderStatus` no-ops when the
+  status already matches, but couldn't say so through its return value, so the
+  route notified regardless — a double-clicked "Delivered" told the shopper
+  twice. The route now compares against the order it already read.
+- **Closed accounts were being re-created as notification data.** Orders
+  deliberately outlive the account that placed them, and advancing one wrote
+  `users/{uid}/notifications` under a uid that no longer existed — Firestore
+  creates subcollections beneath a missing parent doc without complaint, and
+  nothing would ever have deleted them. `notify()` checks the account first.
+- **Mark-as-read dropped a third of a full feed.** The batch sliced to
+  `PER_SOURCE_LIMIT * 2` with a comment saying the feed caps at 100 — but the
+  feed merges *three* sources, so it returns up to 150 and the tail never got
+  a receipt. Named `MAX_FEED_SIZE` off a `SOURCE_COUNT` so the two can't drift
+  again.
+- **Opening the screen cost more every year.** Read state came from listing
+  the whole `notificationReads` collection, which nothing ever prunes — not
+  even when the notification a receipt points at is deleted. Now a `getAll`
+  of just the ids in the merged feed: one round trip, bounded by
+  `MAX_FEED_SIZE`, and orphaned receipts simply stop being read rather than
+  needing a sweep of their own.
+- **A dead image host meant no banner at all.** The foreground path built its
+  own `Dio()` with no timeouts, and the notification isn't drawn until the
+  artwork fetch returns. 5s connect/receive on `BaseOptions` (a
+  `connectTimeout` can't be set per-request, and connect is the case that
+  hangs), so it degrades to text-only as intended.
+- **The 300 KB ceiling was advice, not a rule.** It ran in the sender's
+  browser; the route accepted any string as `imageUrl`. The constant moved to
+  `lib/types.ts` (both ends read it), the input parser now requires a real
+  **https** URL — FCM fetches it on the device, where `http://` is blocked by
+  both platforms — and the send routes HEAD the URL to check `content-length`.
+  A HEAD that fails or answers without a length is *not* an error: refusing to
+  send over someone else's CDN behaviour would be worse than the invisible
+  drop it guards against.
+- **A self-cancel no longer notifies.** The cancel route serves both the store
+  and the shopper; pushing "Your order was cancelled" at someone still looking
+  at the screen where they tapped Cancel reports their own action back to
+  them. Only an admin cancellation sends now.
+
+Left alone deliberately: deleting a notification leaves its uploaded artwork
+in Storage, which every catalog delete in the console also does — a consistent
+existing choice, not a notification bug.
+
+### What this leaves open
+
+- **iOS artwork needs a Notification Service Extension.** FCM maps
+  `notification.imageUrl` to `apns.fcm_options.image`, which iOS renders only
+  if the app ships that extension target. There isn't one, so the image work
+  is Android-only regardless of the APNs key — worth scoping with the iOS push
+  work rather than after it.
+- **iOS push is unconfigured** — no `aps-environment` entitlement, no
+  `remote-notification` background mode, no APNs key in Firebase. Android-only
+  until an Apple developer account is in play.
+- **The device registry has no reader.** Every send is topic-addressed, so the
+  tokens accumulate unused until something needs to reach one device — and
+  until then there is no `registration-token-not-registered` feedback to prune
+  on, only the 270-day sweep.
+- **`CRON_SECRET` must be set in Vercel** for the weekly prune to run at all;
+  unset, the cron door is closed by design and the endpoint stays
+  superadmin-only.
+- **No shopper-side controls** — a shopper can mute a store only by leaving it,
+  and the OS-level toggle is all-or-nothing.
+- **The feed doesn't page.** 50 per source is well past a scroll, and a chatty
+  store can't push the platform's messages off the end because the cap is per
+  source — but it is still a cap, not pagination.

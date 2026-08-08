@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Status-bar icon for pushes — the CordeliaApps swift mark as a silhouette.
+
+  Android keeps only the ALPHA channel of a notification's small icon and
+  fills the opaque area with white (tinted by accent colour). Pointing it at
+  @mipmap/ic_launcher therefore rendered the launcher's round adaptive shape
+  as a filled ring — the "donut". A small icon must be a flat monochrome
+  glyph on transparency, which is what this is.
+
+  Path data is branding/cordeliaapps-mark.svg unmodified. Two deliberate
+  differences from the brand mark:
+    - The facet-cut mask is dropped: at 24dp the gap is well under half a
+      pixel, so it only muddies the silhouette.
+    - Gradients are dropped and every path is white, because Android would
+      discard the colour anyway.
+
+  The viewport is 75.3 rather than the artwork's own 69.05 so the glyph sits
+  inside the ~22-of-24dp box Android's status bar expects, instead of
+  touching both edges.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="75.3"
+    android:viewportHeight="75.3">
+    <group
+        android:translateX="-2.035"
+        android:translateY="3.79">
+        <path
+            android:fillColor="#FFFFFFFF"
+            android:pathData="M38.8691,18.6277L60.931,47.8329L5.16044,32.8892L38.8691,18.6277Z" />
+        <path
+            android:fillColor="#FFFFFFFF"
+            android:pathData="M44.0395,25.9964L74.212,43.791L26.8067,56.4932L44.0395,25.9964Z" />
+        <path
+            android:fillColor="#FFFFFFFF"
+            android:pathData="M52.4438,23.7331L38.8122,26.9321L46.1321,11.2344L52.4438,23.7331Z" />
+    </group>
+</vector>

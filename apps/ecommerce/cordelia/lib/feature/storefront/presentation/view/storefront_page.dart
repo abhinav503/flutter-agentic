@@ -11,11 +11,13 @@ import 'package:cordelia/feature/storefront/shell/presentation/templates/grofast
     as grofast;
 import 'package:core/core/base/base_page.dart';
 import 'package:core/core/theme/app_theme_config.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cordelia/feature/storefront/active_store/domain/entities/active_store_entity.dart';
 import 'package:cordelia/feature/storefront/active_store/presentation/cubit/active_store_cubit.dart';
+import 'package:cordelia/services/notification/firebase_messaging_service.dart';
 import 'package:cordelia/feature/storefront/template/storefront_template.dart';
 import 'package:cordelia/l10n/active_locale_controller.dart';
 import 'package:cordelia/l10n/active_locale_scope.dart';
@@ -72,6 +74,12 @@ class _StorefrontPageState extends BasePageState<StorefrontPage> {
     super.initState();
     _activeStore = context.read<ActiveStoreCubit>();
     _storeSession = _activeStore.open(widget.store);
+    // The store's broadcasts are heard for exactly as long as the shopper is
+    // in the store — leaving stops them without anything to mute. Not awaited
+    // and not guarded on web: the service no-ops there.
+    if (!kIsWeb) {
+      FirebaseMessagingService.instance.subscribeToStore(widget.store.storeId);
+    }
   }
 
   @override
@@ -135,6 +143,7 @@ class _StorefrontPageState extends BasePageState<StorefrontPage> {
     final activeLocale = _activeLocale;
     final activeStore = _activeStore;
     final session = _storeSession;
+    final storeId = widget.store.storeId;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // Deferring the teardown means it can land *after* a replacement
       // storefront has already mounted and installed its own store + theme —
@@ -144,6 +153,12 @@ class _StorefrontPageState extends BasePageState<StorefrontPage> {
       // Theme and locale reset inside the same guarded callback, so a race
       // can't reset one but not the other.
       if (!activeStore.isCurrentSession(session)) return;
+      // Inside the same session guard as the rest: a tab jump that replaced
+      // this visit may already have subscribed to another store, and an
+      // unguarded unsubscribe here would silence its successor.
+      if (!kIsWeb) {
+        FirebaseMessagingService.instance.unsubscribeFromStore(storeId);
+      }
       activeTheme?.resetToAppDefault();
       activeLocale?.resetToAppDefault();
       activeStore.closeSession(session);

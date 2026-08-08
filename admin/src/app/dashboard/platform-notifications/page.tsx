@@ -1,18 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useAuth } from "@/lib/auth-context";
 import { useStore } from "@/lib/store-context";
 import {
   watchPlatformNotifications,
-  addPlatformNotification,
+  sendPlatformNotification,
   deletePlatformNotification,
 } from "@/lib/notifications";
+import { PLATFORM_STORAGE_PREFIX } from "@/lib/storage";
 import type { StoreNotification } from "@/lib/types";
-import {
-  NotificationWorkspace,
-  type NotificationDraft,
-} from "@/components/notification-workspace";
+import { NotificationWorkspace } from "@/components/notification-workspace";
 
 /**
  * The CordeliaApps-wide feed: one message that appears in **every** store's
@@ -24,7 +21,6 @@ import {
  * scripts/grant-superadmin.mjs can set.
  */
 export default function PlatformNotificationsPage() {
-  const { user } = useAuth();
   const { isSuperAdmin, loading: storeLoading } = useStore();
   const [items, setItems] = useState<StoreNotification[]>([]);
   const [loading, setLoading] = useState(true);
@@ -53,11 +49,6 @@ export default function PlatformNotificationsPage() {
     );
   }
 
-  async function handleSend(draft: NotificationDraft) {
-    if (!user) return;
-    await addPlatformNotification(draft, user.uid);
-  }
-
   return (
     <NotificationWorkspace
       heading="Admin notifications"
@@ -68,9 +59,10 @@ export default function PlatformNotificationsPage() {
           CordeliaApps.
         </>
       }
+      storagePrefix={PLATFORM_STORAGE_PREFIX}
       items={items}
       loading={loading}
-      onSend={handleSend}
+      onSend={sendPlatformNotification}
       onDelete={deletePlatformNotification}
     />
   );

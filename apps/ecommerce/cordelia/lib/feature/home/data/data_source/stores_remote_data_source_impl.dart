@@ -19,4 +19,15 @@ class StoresRemoteDataSourceImpl implements StoresRemoteDataSource {
         .map((s) => StoreModel.fromJson(s as Map<String, dynamic>))
         .toList();
   }
+
+  @override
+  Future<StoreModel> getStore({required String storeId}) async {
+    final response = await HttpService.instance.get<Map<String, dynamic>>(
+      ApiConstants.storePath(storeId),
+    );
+    // 404s for a store that was deleted or deactivated, which reaches the
+    // caller as a server Failure — the one case this is called in (a
+    // notification tap) has a fallback for exactly that.
+    return StoreModel.fromJson(response.data!['store'] as Map<String, dynamic>);
+  }
 }

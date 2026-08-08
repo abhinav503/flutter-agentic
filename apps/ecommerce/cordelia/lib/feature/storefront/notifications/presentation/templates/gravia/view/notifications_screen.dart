@@ -7,8 +7,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:cordelia/constants/value_const.dart';
+import 'package:cordelia/templates/gravia/widgets/gravia_primary_button.dart';
 import 'package:cordelia/templates/gravia/widgets/gravia_switcher.dart';
 import 'package:core/core/base/base_screen.dart';
+import 'package:core/core/ui/atoms/button.dart';
 import 'package:core/core/theme/app_colors_extension.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/blocks/collapsing_header_sheet.dart';
@@ -18,6 +21,7 @@ import 'package:core/core/ui/molecules/error_view.dart';
 
 import '../../../../domain/entities/notification_section_entity.dart';
 import '../../../bloc/notifications_bloc.dart';
+import '../../../notifications_permission_body.dart';
 import '../widgets/notification_row.dart';
 import '../widgets/notifications_skeleton_body.dart';
 
@@ -40,6 +44,11 @@ class _NotificationsScreenState extends BaseScreenState<NotificationsScreen> {
         if (state case NotificationsError(:final message)) {
           showSnackBar(message);
         }
+        // The OS declined to ask again — the only thing left to say is where
+        // the switch actually is.
+        if (state case NotificationsPermissionRequired(blocked: true)) {
+          showSnackBar(ValueConst.notificationsPermissionBlockedMessage);
+        }
       },
       builder: (context, state) => GraviaSwitcher(
         child: switch (state) {
@@ -52,6 +61,27 @@ class _NotificationsScreenState extends BaseScreenState<NotificationsScreen> {
             ),
             body: const NotificationsSkeletonBody(),
           ),
+          NotificationsPermissionRequired(:final requesting) =>
+            CollapsingHeaderSheet(
+              key: const ValueKey('permission'),
+              initialHeaderHeight: GraviaDimenConst.headerHeightCompact,
+              header: GraviaHeroHeader(
+                title: GraviaValueConst.notificationsTitle,
+                onBack: () => context.pop(),
+              ),
+              body: NotificationsPermissionBody(
+                icon: Icons.notifications_off_outlined,
+                action: GraviaPrimaryButton(
+                  label: ValueConst.notificationsPermissionCta,
+                  state: requesting
+                      ? AppButtonState.loading
+                      : AppButtonState.idle,
+                  onTap: () => context.read<NotificationsBloc>().add(
+                    const NotificationsEvent.permissionRequested(),
+                  ),
+                ),
+              ),
+            ),
           NotificationsError() => SafeArea(
             key: const ValueKey('error'),
             child: ErrorView(

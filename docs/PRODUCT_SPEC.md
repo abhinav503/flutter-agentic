@@ -67,7 +67,7 @@ falls back to another template's screen.
 | Order rating | Rate a **delivered** order and say how it went — private feedback to you, not shown to other shoppers | ✅ |
 | Addresses | Full address book — add, edit, delete, select at checkout | ✅ |
 | Wishlist | Per-store favourites | ✅ |
-| Notifications | Order and promo notifications in-app | 🚧 (in-app feed is template-styled but backend-fed per store is Roadmap) |
+| Notifications | Push notifications and an in-app notification centre — your store's announcements, CordeliaApps announcements, and automatic order updates (placed, on the way, delivered, cancelled) in the shopper's language. Tapping one opens the store that sent it | ✅ (Android; iOS push needs an Apple push key) |
 | Profile | Edit profile with avatar upload, change password | ✅ |
 | Account | Email/password sign-up with email verification, forgot/reset password, persistent sessions, and in-app account deletion (removes profile, addresses, cart, wishlist and reviews; orders stay with the stores as their sales records) | ✅ |
 | Legal | Your privacy policy & terms rendered in-template | ✅ |
@@ -88,7 +88,7 @@ falls back to another template's screen.
 | Reviews | One page, two lists: **product reviews** across your store (delete any — the product's rating recalculates), and **delivery ratings** your customers gave their orders (read-only: private feedback isn't yours to erase). Each product's rating also shows in the catalog table | ✅ |
 | Catalog table tools | Every list sorts by column — products by name, price, stock, rating or date added; coupons by code, times used or expiry — with quick filters (category, brand, in/out of stock, coupon status) and search on every screen | ✅ |
 | Sample data | One click fills a fresh store with a realistic grocery catalog — 90+ products with real product photos across 10 categories, 30+ brands, working coupons and promo banners — so you can trial any template before typing a single product of your own | ✅ |
-| Notifications | Compose per-store notifications your customers see in-app | 🗓 Roadmap |
+| Notifications | Compose a notification — kind, title, message, optional artwork — and it goes out as a push to your shoppers *and* into their in-app notification centre. Order updates send themselves | ✅ |
 
 ## Platform guarantees
 
@@ -126,8 +126,11 @@ falls back to another template's screen.
    **product** review is open to any signed-in shopper — gating those on
    purchase would silence most of the people willing to write one, and the
    verified-purchase badge carries the credibility instead.
-4. **Per-store notifications** — admin-composed, backend-fed, with push to
-   follow.
+4. **Per-store notifications** — admin-composed, backend-fed, with push.
+   ✅ Done 2026-08-08, admin + all three storefront templates. Push and the
+   in-app record are one operation server-side, so neither can ship without
+   the other; order updates compose themselves in the store's language.
+   iOS push still needs an Apple push key uploaded to Firebase.
 
 Deliberately later: post-delivery returns, delivery serviceability/fees,
 store-owner subscription billing, cross-store search.

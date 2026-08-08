@@ -1,11 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useAuth } from "@/lib/auth-context";
 import { useStore } from "@/lib/store-context";
 import {
   watchStoreNotifications,
-  addStoreNotification,
+  sendStoreNotification,
   deleteStoreNotification,
 } from "@/lib/notifications";
 import type { StoreNotification } from "@/lib/types";
@@ -15,12 +14,10 @@ import {
 } from "@/components/notification-workspace";
 
 /**
- * A store owner's own feed — reaches only shoppers in this store, and only
- * inside the app. There is no push here: this writes the notification centre
- * the storefront reads on open.
+ * A store owner's own feed — a push to everyone currently in this store's
+ * app, plus the record it leaves in their notification centre.
  */
 export default function StoreNotificationsPage() {
-  const { user } = useAuth();
   const { storeId, storeName } = useStore();
   const [items, setItems] = useState<StoreNotification[]>([]);
   const [loading, setLoading] = useState(true);
@@ -37,8 +34,8 @@ export default function StoreNotificationsPage() {
   }, [storeId]);
 
   async function handleSend(draft: NotificationDraft) {
-    if (!storeId || !user) return;
-    await addStoreNotification(storeId, draft, user.uid);
+    if (!storeId) return;
+    return sendStoreNotification(storeId, draft);
   }
 
   async function handleDelete(id: string) {
@@ -55,6 +52,7 @@ export default function StoreNotificationsPage() {
           Goes to shoppers of <strong>{storeName ?? "this store"}</strong>.
         </>
       }
+      storagePrefix={storeId ?? ""}
       items={items}
       loading={loading}
       onSend={handleSend}

@@ -733,5 +733,9 @@
   "retryButton": "फिर से कोशिश करें",
   "notificationsSectionToday": "आज",
   "notificationsSectionYesterday": "कल",
-  "notificationsSectionEarlier": "इससे पहले"
+  "notificationsSectionEarlier": "इससे पहले",
+  "notificationsPermissionTitle": "नोटिफ़िकेशन बंद हैं",
+  "notificationsPermissionSubtitle": "ऑर्डर अपडेट और इस स्टोर के ऑफ़र पाने के लिए इन्हें चालू करें।",
+  "notificationsPermissionCta": "नोटिफ़िकेशन चालू करें",
+  "notificationsPermissionBlockedMessage": "CordeliaApps के लिए नोटिफ़िकेशन ब्लॉक हैं। इन्हें अपने डिवाइस की सेटिंग में चालू करें।"
 }

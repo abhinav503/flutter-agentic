@@ -31,14 +31,30 @@ export function ImageUploadField({
   value,
   onChange,
   previewSize = "sm",
+  maxBytes,
+  hint,
 }: {
   id: string;
   label: string;
+  /**
+   * First path segment of the upload, and the owner storage.rules checks.
+   * Normally a store id; the literal `"platform"` for CordeliaApps-wide
+   * assets, which that file gates on the superAdmin claim instead.
+   */
   storeId: string;
   kind: CatalogImageKind;
   value: string;
   onChange: (url: string) => void;
   previewSize?: keyof typeof PREVIEW;
+  /**
+   * Rejects a larger file before it uploads. Only set where the *consumer*
+   * has a hard ceiling — FCM silently drops a push image over ~300 KB, so a
+   * notification that looked fine in the console would arrive with no
+   * picture and no error anywhere.
+   */
+  maxBytes?: number;
+  /** Small print under the field — size guidance, aspect ratio, etc. */
+  hint?: string;
 }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
@@ -50,6 +66,12 @@ export function ImageUploadField({
     if (!file) return;
     if (!file.type.startsWith("image/")) {
       toast.error("Please choose an image file");
+      return;
+    }
+    if (maxBytes && file.size > maxBytes) {
+      toast.error(
+        `Image must be under ${Math.round(maxBytes / 1024)} KB — this one is ${Math.round(file.size / 1024)} KB`,
+      );
       return;
     }
     setUploading(true);
@@ -113,6 +135,9 @@ export function ImageUploadField({
           >
             {uploading ? "Uploading…" : "Upload from device"}
           </Button>
+          {hint ? (
+            <p className="text-xs text-muted-foreground">{hint}</p>
+          ) : null}
         </div>
       </div>
     </div>

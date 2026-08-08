@@ -9,6 +9,7 @@ import {
   UnauthorizedError,
 } from "@/lib/api/admin-guard";
 import { settleRefund } from "@/lib/refunds";
+import { notifyOrderCancelled } from "@/lib/order-notifications";
 import { serializeOrder } from "@/lib/api/serializers";
 import type { Order } from "@/lib/types";
 
@@ -70,5 +71,17 @@ export async function POST(
     cancelled = { ...cancelled, ...settled };
   }
 
+  // Only when the *store* cancelled. A shopper who just tapped Cancel is
+  // still looking at the screen that confirmed it — pushing "Your order was
+  // cancelled" back at them tells them something they did, not something
+  // that happened to them. The in-app record goes with it, deliberately:
+  // Track Order already shows the cancellation and its refund state, so the
+  // notification centre would only be repeating that screen.
+  //
+  // After settleRefund, so the copy's "payment is being refunded" is true by
+  // the time the shopper reads it.
+  if (isOwner) {
+    await notifyOrderCancelled(cancelled);
+  }
   return NextResponse.json({ order: serializeOrder(cancelled) });
 }

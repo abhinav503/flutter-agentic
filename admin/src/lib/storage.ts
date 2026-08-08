@@ -10,7 +10,16 @@ export type CatalogImageKind =
   | "products"
   | "banners"
   | "brands"
-  | "store";
+  | "store"
+  | "notifications";
+
+/**
+ * First path segment for CordeliaApps-wide uploads, which belong to no store.
+ * storage.rules gates this prefix on the superAdmin claim rather than store
+ * ownership. Safe as a literal because store ids are Firestore-generated and
+ * can never be the string "platform".
+ */
+export const PLATFORM_STORAGE_PREFIX = "platform";
 
 export async function uploadCatalogImage(
   storeId: string,

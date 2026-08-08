@@ -1,17 +1,15 @@
 import {
   collection,
   doc,
-  addDoc,
   deleteDoc,
   onSnapshot,
   orderBy,
   query,
-  serverTimestamp,
   type CollectionReference,
   type QueryDocumentSnapshot,
   type Timestamp,
 } from "firebase/firestore";
-import { db } from "./firebase";
+import { auth, db } from "./firebase";
 import type { NotificationKind, StoreNotification } from "./types";
 
 /**
@@ -46,6 +44,7 @@ function mapNotificationDoc(
     kind: (data.kind as NotificationKind) ?? "account",
     title: (data.title as string) ?? "",
     message: (data.message as string) ?? "",
+    imageUrl: (data.imageUrl as string) ?? "",
     source,
     createdAtMs:
       (data.createdAt as Timestamp | null | undefined)?.toMillis() ?? 0,
@@ -82,31 +81,49 @@ export type NotificationInput = {
   kind: NotificationKind;
   title: string;
   message: string;
+  imageUrl: string;
 };
 
-// `createdBy` is recorded on both kinds: a platform notification reaching
-// every store in the product is worth being able to attribute later.
-export async function addStoreNotification(
-  storeId: string,
-  data: NotificationInput,
-  authorUid: string,
-) {
-  await addDoc(storeNotificationsRef(storeId), {
-    ...data,
-    createdBy: authorUid,
-    createdAt: serverTimestamp(),
+// Sending goes through the API, not addDoc, because sending *is* pushing:
+// only the Admin SDK can reach FCM, so the push and the record are made
+// together server-side (see lib/push.ts). The author is taken from the
+// verified token rather than passed, so a client can't attribute a
+// notification to someone else.
+async function postSend(path: string, data: NotificationInput) {
+  const user = auth.currentUser;
+  if (!user) throw new Error("Not signed in");
+
+  const response = await fetch(path, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${await user.getIdToken()}`,
+    },
+    body: JSON.stringify(data),
   });
+
+  if (!response.ok) {
+    const body = (await response.json().catch(() => null)) as {
+      error?: string;
+    } | null;
+    throw new Error(body?.error ?? "Could not send the notification");
+  }
+
+  // `pushed: false` means the record saved but FCM refused it — most often
+  // no subscribers yet, or a missing APNs key. Surfaced so the caller can
+  // say so rather than claiming a delivery that didn't happen.
+  return (await response.json()) as { id: string; pushed: boolean };
 }
 
-export async function addPlatformNotification(
+export function sendStoreNotification(
+  storeId: string,
   data: NotificationInput,
-  authorUid: string,
 ) {
-  await addDoc(platformNotificationsRef(), {
-    ...data,
-    createdBy: authorUid,
-    createdAt: serverTimestamp(),
-  });
+  return postSend(`/api/stores/${storeId}/notifications/send`, data);
+}
+
+export function sendPlatformNotification(data: NotificationInput) {
+  return postSend("/api/notifications/send", data);
 }
 
 // No update counterpart, deliberately: a notification is a thing that was

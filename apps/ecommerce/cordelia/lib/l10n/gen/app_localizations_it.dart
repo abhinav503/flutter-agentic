@@ -2515,4 +2515,18 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get notificationsSectionEarlier => 'Prima';
+
+  @override
+  String get notificationsPermissionTitle => 'Le notifiche sono disattivate';
+
+  @override
+  String get notificationsPermissionSubtitle =>
+      'Attivale per ricevere aggiornamenti sui tuoi ordini e offerte di questo negozio.';
+
+  @override
+  String get notificationsPermissionCta => 'Attiva le notifiche';
+
+  @override
+  String get notificationsPermissionBlockedMessage =>
+      'Le notifiche sono bloccate per CordeliaApps. Attivale nelle impostazioni del tuo dispositivo.';
 }

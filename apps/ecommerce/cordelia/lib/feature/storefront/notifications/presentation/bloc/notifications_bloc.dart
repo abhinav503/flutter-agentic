@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import 'package:cordelia/services/notification/firebase_messaging_service.dart';
+
 import '../../domain/entities/notification_section_entity.dart';
 import '../../domain/usecase/get_notifications_usecase.dart';
 import '../../domain/usecase/mark_notifications_read_usecase.dart';
@@ -28,12 +30,42 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
        _storeId = storeId,
        super(const NotificationsState.loading()) {
     on<NotificationsStarted>(_onStarted);
+    on<NotificationsPermissionRequested>(_onPermissionRequested);
   }
 
+  /// The permission gate comes before the fetch, deliberately: a notification
+  /// centre the shopper is not being notified from is the wrong thing to
+  /// show first, and asking after the list has rendered buries the ask.
   Future<void> _onStarted(
     NotificationsStarted event,
     Emitter<NotificationsState> emit,
   ) async {
+    if (!await FirebaseMessagingService.instance.isPermissionGranted()) {
+      emit(const NotificationsState.permissionRequired());
+      return;
+    }
+    await _load(emit);
+  }
+
+  Future<void> _onPermissionRequested(
+    NotificationsPermissionRequested event,
+    Emitter<NotificationsState> emit,
+  ) async {
+    emit(const NotificationsState.permissionRequired(requesting: true));
+
+    if (!await FirebaseMessagingService.instance.requestPermission()) {
+      // No dialog was shown — the shopper answered this once already, so the
+      // only thing left to tell them is where the switch lives.
+      emit(const NotificationsState.permissionRequired(blocked: true));
+      return;
+    }
+
+    emit(const NotificationsState.loading());
+    await _load(emit);
+  }
+
+  /// The fetch every path shares, once permission is settled.
+  Future<void> _load(Emitter<NotificationsState> emit) async {
     final result = await _getNotifications(
       GetNotificationsParams(storeId: _storeId),
     );

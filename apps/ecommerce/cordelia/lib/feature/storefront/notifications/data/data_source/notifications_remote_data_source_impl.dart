@@ -35,7 +35,8 @@ class NotificationsRemoteDataSourceImpl
       ApiConstants.notificationsPath(storeId),
       options: await _authOptions(),
     );
-    final list = (response.data?['notifications'] as List<dynamic>?) ?? const [];
+    final list =
+        (response.data?['notifications'] as List<dynamic>?) ?? const [];
     return list
         .map((json) => NotificationModel.fromJson(json as Map<String, dynamic>))
         .toList();

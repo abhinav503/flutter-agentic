@@ -55,11 +55,12 @@ extension NotificationsEventPatterns on NotificationsEvent {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( NotificationsStarted value)?  started,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( NotificationsStarted value)?  started,TResult Function( NotificationsPermissionRequested value)?  permissionRequested,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case NotificationsStarted() when started != null:
-return started(_that);case _:
+return started(_that);case NotificationsPermissionRequested() when permissionRequested != null:
+return permissionRequested(_that);case _:
   return orElse();
 
 }
@@ -77,11 +78,12 @@ return started(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( NotificationsStarted value)  started,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( NotificationsStarted value)  started,required TResult Function( NotificationsPermissionRequested value)  permissionRequested,}){
 final _that = this;
 switch (_that) {
 case NotificationsStarted():
-return started(_that);}
+return started(_that);case NotificationsPermissionRequested():
+return permissionRequested(_that);}
 }
 /// A variant of `map` that fallback to returning `null`.
 ///
@@ -95,11 +97,12 @@ return started(_that);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( NotificationsStarted value)?  started,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( NotificationsStarted value)?  started,TResult? Function( NotificationsPermissionRequested value)?  permissionRequested,}){
 final _that = this;
 switch (_that) {
 case NotificationsStarted() when started != null:
-return started(_that);case _:
+return started(_that);case NotificationsPermissionRequested() when permissionRequested != null:
+return permissionRequested(_that);case _:
   return null;
 
 }
@@ -116,10 +119,11 @@ return started(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  started,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  started,TResult Function()?  permissionRequested,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case NotificationsStarted() when started != null:
-return started();case _:
+return started();case NotificationsPermissionRequested() when permissionRequested != null:
+return permissionRequested();case _:
   return orElse();
 
 }
@@ -137,10 +141,11 @@ return started();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  started,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  started,required TResult Function()  permissionRequested,}) {final _that = this;
 switch (_that) {
 case NotificationsStarted():
-return started();}
+return started();case NotificationsPermissionRequested():
+return permissionRequested();}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -154,10 +159,11 @@ return started();}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  started,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  started,TResult? Function()?  permissionRequested,}) {final _that = this;
 switch (_that) {
 case NotificationsStarted() when started != null:
-return started();case _:
+return started();case NotificationsPermissionRequested() when permissionRequested != null:
+return permissionRequested();case _:
   return null;
 
 }
@@ -189,6 +195,38 @@ int get hashCode => runtimeType.hashCode;
 @override
 String toString() {
   return 'NotificationsEvent.started()';
+}
+
+
+}
+
+
+
+
+/// @nodoc
+
+
+class NotificationsPermissionRequested implements NotificationsEvent {
+  const NotificationsPermissionRequested();
+  
+
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is NotificationsPermissionRequested);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+  return 'NotificationsEvent.permissionRequested()';
 }
 
 
@@ -241,12 +279,13 @@ extension NotificationsStatePatterns on NotificationsState {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( NotificationsLoading value)?  loading,TResult Function( NotificationsLoaded value)?  loaded,TResult Function( NotificationsError value)?  error,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( NotificationsLoading value)?  loading,TResult Function( NotificationsLoaded value)?  loaded,TResult Function( NotificationsPermissionRequired value)?  permissionRequired,TResult Function( NotificationsError value)?  error,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case NotificationsLoading() when loading != null:
 return loading(_that);case NotificationsLoaded() when loaded != null:
-return loaded(_that);case NotificationsError() when error != null:
+return loaded(_that);case NotificationsPermissionRequired() when permissionRequired != null:
+return permissionRequired(_that);case NotificationsError() when error != null:
 return error(_that);case _:
   return orElse();
 
@@ -265,12 +304,13 @@ return error(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( NotificationsLoading value)  loading,required TResult Function( NotificationsLoaded value)  loaded,required TResult Function( NotificationsError value)  error,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( NotificationsLoading value)  loading,required TResult Function( NotificationsLoaded value)  loaded,required TResult Function( NotificationsPermissionRequired value)  permissionRequired,required TResult Function( NotificationsError value)  error,}){
 final _that = this;
 switch (_that) {
 case NotificationsLoading():
 return loading(_that);case NotificationsLoaded():
-return loaded(_that);case NotificationsError():
+return loaded(_that);case NotificationsPermissionRequired():
+return permissionRequired(_that);case NotificationsError():
 return error(_that);}
 }
 /// A variant of `map` that fallback to returning `null`.
@@ -285,12 +325,13 @@ return error(_that);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( NotificationsLoading value)?  loading,TResult? Function( NotificationsLoaded value)?  loaded,TResult? Function( NotificationsError value)?  error,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( NotificationsLoading value)?  loading,TResult? Function( NotificationsLoaded value)?  loaded,TResult? Function( NotificationsPermissionRequired value)?  permissionRequired,TResult? Function( NotificationsError value)?  error,}){
 final _that = this;
 switch (_that) {
 case NotificationsLoading() when loading != null:
 return loading(_that);case NotificationsLoaded() when loaded != null:
-return loaded(_that);case NotificationsError() when error != null:
+return loaded(_that);case NotificationsPermissionRequired() when permissionRequired != null:
+return permissionRequired(_that);case NotificationsError() when error != null:
 return error(_that);case _:
   return null;
 
@@ -308,11 +349,12 @@ return error(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loading,TResult Function( List<NotificationSectionEntity> sections)?  loaded,TResult Function( String message)?  error,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loading,TResult Function( List<NotificationSectionEntity> sections)?  loaded,TResult Function( bool requesting,  bool blocked)?  permissionRequired,TResult Function( String message)?  error,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case NotificationsLoading() when loading != null:
 return loading();case NotificationsLoaded() when loaded != null:
-return loaded(_that.sections);case NotificationsError() when error != null:
+return loaded(_that.sections);case NotificationsPermissionRequired() when permissionRequired != null:
+return permissionRequired(_that.requesting,_that.blocked);case NotificationsError() when error != null:
 return error(_that.message);case _:
   return orElse();
 
@@ -331,11 +373,12 @@ return error(_that.message);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loading,required TResult Function( List<NotificationSectionEntity> sections)  loaded,required TResult Function( String message)  error,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loading,required TResult Function( List<NotificationSectionEntity> sections)  loaded,required TResult Function( bool requesting,  bool blocked)  permissionRequired,required TResult Function( String message)  error,}) {final _that = this;
 switch (_that) {
 case NotificationsLoading():
 return loading();case NotificationsLoaded():
-return loaded(_that.sections);case NotificationsError():
+return loaded(_that.sections);case NotificationsPermissionRequired():
+return permissionRequired(_that.requesting,_that.blocked);case NotificationsError():
 return error(_that.message);}
 }
 /// A variant of `when` that fallback to returning `null`
@@ -350,11 +393,12 @@ return error(_that.message);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loading,TResult? Function( List<NotificationSectionEntity> sections)?  loaded,TResult? Function( String message)?  error,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loading,TResult? Function( List<NotificationSectionEntity> sections)?  loaded,TResult? Function( bool requesting,  bool blocked)?  permissionRequired,TResult? Function( String message)?  error,}) {final _that = this;
 switch (_that) {
 case NotificationsLoading() when loading != null:
 return loading();case NotificationsLoaded() when loaded != null:
-return loaded(_that.sections);case NotificationsError() when error != null:
+return loaded(_that.sections);case NotificationsPermissionRequired() when permissionRequired != null:
+return permissionRequired(_that.requesting,_that.blocked);case NotificationsError() when error != null:
 return error(_that.message);case _:
   return null;
 
@@ -461,6 +505,80 @@ class _$NotificationsLoadedCopyWithImpl<$Res>
   return _then(NotificationsLoaded(
 sections: null == sections ? _self._sections : sections // ignore: cast_nullable_to_non_nullable
 as List<NotificationSectionEntity>,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class NotificationsPermissionRequired implements NotificationsState {
+  const NotificationsPermissionRequired({this.requesting = false, this.blocked = false});
+  
+
+/// The OS dialog is up (or the request is in flight) — the CTA shows its
+/// loading state rather than accepting a second tap.
+@JsonKey() final  bool requesting;
+/// The request came back denied *without* a dialog: the shopper already
+/// said no, and only the device settings can change it now. Carried on
+/// the state rather than emitted as a one-off so the screen decides how
+/// to say so — every template sends it to a snackbar.
+@JsonKey() final  bool blocked;
+
+/// Create a copy of NotificationsState
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$NotificationsPermissionRequiredCopyWith<NotificationsPermissionRequired> get copyWith => _$NotificationsPermissionRequiredCopyWithImpl<NotificationsPermissionRequired>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is NotificationsPermissionRequired&&(identical(other.requesting, requesting) || other.requesting == requesting)&&(identical(other.blocked, blocked) || other.blocked == blocked));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,requesting,blocked);
+
+@override
+String toString() {
+  return 'NotificationsState.permissionRequired(requesting: $requesting, blocked: $blocked)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $NotificationsPermissionRequiredCopyWith<$Res> implements $NotificationsStateCopyWith<$Res> {
+  factory $NotificationsPermissionRequiredCopyWith(NotificationsPermissionRequired value, $Res Function(NotificationsPermissionRequired) _then) = _$NotificationsPermissionRequiredCopyWithImpl;
+@useResult
+$Res call({
+ bool requesting, bool blocked
+});
+
+
+
+
+}
+/// @nodoc
+class _$NotificationsPermissionRequiredCopyWithImpl<$Res>
+    implements $NotificationsPermissionRequiredCopyWith<$Res> {
+  _$NotificationsPermissionRequiredCopyWithImpl(this._self, this._then);
+
+  final NotificationsPermissionRequired _self;
+  final $Res Function(NotificationsPermissionRequired) _then;
+
+/// Create a copy of NotificationsState
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? requesting = null,Object? blocked = null,}) {
+  return _then(NotificationsPermissionRequired(
+requesting: null == requesting ? _self.requesting : requesting // ignore: cast_nullable_to_non_nullable
+as bool,blocked: null == blocked ? _self.blocked : blocked // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 

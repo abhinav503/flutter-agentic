@@ -2495,4 +2495,18 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get notificationsSectionEarlier => 'इससे पहले';
+
+  @override
+  String get notificationsPermissionTitle => 'नोटिफ़िकेशन बंद हैं';
+
+  @override
+  String get notificationsPermissionSubtitle =>
+      'ऑर्डर अपडेट और इस स्टोर के ऑफ़र पाने के लिए इन्हें चालू करें।';
+
+  @override
+  String get notificationsPermissionCta => 'नोटिफ़िकेशन चालू करें';
+
+  @override
+  String get notificationsPermissionBlockedMessage =>
+      'CordeliaApps के लिए नोटिफ़िकेशन ब्लॉक हैं। इन्हें अपने डिवाइस की सेटिंग में चालू करें।';
 }

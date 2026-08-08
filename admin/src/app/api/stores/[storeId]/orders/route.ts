@@ -15,6 +15,7 @@ import {
   getStorePaymentConfig,
   verifyPaymentSignature,
 } from "@/lib/payments";
+import { notifyOrderPlaced } from "@/lib/order-notifications";
 import { serializeOrder } from "@/lib/api/serializers";
 import type { CreateOrderItemInput } from "@/lib/orders";
 
@@ -125,6 +126,11 @@ export async function POST(
       paymentProvided ? razorpayOrderId! : "",
       couponCode,
     );
+    // Awaited, not fired and forgotten: on a serverless runtime the function
+    // can be frozen the moment the response is returned, which would drop an
+    // un-awaited send. notifyOrderPlaced never throws, so this cannot turn a
+    // placed order into an error.
+    await notifyOrderPlaced(order);
     return NextResponse.json({ order: serializeOrder(order) }, { status: 201 });
   } catch (err) {
     if (err instanceof OrderCreationError) {

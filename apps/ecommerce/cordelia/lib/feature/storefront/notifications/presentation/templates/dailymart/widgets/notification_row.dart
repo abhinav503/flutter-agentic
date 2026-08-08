@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
+import 'package:core/core/theme/app_shapes_extension.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/icon_circle.dart';
+import 'package:core/core/ui/atoms/network_image.dart';
 import 'package:core/core/ui/atoms/svg_image.dart';
 import 'package:core/core/ui/molecules/icon_info_row.dart';
 
@@ -13,8 +15,9 @@ import 'package:cordelia/templates/dailymart/constants/dailymart_text_style_cons
 import '../../../../domain/entities/notification_entity.dart';
 
 /// One notification row: a 48px tinted-info disc holding the kind's glyph,
-/// then a semibold title over a muted message. Read-only — the kit draws no
-/// tap or dismiss affordance on these rows.
+/// then a semibold title over a muted message, with the sender's artwork
+/// under it when there is any. Read-only — the kit draws no tap or dismiss
+/// affordance on these rows.
 class NotificationRow extends StatelessWidget {
   final NotificationEntity notification;
 
@@ -22,6 +25,11 @@ class NotificationRow extends StatelessWidget {
 
   static const double _discSize = 48;
   static const double _glyphSize = 24;
+
+  /// The shape the console asks senders to upload at, so a picture that
+  /// looked right in the composer isn't cropped differently here than it is
+  /// in the push banner.
+  static const double _artworkAspect = 2;
 
   /// Only three of the kinds have a kit export, so the rest take a filled
   /// Material Symbol — visible here at the call site rather than hidden
@@ -77,7 +85,7 @@ class NotificationRow extends StatelessWidget {
       _ => cs.onSurface,
     };
 
-    return IconInfoRow(
+    final row = IconInfoRow(
       gap: AppSpacing.lg,
       leading: AppIconCircle(
         size: _discSize,
@@ -92,6 +100,27 @@ class NotificationRow extends StatelessWidget {
       subtitleStyle: DailyMartTextStyleConst.bodySmRegular(
         tt,
       ).copyWith(color: cs.onSurfaceVariant),
+    );
+
+    if (notification.imageUrl.isEmpty) return row;
+
+    // Full width rather than inset to the text column: it reads as the
+    // banner it was uploaded as, and doesn't have to track the leading
+    // disc's size to stay aligned. Card radius, the same corner the pack's
+    // promo card clips its photo to.
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        row,
+        const SizedBox(height: AppSpacing.base),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(context.appShapes.cardRadius),
+          child: AspectRatio(
+            aspectRatio: _artworkAspect,
+            child: AppNetworkImage(url: notification.imageUrl),
+          ),
+        ),
+      ],
     );
   }
 }

@@ -27,6 +27,22 @@ part 'auth_state.dart';
 /// straight back on the persistent verify sheet, no way around it.
 const kPendingEmailVerificationPrefKey = 'pending_email_verification';
 
+/// Test accounts that skip the email-verification sheet entirely.
+///
+/// The sheet is non-dismissible and polls until Firebase reports the address
+/// verified, so an account on a mailbox nobody can open is a dead end — which
+/// is exactly the situation on a Play test track, where the build is a release
+/// build and the tester is whoever is holding the phone.
+///
+/// **Remove before the public launch.** This is deliberately not behind
+/// `kDebugMode`: it has to work in the release builds the Play tracks serve,
+/// which also means it ships to anyone. It is the only thing standing between
+/// these addresses and a permanently unverified session.
+const _verificationBypassEmails = {'abhinav@sintoo.com'};
+
+bool _bypassesVerification(String email) =>
+    _verificationBypassEmails.contains(email.trim().toLowerCase());
+
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final SignUpUseCase _signUp;
   final SignInUseCase _signIn;
@@ -64,10 +80,22 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         ) ??
         false;
     if (user != null && pending) {
-      await _enterAwaitingVerification(emit, user.email ?? '');
-    } else {
-      emit(const AuthState.unauthenticated());
+      final email = user.email ?? '';
+      // A bypass account relaunches exactly like a verified one. The stale
+      // flag is cleared with it, so removing the bypass later doesn't strand
+      // an already-signed-in tester behind the sheet.
+      if (_bypassesVerification(email)) {
+        await SharedPreferenceService.instance.setBool(
+          kPendingEmailVerificationPrefKey,
+          false,
+        );
+        emit(const AuthState.unauthenticated());
+        return;
+      }
+      await _enterAwaitingVerification(emit, email);
+      return;
     }
+    emit(const AuthState.unauthenticated());
   }
 
   Future<void> _onSignUpRequested(
@@ -75,9 +103,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     Emitter<AuthState> emit,
   ) async {
     if (kIsWeb) {
-      emit(
-        AuthState.error(message: ValueConst.authWebUnsupportedMessage),
-      );
+      emit(AuthState.error(message: ValueConst.authWebUnsupportedMessage));
       return;
     }
     emit(const AuthState.loading());
@@ -91,7 +117,17 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
     await result.fold(
       (failure) async => emit(AuthState.error(message: failure.message)),
-      (user) async => _enterAwaitingVerification(emit, user.email),
+      (user) async {
+        if (_bypassesVerification(user.email)) {
+          await SharedPreferenceService.instance.setBool(
+            kPendingEmailVerificationPrefKey,
+            false,
+          );
+          emit(AuthState.authenticated(user: user));
+          return;
+        }
+        await _enterAwaitingVerification(emit, user.email);
+      },
     );
   }
 
@@ -100,9 +136,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     Emitter<AuthState> emit,
   ) async {
     if (kIsWeb) {
-      emit(
-        AuthState.error(message: ValueConst.authWebUnsupportedMessage),
-      );
+      emit(AuthState.error(message: ValueConst.authWebUnsupportedMessage));
       return;
     }
     emit(const AuthState.loading());
@@ -114,7 +148,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         emit(AuthState.error(message: failure.message));
       },
       (user) async {
-        if (user.emailVerified) {
+        if (user.emailVerified || _bypassesVerification(user.email)) {
           await SharedPreferenceService.instance.setBool(
             kPendingEmailVerificationPrefKey,
             false,
@@ -149,9 +183,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     Emitter<AuthState> emit,
   ) async {
     if (kIsWeb) {
-      emit(
-        AuthState.error(message: ValueConst.authWebUnsupportedMessage),
-      );
+      emit(AuthState.error(message: ValueConst.authWebUnsupportedMessage));
       return;
     }
     final result = await _forgotPassword(

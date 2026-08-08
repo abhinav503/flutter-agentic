@@ -5,8 +5,11 @@ import 'package:go_router/go_router.dart';
 
 import 'package:core/core/base/base_screen.dart';
 import 'package:core/core/theme/app_spacing.dart';
+import 'package:core/core/ui/atoms/button.dart';
+import 'package:core/core/ui/atoms/network_image.dart';
 import 'package:core/core/ui/atoms/svg_image.dart';
 
+import 'package:cordelia/constants/value_const.dart';
 import 'package:cordelia/enums/notification_kind.dart';
 import 'package:cordelia/feature/storefront/notifications/domain/entities/notification_entity.dart';
 import 'package:cordelia/feature/storefront/notifications/domain/entities/notification_section_entity.dart';
@@ -15,11 +18,13 @@ import 'package:cordelia/templates/grofast/constants/grofast_image_const.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_text_style_const.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_value_const.dart';
 import 'package:cordelia/templates/grofast/widgets/grofast_chip.dart';
+import 'package:cordelia/templates/grofast/widgets/grofast_primary_button.dart';
 import 'package:cordelia/templates/grofast/widgets/grofast_screen_body.dart';
 import 'package:cordelia/templates/grofast/widgets/grofast_state_views.dart';
 
 import '../widgets/notifications_skeleton_body.dart';
 import '../../../bloc/notifications_bloc.dart';
+import '../../../notifications_permission_body.dart';
 
 /// `grofast` template's Notifications (kit frame `168:2316`) — My Orders'
 /// exact layout minus the search row: the `Button-Text/Big` chip row over
@@ -63,7 +68,15 @@ class _NotificationsScreenState extends BaseScreenState<NotificationsScreen> {
   Widget body(BuildContext context) {
     return SafeArea(
       bottom: false,
-      child: BlocBuilder<NotificationsBloc, NotificationsState>(
+      child: BlocConsumer<NotificationsBloc, NotificationsState>(
+        // The pack renders its own error view, so this listener exists for
+        // the one thing that has nowhere on the page to live: the OS
+        // declining to ask about notifications a second time.
+        listener: (context, state) {
+          if (state case NotificationsPermissionRequired(blocked: true)) {
+            showSnackBar(ValueConst.notificationsPermissionBlockedMessage);
+          }
+        },
         builder: (context, state) => GrofastScreenBody(
           title: GrofastValueConst.notificationsTitle,
           onBack: () => context.pop(),
@@ -72,6 +85,19 @@ class _NotificationsScreenState extends BaseScreenState<NotificationsScreen> {
             child: switch (state) {
               NotificationsLoading() =>
                 const GrofastNotificationsSkeletonBody(),
+              NotificationsPermissionRequired(:final requesting) =>
+                NotificationsPermissionBody(
+                  icon: Icons.notifications_off_rounded,
+                  action: GrofastPrimaryButton(
+                    label: ValueConst.notificationsPermissionCta,
+                    state: requesting
+                        ? AppButtonState.loading
+                        : AppButtonState.idle,
+                    onTap: () => context.read<NotificationsBloc>().add(
+                      const NotificationsEvent.permissionRequested(),
+                    ),
+                  ),
+                ),
               NotificationsError(:final message) => GrofastErrorView(
                 message: message,
                 onRetry: () => context.read<NotificationsBloc>().add(
@@ -118,11 +144,18 @@ class _NotificationsScreenState extends BaseScreenState<NotificationsScreen> {
 
 /// One notification, on the same 100-tall card as an order (kit `168:2513`):
 /// the kind's tinted glyph disc where the order card puts its photo, the
-/// title over a hairline, and the message beneath.
+/// title over a hairline, and the message beneath. When the sender attached
+/// artwork the card grows to carry it under that row — the kit has no frame
+/// for this, so it reuses the card's own corner rather than inventing a shape.
 class _NotificationCard extends StatelessWidget {
   final NotificationEntity notification;
 
   const _NotificationCard({required this.notification});
+
+  /// The shape the console asks senders to upload at, so a picture that
+  /// looked right in the composer isn't cropped differently here than it is
+  /// in the push banner.
+  static const double _artworkAspect = 2;
 
   /// Each pack maps the shared [NotificationKind]s onto its own glyphs; this
   /// one has exported artwork for three of them and falls back to a Material
@@ -148,72 +181,97 @@ class _NotificationCard extends StatelessWidget {
     final tt = Theme.of(context).textTheme;
     final glyph = _glyph;
 
+    final row = SizedBox(
+      height: GrofastDimenConst.orderCardHeight,
+      child: Row(
+        children: [
+          SizedBox.square(
+            dimension: GrofastDimenConst.orderCardHeight,
+            child: Center(
+              child: Container(
+                width: GrofastDimenConst.menuRowHeight,
+                height: GrofastDimenConst.menuRowHeight,
+                decoration: BoxDecoration(
+                  // The disc needs its own step off the card it sits on.
+                  color: cs.surface,
+                  shape: BoxShape.circle,
+                ),
+                alignment: Alignment.center,
+                child: glyph.asset != null
+                    ? AppSvgImage.asset(
+                        glyph.asset!,
+                        width: AppSpacing.xl4,
+                        height: AppSpacing.xl4,
+                        color: cs.primary,
+                      )
+                    : Icon(glyph.icon, size: AppSpacing.xl4, color: cs.primary),
+              ),
+            ),
+          ),
+          const SizedBox(width: AppSpacing.xs),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.only(right: AppSpacing.lg),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    notification.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: GrofastTextStyleConst.cardTitleBold(tt),
+                  ),
+                  const SizedBox(height: AppSpacing.xs),
+                  Divider(height: 1, color: cs.outlineVariant),
+                  const SizedBox(height: AppSpacing.xs),
+                  Text(
+                    notification.message,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: GrofastTextStyleConst.bodySmall(
+                      tt,
+                    ).copyWith(color: cs.onSurfaceVariant),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+
     return Material(
       color: cs.surfaceContainerLow,
       borderRadius: BorderRadius.circular(GrofastDimenConst.tileRadius),
-      child: SizedBox(
-        height: GrofastDimenConst.orderCardHeight,
-        child: Row(
-          children: [
-            SizedBox.square(
-              dimension: GrofastDimenConst.orderCardHeight,
-              child: Center(
-                child: Container(
-                  width: GrofastDimenConst.menuRowHeight,
-                  height: GrofastDimenConst.menuRowHeight,
-                  decoration: BoxDecoration(
-                    // The disc needs its own step off the card it sits on.
-                    color: cs.surface,
-                    shape: BoxShape.circle,
+      child: notification.imageUrl.isEmpty
+          ? row
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                row,
+                Padding(
+                  // Inset on three sides so the artwork sits *inside* the
+                  // card rather than re-cutting its corners; flush to the
+                  // row above, which already ends on its own padding.
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.lg,
+                    0,
+                    AppSpacing.lg,
+                    AppSpacing.lg,
                   ),
-                  alignment: Alignment.center,
-                  child: glyph.asset != null
-                      ? AppSvgImage.asset(
-                          glyph.asset!,
-                          width: AppSpacing.xl4,
-                          height: AppSpacing.xl4,
-                          color: cs.primary,
-                        )
-                      : Icon(
-                          glyph.icon,
-                          size: AppSpacing.xl4,
-                          color: cs.primary,
-                        ),
-                ),
-              ),
-            ),
-            const SizedBox(width: AppSpacing.xs),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.only(right: AppSpacing.lg),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      notification.title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: GrofastTextStyleConst.cardTitleBold(tt),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(
+                      GrofastDimenConst.tileRadius,
                     ),
-                    const SizedBox(height: AppSpacing.xs),
-                    Divider(height: 1, color: cs.outlineVariant),
-                    const SizedBox(height: AppSpacing.xs),
-                    Text(
-                      notification.message,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: GrofastTextStyleConst.bodySmall(
-                        tt,
-                      ).copyWith(color: cs.onSurfaceVariant),
+                    child: AspectRatio(
+                      aspectRatio: _artworkAspect,
+                      child: AppNetworkImage(url: notification.imageUrl),
                     ),
-                  ],
+                  ),
                 ),
-              ),
+              ],
             ),
-          ],
-        ),
-      ),
     );
   }
 }

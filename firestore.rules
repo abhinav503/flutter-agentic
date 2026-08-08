@@ -49,6 +49,16 @@ service cloud.firestore {
       match /notificationReads/{notificationId} {
         allow read, write: if false;
       }
+
+      // This shopper's own notifications — order updates, addressed to them
+      // rather than broadcast. Written only by the server (lib/push.ts) and
+      // served through the notifications API, which is also what merges them
+      // with the store and platform feeds. Not even the owner writes here:
+      // a shopper who could author their own "order delivered" could forge
+      // one.
+      match /notifications/{notificationId} {
+        allow read, write: if false;
+      }
     }
 
     // Store-owner record — created on admin-console sign-up with an empty
@@ -159,6 +169,18 @@ service cloud.firestore {
     // it through the notifications API (Admin SDK), never directly.
     match /notifications/{notificationId} {
       allow read, write: if isSuperAdmin();
+    }
+
+    // Registered FCM device tokens, keyed by the token itself with the owning
+    // uid as a field (see admin/src/lib/devices.ts — a handset can then only
+    // ever belong to one account). Top-level rather than under `users/{uid}`
+    // for that reason, which also means this rule is the only thing standing
+    // between a client and someone else's device: server-only, written by the
+    // token-verified /api/users/devices route. A client that could write here
+    // could file its token under another account and start receiving that
+    // shopper's order updates.
+    match /devices/{token} {
+      allow read, write: if false;
     }
 
     // Orders — a shopper creates/reads their own; the owning store can read

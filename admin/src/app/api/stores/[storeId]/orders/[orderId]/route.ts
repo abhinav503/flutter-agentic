@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getOrderForStore, updateOrderStatus } from "@/lib/orders";
 import { requireStoreOwner, UnauthorizedError, ForbiddenError } from "@/lib/api/admin-guard";
+import { notifyOrderStatusChanged } from "@/lib/order-notifications";
 import { serializeOrder } from "@/lib/api/serializers";
 import type { OrderStatus } from "@/lib/types";
 
@@ -48,5 +49,13 @@ export async function PATCH(
   // Serialize what the update actually wrote — the pre-read `order` above is
   // missing the timeline entry this transition just appended.
   const updated = await updateOrderStatus(orderId, status);
+
+  // Only on a real transition. `updateOrderStatus` no-ops when the status is
+  // already what was asked for, but it can't say so through its return value
+  // — so without this guard a double-clicked "Delivered", or any client
+  // retry, pushes "Order delivered" to the shopper a second time.
+  if (order.status !== status) {
+    await notifyOrderStatusChanged(updated, status);
+  }
   return NextResponse.json({ order: serializeOrder(updated) });
 }

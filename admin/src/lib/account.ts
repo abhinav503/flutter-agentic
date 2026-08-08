@@ -1,4 +1,5 @@
 import { adminAuth, adminDb } from "./firebase-admin";
+import { deleteDevicesForUser } from "./devices";
 import { deleteReview } from "./reviews";
 
 // Closing a shopper account. Deletes the personal data Cordelia holds and
@@ -20,12 +21,18 @@ import { deleteReview } from "./reviews";
 // can reach.
 
 // The per-user subcollections written by the shopper-facing APIs
-// (addresses.ts, cart.ts, favourites.ts, recent-searches.ts).
+// (addresses.ts, cart.ts, favourites.ts, recent-searches.ts, push.ts and
+// notifications-feed.ts).
 const USER_SUBCOLLECTIONS = [
   "addresses",
   "carts",
   "favourites",
   "recentSearches",
+  // Order updates addressed to this shopper, and the receipts for what they
+  // had seen. Both are personal data about someone who is leaving; the
+  // store's copy of the order itself is what survives, not their inbox.
+  "notifications",
+  "notificationReads",
 ];
 
 async function deleteSubcollection(
@@ -70,6 +77,10 @@ export async function deleteShopperAccount(uid: string): Promise<void> {
   await Promise.all(
     USER_SUBCOLLECTIONS.map((name) => deleteSubcollection(uid, name)),
   );
+  // Lives outside `users/{uid}` (see lib/devices.ts — a device row is keyed
+  // by its token, not by its owner), so it doesn't come along with the
+  // subcollections above and has to be swept by uid.
+  await deleteDevicesForUser(uid);
   await adminDb.collection("users").doc(uid).delete();
 
   // Last: once this succeeds the caller's token is dead and there is no way

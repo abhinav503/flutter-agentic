@@ -349,11 +349,26 @@ export const NOTIFICATION_KIND_LABELS: Record<NotificationKind, string> = {
 // `stores/{id}/notifications`), so the two can never disagree.
 export type NotificationSource = "store" | "platform";
 
+/**
+ * FCM silently drops a push image over ~300 KB — no error, just a push with
+ * no picture — so this is enforced rather than left to fail invisibly on the
+ * device. Lives here because both ends check it: the upload field rejects the
+ * file before it is stored, and the send route re-checks the URL, since the
+ * browser's check is advice a scripted caller can skip.
+ */
+export const NOTIFICATION_IMAGE_MAX_BYTES = 300 * 1024;
+
 export type StoreNotification = {
   id: string;
   kind: NotificationKind;
   title: string;
   message: string;
+  /**
+   * Optional artwork. Shown by the OS on a backgrounded push and rendered as
+   * a BigPicture in the foreground; empty string when there is none. Capped
+   * at {@link NOTIFICATION_IMAGE_MAX_BYTES}.
+   */
+  imageUrl: string;
   source: NotificationSource;
   // See Category.createdAtMs. Also what the storefront groups the feed by —
   // the "Today"/"Yesterday" section titles are derived from this server-side,

@@ -5,12 +5,21 @@ abstract final class ApiConstants {
   /// store, unlike a store-specific catalog/cart/order call.
   static String get usersPath => '$baseUrl/users';
 
+  /// This device's FCM token, filed under the signed-in shopper. POST
+  /// registers or refreshes it; DELETE drops it on sign-out.
+  static String get userDevicesPath => '$baseUrl/users/devices';
+
   /// Store discovery — GET (optionally `?q=`) lists/searches every active
   /// store. This app has no single hardcoded storeId (unlike gravia) since
   /// choosing one is the whole point of feature/home.
   static String get storesPath => '$baseUrl/stores';
 
   static String _storeBase(String storeId) => '$baseUrl/stores/$storeId';
+
+  /// One store by id — public, like discovery. Needed because a notification
+  /// tap carries only the store's id, and opening a storefront takes the
+  /// whole store (name, template, language, currency).
+  static String storePath(String storeId) => _storeBase(storeId);
 
   /// Per-store paths take storeId as a call parameter (not a getter off a
   /// hardcoded constant, unlike gravia's ApiConstants) — this app serves

@@ -3,6 +3,7 @@
 import { useState, type FormEvent, type ReactNode } from "react";
 import { Trash2 } from "lucide-react";
 import {
+  NOTIFICATION_IMAGE_MAX_BYTES,
   NOTIFICATION_KINDS,
   NOTIFICATION_KIND_LABELS,
   type NotificationKind,
@@ -29,6 +30,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { ImageUploadField } from "@/components/image-upload-field";
 import { toast } from "sonner";
 
 /**
@@ -49,16 +51,22 @@ import { toast } from "sonner";
 const TITLE_MAX = 60;
 const MESSAGE_MAX = 180;
 
+// Enforced at upload so the sender finds out here rather than from a shopper.
+// The send routes re-check the stored URL's size — this one is a courtesy to
+// whoever is typing, not the gate (see lib/api/notification-input.ts).
+
 export type NotificationDraft = {
   kind: NotificationKind;
   title: string;
   message: string;
+  imageUrl: string;
 };
 
 export function NotificationWorkspace({
   heading,
   description,
   audienceNote,
+  storagePrefix,
   items,
   loading,
   onSend,
@@ -68,14 +76,22 @@ export function NotificationWorkspace({
   description: string;
   /** Rendered beside the send button — who is about to receive this. */
   audienceNote: ReactNode;
+  /**
+   * First path segment artwork uploads land under — the store id for a
+   * store's own notifications, `PLATFORM_STORAGE_PREFIX` for CordeliaApps
+   * ones. storage.rules gates the two differently.
+   */
+  storagePrefix: string;
   items: StoreNotification[];
   loading: boolean;
-  onSend: (draft: NotificationDraft) => Promise<void>;
+  /** Resolves with `pushed: false` when the record saved but FCM refused it. */
+  onSend: (draft: NotificationDraft) => Promise<{ pushed: boolean } | void>;
   onDelete: (id: string) => Promise<void>;
 }) {
   const [kind, setKind] = useState<NotificationKind>("discount");
   const [title, setTitle] = useState("");
   const [message, setMessage] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
   const [sending, setSending] = useState(false);
   const [pendingDelete, setPendingDelete] = useState<StoreNotification | null>(
     null,
@@ -89,12 +105,29 @@ export function NotificationWorkspace({
     if (!canSend) return;
     setSending(true);
     try {
-      await onSend({ kind, title: title.trim(), message: message.trim() });
+      const result = await onSend({
+        kind,
+        title: title.trim(),
+        message: message.trim(),
+        imageUrl: imageUrl.trim(),
+      });
       setTitle("");
       setMessage("");
-      toast.success("Notification sent");
-    } catch {
-      toast.error("Could not send the notification");
+      setImageUrl("");
+      // Saying "sent" when FCM refused the push would be a lie the sender
+      // only discovers from complaints. The record is real either way, so
+      // this reports what actually happened rather than failing the send.
+      if (result && result.pushed === false) {
+        toast.warning("Saved, but the push could not be delivered");
+      } else {
+        toast.success("Notification sent");
+      }
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Could not send the notification",
+      );
     } finally {
       setSending(false);
     }
@@ -184,6 +217,17 @@ export function NotificationWorkspace({
                 onChange={(e) => setMessage(e.target.value)}
               />
             </div>
+
+            <ImageUploadField
+              id="notification-image"
+              label="Image (optional)"
+              storeId={storagePrefix}
+              kind="notifications"
+              value={imageUrl}
+              onChange={setImageUrl}
+              maxBytes={NOTIFICATION_IMAGE_MAX_BYTES}
+              hint="Under 300 KB, roughly 2:1. Shown under the message when the phone is locked or the app is in the background."
+            />
           </div>
         </div>
 

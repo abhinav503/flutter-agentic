@@ -733,5 +733,9 @@
   "retryButton": "Riprova",
   "notificationsSectionToday": "Oggi",
   "notificationsSectionYesterday": "Ieri",
-  "notificationsSectionEarlier": "Prima"
+  "notificationsSectionEarlier": "Prima",
+  "notificationsPermissionTitle": "Le notifiche sono disattivate",
+  "notificationsPermissionSubtitle": "Attivale per ricevere aggiornamenti sui tuoi ordini e offerte di questo negozio.",
+  "notificationsPermissionCta": "Attiva le notifiche",
+  "notificationsPermissionBlockedMessage": "Le notifiche sono bloccate per CordeliaApps. Attivale nelle impostazioni del tuo dispositivo."
 }

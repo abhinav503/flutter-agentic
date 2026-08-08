@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import 'notification/firebase_messaging_service.dart';
+
 /// Static singleton wrapping `FirebaseAuth.instance` — this app's own
 /// infrastructure, not `core` (Firebase is a per-app dependency, same
 /// reasoning as `firebase_core` in `doc_scanner`; not every app needs auth).
@@ -61,7 +63,14 @@ class FirebaseAuthService {
     password: password,
   );
 
-  Future<void> signOut() => FirebaseAuth.instance.signOut();
+  /// Releases this device's push registration first: the endpoint that does
+  /// it authenticates with an ID token, and one frame later there won't be
+  /// one. Never throws (it swallows its own failures), so a sign-out can't be
+  /// blocked by it.
+  Future<void> signOut() async {
+    await FirebaseMessagingService.instance.releaseDevice();
+    await FirebaseAuth.instance.signOut();
+  }
 
   Future<void> sendEmailVerification() async {
     await currentUser?.sendEmailVerification();

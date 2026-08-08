@@ -56,6 +56,27 @@ service firebase.storage {
       allow write: if isStoreOwner(storeId);
     }
 
+    // Artwork attached to a store's push notifications, uploaded from the
+    // dashboard's Notifications page — same owner gate as the catalog
+    // prefixes above. World-readable because FCM fetches the URL on the
+    // device, unauthenticated.
+    match /{storeId}/notifications/{allPaths=**} {
+      allow read: if true;
+      allow write: if isStoreOwner(storeId);
+    }
+
+    // Artwork for CordeliaApps-wide notifications, which belong to no store.
+    // Gated on the superAdmin custom claim — the same authority
+    // firestore.rules uses, and one only scripts/grant-superadmin.mjs can
+    // grant. Sits beside the {storeId} matches, so no store may use
+    // "platform" as its document id; store ids are Firestore-generated, so
+    // this can't collide in practice (same caveat as "users" below).
+    match /platform/notifications/{allPaths=**} {
+      allow read: if true;
+      allow write: if request.auth != null &&
+        request.auth.token.role == 'superAdmin';
+    }
+
     // Shopper avatars, uploaded from the app's Edit Profile — the only
     // prefix a shopper (rather than a store owner) writes. Gated to the
     // signed-in uid, so nobody can overwrite someone else's photo; the

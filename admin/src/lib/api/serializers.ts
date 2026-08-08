@@ -246,6 +246,7 @@ export function serializeNotification(n: FeedNotification) {
     kind: n.kind,
     title: n.title,
     message: n.message,
+    image_url: n.imageUrl,
     source: n.source,
     created_at_ms: n.createdAtMs,
     is_read: n.isRead,

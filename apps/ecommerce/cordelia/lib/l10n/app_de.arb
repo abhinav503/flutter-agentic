@@ -733,5 +733,9 @@
   "retryButton": "Erneut versuchen",
   "notificationsSectionToday": "Heute",
   "notificationsSectionYesterday": "Gestern",
-  "notificationsSectionEarlier": "Früher"
+  "notificationsSectionEarlier": "Früher",
+  "notificationsPermissionTitle": "Benachrichtigungen sind aus",
+  "notificationsPermissionSubtitle": "Aktivieren Sie sie, um Bestellupdates und Angebote dieses Shops zu erhalten.",
+  "notificationsPermissionCta": "Benachrichtigungen aktivieren",
+  "notificationsPermissionBlockedMessage": "Benachrichtigungen für CordeliaApps sind blockiert. Aktivieren Sie sie in den Einstellungen Ihres Geräts."
 }
