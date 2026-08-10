@@ -46,7 +46,7 @@ export async function POST(
       { status: 409 },
     );
   }
-  if (!order.razorpayPaymentId) {
+  if (!order.paymentId) {
     return NextResponse.json(
       { error: "This order has no payment to refund" },
       { status: 400 },

@@ -39,7 +39,10 @@ export async function POST(
     return NextResponse.json({ error: "Missing signature" }, { status: 401 });
   }
 
-  const config = await getStorePaymentConfig(storeId);
+  // The razorpay slot specifically, not the store's active provider: a store
+  // that has moved to Stripe still receives refund webhooks for orders paid
+  // through Razorpay, and those must keep settling.
+  const config = await getStorePaymentConfig(storeId, "razorpay");
   if (!config?.webhookSecret) {
     // No webhook secret configured for this store — can't verify, so reject.
     return NextResponse.json(
@@ -48,7 +51,9 @@ export async function POST(
     );
   }
 
-  if (!verifyWebhookSignature(config.webhookSecret, rawBody, signature)) {
+  if (
+    !verifyWebhookSignature("razorpay", config.webhookSecret, rawBody, signature)
+  ) {
     return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
   }
 

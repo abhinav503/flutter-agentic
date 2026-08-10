@@ -12,7 +12,9 @@
     "verify:import-csv": "tsx --env-file=.env.local scripts/verify-import-csv.ts",
     "verify:seed-images": "node scripts/verify-seed-images.mjs",
     "verify:seed-bands": "node scripts/verify-seed-bands.mjs",
-    "verify:seed-refs": "node scripts/verify-seed-refs.mjs"
+    "verify:seed-refs": "node scripts/verify-seed-refs.mjs",
+    "verify:stripe": "tsx --env-file=.env.local scripts/verify-stripe.ts",
+    "verify:payment-config": "tsx --env-file=.env.local scripts/verify-payment-config.ts"
   },
   "dependencies": {
     "class-variance-authority": "^0.7.1",

@@ -5,6 +5,7 @@
 // names, so ProductUnitTypeParse.toProductUnitType() can parse it directly.
 
 import type { StoreStatus } from "./store-status";
+import type { PaymentProvider } from "./payment-providers/types";
 
 export type UnitType = "g" | "ml" | "pcs";
 
@@ -486,16 +487,26 @@ export type Order = {
   // a single PENDING entry dated `placedAt` — the only transition time we
   // can honestly reconstruct, so their later steps are undated.
   statusHistory: OrderStatusChange[];
-  // The verified Razorpay payment this order was placed against. Empty for
-  // orders placed through the test-mode payment-less path (the web preview,
-  // which can't run the native checkout SDK) — never empty for a live store.
-  razorpayPaymentId: string;
-  // The Razorpay *order* (`order_...`) the payment was made against — created
-  // by POST /payments one step before this order doc existed. Stored so a
-  // Razorpay-side record can be traced back here directly; without it the only
-  // route in is via razorpayPaymentId. Empty on the payment-less path, and on
-  // orders placed before this field was added.
-  razorpayOrderId: string;
+  // Which provider took the money. Informational — refunds authenticate with
+  // the store's *current* config, not this — but it's what tells support which
+  // dashboard to open, and orders predating the Stripe split are all Razorpay.
+  paymentProvider: PaymentProvider;
+  // The verified payment this order was placed against: a Razorpay payment
+  // (`pay_...`) or a Stripe PaymentIntent (`pi_...`). Empty for orders placed
+  // through the test-mode payment-less path (the web preview, which can't run
+  // a native checkout SDK) — never empty for a live store.
+  //
+  // Stored in Firestore under the legacy key `razorpayPaymentId`: renaming the
+  // field would strand every existing order, and the value is only ever read
+  // back through toOrder(), which maps it. Same for paymentOrderId below.
+  paymentId: string;
+  // The intent the payment was made against — a Razorpay order (`order_...`)
+  // or the same Stripe PaymentIntent id as paymentId (Stripe has no separate
+  // charge reference the client is trusted with). Created by POST /payments
+  // one step before this order doc existed, so a provider-side record can be
+  // traced back here directly. Empty on the payment-less path, and on orders
+  // placed before this field was added.
+  paymentOrderId: string;
   // The coupon this order was placed with — "" / 0 when none. `total` is
   // already net of couponDiscount; the pair is kept for the records
   // (dashboard, support), not for re-deriving the charge.

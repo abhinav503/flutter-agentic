@@ -1,14 +1,32 @@
-/// A server-created Razorpay order the checkout sheet is opened against. The
-/// server computes [amount] from the live catalog and creates the Razorpay
-/// order with the store's own credentials, so payment settles into that
-/// store's account. [razorpayKeyId] is the store's public key (safe on the
-/// client); the secret never leaves the server.
-class PaymentIntentEntity {
-  final String razorpayOrderId;
-  final String razorpayKeyId;
+import 'package:cordelia/enums/payment_provider.dart';
 
-  /// Amount in the smallest currency unit (paise for INR) — what Razorpay's
-  /// checkout expects, and what the server already multiplied up.
+/// A server-created payment intent the checkout sheet is opened against — a
+/// Razorpay Order or a Stripe PaymentIntent, depending on what the store
+/// configured. The server computes [amount] from the live catalog and creates
+/// it with the store's own credentials, so payment settles into that store's
+/// account. [publishableKey] is the store's public key (safe on the client);
+/// the secret never leaves the server.
+class PaymentIntentEntity {
+  /// Which gateway to open. The app dispatches on this alone — it is never
+  /// inferred from the store or hardcoded per template.
+  final PaymentProvider provider;
+
+  /// The provider's id for this intent: a Razorpay `order_…` or a Stripe
+  /// `pi_…`. Echoed back to the server on order placement.
+  final String paymentOrderId;
+
+  /// Razorpay key id / Stripe publishable key — public either way, and what
+  /// the client SDK is initialised with.
+  final String publishableKey;
+
+  /// Stripe only: scopes the client to confirm this one intent, and is what
+  /// its PaymentSheet is initialised with. Empty for Razorpay, which has no
+  /// equivalent concept.
+  final String clientSecret;
+
+  /// Amount in the smallest currency unit (paise, cents) — what both
+  /// providers' checkout SDKs expect, and what the server already multiplied
+  /// up.
   final int amount;
   final String currency;
 
@@ -20,10 +38,12 @@ class PaymentIntentEntity {
   final String storeName;
 
   const PaymentIntentEntity({
-    required this.razorpayOrderId,
-    required this.razorpayKeyId,
+    required this.provider,
+    required this.paymentOrderId,
+    required this.publishableKey,
     required this.amount,
     required this.currency,
+    this.clientSecret = '',
     this.storeName = '',
   });
 }

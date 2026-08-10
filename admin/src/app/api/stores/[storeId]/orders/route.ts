@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { CouponError, couponErrorBody } from "@/lib/coupon-engine";
 import {
   createOrder,
+  getOrderByPaymentId,
   getOrdersForStore,
   getOrdersForUser,
   OrderCreationError,
@@ -11,10 +12,8 @@ import {
   verifyIdToken,
   UnauthorizedError,
 } from "@/lib/api/admin-guard";
-import {
-  getStorePaymentConfig,
-  verifyPaymentSignature,
-} from "@/lib/payments";
+import { getStorePaymentConfig, verifyPayment } from "@/lib/payments";
+import { quoteCart } from "@/lib/checkout-quote";
 import { notifyOrderPlaced } from "@/lib/order-notifications";
 import { serializeOrder } from "@/lib/api/serializers";
 import type { CreateOrderItemInput } from "@/lib/orders";
@@ -67,9 +66,18 @@ export async function POST(
   const items = body.items as CreateOrderItemInput[] | undefined;
   const addressId = body.addressId as string | undefined;
   const couponCode = typeof body.couponCode === "string" ? body.couponCode : "";
-  const razorpayOrderId = body.razorpayOrderId as string | undefined;
-  const razorpayPaymentId = body.razorpayPaymentId as string | undefined;
-  const razorpaySignature = body.razorpaySignature as string | undefined;
+  // Neutral names since the provider split; the razorpay* spellings are what
+  // app builds predating it send, so both are accepted. Drop the fallbacks
+  // once no such build is in the wild.
+  const paymentOrderId = (body.paymentOrderId ?? body.razorpayOrderId) as
+    | string
+    | undefined;
+  const paymentId = (body.paymentId ?? body.razorpayPaymentId) as
+    | string
+    | undefined;
+  const paymentSignature = (body.paymentSignature ?? body.razorpaySignature) as
+    | string
+    | undefined;
 
   if (!Array.isArray(items) || items.length === 0) {
     return NextResponse.json({ error: "items must be a non-empty array" }, { status: 400 });
@@ -78,15 +86,20 @@ export async function POST(
     return NextResponse.json({ error: "addressId is required" }, { status: 400 });
   }
 
-  // Payment gate. A live store must present a verified Razorpay signature
-  // before any order is placed. A test store may skip payment entirely (the
-  // web-preview path, which can't run the native checkout SDK) — but if it
-  // *does* send payment fields (the mobile test flow), they're still
-  // verified, so a tampered success callback is rejected in test too.
-  const paymentProvided = Boolean(
-    razorpayOrderId && razorpayPaymentId && razorpaySignature,
-  );
+  // Payment gate. A live store must present a verified payment before any
+  // order is placed. A test store may skip payment entirely (the web-preview
+  // path, which can't run a native checkout SDK) — but if it *does* send
+  // payment fields (the mobile test flow), they're still verified, so a
+  // tampered success callback is rejected in test too.
+  //
+  // What counts as "provided" differs by provider: Razorpay returns a
+  // signature the client must hand back, Stripe returns none (verification is
+  // a server-side re-fetch), so only the intent id is required there.
   const config = await getStorePaymentConfig(storeId);
+  const paymentProvided =
+    config?.provider === "stripe"
+      ? Boolean(paymentOrderId)
+      : Boolean(paymentOrderId && paymentId && paymentSignature);
   const paymentRequired = config !== null && !config.isTest;
 
   if (paymentRequired && !paymentProvided) {
@@ -102,11 +115,54 @@ export async function POST(
         { status: 400 },
       );
     }
-    const valid = verifyPaymentSignature(
+
+    // Replay guard. Both providers' proofs are replayable on their own — a
+    // Razorpay (orderId|paymentId|signature) triple stays valid forever, and
+    // a succeeded Stripe intent id can be presented again — so a shopper
+    // could otherwise settle a large cart with a small earlier payment. One
+    // payment, one order.
+    const alreadyUsed = await getOrderByPaymentId(
+      storeId,
+      paymentId ?? paymentOrderId!,
+    );
+    if (alreadyUsed) {
+      return NextResponse.json(
+        { error: "This payment has already been used for an order" },
+        { status: 409 },
+      );
+    }
+
+    // Re-derive what this cart costs and require the payment to be for
+    // exactly that. Razorpay's signature already binds the order id, but
+    // Stripe's verification has nothing to bind against without it — this is
+    // what makes presenting somebody else's (or an older, cheaper) intent
+    // useless.
+    let quote;
+    try {
+      quote = await quoteCart(storeId, uid, items, couponCode);
+    } catch (err) {
+      if (err instanceof OrderCreationError) {
+        const status = err.message.startsWith("Insufficient stock") ? 409 : 400;
+        return NextResponse.json(
+          { error: err.message, productId: err.productId },
+          { status },
+        );
+      }
+      if (err instanceof CouponError) {
+        return NextResponse.json(couponErrorBody(err), { status: 400 });
+      }
+      throw err;
+    }
+
+    const valid = await verifyPayment(
       config,
-      razorpayOrderId!,
-      razorpayPaymentId!,
-      razorpaySignature!,
+      {
+        orderId: paymentOrderId!,
+        paymentId: paymentId ?? paymentOrderId!,
+        signature: paymentSignature ?? "",
+      },
+      quote.totalMinor,
+      quote.currency,
     );
     if (!valid) {
       return NextResponse.json(
@@ -122,9 +178,13 @@ export async function POST(
       storeId,
       items,
       addressId,
-      paymentProvided ? razorpayPaymentId! : "",
-      paymentProvided ? razorpayOrderId! : "",
+      // Stripe has no separate charge reference the client is trusted with —
+      // the PaymentIntent id is both the intent and the payment — so it lands
+      // in both fields. Razorpay fills them with genuinely distinct ids.
+      paymentProvided ? (paymentId ?? paymentOrderId!) : "",
+      paymentProvided ? paymentOrderId! : "",
       couponCode,
+      config?.provider ?? "razorpay",
     );
     // Awaited, not fired and forgotten: on a serverless runtime the function
     // can be frozen the moment the response is returned, which would drop an

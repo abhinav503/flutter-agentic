@@ -82,10 +82,11 @@ export async function getStoreReadiness(
     },
     {
       id: "payments",
-      label: "Razorpay connected",
-      hint: "Connect a Razorpay account in Settings so shoppers can pay you.",
-      // `configured`, not just a keyId: it also requires the encrypted
-      // secret, without which no order can actually be charged.
+      label: "Payments connected",
+      hint: "Connect Razorpay or Stripe in Settings so shoppers can pay you.",
+      // `configured` is the ACTIVE provider's slot having both a key and an
+      // encrypted secret — a store with credentials saved for the other
+      // provider still can't charge anyone.
       passed: payment.configured,
       // Deliberately not a preview blocker: the owner can walk their own
       // storefront and reach checkout before payments are wired.

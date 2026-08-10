@@ -295,30 +295,106 @@ function SampleDataCard({ storeId }: { storeId: string }) {
     </Card>
   );
 }
+type PaymentProvider = "razorpay" | "stripe";
 
-type PaymentStatus = {
+type ProviderStatus = {
   configured: boolean;
   keyId: string | null;
   isTest: boolean;
   webhookConfigured: boolean;
 };
 
-// Both Razorpay cards in one component so the payment-config fetch and the two
+type PaymentStatus = {
+  activeProvider: PaymentProvider | null;
+  razorpay: ProviderStatus;
+  stripe: ProviderStatus;
+  configured: boolean;
+};
+
+// Per-provider copy. The provider is never inferred here from what the owner
+// typed — the server reads it off the key prefix — so this table only drives
+// labels, placeholders and the help text pointing at the right dashboard.
+const PROVIDERS: Record<
+  PaymentProvider,
+  {
+    label: string;
+    blurb: string;
+    keyIdLabel: string;
+    keyIdPlaceholder: string;
+    keySecretLabel: string;
+    keySecretPlaceholder: string;
+    webhookPath: string;
+    webhookPlaceholder: string;
+    webhookHelp: React.ReactNode;
+  }
+> = {
+  razorpay: {
+    label: "Razorpay",
+    blurb: "Cards, UPI, netbanking and wallets. INR only.",
+    keyIdLabel: "Key ID",
+    keyIdPlaceholder: "rzp_test_xxxxxxxxxxxxxx",
+    keySecretLabel: "Key Secret",
+    keySecretPlaceholder: "Never shown again after saving",
+    webhookPath: "razorpay",
+    webhookPlaceholder: "The secret you set on the Razorpay webhook",
+    webhookHelp: (
+      <>
+        In your Razorpay Dashboard → Settings → Webhooks, add a webhook for the{" "}
+        <code>refund.processed</code> and <code>refund.failed</code> events,
+        then paste its secret here.
+      </>
+    ),
+  },
+  stripe: {
+    label: "Stripe",
+    blurb: "Cards and wallets in INR, EUR, GBP or USD.",
+    keyIdLabel: "Publishable key",
+    keyIdPlaceholder: "pk_test_xxxxxxxxxxxxxx",
+    keySecretLabel: "Secret key",
+    keySecretPlaceholder: "sk_test_… or rk_test_…",
+    webhookPath: "stripe",
+    webhookPlaceholder: "whsec_…",
+    webhookHelp: (
+      <>
+        In your Stripe Dashboard → Developers → Webhooks, add an endpoint for
+        the <code>charge.refunded</code>, <code>refund.updated</code> and{" "}
+        <code>refund.failed</code> events, then paste its signing secret
+        (<code>whsec_…</code>) here.
+      </>
+    ),
+  },
+};
+
+// Both payment cards in one component so the payment-config fetch and the
 // forms stay together — the tab that shows them owns their state, and nothing
 // is fetched until an owner opens it.
+//
+// Credentials for BOTH providers are kept server-side at once; this screen
+// edits one slot at a time and separately chooses which slot takes payments.
+// Saving Stripe keys does not disconnect Razorpay — deliberately, because
+// refunding an order paid through Razorpay needs those keys forever.
 function PaymentsSettings({ storeId }: { storeId: string }) {
   const { user } = useAuth();
   const [status, setStatus] = useState<PaymentStatus | null>(null);
   const [loading, setLoading] = useState(true);
+  // Which provider's form is on screen — a view concern only. It starts on the
+  // active provider and never itself changes what shoppers are charged
+  // through; that is the Activate action.
+  const [provider, setProvider] = useState<PaymentProvider>("razorpay");
   const [keyId, setKeyId] = useState("");
   const [keySecret, setKeySecret] = useState("");
   const [saving, setSaving] = useState(false);
   const [webhookSecret, setWebhookSecret] = useState("");
   const [savingWebhook, setSavingWebhook] = useState(false);
+  const [busy, setBusy] = useState(false);
+
+  const copy = PROVIDERS[provider];
+  const slot = status?.[provider];
+  const isActive = status?.activeProvider === provider;
 
   const webhookUrl =
     typeof window !== "undefined"
-      ? `${window.location.origin}/api/stores/${storeId}/webhooks/razorpay`
+      ? `${window.location.origin}/api/stores/${storeId}/webhooks/${copy.webhookPath}`
       : "";
 
   useEffect(() => {
@@ -330,7 +406,11 @@ function PaymentsSettings({ storeId }: { storeId: string }) {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!active) return;
-      if (res.ok) setStatus(await res.json());
+      if (res.ok) {
+        const body = (await res.json()) as PaymentStatus;
+        setStatus(body);
+        if (body.activeProvider) setProvider(body.activeProvider);
+      }
       setLoading(false);
     })();
     return () => {
@@ -338,10 +418,16 @@ function PaymentsSettings({ storeId }: { storeId: string }) {
     };
   }, [user, storeId]);
 
-  async function handleSubmit(e: FormEvent) {
-    e.preventDefault();
-    if (!user) return;
-    setSaving(true);
+  // Every mutation on this screen is the same PUT with a different body shape,
+  // and every one answers with the full status — so one helper covers saving
+  // keys, saving a webhook secret, activating and disconnecting.
+  async function submit(
+    body: Record<string, unknown>,
+    okMessage: string,
+    setPending: (v: boolean) => void,
+  ): Promise<boolean> {
+    if (!user) return false;
+    setPending(true);
     try {
       const token = await user.getIdToken();
       const res = await fetch(`/api/stores/${storeId}/payment-config`, {
@@ -350,98 +436,167 @@ function PaymentsSettings({ storeId }: { storeId: string }) {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ keyId: keyId.trim(), keySecret: keySecret.trim() }),
+        body: JSON.stringify(body),
       });
-      const body = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        throw new Error(body.error ?? "Could not save payment keys");
-      }
-      setStatus(body);
-      setKeyId("");
-      setKeySecret("");
-      toast.success("Payment keys saved");
+      const payload = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(payload.error ?? "Something went wrong");
+      setStatus(payload);
+      toast.success(okMessage);
+      return true;
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Something went wrong");
+      return false;
     } finally {
-      setSaving(false);
+      setPending(false);
+    }
+  }
+
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+    const ok = await submit(
+      { keyId: keyId.trim(), keySecret: keySecret.trim() },
+      `${copy.label} keys saved`,
+      setSaving,
+    );
+    if (ok) {
+      setKeyId("");
+      setKeySecret("");
     }
   }
 
   async function handleWebhookSubmit(e: FormEvent) {
     e.preventDefault();
-    if (!user) return;
-    setSavingWebhook(true);
-    try {
-      const token = await user.getIdToken();
-      const res = await fetch(`/api/stores/${storeId}/payment-config`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ webhookSecret: webhookSecret.trim() }),
-      });
-      const body = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        throw new Error(body.error ?? "Could not save webhook secret");
-      }
-      setStatus(body);
-      setWebhookSecret("");
-      toast.success("Webhook secret saved");
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Something went wrong");
-    } finally {
-      setSavingWebhook(false);
-    }
+    const ok = await submit(
+      { provider, webhookSecret: webhookSecret.trim() },
+      "Webhook secret saved",
+      setSavingWebhook,
+    );
+    if (ok) setWebhookSecret("");
   }
 
   return (
     <>
       <Card>
         <CardHeader>
-          <CardTitle className="flex flex-wrap items-center gap-2">
-            Razorpay
-            {!loading &&
-              (status?.configured ? (
-                <>
-                  <Badge variant="success" className="gap-1">
-                    <span className="size-1.5 rounded-full bg-current" />
-                    Connected
-                  </Badge>
-                  <Badge variant={status.isTest ? "secondary" : "default"}>
-                    {status.isTest ? "Test mode" : "Live mode"}
-                  </Badge>
-                </>
-              ) : (
-                <Badge variant="outline">Not connected</Badge>
-              ))}
-          </CardTitle>
+          <CardTitle>Payments</CardTitle>
           <CardDescription>
             {loading
               ? "Loading…"
-              : status?.configured
-                ? `Payments settle into this Razorpay account — key ${status.keyId}`
-                : "Not connected yet. Paste your Razorpay Key ID and Key Secret below."}
+              : status?.activeProvider
+                ? `Shoppers are charged through ${PROVIDERS[status.activeProvider].label}. Keys for both providers are kept, so you can switch without re-entering them.`
+                : "Not connected yet. Add keys for Razorpay or Stripe below."}
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="flex flex-col gap-4">
+          {/* Both providers' state at a glance — which are connected, and
+              which one is actually taking money. */}
+          <div className="grid gap-3 sm:grid-cols-2">
+            {(Object.keys(PROVIDERS) as PaymentProvider[]).map((id) => {
+              const s = status?.[id];
+              const selected = provider === id;
+              return (
+                <button
+                  key={id}
+                  type="button"
+                  onClick={() => {
+                    setProvider(id);
+                    // The half-typed keys belong to the other provider.
+                    setKeyId("");
+                    setKeySecret("");
+                    setWebhookSecret("");
+                  }}
+                  className={`flex flex-col gap-2 rounded-lg border p-3 text-left transition-colors ${
+                    selected
+                      ? "border-primary bg-primary/5"
+                      : "hover:bg-muted/50"
+                  }`}
+                >
+                  <span className="flex flex-wrap items-center gap-2">
+                    <span className="font-medium">{PROVIDERS[id].label}</span>
+                    {!loading && status?.activeProvider === id && (
+                      <Badge variant="success" className="gap-1">
+                        <span className="size-1.5 rounded-full bg-current" />
+                        Taking payments
+                      </Badge>
+                    )}
+                    {!loading && s?.configured && status?.activeProvider !== id && (
+                      <Badge variant="secondary">Saved</Badge>
+                    )}
+                    {!loading && !s?.configured && (
+                      <Badge variant="outline">Not connected</Badge>
+                    )}
+                    {!loading && s?.configured && (
+                      <Badge variant={s.isTest ? "secondary" : "default"}>
+                        {s.isTest ? "Test" : "Live"}
+                      </Badge>
+                    )}
+                  </span>
+                  <span className="text-xs break-all text-muted-foreground">
+                    {s?.configured ? s.keyId : PROVIDERS[id].blurb}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Switching what shoppers are charged through is its own explicit
+              action — saving keys must never silently redirect live money. */}
+          {!loading && slot?.configured && !isActive && (
+            <div className="flex flex-wrap items-center gap-3 rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2">
+              <p className="text-xs">
+                {copy.label} is configured but not taking payments.
+              </p>
+              <Button
+                type="button"
+                size="sm"
+                disabled={busy}
+                onClick={() =>
+                  submit(
+                    { provider, activate: true },
+                    `Now charging through ${copy.label}`,
+                    setBusy,
+                  )
+                }
+              >
+                Use {copy.label} for checkout
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                disabled={busy}
+                onClick={() =>
+                  submit(
+                    { provider, disconnect: true },
+                    `${copy.label} disconnected`,
+                    setBusy,
+                  )
+                }
+              >
+                Disconnect
+              </Button>
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div className="flex flex-col gap-2">
-              <Label htmlFor="keyId">Key ID</Label>
+              <Label htmlFor="keyId">
+                {copy.label} · {copy.keyIdLabel}
+              </Label>
               <Input
                 id="keyId"
-                placeholder="rzp_test_xxxxxxxxxxxxxx"
+                placeholder={copy.keyIdPlaceholder}
                 value={keyId}
                 onChange={(e) => setKeyId(e.target.value)}
                 autoComplete="off"
               />
             </div>
             <div className="flex flex-col gap-2">
-              <Label htmlFor="keySecret">Key Secret</Label>
+              <Label htmlFor="keySecret">{copy.keySecretLabel}</Label>
               <Input
                 id="keySecret"
                 type="password"
-                placeholder="Never shown again after saving"
+                placeholder={copy.keySecretPlaceholder}
                 value={keySecret}
                 onChange={(e) => setKeySecret(e.target.value)}
                 autoComplete="off"
@@ -449,6 +604,8 @@ function PaymentsSettings({ storeId }: { storeId: string }) {
               <p className="text-xs text-muted-foreground">
                 Your secret is encrypted before it is stored and is never sent
                 back to this page.
+                {provider === "stripe" &&
+                  " A restricted key (rk_…) scoped to write PaymentIntents and Refunds is safer than a full secret key."}
               </p>
             </div>
             <Button
@@ -456,7 +613,11 @@ function PaymentsSettings({ storeId }: { storeId: string }) {
               disabled={saving || !keyId.trim() || !keySecret.trim()}
               className="self-start"
             >
-              {saving ? "Saving…" : status?.configured ? "Update keys" : "Save keys"}
+              {saving
+                ? "Saving…"
+                : slot?.configured
+                  ? `Update ${copy.label} keys`
+                  : `Save ${copy.label} keys`}
             </Button>
           </form>
         </CardContent>
@@ -465,9 +626,9 @@ function PaymentsSettings({ storeId }: { storeId: string }) {
       <Card>
         <CardHeader>
           <CardTitle className="flex flex-wrap items-center gap-2">
-            Webhook
+            {copy.label} webhook
             {!loading &&
-              (status?.webhookConfigured ? (
+              (slot?.webhookConfigured ? (
                 <Badge variant="success" className="gap-1">
                   <span className="size-1.5 rounded-full bg-current" />
                   Configured
@@ -477,16 +638,13 @@ function PaymentsSettings({ storeId }: { storeId: string }) {
               ))}
           </CardTitle>
           <CardDescription>
-            Lets refunds settle automatically. In your Razorpay Dashboard →
-            Settings → Webhooks, add a webhook for the{" "}
-            <code>refund.processed</code> and <code>refund.failed</code> events,
-            then paste its secret here.
+            Lets refunds settle automatically. {copy.webhookHelp}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleWebhookSubmit} className="flex flex-col gap-4">
             <div className="flex flex-col gap-2">
-              <Label>Webhook URL (paste into Razorpay)</Label>
+              <Label>Webhook URL (paste into {copy.label})</Label>
               <code className="block overflow-x-auto rounded-md bg-muted px-3 py-2 text-xs">
                 {webhookUrl}
               </code>
@@ -496,15 +654,15 @@ function PaymentsSettings({ storeId }: { storeId: string }) {
               <Input
                 id="webhookSecret"
                 type="password"
-                placeholder="The secret you set on the Razorpay webhook"
+                placeholder={copy.webhookPlaceholder}
                 value={webhookSecret}
                 onChange={(e) => setWebhookSecret(e.target.value)}
                 autoComplete="off"
               />
               <p className="text-xs text-muted-foreground">
                 Encrypted before storage and never sent back to this page.
-                Without it, refunds still work but stay in “processing” until you
-                press “Complete refund” on the order.
+                Without it, refunds still work but stay in “processing” until
+                you press “Complete refund” on the order.
               </p>
             </div>
             <Button
@@ -514,7 +672,7 @@ function PaymentsSettings({ storeId }: { storeId: string }) {
             >
               {savingWebhook
                 ? "Saving…"
-                : status?.webhookConfigured
+                : slot?.webhookConfigured
                   ? "Update webhook secret"
                   : "Save webhook secret"}
             </Button>

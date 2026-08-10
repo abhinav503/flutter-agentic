@@ -1,3 +1,4 @@
+import 'package:cordelia/enums/payment_provider.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../domain/entities/payment_intent_entity.dart';
@@ -10,12 +11,16 @@ abstract class PaymentIntentModel with _$PaymentIntentModel {
   const PaymentIntentModel._();
 
   const factory PaymentIntentModel({
-    @JsonKey(name: 'razorpayOrderId') required String razorpayOrderId,
-    @JsonKey(name: 'razorpayKeyId') required String razorpayKeyId,
+    // Every field below the first two is defaulted rather than required: a
+    // server deployment predating the Razorpay/Stripe split omits `provider`
+    // and `clientSecret` entirely, and checkout must keep working against it.
+    // An absent provider parses to Razorpay, which is what such a server is.
+    @JsonKey(name: 'provider', defaultValue: 'razorpay') required String provider,
+    @JsonKey(name: 'paymentOrderId') required String paymentOrderId,
+    @JsonKey(name: 'publishableKey') required String publishableKey,
+    @JsonKey(name: 'clientSecret', defaultValue: '') required String clientSecret,
     required int amount,
     required String currency,
-    // Defaulted, not required: a server that predates this field simply omits
-    // it, and checkout must keep working against that deployment.
     @JsonKey(name: 'storeName', defaultValue: '') required String storeName,
   }) = _PaymentIntentModel;
 
@@ -24,16 +29,20 @@ abstract class PaymentIntentModel with _$PaymentIntentModel {
 
   factory PaymentIntentModel.fromEntity(PaymentIntentEntity e) =>
       PaymentIntentModel(
-        razorpayOrderId: e.razorpayOrderId,
-        razorpayKeyId: e.razorpayKeyId,
+        provider: e.provider.name,
+        paymentOrderId: e.paymentOrderId,
+        publishableKey: e.publishableKey,
+        clientSecret: e.clientSecret,
         amount: e.amount,
         currency: e.currency,
         storeName: e.storeName,
       );
 
   PaymentIntentEntity toEntity() => PaymentIntentEntity(
-    razorpayOrderId: razorpayOrderId,
-    razorpayKeyId: razorpayKeyId,
+    provider: provider.toPaymentProvider(),
+    paymentOrderId: paymentOrderId,
+    publishableKey: publishableKey,
+    clientSecret: clientSecret,
     amount: amount,
     currency: currency,
     storeName: storeName,

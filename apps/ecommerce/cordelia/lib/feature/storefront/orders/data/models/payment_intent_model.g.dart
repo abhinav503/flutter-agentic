@@ -8,8 +8,10 @@ part of 'payment_intent_model.dart';
 
 _PaymentIntentModel _$PaymentIntentModelFromJson(Map<String, dynamic> json) =>
     _PaymentIntentModel(
-      razorpayOrderId: json['razorpayOrderId'] as String,
-      razorpayKeyId: json['razorpayKeyId'] as String,
+      provider: json['provider'] as String? ?? 'razorpay',
+      paymentOrderId: json['paymentOrderId'] as String,
+      publishableKey: json['publishableKey'] as String,
+      clientSecret: json['clientSecret'] as String? ?? '',
       amount: (json['amount'] as num).toInt(),
       currency: json['currency'] as String,
       storeName: json['storeName'] as String? ?? '',
@@ -17,8 +19,10 @@ _PaymentIntentModel _$PaymentIntentModelFromJson(Map<String, dynamic> json) =>
 
 Map<String, dynamic> _$PaymentIntentModelToJson(_PaymentIntentModel instance) =>
     <String, dynamic>{
-      'razorpayOrderId': instance.razorpayOrderId,
-      'razorpayKeyId': instance.razorpayKeyId,
+      'provider': instance.provider,
+      'paymentOrderId': instance.paymentOrderId,
+      'publishableKey': instance.publishableKey,
+      'clientSecret': instance.clientSecret,
       'amount': instance.amount,
       'currency': instance.currency,
       'storeName': instance.storeName,

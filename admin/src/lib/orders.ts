@@ -12,6 +12,7 @@ import {
   type CouponLine,
 } from "./coupon-engine";
 import { resolveLinePricing } from "./products";
+import type { PaymentProvider } from "./payment-providers/types";
 import {
   MAX_RATING,
   MIN_RATING,
@@ -123,8 +124,12 @@ function toOrder(id: string, data: FirebaseFirestore.DocumentData): Order {
     statusHistory: (data.statusHistory as OrderStatusChange[]) ?? [
       { status: "PENDING", at: placedAt },
     ],
-    razorpayPaymentId: (data.razorpayPaymentId as string) ?? "",
-    razorpayOrderId: (data.razorpayOrderId as string) ?? "",
+    // Firestore still stores these under their original razorpay* keys — see
+    // Order.paymentId. Orders written before the provider split carry no
+    // paymentProvider, and every one of them is Razorpay.
+    paymentProvider: (data.paymentProvider as PaymentProvider) ?? "razorpay",
+    paymentId: (data.razorpayPaymentId as string) ?? "",
+    paymentOrderId: (data.razorpayOrderId as string) ?? "",
     couponCode: (data.couponCode as string) ?? "",
     couponDiscount: (data.couponDiscount as number) ?? 0,
     // Absent on every order placed before order rating shipped, and on every
@@ -207,9 +212,10 @@ export async function createOrder(
   storeId: string,
   requestedItems: CreateOrderItemInput[],
   addressId: string,
-  razorpayPaymentId = "",
-  razorpayOrderId = "",
+  paymentId = "",
+  paymentOrderId = "",
   couponCode = "",
+  paymentProvider: PaymentProvider = "razorpay",
 ): Promise<Order> {
   if (requestedItems.length === 0) {
     throw new OrderCreationError("Order must contain at least one item");
@@ -351,8 +357,9 @@ export async function createOrder(
       // Placement is the timeline's first entry, sharing placedAt's exact
       // value so the two can never disagree.
       statusHistory: [{ status: "PENDING", at: placedAt }],
-      razorpayPaymentId,
-      razorpayOrderId,
+      paymentProvider,
+      paymentId,
+      paymentOrderId,
       couponCode: appliedCouponCode,
       couponDiscount,
       // Unrated until the order is delivered and the shopper says so.
@@ -363,7 +370,16 @@ export async function createOrder(
       refundId: "",
     };
 
-    tx.set(orderRef, newOrder);
+    // Stored with the two payment ids under their original razorpay* keys —
+    // renaming them in Firestore would strand every existing order (and the
+    // getOrderByPaymentId query that reads them). toOrder() maps back, so this
+    // is the only place the legacy spelling is written.
+    const { paymentId: pid, paymentOrderId: poid, ...rest } = newOrder;
+    tx.set(orderRef, {
+      ...rest,
+      razorpayPaymentId: pid,
+      razorpayOrderId: poid,
+    });
     tx.set(cartDocRef(uid, storeId), {
       items: [],
       updatedAt: FieldValue.serverTimestamp(),
@@ -507,7 +523,7 @@ export async function cancelOrder(orderId: string): Promise<Order> {
     );
     const productSnaps = await Promise.all(productRefs.map((ref) => tx.get(ref)));
 
-    const paid = order.razorpayPaymentId !== "";
+    const paid = order.paymentId !== "";
     const refundStatus: RefundStatus = paid ? "PENDING" : "NONE";
     const change: OrderStatusChange = {
       status: "CANCELLED",

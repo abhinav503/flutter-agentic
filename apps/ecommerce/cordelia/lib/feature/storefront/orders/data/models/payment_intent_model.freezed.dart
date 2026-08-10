@@ -15,9 +15,11 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$PaymentIntentModel {
 
-@JsonKey(name: 'razorpayOrderId') String get razorpayOrderId;@JsonKey(name: 'razorpayKeyId') String get razorpayKeyId; int get amount; String get currency;// Defaulted, not required: a server that predates this field simply omits
-// it, and checkout must keep working against that deployment.
-@JsonKey(name: 'storeName', defaultValue: '') String get storeName;
+// Every field below the first two is defaulted rather than required: a
+// server deployment predating the Razorpay/Stripe split omits `provider`
+// and `clientSecret` entirely, and checkout must keep working against it.
+// An absent provider parses to Razorpay, which is what such a server is.
+@JsonKey(name: 'provider', defaultValue: 'razorpay') String get provider;@JsonKey(name: 'paymentOrderId') String get paymentOrderId;@JsonKey(name: 'publishableKey') String get publishableKey;@JsonKey(name: 'clientSecret', defaultValue: '') String get clientSecret; int get amount; String get currency;@JsonKey(name: 'storeName', defaultValue: '') String get storeName;
 /// Create a copy of PaymentIntentModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -30,16 +32,16 @@ $PaymentIntentModelCopyWith<PaymentIntentModel> get copyWith => _$PaymentIntentM
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is PaymentIntentModel&&(identical(other.razorpayOrderId, razorpayOrderId) || other.razorpayOrderId == razorpayOrderId)&&(identical(other.razorpayKeyId, razorpayKeyId) || other.razorpayKeyId == razorpayKeyId)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.currency, currency) || other.currency == currency)&&(identical(other.storeName, storeName) || other.storeName == storeName));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is PaymentIntentModel&&(identical(other.provider, provider) || other.provider == provider)&&(identical(other.paymentOrderId, paymentOrderId) || other.paymentOrderId == paymentOrderId)&&(identical(other.publishableKey, publishableKey) || other.publishableKey == publishableKey)&&(identical(other.clientSecret, clientSecret) || other.clientSecret == clientSecret)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.currency, currency) || other.currency == currency)&&(identical(other.storeName, storeName) || other.storeName == storeName));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,razorpayOrderId,razorpayKeyId,amount,currency,storeName);
+int get hashCode => Object.hash(runtimeType,provider,paymentOrderId,publishableKey,clientSecret,amount,currency,storeName);
 
 @override
 String toString() {
-  return 'PaymentIntentModel(razorpayOrderId: $razorpayOrderId, razorpayKeyId: $razorpayKeyId, amount: $amount, currency: $currency, storeName: $storeName)';
+  return 'PaymentIntentModel(provider: $provider, paymentOrderId: $paymentOrderId, publishableKey: $publishableKey, clientSecret: $clientSecret, amount: $amount, currency: $currency, storeName: $storeName)';
 }
 
 
@@ -50,7 +52,7 @@ abstract mixin class $PaymentIntentModelCopyWith<$Res>  {
   factory $PaymentIntentModelCopyWith(PaymentIntentModel value, $Res Function(PaymentIntentModel) _then) = _$PaymentIntentModelCopyWithImpl;
 @useResult
 $Res call({
-@JsonKey(name: 'razorpayOrderId') String razorpayOrderId,@JsonKey(name: 'razorpayKeyId') String razorpayKeyId, int amount, String currency,@JsonKey(name: 'storeName', defaultValue: '') String storeName
+@JsonKey(name: 'provider', defaultValue: 'razorpay') String provider,@JsonKey(name: 'paymentOrderId') String paymentOrderId,@JsonKey(name: 'publishableKey') String publishableKey,@JsonKey(name: 'clientSecret', defaultValue: '') String clientSecret, int amount, String currency,@JsonKey(name: 'storeName', defaultValue: '') String storeName
 });
 
 
@@ -67,10 +69,12 @@ class _$PaymentIntentModelCopyWithImpl<$Res>
 
 /// Create a copy of PaymentIntentModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? razorpayOrderId = null,Object? razorpayKeyId = null,Object? amount = null,Object? currency = null,Object? storeName = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? provider = null,Object? paymentOrderId = null,Object? publishableKey = null,Object? clientSecret = null,Object? amount = null,Object? currency = null,Object? storeName = null,}) {
   return _then(_self.copyWith(
-razorpayOrderId: null == razorpayOrderId ? _self.razorpayOrderId : razorpayOrderId // ignore: cast_nullable_to_non_nullable
-as String,razorpayKeyId: null == razorpayKeyId ? _self.razorpayKeyId : razorpayKeyId // ignore: cast_nullable_to_non_nullable
+provider: null == provider ? _self.provider : provider // ignore: cast_nullable_to_non_nullable
+as String,paymentOrderId: null == paymentOrderId ? _self.paymentOrderId : paymentOrderId // ignore: cast_nullable_to_non_nullable
+as String,publishableKey: null == publishableKey ? _self.publishableKey : publishableKey // ignore: cast_nullable_to_non_nullable
+as String,clientSecret: null == clientSecret ? _self.clientSecret : clientSecret // ignore: cast_nullable_to_non_nullable
 as String,amount: null == amount ? _self.amount : amount // ignore: cast_nullable_to_non_nullable
 as int,currency: null == currency ? _self.currency : currency // ignore: cast_nullable_to_non_nullable
 as String,storeName: null == storeName ? _self.storeName : storeName // ignore: cast_nullable_to_non_nullable
@@ -159,10 +163,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: 'razorpayOrderId')  String razorpayOrderId, @JsonKey(name: 'razorpayKeyId')  String razorpayKeyId,  int amount,  String currency, @JsonKey(name: 'storeName', defaultValue: '')  String storeName)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: 'provider', defaultValue: 'razorpay')  String provider, @JsonKey(name: 'paymentOrderId')  String paymentOrderId, @JsonKey(name: 'publishableKey')  String publishableKey, @JsonKey(name: 'clientSecret', defaultValue: '')  String clientSecret,  int amount,  String currency, @JsonKey(name: 'storeName', defaultValue: '')  String storeName)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _PaymentIntentModel() when $default != null:
-return $default(_that.razorpayOrderId,_that.razorpayKeyId,_that.amount,_that.currency,_that.storeName);case _:
+return $default(_that.provider,_that.paymentOrderId,_that.publishableKey,_that.clientSecret,_that.amount,_that.currency,_that.storeName);case _:
   return orElse();
 
 }
@@ -180,10 +184,10 @@ return $default(_that.razorpayOrderId,_that.razorpayKeyId,_that.amount,_that.cur
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: 'razorpayOrderId')  String razorpayOrderId, @JsonKey(name: 'razorpayKeyId')  String razorpayKeyId,  int amount,  String currency, @JsonKey(name: 'storeName', defaultValue: '')  String storeName)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: 'provider', defaultValue: 'razorpay')  String provider, @JsonKey(name: 'paymentOrderId')  String paymentOrderId, @JsonKey(name: 'publishableKey')  String publishableKey, @JsonKey(name: 'clientSecret', defaultValue: '')  String clientSecret,  int amount,  String currency, @JsonKey(name: 'storeName', defaultValue: '')  String storeName)  $default,) {final _that = this;
 switch (_that) {
 case _PaymentIntentModel():
-return $default(_that.razorpayOrderId,_that.razorpayKeyId,_that.amount,_that.currency,_that.storeName);case _:
+return $default(_that.provider,_that.paymentOrderId,_that.publishableKey,_that.clientSecret,_that.amount,_that.currency,_that.storeName);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -200,10 +204,10 @@ return $default(_that.razorpayOrderId,_that.razorpayKeyId,_that.amount,_that.cur
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: 'razorpayOrderId')  String razorpayOrderId, @JsonKey(name: 'razorpayKeyId')  String razorpayKeyId,  int amount,  String currency, @JsonKey(name: 'storeName', defaultValue: '')  String storeName)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: 'provider', defaultValue: 'razorpay')  String provider, @JsonKey(name: 'paymentOrderId')  String paymentOrderId, @JsonKey(name: 'publishableKey')  String publishableKey, @JsonKey(name: 'clientSecret', defaultValue: '')  String clientSecret,  int amount,  String currency, @JsonKey(name: 'storeName', defaultValue: '')  String storeName)?  $default,) {final _that = this;
 switch (_that) {
 case _PaymentIntentModel() when $default != null:
-return $default(_that.razorpayOrderId,_that.razorpayKeyId,_that.amount,_that.currency,_that.storeName);case _:
+return $default(_that.provider,_that.paymentOrderId,_that.publishableKey,_that.clientSecret,_that.amount,_that.currency,_that.storeName);case _:
   return null;
 
 }
@@ -215,15 +219,19 @@ return $default(_that.razorpayOrderId,_that.razorpayKeyId,_that.amount,_that.cur
 @JsonSerializable()
 
 class _PaymentIntentModel extends PaymentIntentModel {
-  const _PaymentIntentModel({@JsonKey(name: 'razorpayOrderId') required this.razorpayOrderId, @JsonKey(name: 'razorpayKeyId') required this.razorpayKeyId, required this.amount, required this.currency, @JsonKey(name: 'storeName', defaultValue: '') required this.storeName}): super._();
+  const _PaymentIntentModel({@JsonKey(name: 'provider', defaultValue: 'razorpay') required this.provider, @JsonKey(name: 'paymentOrderId') required this.paymentOrderId, @JsonKey(name: 'publishableKey') required this.publishableKey, @JsonKey(name: 'clientSecret', defaultValue: '') required this.clientSecret, required this.amount, required this.currency, @JsonKey(name: 'storeName', defaultValue: '') required this.storeName}): super._();
   factory _PaymentIntentModel.fromJson(Map<String, dynamic> json) => _$PaymentIntentModelFromJson(json);
 
-@override@JsonKey(name: 'razorpayOrderId') final  String razorpayOrderId;
-@override@JsonKey(name: 'razorpayKeyId') final  String razorpayKeyId;
+// Every field below the first two is defaulted rather than required: a
+// server deployment predating the Razorpay/Stripe split omits `provider`
+// and `clientSecret` entirely, and checkout must keep working against it.
+// An absent provider parses to Razorpay, which is what such a server is.
+@override@JsonKey(name: 'provider', defaultValue: 'razorpay') final  String provider;
+@override@JsonKey(name: 'paymentOrderId') final  String paymentOrderId;
+@override@JsonKey(name: 'publishableKey') final  String publishableKey;
+@override@JsonKey(name: 'clientSecret', defaultValue: '') final  String clientSecret;
 @override final  int amount;
 @override final  String currency;
-// Defaulted, not required: a server that predates this field simply omits
-// it, and checkout must keep working against that deployment.
 @override@JsonKey(name: 'storeName', defaultValue: '') final  String storeName;
 
 /// Create a copy of PaymentIntentModel
@@ -239,16 +247,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _PaymentIntentModel&&(identical(other.razorpayOrderId, razorpayOrderId) || other.razorpayOrderId == razorpayOrderId)&&(identical(other.razorpayKeyId, razorpayKeyId) || other.razorpayKeyId == razorpayKeyId)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.currency, currency) || other.currency == currency)&&(identical(other.storeName, storeName) || other.storeName == storeName));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _PaymentIntentModel&&(identical(other.provider, provider) || other.provider == provider)&&(identical(other.paymentOrderId, paymentOrderId) || other.paymentOrderId == paymentOrderId)&&(identical(other.publishableKey, publishableKey) || other.publishableKey == publishableKey)&&(identical(other.clientSecret, clientSecret) || other.clientSecret == clientSecret)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.currency, currency) || other.currency == currency)&&(identical(other.storeName, storeName) || other.storeName == storeName));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,razorpayOrderId,razorpayKeyId,amount,currency,storeName);
+int get hashCode => Object.hash(runtimeType,provider,paymentOrderId,publishableKey,clientSecret,amount,currency,storeName);
 
 @override
 String toString() {
-  return 'PaymentIntentModel(razorpayOrderId: $razorpayOrderId, razorpayKeyId: $razorpayKeyId, amount: $amount, currency: $currency, storeName: $storeName)';
+  return 'PaymentIntentModel(provider: $provider, paymentOrderId: $paymentOrderId, publishableKey: $publishableKey, clientSecret: $clientSecret, amount: $amount, currency: $currency, storeName: $storeName)';
 }
 
 
@@ -259,7 +267,7 @@ abstract mixin class _$PaymentIntentModelCopyWith<$Res> implements $PaymentInten
   factory _$PaymentIntentModelCopyWith(_PaymentIntentModel value, $Res Function(_PaymentIntentModel) _then) = __$PaymentIntentModelCopyWithImpl;
 @override @useResult
 $Res call({
-@JsonKey(name: 'razorpayOrderId') String razorpayOrderId,@JsonKey(name: 'razorpayKeyId') String razorpayKeyId, int amount, String currency,@JsonKey(name: 'storeName', defaultValue: '') String storeName
+@JsonKey(name: 'provider', defaultValue: 'razorpay') String provider,@JsonKey(name: 'paymentOrderId') String paymentOrderId,@JsonKey(name: 'publishableKey') String publishableKey,@JsonKey(name: 'clientSecret', defaultValue: '') String clientSecret, int amount, String currency,@JsonKey(name: 'storeName', defaultValue: '') String storeName
 });
 
 
@@ -276,10 +284,12 @@ class __$PaymentIntentModelCopyWithImpl<$Res>
 
 /// Create a copy of PaymentIntentModel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? razorpayOrderId = null,Object? razorpayKeyId = null,Object? amount = null,Object? currency = null,Object? storeName = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? provider = null,Object? paymentOrderId = null,Object? publishableKey = null,Object? clientSecret = null,Object? amount = null,Object? currency = null,Object? storeName = null,}) {
   return _then(_PaymentIntentModel(
-razorpayOrderId: null == razorpayOrderId ? _self.razorpayOrderId : razorpayOrderId // ignore: cast_nullable_to_non_nullable
-as String,razorpayKeyId: null == razorpayKeyId ? _self.razorpayKeyId : razorpayKeyId // ignore: cast_nullable_to_non_nullable
+provider: null == provider ? _self.provider : provider // ignore: cast_nullable_to_non_nullable
+as String,paymentOrderId: null == paymentOrderId ? _self.paymentOrderId : paymentOrderId // ignore: cast_nullable_to_non_nullable
+as String,publishableKey: null == publishableKey ? _self.publishableKey : publishableKey // ignore: cast_nullable_to_non_nullable
+as String,clientSecret: null == clientSecret ? _self.clientSecret : clientSecret // ignore: cast_nullable_to_non_nullable
 as String,amount: null == amount ? _self.amount : amount // ignore: cast_nullable_to_non_nullable
 as int,currency: null == currency ? _self.currency : currency // ignore: cast_nullable_to_non_nullable
 as String,storeName: null == storeName ? _self.storeName : storeName // ignore: cast_nullable_to_non_nullable

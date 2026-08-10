@@ -32,9 +32,9 @@ class RazorpayService {
       if (completer.isCompleted) return;
       completer.complete(
         PaymentResultEntity(
-          razorpayOrderId: r.orderId ?? intent.razorpayOrderId,
-          razorpayPaymentId: r.paymentId ?? '',
-          razorpaySignature: r.signature ?? '',
+          paymentOrderId: r.orderId ?? intent.paymentOrderId,
+          paymentId: r.paymentId ?? '',
+          signature: r.signature ?? '',
         ),
       );
     });
@@ -58,8 +58,8 @@ class RazorpayService {
     };
 
     razorpay.open({
-      'key': intent.razorpayKeyId,
-      'order_id': intent.razorpayOrderId,
+      'key': intent.publishableKey,
+      'order_id': intent.paymentOrderId,
       'amount': intent.amount,
       'currency': intent.currency,
       'name': name,

@@ -71,6 +71,13 @@ dependencies:
   # fontFamily, so that one pairing is resolved at the call site.
   google_fonts: ^6.2.1
   razorpay_flutter: ^1.4.0
+
+  # Stripe checkout for stores that settle through Stripe rather than
+  # Razorpay (a store picks one in the admin console; the server tells the app
+  # which on every payment intent). Android/iOS only — the PaymentSheet is
+  # native, so the web preview keeps taking the test-mode payment-less path,
+  # exactly as it already does for Razorpay.
+  flutter_stripe: ^12.0.2
   firebase_messaging: ^16.5.0
   flutter_local_notifications: ^22.2.0
 

@@ -258,7 +258,7 @@ export default function OrdersPage() {
           )}
           {visible.map((order) => {
             const isOpen = expanded.has(order.id);
-            const paid = Boolean(order.razorpayPaymentId);
+            const paid = Boolean(order.paymentId);
             return (
               <Fragment key={order.id}>
                 <TableRow
@@ -382,7 +382,7 @@ export default function OrdersPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Cancel this order?</AlertDialogTitle>
             <AlertDialogDescription>
-              {cancelTarget?.razorpayPaymentId
+              {cancelTarget?.paymentId
                 ? "The items will be restocked and the customer refunded in full via Razorpay. This can't be undone."
                 : "The items will be restocked. This order had no payment to refund. This can't be undone."}
             </AlertDialogDescription>
@@ -518,11 +518,11 @@ function OrderDetail({
             <>
               <Badge variant="success">Paid</Badge>
               <span className="font-mono text-xs text-muted-foreground">
-                {order.razorpayPaymentId}
+                {order.paymentId}
                 {/* The Razorpay order behind the payment — what a dashboard
                     search there keys on. Absent on orders placed before this
                     was recorded, so it's rendered only when present. */}
-                {order.razorpayOrderId ? ` · ${order.razorpayOrderId}` : ""}
+                {order.paymentOrderId ? ` · ${order.paymentOrderId}` : ""}
               </span>
             </>
           ) : (

@@ -77,7 +77,7 @@ import '../feature/storefront/notifications/domain/usecase/mark_notifications_re
 import '../feature/storefront/orders/data/data_source/orders_remote_data_source.dart';
 import '../feature/storefront/orders/data/data_source/orders_remote_data_source_impl.dart';
 import '../feature/storefront/orders/data/data_source/payment_gateway_data_source.dart';
-import '../feature/storefront/orders/data/data_source/razorpay_gateway_data_source_impl.dart';
+import '../feature/storefront/orders/data/data_source/routing_payment_gateway_data_source_impl.dart';
 import '../feature/storefront/orders/data/repository_impl/orders_repository_impl.dart';
 import '../feature/storefront/orders/data/repository_impl/payment_gateway_repository_impl.dart';
 import '../feature/storefront/orders/domain/repository/orders_repository.dart';
@@ -164,8 +164,11 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton(() => CancelOrderUseCase(sl()));
   sl.registerLazySingleton(() => RateOrderUseCase(sl()));
 
+  // Routing, not Razorpay directly: which gateway opens is decided per
+  // payment from the server-sent provider, because one shopper can move
+  // between a Razorpay store and a Stripe one without the app restarting.
   sl.registerLazySingleton<PaymentGatewayDataSource>(
-    () => const RazorpayGatewayDataSourceImpl(),
+    () => const RoutingPaymentGatewayDataSourceImpl(),
   );
   sl.registerLazySingleton<PaymentGatewayRepository>(
     () => PaymentGatewayRepositoryImpl(sl()),

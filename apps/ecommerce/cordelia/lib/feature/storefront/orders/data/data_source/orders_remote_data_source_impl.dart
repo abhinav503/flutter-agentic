@@ -70,12 +70,14 @@ class OrdersRemoteDataSourceImpl implements OrdersRemoteDataSource {
         'addressId': addressId,
         'items': _itemsPayload(items),
         if (couponCode.isNotEmpty) 'couponCode': couponCode,
-        // Present only on mobile; the server verifies the signature before
+        // Present only on mobile; the server verifies the payment before
         // placing the order. Omitted on web (test-mode payment-less path).
+        // Provider-neutral names — the signature is Razorpay's only, and is
+        // sent empty for Stripe, whose verification is a server-side re-fetch.
         if (payment != null) ...{
-          'razorpayOrderId': payment.razorpayOrderId,
-          'razorpayPaymentId': payment.razorpayPaymentId,
-          'razorpaySignature': payment.razorpaySignature,
+          'paymentOrderId': payment.paymentOrderId,
+          'paymentId': payment.paymentId,
+          'paymentSignature': payment.signature,
         },
       },
       options: Options(headers: {'Authorization': 'Bearer $idToken'}),

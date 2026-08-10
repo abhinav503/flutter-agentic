@@ -81,4 +81,8 @@ flutter {
 
 dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
+    // Declared directly rather than leaned on transitively (flutter_stripe
+    // pulls it in): styles.xml names a Theme.MaterialComponents parent, and a
+    // resource-resolution failure there is a build error with no useful trace.
+    implementation("com.google.android.material:material:1.12.0")
 }

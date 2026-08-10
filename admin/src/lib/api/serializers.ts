@@ -166,7 +166,7 @@ export function serializeOrder(o: Order) {
     // refundId stays server-side — it identifies a reconciliation record the
     // shopper can't act on, and refund_status already tells them where their
     // money is.
-    payment_id: o.razorpayPaymentId,
+    payment_id: o.paymentId,
     // "" / 0 when the order was placed without one; total is already net of
     // the discount.
     coupon_code: o.couponCode,
