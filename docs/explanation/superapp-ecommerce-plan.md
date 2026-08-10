@@ -1021,7 +1021,7 @@ skill surfaces synced.
 8. **Import validation** — schema/column mapping, dedupe, upsert-vs-replace, error reporting.
 9. **Search** — across-stores + within-store; Firestore text search is weak (searchKeywords[] for MVP, Algolia/Typesense later).
 10. **Security rules** — multi-tenant isolation is critical and easy to get wrong.
-11. ~~Marketplace settlement~~ — **dropped** under the SaaS decision (platform never collects shopper money). Replaced by **store-owner subscription billing** as a separate later console-side track.
+11. ~~Marketplace settlement~~ — **dropped** under the SaaS decision (platform never collects shopper money). It was replaced at the time by **store-owner subscription billing** as a later console-side track; that has since been **dropped too** (see "Decisions locked in" above, 2026-08-07). The platform charges stores nothing, and the public pricing page now says so — so there is no billing work pending, only a decision already made.
 12. **Delivery/serviceability** — addresses exist per-user; delivery fee, per-store serviceability.
 13. **Order notifications** — reuse the existing FCM notification feature/skill.
 
@@ -1221,9 +1221,13 @@ storefront refactor. Everything below builds on it.
   claim assignment UX, `searchKeywords[]` (Algolia/Typesense later), reuse the existing
   FCM feature for order-status notifications, rule hardening.
 
-**Realistic MVP: ~7–9 weeks solo** (SaaS trims the marketplace payout work). Store-owner
-**subscription billing** (how the platform charges stores) is a separate later track on
-the console side.
+**Realistic MVP: ~7–9 weeks solo** (SaaS trims the marketplace payout work).
+
+> **Superseded (2026-08-07).** This paragraph originally ended by naming
+> store-owner **subscription billing** as a separate later console-side track.
+> There is no such track: the platform charges stores nothing, the landing
+> page's pricing section commits to that publicly, and if billing ever returns
+> it is a fresh decision rather than a deferred one.
 
 ## Verification
 
@@ -3560,9 +3564,13 @@ working**.
 - **12 testers × 14 days** of closed testing before production access, if the
   Play account is personal and post-Nov-2023. Not shortenable — worth starting
   early.
-- **At least one real live store** before the public listing: a reviewer
+- ~~**At least one real live store** before the public listing: a reviewer
   opening the app to an empty discovery list is a rejection under minimum
-  functionality.
+  functionality.~~ **Met (2026-08-11)** — a real store is published and
+  reachable in discovery, on the `grofast` template. Worth keeping in view
+  rather than deleting: the publish lifecycle shipped after this was written,
+  and discovery now shows *only* published stores, so this blocker returns the
+  moment that store is unpublished.
 - Data safety form; iOS signing; `support@` cannot yet send. *(The app-level
   theme's purple/green clash is closed — see "Discovery + brand chrome"
   below.)*
@@ -4150,6 +4158,13 @@ cold would send someone off to build what exists:
   productionisation pass — is wired: `firebase_crashlytics` in cordelia.
 - **The multi-store switcher UI**, listed as "not yet built" since the first
   catalog milestone, is `/dashboard/stores`.
+- **The "at least one real live store" Play blocker is met** (2026-08-11) —
+  a real `grofast` store is published and reachable in discovery.
+- **Store-owner subscription billing is not a pending track.** Two older
+  paragraphs (Missing flow #11, and the phased timeline's closing line) called
+  it "a separate later track"; the 2026-08-07 decision dropped it outright and
+  the landing page's pricing section now commits publicly to charging stores
+  nothing. Both paragraphs are annotated in place.
 - **Missing flow #12 (delivery/serviceability)** is closed by the section
   above. With it, the only items still open from that list of 13 are #9
   (search — `searchKeywords[]` substring matching is still the whole of it,
@@ -4169,3 +4184,29 @@ cold would send someone off to build what exists:
 - **The server's own refusals stay English.** Consistent with "Insufficient
   stock for X", which has always been shown to shoppers verbatim in every
   locale.
+
+## Delivery-agent apps — decided, not built (2026-08-11)
+
+The largest functional hole left in the platform is that nothing downstream of
+"order placed" is done by the person actually doing it. A store admin advances
+an order by clicking a status in the console, and the 4-digit handoff OTP is
+generated and shown to *both* the shopper and the admin while nothing verifies
+it — there is no endpoint that takes it and no surface that would submit one.
+"Delivered" is an honour-system button.
+
+**The shape agreed:** a store's delivery agents get their own app, and the
+shopper app lists those apps from a **new entry point in the top-right corner
+of Discovery**. Discovery is the right host because it is the one screen that
+exists outside any storefront — an agent works for a store but arrives at the
+app before choosing one, exactly like a shopper does.
+
+Deliberately **not** started yet, and nothing about the agent side is designed
+here beyond that entry point: it is a separate app surface with its own
+identity, its own roles and its own routes, and sketching those before the
+Play production track is unblocked would be inventing requirements. Recorded
+now so the corner is reserved and the OTP's dangling half has a named owner
+rather than reading as an oversight.
+
+Two things it will eventually close, both already recorded as open elsewhere
+in this document: the unverified handoff OTP, and status transitions that
+today only a store admin at a desk can make.
