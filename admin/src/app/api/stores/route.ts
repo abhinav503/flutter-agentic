@@ -7,14 +7,37 @@ import { getTemplates } from "@/lib/templates";
 import { serializeStore } from "@/lib/api/serializers";
 import { STORE_CURRENCIES, STORE_LANGUAGES } from "@/lib/types";
 
-// Store discovery for the CordeliaApps super app — world-readable, no auth
-// (stores/{storeId} is `allow read: if true` in firestore.rules, same
-// reasoning the existing unauthenticated storefront search branch uses).
-// Optional `?q=` filters by name/searchKeywords (see getStores).
+// Store discovery for the CordeliaApps super app. Published stores are
+// world-readable with no auth (stores/{storeId} is `allow read: if true` in
+// firestore.rules, same reasoning the unauthenticated storefront search
+// branch uses). Optional `?q=` filters by name/searchKeywords (see getStores).
+//
+// The Authorization header is OPTIONAL and only ever *widens* the result: a
+// verified token lets a store owner also see their own not-yet-published
+// stores, so they can walk their real storefront while setting it up. An
+// absent, expired or forged token simply falls back to the anonymous list —
+// it can never fail the request, because discovery must keep working for
+// signed-out shoppers.
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const q = searchParams.get("q") ?? undefined;
-  const stores = await getStores(q);
+
+  let viewerUid: string | undefined;
+  let superAdmin = false;
+  const match = (request.headers.get("authorization") ?? "").match(
+    /^Bearer (.+)$/,
+  );
+  if (match) {
+    try {
+      const decoded = await adminAuth.verifyIdToken(match[1]);
+      viewerUid = decoded.uid;
+      superAdmin = decoded.role === "superAdmin";
+    } catch {
+      // Anonymous fallback — see the note above.
+    }
+  }
+
+  const stores = await getStores(q, { viewerUid, superAdmin });
   return NextResponse.json({ stores: stores.map(serializeStore) });
 }
 

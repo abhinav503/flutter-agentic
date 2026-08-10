@@ -1,3 +1,4 @@
+import 'package:cordelia/feature/storefront/active_store/presentation/active_store_capture.dart';
 import 'package:cordelia/constants/app_routes.dart';
 import 'package:cordelia/feature/storefront/address/presentation/selected_address_label.dart';
 import 'package:cordelia/feature/storefront/cart/presentation/cubit/cart_cubit.dart';
@@ -40,19 +41,17 @@ class HomeScreen extends BaseScreen {
 }
 
 class _HomeScreenState extends BaseScreenState<HomeScreen>
-    with SelectedAddressLabelState {
+    with SelectedAddressLabelState, ActiveStoreCapture {
   void _addToCart(ProductEntity product, int quantity) {
     context.read<CartCubit>().addToCart(product, quantity);
   }
 
-  String get _storeId => context.read<ActiveStoreCubit>().state!.storeId;
-
   void _openProductDetails(ProductEntity product) =>
-      context.push(AppRoutes.productDetailsPath(product.id), extra: _storeId);
+      context.push(AppRoutes.productDetailsPath(product.id), extra: storeId);
 
   void _openCategoryDetails(CategoryEntity category) => context.push(
     AppRoutes.categoryDetailsPath(category.id, category.name),
-    extra: _storeId,
+    extra: storeId,
   );
 
   void _showAddToCartSheet(ProductEntity product) =>
@@ -82,12 +81,12 @@ class _HomeScreenState extends BaseScreenState<HomeScreen>
       // across a refresh instead of resetting it.
       builder: (context, state) => CollapsingHeaderSheet(
         header: HomeHeroHeader(
-          storeId: _storeId,
+          storeId: storeId,
           addressLabel:
               selectedAddressLabel ?? GraviaValueConst.noLocationSelectedLabel,
           onLocationTap: openSelectAddress,
           onNotificationTap: () => context.push(AppRoutes.notifications),
-          onSearchTap: () => context.push(AppRoutes.search, extra: _storeId),
+          onSearchTap: () => context.push(AppRoutes.search, extra: storeId),
         ),
         body: GraviaSwitcher(
           child: switch (state) {
@@ -113,7 +112,7 @@ class _HomeScreenState extends BaseScreenState<HomeScreen>
               onSeeAllCategories: () => context.go(
                 AppRoutes.storefront,
                 extra: StorefrontRouteArgs(
-                  store: context.read<ActiveStoreCubit>().state!,
+                  store: activeStore,
                   initialTab: ShellPage.categoriesTabIndex,
                 ),
               ),

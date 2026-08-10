@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:core/core/base/base_page.dart';
+import 'package:cordelia/feature/storefront/active_store/presentation/active_store_capture.dart';
 import 'package:cordelia/feature/storefront/presentation/chromeless_page.dart';
-
-import 'package:cordelia/feature/storefront/active_store/presentation/cubit/active_store_cubit.dart';
 
 import '../../../bloc/notifications_bloc_provider.dart';
 import 'notifications_screen.dart';
@@ -17,10 +15,10 @@ class NotificationsPage extends BasePage {
 }
 
 class _NotificationsPageState extends BasePageState<NotificationsPage>
-    with ChromelessStorefrontPage {
+    with ChromelessStorefrontPage, ActiveStoreCapture {
   @override
   Widget buildBody(BuildContext context) {
-    final store = context.read<ActiveStoreCubit>().state!;
+    final store = activeStore;
 
     return notificationsBlocProvider(
       storeId: store.storeId,

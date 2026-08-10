@@ -7,6 +7,7 @@ import {
 } from "@/lib/api/admin-guard";
 import { getTemplates } from "@/lib/templates";
 import { serializeStore } from "@/lib/api/serializers";
+import { normalizeStoreStatus } from "@/lib/store-status";
 import { STORE_CURRENCIES, STORE_LANGUAGES, type Store } from "@/lib/types";
 
 // Same doc→Store defaults as mapStoreDoc in src/lib/stores.ts, but over an
@@ -22,7 +23,9 @@ function mapAdminStoreDoc(
     logoUrl: (data.logoUrl as string) ?? "",
     description: (data.description as string) ?? "",
     ownerUid: (data.ownerUid as string) ?? "",
-    status: (data.status as string) ?? "active",
+    status: normalizeStoreStatus(data.status),
+    rejectionReason: (data.rejectionReason as string) ?? "",
+    previewReady: (data.previewReady as boolean | undefined) ?? false,
     searchKeywords: (data.searchKeywords as string[] | undefined) ?? [],
     templateId: (data.templateId as string) ?? "gravia",
     language: (data.language as string) ?? "en",

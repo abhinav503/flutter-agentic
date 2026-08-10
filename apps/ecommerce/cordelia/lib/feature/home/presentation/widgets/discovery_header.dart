@@ -5,18 +5,20 @@ import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/blocks/header_canvas.dart';
 
 import 'package:cordelia/constants/cordelia_color_const.dart';
-import 'package:cordelia/constants/cordelia_dimen_const.dart';
 import 'package:cordelia/constants/cordelia_text_style_const.dart';
 import 'package:cordelia/constants/value_const.dart';
 import 'package:cordelia/feature/storefront/profile/domain/entities/profile_entity.dart';
-import 'package:cordelia/widgets/cordelia_avatar_image.dart';
 import 'package:cordelia/widgets/cordelia_brand_mark.dart';
 
 import 'discovery_search_field.dart';
 
-/// Discovery's coloured header: the brand lockup and the shopper's avatar,
-/// a greeting, and the store search field — the platform's own front door,
-/// before any store's template takes over the app's look.
+/// Discovery's coloured header: the brand lockup, a greeting, and the store
+/// search field — the platform's own front door, before any store's template
+/// takes over the app's look.
+///
+/// No avatar here on purpose. The shopper's photo has a home on every
+/// template's Profile tab; repeating it above a greeting that already names
+/// them said the same thing twice.
 class DiscoveryHeader extends StatelessWidget {
   /// Null until the profile resolves. The greeting renders without a name
   /// rather than with a placeholder that would visibly change a frame later.
@@ -45,17 +47,7 @@ class DiscoveryHeader extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Row(
-            children: [
-              const CordeliaBrandMark(),
-              const Spacer(),
-              if (currentProfile != null)
-                CordeliaAvatarImage(
-                  profile: currentProfile,
-                  size: CordeliaDimenConst.discoveryAvatar,
-                ),
-            ],
-          ),
+          const CordeliaBrandMark(),
           const SizedBox(height: AppSpacing.lg),
           Text(
             ValueConst.discoveryGreeting(

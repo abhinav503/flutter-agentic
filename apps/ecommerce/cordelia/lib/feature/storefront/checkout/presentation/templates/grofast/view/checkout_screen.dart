@@ -9,9 +9,9 @@ import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/button.dart';
 import 'package:core/core/ui/blocks/ecommerce/price_breakdown.dart';
 
+import 'package:cordelia/feature/storefront/active_store/presentation/active_store_capture.dart';
 import 'package:cordelia/constants/app_routes.dart';
 import 'package:cordelia/enums/product_unit_type.dart';
-import 'package:cordelia/feature/storefront/active_store/presentation/cubit/active_store_cubit.dart';
 import 'package:cordelia/feature/storefront/address/domain/entities/address_entity.dart';
 import 'package:cordelia/feature/storefront/address/presentation/templates/grofast/widgets/address_picker_sheet.dart';
 import 'package:cordelia/feature/storefront/address/presentation/templates/grofast/widgets/grofast_address_tile.dart';
@@ -57,7 +57,8 @@ class CheckoutScreen extends BaseScreen {
   State<CheckoutScreen> createState() => _CheckoutScreenState();
 }
 
-class _CheckoutScreenState extends BaseScreenState<CheckoutScreen> {
+class _CheckoutScreenState extends BaseScreenState<CheckoutScreen>
+    with ActiveStoreCapture {
   late AddressEntity _address = widget.address;
 
   Future<void> _changeAddress() async {
@@ -98,7 +99,7 @@ class _CheckoutScreenState extends BaseScreenState<CheckoutScreen> {
   /// `go`, not `pop`, because the order is placed and there is nothing on
   /// this route worth returning to.
   void _browseHome() {
-    final store = context.read<ActiveStoreCubit>().state!;
+    final store = activeStore;
     context.go(AppRoutes.storefront, extra: StorefrontRouteArgs(store: store));
   }
 
@@ -110,7 +111,6 @@ class _CheckoutScreenState extends BaseScreenState<CheckoutScreen> {
   Widget body(BuildContext context) {
     final items = context.watch<CartCubit>().state;
     final couponState = context.watch<CouponCubit>().state;
-    final storeId = context.read<ActiveStoreCubit>().state!.storeId;
 
     return SafeArea(
       bottom: false,

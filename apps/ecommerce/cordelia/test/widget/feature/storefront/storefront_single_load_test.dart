@@ -230,6 +230,33 @@ void main() {
         reason: 'favourites hydrated more than once per visit',
       );
       expect(getHome.calls, 1, reason: 'home loaded more than once per visit');
+
+      // Popping the storefront tears the session down while the pop is still
+      // animating, so this shell is still on screen when the app-level store
+      // goes away. Reading that cubit in `buildBody` therefore went null
+      // mid-transition: first it threw on every frame, then — once guarded —
+      // it painted a blank screen over the outgoing storefront. The shell
+      // captures its id at mount instead, which is what this asserts.
+      final staleToken = activeStore.open(_store);
+      activeStore.closeSession(staleToken);
+      expect(activeStore.state, isNull);
+
+      // Clearing the store rebuilds nothing by itself — every consumer uses
+      // context.read, not watch — so the rebuild has to be forced or this
+      // never exercises buildBody at all.
+      // Re-selecting the current tab is enough: onTabSelected always calls
+      // setState. Switching to another tab would drag in that tab's use
+      // cases, which this harness deliberately doesn't register.
+      // ignore: avoid_dynamic_calls
+      (tester.state(find.byType(ShellPage)) as dynamic).onTabSelected(0);
+      await tester.pump();
+
+      expect(tester.takeException(), isNull);
+      expect(
+        find.byType(ShellPage),
+        findsOneWidget,
+        reason: 'the shell must keep rendering after losing the active store',
+      );
     },
   );
 }

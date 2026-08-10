@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:core/core/base/base_page.dart';
-import 'package:cordelia/feature/storefront/active_store/presentation/cubit/active_store_cubit.dart';
+import 'package:cordelia/feature/storefront/active_store/presentation/active_store_capture.dart';
 import 'package:cordelia/feature/storefront/presentation/chromeless_page.dart';
 
 import '../../../../domain/entities/order_entity.dart';
@@ -19,12 +18,11 @@ class TrackOrderPage extends BasePage {
 }
 
 class _TrackOrderPageState extends BasePageState<TrackOrderPage>
-    with ChromelessStorefrontPage {
+    with ChromelessStorefrontPage, ActiveStoreCapture {
   @override
   Widget buildBody(BuildContext context) {
     // `!`: this route is only reachable from inside a storefront, which
     // seeds the cubit before any of its screens build.
-    final storeId = context.read<ActiveStoreCubit>().state!.storeId;
 
     // The screen's *cancel* still reports back by popping the order id, so
     // the list's optimistic update and warm cache stay with the one bloc

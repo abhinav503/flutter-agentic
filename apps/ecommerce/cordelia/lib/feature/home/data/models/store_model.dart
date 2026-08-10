@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import 'package:cordelia/enums/store_status.dart';
 import 'package:cordelia/feature/storefront/template/store_currency.dart';
 import 'package:cordelia/feature/storefront/template/store_language.dart';
 import 'package:cordelia/feature/storefront/template/storefront_template.dart';
@@ -35,6 +36,10 @@ abstract class StoreModel with _$StoreModel {
     // created before the field existed read back as rupees, which is what
     // they were already charging.
     @Default('') String currency,
+    // Same defaulted-not-required reasoning as the fields above: an older
+    // API build sends no status at all, and ''/unknown → published is
+    // resolved once in StoreStatusParse rather than duplicated here.
+    @Default('') String status,
   }) = _StoreModel;
 
   factory StoreModel.fromJson(Map<String, dynamic> json) =>
@@ -48,6 +53,7 @@ abstract class StoreModel with _$StoreModel {
     templateId: e.templateId.wireValue,
     language: e.language.wireValue,
     currency: e.currency.wireValue,
+    status: e.status.name,
   );
 
   StoreEntity toEntity() => StoreEntity(
@@ -58,5 +64,6 @@ abstract class StoreModel with _$StoreModel {
     templateId: templateId.toStorefrontTemplate(),
     language: language.toStoreLanguage(),
     currency: currency.toStoreCurrency(),
+    status: status.toStoreStatus(),
   );
 }

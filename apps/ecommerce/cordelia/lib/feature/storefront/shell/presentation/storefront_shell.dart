@@ -47,6 +47,19 @@ abstract class StorefrontShellPage extends BasePage {
 mixin StorefrontShellState<T extends StorefrontShellPage> on BasePageState<T> {
   late int currentTab = widget.initialTab;
 
+  /// The store this shell renders. Captured **once**, not read from the
+  /// app-level [ActiveStoreCubit] on every build — a shell belongs to one
+  /// store for its whole life, and that cubit does not.
+  ///
+  /// Two things cleared it out from under a still-mounted shell:
+  ///   * Popping back to discovery tears the session down while the pop
+  ///     animation is still running, so a build-time read went null and
+  ///     painted a blank frame over the outgoing storefront.
+  ///   * Hot reload recreates `App`'s state, and with it the cubit, while
+  ///     this State survives — a build-time read threw on every frame after.
+  /// A field set at mount is immune to both.
+  late final String storeId;
+
   @override
   void initState() {
     super.initState();
@@ -55,7 +68,7 @@ mixin StorefrontShellState<T extends StorefrontShellPage> on BasePageState<T> {
     // to load the signed-in shopper's persisted cart and favourites — once
     // per store visit (a fresh shell per StorefrontPage mount), not on
     // every tab switch.
-    final storeId = context.read<ActiveStoreCubit>().state!.storeId;
+    storeId = context.read<ActiveStoreCubit>().state!.storeId;
     context.read<CartCubit>().hydrate(storeId);
     // A coupon is priced against one store's cart — entering a storefront
     // (fresh shell per visit) always starts without one, so the previous
@@ -71,6 +84,14 @@ mixin StorefrontShellState<T extends StorefrontShellPage> on BasePageState<T> {
       setState(() => currentTab = widget.initialTab);
     }
   }
+
+  /// The open store's id, or null in the window where the app-level store
+  /// was lost — a hot reload in debug (see `StorefrontPage.reassemble`), or
+  /// a teardown race in the worst case. Every template's `buildBody` renders
+  /// a neutral surface for that frame instead of crashing: a storefront with
+  /// no store has nothing to show, and a `!` here took the whole screen down
+  /// on every subsequent frame.
+  String? get activeStoreId => context.read<ActiveStoreCubit>().state?.storeId;
 
   /// `BottomNavBar.onTap`.
   void onTabSelected(int index) => setState(() => currentTab = index);

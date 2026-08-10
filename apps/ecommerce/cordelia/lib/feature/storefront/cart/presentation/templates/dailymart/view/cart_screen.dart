@@ -8,8 +8,8 @@ import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/molecules/empty_state.dart';
 import 'package:core/core/ui/atoms/button.dart';
 
+import 'package:cordelia/feature/storefront/active_store/presentation/active_store_capture.dart';
 import 'package:cordelia/constants/app_routes.dart';
-import 'package:cordelia/feature/storefront/active_store/presentation/cubit/active_store_cubit.dart';
 import 'package:cordelia/feature/storefront/address/domain/entities/address_entity.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_value_const.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_header_row.dart';
@@ -41,7 +41,8 @@ class CartScreen extends BaseScreen {
   State<CartScreen> createState() => _CartScreenState();
 }
 
-class _CartScreenState extends BaseScreenState<CartScreen> {
+class _CartScreenState extends BaseScreenState<CartScreen>
+    with ActiveStoreCapture {
   // Checkout gates on picking a delivery address first — reuses the Select
   // Address screen, which pops with the chosen address (null if the shopper
   // backs out) — then hands off to the Checkout route, which owns the order
@@ -63,7 +64,6 @@ class _CartScreenState extends BaseScreenState<CartScreen> {
     final cartItems = context.watch<CartCubit>().state;
     final couponState = context.watch<CouponCubit>().state;
     // The store this cart belongs to — the coupon API is store-scoped.
-    final storeId = context.read<ActiveStoreCubit>().state!.storeId;
 
     return BlocListener<CartCubit, List<CartItemEntity>>(
       // The held discount is only valid for the lines it was priced against

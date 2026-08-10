@@ -203,6 +203,11 @@ export function serializeStore(s: Store) {
     template_id: s.templateId,
     language: s.language,
     currency: s.currency,
+    // Discovery renders a "Not published yet" marker on the owner's own
+    // in-progress stores and filters on it — the route has already decided
+    // *whether* the caller may see this store, so this is presentation
+    // only, never the access check.
+    status: s.status,
   };
 }
 

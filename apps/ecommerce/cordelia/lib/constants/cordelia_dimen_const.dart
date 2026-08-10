@@ -28,10 +28,6 @@ abstract final class CordeliaDimenConst {
   /// The mark inside [brandMarkDisc], inset so it doesn't touch the edge.
   static const double brandMarkGlyph = 24;
 
-  /// The shopper's avatar in the discovery header — matches the brand disc
-  /// opposite it so the row reads as a balanced pair.
-  static const double discoveryAvatar = 40;
-
   /// A recents-rail store logo. Large enough to recognise a brand at a
   /// glance, small enough that six fit within two swipes.
   static const double recentStoreLogo = 60;
@@ -42,6 +38,27 @@ abstract final class CordeliaDimenConst {
 
   /// A store card's logo on the discovery list.
   static const double storeCardLogo = 56;
+
+  // ── Discovery's Live | All segmented control, sized to match the admin
+  // console's tab bar so the two surfaces read as one product.
+  /// Track height. Compact — it sits on a section header row, not on its own.
+  static const double segmentedHeight = 36;
+
+  /// Inset between the track's edge and the raised pill inside it.
+  static const double segmentedTrackInset = 3;
+
+  /// The track's corner radius. Softened-square rather than a full pill —
+  /// the fully-rounded version read as two chips rather than one control.
+  static const double segmentedRadius = 10;
+
+  /// The selected pill's radius. Derived, not a second literal: a rounded
+  /// shape nested inside another only looks concentric when the inner radius
+  /// is the outer one minus the gap between them.
+  static const double segmentedPillRadius =
+      segmentedRadius - segmentedTrackInset;
+
+  /// Horizontal padding inside each segment.
+  static const double segmentedSegmentInset = 14;
 
   /// Discovery's search field. Taller than [controlHeight] on purpose — it is
   /// the header's one interactive target, sits alone on the canvas, and at

@@ -4,6 +4,8 @@
 // unitType uses gravia's wire values ('g' | 'ml' | 'pcs'), not the Dart enum
 // names, so ProductUnitTypeParse.toProductUnitType() can parse it directly.
 
+import type { StoreStatus } from "./store-status";
+
 export type UnitType = "g" | "ml" | "pcs";
 
 export const UNIT_TYPE_LABELS: Record<UnitType, string> = {
@@ -204,7 +206,16 @@ export type Store = {
   logoUrl: string;
   description: string;
   ownerUid: string;
-  status: string;
+  status: StoreStatus;
+  /// Set when a superadmin rejects a submission — shown back to the store
+  /// owner so they know what to fix. Cleared on the next submit.
+  rejectionReason: string;
+  /// Cached result of the preview tier of `getStoreReadiness` (logo +
+  /// categories + products), refreshed whenever the owner opens the publish
+  /// card or submits. Discovery reads this instead of counting
+  /// subcollections per store on every load; a stale `true` at worst shows
+  /// the owner their own store, which is the point of the tier.
+  previewReady: boolean;
   searchKeywords: string[];
   // Which cordelia presentation/templates/<id>/ this store's storefront
   // renders as — defaults to 'gravia' (see mapStoreDoc) since it's the only

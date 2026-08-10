@@ -7,6 +7,7 @@ import {
   type QueryDocumentSnapshot,
 } from "firebase/firestore";
 import { db } from "./firebase";
+import { isPubliclyVisible, normalizeStoreStatus } from "./store-status";
 import type { Store } from "./types";
 
 function storesRef() {
@@ -23,7 +24,9 @@ function mapStoreDoc(d: QueryDocumentSnapshot | DocumentSnapshot): Store {
     logoUrl: (data.logoUrl as string) ?? "",
     description: (data.description as string) ?? "",
     ownerUid: (data.ownerUid as string) ?? "",
-    status: (data.status as string) ?? "active",
+    status: normalizeStoreStatus(data.status),
+    rejectionReason: (data.rejectionReason as string) ?? "",
+    previewReady: (data.previewReady as boolean | undefined) ?? false,
     searchKeywords: (data.searchKeywords as string[] | undefined) ?? [],
     templateId: (data.templateId as string) ?? "gravia",
     language: (data.language as string) ?? "en",
@@ -45,9 +48,31 @@ export async function getStore(storeId: string): Promise<Store | null> {
   return snap.exists() ? mapStoreDoc(snap) : null;
 }
 
-export async function getStores(q?: string): Promise<Store[]> {
+/// Discovery's store list.
+///
+/// [viewerUid] is the *verified* uid of the signed-in shopper when the
+/// request carried a valid ID token, and undefined for an anonymous one. A
+/// store that isn't published is returned only to the person who owns it,
+/// so a store admin can open their own storefront in the real app while
+/// they're still setting it up — without half-built stores reaching anyone
+/// else. [superAdmin] sees every store, which is what the console's review
+/// queue reads.
+///
+/// Preview visibility is gated on the cached `previewReady` flag rather
+/// than counting subcollections here: this runs on every discovery load,
+/// and an owner's empty store showing an empty storefront helps nobody.
+export async function getStores(
+  q?: string,
+  opts: { viewerUid?: string; superAdmin?: boolean } = {},
+): Promise<Store[]> {
   const snap = await getDocs(storesRef());
-  const stores = snap.docs.map(mapStoreDoc).filter((s) => s.status === "active");
+  const stores = snap.docs.map(mapStoreDoc).filter((s) => {
+    if (opts.superAdmin) return true;
+    if (isPubliclyVisible(s.status)) return true;
+    return Boolean(
+      opts.viewerUid && s.ownerUid === opts.viewerUid && s.previewReady,
+    );
+  });
 
   if (!q) return stores;
   const needle = q.trim().toLowerCase();

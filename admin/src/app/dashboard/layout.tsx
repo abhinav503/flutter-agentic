@@ -14,6 +14,7 @@ import {
   Package,
   ReceiptText,
   Settings,
+  Store,
   Star,
   Tags,
 } from "lucide-react";
@@ -40,6 +41,11 @@ const NAV_ITEMS = [
 // shoppers, not the one in the switcher above, and sitting inside the same
 // list would read as another store-scoped page.
 const PLATFORM_NAV_ITEMS = [
+  {
+    href: "/dashboard/stores",
+    label: "Stores",
+    icon: Store,
+  },
   {
     href: "/dashboard/platform-notifications",
     label: "Admin notifications",

@@ -10,4 +10,9 @@ sealed class DiscoveryEvent with _$DiscoveryEvent {
   // locally — it never refetches.
   const factory DiscoveryEvent.storeOpened({required String storeId}) =
       DiscoveryStoreOpened;
+  // Chip row over the store list. Filters what's already loaded — no
+  // refetch, since the server has already decided which stores this shopper
+  // may see and the filter only narrows that.
+  const factory DiscoveryEvent.filterChanged({required StoreFilter filter}) =
+      DiscoveryFilterChanged;
 }

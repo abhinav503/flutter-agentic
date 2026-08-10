@@ -1,3 +1,4 @@
+import 'package:cordelia/enums/store_status.dart';
 import 'package:cordelia/feature/storefront/template/store_currency.dart';
 import 'package:cordelia/feature/storefront/template/store_language.dart';
 import 'package:cordelia/feature/storefront/template/storefront_template.dart';
@@ -11,6 +12,11 @@ class StoreEntity {
   final StoreLanguage language;
   final StoreCurrency currency;
 
+  /// Publication state. Presentation only — the API has already decided
+  /// whether this caller may see the store, and hands back an unpublished
+  /// one solely to its owner.
+  final StoreStatus status;
+
   const StoreEntity({
     required this.id,
     required this.name,
@@ -19,5 +25,6 @@ class StoreEntity {
     required this.templateId,
     required this.language,
     required this.currency,
+    this.status = StoreStatus.published,
   });
 }

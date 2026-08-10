@@ -11,9 +11,9 @@ import 'package:core/core/ui/atoms/svg_image.dart';
 import 'package:core/core/ui/blocks/ecommerce/price_breakdown.dart';
 import 'package:core/core/ui/molecules/swipe_to_delete_row.dart';
 
+import 'package:cordelia/feature/storefront/active_store/presentation/active_store_capture.dart';
 import 'package:cordelia/constants/app_routes.dart';
 import 'package:cordelia/enums/product_unit_type.dart';
-import 'package:cordelia/feature/storefront/active_store/presentation/cubit/active_store_cubit.dart';
 import 'package:cordelia/feature/storefront/address/presentation/templates/grofast/widgets/address_picker_sheet.dart';
 import 'package:cordelia/feature/storefront/cart/domain/entities/cart_item_entity.dart';
 import 'package:cordelia/feature/storefront/favourites/presentation/cubit/favourites_cubit.dart';
@@ -51,7 +51,8 @@ class CartScreen extends BaseScreen {
   State<CartScreen> createState() => _CartScreenState();
 }
 
-class _CartScreenState extends BaseScreenState<CartScreen> {
+class _CartScreenState extends BaseScreenState<CartScreen>
+    with ActiveStoreCapture {
   /// Checkout gates on picking a delivery address first — the kit's Select
   /// Location sheet, which resolves with the chosen address (null if the
   /// shopper swipes it away) — then hands off to the Checkout route, which
@@ -71,7 +72,6 @@ class _CartScreenState extends BaseScreenState<CartScreen> {
     final items = context.watch<CartCubit>().state;
     final couponState = context.watch<CouponCubit>().state;
     // The store this bag belongs to — the coupon API is store-scoped.
-    final storeId = context.read<ActiveStoreCubit>().state!.storeId;
 
     return BlocListener<CartCubit, List<CartItemEntity>>(
       // The held discount is only valid for the lines it was priced against

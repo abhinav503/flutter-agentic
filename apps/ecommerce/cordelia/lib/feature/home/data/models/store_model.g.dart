@@ -14,6 +14,7 @@ _StoreModel _$StoreModelFromJson(Map<String, dynamic> json) => _StoreModel(
   templateId: json['template_id'] as String? ?? '',
   language: json['language'] as String? ?? '',
   currency: json['currency'] as String? ?? '',
+  status: json['status'] as String? ?? '',
 );
 
 Map<String, dynamic> _$StoreModelToJson(_StoreModel instance) =>
@@ -25,4 +26,5 @@ Map<String, dynamic> _$StoreModelToJson(_StoreModel instance) =>
       'template_id': instance.templateId,
       'language': instance.language,
       'currency': instance.currency,
+      'status': instance.status,
     };

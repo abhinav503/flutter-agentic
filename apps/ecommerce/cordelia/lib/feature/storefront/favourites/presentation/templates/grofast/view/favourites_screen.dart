@@ -6,8 +6,8 @@ import 'package:go_router/go_router.dart';
 import 'package:core/core/base/base_screen.dart';
 import 'package:core/core/theme/app_spacing.dart';
 
+import 'package:cordelia/feature/storefront/active_store/presentation/active_store_capture.dart';
 import 'package:cordelia/constants/app_routes.dart';
-import 'package:cordelia/feature/storefront/active_store/presentation/cubit/active_store_cubit.dart';
 import 'package:cordelia/feature/storefront/cart/presentation/cubit/cart_cubit.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_text_style_const.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_value_const.dart';
@@ -35,16 +35,15 @@ class FavouritesScreen extends BaseScreen {
   State<FavouritesScreen> createState() => _FavouritesScreenState();
 }
 
-class _FavouritesScreenState extends BaseScreenState<FavouritesScreen> {
-  String get _storeId => context.read<ActiveStoreCubit>().state!.storeId;
-
+class _FavouritesScreenState extends BaseScreenState<FavouritesScreen>
+    with ActiveStoreCapture {
   void _addToBag(ProductEntity product) {
     context.read<CartCubit>().addToCart(product, 1);
     showSnackBar(GrofastValueConst.addedToBagMessage(product.name, 1));
   }
 
   void _openProductDetails(ProductEntity product) =>
-      context.push(AppRoutes.productDetailsPath(product.id), extra: _storeId);
+      context.push(AppRoutes.productDetailsPath(product.id), extra: storeId);
 
   @override
   SystemUiOverlayStyle? overlayStyle(BuildContext context) =>

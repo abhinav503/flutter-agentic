@@ -167,12 +167,22 @@ abstract final class ValueConst {
   // ── Store discovery (feature/home) — app chrome, English-only ──────────
   static const discoveryTitle = 'Find your store';
   static const discoverySearchHint = 'Search stores';
+  static const discoverySearchClearLabel = 'Clear search';
   static const discoveryEmptyTitle = 'No stores found';
   static const discoveryEmptySubtitle =
       'Try a different search, or check back soon as more stores join.';
   static const discoveryPrompt = 'Where are you shopping today?';
   static const discoveryRecentTitle = 'Jump back in';
   static const discoveryAllStoresTitle = 'All stores';
+  // The chip row only appears for a store owner who has a store still being
+  // set up, so this copy is never seen by an ordinary shopper.
+  static const discoveryFilterLive = 'Live';
+  static const discoveryFilterAll = 'All';
+  static const discoveryNotPublishedBadge = 'Not published yet';
+  static const discoveryFilterEmpty = 'No stores match this filter.';
+  static const discoveryOwnerDraftHint =
+      'Only you can see this store. Publish it from the admin console to open '
+      'it to shoppers.';
 
   // Greeting halves are separate so the name can be omitted entirely before
   // the profile resolves — a placeholder name would flash and then change.

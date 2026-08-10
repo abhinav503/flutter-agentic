@@ -67,7 +67,7 @@ class _StorefrontPageState extends BasePageState<StorefrontPage> {
 
   /// This storefront visit's token, handed back on teardown so a visit that
   /// has already been replaced doesn't tear down its successor's state.
-  late final int _storeSession;
+  late int _storeSession;
 
   @override
   void initState() {
@@ -79,6 +79,24 @@ class _StorefrontPageState extends BasePageState<StorefrontPage> {
     // and not guarded on web: the service no-ops there.
     if (!kIsWeb) {
       FirebaseMessagingService.instance.subscribeToStore(widget.store.storeId);
+    }
+  }
+
+  // Hot reload recreates `App`'s state — and with it the app-level
+  // ActiveStoreCubit — while THIS State survives, so initState's `open()`
+  // never runs again and every shell below reads a null store from the next
+  // frame on. `widget.store` is still right here, so the session is simply
+  // re-opened; the new token replaces the old one so dispose() still tears
+  // down the session that is actually current.
+  //
+  // Debug-only hook for a debug-only problem: a release build has no way to
+  // reach this state. The null-tolerant read in StorefrontShellState is what
+  // covers the production case.
+  @override
+  void reassemble() {
+    super.reassemble();
+    if (_activeStore.state == null) {
+      _storeSession = _activeStore.open(widget.store);
     }
   }
 

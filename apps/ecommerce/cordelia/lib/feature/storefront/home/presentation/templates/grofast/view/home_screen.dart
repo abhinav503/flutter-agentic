@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:core/core/base/base_screen.dart';
 import 'package:core/core/theme/app_spacing.dart';
 
+import 'package:cordelia/feature/storefront/active_store/presentation/active_store_capture.dart';
 import 'package:cordelia/constants/app_routes.dart';
 import 'package:cordelia/enums/banner_target_type.dart';
 import 'package:cordelia/feature/storefront/active_store/presentation/cubit/active_store_cubit.dart';
@@ -47,9 +48,7 @@ class HomeScreen extends BaseScreen {
 }
 
 class _HomeScreenState extends BaseScreenState<HomeScreen>
-    with SelectedAddressLabelState {
-  String get _storeId => context.read<ActiveStoreCubit>().state!.storeId;
-
+    with SelectedAddressLabelState, ActiveStoreCapture {
   String get _addressLabel =>
       selectedAddressLabel ?? GrofastValueConst.noLocationSelectedLabel;
 
@@ -62,14 +61,14 @@ class _HomeScreenState extends BaseScreenState<HomeScreen>
   }
 
   void _openProductDetails(ProductEntity product) =>
-      context.push(AppRoutes.productDetailsPath(product.id), extra: _storeId);
+      context.push(AppRoutes.productDetailsPath(product.id), extra: storeId);
 
   void _openCategoryDetails(CategoryEntity category) => context.push(
     AppRoutes.categoryDetailsPath(category.id, category.name),
-    extra: _storeId,
+    extra: storeId,
   );
 
-  void _openSearch() => context.push(AppRoutes.search, extra: _storeId);
+  void _openSearch() => context.push(AppRoutes.search, extra: storeId);
 
   void _openNotifications() => context.push(AppRoutes.notifications);
 
@@ -84,7 +83,7 @@ class _HomeScreenState extends BaseScreenState<HomeScreen>
       case BannerTargetType.product:
         context.push(
           AppRoutes.productDetailsPath(banner.targetId),
-          extra: _storeId,
+          extra: storeId,
         );
       case BannerTargetType.category:
         final matches = home.categories.where((c) => c.id == banner.targetId);
@@ -135,7 +134,7 @@ class _HomeScreenState extends BaseScreenState<HomeScreen>
               GrofastSearchField(
                 hint: GrofastValueConst.searchHint,
                 onTap: _openSearch,
-                heroTag: GrofastSearchField.heroTagFor(_storeId),
+                heroTag: GrofastSearchField.heroTagFor(storeId),
               ),
             ],
           ),

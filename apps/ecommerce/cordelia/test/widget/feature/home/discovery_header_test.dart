@@ -77,6 +77,44 @@ void main() {
     expect(find.text(ValueConst.discoveryPrompt), findsOneWidget);
   });
 
+  testWidgets('the clear button appears only once something is typed', (
+    tester,
+  ) async {
+    final controller = TextEditingController();
+    addTearDown(controller.dispose);
+    final queries = <String>[];
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.fromConfig(AppThemeConfig.defaults),
+        home: Scaffold(
+          body: DiscoveryHeader(
+            profile: null,
+            searchController: controller,
+            onQueryChanged: queries.add,
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+
+    expect(find.byIcon(Icons.close_rounded), findsNothing);
+
+    await tester.enterText(find.byType(AppTextField), 'gro');
+    await tester.pump();
+    expect(find.byIcon(Icons.close_rounded), findsOneWidget);
+
+    await tester.tap(find.byIcon(Icons.close_rounded));
+    await tester.pump();
+
+    expect(controller.text, isEmpty);
+    expect(find.byIcon(Icons.close_rounded), findsNothing);
+    // The regression this guards: `controller.clear()` does NOT fire the
+    // field's onChanged, so clearing the box without also dispatching an
+    // empty query leaves the list filtered against text no longer on screen.
+    expect(queries.last, isEmpty);
+  });
+
   testWidgets('the brand mark opens the header', (tester) async {
     await tester.pumpWidget(host(profile: profile));
     await tester.pump();

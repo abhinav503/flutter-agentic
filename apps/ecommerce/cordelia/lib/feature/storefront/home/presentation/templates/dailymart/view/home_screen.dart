@@ -7,6 +7,7 @@ import 'package:core/core/base/base_screen.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/molecules/error_view.dart';
 
+import 'package:cordelia/feature/storefront/active_store/presentation/active_store_capture.dart';
 import 'package:cordelia/constants/app_routes.dart';
 import 'package:cordelia/enums/banner_target_type.dart';
 import 'package:cordelia/feature/storefront/active_store/presentation/cubit/active_store_cubit.dart';
@@ -47,15 +48,13 @@ class HomeScreen extends BaseScreen {
 }
 
 class _HomeScreenState extends BaseScreenState<HomeScreen>
-    with SelectedAddressLabelState {
-  String get _storeId => context.read<ActiveStoreCubit>().state!.storeId;
-
+    with SelectedAddressLabelState, ActiveStoreCapture {
   void _openProductDetails(ProductEntity product) =>
-      context.push(AppRoutes.productDetailsPath(product.id), extra: _storeId);
+      context.push(AppRoutes.productDetailsPath(product.id), extra: storeId);
 
   void _openCategoryDetails(CategoryEntity category) => context.push(
     AppRoutes.categoryDetailsPath(category.id, category.name),
-    extra: _storeId,
+    extra: storeId,
   );
 
   /// A banner links to a product or a category by id — or to nothing, in
@@ -69,7 +68,7 @@ class _HomeScreenState extends BaseScreenState<HomeScreen>
       case BannerTargetType.product:
         context.push(
           AppRoutes.productDetailsPath(banner.targetId),
-          extra: _storeId,
+          extra: storeId,
         );
       case BannerTargetType.category:
         final matches = home.categories.where((c) => c.id == banner.targetId);
@@ -121,7 +120,7 @@ class _HomeScreenState extends BaseScreenState<HomeScreen>
               onLocationTap: openSelectAddress,
               onNotificationTap: _openNotifications,
               onSearchTap: _openSearch,
-              storeId: _storeId,
+              storeId: storeId,
             ),
             gap: AppSpacing.xl4,
             // The shell's nav bar owns the bottom edge; this is breathing
@@ -159,7 +158,7 @@ class _HomeScreenState extends BaseScreenState<HomeScreen>
 
   void _openNotifications() => context.push(AppRoutes.notifications);
 
-  void _openSearch() => context.push(AppRoutes.search, extra: _storeId);
+  void _openSearch() => context.push(AppRoutes.search, extra: storeId);
 }
 
 class _HomeContent extends StatelessWidget {
@@ -251,6 +250,9 @@ class _HomeContent extends StatelessWidget {
   /// This template has no Categories tab of its own yet (the shell's tab set
   /// is Home / Wishlist / Cart / Profile), so every "See all" lands on the
   /// shared Search screen scoped to the active store rather than a dead end.
+  // Not the captured `storeId`: this sits on a widget class, not on the
+  // State that carries ActiveStoreCapture. It is also a tap handler, so the
+  // store is guaranteed present when it runs.
   void _openBrowse(BuildContext context) => context.push(
     AppRoutes.search,
     extra: context.read<ActiveStoreCubit>().state!.storeId,

@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:core/core/base/base_page.dart';
 
-import 'package:cordelia/feature/storefront/active_store/presentation/cubit/active_store_cubit.dart';
 import 'package:cordelia/feature/storefront/cart/presentation/cubit/cart_cubit.dart';
 import 'package:cordelia/feature/storefront/cart/presentation/templates/grofast/view/cart_screen.dart';
 import 'package:cordelia/feature/storefront/categories/presentation/bloc/categories_bloc_provider.dart';
@@ -95,9 +94,9 @@ class _ShellPageState extends BasePageState<ShellPage>
 
   @override
   Widget buildBody(BuildContext context) {
-    // `!`: the shell only renders inside a mounted StorefrontPage, which
-    // seeds the cubit before its first build.
-    final storeId = context.read<ActiveStoreCubit>().state!.storeId;
+    // `storeId` comes from StorefrontShellState — captured at mount, so it
+    // survives the teardown that runs while this shell is still animating
+    // out.
 
     return switch (currentTab) {
       ShellPage.homeTabIndex => homeBlocProvider(

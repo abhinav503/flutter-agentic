@@ -4,6 +4,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { Sparkles } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { useStore } from "@/lib/store-context";
+import { PublishStoreCard } from "@/components/publish-store-card";
 import { getStore } from "@/lib/stores";
 import { getTemplates } from "@/lib/templates";
 import {
@@ -558,8 +559,12 @@ export default function SettingsPage() {
           ))}
         </TabsList>
 
-        <TabsContent value="store">
+        <TabsContent value="store" className="space-y-6">
           <StoreProfileCard storeId={storeId} />
+          {/* Under the profile, not on its own tab: the checklist is mostly
+              about fields edited right above it, and a publish gate hidden
+              behind a tab is one nobody finds. */}
+          <PublishStoreCard storeId={storeId} />
         </TabsContent>
 
         {/* Only the store profile has enough fields to earn the full width.

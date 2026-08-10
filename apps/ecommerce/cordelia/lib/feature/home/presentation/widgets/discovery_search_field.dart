@@ -49,7 +49,58 @@ class DiscoverySearchField extends StatelessWidget {
         ),
         child: Icon(Icons.search, size: 20, color: cs.onSurfaceVariant),
       ),
+      // Only the suffix listens, not the whole field: a TextEditingController
+      // is a ValueNotifier, so this rebuilds one icon per keystroke instead
+      // of the input it lives in.
+      suffix: ValueListenableBuilder<TextEditingValue>(
+        valueListenable: controller,
+        builder: (context, value, _) => value.text.isEmpty
+            ? const SizedBox.shrink()
+            : _ClearButton(onTap: _clear),
+      ),
       onChanged: onChanged,
+    );
+  }
+
+  /// `clear()` mutates the controller but does **not** fire `onChanged`, so
+  /// the bloc would keep the old query and the list would stay filtered
+  /// against text no longer on screen. Both halves, or neither.
+  void _clear() {
+    controller.clear();
+    onChanged('');
+  }
+}
+
+class _ClearButton extends StatelessWidget {
+  final VoidCallback onTap;
+
+  const _ClearButton({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
+    return Semantics(
+      button: true,
+      label: ValueConst.discoverySearchClearLabel,
+      child: GestureDetector(
+        onTap: onTap,
+        // AppTextField loosens the suffix slot's 48x48 minimum so small
+        // icons render at their natural size, which means this has to claim
+        // its own tap target — the padding is the target, not decoration.
+        behavior: HitTestBehavior.opaque,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.base,
+            vertical: AppSpacing.base,
+          ),
+          child: Icon(
+            Icons.close_rounded,
+            size: 20,
+            color: cs.onSurfaceVariant,
+          ),
+        ),
+      ),
     );
   }
 }

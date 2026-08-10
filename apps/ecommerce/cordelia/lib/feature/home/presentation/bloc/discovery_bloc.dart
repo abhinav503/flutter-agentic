@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import 'package:cordelia/enums/store_filter.dart';
 import 'package:cordelia/utils/event_transformers.dart';
 
 import '../../domain/entities/store_entity.dart';
@@ -23,6 +24,23 @@ class DiscoveryBloc extends Bloc<DiscoveryEvent, DiscoveryState> {
       transformer: debounceRestartable(),
     );
     on<DiscoveryStoreOpened>(_onStoreOpened);
+    on<DiscoveryFilterChanged>(_onFilterChanged);
+  }
+
+  // Purely a view change over the already-loaded list — the server decides
+  // *which* stores this shopper may see, this only narrows them.
+  //
+  // copyWith, not a fresh DiscoveryState.loaded(...): rebuilding the state
+  // field-by-field means every future field has to be threaded through every
+  // emit, and the one that got missed reset the shopper's chosen tab the
+  // moment they opened a store.
+  void _onFilterChanged(
+    DiscoveryFilterChanged event,
+    Emitter<DiscoveryState> emit,
+  ) {
+    if (state case final DiscoveryLoaded loaded) {
+      emit(loaded.copyWith(filter: event.filter));
+    }
   }
 
   Future<void> _onStarted(
@@ -42,13 +60,11 @@ class DiscoveryBloc extends Bloc<DiscoveryEvent, DiscoveryState> {
     Emitter<DiscoveryState> emit,
   ) async {
     final recentIds = await recordRecentStore(event.storeId);
-    if (state case DiscoveryLoaded(:final stores, :final query)) {
+    if (state case final DiscoveryLoaded loaded) {
       emit(
-        DiscoveryState.loaded(
-          stores: stores,
-          query: query,
-          recentStores: query.isEmpty
-              ? _resolveRecents(recentIds, stores)
+        loaded.copyWith(
+          recentStores: loaded.query.isEmpty
+              ? _resolveRecents(recentIds, loaded.stores)
               : const [],
         ),
       );
@@ -59,6 +75,13 @@ class DiscoveryBloc extends Bloc<DiscoveryEvent, DiscoveryState> {
     required String query,
     required Emitter<DiscoveryState> emit,
   }) async {
+    // Survives the refetch: typing a search and clearing it again would
+    // otherwise drop the shopper back to the default tab, which reads as the
+    // list resetting itself for no reason.
+    final filter = switch (state) {
+      DiscoveryLoaded(:final filter) => filter,
+      _ => StoreFilter.live,
+    };
     final result = await _getStores(GetStoresParams(query: query));
     result.fold(
       (failure) =>
@@ -72,6 +95,7 @@ class DiscoveryBloc extends Bloc<DiscoveryEvent, DiscoveryState> {
                 recentStores: query.isEmpty
                     ? _resolveRecents(readRecentStoreIds(), stores)
                     : const [],
+                filter: filter,
               ),
       ),
     );

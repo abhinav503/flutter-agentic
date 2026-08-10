@@ -81,7 +81,23 @@ service cloud.firestore {
     match /stores/{storeId} {
       allow read: if true;
       allow create: if false;
-      allow update, delete: if isStoreOwner(storeId);
+      // The owner edits their store's profile, but NOT its publication
+      // state. `status` (and the fields the lifecycle writes alongside it)
+      // move only through POST /api/stores/{id}/publish, which runs the
+      // readiness checks and — for approve/reject/unpublish — demands a
+      // superAdmin claim. Without this carve-out any store admin could
+      // simply write status:'published' from the client and skip review.
+      allow update: if isStoreOwner(storeId) &&
+        !request.resource.data.diff(resource.data).affectedKeys()
+          .hasAny([
+            'status',
+            'rejectionReason',
+            'previewReady',
+            'publishedAt',
+            'statusUpdatedAt',
+            'ownerUid'
+          ]);
+      allow delete: if isStoreOwner(storeId);
 
       // Server-only secrets (Razorpay key id + encrypted secret). The store
       // doc above is world-readable and Firestore reads are per-document, so

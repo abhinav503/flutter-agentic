@@ -55,13 +55,14 @@ extension DiscoveryEventPatterns on DiscoveryEvent {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( DiscoveryStarted value)?  started,TResult Function( DiscoveryQueryChanged value)?  queryChanged,TResult Function( DiscoveryStoreOpened value)?  storeOpened,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( DiscoveryStarted value)?  started,TResult Function( DiscoveryQueryChanged value)?  queryChanged,TResult Function( DiscoveryStoreOpened value)?  storeOpened,TResult Function( DiscoveryFilterChanged value)?  filterChanged,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case DiscoveryStarted() when started != null:
 return started(_that);case DiscoveryQueryChanged() when queryChanged != null:
 return queryChanged(_that);case DiscoveryStoreOpened() when storeOpened != null:
-return storeOpened(_that);case _:
+return storeOpened(_that);case DiscoveryFilterChanged() when filterChanged != null:
+return filterChanged(_that);case _:
   return orElse();
 
 }
@@ -79,13 +80,14 @@ return storeOpened(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( DiscoveryStarted value)  started,required TResult Function( DiscoveryQueryChanged value)  queryChanged,required TResult Function( DiscoveryStoreOpened value)  storeOpened,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( DiscoveryStarted value)  started,required TResult Function( DiscoveryQueryChanged value)  queryChanged,required TResult Function( DiscoveryStoreOpened value)  storeOpened,required TResult Function( DiscoveryFilterChanged value)  filterChanged,}){
 final _that = this;
 switch (_that) {
 case DiscoveryStarted():
 return started(_that);case DiscoveryQueryChanged():
 return queryChanged(_that);case DiscoveryStoreOpened():
-return storeOpened(_that);}
+return storeOpened(_that);case DiscoveryFilterChanged():
+return filterChanged(_that);}
 }
 /// A variant of `map` that fallback to returning `null`.
 ///
@@ -99,13 +101,14 @@ return storeOpened(_that);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( DiscoveryStarted value)?  started,TResult? Function( DiscoveryQueryChanged value)?  queryChanged,TResult? Function( DiscoveryStoreOpened value)?  storeOpened,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( DiscoveryStarted value)?  started,TResult? Function( DiscoveryQueryChanged value)?  queryChanged,TResult? Function( DiscoveryStoreOpened value)?  storeOpened,TResult? Function( DiscoveryFilterChanged value)?  filterChanged,}){
 final _that = this;
 switch (_that) {
 case DiscoveryStarted() when started != null:
 return started(_that);case DiscoveryQueryChanged() when queryChanged != null:
 return queryChanged(_that);case DiscoveryStoreOpened() when storeOpened != null:
-return storeOpened(_that);case _:
+return storeOpened(_that);case DiscoveryFilterChanged() when filterChanged != null:
+return filterChanged(_that);case _:
   return null;
 
 }
@@ -122,12 +125,13 @@ return storeOpened(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  started,TResult Function( String query)?  queryChanged,TResult Function( String storeId)?  storeOpened,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  started,TResult Function( String query)?  queryChanged,TResult Function( String storeId)?  storeOpened,TResult Function( StoreFilter filter)?  filterChanged,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case DiscoveryStarted() when started != null:
 return started();case DiscoveryQueryChanged() when queryChanged != null:
 return queryChanged(_that.query);case DiscoveryStoreOpened() when storeOpened != null:
-return storeOpened(_that.storeId);case _:
+return storeOpened(_that.storeId);case DiscoveryFilterChanged() when filterChanged != null:
+return filterChanged(_that.filter);case _:
   return orElse();
 
 }
@@ -145,12 +149,13 @@ return storeOpened(_that.storeId);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  started,required TResult Function( String query)  queryChanged,required TResult Function( String storeId)  storeOpened,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  started,required TResult Function( String query)  queryChanged,required TResult Function( String storeId)  storeOpened,required TResult Function( StoreFilter filter)  filterChanged,}) {final _that = this;
 switch (_that) {
 case DiscoveryStarted():
 return started();case DiscoveryQueryChanged():
 return queryChanged(_that.query);case DiscoveryStoreOpened():
-return storeOpened(_that.storeId);}
+return storeOpened(_that.storeId);case DiscoveryFilterChanged():
+return filterChanged(_that.filter);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -164,12 +169,13 @@ return storeOpened(_that.storeId);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  started,TResult? Function( String query)?  queryChanged,TResult? Function( String storeId)?  storeOpened,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  started,TResult? Function( String query)?  queryChanged,TResult? Function( String storeId)?  storeOpened,TResult? Function( StoreFilter filter)?  filterChanged,}) {final _that = this;
 switch (_that) {
 case DiscoveryStarted() when started != null:
 return started();case DiscoveryQueryChanged() when queryChanged != null:
 return queryChanged(_that.query);case DiscoveryStoreOpened() when storeOpened != null:
-return storeOpened(_that.storeId);case _:
+return storeOpened(_that.storeId);case DiscoveryFilterChanged() when filterChanged != null:
+return filterChanged(_that.filter);case _:
   return null;
 
 }
@@ -342,6 +348,72 @@ as String,
 }
 
 /// @nodoc
+
+
+class DiscoveryFilterChanged implements DiscoveryEvent {
+  const DiscoveryFilterChanged({required this.filter});
+  
+
+ final  StoreFilter filter;
+
+/// Create a copy of DiscoveryEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$DiscoveryFilterChangedCopyWith<DiscoveryFilterChanged> get copyWith => _$DiscoveryFilterChangedCopyWithImpl<DiscoveryFilterChanged>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DiscoveryFilterChanged&&(identical(other.filter, filter) || other.filter == filter));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,filter);
+
+@override
+String toString() {
+  return 'DiscoveryEvent.filterChanged(filter: $filter)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $DiscoveryFilterChangedCopyWith<$Res> implements $DiscoveryEventCopyWith<$Res> {
+  factory $DiscoveryFilterChangedCopyWith(DiscoveryFilterChanged value, $Res Function(DiscoveryFilterChanged) _then) = _$DiscoveryFilterChangedCopyWithImpl;
+@useResult
+$Res call({
+ StoreFilter filter
+});
+
+
+
+
+}
+/// @nodoc
+class _$DiscoveryFilterChangedCopyWithImpl<$Res>
+    implements $DiscoveryFilterChangedCopyWith<$Res> {
+  _$DiscoveryFilterChangedCopyWithImpl(this._self, this._then);
+
+  final DiscoveryFilterChanged _self;
+  final $Res Function(DiscoveryFilterChanged) _then;
+
+/// Create a copy of DiscoveryEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? filter = null,}) {
+  return _then(DiscoveryFilterChanged(
+filter: null == filter ? _self.filter : filter // ignore: cast_nullable_to_non_nullable
+as StoreFilter,
+  ));
+}
+
+
+}
+
+/// @nodoc
 mixin _$DiscoveryState {
 
 
@@ -455,11 +527,11 @@ return error(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loading,TResult Function( List<StoreEntity> stores,  String query,  List<StoreEntity> recentStores)?  loaded,TResult Function( String query)?  empty,TResult Function( String message,  String query)?  error,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loading,TResult Function( List<StoreEntity> stores,  String query,  List<StoreEntity> recentStores,  StoreFilter filter)?  loaded,TResult Function( String query)?  empty,TResult Function( String message,  String query)?  error,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case DiscoveryLoading() when loading != null:
 return loading();case DiscoveryLoaded() when loaded != null:
-return loaded(_that.stores,_that.query,_that.recentStores);case DiscoveryEmpty() when empty != null:
+return loaded(_that.stores,_that.query,_that.recentStores,_that.filter);case DiscoveryEmpty() when empty != null:
 return empty(_that.query);case DiscoveryError() when error != null:
 return error(_that.message,_that.query);case _:
   return orElse();
@@ -479,11 +551,11 @@ return error(_that.message,_that.query);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loading,required TResult Function( List<StoreEntity> stores,  String query,  List<StoreEntity> recentStores)  loaded,required TResult Function( String query)  empty,required TResult Function( String message,  String query)  error,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loading,required TResult Function( List<StoreEntity> stores,  String query,  List<StoreEntity> recentStores,  StoreFilter filter)  loaded,required TResult Function( String query)  empty,required TResult Function( String message,  String query)  error,}) {final _that = this;
 switch (_that) {
 case DiscoveryLoading():
 return loading();case DiscoveryLoaded():
-return loaded(_that.stores,_that.query,_that.recentStores);case DiscoveryEmpty():
+return loaded(_that.stores,_that.query,_that.recentStores,_that.filter);case DiscoveryEmpty():
 return empty(_that.query);case DiscoveryError():
 return error(_that.message,_that.query);}
 }
@@ -499,11 +571,11 @@ return error(_that.message,_that.query);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loading,TResult? Function( List<StoreEntity> stores,  String query,  List<StoreEntity> recentStores)?  loaded,TResult? Function( String query)?  empty,TResult? Function( String message,  String query)?  error,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loading,TResult? Function( List<StoreEntity> stores,  String query,  List<StoreEntity> recentStores,  StoreFilter filter)?  loaded,TResult? Function( String query)?  empty,TResult? Function( String message,  String query)?  error,}) {final _that = this;
 switch (_that) {
 case DiscoveryLoading() when loading != null:
 return loading();case DiscoveryLoaded() when loaded != null:
-return loaded(_that.stores,_that.query,_that.recentStores);case DiscoveryEmpty() when empty != null:
+return loaded(_that.stores,_that.query,_that.recentStores,_that.filter);case DiscoveryEmpty() when empty != null:
 return empty(_that.query);case DiscoveryError() when error != null:
 return error(_that.message,_that.query);case _:
   return null;
@@ -549,7 +621,7 @@ String toString() {
 
 
 class DiscoveryLoaded implements DiscoveryState {
-  const DiscoveryLoaded({required final  List<StoreEntity> stores, required this.query, required final  List<StoreEntity> recentStores}): _stores = stores,_recentStores = recentStores;
+  const DiscoveryLoaded({required final  List<StoreEntity> stores, required this.query, required final  List<StoreEntity> recentStores, this.filter = StoreFilter.live}): _stores = stores,_recentStores = recentStores;
   
 
  final  List<StoreEntity> _stores;
@@ -577,6 +649,13 @@ class DiscoveryLoaded implements DiscoveryState {
   return EqualUnmodifiableListView(_recentStores);
 }
 
+// Which segment is active. `live` — discovery opens on what a shopper
+// would see, and an owner switches to All to find their own in-progress
+// stores. Worth knowing: an owner whose stores are *all* still drafts
+// opens on an empty list plus the "no stores match" line, with the tabs
+// right above it. The tabs aren't rendered at all unless the shopper
+// owns something unpublished, so for everyone else this never moves.
+@JsonKey() final  StoreFilter filter;
 
 /// Create a copy of DiscoveryState
 /// with the given fields replaced by the non-null parameter values.
@@ -588,16 +667,16 @@ $DiscoveryLoadedCopyWith<DiscoveryLoaded> get copyWith => _$DiscoveryLoadedCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DiscoveryLoaded&&const DeepCollectionEquality().equals(other._stores, _stores)&&(identical(other.query, query) || other.query == query)&&const DeepCollectionEquality().equals(other._recentStores, _recentStores));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DiscoveryLoaded&&const DeepCollectionEquality().equals(other._stores, _stores)&&(identical(other.query, query) || other.query == query)&&const DeepCollectionEquality().equals(other._recentStores, _recentStores)&&(identical(other.filter, filter) || other.filter == filter));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_stores),query,const DeepCollectionEquality().hash(_recentStores));
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_stores),query,const DeepCollectionEquality().hash(_recentStores),filter);
 
 @override
 String toString() {
-  return 'DiscoveryState.loaded(stores: $stores, query: $query, recentStores: $recentStores)';
+  return 'DiscoveryState.loaded(stores: $stores, query: $query, recentStores: $recentStores, filter: $filter)';
 }
 
 
@@ -608,7 +687,7 @@ abstract mixin class $DiscoveryLoadedCopyWith<$Res> implements $DiscoveryStateCo
   factory $DiscoveryLoadedCopyWith(DiscoveryLoaded value, $Res Function(DiscoveryLoaded) _then) = _$DiscoveryLoadedCopyWithImpl;
 @useResult
 $Res call({
- List<StoreEntity> stores, String query, List<StoreEntity> recentStores
+ List<StoreEntity> stores, String query, List<StoreEntity> recentStores, StoreFilter filter
 });
 
 
@@ -625,12 +704,13 @@ class _$DiscoveryLoadedCopyWithImpl<$Res>
 
 /// Create a copy of DiscoveryState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? stores = null,Object? query = null,Object? recentStores = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? stores = null,Object? query = null,Object? recentStores = null,Object? filter = null,}) {
   return _then(DiscoveryLoaded(
 stores: null == stores ? _self._stores : stores // ignore: cast_nullable_to_non_nullable
 as List<StoreEntity>,query: null == query ? _self.query : query // ignore: cast_nullable_to_non_nullable
 as String,recentStores: null == recentStores ? _self._recentStores : recentStores // ignore: cast_nullable_to_non_nullable
-as List<StoreEntity>,
+as List<StoreEntity>,filter: null == filter ? _self.filter : filter // ignore: cast_nullable_to_non_nullable
+as StoreFilter,
   ));
 }
 

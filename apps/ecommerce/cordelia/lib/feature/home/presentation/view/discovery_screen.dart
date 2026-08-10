@@ -15,7 +15,10 @@ import 'package:core/core/ui/molecules/error_view.dart';
 import 'package:cordelia/constants/app_routes.dart';
 import 'package:cordelia/constants/cordelia_color_const.dart';
 import 'package:cordelia/constants/cordelia_dimen_const.dart';
+import 'package:cordelia/constants/cordelia_text_style_const.dart';
 import 'package:cordelia/constants/value_const.dart';
+import 'package:cordelia/enums/store_filter.dart';
+import 'package:cordelia/enums/store_status.dart';
 import 'package:cordelia/feature/storefront/active_store/domain/entities/active_store_entity.dart';
 import 'package:cordelia/feature/storefront/presentation/view/storefront_page.dart';
 import 'package:cordelia/feature/storefront/profile/presentation/bloc/profile_bloc.dart';
@@ -26,6 +29,7 @@ import '../bloc/discovery_bloc.dart';
 import '../widgets/discovery_header.dart';
 import '../widgets/recent_store_tile.dart';
 import '../widgets/store_card.dart';
+import '../widgets/store_filter_tabs.dart';
 import '../widgets/store_list_skeleton.dart';
 
 class DiscoveryScreen extends BaseScreen {
@@ -130,10 +134,18 @@ class _DiscoveryScreenState extends BaseScreenState<DiscoveryScreen> {
               subtitle: ValueConst.discoveryEmptySubtitle,
             ),
           ),
-          DiscoveryLoaded(:final stores, :final recentStores) => _content(
-            stores: stores,
-            recentStores: recentStores,
-          ),
+          DiscoveryLoaded(
+            :final stores,
+            :final recentStores,
+            :final query,
+            :final filter,
+          ) =>
+            _content(
+              stores: stores,
+              recentStores: recentStores,
+              query: query,
+              filter: filter,
+            ),
         },
       ),
     ),
@@ -154,38 +166,85 @@ class _DiscoveryScreenState extends BaseScreenState<DiscoveryScreen> {
   Widget _content({
     required List<StoreEntity> stores,
     required List<StoreEntity> recentStores,
+    required String query,
+    required StoreFilter filter,
   }) {
-    // A search result is one flat answer to what was typed — no section
-    // headers, and the recents rail is already suppressed by the bloc.
-    final isBrowsing = recentStores.isNotEmpty;
+    // A search result is one flat answer to what was typed: no section
+    // headers, no rail, no chips. Keyed on the query rather than on an empty
+    // recents list — those two look identical from here, and conflating them
+    // hid the chip row from any owner who simply hadn't opened a store yet.
+    final isSearching = query.isNotEmpty;
+
+    // The chip row earns its place only for a store owner mid-setup. The API
+    // returns an unpublished store solely to whoever owns it, so for an
+    // ordinary shopper "Setting up" would be a permanently empty tab — and a
+    // control that can never do anything is worse than no control.
+    final hasUnpublished = stores.any((s) => s.status.isUnpublished);
+    final visible = filter.apply(stores).toList();
+    // The rail is filtered by the same tab as the list below it. Without
+    // this the screen contradicted itself: "Jump back in" offered five
+    // stores while "All stores / Live" listed one, because the recents were
+    // resolved before the filter and never narrowed by it.
+    final visibleRecents = filter.apply(recentStores).toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (isBrowsing) ...[
-          SectionRail(
-            header: const SectionHeader(title: ValueConst.discoveryRecentTitle),
-            itemCount: recentStores.length,
-            itemBuilder: (context, i) => RecentStoreTile(
-              store: recentStores[i],
-              onTap: () => _openStore(recentStores[i]),
+        if (!isSearching) ...[
+          if (visibleRecents.isNotEmpty) ...[
+            SectionRail(
+              header: const SectionHeader(
+                title: ValueConst.discoveryRecentTitle,
+              ),
+              itemCount: visibleRecents.length,
+              itemBuilder: (context, i) => RecentStoreTile(
+                store: visibleRecents[i],
+                onTap: () => _openStore(visibleRecents[i]),
+              ),
+              crossAxisAlignment: CrossAxisAlignment.start,
             ),
-            crossAxisAlignment: CrossAxisAlignment.start,
-          ),
-          const SizedBox(height: AppSpacing.xl4),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-            child: SectionHeader(title: ValueConst.discoveryAllStoresTitle),
+            const SizedBox(height: AppSpacing.xl4),
+          ],
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+            child: SectionHeader(
+              title: ValueConst.discoveryAllStoresTitle,
+              action: hasUnpublished
+                  ? StoreFilterTabs(
+                      selected: filter,
+                      onSelected: (next) => context.read<DiscoveryBloc>().add(
+                        DiscoveryEvent.filterChanged(filter: next),
+                      ),
+                    )
+                  : null,
+            ),
           ),
           const SizedBox(height: AppSpacing.base),
         ],
-        for (var i = 0; i < stores.length; i++) ...[
+        // Filtering to a chip that matches nothing is a dead end otherwise:
+        // the header and chips stay, and the space under them goes blank.
+        if (visible.isEmpty)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.lg,
+              AppSpacing.xl2,
+              AppSpacing.lg,
+              AppSpacing.xl2,
+            ),
+            child: Text(
+              ValueConst.discoveryFilterEmpty,
+              style: CordeliaTextStyleConst.textSmRegular(
+                Theme.of(context).textTheme,
+              ).copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+            ),
+          ),
+        for (var i = 0; i < visible.length; i++) ...[
           if (i > 0) const SizedBox(height: AppSpacing.base),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
             child: StoreCard(
-              store: stores[i],
-              onTap: () => _openStore(stores[i]),
+              store: visible[i],
+              onTap: () => _openStore(visible[i]),
             ),
           ),
         ],

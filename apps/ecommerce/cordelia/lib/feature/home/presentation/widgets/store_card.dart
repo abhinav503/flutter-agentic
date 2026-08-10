@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 
 import 'package:core/core/theme/app_shapes_extension.dart';
 import 'package:core/core/theme/app_spacing.dart';
+import 'package:core/core/ui/atoms/badge.dart';
 import 'package:core/core/ui/atoms/network_image.dart';
 import 'package:core/core/ui/atoms/surface_card.dart';
 
 import 'package:cordelia/constants/cordelia_dimen_const.dart';
 import 'package:cordelia/constants/cordelia_text_style_const.dart';
+import 'package:cordelia/constants/value_const.dart';
+import 'package:cordelia/enums/store_status.dart';
 
 import '../../domain/entities/store_entity.dart';
 
@@ -48,13 +51,31 @@ class StoreCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  store.name,
-                  style: CordeliaTextStyleConst.textMdBold(
-                    tt,
-                  ).copyWith(color: cs.onSurface),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        store.name,
+                        style: CordeliaTextStyleConst.textMdBold(
+                          tt,
+                        ).copyWith(color: cs.onSurface),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    // Only ever reachable by the store's own owner — the API
+                    // doesn't return an unpublished store to anyone else — so
+                    // this reads as "yours, not live yet", not as a warning
+                    // about someone else's shop.
+                    if (store.status.isUnpublished) ...[
+                      const SizedBox(width: AppSpacing.xs2),
+                      const AppBadge(
+                        text: ValueConst.discoveryNotPublishedBadge,
+                        intent: AppBadgeIntent.warning,
+                        size: AppBadgeSize.small,
+                      ),
+                    ],
+                  ],
                 ),
                 if (store.description.isNotEmpty) ...[
                   const SizedBox(height: AppSpacing.xs4),

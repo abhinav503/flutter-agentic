@@ -6,8 +6,8 @@ import 'package:go_router/go_router.dart';
 import 'package:core/core/base/base_screen.dart';
 import 'package:core/core/theme/app_spacing.dart';
 
+import 'package:cordelia/feature/storefront/active_store/presentation/active_store_capture.dart';
 import 'package:cordelia/constants/app_routes.dart';
-import 'package:cordelia/feature/storefront/active_store/presentation/cubit/active_store_cubit.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_dimen_const.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_value_const.dart';
 import 'package:cordelia/templates/grofast/widgets/grofast_category_tile.dart';
@@ -39,15 +39,14 @@ class CategoriesScreen extends BaseScreen {
   State<CategoriesScreen> createState() => _CategoriesScreenState();
 }
 
-class _CategoriesScreenState extends BaseScreenState<CategoriesScreen> {
-  String get _storeId => context.read<ActiveStoreCubit>().state!.storeId;
-
+class _CategoriesScreenState extends BaseScreenState<CategoriesScreen>
+    with ActiveStoreCapture {
   void _openCategoryDetails(CategoryEntity category) => context.push(
     AppRoutes.categoryDetailsPath(category.id, category.name),
-    extra: _storeId,
+    extra: storeId,
   );
 
-  void _openSearch() => context.push(AppRoutes.search, extra: _storeId);
+  void _openSearch() => context.push(AppRoutes.search, extra: storeId);
 
   @override
   SystemUiOverlayStyle? overlayStyle(BuildContext context) =>

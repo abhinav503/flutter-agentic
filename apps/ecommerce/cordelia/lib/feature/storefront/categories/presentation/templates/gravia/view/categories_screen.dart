@@ -1,5 +1,5 @@
+import 'package:cordelia/feature/storefront/active_store/presentation/active_store_capture.dart';
 import 'package:cordelia/constants/app_routes.dart';
-import 'package:cordelia/feature/storefront/active_store/presentation/cubit/active_store_cubit.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_image_const.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_dimen_const.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_value_const.dart';
@@ -28,20 +28,18 @@ class CategoriesScreen extends BaseScreen {
   State<CategoriesScreen> createState() => _CategoriesScreenState();
 }
 
-class _CategoriesScreenState extends BaseScreenState<CategoriesScreen> {
+class _CategoriesScreenState extends BaseScreenState<CategoriesScreen>
+    with ActiveStoreCapture {
   void _openCategoryDetails(CategoryEntity category) => context.push(
     AppRoutes.categoryDetailsPath(category.id, category.name),
-    extra: context.read<ActiveStoreCubit>().state!.storeId,
+    extra: storeId,
   );
 
   Widget _header() => GraviaHeroHeader.page(
     title: GraviaValueConst.categoriesPageTitle,
     trailing: GraviaGlassIconButton(
       asset: GraviaImageConst.search,
-      onTap: () => context.push(
-        AppRoutes.search,
-        extra: context.read<ActiveStoreCubit>().state!.storeId,
-      ),
+      onTap: () => context.push(AppRoutes.search, extra: storeId),
     ),
   );
 
