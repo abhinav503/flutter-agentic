@@ -104,13 +104,40 @@ class FirebaseAuthService {
     try {
       return await user.getIdToken(forceRefresh);
     } on FirebaseAuthException catch (e) {
-      if (_deadSessionCodes.contains(e.code)) {
-        await FirebaseAuth.instance.signOut();
-        sessionExpired.value++;
-      }
+      if (_deadSessionCodes.contains(e.code)) await endSession();
       rethrow;
     }
   }
+
+  /// Ends a session that cannot recover: signs out locally, then fires
+  /// [sessionExpired] once.
+  ///
+  /// Two callers, and the second is why this is public. [idToken] handles what
+  /// Firebase can see for itself; `SessionExpiryInterceptor` handles what only
+  /// the server can — a 401 against a token Firebase is still happily handing
+  /// back from its cache, which it will keep doing for up to an hour after the
+  /// token stops being accepted.
+  ///
+  /// A no-op when nobody is signed in: anonymous browsing hits authenticated
+  /// endpoints too, and a 401 there is not an expired session.
+  ///
+  /// Re-entrancy is the whole reason this is a method rather than two lines at
+  /// each call site. A screen usually fires several requests at once, so a
+  /// dead token produces a burst of 401s within a frame or two; without the
+  /// guard each one bumps the notifier and the shopper gets three snackbars
+  /// and three redirects for one expiry.
+  Future<void> endSession() async {
+    if (_endingSession || currentUser == null) return;
+    _endingSession = true;
+    try {
+      await FirebaseAuth.instance.signOut();
+      sessionExpired.value++;
+    } finally {
+      _endingSession = false;
+    }
+  }
+
+  bool _endingSession = false;
 
   /// Re-proves the current password before a sensitive change —
   /// `updatePassword` throws `requires-recent-login` on a session that

@@ -15,6 +15,17 @@ class HttpService {
     ),
   )..interceptors.add(LoggingInterceptor());
 
+  /// Adds [interceptor] to the one shared Dio instance.
+  ///
+  /// The mechanism belongs here, the policy does not: an app registers its
+  /// own concerns at startup (a 401 meaning "this session is over", say)
+  /// without core needing to know what authentication even looks like.
+  /// Registered once during DI — re-registering per call would stack
+  /// duplicates on a singleton that lives for the whole process.
+  void addInterceptor(Interceptor interceptor) {
+    _dio.interceptors.add(interceptor);
+  }
+
   Future<Response<T>> get<T>(
     String url, {
     Map<String, dynamic>? queryParameters,

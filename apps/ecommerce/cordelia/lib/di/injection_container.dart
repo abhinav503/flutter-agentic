@@ -1,4 +1,9 @@
 import 'package:core/core/di/core_injection.dart';
+import 'package:core/core/network/http_service.dart';
+
+import '../constants/api_constants.dart';
+import '../services/firebase_auth_service.dart';
+import '../services/network/session_expiry_interceptor.dart';
 
 import '../feature/auth/data/data_source/auth_remote_data_source.dart';
 import '../feature/auth/data/data_source/auth_remote_data_source_impl.dart';
@@ -122,6 +127,17 @@ export 'package:core/core/di/core_injection.dart' show sl;
 /// app's features (data sources → repositories → use cases) as they land.
 Future<void> initDependencies() async {
   await initCoreDependencies();
+
+  // A 401 from our API ends the session, once, wherever it happens. Registered
+  // here rather than per data source because every authenticated call in the
+  // app already funnels through the one shared Dio instance — see
+  // SessionExpiryInterceptor for why Firebase's own signal isn't enough.
+  HttpService.instance.addInterceptor(
+    SessionExpiryInterceptor(
+      onUnauthorized: FirebaseAuthService.instance.endSession,
+      apiBaseUrl: ApiConstants.baseUrl,
+    ),
+  );
 
   // ── Auth ─────────────────────────────────────────────────────────────────
   sl.registerLazySingleton<AuthRemoteDataSource>(
