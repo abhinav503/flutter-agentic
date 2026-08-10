@@ -5,7 +5,7 @@ publish_to: 'none'
 # uploads on: it must increase for every single upload, even a re-upload of the
 # same version to a test track. Left implicit it defaults to 1, which quietly
 # blocks the second upload — so it is written out.
-version: 1.2.0+3
+version: 1.0.3+3
 resolution: workspace
 
 environment:
