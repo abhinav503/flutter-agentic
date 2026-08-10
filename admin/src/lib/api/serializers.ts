@@ -171,6 +171,10 @@ export function serializeOrder(o: Order) {
     // the discount.
     coupon_code: o.couponCode,
     coupon_discount: o.couponDiscount,
+    // What delivery cost on this order, already included in `total`. Sent
+    // even when 0 so the storefront's totals panel can print a "Free" line
+    // it knows to be true, rather than assuming it.
+    delivery_fee: o.deliveryFee,
     // The shopper's rating of this delivery — 0 when unrated, which is every
     // order that hasn't been delivered yet. Sent back to the shopper so
     // their own order card can show what they gave and offer to change it.
@@ -203,6 +207,17 @@ export function serializeStore(s: Store) {
     template_id: s.templateId,
     language: s.language,
     currency: s.currency,
+    // The store's delivery policy, so a storefront can print the fee in its
+    // cart totals before checkout is ever reached. Display only — the server
+    // recomputes the fee from the same doc when it charges, so a client that
+    // ignores or misreads this can't change what a shopper pays. `areas` is
+    // public for the same reason a shop's delivery radius is: it tells a
+    // shopper whether ordering is possible at all.
+    delivery: {
+      fee: s.delivery.fee,
+      free_above: s.delivery.freeAbove,
+      areas: s.delivery.areas,
+    },
     // Discovery renders a "Not published yet" marker on the owner's own
     // in-progress stores and filters on it — the route has already decided
     // *whether* the caller may see this store, so this is presentation

@@ -8,6 +8,7 @@ import {
 } from "firebase/firestore";
 import { db } from "./firebase";
 import { isPubliclyVisible, normalizeStoreStatus } from "./store-status";
+import { mapStoreDelivery } from "./delivery";
 import type { Store } from "./types";
 
 function storesRef() {
@@ -31,6 +32,7 @@ function mapStoreDoc(d: QueryDocumentSnapshot | DocumentSnapshot): Store {
     templateId: (data.templateId as string) ?? "gravia",
     language: (data.language as string) ?? "en",
     currency: (data.currency as string) ?? "INR",
+    delivery: mapStoreDelivery(data.delivery),
   };
 }
 

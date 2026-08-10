@@ -3922,3 +3922,250 @@ someone shops is personal.
 
 The loading skeleton reads the same prefs synchronously, so a first-time
 shopper doesn't get a shimmering rail that never arrives.
+
+### Follow-ups to the discovery pass (2026-08-08, same day)
+
+Four fixes the new screens surfaced, and one Play-policy correction that had
+nothing to do with them:
+
+- **"Forgot password" worked once.** Both outcomes of that handler are
+  one-shot snackbar signals rather than rendered state, and the handler
+  deliberately skips `loading` (Login's spinner reads that state, and this is
+  a near-instant fire-and-forget). So a second tap on the same address — 
+  exactly what someone does when the first mail hasn't arrived — emitted a
+  state equal to the current one, which bloc drops: no snackbar, button
+  apparently dead. `AuthState` now carries an `attempt` counter that means
+  nothing to the UI and only exists so consecutive answers differ.
+- **The gallery permissions came off the manifest.** `READ_MEDIA_IMAGES` and
+  `READ_EXTERNAL_STORAGE` are gone; the one gallery read in the app is Edit
+  Profile's avatar picker, which now runs through the Android Photo Picker
+  (`ImagePickerService` opts in via `useAndroidPhotoPicker`). The picker hands
+  back the single URI the user chose, so it needs no storage permission at
+  all — and declaring one anyway trips Google Play's Photo and Video
+  Permissions policy, which reserves it for apps with a frequent need.
+  Relevant to the production-access track, not just tidiness.
+- **Predictive back** — `enableOnBackInvokedCallback` on the application tag.
+- A **223-line regression test** pinning that entering a storefront fetches
+  home, cart and favourites *once each*, plus a discovery-header test and a
+  reworked store-list skeleton.
+- Two operator scripts the multi-store work needed:
+  `transfer-store-ownership.mjs` and `transfer-shopper-data.mjs`.
+
+## Store publication lifecycle — DONE (2026-08-10)
+
+Until now every store a shopper could reach was simply every store that
+existed. A half-built store with three products and no logo sat in discovery
+beside a finished one, and there was no state that meant "not ready yet".
+
+`stores/{id}.status` is now a four-state lifecycle
+(`admin/src/lib/store-status.ts`):
+
+```
+draft ──submit──► pending ──approve──► published
+  ▲                  │                     │
+  └──reject(reason)──┘                unpublish──┐
+  └───────────────────────────────────────────────┘
+```
+
+**The server owns every transition.** `firestore.rules` lets a store owner
+write their own store doc, so a client-writable status would let any admin
+publish themselves without review. All four actions go through one route
+(`POST /api/stores/{id}/publish`) with two audiences — owner submits,
+superadmin approves/rejects/unpublishes — mirroring the dual-role cancel
+route, and for the same reason: the state machine is one thing, and splitting
+it across two files is how the halves drift into disagreeing about which
+transitions are legal. Each action declares which statuses it may be applied
+to, so a double-clicked button or a stale tab can't approve an
+already-published store or resurrect a draft straight to live.
+
+Stores predating the lifecycle carry the old `"active"` marker, which meant
+exactly "visible in discovery" — `normalizeStoreStatus` reads it as
+`published`, so a store that was live stays live whether or not
+`scripts/migrate-store-status.mjs` has run against it. Anything unrecognised
+reads as `draft`, which fails closed.
+
+**A readiness checklist, not a rule engine** (`admin/src/lib/store-readiness.ts`)
+— logo, at least one category, at least one product, payments connected. It is
+owner-only, because naming what a store is missing isn't public information,
+and it recomputes on every call, caching a `previewReady` flag back onto the
+doc. That flag is what discovery reads: counting subcollections per store on
+every load would be a query per store, and an owner's empty store showing an
+empty storefront helps nobody. So an owner sees their own unpublished store in
+the real app while they set it up, and nobody else does.
+
+Storefront side: `StoreStatus`/`StoreFilter` enums, a "Not published yet"
+marker on the owner's own cards, and a filter chip row that appears **only**
+for someone who actually owns an unpublished store — for an ordinary shopper
+"Setting up" would be a permanently empty tab, and a control that can never do
+anything is worse than no control. The rail and the list are filtered by the
+same chip, which they weren't at first: recents were resolved before the
+filter, so the screen contradicted itself.
+
+## Stripe as a second payment provider — DONE (2026-08-10)
+
+Razorpay is INR-only. Seven markets had catalogs, six locales had copy, and a
+EUR/GBP/USD store still could not take a single payment — `quoteCart`
+hardcoded `"INR"` as the charge currency. Stripe closes that.
+
+**One provider interface, two adapters** (`admin/src/lib/payment-providers/`).
+The provider is never a setting the owner picks: it is read off the key prefix
+(`rzp_test_`/`rzp_live_` → Razorpay, `pk_test_`/`pk_live_` → Stripe), so
+pasting a key *is* choosing a provider and the two can never disagree. Both
+adapters are raw `fetch` rather than each vendor's SDK — this is six endpoints
+per provider, and the SDK's only job would be building those requests.
+
+**The verification models are genuinely different, and the code had to bend to
+it.** Razorpay hands back an HMAC signature the client returns and the server
+checks locally; that signature binds the intent id, so the charged amount
+never had to be re-derived. Stripe's PaymentSheet returns no signature — its
+equivalent is a server-side re-fetch asserting the PaymentIntent really
+reached `succeeded` for the amount intended. That means the second half of
+checkout now has to arrive at *exactly* the same number as the first, and
+"exactly the same" is only guaranteed if it is the same code. Hence
+`admin/src/lib/checkout-quote.ts`: the one place the charged amount is
+derived, called by both `POST /payments` and `POST /orders`. Both halves used
+to price the cart with their own copy of the same three steps.
+
+Also in this pass: a Stripe refund webhook beside the Razorpay one, a provider
+switch in Settings that keeps both sets of credentials so a store can move
+between them without retyping, `verify:stripe` and `verify:payment-config`
+scripts, and a Flutter `StripeService` behind the same `PaymentGatewayRepository`
+the storefront already used — the app still never names a provider, it routes
+to one (`routing_payment_gateway_data_source_impl.dart`).
+
+## Delivery fee and per-store serviceability — DONE (2026-08-11)
+
+The last unclosed item from the original "Missing flows" list (#12). Every
+storefront's totals panel printed **"Delivery — FREE"** as a hardcoded string,
+in three packs and six languages, because there was nothing behind it to
+print.
+
+**One policy, on the store doc** (`stores/{id}.delivery`): a flat `fee`, a
+`freeAbove` waiver threshold, and `areas` — postal-code **prefixes** the store
+serves. Prefixes rather than whole codes because the unit a store actually
+thinks in is a city or a district (`560` is Bengaluru, `SW1` is Westminster),
+and enumerating every code in one would be thousands of rows an owner
+maintains by hand. Empty `areas` means "delivers everywhere", `fee: 0` means
+"never charges" — so every store predating the field reads back as exactly
+what it was already doing, and no backfill is needed.
+
+**The arithmetic lives in one file** (`admin/src/lib/delivery.ts`), for the
+reason the Stripe pass established: the fee is part of the charged amount, so
+`quoteCart` (the payment intent) and `createOrder` (the order transaction)
+must reach the same number, and a drift between them doesn't surface as a
+wrong figure on a screen — it surfaces as a *failed payment verification*.
+`POST /orders` therefore passes `addressId` into its verification quote too,
+which is easy to miss: without it the re-derived total comes out short by the
+fee and every checkout at a charging store fails.
+
+**Two decisions worth recording, because both are visible to shoppers:**
+
+- The threshold is measured on the basket **after** any coupon — what the
+  shopper actually pays for goods. So a coupon can drop a cart back under the
+  threshold and re-introduce the fee. The alternative (measuring the
+  pre-discount total) would let a large enough coupon buy free delivery the
+  store never offered. The Delivery settings card says so in as many words.
+- An address with **no postal code** is never refused. The field is optional
+  in the address form and absent entirely from addresses saved before it
+  existed; blocking checkout on a field the shopper was never asked for would
+  break accounts that did nothing wrong. A store that needs the guarantee gets
+  it by asking for the code, which the form already offers.
+
+**Serviceability is checked twice, deliberately.** `POST /payments` refuses an
+out-of-area address *before* the intent exists, so it costs a message rather
+than a refund; `createOrder` re-checks inside its transaction, because the
+address can be edited and the policy narrowed between the two calls. Both
+return `code: "unserviceable_address"` so the client can point at the address
+rather than at the basket.
+
+**The app checks first, in the shopper's language.** All three packs guard
+their checkout submit against `context.storeDelivery.serves(...)` and show a
+localized message; the server's own refusal is English-only, the same
+constraint recorded for order notifications. That mirror is the risk in this
+design, so it is pinned down by tests on both sides:
+`admin/scripts/verify-delivery.ts` and cordelia's
+`test/unit/feature/home/store_delivery_test.dart` check the *same* cases —
+threshold inclusivity, prefix width, the empty-postal-code lenience. Change
+one, change both.
+
+The fee now renders in every place a total is explained: all three packs' cart
+totals, dailymart's and grofast's checkout, all three Track Order screens
+(from `order.deliveryFee`, snapshotted at placement so a later policy change
+can't rewrite an old order), and the console's order detail — where Subtotal
+earns its line as soon as anything sits between it and the total. `payableTotal`
+is now `items − coupon + delivery`, which fixed every order total the app
+showed by inference. The floating cart pill outside the cart is deliberately
+left as goods-only: it is a basket indicator, not a bill, and it doesn't net
+the coupon either.
+
+Store settings gains a **Delivery** tab. Nothing there is trusted at checkout —
+the server recomputes both halves from the doc — so the form is the policy,
+not the arithmetic.
+
+### The form had to learn the store's market, not just its currency
+
+The first version of the Delivery tab took its fee label from the store's
+currency (`currencySymbol`) and got that right, but showed **Bengaluru
+pincodes** to every store: `560001` as the placeholder, "`560` covers all of
+560xxx" as the help text. A Berlin owner learns nothing about what to type
+from that, and a New York one doesn't even call it a postal code.
+
+The store already declares a language and a currency, and between them they
+name a country — the same inference the CSV import sample uses to pick which
+market's products to demonstrate. That helper lived in
+`lib/seed/seed-markets.ts`, which imports all seven catalogs at its top, so
+using it from a settings form would have bundled thousands of lines of
+product data to decide between "PIN code" and "ZIP code". It now lives in
+`lib/market.ts` with no catalog imports; `seed-markets.ts` re-exports both
+functions under their original names, so the seeder dialog and the import
+sample are untouched.
+
+`lib/postal-examples.ts` maps each market to its noun ("PIN code" / "ZIP
+code" / "postcode" / "CAP"), two real example codes and a prefix with what it
+covers. The UK entry is the one that matters most: it is the only market whose
+codes aren't digits, so its example has to show both that letters are fine and
+that the space is harmless (the normalizer strips it). `verify:delivery` now
+asserts, for every market, that each printed example survives
+`normalizeDeliveryAreas` and that the prefix in the help sentence genuinely
+matches the example beside it — a wrong example is worse than none, because an
+owner copies it verbatim.
+
+The console's own UI stays English; that is the standing decision in
+`lib/money.ts`, and what varies here is the example, not the sentence around
+it. The shopper-facing half was already localized: the fee renders through
+`AppFormat`, which `ActiveLocaleController` sets to the store's locale *and*
+currency in one call, and both the "Delivery/Free" labels and the
+out-of-area message ship in all six languages.
+
+### Corrections to earlier entries in this document
+
+Four items recorded as open above have since been closed, and reading them
+cold would send someone off to build what exists:
+
+- **The `storeAdmin` custom claim** (M1a step 3, "not yet built") ships — but
+  not as the Cloud Function that entry describes. `setCustomUserClaims` runs
+  in `POST /api/stores` and in `lib/api/admin-guard.ts`; there is no
+  `functions/` directory in this repo at all.
+- **Crash reporting** — called "the highest-value remaining gap" in the
+  productionisation pass — is wired: `firebase_crashlytics` in cordelia.
+- **The multi-store switcher UI**, listed as "not yet built" since the first
+  catalog milestone, is `/dashboard/stores`.
+- **Missing flow #12 (delivery/serviceability)** is closed by the section
+  above. With it, the only items still open from that list of 13 are #9
+  (search — `searchKeywords[]` substring matching is still the whole of it,
+  cross-store search unbuilt) and the parts of #1/#2 the auth and publish work
+  didn't cover.
+
+### What this leaves open
+
+- **No delivery zones with different fees.** One flat fee per store. A store
+  that charges more for the far side of the city has to pick one number.
+- **No serviceability signal before checkout.** An out-of-area address is
+  refused at the submit, not greyed out in Select Address — that would be
+  per-pack UI in three packs, and the refusal is at least immediate and
+  localized.
+- **No delivery-time estimate.** The kits of all three packs draw one; nothing
+  in the backend knows it, which is why they never did.
+- **The server's own refusals stay English.** Consistent with "Insufficient
+  stock for X", which has always been shown to shoppers verbatim in every
+  locale.

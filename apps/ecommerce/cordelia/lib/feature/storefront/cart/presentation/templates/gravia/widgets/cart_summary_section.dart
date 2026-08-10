@@ -11,6 +11,8 @@ import 'package:core/core/ui/atoms/loading_dots.dart';
 import 'package:core/core/ui/atoms/svg_image.dart';
 import 'package:core/core/ui/blocks/ecommerce/price_breakdown.dart';
 
+import 'package:cordelia/feature/home/domain/entities/store_delivery_entity.dart';
+
 import '../../../../domain/entities/cart_item_entity.dart';
 import '../../../cubit/coupon_cubit.dart';
 
@@ -21,6 +23,11 @@ import '../../../cubit/coupon_cubit.dart';
 /// grand total nets it off — the same figure checkout charges.
 class CartSummarySection extends StatefulWidget {
   final List<CartItemEntity> items;
+
+  /// The store's delivery policy — this widget owns the arithmetic because
+  /// it already owns the subtotal the fee is measured against.
+  final StoreDeliveryEntity delivery;
+
   final CouponState couponState;
   final ValueChanged<String> onApplyCoupon;
   final VoidCallback onRemoveCoupon;
@@ -28,6 +35,7 @@ class CartSummarySection extends StatefulWidget {
   const CartSummarySection({
     super.key,
     required this.items,
+    required this.delivery,
     required this.couponState,
     required this.onApplyCoupon,
     required this.onRemoveCoupon,
@@ -61,7 +69,11 @@ class _CartSummarySectionState extends State<CartSummarySection> {
       _ => null,
     };
     final applying = widget.couponState is CouponApplying;
-    final grandTotal = widget.items.grandTotal - (applied?.discount ?? 0);
+    // Delivery is charged on the basket *after* the coupon, matching the
+    // server; the grand total is that basket plus the fee.
+    final goods = widget.items.grandTotal - (applied?.discount ?? 0);
+    final deliveryFee = widget.delivery.feeFor(goods);
+    final grandTotal = goods + deliveryFee;
 
     return PriceBreakdown(
       leading: Column(
@@ -193,13 +205,17 @@ class _CartSummarySectionState extends State<CartSummarySection> {
           ),
         PriceLine(
           label: GraviaValueConst.deliveryLabel,
-          value: GraviaValueConst.deliveryFreeLabel,
+          // "FREE" stays the pack's accent green; a real charge is an amount
+          // like any other line, so it reads in the ordinary ink.
+          value: deliveryFee > 0
+              ? deliveryFee.asPrice
+              : GraviaValueConst.deliveryFreeLabel,
           labelStyle: GraviaTextStyleConst.textSmRegular(
             tt,
           ).copyWith(color: cs.onSurfaceVariant),
           valueStyle: GraviaTextStyleConst.textSmMedium(
             tt,
-          ).copyWith(color: cs.primary),
+          ).copyWith(color: deliveryFee > 0 ? cs.onSurface : cs.primary),
         ),
       ],
       total: PriceLine(

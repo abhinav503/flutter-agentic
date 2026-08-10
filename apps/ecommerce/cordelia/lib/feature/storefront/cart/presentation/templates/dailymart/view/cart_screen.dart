@@ -13,6 +13,7 @@ import 'package:cordelia/constants/app_routes.dart';
 import 'package:cordelia/feature/storefront/address/domain/entities/address_entity.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_value_const.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_header_row.dart';
+import 'package:cordelia/feature/storefront/active_store/presentation/cubit/active_store_cubit.dart';
 
 import '../../../../domain/entities/cart_item_entity.dart';
 import '../../../cubit/cart_cubit.dart';
@@ -150,6 +151,7 @@ class _CartScreenState extends BaseScreenState<CartScreen>
                         const SizedBox(height: AppSpacing.xl2),
                         DailyMartCartSummarySection(
                           items: cartItems,
+                          delivery: context.storeDelivery,
                           couponState: couponState,
                           onApplyCoupon: (code) => context
                               .read<CouponCubit>()

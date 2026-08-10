@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { CouponError, couponErrorBody } from "@/lib/coupon-engine";
+import { DeliveryUnserviceableError } from "@/lib/delivery";
 import {
   createOrder,
   getOrderByPaymentId,
@@ -139,7 +140,11 @@ export async function POST(
     // useless.
     let quote;
     try {
-      quote = await quoteCart(storeId, uid, items, couponCode);
+      // addressId matters here, not just in the intent: the quote includes
+      // the delivery fee, so re-deriving it without the address would come
+      // out short of what was actually charged and fail every verification
+      // for a store that charges for delivery.
+      quote = await quoteCart(storeId, uid, items, couponCode, addressId);
     } catch (err) {
       if (err instanceof OrderCreationError) {
         const status = err.message.startsWith("Insufficient stock") ? 409 : 400;
@@ -150,6 +155,12 @@ export async function POST(
       }
       if (err instanceof CouponError) {
         return NextResponse.json(couponErrorBody(err), { status: 400 });
+      }
+      if (err instanceof DeliveryUnserviceableError) {
+        return NextResponse.json(
+          { error: err.message, code: "unserviceable_address" },
+          { status: 400 },
+        );
       }
       throw err;
     }
@@ -204,6 +215,17 @@ export async function POST(
     // raced to its limit) — same shopper-facing 400 shape as above.
     if (err instanceof CouponError) {
       return NextResponse.json(couponErrorBody(err), { status: 400 });
+    }
+    // The address left the store's delivery areas between the intent and
+    // here — either edited, or the owner narrowed the areas. A paid shopper
+    // reaching this has an unplaced order against a captured payment, which
+    // is the same recoverable state a failed stock check leaves and is
+    // resolved the same way, by the store refunding from the dashboard.
+    if (err instanceof DeliveryUnserviceableError) {
+      return NextResponse.json(
+        { error: err.message, code: "unserviceable_address" },
+        { status: 400 },
+      );
     }
     throw err;
   }

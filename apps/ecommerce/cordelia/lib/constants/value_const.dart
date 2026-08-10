@@ -76,6 +76,12 @@ abstract final class ValueConst {
   static String get loginLink => L10n.current.loginLink;
   static String get comingSoonMessage => L10n.current.comingSoonMessage;
 
+  /// Shown when the shopper picks an address outside the store's delivery
+  /// areas. App-level rather than per-pack: the rule belongs to the store,
+  /// not to whichever template is rendering it.
+  static String get deliveryUnavailableMessage =>
+      L10n.current.deliveryUnavailableMessage;
+
   // ── Payment ────────────────────────────────────────────────────────────
   // App-level, not per-template: the payment gateway sits below the template
   // split (one shared data source serves every storefront), so this copy

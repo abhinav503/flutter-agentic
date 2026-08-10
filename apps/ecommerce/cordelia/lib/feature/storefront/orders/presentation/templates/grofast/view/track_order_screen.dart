@@ -234,6 +234,20 @@ class _TrackOrderContent extends StatelessWidget {
             ),
           ),
         ],
+        // Only when the order carried a fee — an order delivered free has
+        // nothing to account for between the items and the total.
+        if (order.deliveryFee > 0) ...[
+          const SizedBox(height: AppSpacing.base),
+          _DetailRow(
+            label: GrofastValueConst.deliveryLabel,
+            child: Text(
+              order.deliveryFee.asPrice,
+              style: GrofastTextStyleConst.bodyMedium(
+                tt,
+              ).copyWith(color: cs.onSurface),
+            ),
+          ),
+        ],
         if (order.status == OrderStatus.inProcess &&
             order.deliveryOtp.isNotEmpty) ...[
           const SizedBox(height: AppSpacing.base),
@@ -283,8 +297,8 @@ class _TrackOrderContent extends StatelessWidget {
         ],
         const SizedBox(height: AppSpacing.lg),
         // The kit's Total row: quiet label, the pack's big split price —
-        // net of the coupon (the Coupon detail row above names it), the
-        // figure the server actually charged.
+        // net of the coupon (the Coupon detail row above names it) and
+        // inclusive of delivery, the figure the server actually charged.
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [

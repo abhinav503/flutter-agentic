@@ -15,6 +15,8 @@ import 'package:cordelia/templates/dailymart/constants/dailymart_text_style_cons
 import 'package:cordelia/templates/dailymart/constants/dailymart_value_const.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_primary_button.dart';
 
+import 'package:cordelia/feature/home/domain/entities/store_delivery_entity.dart';
+
 import '../../../../domain/entities/cart_item_entity.dart';
 import '../../../cubit/coupon_cubit.dart';
 
@@ -27,6 +29,11 @@ import '../../../cubit/coupon_cubit.dart';
 /// it off — the same figure checkout charges.
 class DailyMartCartSummarySection extends StatelessWidget {
   final List<CartItemEntity> items;
+
+  /// The store's delivery policy — this widget owns the arithmetic because
+  /// it already owns the subtotal the fee is measured against.
+  final StoreDeliveryEntity delivery;
+
   final CouponState couponState;
   final ValueChanged<String> onApplyCoupon;
   final VoidCallback onRemoveCoupon;
@@ -34,6 +41,7 @@ class DailyMartCartSummarySection extends StatelessWidget {
   const DailyMartCartSummarySection({
     super.key,
     required this.items,
+    required this.delivery,
     required this.couponState,
     required this.onApplyCoupon,
     required this.onRemoveCoupon,
@@ -59,6 +67,9 @@ class DailyMartCartSummarySection extends StatelessWidget {
       CouponApplied(:final coupon) => coupon,
       _ => null,
     };
+    // Charged on the basket after the coupon, matching the server.
+    final goods = items.grandTotal - (applied?.discount ?? 0);
+    final deliveryFee = delivery.feeFor(goods);
 
     return PriceBreakdown(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -76,9 +87,13 @@ class DailyMartCartSummarySection extends StatelessWidget {
         ),
         PriceLine(
           label: DailyMartValueConst.deliveryLabel,
-          value: DailyMartValueConst.deliveryFreeLabel,
+          // Free delivery keeps the pack's accent; a real charge is an
+          // ordinary amount and reads in the ordinary ink.
+          value: deliveryFee > 0
+              ? deliveryFee.asPrice
+              : DailyMartValueConst.deliveryFreeLabel,
           labelStyle: mutedLabel,
-          valueStyle: primaryValue,
+          valueStyle: deliveryFee > 0 ? inkValue : primaryValue,
         ),
         PriceLine(
           label: DailyMartValueConst.discountLabel,
@@ -96,7 +111,7 @@ class DailyMartCartSummarySection extends StatelessWidget {
       ],
       total: PriceLine(
         label: DailyMartValueConst.totalCostLabel,
-        value: (items.grandTotal - (applied?.discount ?? 0)).asPrice,
+        value: (goods + deliveryFee).asPrice,
         labelStyle: DailyMartTextStyleConst.bodyMdSemibold(
           tt,
         ).copyWith(color: cs.onSurface),

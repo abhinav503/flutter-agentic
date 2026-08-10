@@ -38,6 +38,12 @@ class OrderEntity {
   final String couponCode;
   final double couponDiscount;
 
+  /// What delivery cost on this order, snapshotted by the server at
+  /// placement — 0 both for a store that delivers free and for every order
+  /// placed before stores could charge for it. Included in the recorded
+  /// total, and in [OrderEntityX.payableTotal].
+  final double deliveryFee;
+
   /// 4-digit code the delivery agent verifies on handoff for the whole
   /// order — only meaningful while [status] is [OrderStatus.inProcess];
   /// empty for delivered/cancelled orders (nothing left to hand off).
@@ -75,6 +81,7 @@ class OrderEntity {
     this.paymentId = '',
     this.couponCode = '',
     this.couponDiscount = 0,
+    this.deliveryFee = 0,
     this.rating = 0,
     this.reviewText = '',
     this.reviewedAt,
@@ -90,9 +97,10 @@ extension OrderEntityX on OrderEntity {
 
   bool get isRated => rating > 0;
 
-  /// What was actually charged — the line-item sum net of the coupon, the
-  /// same figure the server recorded as the order's total.
-  double get payableTotal => items.total - couponDiscount;
+  /// What was actually charged — the line-item sum net of the coupon plus
+  /// the delivery fee, the same figure the server recorded as the order's
+  /// total.
+  double get payableTotal => items.total - couponDiscount + deliveryFee;
 
   /// Whether any line item's product name contains [term], case-insensitively
   /// — an order is searchable by what's *in* it, since it has no name of its

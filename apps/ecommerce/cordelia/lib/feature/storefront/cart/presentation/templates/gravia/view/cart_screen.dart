@@ -27,6 +27,8 @@ import 'package:core/core/ui/blocks/docked_bar.dart';
 import '../../../../domain/entities/cart_item_entity.dart';
 import '../../../bloc/cart_bloc.dart';
 import 'package:cordelia/feature/storefront/checkout/presentation/bloc/checkout_bloc.dart';
+import 'package:cordelia/feature/home/domain/entities/store_delivery_entity.dart';
+import 'package:cordelia/constants/value_const.dart';
 import '../../../cubit/cart_cubit.dart';
 import '../../../cubit/coupon_cubit.dart';
 import '../widgets/cart_item_row.dart';
@@ -51,6 +53,14 @@ class _CartScreenState extends BaseScreenState<CartScreen> {
   Future<void> _startCheckout(List<CartItemEntity> items) async {
     final address = await context.push<AddressEntity>(AppRoutes.selectAddress);
     if (address == null || !mounted) return;
+    // Refused here, before the payment intent exists, so an address the store
+    // doesn't reach costs a message instead of a charge to unwind. The server
+    // enforces the same rule — this is the localized half of it, since server
+    // copy can only be English.
+    if (!context.storeDelivery.serves(address.postalCode)) {
+      showSnackBar(ValueConst.deliveryUnavailableMessage);
+      return;
+    }
     context.read<CheckoutBloc>().add(
       CheckoutEvent.submitted(
         items: items,
@@ -197,6 +207,7 @@ class _CartScreenState extends BaseScreenState<CartScreen> {
                           const SizedBox(height: AppSpacing.xl4),
                           CartSummarySection(
                             items: cartItems,
+                            delivery: context.storeDelivery,
                             couponState: couponState,
                             onApplyCoupon: (code) => context
                                 .read<CouponCubit>()

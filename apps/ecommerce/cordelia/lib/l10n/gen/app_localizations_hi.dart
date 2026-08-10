@@ -140,6 +140,10 @@ class AppLocalizationsHi extends AppLocalizations {
   String get comingSoonMessage => 'जल्द आ रहा है';
 
   @override
+  String get deliveryUnavailableMessage =>
+      'यह स्टोर आपके चुने गए पते पर डिलीवरी नहीं करता।';
+
+  @override
   String get paymentCancelledMessage => 'भुगतान रद्द किया गया';
 
   @override
@@ -1946,6 +1950,12 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get grofastSubtotalLabel => 'उप-योग';
+
+  @override
+  String get grofastDeliveryLabel => 'डिलीवरी';
+
+  @override
+  String get grofastDeliveryFreeLabel => 'मुफ़्त';
 
   @override
   String get grofastDiscountLabel => 'छूट';

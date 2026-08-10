@@ -28,6 +28,9 @@ import 'package:cordelia/templates/grofast/widgets/grofast_screen_body.dart';
 import 'package:cordelia/templates/grofast/widgets/grofast_section_header.dart';
 import 'package:cordelia/templates/grofast/widgets/grofast_sheet.dart';
 import 'package:cordelia/templates/grofast/widgets/grofast_success_sheet_content.dart';
+import 'package:cordelia/feature/storefront/active_store/presentation/cubit/active_store_cubit.dart';
+import 'package:cordelia/constants/value_const.dart';
+import 'package:cordelia/feature/home/domain/entities/store_delivery_entity.dart';
 
 import '../../../bloc/checkout_bloc.dart';
 
@@ -67,17 +70,27 @@ class _CheckoutScreenState extends BaseScreenState<CheckoutScreen>
     setState(() => _address = picked);
   }
 
-  void _submit(List<CartItemEntity> items) => context.read<CheckoutBloc>().add(
-    CheckoutEvent.submitted(
-      items: items,
-      addressId: _address.id,
-      // The code the Bag's promo row validated — the server re-prices it.
-      couponCode: switch (context.read<CouponCubit>().state) {
-        CouponApplied(:final coupon) => coupon.code,
-        _ => '',
-      },
-    ),
-  );
+  void _submit(List<CartItemEntity> items) {
+    // Refused here, before the payment intent exists, so an address the
+    // store doesn't reach costs a message instead of a charge to unwind.
+    // The server enforces the same rule — this is the localized half of it,
+    // since server copy can only be English.
+    if (!context.storeDelivery.serves(_address.postalCode)) {
+      showSnackBar(ValueConst.deliveryUnavailableMessage);
+      return;
+    }
+    context.read<CheckoutBloc>().add(
+      CheckoutEvent.submitted(
+        items: items,
+        addressId: _address.id,
+        // The code the Bag's promo row validated — the server re-prices it.
+        couponCode: switch (context.read<CouponCubit>().state) {
+          CouponApplied(:final coupon) => coupon.code,
+          _ => '',
+        },
+      ),
+    );
+  }
 
   /// The bag empties only once the server has confirmed the order — never
   /// optimistically on tap — and then the terminal sheet takes over.
@@ -180,6 +193,9 @@ class _CheckoutForm extends StatelessWidget {
       CouponApplied(:final coupon) => coupon,
       _ => null,
     };
+    // The fee rides on the basket after the coupon, matching the server.
+    final goods = items.grandTotal - (appliedCoupon?.discount ?? 0);
+    final deliveryFee = context.storeDelivery.feeFor(goods);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -244,10 +260,18 @@ class _CheckoutForm extends StatelessWidget {
                 labelStyle: label,
                 valueStyle: value.copyWith(color: cs.error),
               ),
+            PriceLine(
+              label: GrofastValueConst.deliveryLabel,
+              value: deliveryFee > 0
+                  ? deliveryFee.asPrice
+                  : GrofastValueConst.deliveryFreeLabel,
+              labelStyle: label,
+              valueStyle: value,
+            ),
           ],
           total: PriceLine(
             label: GrofastValueConst.totalLabel,
-            value: (items.grandTotal - (appliedCoupon?.discount ?? 0)).asPrice,
+            value: (goods + deliveryFee).asPrice,
             labelStyle: GrofastTextStyleConst.rowTitleBold(tt),
             valueStyle: GrofastTextStyleConst.price(
               tt,

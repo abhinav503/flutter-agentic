@@ -7,6 +7,8 @@ import { useStore } from "@/lib/store-context";
 import { PublishStoreCard } from "@/components/publish-store-card";
 import { getStore } from "@/lib/stores";
 import { getTemplates } from "@/lib/templates";
+import { currencySymbol } from "@/lib/money";
+import { postalGuidanceFor } from "@/lib/postal-examples";
 import {
   STORE_CURRENCIES,
   STORE_CURRENCY_LABELS,
@@ -252,6 +254,167 @@ function StoreProfileCard({ storeId }: { storeId: string }) {
               className="justify-self-start sm:col-span-2"
             >
               {saving ? "Saving…" : "Save profile"}
+            </Button>
+          </form>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+// What the store charges to deliver, and where it delivers at all. Its own
+// card rather than a row inside the profile: the profile is what shoppers
+// read, this is what they get charged, and the areas field needs room.
+//
+// The server recomputes both halves when it prices a cart — nothing here is
+// trusted at checkout — so this form is the policy, not the arithmetic.
+function DeliveryCard({ storeId }: { storeId: string }) {
+  const { user } = useAuth();
+  const { storeCurrency, storeLanguage } = useStore();
+  const [loading, setLoading] = useState(true);
+  const [fee, setFee] = useState("0");
+  const [freeAbove, setFreeAbove] = useState("0");
+  const [areas, setAreas] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  const symbol = currencySymbol(storeCurrency);
+  // The store's own market decides what a code looks like and what it's
+  // called — a German store types 10115, a US one a ZIP. Both inputs come
+  // from the store doc the sidebar already watches, so this costs no read.
+  const postal = postalGuidanceFor(storeLanguage, storeCurrency);
+
+  useEffect(() => {
+    let active = true;
+    getStore(storeId)
+      .then((store) => {
+        if (!active) return;
+        if (store) {
+          setFee(String(store.delivery.fee));
+          setFreeAbove(String(store.delivery.freeAbove));
+          // One per line: an owner pastes these from a courier's coverage
+          // list, and commas in that source are inconsistent.
+          setAreas(store.delivery.areas.join("\n"));
+        }
+        setLoading(false);
+      })
+      .catch(() => {
+        if (active) setLoading(false);
+        toast.error("Could not load delivery settings");
+      });
+    return () => {
+      active = false;
+    };
+  }, [storeId]);
+
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+    if (!user) return;
+    setSaving(true);
+    try {
+      const token = await user.getIdToken();
+      const res = await fetch(`/api/stores/${storeId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          delivery: {
+            fee: Number(fee),
+            freeAbove: Number(freeAbove),
+            // Split on newlines *or* commas so either paste shape works; the
+            // server normalizes case, spacing and duplicates.
+            areas: areas.split(/[\n,]/),
+          },
+        }),
+      });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(body.error ?? "Could not save delivery");
+      // Re-render from what the server stored, not from what was typed —
+      // normalization drops duplicates and over-long entries, and the owner
+      // should see the list they actually have.
+      const saved = body.store?.delivery;
+      if (saved) setAreas((saved.areas as string[]).join("\n"));
+      toast.success("Delivery settings saved");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Something went wrong");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  const areaCount = areas.split(/[\n,]/).filter((a) => a.trim()).length;
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Delivery</CardTitle>
+        <CardDescription>
+          What you charge to deliver an order, and the {postal.nounPlural} you
+          deliver to. Shoppers see the fee in their cart before checkout, in
+          your store&apos;s currency and language.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        {loading ? (
+          <p className="text-sm text-muted-foreground">Loading…</p>
+        ) : (
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="delivery-fee">Delivery fee ({symbol})</Label>
+                <Input
+                  id="delivery-fee"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={fee}
+                  onChange={(e) => setFee(e.target.value)}
+                />
+                <p className="text-xs text-muted-foreground">
+                  0 means you never charge for delivery.
+                </p>
+              </div>
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="delivery-free-above">
+                  Free delivery above ({symbol})
+                </Label>
+                <Input
+                  id="delivery-free-above"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={freeAbove}
+                  onChange={(e) => setFreeAbove(e.target.value)}
+                />
+                <p className="text-xs text-muted-foreground">
+                  0 means no threshold — the fee always applies. Measured on
+                  the basket after any coupon, so a discount can put an order
+                  back under it.
+                </p>
+              </div>
+            </div>
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="delivery-areas">Delivery areas</Label>
+              <Textarea
+                id="delivery-areas"
+                rows={5}
+                value={areas}
+                onChange={(e) => setAreas(e.target.value)}
+                placeholder={postal.examples.join("\n")}
+                className="font-mono text-xs"
+              />
+              <p className="text-xs text-muted-foreground">
+                One {postal.noun} per line. A partial code covers everything
+                starting with it — <code>{postal.prefix}</code> covers{" "}
+                {postal.prefixCovers}.{" "}
+                <strong>Leave empty to deliver everywhere.</strong> Checkout is
+                blocked for an address outside this list.
+                {areaCount > 0 && ` Currently ${areaCount}.`}
+              </p>
+            </div>
+            <Button type="submit" disabled={saving} className="self-start">
+              {saving ? "Saving…" : "Save delivery"}
             </Button>
           </form>
         )}
@@ -685,6 +848,7 @@ function PaymentsSettings({ storeId }: { storeId: string }) {
 
 const TABS = [
   { value: "store", label: "Store" },
+  { value: "delivery", label: "Delivery" },
   { value: "sample-data", label: "Sample data" },
   { value: "payments", label: "Payments" },
   { value: "account", label: "Account" },
@@ -700,8 +864,8 @@ export default function SettingsPage() {
       <div>
         <h1 className="text-lg font-semibold">Settings</h1>
         <p className="text-sm text-muted-foreground">
-          This store&apos;s public profile, storefront template, sample data and
-          Razorpay account — plus the account you sign in with.
+          This store&apos;s public profile, storefront template, delivery,
+          sample data and payment account — plus the account you sign in with.
         </p>
       </div>
 
@@ -723,6 +887,10 @@ export default function SettingsPage() {
               about fields edited right above it, and a publish gate hidden
               behind a tab is one nobody finds. */}
           <PublishStoreCard storeId={storeId} />
+        </TabsContent>
+
+        <TabsContent value="delivery" className="max-w-2xl">
+          <DeliveryCard storeId={storeId} />
         </TabsContent>
 
         {/* Only the store profile has enough fields to earn the full width.

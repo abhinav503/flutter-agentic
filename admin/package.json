@@ -14,7 +14,8 @@
     "verify:seed-bands": "node scripts/verify-seed-bands.mjs",
     "verify:seed-refs": "node scripts/verify-seed-refs.mjs",
     "verify:stripe": "tsx --env-file=.env.local scripts/verify-stripe.ts",
-    "verify:payment-config": "tsx --env-file=.env.local scripts/verify-payment-config.ts"
+    "verify:payment-config": "tsx --env-file=.env.local scripts/verify-payment-config.ts",
+    "verify:delivery": "tsx scripts/verify-delivery.ts"
   },
   "dependencies": {
     "class-variance-authority": "^0.7.1",

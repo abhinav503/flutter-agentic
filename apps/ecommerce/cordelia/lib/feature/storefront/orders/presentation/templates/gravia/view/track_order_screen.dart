@@ -205,10 +205,25 @@ class _TrackOrderScreenState extends BaseScreenState<TrackOrderScreen>
                             tt,
                           ).copyWith(color: cs.primary),
                         ),
+                      // Only when the order actually carried a fee: an order
+                      // delivered free has nothing to account for between
+                      // the items and the total.
+                      if (order.deliveryFee > 0)
+                        PriceLine(
+                          label: GraviaValueConst.deliveryLabel,
+                          value: order.deliveryFee.asPrice,
+                          labelStyle: GraviaTextStyleConst.textSmRegular(
+                            tt,
+                          ).copyWith(color: cs.onSurfaceVariant),
+                          valueStyle: GraviaTextStyleConst.textSmMedium(
+                            tt,
+                          ).copyWith(color: cs.onSurface),
+                        ),
                     ],
                     total: PriceLine(
                       label: GraviaValueConst.orderTotalLabel,
-                      // Net of the coupon — the figure the server charged.
+                      // Net of the coupon and inclusive of delivery — the
+                      // figure the server charged.
                       value: order.payableTotal.asPrice,
                       labelStyle: GraviaTextStyleConst.textMdBold(
                         tt,

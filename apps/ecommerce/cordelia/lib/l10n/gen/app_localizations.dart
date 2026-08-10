@@ -340,6 +340,12 @@ abstract class AppLocalizations {
   /// **'Coming soon'**
   String get comingSoonMessage;
 
+  /// Shown when the shopper picks a delivery address outside the store's delivery areas. The server refuses the same case, but in English only — this is the localized copy the app shows first, before any payment is attempted.
+  ///
+  /// In en, this message translates to:
+  /// **'This store doesn\'t deliver to the address you picked.'**
+  String get deliveryUnavailableMessage;
+
   /// No description provided for @paymentCancelledMessage.
   ///
   /// In en, this message translates to:
@@ -3483,6 +3489,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Subtotal'**
   String get grofastSubtotalLabel;
+
+  /// No description provided for @grofastDeliveryLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery'**
+  String get grofastDeliveryLabel;
+
+  /// No description provided for @grofastDeliveryFreeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Free'**
+  String get grofastDeliveryFreeLabel;
 
   /// No description provided for @grofastDiscountLabel.
   ///

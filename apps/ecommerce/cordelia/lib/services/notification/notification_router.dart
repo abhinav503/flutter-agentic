@@ -66,15 +66,7 @@ class NotificationRouter {
   static void _open(StoreEntity store, String path) {
     _go(
       AppRoutes.storefront,
-      extra: StorefrontRouteArgs(
-        store: ActiveStoreEntity(
-          storeId: store.id,
-          storeName: store.name,
-          templateId: store.templateId,
-          language: store.language,
-          currency: store.currency,
-        ),
-      ),
+      extra: StorefrontRouteArgs(store: ActiveStoreEntity.fromStore(store)),
     );
 
     // Home is where `go` already landed; anything else is a page above it.

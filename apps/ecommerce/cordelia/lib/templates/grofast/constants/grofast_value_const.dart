@@ -119,6 +119,8 @@ abstract final class GrofastValueConst {
       L10n.current.grofastPromoComingSoonMessage;
   static String get totalLabel => L10n.current.grofastTotalLabel;
   static String get subtotalLabel => L10n.current.grofastSubtotalLabel;
+  static String get deliveryLabel => L10n.current.grofastDeliveryLabel;
+  static String get deliveryFreeLabel => L10n.current.grofastDeliveryFreeLabel;
   static String get discountLabel => L10n.current.grofastDiscountLabel;
   static String get proceedToCheckoutLabel =>
       L10n.current.grofastProceedToCheckoutLabel;

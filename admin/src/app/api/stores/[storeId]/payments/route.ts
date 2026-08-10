@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { CouponError, couponErrorBody } from "@/lib/coupon-engine";
+import { DeliveryUnserviceableError } from "@/lib/delivery";
 import { OrderCreationError } from "@/lib/orders";
 import { quoteCart } from "@/lib/checkout-quote";
 import {
@@ -56,10 +57,14 @@ export async function POST(
 
   const couponCode =
     typeof body.couponCode === "string" ? body.couponCode : "";
+  // Sent by the app since checkout gained an address step; used here only to
+  // refuse an unserviceable address *before* the shopper is charged (the
+  // order route re-checks it). Absent on older builds — see quoteCart.
+  const addressId = typeof body.addressId === "string" ? body.addressId : "";
 
   let quote;
   try {
-    quote = await quoteCart(storeId, uid, items, couponCode);
+    quote = await quoteCart(storeId, uid, items, couponCode, addressId);
   } catch (err) {
     if (err instanceof OrderCreationError) {
       const status = err.message.startsWith("Insufficient stock") ? 409 : 400;
@@ -70,6 +75,14 @@ export async function POST(
     }
     if (err instanceof CouponError) {
       return NextResponse.json(couponErrorBody(err), { status: 400 });
+    }
+    if (err instanceof DeliveryUnserviceableError) {
+      // `code` so the app can tell this apart from a cart problem and point
+      // the shopper at the address rather than at their basket.
+      return NextResponse.json(
+        { error: err.message, code: "unserviceable_address" },
+        { status: 400 },
+      );
     }
     throw err;
   }

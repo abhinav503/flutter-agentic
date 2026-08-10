@@ -12,6 +12,12 @@ import {
   type CouponLine,
 } from "./coupon-engine";
 import { resolveLinePricing } from "./products";
+import {
+  DeliveryUnserviceableError,
+  deliveryFeeFor,
+  isServiceable,
+  mapStoreDelivery,
+} from "./delivery";
 import type { PaymentProvider } from "./payment-providers/types";
 import {
   MAX_RATING,
@@ -83,7 +89,7 @@ function productDocRef(storeId: string, productId: string) {
 
 // Addresses live per-user (see addresses.ts) — the order snapshots one of
 // them by id at placement time.
-function addressDocRef(uid: string, addressId: string) {
+export function addressDocRef(uid: string, addressId: string) {
   return adminDb.collection("users").doc(uid).collection("addresses").doc(addressId);
 }
 
@@ -132,6 +138,9 @@ function toOrder(id: string, data: FirebaseFirestore.DocumentData): Order {
     paymentOrderId: (data.razorpayOrderId as string) ?? "",
     couponCode: (data.couponCode as string) ?? "",
     couponDiscount: (data.couponDiscount as number) ?? 0,
+    // Absent on every order placed before delivery fees existed — all of
+    // which were delivered free, so 0 is the true figure, not a fallback.
+    deliveryFee: (data.deliveryFee as number) ?? 0,
     // Absent on every order placed before order rating shipped, and on every
     // order nobody has rated — both are "unrated", which is what 0 means.
     rating: (data.rating as number) ?? 0,
@@ -241,12 +250,23 @@ export async function createOrder(
     if (!addressSnap.exists) {
       throw new OrderCreationError("Delivery address not found");
     }
+    // The store's delivery policy joins the read phase (Firestore forbids
+    // reads after the stock writes below). Re-read here rather than trusting
+    // the quote the payment intent was built from: the shopper could have
+    // edited the address, and the owner could have changed the policy, in
+    // between. Both routes surface the mismatch as a 4xx instead of placing
+    // an order for the wrong amount.
+    const storeSnap = await tx.get(adminDb.collection("stores").doc(storeId));
+    const delivery = mapStoreDelivery(storeSnap.data()?.delivery);
     // Snapshot the whole address onto the order — a later edit/delete of the
     // shopper's address must not change where this order was sent.
     const deliveryAddress: Address = {
       id: addressSnap.id,
       ...(addressSnap.data() as Omit<Address, "id">),
     };
+    if (!isServiceable(delivery, deliveryAddress.postalCode ?? "")) {
+      throw new DeliveryUnserviceableError();
+    }
 
     const productRefs = requestedItems.map((item) =>
       productDocRef(storeId, item.productId),
@@ -342,6 +362,11 @@ export async function createOrder(
       );
     }
 
+    // Same inputs, same helper, same result as the quote the payment intent
+    // was created from — goods net of the coupon, then the fee on top.
+    const goods = Math.round((total - couponDiscount) * 100) / 100;
+    const deliveryFee = deliveryFeeFor(delivery, goods);
+
     const placedAt = new Date().toISOString();
 
     const newOrder: Omit<Order, "id"> = {
@@ -350,8 +375,9 @@ export async function createOrder(
       items: lineItems,
       deliveryAddress,
       status: "PENDING",
-      // Net of the coupon — the same figure the payment intent charged.
-      total: Math.round((total - couponDiscount) * 100) / 100,
+      // Net of the coupon and inclusive of delivery — the same figure the
+      // payment intent charged.
+      total: Math.round((goods + deliveryFee) * 100) / 100,
       deliveryOtp: generateOtp(),
       placedAt,
       // Placement is the timeline's first entry, sharing placedAt's exact
@@ -362,6 +388,7 @@ export async function createOrder(
       paymentOrderId,
       couponCode: appliedCouponCode,
       couponDiscount,
+      deliveryFee,
       // Unrated until the order is delivered and the shopper says so.
       rating: 0,
       reviewText: "",

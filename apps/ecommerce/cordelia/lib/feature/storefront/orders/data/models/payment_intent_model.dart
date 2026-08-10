@@ -15,10 +15,12 @@ abstract class PaymentIntentModel with _$PaymentIntentModel {
     // server deployment predating the Razorpay/Stripe split omits `provider`
     // and `clientSecret` entirely, and checkout must keep working against it.
     // An absent provider parses to Razorpay, which is what such a server is.
-    @JsonKey(name: 'provider', defaultValue: 'razorpay') required String provider,
+    @JsonKey(name: 'provider', defaultValue: 'razorpay')
+    required String provider,
     @JsonKey(name: 'paymentOrderId') required String paymentOrderId,
     @JsonKey(name: 'publishableKey') required String publishableKey,
-    @JsonKey(name: 'clientSecret', defaultValue: '') required String clientSecret,
+    @JsonKey(name: 'clientSecret', defaultValue: '')
+    required String clientSecret,
     required int amount,
     required String currency,
     @JsonKey(name: 'storeName', defaultValue: '') required String storeName,

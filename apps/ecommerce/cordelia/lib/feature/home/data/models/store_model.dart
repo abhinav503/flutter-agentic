@@ -6,6 +6,7 @@ import 'package:cordelia/feature/storefront/template/store_language.dart';
 import 'package:cordelia/feature/storefront/template/storefront_template.dart';
 
 import '../../domain/entities/store_entity.dart';
+import 'store_delivery_model.dart';
 
 part 'store_model.freezed.dart';
 part 'store_model.g.dart';
@@ -40,6 +41,11 @@ abstract class StoreModel with _$StoreModel {
     // API build sends no status at all, and ''/unknown → published is
     // resolved once in StoreStatusParse rather than duplicated here.
     @Default('') String status,
+    // Same defaulted-not-required reasoning again: absent from an older API
+    // build, and from a store whose owner never opened Delivery settings.
+    // StoreDeliveryModel's own defaults make either case free delivery
+    // everywhere.
+    @Default(StoreDeliveryModel()) StoreDeliveryModel delivery,
   }) = _StoreModel;
 
   factory StoreModel.fromJson(Map<String, dynamic> json) =>
@@ -54,6 +60,7 @@ abstract class StoreModel with _$StoreModel {
     language: e.language.wireValue,
     currency: e.currency.wireValue,
     status: e.status.name,
+    delivery: StoreDeliveryModel.fromEntity(e.delivery),
   );
 
   StoreEntity toEntity() => StoreEntity(
@@ -65,5 +72,6 @@ abstract class StoreModel with _$StoreModel {
     language: language.toStoreLanguage(),
     currency: currency.toStoreCurrency(),
     status: status.toStoreStatus(),
+    delivery: delivery.toEntity(),
   );
 }

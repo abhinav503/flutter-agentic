@@ -27,6 +27,8 @@ import 'package:cordelia/templates/grofast/widgets/grofast_primary_button.dart';
 import 'package:cordelia/templates/grofast/widgets/grofast_promo_code_row.dart';
 import 'package:cordelia/templates/grofast/widgets/grofast_screen_body.dart';
 import 'package:cordelia/templates/grofast/widgets/grofast_state_views.dart';
+import 'package:cordelia/feature/storefront/active_store/presentation/cubit/active_store_cubit.dart';
+import 'package:cordelia/feature/home/domain/entities/store_delivery_entity.dart';
 
 import '../../../cubit/cart_cubit.dart';
 import '../../../cubit/coupon_cubit.dart';
@@ -173,6 +175,9 @@ class _BagContent extends StatelessWidget {
       CouponApplied(:final coupon) => coupon,
       _ => null,
     };
+    // The fee rides on the basket after the coupon, matching the server.
+    final goods = items.grandTotal - (appliedCoupon?.discount ?? 0);
+    final deliveryFee = context.storeDelivery.feeFor(goods);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -267,10 +272,18 @@ class _BagContent extends StatelessWidget {
                 labelStyle: label,
                 valueStyle: value.copyWith(color: cs.error),
               ),
+            PriceLine(
+              label: GrofastValueConst.deliveryLabel,
+              value: deliveryFee > 0
+                  ? deliveryFee.asPrice
+                  : GrofastValueConst.deliveryFreeLabel,
+              labelStyle: label,
+              valueStyle: value,
+            ),
           ],
           total: PriceLine(
             label: GrofastValueConst.totalLabel,
-            value: (items.grandTotal - (appliedCoupon?.discount ?? 0)).asPrice,
+            value: (goods + deliveryFee).asPrice,
             labelStyle: GrofastTextStyleConst.rowTitleBold(tt),
             valueStyle: GrofastTextStyleConst.price(
               tt,

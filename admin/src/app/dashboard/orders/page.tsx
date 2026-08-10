@@ -445,6 +445,9 @@ function OrderDetail({
   currency: string;
 }) {
   const discount = couponDiscount(order);
+  // 0 on every order placed before delivery fees existed, and on every order
+  // a store delivered free — the same line is correct for both.
+  const deliveryFee = order.deliveryFee ?? 0;
   return (
     <div className="grid gap-6 p-2 md:grid-cols-[1fr_1.4fr]">
       <div className="flex flex-col gap-2">
@@ -569,24 +572,33 @@ function OrderDetail({
           ))}
         </div>
         <div className="flex flex-col gap-1 border-t pt-2 text-sm">
+          {/* Subtotal earns its line as soon as anything sits between it and
+              the total — a coupon, a delivery fee, or both. Without one of
+              those, Total alone already says everything. */}
+          {(discount > 0 || deliveryFee > 0) && (
+            <div className="flex justify-between text-muted-foreground">
+              <span>Subtotal</span>
+              <span>{formatMoney(itemsSubtotal(order), currency)}</span>
+            </div>
+          )}
           {discount > 0 && (
-            <>
-              <div className="flex justify-between text-muted-foreground">
-                <span>Subtotal</span>
-                <span>{formatMoney(itemsSubtotal(order), currency)}</span>
-              </div>
-              <div className="flex justify-between text-muted-foreground">
-                <span className="flex items-center gap-2">
-                  Coupon
-                  {order.couponCode && (
-                    <Badge variant="outline" className="font-mono">
-                      {order.couponCode}
-                    </Badge>
-                  )}
-                </span>
-                <span>−{formatMoney(discount, currency)}</span>
-              </div>
-            </>
+            <div className="flex justify-between text-muted-foreground">
+              <span className="flex items-center gap-2">
+                Coupon
+                {order.couponCode && (
+                  <Badge variant="outline" className="font-mono">
+                    {order.couponCode}
+                  </Badge>
+                )}
+              </span>
+              <span>−{formatMoney(discount, currency)}</span>
+            </div>
+          )}
+          {deliveryFee > 0 && (
+            <div className="flex justify-between text-muted-foreground">
+              <span>Delivery</span>
+              <span>{formatMoney(deliveryFee, currency)}</span>
+            </div>
           )}
           <div className="flex justify-between font-semibold">
             <span>Total</span>

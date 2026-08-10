@@ -8,6 +8,11 @@ import {
 import { getTemplates } from "@/lib/templates";
 import { serializeStore } from "@/lib/api/serializers";
 import { normalizeStoreStatus } from "@/lib/store-status";
+import {
+  MAX_DELIVERY_AREAS,
+  mapStoreDelivery,
+  normalizeDeliveryAreas,
+} from "@/lib/delivery";
 import { STORE_CURRENCIES, STORE_LANGUAGES, type Store } from "@/lib/types";
 
 // Same doc→Store defaults as mapStoreDoc in src/lib/stores.ts, but over an
@@ -30,7 +35,19 @@ function mapAdminStoreDoc(
     templateId: (data.templateId as string) ?? "gravia",
     language: (data.language as string) ?? "en",
     currency: (data.currency as string) ?? "INR",
+    delivery: mapStoreDelivery(data.delivery),
   };
+}
+
+// A money amount off the request body: a finite, non-negative number, or
+// null for anything else. Deliberately not coercing — mapStoreDelivery's
+// silent `?? 0` is right for *reading* a doc written long ago, but a write
+// that quietly turns a typo into free delivery is a different thing.
+function money(value: unknown): number | null {
+  if (value === undefined || value === null || value === "") return 0;
+  const n = typeof value === "number" ? value : Number(value);
+  if (!Number.isFinite(n) || n < 0) return null;
+  return Math.round(n * 100) / 100;
 }
 
 // Public single-store read — same world-readable reasoning as the
@@ -146,6 +163,33 @@ export async function PUT(
       );
     }
     update.currency = currency;
+  }
+  if (body.delivery !== undefined) {
+    // Written as a whole map, never field-by-field: the form edits the three
+    // together, and a partial write would let a fee survive the removal of
+    // the threshold that was waiving it.
+    const raw = (body.delivery ?? {}) as Record<string, unknown>;
+    const fee = money(raw.fee);
+    const freeAbove = money(raw.freeAbove);
+    if (fee === null || freeAbove === null) {
+      return NextResponse.json(
+        { error: "delivery fee and free-above must be numbers of 0 or more" },
+        { status: 400 },
+      );
+    }
+    if (Array.isArray(raw.areas) && raw.areas.length > MAX_DELIVERY_AREAS) {
+      // Loud rather than silently truncating to the cap — an owner who pasted
+      // 800 postal codes must not be told everything saved when 300 didn't.
+      return NextResponse.json(
+        { error: `At most ${MAX_DELIVERY_AREAS} delivery areas` },
+        { status: 400 },
+      );
+    }
+    update.delivery = {
+      fee,
+      freeAbove,
+      areas: normalizeDeliveryAreas(raw.areas),
+    };
   }
 
   if (Object.keys(update).length === 0) {

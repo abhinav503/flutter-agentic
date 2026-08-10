@@ -3,6 +3,8 @@ import 'package:cordelia/feature/storefront/template/store_currency.dart';
 import 'package:cordelia/feature/storefront/template/store_language.dart';
 import 'package:cordelia/feature/storefront/template/storefront_template.dart';
 
+import 'store_delivery_entity.dart';
+
 class StoreEntity {
   final String id;
   final String name;
@@ -17,6 +19,11 @@ class StoreEntity {
   /// one solely to its owner.
   final StoreStatus status;
 
+  /// What this store charges to deliver, and where it delivers at all.
+  /// Defaults to [StoreDeliveryEntity.free] — the honest reading of a store
+  /// that has never set a policy.
+  final StoreDeliveryEntity delivery;
+
   const StoreEntity({
     required this.id,
     required this.name,
@@ -26,5 +33,6 @@ class StoreEntity {
     required this.language,
     required this.currency,
     this.status = StoreStatus.published,
+    this.delivery = StoreDeliveryEntity.free,
   });
 }

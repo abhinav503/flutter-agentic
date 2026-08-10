@@ -54,6 +54,10 @@
   "alreadyHaveAccount": "Already have an account? ",
   "loginLink": "Login",
   "comingSoonMessage": "Coming soon",
+  "deliveryUnavailableMessage": "This store doesn't deliver to the address you picked.",
+  "@deliveryUnavailableMessage": {
+    "description": "Shown when the shopper picks a delivery address outside the store's delivery areas. The server refuses the same case, but in English only — this is the localized copy the app shows first, before any payment is attempted."
+  },
   "paymentCancelledMessage": "Payment cancelled",
   "couponMinOrderMessage": "Your order is below this coupon's minimum of {price}",
   "@couponMinOrderMessage": {
@@ -878,6 +882,8 @@
   "grofastPromoComingSoonMessage": "Promo codes are coming soon.",
   "grofastTotalLabel": "Total",
   "grofastSubtotalLabel": "Subtotal",
+  "grofastDeliveryLabel": "Delivery",
+  "grofastDeliveryFreeLabel": "Free",
   "grofastDiscountLabel": "Discount",
   "grofastProceedToCheckoutLabel": "Proceed To Checkout",
   "grofastBagEmptyTitle": "Your bag is empty",

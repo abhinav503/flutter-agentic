@@ -1,5 +1,7 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'package:cordelia/feature/home/domain/entities/store_delivery_entity.dart';
 import 'package:cordelia/feature/storefront/active_store/domain/entities/active_store_entity.dart';
 
 /// Which store's storefront is currently open — `null` outside a storefront.
@@ -45,4 +47,16 @@ class ActiveStoreCubit extends Cubit<ActiveStoreEntity?> {
     if (!isCurrentSession(session)) return;
     emit(null);
   }
+}
+
+extension ActiveStoreContextX on BuildContext {
+  /// The open store's delivery policy, for the totals panels — every pack's
+  /// cart and checkout needs it, and none of them should reach through the
+  /// cubit's nullable state to get it.
+  ///
+  /// `read`, not `watch`: the policy is fixed for the life of a storefront
+  /// session, and watching would rebuild these panels during teardown (when
+  /// the cubit emits null) to show free delivery on the way off screen.
+  StoreDeliveryEntity get storeDelivery =>
+      read<ActiveStoreCubit>().state?.delivery ?? StoreDeliveryEntity.free;
 }

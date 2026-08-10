@@ -15,17 +15,18 @@ import { SPAIN_SEED } from "./spain-seed-data";
 import { UK_SEED } from "./uk-seed-data";
 import { US_SEED } from "./us-seed-data";
 import type { GrocerySeed } from "./seed-types";
+import {
+  MARKETS,
+  defaultMarketForCurrency,
+  marketForStore,
+  type Market,
+} from "../market";
 
-export const SEED_MARKETS = [
-  "india",
-  "germany",
-  "france",
-  "spain",
-  "italy",
-  "uk",
-  "us",
-] as const;
-export type SeedMarket = (typeof SEED_MARKETS)[number];
+// The markets themselves live in lib/market.ts, which carries no catalog
+// imports — see the note there. These aliases keep every existing caller
+// (and this file's own Record keys) spelled the way they always were.
+export const SEED_MARKETS = MARKETS;
+export type SeedMarket = Market;
 
 export const SEED_MARKET_CATALOGS: Record<SeedMarket, GrocerySeed> = {
   india: INDIA_SEED,
@@ -66,63 +67,9 @@ export const SEED_MARKET_DESCRIPTIONS: Record<SeedMarket, string> = {
     "Supermarket aisles with brands like Cheerios, Kraft, Chobani, DiGiorno and Folgers, priced in dollars.",
 };
 
-/**
- * Which catalog to pre-select for a store charging `currency`.
- *
- * A *default*, not a derivation — the owner can pick any market, and for the
- * euro they have to: EUR cannot tell Germany from France, Spain or Italy, and
- * all four have catalogs. Germany wins that tie arbitrarily, which is the
- * honest answer; guessing from anything else (store name, admin locale) would
- * be wrong more confidently.
- *
- * INR, GBP and USD each map to their own market, so those three are exact
- * rather than a compromise.
- */
-export function defaultSeedMarketForCurrency(currency: string): SeedMarket {
-  switch (currency.toUpperCase()) {
-    case "INR":
-      return "india";
-    case "GBP":
-      return "uk";
-    case "USD":
-      return "us";
-    default:
-      return "germany";
-  }
-}
-
-/**
- * The catalog whose *language* matches the store, falling back to currency.
- *
- * This resolves the euro ambiguity the function above documents: EUR can't
- * tell Germany from France, Spain or Italy, but `language` can — a store set
- * to `fr` wants French product names, not German ones. Five of the six store
- * languages name exactly one market.
- *
- * `en` is the exception and genuinely needs the currency: India, the UK and
- * the US all have English catalogs, and only what the store charges in
- * separates them.
- *
- * Used where the output is *read* in the store's language (the import sample);
- * the seeder dialog keeps offering the full picker, because writing a whole
- * catalog is a choice worth making explicitly.
- */
-export function seedMarketForStore(
-  language: string,
-  currency: string,
-): SeedMarket {
-  switch (language.toLowerCase()) {
-    case "hi":
-      return "india";
-    case "de":
-      return "germany";
-    case "fr":
-      return "france";
-    case "es":
-      return "spain";
-    case "it":
-      return "italy";
-    default:
-      return defaultSeedMarketForCurrency(currency);
-  }
-}
+// Both inference helpers moved to lib/market.ts so a caller that needs only
+// "which country is this store" doesn't pull in seven catalogs. Re-exported
+// under their original names — the seeder dialog and the CSV import sample
+// both call them, and the naming reads correctly at those call sites.
+export const defaultSeedMarketForCurrency = defaultMarketForCurrency;
+export const seedMarketForStore = marketForStore;

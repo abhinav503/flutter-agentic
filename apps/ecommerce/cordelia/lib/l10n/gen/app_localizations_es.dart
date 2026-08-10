@@ -141,6 +141,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get comingSoonMessage => 'Próximamente';
 
   @override
+  String get deliveryUnavailableMessage =>
+      'Esta tienda no realiza entregas en la dirección seleccionada.';
+
+  @override
   String get paymentCancelledMessage => 'Pago cancelado';
 
   @override
@@ -1956,6 +1960,12 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get grofastSubtotalLabel => 'Subtotal';
+
+  @override
+  String get grofastDeliveryLabel => 'Entrega';
+
+  @override
+  String get grofastDeliveryFreeLabel => 'Gratis';
 
   @override
   String get grofastDiscountLabel => 'Descuento';

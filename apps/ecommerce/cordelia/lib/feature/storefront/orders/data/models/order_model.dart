@@ -33,6 +33,10 @@ abstract class OrderModel with _$OrderModel {
     // feature) omit both.
     @JsonKey(name: 'coupon_code') @Default('') String couponCode,
     @JsonKey(name: 'coupon_discount') @Default(0) double couponDiscount,
+    // Defaulted for the same reason as the coupon pair: orders placed before
+    // stores could charge for delivery carry no field, and 0 is the true
+    // figure for them — they were all delivered free.
+    @JsonKey(name: 'delivery_fee') @Default(0) double deliveryFee,
     // The shopper's rating of this delivery. Defaulted: 0 is every order
     // that hasn't been rated, including every one placed before the feature
     // existed, and reviewed_at is absent for exactly the same set.
@@ -66,6 +70,7 @@ abstract class OrderModel with _$OrderModel {
     paymentId: e.paymentId,
     couponCode: e.couponCode,
     couponDiscount: e.couponDiscount,
+    deliveryFee: e.deliveryFee,
     rating: e.rating,
     reviewText: e.reviewText,
     reviewedAt: e.reviewedAt?.toIso8601String() ?? '',
@@ -85,6 +90,7 @@ abstract class OrderModel with _$OrderModel {
     paymentId: paymentId,
     couponCode: couponCode,
     couponDiscount: couponDiscount,
+    deliveryFee: deliveryFee,
     rating: rating,
     reviewText: reviewText,
     // '' (unrated) and a malformed value both read as null — the rating

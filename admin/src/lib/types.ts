@@ -6,6 +6,7 @@
 
 import type { StoreStatus } from "./store-status";
 import type { PaymentProvider } from "./payment-providers/types";
+import type { StoreDelivery } from "./delivery";
 
 export type UnitType = "g" | "ml" | "pcs";
 
@@ -232,6 +233,10 @@ export type Store = {
   // defaults to 'INR' (see mapStoreDoc), which is what stores predating the
   // field were already charging.
   currency: string;
+  // What this store charges to deliver, and where it delivers at all (see
+  // StoreDelivery). Stores predating the field read back as free delivery
+  // everywhere — what every storefront's totals panel used to hardcode.
+  delivery: StoreDelivery;
 };
 
 // Array order is the order the language pickers render (Settings, and the
@@ -512,6 +517,12 @@ export type Order = {
   // (dashboard, support), not for re-deriving the charge.
   couponCode: string;
   couponDiscount: number;
+  // What delivery cost on this order, snapshotted at placement — the store's
+  // policy can change afterwards, and an old order must keep showing what it
+  // actually charged. Included in `total`, which is therefore
+  // items − couponDiscount + deliveryFee. 0 on every order placed before the
+  // field existed, which is correct: they were all charged free delivery.
+  deliveryFee: number;
   // The shopper's rating of this *delivery* — how the order went, which is a
   // different question from what they thought of a product (that's a Review,
   // above). 0 = not rated. Lives on the order doc rather than its own

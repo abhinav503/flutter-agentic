@@ -15,6 +15,9 @@ _StoreModel _$StoreModelFromJson(Map<String, dynamic> json) => _StoreModel(
   language: json['language'] as String? ?? '',
   currency: json['currency'] as String? ?? '',
   status: json['status'] as String? ?? '',
+  delivery: json['delivery'] == null
+      ? const StoreDeliveryModel()
+      : StoreDeliveryModel.fromJson(json['delivery'] as Map<String, dynamic>),
 );
 
 Map<String, dynamic> _$StoreModelToJson(_StoreModel instance) =>
@@ -27,4 +30,5 @@ Map<String, dynamic> _$StoreModelToJson(_StoreModel instance) =>
       'language': instance.language,
       'currency': instance.currency,
       'status': instance.status,
+      'delivery': instance.delivery,
     };

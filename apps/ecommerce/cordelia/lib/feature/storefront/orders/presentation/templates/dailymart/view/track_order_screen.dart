@@ -194,7 +194,8 @@ class _TrackOrderScreenState extends BaseScreenState<TrackOrderScreen>
               const SizedBox(height: AppSpacing.xs),
               _DetailRow(
                 label: DailyMartValueConst.amountPaidLabel,
-                // Net of the coupon — the figure the server actually charged.
+                // Net of the coupon and inclusive of delivery — the figure
+                // the server actually charged.
                 value: order.payableTotal.asPrice,
               ),
               if (order.couponCode.isNotEmpty) ...[
@@ -205,6 +206,15 @@ class _TrackOrderScreenState extends BaseScreenState<TrackOrderScreen>
                     order.couponCode,
                     order.couponDiscount.asPrice,
                   ),
+                ),
+              ],
+              // Shown only when the order carried one — free delivery needs
+              // no row to explain the total.
+              if (order.deliveryFee > 0) ...[
+                const SizedBox(height: AppSpacing.xs3),
+                _DetailRow(
+                  label: DailyMartValueConst.deliveryLabel,
+                  value: order.deliveryFee.asPrice,
                 ),
               ],
               const SizedBox(height: AppSpacing.xs3),
