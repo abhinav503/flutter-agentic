@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { LegalPage, LegalSection } from "@/components/site/legal-page";
 
-const LAST_UPDATED = "7 August 2026";
+const LAST_UPDATED = "17 August 2026";
 
 export const metadata: Metadata = {
   title: "Delete your account — CordeliaApps",
@@ -24,6 +24,13 @@ export const metadata: Metadata = {
  * first (each through deleteReview, so the products they rated aren't left
  * over-counted), then the four subcollections, then the profile doc, then the
  * Auth user last so a partial failure stays recoverable.
+ *
+ * The partial-deletion section is here because Data safety separately declares
+ * that data can be deleted *without* closing the account, and Play treats this
+ * page as the evidence for that answer. Its four items are the shopper-facing
+ * delete use cases (address, favourite, own review, recent search) — kept
+ * neutral about the gesture, since each template surfaces them differently
+ * (dailymart swipes an address row, grofast uses a picker sheet).
  */
 export default function DeleteAccountPage() {
   return (
@@ -67,6 +74,25 @@ export default function DeleteAccountPage() {
           We reply within 7 days and complete the deletion within 30 days. We
           may need to confirm you own the address before acting, since the
           request is irreversible.
+        </p>
+      </LegalSection>
+
+      <LegalSection title="Delete only some of your data">
+        <p>
+          You do not have to close your account to remove things from it. Inside
+          the app you can delete, at any time:
+        </p>
+        <p>
+          A saved delivery address, from your list of addresses. An item from
+          your favourites, by tapping its filled heart. A review or rating you
+          wrote, from the reviews on the product you left it on. And any single
+          entry in your recent searches, from the search screen.
+        </p>
+        <p>
+          Each of these takes effect immediately, is not recoverable, and leaves
+          the rest of your account untouched. If you want something removed that
+          isn&apos;t on that list, email us at the address above and say what it
+          is.
         </p>
       </LegalSection>
 

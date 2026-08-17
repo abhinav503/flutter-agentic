@@ -221,7 +221,14 @@ the actual direction: a different runtime app (`cordelia`, not `gravia`),
 and per-store identity as a full swappable presentation template, not just
 a palette swap.
 
-## Multi-template storefront in `cordelia` — PLANNED, not yet built (2026-07-25)
+## Multi-template storefront in `cordelia` — the plan; SHIPPED (2026-07-25)
+
+> **Built, and then some.** This is the design as written before any of it
+> existed, kept because the reasoning below is still the architecture. The
+> build is recorded in the sections that follow: Phase 1 (Home slice) on
+> 07-27, the full storefront port on 07-28, and three complete templates
+> (`gravia`, `dailymart`, `grofast`) by 08-03. Present-tense claims here —
+> "today a genuine stub" — describe 2026-07-25, not now.
 
 `cordelia` (`apps/ecommerce/cordelia`) is already the store-discovery
 "app of apps" shell: splash → onboarding → shared Firebase auth →
@@ -1010,6 +1017,12 @@ before the screens exist and an unimplemented row fails nothing. All four
 skill surfaces synced.
 
 ## Missing flows (fill these or explicitly defer)
+
+> **Mostly closed — written in the first week (2026-07-18) and kept for the
+> reasoning, not the status.** Of these 13, only #9 (search) and parts of
+> #1/#2 are still open; the ✅ marks below were added later and some items
+> closed without ever being marked. For what actually remains, read
+> "Consolidated open items" at the end of this document instead of this list.
 
 1. **Store onboarding** — how a creator signs up, creates a store, becomes its admin (roles/claims).
 2. **Auth depth** — password reset, email verification, session persistence, shopper-vs-admin roles.
@@ -2673,7 +2686,16 @@ Also fixed while rendering the labels across all six locales: Italian's
 "Under" read `Fino a {price}` ("up to", inclusive) against a strictly exclusive
 band. Now `Meno di {price}`, matching the French and Spanish forms.
 
-### Known gap this exposes — country-specific seed catalogs (planned, not started)
+### Known gap this exposes — country-specific seed catalogs — CLOSED (2026-08-06)
+
+**Closed by the seven market-catalog sections immediately below** (Germany →
+France → Spain → Italy → UK/US). The gap analysis is kept as written because
+the three decisions it poses are the ones the implementation actually made —
+but the heading used to say "planned, not started", which outlived the work by
+a day and reads as open to anyone scanning headings rather than the sections
+under them. All three were resolved: an explicit picker defaulting from the
+store's currency, seven hand-authored catalogs rather than one European proof,
+and each catalog seeded in its own market's language.
 
 Fixing the bands surfaced the same problem one layer down, in the data.
 "Generate sample data" writes **one hardcoded Indian catalog to every store**
@@ -4210,3 +4232,87 @@ rather than reading as an oversight.
 Two things it will eventually close, both already recorded as open elsewhere
 in this document: the unverified handoff OTP, and status transitions that
 today only a store admin at a desk can make.
+
+## Consolidated open items (as of 2026-08-11)
+
+Everything still open, in one place. This document is a chronological log, so
+what remains is spread across six separate "What this leaves open" blocks, a
+"Missing flows" list from the first week, and a corrections section — which is
+enough surfaces that a reader can come away with the wrong picture in either
+direction. Twice in one review an item was called open here that had shipped a
+day later further down.
+
+**This section is an index, not a second source of truth.** Each line points at
+the section that owns the detail; when one closes, mark it there and strike it
+here in the same pass.
+
+### Blocking the Play production track
+
+| Item | Owning section |
+|---|---|
+| Play Console rejected the closed-testing submission: `Financial features → Mobile payments and digital wallets` was declared, which restricts distribution to organization accounts. Cordelia sells physical goods through third-party gateways and holds no funds — the declaration is being cleared and appealed | new (2026-08-11), no section yet |
+| The build number must exceed the `+3` already uploaded; a re-upload at the same version code is refused | — |
+| Data safety form unfilled | "Cordelia on Google Play" |
+| 12 testers × 14 days of closed testing, not shortenable on a personal account | "What this leaves open" (productionisation) |
+| Discovery must stay non-empty — it lists only *published* stores, so unpublishing the one live `grofast` store restores a minimum-functionality rejection | Corrections to earlier entries |
+
+### The largest functional hole
+
+**Delivery-agent apps** — nothing downstream of "order placed" is done by the
+person doing it. The handoff OTP is generated and shown to both shopper and
+admin while no endpoint accepts one; "Delivered" is a button a store admin
+presses at a desk. Shape agreed, entry point reserved in Discovery's top-right
+corner, deliberately unstarted. → "Delivery-agent apps — decided, not built".
+
+### Commerce flows
+
+- **Post-delivery returns/refunds** — refund is wired only to *cancel*; a
+  delivered order cannot be returned. → Phase 3.6 in `end-goal.md`.
+- **No delivery zones** — one flat fee per store. → "Delivery fee and per-store
+  serviceability".
+- **No pre-checkout serviceability signal** — an out-of-area address is refused
+  at submit, not greyed out in Select Address. → same.
+- **No delivery-time estimate** — all three kits draw one; nothing in the
+  backend knows it. → same.
+
+### iOS
+
+Unstarted as a track, not as scattered items: no APNs key, no `aps-environment`
+entitlement, no `remote-notification` background mode, no signing. Rich
+notification images additionally need a Notification Service Extension target,
+so that belongs in the same scoping pass rather than after it. → "What this
+leaves open" (notifications).
+
+### Content and data
+
+- **Catalog content is single-valued** — each market's catalog is written in
+  that market's language, so a shopper switching the storefront's language gets
+  translated chrome around a fixed-language catalog. The deliberate boundary. →
+  `content-i18n-plan.md`, and "The remaining gap, unchanged".
+- **Placeholder content** — onboarding's three slides are seeded stock photos;
+  grofast's address tiles cycle two bundled map images; the product photo
+  "carousel" is single-slide because the schema holds one image. → Phase 3.6 in
+  `end-goal.md`.
+
+### Smaller
+
+- **Login's two social buttons** — the only `comingSoon` stubs left in the app.
+- **Search** — `searchKeywords[]` substring matching is the whole of it;
+  cross-store search unbuilt. Missing flow #9, the last of those 13 still open
+  apart from parts of #1/#2.
+- **Notifications** — no shopper-side per-store mute, feed caps at 50 per source
+  rather than paging, the device registry has no reader, and `CRON_SECRET` must
+  be set in Vercel for the weekly prune to run at all.
+- **Server-authored refusals stay English** in every locale ("Insufficient stock
+  for X", serviceability refusals) — the app cannot localize copy the server
+  writes.
+
+### Explicitly not open
+
+Recorded because each was believed open during this review and is not: crash
+reporting (`firebase_crashlytics`), the `storeAdmin` custom claim
+(`setCustomUserClaims`, no `functions/` directory), the multi-store switcher
+(`/dashboard/stores`), the live-store Play blocker, store-owner subscription
+billing (dropped, not deferred), per-market seed catalogs (all seven ship), and
+persistent cart, stock, image hosting, CSV import validation and security rules
+from the original Missing-flows list.
