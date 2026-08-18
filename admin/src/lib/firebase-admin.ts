@@ -34,3 +34,14 @@ try {
   // against the same reused app — the settings are already applied then, so
   // the retry is safely ignored.
 }
+
+// This database lives in asia-south1 (Mumbai) — `firebase
+// firestore:databases:get '(default)'`. That is why vercel.json pins
+// `regions: ["bom1"]`: Vercel's default iad1 (Washington DC) put every
+// function two intercontinental round trips from its own data, since the
+// CDN edge already terminates in Mumbai and every route here is a dynamic
+// Firestore read with nothing for a US-side function to serve. It cost a
+// ~0.65s floor on every call irrespective of payload — a 31-byte search
+// response and a 1.9KB categories response timed identically. Moving the
+// database region later means moving the Vercel region with it; the two
+// are one decision, not two.
