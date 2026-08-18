@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { docCategories, getAllDocs } from "@/lib/docs";
 import { SITE_URL } from "@/lib/site";
 
 /**
@@ -9,10 +10,9 @@ import { SITE_URL } from "@/lib/site";
  * under `/dashboard` and `/api` is auth-gated. A sitemap is a statement about
  * what should rank, not an inventory of routes.
  *
- * `/docs` is absent for the same reason: it is a holding page that sets
- * `robots: { index: false }` on itself, and submitting a noindex URL asks
- * Google to crawl something you have already told it not to keep. Add it back
- * in the same commit that gives it real content and drops that flag.
+ * `/docs` and everything under it is enumerated from the MDX collection on
+ * disk, so a guide added as a file appears here without anyone remembering to
+ * list it. A category with no articles yet is skipped — it 404s.
  *
  * No `lastModified`: this file is a cached Route Handler, so any `new Date()`
  * here would evaluate at build time and claim every page changed on every
@@ -20,6 +20,8 @@ import { SITE_URL } from "@/lib/site";
  * worse than none.
  */
 export default function sitemap(): MetadataRoute.Sitemap {
+  const docs = getAllDocs();
+
   return [
     {
       url: SITE_URL,
@@ -53,5 +55,22 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "yearly",
       priority: 0.3,
     },
+    {
+      url: `${SITE_URL}/docs`,
+      changeFrequency: "weekly",
+      priority: 0.8,
+    },
+    ...docCategories
+      .filter((category) => docs.some((d) => d.categorySlug === category.slug))
+      .map((category) => ({
+        url: `${SITE_URL}/docs/${category.slug}`,
+        changeFrequency: "weekly" as const,
+        priority: 0.6,
+      })),
+    ...docs.map((doc) => ({
+      url: `${SITE_URL}${doc.href}`,
+      changeFrequency: "monthly" as const,
+      priority: 0.6,
+    })),
   ];
 }

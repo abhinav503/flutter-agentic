@@ -1,7 +1,8 @@
 import { SiteNav } from "@/components/site/SiteNav";
 import { Hero } from "@/components/site/Hero";
-import { HowItWorks } from "@/components/site/HowItWorks";
+import { Payments } from "@/components/site/Payments";
 import { Templates } from "@/components/site/Templates";
+import { HowItWorks } from "@/components/site/HowItWorks";
 import { ShopperFeatures } from "@/components/site/ShopperFeatures";
 import { AdminFeatures } from "@/components/site/AdminFeatures";
 import { Trust } from "@/components/site/Trust";
@@ -34,8 +35,9 @@ export function LandingPage() {
         <SiteNav />
         <main id="main">
           <Hero />
-          <HowItWorks />
+          <Payments />
           <Templates />
+          <HowItWorks />
           <ShopperFeatures />
           <AdminFeatures />
           <Trust />

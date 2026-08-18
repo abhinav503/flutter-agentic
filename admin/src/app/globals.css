@@ -302,3 +302,278 @@
     linear-gradient(to bottom, var(--border) 1px, transparent 1px);
   background-size: 44px 44px;
 }
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Documentation
+
+   The docs at /docs are the one surface with long-form prose, so they need a
+   reading scale the marketing sections and the dashboard don't. Everything
+   here is either a token the callout intents key off, or a rule about running
+   text — the layout itself is Tailwind on the components.
+
+   Colour comes from the brand palette above wherever a role exists for it
+   (`--border`, `--muted`, `--primary`). The seven callout intents are the
+   exception: an info panel and an error panel have to be told apart at a
+   glance, and no single-hue palette can do that. They are stated in oklch at
+   the same chroma so they read as one set rather than seven borrowed swatches.
+   ───────────────────────────────────────────────────────────────────────── */
+:root {
+  --callout-info: oklch(0.58 0.16 255);
+  --callout-info-bg: oklch(0.97 0.02 255);
+  --callout-info-border: oklch(0.88 0.06 255);
+
+  --callout-warning: oklch(0.68 0.15 75);
+  --callout-warning-bg: oklch(0.975 0.03 85);
+  --callout-warning-border: oklch(0.88 0.08 85);
+
+  --callout-success: oklch(0.6 0.14 155);
+  --callout-success-bg: oklch(0.97 0.03 155);
+  --callout-success-border: oklch(0.87 0.07 155);
+
+  --callout-error: oklch(0.58 0.19 25);
+  --callout-error-bg: oklch(0.97 0.02 25);
+  --callout-error-border: oklch(0.88 0.06 25);
+
+  --callout-tip: oklch(0.58 0.17 305);
+  --callout-tip-bg: oklch(0.97 0.02 305);
+  --callout-tip-border: oklch(0.89 0.05 305);
+
+  --callout-note: oklch(0.55 0.02 172);
+  --callout-note-bg: oklch(0.972 0.006 167);
+  --callout-note-border: oklch(0.9 0.012 167);
+}
+
+.dark {
+  /* Same hues, re-anchored: on a dark surface the tint is a low-lightness
+     wash and the accent is the light end, so the pair inverts rather than
+     dimming — a dimmed light-mode tint turns muddy well before it turns dark. */
+  --callout-info: oklch(0.75 0.13 255);
+  --callout-info-bg: oklch(0.28 0.045 255);
+  --callout-info-border: oklch(0.4 0.07 255);
+
+  --callout-warning: oklch(0.83 0.13 85);
+  --callout-warning-bg: oklch(0.29 0.045 85);
+  --callout-warning-border: oklch(0.42 0.07 85);
+
+  --callout-success: oklch(0.78 0.13 155);
+  --callout-success-bg: oklch(0.28 0.045 155);
+  --callout-success-border: oklch(0.4 0.07 155);
+
+  --callout-error: oklch(0.74 0.15 25);
+  --callout-error-bg: oklch(0.28 0.05 25);
+  --callout-error-border: oklch(0.41 0.08 25);
+
+  --callout-tip: oklch(0.77 0.13 305);
+  --callout-tip-bg: oklch(0.28 0.045 305);
+  --callout-tip-border: oklch(0.41 0.07 305);
+
+  --callout-note: oklch(0.78 0.02 168);
+  --callout-note-bg: oklch(0.26 0.022 173);
+  --callout-note-border: oklch(0.36 0.026 173);
+}
+
+/* ── Running text ────────────────────────────────────────────────────────
+   Scoped to `.docs-prose` because MDX emits bare `p`/`ul`/`table`, which have
+   no class to hang this on. Headings are the exception: they are React
+   components (they need anchor ids the table of contents can match), so their
+   type scale lives with them and only their rhythm is set here. */
+.docs-prose {
+  color: var(--muted-foreground);
+  font-size: 1rem;
+  line-height: 1.75;
+}
+
+.docs-prose > * + * {
+  margin-top: 1rem;
+}
+
+.docs-prose strong {
+  color: var(--foreground);
+  font-weight: 600;
+}
+
+.docs-prose a {
+  color: var(--primary);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.docs-prose a:hover {
+  opacity: 0.8;
+}
+
+.docs-prose ul,
+.docs-prose ol {
+  padding-left: 1.35rem;
+}
+
+.docs-prose ul {
+  list-style: disc;
+}
+
+.docs-prose ol {
+  list-style: decimal;
+}
+
+.docs-prose li::marker {
+  color: var(--muted-foreground);
+}
+
+.docs-prose li + li {
+  margin-top: 0.375rem;
+}
+
+/* Nested lists are a continuation of their parent item, not a new paragraph. */
+.docs-prose li > ul,
+.docs-prose li > ol {
+  margin-top: 0.375rem;
+}
+
+.docs-prose blockquote {
+  border-left: 2px solid var(--border-strong);
+  padding-left: 1rem;
+  font-style: italic;
+}
+
+.docs-prose hr {
+  border-color: var(--border);
+  margin-block: 2rem;
+}
+
+/* Inline code only. `pre code` is unset below — the code block owns its own
+   surface, and a second background inside it reads as a nested box. */
+.docs-prose :not(pre) > code {
+  font-family: var(--font-mono);
+  font-size: 0.8125em;
+  background: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 0.3rem;
+  padding: 0.1rem 0.32rem;
+  color: var(--foreground);
+  overflow-wrap: anywhere;
+}
+
+.docs-prose pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: inherit;
+  color: inherit;
+}
+
+/* A table is the one block that can be wider than the column. It scrolls in
+   its own wrapper (see `docs/mdx/table.tsx`) so the page body never does. */
+.docs-prose table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+}
+
+.docs-prose th,
+.docs-prose td {
+  border-bottom: 1px solid var(--border);
+  padding: 0.625rem 0.875rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.docs-prose th {
+  color: var(--foreground);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.docs-prose tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.docs-prose img {
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+}
+
+/* A heading targeted by a table-of-contents link must not land under the
+   sticky header. Applied to the scroll container's anchors rather than to the
+   page, so nothing else inherits the offset. */
+.docs-prose :is(h2, h3) {
+  scroll-margin-top: 6rem;
+}
+
+/* ── Syntax highlighting ─────────────────────────────────────────────────
+   rehype-highlight runs in the MDX pipeline and emits highlight.js class
+   names; this is the theme for them. Written here rather than pulled from
+   highlight.js's stylesheet collection because every published theme states
+   its own background and greys, which would put a second palette inside a
+   surface the brand tokens already paint.
+
+   Six roles, not the full forty: keyword, string, number/literal, comment,
+   name/title, meta. Anything unclassified inherits the body colour, which is
+   the correct fallback for a language the highlighter doesn't know. */
+:root {
+  --code-keyword: oklch(0.52 0.16 300);
+  --code-string: oklch(0.48 0.12 155);
+  --code-number: oklch(0.55 0.13 45);
+  --code-comment: oklch(0.62 0.015 172);
+  --code-name: oklch(0.5 0.13 250);
+  --code-meta: oklch(0.55 0.06 200);
+}
+
+.dark {
+  --code-keyword: oklch(0.78 0.13 300);
+  --code-string: oklch(0.8 0.12 155);
+  --code-number: oklch(0.82 0.12 60);
+  --code-comment: oklch(0.6 0.015 172);
+  --code-name: oklch(0.78 0.11 250);
+  --code-meta: oklch(0.75 0.05 200);
+}
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-literal,
+.hljs-doctag {
+  color: var(--code-keyword);
+}
+
+.hljs-string,
+.hljs-regexp,
+.hljs-addition {
+  color: var(--code-string);
+}
+
+.hljs-number,
+.hljs-symbol,
+.hljs-bullet {
+  color: var(--code-number);
+}
+
+.hljs-comment,
+.hljs-quote {
+  color: var(--code-comment);
+  font-style: italic;
+}
+
+.hljs-title,
+.hljs-name,
+.hljs-section,
+.hljs-attr,
+.hljs-attribute,
+.hljs-property,
+.hljs-built_in,
+.hljs-type {
+  color: var(--code-name);
+}
+
+.hljs-meta,
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag {
+  color: var(--code-meta);
+}
+
+.hljs-strong {
+  font-weight: 600;
+}
+
+.hljs-emphasis {
+  font-style: italic;
+}

@@ -167,7 +167,11 @@ export function GraviaMockup() {
   );
 }
 
-/** dailymart — stacked nav, carded rows. */
+/** dailymart — stacked nav, carded rows.
+ *
+ * Priced in euros while the hero storefront above is in rupees. The mockups
+ * are the page's only concrete prices, and a page that says a store picks its
+ * own currency shouldn't illustrate that with one currency everywhere. */
 export function DailymartMockup() {
   return (
     <PhoneFrame className="max-w-[15rem]">
@@ -191,7 +195,7 @@ export function DailymartMockup() {
               <Bar w="75%" h={5} className="bg-foreground/65" />
               <Bar w="30%" h={4} className="mt-1 bg-dailymart/60" />
             </span>
-            <span className="text-[0.5rem] font-bold text-foreground">₹{45 + i * 20}</span>
+            <span className="text-[0.5rem] font-bold text-foreground">{2 + i} €</span>
           </div>
         ))}
       </div>

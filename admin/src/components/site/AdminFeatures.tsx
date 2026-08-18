@@ -10,7 +10,8 @@ const groups = [
       "Brands",
       "Per-size pricing",
       "Promo banners",
-      "Generate a realistic sample catalog in one click",
+      "Per-store currency and language, in four currencies and six languages",
+      "Generate a realistic sample catalog for any of seven markets",
     ],
   },
   {
@@ -19,7 +20,7 @@ const groups = [
       "Coupons scoped to a store, a category or a product",
       "Percentage or flat discounts, with caps",
       "Validity windows and usage limits",
-      "Connect your own Razorpay account",
+      "Connect your own Razorpay or Stripe account",
     ],
   },
   {
@@ -28,6 +29,7 @@ const groups = [
       "Live order dashboard with delivery OTP",
       "Status control on every order",
       "Cancel with restock, and refunds",
+      "Compose and send push notifications, with artwork",
       "Review moderation",
       "Sort, filter and search every catalog list",
     ],

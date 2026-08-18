@@ -1,0 +1,157 @@
+---
+title: Connect Stripe
+description: For stores charging in EUR, GBP, USD — or INR. Restricted keys, the webhook, and the one behavioural difference from Razorpay.
+order: 3
+---
+
+Stripe is the provider for any store not charging in rupees, and works for INR
+too. Like Razorpay, it settles into **your own** Stripe account — your keys,
+your money, no platform wallet in between.
+
+<Callout type="info">
+  Supported currencies: **INR, EUR, GBP, USD**. Which payment methods a shopper
+  is offered is decided by Stripe from your account's country and the order's
+  currency, not by your store.
+</Callout>
+
+## Get your API keys
+
+<Steps>
+  <Step title="Open the Stripe Dashboard">
+    Go to [dashboard.stripe.com](https://dashboard.stripe.com) and sign in.
+  </Step>
+  <Step title="Stay in Test mode">
+    Use the toggle at the top right. Test keys carry `_test_` in the middle and
+    charge nobody.
+  </Step>
+  <Step title="Copy the keys">
+    **Developers → API keys.** You need the **Publishable key** (`pk_test_…`)
+    and a secret. Reveal the secret key to copy it.
+  </Step>
+</Steps>
+
+## Prefer a restricted key
+
+Stripe's standard secret key (`sk_…`) can do everything your Stripe account
+can. Your store needs two capabilities: **write PaymentIntents** and **write
+Refunds**.
+
+<Steps>
+  <Step title="Create a restricted key">
+    **Developers → API keys → Create restricted key.**
+  </Step>
+  <Step title="Grant two write permissions">
+    Set **PaymentIntents** and **Refunds** to *Write*. Leave everything else at
+    None.
+  </Step>
+  <Step title="Use it as your secret">
+    A restricted key starts `rk_test_…` or `rk_live_…` and is accepted anywhere
+    the secret key is.
+  </Step>
+</Steps>
+
+<Callout type="success">
+  A leaked restricted key can charge and refund. A leaked full secret key can
+  read your customers, payouts and balance. Same setup effort, much smaller
+  blast radius.
+</Callout>
+
+## Paste them into your store
+
+**Settings → Payments → Stripe**.
+
+| Field | What goes in it | Looks like |
+| --- | --- | --- |
+| Publishable key | The public half | `pk_test_…` |
+| Secret key | Your secret or restricted key | `sk_test_…` or `rk_test_…` |
+
+Save, then choose **Use Stripe for checkout**. The Test/Live badge is read off
+your key's prefix, so it can't disagree with reality. Your secret is encrypted
+before it's stored and is never sent to the shopper app.
+
+## Test the flow
+
+Place a real order in the app against your test keys, using Stripe's test
+cards:
+
+<Tabs labels={["Succeeds", "Requires 3DS", "Declines"]}>
+  <>
+    **4242 4242 4242 4242** — any future expiry, any CVC, any postal code.
+  </>
+  <>
+    **4000 0027 6000 3184** — triggers an authentication step. Worth running
+    once: European cards hit this routinely under SCA.
+  </>
+  <>
+    **4000 0000 0000 0002** — a hard decline. Confirms your store handles a
+    failed payment without stranding the shopper.
+  </>
+</Tabs>
+
+A successful order appears under **Orders**, shows as placed in the shopper's
+My Orders, and sends a notification.
+
+## Set up the refund webhook
+
+Refunds settle asynchronously. Without the webhook, a refund sits at **Pending**
+in the console until you complete it by hand.
+
+<Steps>
+  <Step title="Copy your store's webhook URL">
+    Shown in **Settings → Payments → Stripe webhook**. It's per-store — don't
+    reuse another store's.
+  </Step>
+  <Step title="Add the endpoint in Stripe">
+    **Developers → Webhooks → Add endpoint.** Paste the URL and subscribe to
+    `charge.refunded`, `refund.updated` and `refund.failed`.
+  </Step>
+  <Step title="Paste the signing secret back">
+    Stripe generates it — it starts `whsec_…`. Put it in the console's
+    **Webhook Secret** field. Every incoming call is verified against it.
+  </Step>
+</Steps>
+
+## The one difference from Razorpay
+
+Worth knowing if you've read the Razorpay guide: **Stripe has no client-side
+payment signature.** Razorpay hands the app a signed confirmation your server
+can check; Stripe doesn't. So verification is a server-side re-fetch of the
+PaymentIntent from Stripe instead.
+
+Same guarantee, different mechanism — and nothing you configure differently.
+
+## Go live
+
+Repeat with Stripe in **Live** mode and paste the `pk_live_` / `rk_live_` pair
+over the test one. Live mode requires a completed Stripe account activation
+(business details, bank account) — start that early, since verification isn't
+instant.
+
+<Callout type="error">
+  Live keys charge real cards. Place at least one successful test order and one
+  deliberate decline first.
+</Callout>
+
+<Accordion title="Which key goes in which field?">
+  Publishable (`pk_`) is public and goes in the first field. Secret (`sk_`) or
+  restricted (`rk_`) goes in the second. Swapping them fails at checkout —
+  Stripe rejects a publishable key on a server call.
+</Accordion>
+
+<Accordion title="Can I switch from Razorpay to Stripe later?">
+  Yes. Both providers' keys are kept independently, so connecting Stripe
+  doesn't erase Razorpay and switching is one click. Existing orders keep
+  recording which provider took the money, so support lookups still point at
+  the right dashboard.
+</Accordion>
+
+## Next
+
+<CardGroup>
+  <Card title="Order lifecycle" icon="receipt" href="/docs/orders/order-lifecycle">
+    What happens after a shopper pays.
+  </Card>
+  <Card title="Cancellations and refunds" icon="receipt" href="/docs/orders/cancellations-and-refunds">
+    Where those webhook events land.
+  </Card>
+</CardGroup>

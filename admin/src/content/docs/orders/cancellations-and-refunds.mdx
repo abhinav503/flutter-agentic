@@ -1,0 +1,115 @@
+---
+title: Cancellations and refunds
+description: Who can cancel and when, why the refund is a separate step, and what to do when one fails.
+sidebarTitle: Cancellations and refunds
+order: 3
+---
+
+Cancelling an order does three things: sets it to cancelled, puts the stock
+back, and — if it was paid — starts a full refund.
+
+## Who can cancel
+
+**You**, from the console, at any point before the order is delivered.
+
+**The shopper**, from the app, on their own order — at any point before it is
+marked delivered. Moving an order to "On the way" does **not** close their
+window, so an order can be cancelled while it is physically in transit. The
+only thing that ends it is marking the order delivered.
+
+A **delivered order cannot be cancelled** by anyone. That's a return, and
+post-delivery returns aren't built yet — handle those out of band and issue the
+refund from your provider's dashboard directly.
+
+## What happens on cancel
+
+<Steps>
+  <Step title="The order is cancelled and restocked">
+    One transaction. Every line item's stock goes back, summed correctly when
+    an order holds several lines of the same product.
+  </Step>
+  <Step title="A refund is issued">
+    A separate step, deliberately — it needs an external call to your payment
+    provider, which can't run inside the database transaction.
+  </Step>
+  <Step title="The shopper is notified">
+    A cancellation push, in your store's language.
+  </Step>
+</Steps>
+
+<Callout type="success">
+  The split is what makes this safe. A refund that fails still leaves a cleanly
+  cancelled, restocked order with a refund you can retry — never a
+  half-cancelled order.
+</Callout>
+
+## The refund states
+
+Refund status is a **separate axis** from order status, so a cancelled order
+records independently whether the money went back.
+
+| State | Meaning | What to do |
+| --- | --- | --- |
+| **None** | Nothing to refund — unpaid, or not cancelled. | Nothing. |
+| **Pending** | Your provider accepted it, hasn't settled it. | Wait. |
+| **Processed** | Settled. The shopper has their money. | Nothing. |
+| **Failed** | The refund call itself errored. | **Retry refund.** |
+
+The order stays cancelled in every one of these. Refund state never changes
+whether the order is called off.
+
+## Pending → Processed, automatically
+
+If you've set up the [Razorpay](/docs/payments/connect-razorpay) or
+[Stripe](/docs/payments/connect-stripe) webhook, your provider calls your store
+when a refund settles and it flips to **Processed** on its own.
+
+Without the webhook, a settled refund sits at Pending until you mark it
+complete with **Complete refund** in the console. The money still reached the
+shopper — only your record is stale.
+
+<Callout type="tip">
+  If you're regularly clicking Complete refund, set up the webhook. It's ten
+  minutes and removes the step permanently.
+</Callout>
+
+## When a refund fails
+
+**Retry refund** on the order. Retrying is safe: before creating a refund, your
+store checks the payment for one that already exists, so a retry cannot
+double-refund a shopper.
+
+If it keeps failing, check in this order:
+
+<Steps>
+  <Step title="Your provider keys are still valid">
+    Refunds authenticate with your store's **current** configuration, not
+    whatever was set when the order was placed. Regenerating keys and pasting
+    only half the pair breaks refunds while leaving checkout working.
+  </Step>
+  <Step title="Your provider account has funds">
+    Both providers refund from your balance. An account with nothing in it
+    can't refund, and the error says so.
+  </Step>
+  <Step title="The payment is refundable">
+    Very old payments fall outside a provider's refund window. Past that, refund
+    from the provider's dashboard directly.
+  </Step>
+</Steps>
+
+## Orders with no payment
+
+Orders placed through the test-mode payment-less path carry no payment.
+Cancelling one restocks and cancels normally, and its refund state stays
+**None** — there was never any money to return.
+
+## Next
+
+<CardGroup>
+  <Card title="Troubleshooting" icon="file" href="/docs/going-live/troubleshooting">
+    The other things that go wrong.
+  </Card>
+  <Card title="Coupons" icon="coupon" href="/docs/growing/coupons">
+    Discounts, and how they interact with totals.
+  </Card>
+</CardGroup>

@@ -10,11 +10,14 @@ import { Menu, X } from "lucide-react";
 import { AuthCta } from "./AuthCta";
 import { BrandMark } from "./BrandMark";
 
+// Root-relative, not bare fragments: these sections live on the landing page,
+// and the nav also renders on /docs, where "#faq" would scroll to nothing.
 const anchors = [
-  { href: "#templates", label: "Templates" },
-  { href: "#features", label: "Features" },
-  { href: "#how-it-works", label: "How it works" },
-  { href: "#faq", label: "FAQ" },
+  { href: "/#payments", label: "Payments" },
+  { href: "/#templates", label: "Templates" },
+  { href: "/#how-it-works", label: "How it works" },
+  { href: "/#features", label: "Features" },
+  { href: "/#faq", label: "FAQ" },
 ];
 
 export function SiteNav() {

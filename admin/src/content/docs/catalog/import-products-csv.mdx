@@ -1,0 +1,140 @@
+---
+title: Import products from CSV
+description: Bring an existing catalog in as one file — with the exact column spec, how updates are matched, and what the console rejects before writing anything.
+sidebarTitle: Import products
+order: 4
+---
+
+Adding products one at a time is fine for ten. For a hundred, put them in a CSV
+and import it. The importer validates the entire file before writing anything,
+so a row with a bad price or an unknown brand costs you a re-upload rather than
+a half-imported catalog.
+
+Open **Products → Import CSV** in the console.
+
+<Callout type="tip">
+  The dialog has a **Download sample** button. It produces a valid file with
+  your store's own categories and brands already in it — start from that rather
+  than from a blank spreadsheet.
+</Callout>
+
+## Prepare your categories and brands first
+
+A product row references categories and brands **by name**, and the importer
+will not invent one that doesn't exist. Create them before importing, or every
+row referencing a missing name fails validation.
+
+Categories and brands have CSV importers of their own, so a full catalog
+migration is three files in order: categories, brands, then products.
+
+## The columns
+
+| Column | Required | What it holds |
+| --- | --- | --- |
+| `name` | Yes | Product name. Also the match key when `id` is blank. |
+| `price` | Yes | What the shopper pays, in the store's currency. Must be above 0. |
+| `original_price` | No | Pre-discount price. Blank means not discounted. |
+| `unit_value` | Yes | Pack size as a number, e.g. `500`. |
+| `unit_type` | Yes | One of `g`, `ml`, `pcs`. |
+| `stock` | Yes | A whole number, 0 or more. |
+| `description` | No | Shown on the product's details screen. |
+| `prep_time` | No | Free text, e.g. `10 mins`. |
+| `image_url` | No | Public `https` URL of the product photo. |
+| `categories` | No | Existing category names, separated by `\|`. |
+| `brand` | No | An existing brand name. Blank means unbranded. |
+| `is_popular` | No | `true`/`false` — feeds the storefront's popular rail. |
+| `id` | No | An existing product id. Present means update that exact product. |
+
+Column order doesn't matter; the header row is matched by name. Any column not
+listed above is ignored.
+
+## A minimal file
+
+```csv
+name,price,original_price,unit_value,unit_type,stock,categories,brand,is_popular
+Amul Gold Milk,34,,500,ml,120,Dairy & Eggs|Breakfast,Amul,true
+Tata Salt,28,30,1000,g,80,Staples,Tata,false
+Bananas (Robusta),49,59,6,pcs,40,Fruits & Vegetables,,true
+```
+
+Note the third row: an empty `brand` is unbranded, and `original_price` above
+`price` is what makes a product show a discount.
+
+## How rows are matched
+
+The importer decides create-or-update per row, and reports the split before you
+commit:
+
+<Steps>
+  <Step title="If the row has an id">
+    That exact product is updated. Use this when you are keeping a spreadsheet
+    alongside your catalog and pushing changes back to specific products.
+  </Step>
+  <Step title="If the id is blank">
+    The row is matched against existing products **by name**. A match updates
+    it; no match creates a new product.
+  </Step>
+</Steps>
+
+<Callout type="warning">
+  Because name is the fallback match key, renaming a product in your
+  spreadsheet and re-importing creates a **second** product rather than
+  renaming the first. Keep the `id` column when you intend to edit.
+</Callout>
+
+## Validation
+
+Every row is checked before anything is written. The dialog lists each failure
+with its line number and the reason, and the import button stays disabled until
+the file is clean. The common rejections:
+
+- `price must be a number greater than 0` — a blank, a currency symbol, or a
+  thousands separator in the cell.
+- `original_price is below price` — a discount cannot be negative.
+- `unit_type must be one of g, ml, pcs` — anything else, including `kg` and
+  `litre`. Convert the units: 1 kg is `1000` + `g`.
+- `stock must be a whole number` — decimals aren't stock.
+- A category or brand name that doesn't exist in this store.
+
+<Accordion title="My spreadsheet exports prices as ₹1,299.00">
+  Strip the symbol and the separator before importing — the cell must be a bare
+  number like `1299`. In Google Sheets, set the column's format to *Number →
+  Plain text* before exporting; in Excel, format it as *Number* with no
+  thousands separator.
+</Accordion>
+
+<Accordion title="Can I import product images?">
+  Yes, as URLs — put a public `https` link in `image_url` and the storefront
+  loads it directly. The importer doesn't upload files, so images hosted only
+  on your own machine need to go somewhere public first. Images added through
+  the console's product form are uploaded and hosted for you.
+</Accordion>
+
+<Accordion title="How big can a file be?">
+  **Keep a single import at or under 500 rows.** Up to that size the whole
+  import commits as one batch — it either all lands or none of it does. Above
+  it, the importer writes in chunks of 500, so a failure part-way through
+  leaves the earlier chunks already written and reports *Import stopped after N
+  of M*. Validation still covers the whole file first either way; it is only
+  the writing that stops being all-or-nothing. Split large catalogs into files
+  of 500 rows or fewer.
+</Accordion>
+
+<Accordion title="Can I export my existing catalog to a CSV?">
+  Not from the console — there is no export button today. The **Download
+  sample** button in the import dialog gives you a valid file with your store's
+  own categories and brands in it, which is the closest thing: use it as the
+  header row and fill in your products. If you need a full copy of your data,
+  ask us and we'll provide one.
+</Accordion>
+
+## What's next
+
+<CardGroup>
+  <Card title="Generate sample data" icon="wand" href="/docs/catalog/generate-sample-data">
+    A full grocery catalog in one click, for exploring the console.
+  </Card>
+  <Card title="Connect Razorpay" icon="credit-card" href="/docs/payments/connect-razorpay">
+    A catalog nobody can pay for isn't a store yet.
+  </Card>
+</CardGroup>

@@ -1,0 +1,104 @@
+---
+title: Create your first store
+description: From a new account to a storefront you can open in the app — about ten minutes, no payment details needed.
+order: 2
+---
+
+A CordeliaApps store is a real storefront inside the shopper app. You build it
+in the admin console, and it appears to shoppers once you publish it. Nothing
+you do before that is visible to anyone else, so you can take as long as you
+like getting it right.
+
+<Callout type="info">
+  You don't need a payment account to start. Payments only gate **publishing**,
+  not building — see [Connect Razorpay](/docs/payments/connect-razorpay) when
+  you're ready.
+</Callout>
+
+## Create your account
+
+Sign up at [cordeliaapps.com](https://cordeliaapps.com) with your email and a
+password. Confirm the verification email before continuing — an unverified
+account can sign in but can't own a store.
+
+## Set up the store
+
+The console asks for four things the first time you sign in. All four can be
+changed afterwards except the store's own identity in existing orders, so pick
+deliberately but don't agonise.
+
+<Steps>
+  <Step title="Name your store">
+    This is the name shoppers see in the app and on every order. Use the real
+    trading name, not a code name.
+  </Step>
+  <Step title="Choose a template">
+    The template is your storefront's entire look — layout, colour, typography,
+    navigation. Three ship today: **Gravia**, **DailyMart** and **GroFast**.
+    Every feature works identically in all three, so this is a visual choice
+    only, and you can switch later from Settings.
+  </Step>
+  <Step title="Pick a language">
+    The language your storefront's buttons and labels use. Independent of
+    currency — a store can charge in euros and read in English.
+  </Step>
+  <Step title="Pick a currency">
+    What you charge in. This one is worth getting right: it decides which
+    payment providers you can use, and changing it after you have orders makes
+    your sales history read in two currencies.
+  </Step>
+</Steps>
+
+<Callout type="warning">
+  Razorpay settles in **INR only**. If you pick EUR, GBP or USD, Stripe is your
+  payment provider.
+</Callout>
+
+## Fill the store out
+
+A brand-new store is empty, and an empty store won't render. Three things make
+it previewable:
+
+<CardGroup cols={3}>
+  <Card title="A logo" icon="image" href="/docs/store-setup/store-profile">
+    Uploaded from Settings → Store profile.
+  </Card>
+  <Card title="One category" icon="box" href="/docs/catalog/categories">
+    Shoppers browse by category, so there has to be at least one.
+  </Card>
+  <Card title="One product" icon="package" href="/docs/catalog/import-products-csv">
+    Add it by hand, import a CSV, or generate a sample catalog.
+  </Card>
+</CardGroup>
+
+The fastest way to see something real is the sample-data generator: **Settings →
+Sample data → Generate sample data** writes a full grocery catalog — around a
+hundred products across 10 categories, with real photography — in one go. It's
+meant for exploring the console, not for going live.
+
+## Preview it in the app
+
+Once those three checks pass, your store becomes **preview ready**. It now
+appears in the shopper app's store list — but only for you, signed in with the
+account that owns it. Nobody else can see or open it.
+
+This is the point of the two-tier check: you walk your own half-built store in
+the real app, on a real phone, before a single shopper can find it.
+
+<Accordion title="Why can't I see my store in the app?">
+  Preview readiness needs all three: a logo, at least one category, and at
+  least one product. The console's readiness checklist on the dashboard shows
+  which one is missing. Also confirm you're signed into the app with the same
+  email that owns the store — preview visibility is per-account.
+</Accordion>
+
+## What's next
+
+<CardGroup>
+  <Card title="Connect Razorpay" icon="credit-card" href="/docs/payments/connect-razorpay">
+    Take real payments into your own account.
+  </Card>
+  <Card title="Import products from CSV" icon="upload" href="/docs/catalog/import-products-csv">
+    Bring an existing catalog over in one file.
+  </Card>
+</CardGroup>

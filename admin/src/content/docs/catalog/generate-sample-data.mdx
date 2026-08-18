@@ -1,0 +1,113 @@
+---
+title: Generate sample data
+description: One click writes a realistic grocery catalog into your store — seven markets, real product photography, and what to know before you use it.
+sidebarTitle: Generate sample data
+order: 5
+---
+
+An empty store is hard to judge. **Settings → Sample data → Generate sample
+data** fills one with a realistic grocery catalog so you can walk your
+storefront, test checkout, and see how a template actually looks with products
+in it.
+
+## What it writes
+
+Between 155 and 200 records depending on the market, in a single atomic
+batch:
+
+| | |
+| --- | --- |
+| **Categories** | 10 grouped aisles, in every market |
+| **Brands** | 32 to 71 real brands with logos |
+| **Products** | 96 to 111, priced, categorised and stocked |
+| **Coupons** | 6 or 7 working discount codes |
+| **Banners** | 4 home-screen promos |
+
+Product photography is real, sourced from [Open Food
+Facts](https://world.openfoodfacts.org) and used under CC-BY-SA — the
+attribution is shown in the dialog itself.
+
+## Pick your market
+
+Seven catalogs ship, and the picker defaults to the one matching your store's
+currency:
+
+| Market | Catalog |
+| --- | --- |
+| **India** | Quick-commerce aisles — Amul, Britannia, Tata, Maggi. In rupees. |
+| **Germany** | German-language aisles — Kerrygold, Dr. Oetker, Ritter Sport, Haribo. In euros. |
+| **France** | French-language aisles — Président, Bonne Maman, LU, Evian. In euros. |
+| **Spain** | Spanish-language aisles — Central Lechera Asturiana, Carbonell, Gullón. In euros. |
+| **Italy** | Italian-language aisles — Barilla, Mulino Bianco, Galbani, Lavazza. In euros. |
+| **United Kingdom** | Warburtons, Heinz, Cathedral City, Yorkshire Tea, Cadbury. In pounds. |
+| **United States** | Cheerios, Kraft, Chobani, DiGiorno, Folgers. In dollars. |
+
+The default is a default, not a lock. Euro alone doesn't identify a country,
+and a catalog's brands and language are as market-specific as its prices — so
+choose the one you actually operate in.
+
+<Callout type="warning">
+  The prices are that market's realistic prices, in that market's currency. If
+  your store's currency differs from the market you generate, every price will
+  be wrong for your store. Match them.
+</Callout>
+
+## Before you generate
+
+<Callout type="error">
+  This is for **exploring the console**, not for going live. Publishing a store
+  full of generated products means selling things you don't stock, at prices
+  you didn't set, with photos you don't own the rights to use commercially.
+</Callout>
+
+Generating into a store that already has products is **warned about but not
+blocked** — items are added alongside what's there, never replacing it. The
+recovery story is per-item delete, which is tedious for ninety products. Prefer
+generating into an empty store.
+
+## Using it well
+
+<Steps>
+  <Step title="Generate into a new store">
+    Make a store specifically to explore in. Keep your real one clean.
+  </Step>
+  <Step title="Walk the storefront">
+    Open it in the app and browse it properly. This is the fastest way to
+    choose between templates — a real catalog shows you what a description
+    can't.
+  </Step>
+  <Step title="Test checkout end to end">
+    With [test payment keys](/docs/payments/connect-razorpay), place an order,
+    advance it through the console, cancel one, refund it. Every flow works
+    against generated data.
+  </Step>
+  <Step title="Start your real catalog clean">
+    When you know what you want, build the real store by hand or
+    [import a CSV](/docs/catalog/import-products-csv).
+  </Step>
+</Steps>
+
+<Accordion title="Can I use the generated products as a starting point?">
+  You can edit them like any other product, but you're editing someone else's
+  brand names and photography. For a real catalog, exporting the shape into a
+  spreadsheet and importing your own rows is cleaner than overwriting ninety
+  records one at a time.
+</Accordion>
+
+<Accordion title="Nothing was written and I got an error">
+  The whole seed is one atomic batch: it either writes everything or nothing,
+  so a failure never leaves a half-seeded store. Re-run it. If it keeps
+  failing, check that your store is selected in the switcher and that you're
+  still signed in.
+</Accordion>
+
+## Next
+
+<CardGroup>
+  <Card title="Connect Razorpay" icon="credit-card" href="/docs/payments/connect-razorpay">
+    Test checkout against the catalog you just made.
+  </Card>
+  <Card title="Choose a template" icon="store" href="/docs/store-setup/choose-a-template">
+    Now that you have something to look at.
+  </Card>
+</CardGroup>

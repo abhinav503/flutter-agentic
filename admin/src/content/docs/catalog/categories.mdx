@@ -1,0 +1,96 @@
+---
+title: Categories
+description: The aisles shoppers browse. How groups work, why order matters, and what happens to products when a category goes away.
+order: 1
+---
+
+Categories are how shoppers navigate your store. The home screen, the browse
+tab and the category grid are all built from them, which is why a store needs
+**at least one** before it can be previewed.
+
+Create them on the **Categories** page.
+
+## The fields
+
+| Field | What it does |
+| --- | --- |
+| **Name** | What shoppers see. Keep it short — templates render it in two lines at most. |
+| **Group** | An optional heading that gathers related categories together. |
+| **Image** | The tile artwork on the browse grid. |
+
+## Groups
+
+The **Group** field is the difference between a flat list of twenty categories
+and a browsable store. Categories sharing a group name are shown together under
+that heading.
+
+```text
+Group: Grocery & Kitchen
+  Fresh Fruits
+  Vegetables
+  Dairy, Bread & Eggs
+  Atta, Rice & Dal
+
+Group: Snacks & Drinks
+  Chips & Namkeen
+  Cold Drinks & Juices
+  Tea, Coffee & More
+```
+
+Groups aren't records you create — they're just a name you type on each
+category, and matching names gather. That means a typo makes a second group, so
+copy the exact spelling when you add the fourth category to a group.
+
+<Callout type="tip">
+  Leave Group empty if you have fewer than about eight categories. Grouping
+  three things under two headings adds a layer without adding navigation.
+</Callout>
+
+## Category images
+
+Each category shows a tile image on the browse grid. Square artwork works best;
+templates crop to a square and centre it.
+
+A representative *product photo* usually reads better at tile size than an icon
+or an illustration — a shopper scanning for "Dairy" recognises a milk carton
+faster than a dairy glyph.
+
+## Naming
+
+Category names are one of the few things shoppers read before they've decided
+to trust you.
+
+- Say what's inside: **Fresh Fruits**, not **Category 1**.
+- Match how shoppers speak, not how your supplier invoices.
+- Two words beats five. **Cold Drinks** beats **Cold Beverages & Soft Drinks**,
+  which will clip.
+
+## Deleting a category
+
+Deleting asks for confirmation and can't be undone.
+
+<Callout type="warning">
+  Products belonging **only** to the deleted category become unreachable by
+  browsing. They still exist, still appear in search, and can still be opened
+  from a direct link — but nobody navigating your aisles will find them.
+  Re-assign those products before deleting, or delete them too.
+</Callout>
+
+## Import instead
+
+Migrating a real store? Categories have a CSV importer of their own, with the
+same validate-everything-first behaviour as
+[the product importer](/docs/catalog/import-products-csv). Do categories first,
+then brands, then products — products reference the other two **by name**, and
+the importer won't invent a name that doesn't exist.
+
+## Next
+
+<CardGroup>
+  <Card title="Brands" icon="star" href="/docs/catalog/brands">
+    Optional, but they change how a catalog reads.
+  </Card>
+  <Card title="Products" icon="package" href="/docs/catalog/products">
+    Every field on a product, and what it drives.
+  </Card>
+</CardGroup>

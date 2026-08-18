@@ -1,0 +1,125 @@
+---
+title: Publish your store
+description: The readiness checklist, submitting for review, and the four states a store can be in on its way to live.
+sidebarTitle: Publish your store
+order: 1
+---
+
+A store isn't visible to shoppers until it's published. Getting there is a
+checklist and a review.
+
+## The four states
+
+```text
+draft ──submit──► pending ──approve──► published
+  ▲                  │                     │
+  └──changes─────────┘              ┌──unpublish
+  └────────requested────────────────┘
+```
+
+| State | What it means |
+| --- | --- |
+| **Draft** | Being built. Visible only to you. |
+| **In review** | Submitted. Waiting on us. |
+| **Published** | Live for every shopper in the app. |
+| **Changes requested** | Sent back, with a reason. Fix it and resubmit. |
+
+Only the server moves a store between these, which is why there's no "publish"
+switch you can flip yourself.
+
+## The readiness checklist
+
+Four checks, shown on your dashboard with a hint for each one that isn't met:
+
+| Check | Why |
+| --- | --- |
+| **Store logo** | Your store's face in discovery. |
+| **At least one category** | The storefront's home and browse tabs are built from these. |
+| **At least one product** | A store with an empty catalog has nothing to sell. |
+| **Payments connected** | Shoppers can't work around not being able to pay. |
+
+## Preview before publishing
+
+The first three checks are the **preview** bar. Clear them and your store
+appears in the shopper app's store list — **for you only**, signed in with the
+account that owns it. Nobody else can see or open it.
+
+<Callout type="success">
+  This is the point of the two tiers. You walk your own half-built store in the
+  real app, on a real phone, before a single shopper can find it — and payments
+  deliberately don't block it, so you can reach checkout before wiring money up.
+</Callout>
+
+Opening the publish card on your dashboard is what refreshes that preview flag,
+so if your store isn't showing up in the app, visit the dashboard first.
+
+## Before you submit
+
+The checklist is a floor, not a standard. Worth doing:
+
+<Steps>
+  <Step title="Walk your storefront in the app">
+    Home, a category, a product, cart, checkout. Look for empty sections and
+    placeholder text.
+  </Step>
+  <Step title="Place a test order end to end">
+    With [test keys](/docs/payments/connect-razorpay). Advance it through the
+    console. Cancel one and confirm the refund.
+  </Step>
+  <Step title="Check every product has a photo">
+    Filter the Products page and scan the image column. One missing photo in a
+    grid is very visible.
+  </Step>
+  <Step title="Confirm your delivery areas">
+    Empty means everywhere. If you meant to restrict, check the prefixes are
+    the right length — see [Delivery and areas](/docs/store-setup/delivery-and-areas).
+  </Step>
+  <Step title="Switch to live payment keys">
+    Test keys can't charge anyone. This is the step people forget.
+  </Step>
+</Steps>
+
+## Submitting
+
+**Submit for review** on the dashboard's publish card. It's enabled once all
+four checks pass and your store is in draft or changes-requested.
+
+We check that the store is a real, working shop — a coherent catalog, real
+photography, sane prices, working payments. Reviews are quick; you'll get an
+outcome rather than silence.
+
+## If changes are requested
+
+You'll get a **reason** on your dashboard saying what to fix. Fix it and submit
+again — there's no penalty for resubmitting, and no limit on attempts.
+
+Common reasons: placeholder or generated sample content still in the catalog,
+products with no photos, a logo that's illegible at small sizes, or a catalog
+that doesn't match what the store says it sells.
+
+<Callout type="warning">
+  Don't submit a store full of
+  [generated sample data](/docs/catalog/generate-sample-data). It's for
+  exploring the console — publishing it means listing products you don't stock,
+  at prices you didn't set.
+</Callout>
+
+## After you're live
+
+Editing doesn't unpublish. Products, prices, categories, banners, coupons,
+delivery, template, language and currency all change on a live store with no
+re-review.
+
+A store can also be **unpublished**, which removes it from discovery while
+keeping everything intact.
+
+## Next
+
+<CardGroup>
+  <Card title="Managing orders" icon="receipt" href="/docs/orders/managing-orders">
+    What your days look like now.
+  </Card>
+  <Card title="Troubleshooting" icon="file" href="/docs/going-live/troubleshooting">
+    When something isn't behaving.
+  </Card>
+</CardGroup>

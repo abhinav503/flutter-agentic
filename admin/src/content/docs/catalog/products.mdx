@@ -1,0 +1,134 @@
+---
+title: Products
+description: Every field on a product and what it drives in the storefront — pricing, discounts, size options, stock and the popular rail.
+order: 3
+---
+
+A product is the unit shoppers actually buy. This is the longest form in the
+console, so here's what each field does — and which ones matter more than they
+look.
+
+Add products from the **Products** page.
+
+## Core fields
+
+| Field | Notes |
+| --- | --- |
+| **Name** | What shoppers see and search. Also the match key when importing without an id. |
+| **Image** | One photo. Uploaded and hosted for you, or a public `https` URL on import. |
+| **Brand** | Optional. Blank means unbranded. |
+| **Categories** | A product can belong to several. |
+| **Description** | Shown on the product details screen. |
+| **Prep time** | Free text, e.g. `10 mins`. Shown on the product card. |
+
+## Price and original price
+
+Two fields, and the relationship between them is the whole discount system:
+
+- **Price** — what the shopper pays. Must be above 0.
+- **Original price** — the pre-discount price. Leave it equal to price (or
+  blank on import) for no discount.
+
+When original price is **higher** than price, the storefront renders the
+strike-through, and the discount percentage is computed for you and shown as a
+badge. There is no separate "discount" field to keep in sync.
+
+<Callout type="warning">
+  An original price *below* the price is rejected — a discount can't be
+  negative. If you meant to raise a price, change **price**.
+</Callout>
+
+## Package size
+
+**Unit value** plus **unit type** describe what one unit is: `500` + `g`,
+`1` + `pcs`, `750` + `ml`.
+
+Only three unit types exist: `g`, `ml`, `pcs`. There is no `kg` or `litre` —
+convert. 1 kg is `1000` + `g`; 2 litres is `2000` + `ml`.
+
+<Callout type="note">
+  This is deliberate. One base unit per dimension means every template can
+  render a weight consistently, and two products can be compared without
+  parsing units.
+</Callout>
+
+## Size options
+
+A product can offer several package sizes, each with **its own price**. Add
+them under **Size options** — each row is a size value plus its price and
+original price.
+
+```text
+250 g  →  ₹60   (was ₹70)
+500 g  →  ₹110  (was ₹130)
+1000 g →  ₹200  (was ₹240)
+```
+
+The storefront shows a size picker on the product details screen, and the price
+updates as the shopper switches. Leave size options empty and the product has a
+single size — which is most products.
+
+<Callout type="tip">
+  Size options are per-size *pricing*, not per-size *stock*. Stock is one number
+  for the product as a whole. If two sizes need to run out independently, make
+  them two products.
+</Callout>
+
+## Stock
+
+A whole number, 0 or more.
+
+- Stock **decrements** when an order is placed and **increments back** when an
+  order is cancelled. You don't manage that; it's transactional.
+- Two shoppers racing for the last unit get one order and one refusal, never
+  two orders.
+
+<Callout type="warning">
+  **Setting stock to 0 does not hide a product.** The storefront isn't sent
+  stock at all, so a sold-out product still appears in the grid and can still
+  be added to a cart. The refusal happens server-side at checkout, where the
+  order fails with *Insufficient stock*.
+
+  So 0 is a safety net, not a way to withdraw something. To take a product off
+  sale, delete it — or accept that shoppers may reach checkout before they find
+  out.
+</Callout>
+
+The console's product list filters by **In stock** / **Out of stock**, which is
+the fastest way to find what needs restocking.
+
+## Popular
+
+A checkbox. It feeds the storefront's **popular products** rail on the home
+screen — a curated shelf, not a computed one. Nothing is popular until you say
+it is.
+
+Tick it for eight to fifteen products. Tick it for everything and the rail
+becomes a second, worse product grid.
+
+## Ratings
+
+**Not editable.** `Rating` and `Review count` are rolled up from real shopper
+reviews and move in the same transaction as every review write. They appear on
+product cards throughout the storefront. See
+[Product reviews](/docs/growing/product-reviews).
+
+## Working with a large catalog
+
+The Products page sorts on every column header and filters by category, brand
+and stock. Combining them is how you do bulk work:
+
+- Filter to a brand, sort by stock ascending → what to reorder from one
+  supplier.
+- Filter to a category, sort by price → spot the mispriced outlier.
+
+## Next
+
+<CardGroup>
+  <Card title="Import products from CSV" icon="upload" href="/docs/catalog/import-products-csv">
+    A hundred products in one file.
+  </Card>
+  <Card title="Banners" icon="image" href="/docs/catalog/banners">
+    Promote what you just added.
+  </Card>
+</CardGroup>

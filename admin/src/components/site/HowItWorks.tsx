@@ -4,7 +4,7 @@ const steps = [
   {
     n: "01",
     title: "Create your store",
-    body: "Sign up, name your store, set your delivery area and connect your own Razorpay account. Nothing to install, no developer needed.",
+    body: "Sign up, name your store, pick your currency and language, set your delivery area and connect your own Razorpay or Stripe account. Nothing to install, no developer needed.",
   },
   {
     n: "02",

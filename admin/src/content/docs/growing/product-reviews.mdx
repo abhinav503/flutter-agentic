@@ -1,0 +1,92 @@
+---
+title: Product reviews
+description: Who can review, what the verified badge means, how ratings roll up onto product cards, and what moderation you actually have.
+sidebarTitle: Product reviews
+order: 2
+---
+
+Any signed-in shopper can rate a product 1–5 with optional text. Ratings appear
+on product cards throughout your storefront, which makes them one of the few
+things on your store you don't fully control.
+
+Read and moderate them on the **Reviews** page.
+
+## The rules
+
+- **One review per shopper per product.** Posting again edits the existing one
+  rather than adding a second.
+- **No purchase required.** Anyone signed in can review anything in your store.
+- **Purchase is a badge, not a gate.** A shopper who has a *delivered* order
+  containing that product gets a **verified purchase** mark on their review.
+
+<Callout type="note">
+  The badge is derived server-side from delivered orders — it isn't something
+  a shopper claims or you assign. It's how a reader tells a real customer's
+  review from a passer-by's.
+</Callout>
+
+## How ratings reach product cards
+
+Every product carries a rolled-up **average**, **review count** and a
+distribution across the five star levels. These move in the same transaction as
+every review write, so a product's rating and its reviews can never drift
+apart.
+
+They aren't editable. There is no field to set a product's rating — it's a
+consequence of reviews, and the only way to change it is for the reviews to
+change.
+
+## Order ratings are different
+
+Two separate things, easy to confuse:
+
+| | Rates | Who can | Public |
+| --- | --- | --- | --- |
+| **Product review** | A product | Any signed-in shopper | Yes — on the storefront |
+| **Order rating** | A delivery | Only that order's shopper, once delivered | No — console only |
+
+An order rating is feedback on how the delivery went. It shows on the order in
+your console and nowhere else. See
+[Managing orders](/docs/orders/managing-orders).
+
+## Moderation
+
+The Reviews page lists every review across your store, with the product name,
+the rating, the text, the reviewer and whether they're a verified purchaser.
+
+You have exactly one action: **delete**. There's no edit, no reply, no hiding.
+Deleting removes the review and corrects the product's aggregates in the same
+transaction, so the average is right immediately.
+
+<Callout type="warning">
+  Deleting a review because it's negative is the wrong use of this. A store
+  whose worst review is four stars reads as filtered, and shoppers discount the
+  whole set. Delete abuse, spam and content about the wrong product — not
+  criticism.
+</Callout>
+
+<Callout type="tip">
+  Unlike the rest of the console, this page **isn't live** — it's fetched, with
+  its own **Refresh** button. A review posted while you're looking at it
+  appears on the next load.
+</Callout>
+
+## Reading them usefully
+
+- **A one-star with detail is worth more than ten five-stars.** It's a bug
+  report about your catalog: a wrong photo, a wrong size, a stale price.
+- **Watch for repeats.** The same complaint on three products in a category is
+  a sourcing or listing problem, not three unhappy shoppers.
+- **Unverified reviews on a product nobody bought** are worth a look. That's
+  the pattern spam takes.
+
+## Next
+
+<CardGroup>
+  <Card title="Notifications" icon="bell" href="/docs/growing/notifications">
+    Bring shoppers back to buy again.
+  </Card>
+  <Card title="Products" icon="package" href="/docs/catalog/products">
+    Fix what the reviews are telling you about.
+  </Card>
+</CardGroup>

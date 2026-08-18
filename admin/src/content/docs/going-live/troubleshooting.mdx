@@ -1,0 +1,107 @@
+---
+title: Troubleshooting
+description: The things that actually go wrong, in the order they're worth checking.
+order: 3
+---
+
+Ordered by how often they come up. If your problem isn't here, email
+[support@cordeliaapps.com](mailto:support@cordeliaapps.com) with your store
+name and, where relevant, an order id.
+
+## My store isn't in the app
+
+<Steps>
+  <Step title="Check the readiness checklist">
+    A store needs a logo, one category and one product before it can even be
+    previewed. Your dashboard shows which is missing.
+  </Step>
+  <Step title="Open your dashboard">
+    Loading the publish card is what refreshes your store's preview
+    visibility. If you cleared the checks in another tab, visit the dashboard.
+  </Step>
+  <Step title="Confirm you're signed in as the owner">
+    Preview visibility is per-account. An unpublished store is visible only to
+    the account that owns it — the same email you use in the console.
+  </Step>
+  <Step title="Check the status">
+    Only a **published** store is visible to other shoppers. Draft, in review
+    and changes-requested are all owner-only.
+  </Step>
+</Steps>
+
+## A payment succeeded but no order appeared
+
+Checkout verifies every payment server-side before writing an order. A
+mismatched secret passes the charge and fails verification — the shopper is
+charged and no order is created.
+
+<Callout type="error">
+  Re-save **both halves** of your key pair together. Regenerating keys at your
+  provider and pasting only the public half is the usual cause. Refund the
+  affected shopper from your provider's dashboard directly.
+</Callout>
+
+## Console pages look empty
+
+Check the **store switcher** at the top of the sidebar. Every page is scoped to
+the selected store, and this is the most common confusion in the console.
+
+## A shopper can't check out
+
+In order of likelihood:
+
+| Symptom | Cause |
+| --- | --- |
+| "Doesn't deliver here" | Their address is outside your [delivery areas](/docs/store-setup/delivery-and-areas). A prefix that's too specific excludes more than you meant. |
+| Payment sheet doesn't open | No provider connected, or it's saved but not activated — you have to choose **Use … for checkout**. |
+| Coupon rejected | A minimum, a window, or a usage limit. The app names which. |
+| Checkout fails with "Insufficient stock" | That product's stock is below what they're buying. Note the shopper could add it to the cart — stock isn't sent to the storefront, so it's only checked at checkout. |
+
+## A CSV import won't go through
+
+The importer validates everything before writing anything, and lists each
+failure with its line number. The recurring ones:
+
+- **A category or brand name that doesn't exist.** Products reference both by
+  name and the importer won't invent one. Import categories and brands first.
+- **`unit_type` must be `g`, `ml` or `pcs`.** No `kg`, no `litre` — convert.
+- **A formatted price.** `₹1,299.00` isn't a number. It must be `1299`.
+- **`original_price` below `price`.** A discount can't be negative.
+
+## A refund is stuck on Pending
+
+Your provider accepted it but hasn't told your store it settled. Either set up
+the [refund webhook](/docs/payments/connect-razorpay) so it flips automatically,
+or click **Complete refund**. The money has already reached the shopper — only
+your record is behind.
+
+If it's **Failed**, use **Retry refund**. Retrying can't double-refund: your
+store checks for an existing refund on that payment first.
+
+## Notifications aren't arriving
+
+- Push needs a **real device**. Emulators are unreliable.
+- The shopper must have opened your store at least once — that's what
+  subscribes their device.
+- **iOS push isn't enabled yet.** Android is.
+- Check the in-app notification centre. If the message is there, it sent, and
+  the OS suppressed the banner.
+
+## Prices look wrong after changing currency
+
+Changing currency changes the **label**, not the value. A ₹250 product in a
+store switched to EUR becomes a €250 product. Re-price your catalog, or switch
+back.
+
+## A product isn't findable
+
+- **Out of stock** products stay visible but can't be added to a cart.
+- A product in **no category** can't be reached by browsing. It's still
+  searchable — assign it a category.
+- Deleting a category orphans products that were only in it. Same effect.
+
+## Still stuck
+
+Email [support@cordeliaapps.com](mailto:support@cordeliaapps.com). Include your
+store name, what you expected, what happened, and an order id if there is one.
+That's usually enough to answer without a round trip.

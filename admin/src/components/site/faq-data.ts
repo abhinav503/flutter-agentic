@@ -9,13 +9,13 @@ export const faqItems = [
     id: "faq-cut",
     question: "Do you take a cut of my sales?",
     answer:
-      "No. CordeliaApps never takes a commission on your sales, because shopper payments are settled by Razorpay directly into your own Razorpay account and never pass through us.",
+      "No. CordeliaApps never takes a commission on your sales, because shopper payments are settled by Razorpay or Stripe directly into your own account with that provider and never pass through us.",
   },
   {
     id: "faq-cost",
     question: "What does CordeliaApps cost?",
     answer:
-      "Nothing. The shopper app and the admin console are free to use: there is no subscription, no setup fee and no per-order cut. You will still have your own Razorpay account for taking payments, and Razorpay's own transaction fees are between you and Razorpay.",
+      "Nothing. The shopper app and the admin console are free to use: there is no subscription, no setup fee and no per-order cut. You will still have your own Razorpay or Stripe account for taking payments, and that provider's own transaction fees are between you and them.",
   },
   {
     id: "faq-separate-app",
@@ -39,12 +39,24 @@ export const faqItems = [
     id: "faq-data",
     question: "What happens to my data if I leave?",
     answer:
-      "Your data stays yours. Your catalog and your orders are exportable, so you can take your product data and order history with you if you stop using CordeliaApps.",
+      "Your data stays yours. Ask us and we will give you a full copy of your catalog and order history, so you can take them with you if you stop using CordeliaApps. There is no self-serve export button in the console yet — it is on the list.",
   },
   {
     id: "faq-push",
     question: "Do you support push notifications?",
     answer:
-      "Honestly, not yet. In-app notifications ship today, while store-composed notifications and push notifications are on the roadmap and are not available right now.",
+      "Yes. You can compose a notification with optional artwork and send it to shoppers who follow your store, and every order transition — placed, on the way, delivered, cancelled — notifies the shopper automatically. Each message also lands in the in-app notification centre, so it is not lost if a push is missed. Push is live on Android; iOS push is not enabled yet.",
+  },
+  {
+    id: "faq-payments",
+    question: "Which payment providers can I use?",
+    answer:
+      "Razorpay and Stripe. Razorpay handles INR and covers cards, UPI, netbanking and wallets. Stripe handles INR, EUR, GBP and USD, with the available methods decided by your account's country and the order's currency. You connect one, your keys are stored encrypted, and switching between them is one click.",
+  },
+  {
+    id: "faq-currency",
+    question: "Can I sell outside India?",
+    answer:
+      "Yes. A store sets its own currency and language: prices can be charged in rupees, euros, pounds or dollars, and the storefront reads in English, German, French, Spanish, Italian or Hindi. Amounts, dates and currency symbols are formatted for the shopper's locale automatically. One thing to know: address autocomplete and postal-code lookup are available in India today, so shoppers elsewhere type their delivery address in full.",
   },
 ] as const;

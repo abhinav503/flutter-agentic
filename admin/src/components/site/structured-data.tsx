@@ -43,11 +43,14 @@ const softwareApplication = {
   applicationCategory: "BusinessApplication",
   operatingSystem: "iOS, Android, Web",
   description:
-    "CordeliaApps gives grocery and retail store owners in India a branded shopping app with catalog, cart, coupons and Razorpay checkout, free to use and with zero commission on sales.",
+    "CordeliaApps gives grocery and retail store owners a branded shopping app with catalog, cart, coupons and card, UPI and wallet checkout through Razorpay or Stripe, free to use and with zero commission on sales.",
   offers: {
     "@type": "Offer",
     price: "0",
-    priceCurrency: "INR",
+    // A zero price has no meaningful currency, but the property is required
+    // alongside `price`. USD rather than INR since stores now charge in four
+    // currencies and the markup shouldn't imply one market.
+    priceCurrency: "USD",
   },
   publisher: { "@type": "Organization", name: "CordeliaApps", url: SITE_URL },
 };

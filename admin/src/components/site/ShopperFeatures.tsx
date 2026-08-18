@@ -17,7 +17,7 @@ const groups = [
     items: [
       "Cart",
       "Coupons",
-      "Razorpay checkout",
+      "Card, UPI and wallet checkout",
       "Address book",
       "Email sign-up with verification",
       "Profile with avatar",
@@ -26,6 +26,7 @@ const groups = [
   {
     title: "After the order is placed",
     items: [
+      "Push notifications and an in-app notification centre",
       "Order history with a dated status timeline and track-order view",
       "Self-cancel with automatic refund",
       "Product ratings and reviews with a Verified purchase badge",
@@ -41,7 +42,7 @@ export function ShopperFeatures() {
         id="shopper-features-heading"
         eyebrow="For your customers"
         title="What your customers get in the shopping app"
-        lead="One shopper app hosts many stores, so anyone already shopping a CordeliaApps store can shop yours with the same account, saved addresses and payment flow."
+        lead="One shopper app hosts many stores, so anyone already shopping a CordeliaApps store can shop yours with the same account, saved addresses and payment flow. The storefront reads in six languages, and shoppers can switch on their own device."
       />
 
       <div className="mt-14 grid gap-6 md:grid-cols-3">

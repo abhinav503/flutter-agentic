@@ -1,5 +1,5 @@
 import { SectionShell, SectionHeading } from "./ui";
-import { Layers, Wallet, KeyRound, Clock } from "lucide-react";
+import { Layers, UserRoundX, Fingerprint, Clock } from "lucide-react";
 
 const cards = [
   {
@@ -8,14 +8,14 @@ const cards = [
     body: "Every store's catalog, orders and payments are namespaced. A store admin can only touch their own store, and a shopper can only see their own data.",
   },
   {
-    Icon: Wallet,
-    title: "Your money path",
-    body: "Every payment is verified on the server before the order is recorded, and a refund can never be issued twice.",
+    Icon: UserRoundX,
+    title: "Shoppers control their data",
+    body: "A shopper can delete their account from inside the app, which removes their profile, addresses, cart, wishlist, searches and every review they wrote. Your orders stay — they are your sales records, not theirs.",
   },
   {
-    Icon: KeyRound,
+    Icon: Fingerprint,
     title: "Secrets protected",
-    body: "Payment keys are stored encrypted and never leave the server, passwords are never stored by us, and data is encrypted in transit and at rest.",
+    body: "Passwords are never stored by us, and your data is encrypted in transit and at rest.",
   },
   {
     Icon: Clock,

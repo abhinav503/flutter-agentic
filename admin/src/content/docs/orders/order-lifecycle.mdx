@@ -1,0 +1,115 @@
+---
+title: The order lifecycle
+description: The four states an order can be in, what each one means to the shopper, and the timeline that records every move.
+sidebarTitle: Order lifecycle
+order: 1
+---
+
+Every order is in exactly one of four states. Understanding them is most of
+understanding the Orders page.
+
+## The four states
+
+| State | Shown to shoppers as | Meaning |
+| --- | --- | --- |
+| **Pending** | Pending | Placed and paid. You haven't started on it. |
+| **In process** | **On the way** | You've accepted it and it's being fulfilled. |
+| **Delivered** | Delivered | It reached the shopper. Terminal. |
+| **Cancelled** | Cancelled | Called off by you or the shopper. Terminal, stock restored. |
+
+<Callout type="note">
+  In-process is labelled **"On the way"** in both the console and the app. It's
+  a single fulfilment state, not a courier tracking pipeline — there's no
+  "packed" or "out for delivery" underneath it.
+</Callout>
+
+## How an order moves
+
+```text
+                  ┌──────────────► CANCELLED
+                  │                   ▲
+PENDING ──────────┴──► IN PROCESS ────┘
+                            │
+                            └───────► DELIVERED
+```
+
+You advance it from the console. Forward moves are yours to make; there's no
+timer and no automatic transition.
+
+**Cancellation is available from both ends** until delivery: you can cancel
+from the console, and the shopper can cancel their own order from the app. A
+**delivered order cannot be cancelled**; that's a return, and returns aren't
+built yet.
+
+<Callout type="warning">
+  A shopper can cancel **right up until you mark the order delivered** — marking
+  it on the way does not close their window. If you have already set off, the
+  cancellation still goes through, restocks the items and refunds them. Mark
+  orders delivered promptly at the door; that is the only thing that ends the
+  window.
+</Callout>
+
+## The timeline
+
+Every transition is **dated and kept**. Each order carries its full history —
+placed at, on the way at, delivered at — which is what both the console and the
+app's Track Order screen render.
+
+The history is append-only, including corrections. Mark an order delivered by
+mistake and walk it back, and the trail keeps all three entries. That's
+deliberate: this is the audit record, and collapsing it at write time destroys
+information no later read can recover.
+
+<Callout type="note">
+  Orders placed before the timeline existed show a dated "Placed" step with
+  undated later ones. That's the only honest reconstruction — nothing recorded
+  those transition times at the time.
+</Callout>
+
+## The delivery code
+
+Every order gets a **delivery OTP** at placement. It's shown to the shopper in
+the app and to you in the console — read it back from the shopper at handover
+to confirm you're giving the bag to the right person.
+
+<Callout type="warning">
+  It's a **confirmation aid, not a lock.** Nothing in the system verifies it,
+  and marking an order delivered doesn't require entering it. It's there so a
+  human at the door can check.
+</Callout>
+
+## What an order records forever
+
+Line items snapshot the product's name, image, price and weight **at order
+time**. So do the delivery address, the coupon and the delivery fee.
+
+Nothing about an order is re-read live from your catalog. Change a price,
+rename a product, or delete it outright — a past order still shows what was
+actually sold, at what it actually cost, to where it was actually sent.
+
+## What the shopper sees
+
+<Steps>
+  <Step title="A notification per transition">
+    Placed, on the way, delivered, cancelled — each sends a push, written in
+    your store's language.
+  </Step>
+  <Step title="A dated timeline">
+    The app's Track Order screen renders the same history the console shows.
+  </Step>
+  <Step title="A rating prompt once delivered">
+    Only a delivered order can be rated — there's nothing to judge until it
+    arrives.
+  </Step>
+</Steps>
+
+## Next
+
+<CardGroup>
+  <Card title="Managing orders" icon="receipt" href="/docs/orders/managing-orders">
+    The day-to-day of the Orders page.
+  </Card>
+  <Card title="Cancellations and refunds" icon="receipt" href="/docs/orders/cancellations-and-refunds">
+    When something goes wrong.
+  </Card>
+</CardGroup>

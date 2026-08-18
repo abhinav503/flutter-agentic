@@ -1,0 +1,115 @@
+---
+title: Coupons
+description: Discount codes with scopes, minimum spends, caps and usage limits — and where each rule is actually enforced.
+order: 1
+---
+
+A coupon is a code a shopper types at checkout. Every rule below is enforced
+server-side at three points — the shopper's "Apply" preview, the payment
+amount, and the recorded order — through the same code, so the preview, the
+charge and the record can never disagree.
+
+Create them on the **Coupons** page.
+
+## The fields
+
+| Field | What it does |
+| --- | --- |
+| **Code** | What the shopper types, e.g. `WELCOME10`. |
+| **Discount type** | Percent off, or a flat amount off. |
+| **Value** | The percentage, or the amount. |
+| **Applies to** | Whole order, selected categories, or selected products. |
+| **Minimum order value** | Floor the basket must reach. Empty means no minimum. |
+| **Maximum discount** | Cap on what a percentage can take off. Empty means no cap. |
+| **Valid from / until** | Optional window. Empty means no bound on that end. |
+| **Total uses** | Across all shoppers. Empty means unlimited. |
+| **Uses per customer** | Per shopper. Empty means unlimited. |
+| **Active** | Off disables the code without deleting it. |
+
+## Percent needs a cap
+
+The single most important pairing. A percentage discount with no **maximum
+discount** takes its cut of *any* basket:
+
+```text
+WELCOME20 — 20% off, no cap
+  ₹500 basket  → ₹100 off   ✓ intended
+  ₹8,000 basket → ₹1,600 off ✗ probably not
+```
+
+Set the cap to what you're willing to lose on the largest realistic order. Flat
+discounts don't need one — the amount is the cap.
+
+<Callout type="warning">
+  A percentage coupon with no cap on a store that sells anything expensive is
+  how a promotion becomes a loss. Set it before you publish the code.
+</Callout>
+
+## Minimum order value
+
+The floor a basket must reach. This is what makes a discount pay for itself:
+`10% off over ₹500` raises average basket size, where `10% off` just costs you
+10%.
+
+Measured on the **items subtotal**, before delivery.
+
+<Callout type="note">
+  When a shopper's basket is below the floor, the app tells them so *and names
+  the amount* in your currency and their language. They can add to reach it —
+  which is the point.
+</Callout>
+
+## Scope
+
+**Whole order** applies to the basket. **Selected categories** or **selected
+products** applies only to matching lines — a shopper with a mixed basket gets
+the discount on the eligible part.
+
+Scoped coupons are how you move specific stock: a code that only discounts a
+category clears that category without discounting everything.
+
+## Limits
+
+**Total uses** caps redemptions across all shoppers — a launch offer for the
+first 100 orders.
+
+**Uses per customer** caps one shopper. Set it to `1` for anything meant as a
+first-order incentive; leave it empty for a code shoppers should reuse.
+
+The two are independent, and both are counted server-side, so neither can be
+beaten by trying twice.
+
+## Interaction with delivery
+
+The delivery fee is evaluated **after** the coupon. A basket that clears your
+free-delivery threshold before a discount may fall under it after — and the fee
+returns.
+
+<Callout type="tip">
+  If that's not what you want, either raise the threshold or use a flat coupon
+  small enough not to cross it. Shoppers do notice the fee reappearing.
+</Callout>
+
+## Active, not delete
+
+Toggle **Active** off to stop a code working while keeping it and its usage
+count. Delete only codes you'll never run again — a deleted code takes its
+history with it.
+
+## Codes that work
+
+- **Short and typeable.** `SAVE20` beats `SUMMER-SALE-2026-20PCT`. Shoppers
+  type these on a phone.
+- **Unambiguous characters.** Avoid `0`/`O` and `1`/`I` together.
+- **Say what it does.** `FIRST10` explains itself in support conversations.
+
+## Next
+
+<CardGroup>
+  <Card title="Banners" icon="image" href="/docs/catalog/banners">
+    Advertise the code on your home screen.
+  </Card>
+  <Card title="Notifications" icon="bell" href="/docs/growing/notifications">
+    Push it to shoppers who follow your store.
+  </Card>
+</CardGroup>

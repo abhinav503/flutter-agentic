@@ -1,0 +1,111 @@
+---
+title: Notifications
+description: Push messages to shoppers who follow your store — what you compose, what sends itself, and the limits worth knowing before you write.
+order: 3
+---
+
+Notifications reach shoppers who have your store. There are two kinds: the ones
+**you** compose, and the ones your store **sends itself** as orders move.
+
+## What sends itself
+
+Every order transition notifies the shopper automatically:
+
+| Transition | The shopper gets |
+| --- | --- |
+| Order placed | Confirmation |
+| Marked on the way | "On the way" |
+| Marked delivered | Delivered |
+| Cancelled | Cancellation |
+
+You don't configure these and can't turn them off. They're written in **your
+store's language** — server-authored copy can't be translated on the device, so
+it follows the store rather than the shopper.
+
+## What you compose
+
+The **Notifications** page. Four fields:
+
+| Field | Notes |
+| --- | --- |
+| **Kind** | What it's about — offer, order, payment, account, security. |
+| **Title** | Up to 60 characters. |
+| **Message** | Up to 180 characters. |
+| **Image** | Optional artwork. Max 300 KB. |
+
+**Kind** is about *meaning*, never appearance — each storefront template draws
+its own icon for a kind. Choosing "Offer or discount" for a promotion is what
+gets it the right glyph in all three templates.
+
+<Callout type="warning">
+  The 300 KB image limit is enforced, not advisory. Push delivery silently
+  drops a larger image — you'd get a notification with no picture and no error.
+  Compress before uploading.
+</Callout>
+
+## The limits are the design
+
+60 characters of title and 180 of message aren't arbitrary — a notification row
+in the storefront is two lines and clips beyond that. Write to the limit rather
+than into it:
+
+```text
+✓ Weekend fruit sale — 30% off
+  Mangoes, apples and grapes, today and tomorrow only.
+
+✗ IMPORTANT ANNOUNCEMENT REGARDING OUR UPCOMING WEEKEND PROMOTIONAL EVENT
+  We are pleased to inform our valued customers that we will be running…
+```
+
+## Sending
+
+Sending does two things at once: delivers the push, and writes the message into
+the shopper's in-app notification centre. A shopper who had notifications
+muted, or whose phone was off, still finds it there.
+
+<Callout type="note">
+  A sent notification is **history**. There's no edit. **Delete** removes it
+  from the feed for anyone who hasn't opened the app yet — it cannot unsend a
+  push already delivered.
+</Callout>
+
+Tapping a notification opens your store and lands the shopper in its
+notification centre.
+
+## How often
+
+The fastest way to lose a shopper is to notify them too much — and unlike an
+unsubscribe, muting is silent. You never learn you've lost them.
+
+A workable ceiling is **one or two a week**, and only when there's a real
+reason:
+
+- A genuine offer, with the code and the deadline in the message.
+- New stock people asked for.
+- A service change — closed for a holiday, hours changed.
+
+Never: "we miss you", or a notification about a notification.
+
+<Callout type="tip">
+  Send at a time your shoppers can act on. A grocery offer at 11pm is read the
+  next morning, by which time it's been buried by everything else.
+</Callout>
+
+<Accordion title="Nothing arrived on my test device">
+  Push needs a real device — emulators are unreliable for this. Confirm the app
+  has notification permission, that you're signed in and have opened your
+  store at least once (that's what subscribes the device), and that the message
+  didn't just land in the notification centre while the push was suppressed by
+  the OS. **iOS push is not enabled yet**; Android is.
+</Accordion>
+
+## Next
+
+<CardGroup>
+  <Card title="Coupons" icon="coupon" href="/docs/growing/coupons">
+    Make the offer you're announcing.
+  </Card>
+  <Card title="Publish your store" icon="globe" href="/docs/going-live/publish-your-store">
+    Reach shoppers who aren't yours yet.
+  </Card>
+</CardGroup>

@@ -1,0 +1,104 @@
+---
+title: Delivery fees and areas
+description: A flat fee, an optional free-delivery threshold, and the postal codes you'll deliver to — enforced at checkout, not just displayed.
+sidebarTitle: Delivery and areas
+order: 3
+---
+
+**Settings → Delivery** holds two policies: what you charge to deliver, and
+where you'll deliver at all. Both are enforced at checkout, so a shopper
+outside your area cannot place an order, and the fee they saw in the cart is
+exactly what they're charged.
+
+## The fee
+
+| Field | Meaning |
+| --- | --- |
+| **Delivery fee** | Charged per order, in your store's currency. `0` means you never charge for delivery. |
+| **Free delivery above** | Basket value at or above which the fee is waived. `0` means no threshold — the fee always applies. |
+
+There's no "free above 0" case to express: a store that wants unconditional
+free delivery sets the **fee** to 0 and leaves the threshold alone.
+
+<Callout type="warning">
+  The threshold is measured on the basket **after any coupon**. A ₹450 basket
+  with a ₹100 coupon is ₹350 — below a ₹400 threshold, so the fee comes back.
+  Shoppers notice this, so set your threshold with your coupon values in mind.
+</Callout>
+
+The fee is snapshotted onto every order at placement. Raising it tomorrow
+doesn't retroactively change what a past order says it charged.
+
+## Where you deliver
+
+The **Delivery areas** box takes postal codes, one per line. Leave it **empty
+to deliver everywhere** — which is what every store does until it says
+otherwise.
+
+The important part: **a partial code covers everything starting with it.**
+
+```text
+560001
+560002
+560
+```
+
+The first two lines are exact PIN codes. The third covers *every* `560xxx` code
+in Bengaluru — hundreds of them, in one line. That's the point: you think in
+cities and districts, not in individual codes, and enumerating a whole city by
+hand would be thousands of rows to maintain.
+
+The same works everywhere the format differs. `101` covers every `101xx` code in
+Berlin; `SW1` covers Westminster. Codes are compared with spacing and case
+removed, so `SW1A 1AA` and `sw1a1aa` are the same address to your store.
+
+<Callout type="error">
+  A prefix that's too broad is the mistake to avoid. `5` covers every postal
+  code in India beginning with 5 — several states. Check the length of what
+  you paste.
+</Callout>
+
+You can hold up to 500 entries, each up to 12 characters. Anything longer is
+dropped rather than truncated, because a truncated prefix silently *widens* the
+area it matches — the one failure worth refusing outright.
+
+## What a shopper experiences
+
+<Steps>
+  <Step title="They see the fee in the cart">
+    Before checkout, in your currency and their language. No surprise at the
+    payment step.
+  </Step>
+  <Step title="An out-of-area address is refused">
+    If their selected address falls outside your list, checkout is blocked with
+    a message telling them so. Nothing about their cart will fix it — only a
+    different address.
+  </Step>
+  <Step title="The fee is charged and recorded">
+    It's included in the order total and shown as its own line in every totals
+    panel, in the app and in the console.
+  </Step>
+</Steps>
+
+<Accordion title="Can I charge different fees for different areas?">
+  Not today — the fee is flat per store. If you serve two zones with very
+  different costs, the usual workaround is to set the fee to the higher of the
+  two and use a free-delivery threshold to soften it for larger baskets.
+</Accordion>
+
+<Accordion title="I added areas and existing customers can't order any more">
+  Expected, and worth double-checking before you save: adding your first entry
+  switches you from "delivers everywhere" to "delivers only to this list". If
+  you meant to add one favoured area rather than restrict to it, clear the box.
+</Accordion>
+
+## Next
+
+<CardGroup>
+  <Card title="Build your catalog" icon="box" href="/docs/catalog/categories">
+    Categories, brands, then products.
+  </Card>
+  <Card title="How checkout works" icon="credit-card" href="/docs/payments/how-checkout-works">
+    Where the fee is calculated and charged.
+  </Card>
+</CardGroup>

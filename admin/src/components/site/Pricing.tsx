@@ -7,9 +7,10 @@ import { AuthCta } from "./AuthCta";
  * section would leave it unanswered rather than answered with "nothing".
  *
  * Deliberately says CordeliaApps is free — not that selling is free. A store
- * still has its own Razorpay account, and Razorpay's gateway fees are between
- * the store and Razorpay; claiming otherwise here would be a promise this
- * product doesn't control.
+ * still has its own payment account, and its provider's gateway fees are
+ * between the store and that provider; claiming otherwise here would be a
+ * promise this product doesn't control. Named no provider since Stripe landed
+ * beside Razorpay: the sentence was never about which one.
  */
 export function Pricing() {
   return (
@@ -29,15 +30,15 @@ export function Pricing() {
           </h3>
           <p className="mt-4 text-sm leading-7 text-muted-foreground">
             The shopper app and the admin console cost you nothing to use. There is no per-order
-            cut and no settlement delay imposed by us — Razorpay settles shopper payments into
-            your own account on your own schedule.
+            cut and no settlement delay imposed by us — your payment provider settles shopper
+            payments into your own account on its own schedule.
           </p>
           <ul className="mx-auto mt-7 max-w-sm space-y-2.5 text-left">
             {[
               "Free shopper app and admin console",
               "No revenue share on any order",
               "No settlement delay imposed by CordeliaApps",
-              "Your Razorpay account, your money",
+              "Your payment account, your money",
             ].map((item) => (
               <li key={item} className="flex gap-2.5 text-sm leading-6 text-foreground">
                 <span aria-hidden="true" className="mt-2 size-1.5 shrink-0 rounded-full bg-primary" />

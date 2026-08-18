@@ -1,0 +1,74 @@
+---
+title: A tour of the admin console
+description: What each page in the dashboard does, and which ones you'll actually use every day.
+sidebarTitle: The admin console
+order: 3
+---
+
+The console has twelve pages. You'll live in two of them and visit the rest
+occasionally. This is a map, not a manual — each page has its own guide.
+
+## The store switcher
+
+Top of the sidebar. One account can own several stores, and **every page in the
+console is scoped to the store selected here** — products, orders, coupons, all
+of it. If a page looks empty and shouldn't be, check which store is active
+before checking anything else.
+
+"New store" in the same menu creates another one.
+
+## Pages you'll use daily
+
+<CardGroup>
+  <Card title="Orders" icon="receipt" href="/docs/orders/managing-orders">
+    Live. New orders appear without a refresh. Advance status, cancel, refund.
+  </Card>
+  <Card title="Products" icon="package" href="/docs/catalog/products">
+    Your catalog. Sort and filter by category, brand or stock.
+  </Card>
+</CardGroup>
+
+## Pages you'll set up once
+
+| Page | What it holds |
+| --- | --- |
+| **Settings** | Store profile, delivery, payments, sample data, your account. Four cards, and most of your setup happens here. |
+| **Categories** | The aisles shoppers browse. A store needs at least one. |
+| **Brands** | Optional. Products can be unbranded. |
+| **Banners** | The promo carousel on your storefront's home screen. |
+| **Stores** | Every store you own, with its publication status. |
+
+## Pages you'll dip into
+
+| Page | What it's for |
+| --- | --- |
+| **Coupons** | Discount codes, with scopes, floors, caps and usage limits. |
+| **Reviews** | Moderation. Read what shoppers wrote; delete what breaks your rules. |
+| **Notifications** | Compose a push to everyone who follows your store. |
+
+<Callout type="note">
+  **Platform notifications** appears only for superadmins — it reaches every
+  shopper across every store, not just yours.
+</Callout>
+
+## Two things worth knowing early
+
+**Most lists are live.** Orders, products, categories, brands, coupons and
+banners stream from the database, so a change made in another tab — or by a
+shopper placing an order — appears without a refresh. **Reviews are the
+exception**: that page is fetched, and has its own Refresh button.
+
+**Almost nothing is destructive without a confirmation.** Deletes ask first.
+The two actions that commit immediately once confirmed are cancelling an order
+(it restocks and refunds) and generating sample data (it writes ~150 records).
+
+## Next
+
+<CardGroup>
+  <Card title="Store profile" icon="store" href="/docs/store-setup/store-profile">
+    Name, logo, template, language and currency.
+  </Card>
+  <Card title="Categories" icon="box" href="/docs/catalog/categories">
+    Where a catalog starts.
+  </Card>
+</CardGroup>

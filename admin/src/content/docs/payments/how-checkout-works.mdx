@@ -1,0 +1,99 @@
+---
+title: How checkout works
+description: What happens between "Pay" and an order appearing in your console — and why a charge can never disagree with the order it created.
+sidebarTitle: How checkout works
+order: 1
+---
+
+You don't need this to take payments. You need it the day something looks
+wrong, because it explains which half of the flow failed.
+
+## The shape of it
+
+Checkout is **two server steps with a payment between them**.
+
+<Steps>
+  <Step title="Your store quotes the cart">
+    The server prices the basket itself — items, coupon, delivery fee — and
+    creates a payment intent with the provider for exactly that amount. It
+    never trusts a total sent by the app.
+  </Step>
+  <Step title="The shopper pays">
+    The provider's own checkout runs on the device: card, UPI, netbanking,
+    wallet. Your store isn't involved and never sees card details.
+  </Step>
+  <Step title="Your store verifies and writes the order">
+    The server confirms the payment with the provider, then writes the order,
+    decrements stock and records the coupon — in one transaction.
+  </Step>
+</Steps>
+
+<Callout type="success">
+  Steps 1 and 3 price the cart through **the same code**. That's the guarantee
+  worth knowing: what the shopper is charged and what the order records can't
+  drift apart, because nothing computes them twice.
+</Callout>
+
+## Why verification matters
+
+Step 3 is the reason a shopper can't pay ₹1 for a ₹1,000 basket. The app
+reporting "payment succeeded" isn't proof — the server checks with the provider
+directly, and only a confirmed payment for the expected amount produces an
+order.
+
+The visible consequence: **a payment can succeed while an order fails to
+appear.** That's this check refusing, and the usual cause is a payment
+configuration mismatch. See
+[Troubleshooting](/docs/going-live/troubleshooting).
+
+## What's in the total
+
+```text
+items subtotal
+  − coupon discount
+  + delivery fee
+= order total
+```
+
+The delivery fee is evaluated after the coupon, so a discount can drop a basket
+back below your free-delivery threshold. Both the fee and the coupon are
+snapshotted onto the order — a later policy change never rewrites an old one.
+
+## Stock
+
+Decremented in the same transaction that writes the order. Two shoppers racing
+for the last unit means one order and one refusal, never two orders.
+
+Cancelling an order increments stock back.
+
+## Choosing a provider
+
+You connect **one** provider at a time, and the storefront never names it —
+your store routes through a common interface, and the server picks the adapter
+off your key's prefix. Pasting a key *is* choosing a provider.
+
+| Provider | Currencies |
+| --- | --- |
+| [Razorpay](/docs/payments/connect-razorpay) | INR only |
+| [Stripe](/docs/payments/connect-stripe) | INR, EUR, GBP, USD |
+
+Keys for both are stored independently, so switching is one click and doesn't
+require re-entering anything.
+
+## Test mode
+
+While your keys are test keys, the storefront keeps a **payment-less path** so
+checkout can still be exercised on the web preview, where a native payment
+sheet can't run. Orders placed that way are real orders with no payment
+attached — useful for walking the order flow, and impossible on a live store.
+
+## Next
+
+<CardGroup>
+  <Card title="Connect Razorpay" icon="credit-card" href="/docs/payments/connect-razorpay">
+    For stores charging in INR.
+  </Card>
+  <Card title="Connect Stripe" icon="credit-card" href="/docs/payments/connect-stripe">
+    For EUR, GBP and USD.
+  </Card>
+</CardGroup>

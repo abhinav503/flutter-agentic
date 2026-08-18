@@ -1,0 +1,97 @@
+---
+title: Managing orders
+description: The Orders page day to day — advancing status, the handover code, searching, and what each order record holds.
+order: 2
+---
+
+**Orders** is the page you'll have open. It's **live**: a new order appears
+without a refresh, so the page can sit on a second screen during trading hours.
+
+## Working an order
+
+<Steps>
+  <Step title="It arrives as Pending">
+    Paid and waiting on you. Open it and check you can fulfil every line — a
+    substitution is a conversation, not a status.
+  </Step>
+  <Step title="Mark it On the way">
+    Sets it to in-process and notifies the shopper. Do this when you actually
+    start, not when you intend to — the notification says it's moving.
+  </Step>
+  <Step title="Hand it over">
+    Ask the shopper for their delivery code and check it against the one on the
+    order.
+  </Step>
+  <Step title="Mark it Delivered">
+    Terminal. It can't be cancelled afterwards, and the shopper can now rate it.
+  </Step>
+</Steps>
+
+<Callout type="warning">
+  Don't mark orders delivered in a batch at end of day. Each one sends a
+  "delivered" push at the moment you click, and a shopper who got their bag at
+  noon receiving that notification at 9pm reads it as a mistake.
+</Callout>
+
+## What's on an order
+
+| | |
+| --- | --- |
+| **Items** | Name, image, quantity, size and price, as sold. |
+| **Delivery address** | As it was at placement — later edits don't move it. |
+| **Total** | Items − coupon + delivery fee. Each shown separately. |
+| **Coupon** | The code used, and what it took off. |
+| **Delivery code** | The handover OTP. |
+| **Payment** | Which provider, and the payment reference for support lookups. |
+| **Timeline** | Every status change, dated. |
+| **Rating** | The shopper's rating of the delivery, once given. |
+
+The payment reference is what you paste into your Razorpay or Stripe dashboard
+when you need to trace a charge. The order also records **which** provider took
+the money, so you know which dashboard to open.
+
+## Finding an order
+
+**Search orders** matches across the order's details, so a shopper's name, a
+phone number or an order id all work. Status filters narrow to Pending, On the
+way, Delivered or Cancelled.
+
+The workflow that matters: filter to **Pending** each morning. That's your
+queue.
+
+## Order ratings
+
+Once delivered, a shopper can rate the order 1–5 with optional text — how the
+*delivery* went, which is a different question from what they thought of a
+product.
+
+It appears on the order in the console. It's a signal, not something to manage:
+there's no reply and no moderation, because it isn't public. Product reviews
+are the public ones — see [Product reviews](/docs/growing/product-reviews).
+
+## A daily rhythm
+
+<Steps>
+  <Step title="Morning: clear Pending">
+    Filter to Pending. Accept what you can fulfil, cancel what you can't
+    (which refunds automatically).
+  </Step>
+  <Step title="Through the day: advance as you go">
+    Mark on the way when you start; delivered at the door.
+  </Step>
+  <Step title="Evening: check for stragglers">
+    Anything still Pending from this morning is an order the shopper thinks you
+    forgot. Usually they're right.
+  </Step>
+</Steps>
+
+## Next
+
+<CardGroup>
+  <Card title="Cancellations and refunds" icon="receipt" href="/docs/orders/cancellations-and-refunds">
+    Including automatic refunds on cancel.
+  </Card>
+  <Card title="Notifications" icon="bell" href="/docs/growing/notifications">
+    The messages each transition sends.
+  </Card>
+</CardGroup>

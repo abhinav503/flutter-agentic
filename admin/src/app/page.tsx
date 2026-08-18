@@ -3,7 +3,7 @@ import { LandingPage } from "@/components/site/LandingPage";
 
 const title = "CordeliaApps — Your store's own app, zero commission";
 const description =
-  "Give your grocery or retail store its own branded shopping app in India. Free to use, Razorpay settles into your account, zero commission, live in minutes.";
+  "Give your grocery or retail store its own branded shopping app. Free to use, Razorpay or Stripe settles into your account, zero commission, live in minutes.";
 
 // From the marketing build's SEO_METADATA deliverable. Next owns the <head>
 // here, so this replaces the framework-specific head() the page shipped with —
@@ -18,7 +18,6 @@ export const metadata: Metadata = {
     type: "website",
     url: "/",
     siteName: "CordeliaApps",
-    locale: "en_IN",
   },
   twitter: {
     card: "summary_large_image",

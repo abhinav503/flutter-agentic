@@ -5,19 +5,20 @@ const columns = [
   {
     title: "Product",
     links: [
-      { href: "#templates", label: "Templates" },
-      { href: "#features", label: "Shopper features" },
-      { href: "#admin", label: "Admin console" },
-      { href: "#pricing", label: "Pricing" },
+      { href: "/#payments", label: "Payments" },
+      { href: "/#templates", label: "Templates" },
+      { href: "/#features", label: "Shopper features" },
+      { href: "/#admin", label: "Admin console" },
+      { href: "/#pricing", label: "Pricing" },
     ],
   },
   {
     title: "Resources",
     links: [
       { href: "/docs", label: "Documentation" },
-      { href: "#how-it-works", label: "How it works" },
-      { href: "#faq", label: "FAQ" },
-      { href: "#trust", label: "Security and trust" },
+      { href: "/#how-it-works", label: "How it works" },
+      { href: "/#faq", label: "FAQ" },
+      { href: "/#trust", label: "Security and trust" },
     ],
   },
   {
@@ -42,8 +43,8 @@ export function SiteFooter() {
             CordeliaApps
           </Link>
           <p className="mt-4 max-w-xs text-sm leading-6 text-muted-foreground">
-            Branded shopping apps for Indian grocery and retail stores. Zero commission, Razorpay
-            settlement into your own account.
+            Branded shopping apps for grocery and retail stores. Zero commission, with Razorpay
+            or Stripe settling into your own account.
           </p>
           <a
             href="mailto:support@cordeliaapps.com"

@@ -124,11 +124,12 @@ export default function TermsPage() {
 
       <LegalSection title="8. Ending it">
         <p>
-          You can stop using CordeliaApps and delete your account at any time
-          from the console. We may close an account that breaches these terms,
-          or wind the service down with reasonable notice. Either way you can
-          export your catalog beforehand, and your order history remains your
-          business record.
+          You can stop using CordeliaApps at any time: unpublish your store from
+          the console, and email us to close your account. We may close an
+          account that breaches these terms, or wind the service down with
+          reasonable notice. Either way, ask us before you go and we will give
+          you a copy of your catalog and your order history, which remain your
+          business records.
         </p>
       </LegalSection>
 

@@ -1,0 +1,127 @@
+---
+title: Connect Razorpay
+description: Point your store at your own Razorpay account so shoppers' money settles to you — and test the whole flow before charging anyone.
+order: 2
+---
+
+Every CordeliaApps store settles into **its own** payment account. There is no
+platform wallet in the middle: a shopper pays, and the money arrives in the
+Razorpay account whose keys you paste below. Your keys are encrypted before
+they're stored and are never sent to the shopper app.
+
+<Callout type="warning">
+  Razorpay processes **INR only**. If your store charges in EUR, GBP or USD,
+  use [Stripe](/docs/payments/connect-stripe) instead — the setup is the same
+  shape, and your store never names a provider anywhere else.
+</Callout>
+
+## Get your API keys
+
+<Steps>
+  <Step title="Open the Razorpay Dashboard">
+    Go to [dashboard.razorpay.com](https://dashboard.razorpay.com) and sign in.
+  </Step>
+  <Step title="Switch to Test mode first">
+    Use the Test/Live toggle at the top. Test keys start with `rzp_test_` and
+    charge nobody — that's what you want until you've placed an order end to
+    end.
+  </Step>
+  <Step title="Generate a key pair">
+    **Settings → API Keys → Generate Key.** Razorpay shows the Key Secret
+    exactly once. Copy both halves now; if you lose the secret you have to
+    generate a new pair.
+  </Step>
+</Steps>
+
+## Paste them into your store
+
+In the console: **Settings → Payments → Razorpay**.
+
+| Field | What goes in it | Looks like |
+| --- | --- | --- |
+| Key ID | The public half of the pair | `rzp_test_xxxxxxxxxxxxxx` |
+| Key Secret | The half Razorpay showed once | Stored encrypted, never shown again |
+
+Save, then choose **Use Razorpay for checkout**. The console shows a **Test** or
+**Live** badge next to the provider — read off your key's prefix, so it can't
+disagree with reality.
+
+<Callout type="success">
+  Keys for both providers are kept independently. Connecting Stripe later
+  doesn't erase your Razorpay keys, and switching between them is one click.
+</Callout>
+
+## Test the whole flow
+
+Place a real order in the shopper app against your test keys. Razorpay's test
+instruments work as normal:
+
+<Tabs labels={["Test card", "Test UPI"]}>
+  <>
+    Card number **4111 1111 1111 1111**, any future expiry, any CVV. On the
+    OTP screen, submit any value.
+  </>
+  <>
+    Use the VPA **success@razorpay**. Choosing `failure@razorpay` instead is
+    the fastest way to check that your store handles a declined payment.
+  </>
+</Tabs>
+
+A successful order should: appear under **Orders** in the console, show as
+placed in the shopper's My Orders, and send the shopper a notification. If the
+payment succeeds but no order appears, the verification step failed — see the
+troubleshooting note below.
+
+## Set up the refund webhook
+
+Refunds don't complete the instant you issue them. Razorpay processes them
+asynchronously and then calls your store back, which is how a refund moves from
+Pending to Processed without anyone watching it.
+
+<Steps>
+  <Step title="Copy your store's webhook URL">
+    It's shown in **Settings → Payments → Razorpay webhook**. The URL is
+    per-store — don't reuse another store's.
+  </Step>
+  <Step title="Add the webhook in Razorpay">
+    **Settings → Webhooks → Add New Webhook.** Paste the URL and subscribe to
+    the `refund.processed` and `refund.failed` events. Set a secret of your own
+    choosing.
+  </Step>
+  <Step title="Paste the secret back">
+    Put the same secret into the console's **Webhook Secret** field. Every
+    incoming call is signature-checked against it, so an unsigned or wrongly
+    signed request is rejected.
+  </Step>
+</Steps>
+
+<Callout type="note">
+  Skipping the webhook doesn't break refunds — it means a refund sits at
+  **Pending** in the console until you complete it by hand. The webhook just
+  removes that manual step.
+</Callout>
+
+## Go live
+
+When test orders behave, repeat the key steps with Razorpay in **Live** mode and
+paste the `rzp_live_` pair over the test one. The badge flips from Test to Live.
+
+<Callout type="error">
+  Live keys charge real cards. Don't paste them until you've placed at least
+  one successful test order and one deliberate failure.
+</Callout>
+
+<Accordion title="The payment succeeded but no order was created">
+  Checkout is two steps: Razorpay confirms the payment, then your store
+  verifies that confirmation server-side before writing the order. A mismatched
+  Key Secret passes step one and fails step two — the shopper is charged and no
+  order appears. Re-save both halves of the key pair together; pasting only the
+  Key ID after regenerating in Razorpay is the usual cause.
+</Accordion>
+
+<Accordion title="Can I take orders without connecting a payment provider?">
+  Not from real shoppers — payments are the one check that gates publishing.
+  While you're on test keys, the storefront keeps a payment-less path so
+  checkout can still be exercised on the web preview, where the native payment
+  sheet isn't available.
+</Accordion>

@@ -10,7 +10,7 @@ export function FinalCta() {
             id="final-cta-heading"
             className="mx-auto max-w-2xl text-balance text-3xl font-extrabold tracking-tight text-ink sm:text-4xl"
           >
-            Get your own grocery app, and keep every rupee of the sale
+            Get your own shopping app, and keep 100% of every sale
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-pretty text-base leading-7 text-muted-foreground">
             Create your store, pick a template and start adding products. We are currently

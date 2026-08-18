@@ -21,14 +21,15 @@ export function Hero() {
           </h1>
 
           <p className="mt-6 max-w-xl text-pretty text-lg leading-8 text-muted-foreground">
-            CordeliaApps gives a grocery or retail store owner in India a branded shopping app —
-            catalog, cart, coupons and Razorpay checkout — without building or submitting an app,
-            and without giving up a cut of any sale.
+            CordeliaApps gives a grocery or retail store owner a branded shopping app — catalog,
+            cart, coupons and card, UPI and wallet checkout — without building or submitting an
+            app, and without giving up a cut of any sale.
           </p>
 
           <p className="mt-4 max-w-xl text-pretty text-base leading-7 text-muted-foreground">
-            Payments settle straight into your own Razorpay account. CordeliaApps is free to use —
-            no subscription, no setup fee, and never a share of your revenue.
+            Payments settle straight into your own Razorpay or Stripe account, in rupees, euros,
+            pounds or dollars. CordeliaApps is free to use — no subscription, no setup fee, and
+            never a share of your revenue.
           </p>
 
           <div className="mt-9 flex flex-wrap gap-3">
@@ -40,8 +41,10 @@ export function Hero() {
             {[
               // Was "Commission 0%". The stronger claim now is the whole
               // price, and the headline beside it still carries the
-              // commission point.
-              ["Price", "₹0"],
+              // commission point. Written as a word, not a currency amount:
+              // stores charge in four currencies and "₹0" read as an
+              // India-only product.
+              ["Price", "Free"],
               ["Time to launch", "Minutes"],
               ["App reviews", "None"],
             ].map(([label, value]) => (
