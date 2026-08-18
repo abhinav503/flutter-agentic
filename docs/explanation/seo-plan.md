@@ -36,7 +36,48 @@ redo any of this:
 **The real problem is not technical SEO. It is that the site is one page, and one page can only
 rank for one search intent.** Everything a prospective store owner might search — pricing,
 templates, kirana stores, cost comparisons — is an anchor (`#pricing`, `#templates`) on the
-homepage, not a URL Google can rank independently.
+homepage, not a URL Google can rank independently. The documentation site (§0.5) added ~30
+indexable URLs after this audit and does **not** change that sentence: every one of them serves
+an existing customer's question, not a prospect's.
+
+---
+
+## 0.5 — Shipped since this audit: the documentation site
+
+The largest SEO change on the domain to date, and it landed after the table above was written
+(commit `b0d64e3`). It is recorded here rather than as a P1 tick because it was built as a
+*product* surface — onboarding for store owners — and only incidentally moves the search work.
+
+| Shipped | Where |
+|---|---|
+| 24 MDX guides across 7 categories (~14,900 words): getting started, store setup, catalog, payments, orders, growing your store, going live | `admin/src/content/docs/<category>/<slug>.mdx` |
+| A file-backed collection — frontmatter (`title` / `description` / `order` / `sidebarTitle`), heading extraction, editorial category order, prev/next neighbours | `admin/src/lib/docs.ts` |
+| Three indexable route levels — `/docs`, `/docs/<category>`, `/docs/<category>/<slug>` — statically prerendered, each with its own `<title>`, description and **self-canonical** | `admin/src/app/docs/**` |
+| `robots: { index: false }` **removed** — the page is no longer a stub, so the flag that justified it is gone | `admin/src/app/docs/page.tsx` |
+| Sitemap enumerates the collection **off disk**, so a guide added as a file appears without anyone remembering a list; categories with no articles are skipped so it never lists a 404 | `admin/src/app/sitemap.ts` |
+| JSON-LD extended — `CollectionPage` with `hasPart` on the index, `TechArticle` per guide (`headline`, `description`, `url`, `isPartOf: WebSite`) | `admin/src/app/docs/page.tsx`, `.../[category]/[slug]/page.tsx` |
+| ⌘K client-side search over titles, descriptions and headings; sidebar; per-article table of contents; prev/next pager; MDX component set (callout, steps, tabs, cards, accordion, code block) | `admin/src/components/docs/` |
+| Linked from `SiteNav` and `SiteFooter`, so every public page points into it | `admin/src/components/site/` |
+
+**What measurably improved:** the sitemap went from **6 URLs to ~38** (home + 5 legal + `/docs` +
+7 category pages + 24 articles). The domain now has crawlable *depth* — internal links pointing
+at distinct pages instead of homepage anchors — and its first body of genuinely unique long-form
+content, which is the thing P3 was going to have to write from scratch.
+
+**What did not improve:** commercial intent. Every new URL answers "how do I connect Razorpay",
+not "how much does a grocery app cost in India". A store owner who has never heard of
+CordeliaApps still has exactly one page to land on. **P1 is untouched by this work.**
+
+Two follow-on effects to carry forward:
+
+- **P3's blog infrastructure is now mostly built.** `next-mdx-remote/rsc` + `gray-matter` +
+  `remark-gfm` + `rehype-highlight`, the typography shell, the frontmatter contract and the
+  sitemap-from-disk pattern are all proven in production. A `/blog` is a second collection over
+  the same machinery, not new infrastructure — which moves P3 from "6–10 weeks" toward "write
+  the articles".
+- **`BreadcrumbList` JSON-LD (P2) got *more* valuable, not less.** Articles now sit three levels
+  deep; without it a search result prints the raw URL path instead of
+  `Docs › Payments › Connect Razorpay`.
 
 ---
 
@@ -61,11 +102,13 @@ Small, concrete, and each one is currently costing traffic or clicks.
       `/privacy`, `/terms`, `/refunds`, `/app-privacy` and `/delete-account` now all emit a card.
       The last two are the URLs submitted to Google Play, so they get shared in contexts you do
       not control.
-- [x] **Resolve the `/docs` contradiction.** Done 2026-08-18 — `/docs` removed from
-      `admin/src/app/sitemap.ts`. It sets `robots: { index: false }` on itself (correct, it is a
-      stub), so submitting it asked Google to crawl a page we had already told it not to keep.
-      The file's docstring now records why, and says to add the entry back in the same commit that
-      gives the page real content and drops the flag. Sitemap is down to 6 URLs, all indexable.
+- [x] **Resolve the `/docs` contradiction.** Fixed 2026-08-18, then *superseded the same week*.
+      The first fix removed `/docs` from `admin/src/app/sitemap.ts`, because the page set
+      `robots: { index: false }` on itself — submitting it asked Google to crawl a page we had
+      already told it not to keep. The condition the docstring named for adding it back ("the
+      commit that gives the page real content and drops the flag") has since happened: `/docs` is
+      now a 24-article collection, the `noindex` is gone, and the sitemap enumerates the whole
+      tree off disk. See §0.5. Net movement: 7 URLs → 6 → ~38, all indexable.
 - [ ] **Verify the property in Google Search Console and Bing Webmaster Tools**, and submit the
       sitemap in both. Without GSC you are optimising blind: no impressions data, no query data,
       no indexing errors, no way to tell whether any of the work below is landing. This is the
@@ -184,7 +227,9 @@ thin AI-written volume is now an active ranking liability, not a neutral one.
 
 Set this up first:
 
-- [ ] **Add a `/blog` route with MDX** (`@next/mdx`), one file per post, reusing the `legal-page`
+- [ ] **Add a `/blog` route with MDX**, one file per post. Build it as a second collection over
+      the docs pipeline (§0.5) rather than adding `@next/mdx`: `next-mdx-remote/rsc` +
+      `gray-matter`, a `src/lib/blog.ts` mirroring `docs.ts`, and the same `docs-prose`
       typography shell. No CMS — a CMS is a decision to make at post #50, not post #1.
 - [ ] Add `Article` JSON-LD, an author, and a real published/updated date to the post template.
 - [ ] Add posts to `sitemap.ts` automatically by reading the MDX directory.

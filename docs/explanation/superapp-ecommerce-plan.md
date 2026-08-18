@@ -4336,6 +4336,132 @@ constraint and not an optimisation note:
    `users`. Caching discovery needs the anonymous and authenticated responses
    split, or a cache key on the auth header — a design change, not a header.
 
+## Merchant documentation site + share cards — DONE (2026-08-18)
+
+The public surface of `cordeliaapps.com` was one landing page and five legal
+pages. It is now that plus a 24-article documentation site, and the share card
+every one of those URLs had been promising and not delivering. Full search plan
+and its open items: `docs/explanation/seo-plan.md`.
+
+### The share card was a 404, and the cause was a literal array
+
+`/og.png` was declared in the homepage metadata and had never existed, so every
+link shared to Slack, LinkedIn or WhatsApp rendered blank — the one thing on the
+site guaranteed to be seen by someone who has not visited it yet.
+
+Fixed by **generating rather than uploading**: `admin/src/app/opengraph-image.tsx`
+renders a 1200×630 card from the brand palette and Manrope through `next/og`,
+with `twitter-image.tsx` re-exporting it. Two decisions worth keeping:
+
+- **It lives at the `app/` root**, so *every* route inherits it. `/app-privacy`
+  and `/delete-account` are the URLs submitted to Google Play and get shared in
+  contexts nobody here controls; they now carry a card without a per-page
+  declaration.
+- **The hand-declared `openGraph.images` array had to be deleted** from
+  `page.tsx`. A literal `images` array **overrides** the `opengraph-image.tsx`
+  file convention — that array was what pointed at the missing file, so adding
+  the generator without removing it would have changed nothing. This is now a
+  rule in `admin/README.md`.
+
+Manrope TTFs are vendored at `admin/src/assets/fonts/` so the build fetches
+nothing. Both routes prerender statically; verified live in all three clients. A
+link shared *before* the fix still shows blank until that platform re-scrapes —
+platform caches, not our HTML.
+
+### The documentation site
+
+`/docs` had been a stub carrying `robots: { index: false }`. It is now 24 MDX
+guides across 7 categories (~14,900 words): getting started, store setup,
+catalog, payments, orders, growing your store, going live — written against the
+console as it actually behaves, so each guide ships beside the feature it
+documents.
+
+**Content is files, not a database.** `src/content/docs/<category>/<slug>.mdx`,
+read at build time by `src/lib/docs.ts` with `gray-matter` frontmatter
+(`title`, `description`, `order`, optional `sidebarTitle`). A doc change is a
+diff in the same PR as the feature, reviewable the same way. No CMS — that is a
+decision for article #50.
+
+**Everything reads the directory.** Sidebar, ⌘K search index, `generateStaticParams`,
+prev/next pager and `sitemap.ts` all enumerate the collection, so adding a guide
+is adding one file. The single exception is deliberate: a **category** is
+declared in `docCategories`, because the order guides appear in is editorial —
+what a new merchant hits first — not alphabetical, and a folder name cannot
+carry a description or an icon. A category with no articles is filtered out of
+the rail *and* the sitemap, since its route 404s.
+
+Four implementation details that were each a bug first:
+
+- **Headings are extracted from the raw source, not the compiled tree.**
+  `compileMDX` runs in a server component and returns an opaque element — by
+  render time there is nothing left to walk. Fenced code is stripped before
+  scanning, or a `#` comment inside a bash block becomes a table-of-contents
+  entry.
+- **`slugifyHeading` is shared** by the TOC and the `h2`/`h3` MDX components.
+  They must agree exactly or every TOC link is a dead scroll.
+- **`blockJS: false`.** `next-mdx-remote` blocks `{…}` expressions by default —
+  correct for MDX arriving from users, wrong for files in this repo, because
+  with them blocked props like `labels={[…]}` and `cols={3}` are *silently
+  stripped* rather than erroring. A component quietly rendering without its
+  props is a worse failure than the one being guarded against.
+  `blockDangerousJS` stays on.
+- **`remarkGfm` is not optional.** Plain MDX is CommonMark, where a pipe table
+  is literal text, and these guides are full of column specs. `rehypeHighlight`
+  runs at build time so the reader downloads coloured markup instead of a
+  highlighter.
+
+The shell reuses `SiteNav`/`SiteFooter` rather than shipping its own header —
+the docs read as a room in the same building as the landing page, not a second
+brand. Authoring components: `Callout`, `Steps`, `Tabs`, `Cards`, `Accordion`.
+
+### What it changed for search
+
+- **The sitemap went from 6 URLs to ~38** — home + 5 legal + `/docs` + 7
+  category pages + 24 articles, every one statically prerendered with its own
+  `<title>`, description and self-canonical.
+- **A P0 fix reversed itself within the day, correctly.** Hours earlier `/docs`
+  was *removed* from the sitemap because it declared `noindex` — submitting a
+  URL we had told Google to drop. The docstring recorded the condition for adding it
+  back: the commit that gives the page real content and drops the flag. That
+  commit is this one.
+- **JSON-LD extended** beyond the homepage's `Organization` /
+  `SoftwareApplication` / `FAQPage`: `CollectionPage` with `hasPart` on the
+  index, `TechArticle` per guide.
+- The domain has its first crawlable *depth* — internal links pointing at
+  distinct pages instead of homepage anchors — and its first body of long-form
+  unique content.
+
+Google Search Console was registered in the same pass.
+
+### What this leaves open
+
+**None of it addresses commercial intent, and that is the point to hold onto.**
+Every new URL answers an existing customer's question ("how do I connect
+Razorpay"), not a prospect's ("how much does a grocery app cost in India"). A
+store owner who has never heard of CordeliaApps still has exactly **one** page
+to land on: pricing, templates and security are still anchors on `/`, not
+rankable URLs. That structural fix is P1 in `seo-plan.md` and is untouched.
+
+Smaller and specific:
+
+- The sitemap is not yet **submitted** in Search Console, and Bing Webmaster
+  Tools is unregistered. Until then the work above is unmeasured.
+- The homepage `<title>` still leads with the brand rather than the category.
+- The hero's **"App reviews — None"** stat means "no App Store review process to
+  wait through" and reads as "nobody has reviewed this product."
+- **`WebSite` JSON-LD** exists only as an `isPartOf` reference from docs
+  articles, never as its own block — that is the one that binds the domain to
+  the brand entity.
+- **`BreadcrumbList` JSON-LD** is missing and got more valuable, not less:
+  articles now sit three levels deep and the pages already render a *visual*
+  breadcrumb, so the markup is describing something that is on screen.
+
+One thing this pass bought for free: **the blog infrastructure P3 wanted is now
+mostly built.** `next-mdx-remote/rsc` + `gray-matter` + `remarkGfm` +
+`rehypeHighlight`, the typography shell, the frontmatter contract and the
+sitemap-from-disk pattern are proven in production. A `/blog` is a second
+collection over the same machinery.
+
 ## Consolidated open items (as of 2026-08-11)
 
 Everything still open, in one place. This document is a chronological log, so
