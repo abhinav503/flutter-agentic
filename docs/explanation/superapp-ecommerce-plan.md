@@ -4233,6 +4233,109 @@ Two things it will eventually close, both already recorded as open elsewhere
 in this document: the unverified handoff OTP, and status transitions that
 today only a store admin at a desk can make.
 
+## API latency — region move + discovery query DONE, CDN caching deferred (2026-08-18)
+
+Every API call took ~0.70s no matter how little it returned. The cause was not
+the code: **Firestore is `asia-south1` (Mumbai) while every Vercel function ran
+in the default `iad1` (Washington DC)**, so a request from an Indian shopper
+went phone → Mumbai edge → Virginia → *back to Mumbai for the data* → Virginia →
+India. Two intercontinental round trips to serve a few hundred bytes.
+
+The tell was that payload size did not matter: a 31-byte search response and a
+1.9KB categories response timed identically, and a route that returns 401
+without touching Firestore still cost 0.35s — that 0.35s being the India↔iad1
+leg on its own.
+
+**Fix 1 — `regions: ["bom1"]` in `admin/vercel.json`.** Project-level rather
+than a per-route `preferredRegion` export: there are 80 route files and a
+per-route setting is 80 places to drift. `vercel.json` is schema-validated and
+rejects unknown keys, so the reasoning could not live beside it as a comment —
+it sits in `lib/firebase-admin.ts` instead, next to the existing `preferRest`
+transport note, because moving the database region later means moving the
+Vercel region with it. The two are one decision, not two.
+
+**Fix 2 — `getStores()` queries instead of scanning.** Discovery read *every*
+store doc and filtered published-vs-draft in JS: 14 docs read to return 1, with
+drafts being the majority and growing with every owner who signs up and never
+publishes — a cost that tracked signups rather than catalog size. Now one
+`status in ["published","active"]` query, plus an `ownerUid ==` query only when
+a signed-in viewer might own an unpublished store.
+
+Three things that fix had to get right, each of which would have been a silent
+bug: `"active"` must be named explicitly because it is the pre-lifecycle marker
+`normalizeStoreStatus()` reads as published, and a *query* matches the stored
+string, not the normalized one; the two result sets must be deduped, because an
+owner's own published store matches both; and the merge must be re-sorted,
+because merging two Firestore results loses the document order each arrived in.
+
+`createdAtMs` was surfaced on `Store` in the same pass (the field already
+existed on all 14 docs, it was simply never mapped) and now orders both store
+lists **in opposite directions, deliberately**: discovery is a feed and runs
+newest-first, while `/api/admin/stores` is a review queue and runs oldest-first
+within its status priority, so the submission that has waited longest surfaces
+next. `tsc` caught a third `Store` construction site during this — the
+notification-tap route `api/stores/[storeId]/route.ts` — that grep had missed.
+
+### Measured (from India, production)
+
+| Endpoint | Before (iad1) | After region | After query fix |
+|---|---|---|---|
+| `/stores` | 0.696s | 0.490s | **0.219s** |
+| `/categories` | 0.718s | 0.208s | 0.215s |
+| `/products/popular` | 0.698s | 0.188s | 0.195s |
+| `/banners` | 0.702s | 0.188s | 0.200s |
+| `/search?q=` | 0.679s | 0.184s | 0.195s |
+| `/brands` | 0.658s | 0.178s | 0.181s |
+
+~3.5x on every warm call. The five unrelated routes holding steady across the
+second deploy is the evidence that the `getStores` change regressed nothing.
+
+### What this leaves open — cold starts, and the caching that would hide them
+
+**Cold starts did not move and are now the whole remaining problem.** They are
+module boot (`firebase` + `firebase-admin` + `getTemplates`), not distance, so
+Mumbai costs the same as Virginia. Every Next.js route is its own function with
+its own cold start, so each new screen a shopper opens can pay it again. Warm is
+~0.20s; cold is 1.0–2.5s, and `/api/stores` — the first screen — is the worst of
+them at ~2.5s because it is the heaviest module. Observed back-to-back on one
+endpoint in the same second: 1.34s then 0.20s × 7.
+
+**Accepted for now (2026-08-18): one ~2s cold start is fine.** Not a gap to
+close before launch.
+
+The fix when it is wanted is **CDN caching, not faster boots** — these routes
+serve `cache-control: public, max-age=0, must-revalidate` on world-readable,
+near-static data, so every shopper invokes a function for bytes that could come
+off the edge. Caching sidesteps cold starts rather than fighting them.
+
+Two things a future implementer must know, the second of which is a security
+constraint and not an optimisation note:
+
+1. **Staleness is already safe for catalog data**, because price and stock are
+   re-read live inside the order transaction (`lib/orders.ts`, "name/image/
+   price/stock all come from the live doc"). A stale catalog is cosmetic: the
+   shopper is charged the live price, and a stale in-stock reads as an
+   "Insufficient stock" refusal at checkout rather than an oversell. Bound it
+   with `s-maxage` + `stale-while-revalidate`, and purge on admin write to drop
+   real staleness to ~zero.
+
+2. **Two routes vary by `Authorization` header and must never get a shared
+   cache** — this would be cross-user leakage, not staleness:
+   - `GET /api/stores` returns extra rows when an owner's token is present. A
+     shared cache warmed by an owner's request would serve *that owner's
+     unpublished draft stores to every anonymous shopper* — precisely the leak
+     the route's own comment says the `/api/admin/stores` split exists to
+     prevent.
+   - `GET /api/stores/{id}/search` **without `q`** returns `recent_searches`
+     keyed to the caller's uid. With `q` it is pure catalog and safe — the same
+     URL is cacheable or not depending on whether a parameter is present.
+
+   Safe to cache today: `categories`, `banners`, `products/popular`, `brands`,
+   `products/{id}`, and `search` only when `q` is present. Never: `stores`,
+   `search` without `q`, `cart`, `orders`, `favourites`, `notifications`,
+   `users`. Caching discovery needs the anonymous and authenticated responses
+   split, or a cache key on the auth header — a design change, not a header.
+
 ## Consolidated open items (as of 2026-08-11)
 
 Everything still open, in one place. This document is a chronological log, so
@@ -4306,6 +4409,10 @@ leaves open" (notifications).
 - **Server-authored refusals stay English** in every locale ("Insufficient stock
   for X", serviceability refusals) — the app cannot localize copy the server
   writes.
+- **API cold starts (~1–2.5s)** — warm calls are ~0.20s after the region move,
+  but every route boots its own function. Accepted as fine for now; the fix is
+  CDN caching, which two auth-varying routes must be excluded from. → "API
+  latency — region move + discovery query DONE, CDN caching deferred".
 
 ### Explicitly not open
 

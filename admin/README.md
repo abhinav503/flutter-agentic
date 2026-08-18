@@ -186,6 +186,45 @@ order changes). Overridable env: `ADMIN_BASE_URL` (default `http://localhost:410
 secret configured on the dashboard first; the route returns `400 "not
 configured"` otherwise and the script says so.
 
+## Performance and caching
+
+**Functions run in `bom1` (Mumbai), pinned in `vercel.json`.** That is not a
+preference — Firestore for this project is `asia-south1`, also Mumbai, and
+Vercel's default `iad1` (Washington DC) put every function two intercontinental
+round trips from its own database. It cost a flat ~0.70s per call regardless of
+payload; warm calls are now ~0.20s. **If the Firestore region ever moves, move
+this with it** — see the note in `src/lib/firebase-admin.ts`.
+
+Cold starts are ~1–2.5s and are module boot, not distance, so they are the same
+in any region. Accepted as-is for now (2026-08-18). The fix, when wanted, is CDN
+caching rather than faster boots.
+
+### Before adding cache headers — read this
+
+Catalog staleness is safe: price and stock are re-read live inside the order
+transaction (`src/lib/orders.ts`), so a stale catalog is cosmetic — the shopper
+is charged the live price, and a stale in-stock surfaces as an "Insufficient
+stock" refusal at checkout, never an oversell.
+
+**Two routes vary by `Authorization` header and must never be given a shared
+cache. This is a data leak, not staleness:**
+
+| Route | Why |
+|---|---|
+| `GET /api/stores` | Returns extra rows when a store owner's token is present. A shared cache warmed by an owner would serve **their unpublished draft stores to every anonymous shopper.** |
+| `GET /api/stores/{id}/search` **without `q`** | Returns `recent_searches` keyed to the caller's uid — one shopper's history served to the next. With `q` it is pure catalog and safe. |
+
+Safe to cache: `categories`, `banners`, `products/popular`, `brands`,
+`products/{id}`, and `search` **only when `q` is present**. Never cache:
+`stores`, `search` without `q`, `cart`, `orders`, `favourites`, `notifications`,
+`users`.
+
+Caching discovery is possible but needs the anonymous and authenticated
+responses split, or a cache key on the auth header — a design change, not a
+header. Full analysis and measurements:
+`docs/explanation/superapp-ecommerce-plan.md` → "API latency — region move +
+discovery query DONE, CDN caching deferred".
+
 ## Error responses the client re-writes
 
 Most API errors are shown to the shopper as-is. One is not: an under-minimum
