@@ -237,6 +237,11 @@ export type Store = {
   // StoreDelivery). Stores predating the field read back as free delivery
   // everywhere — what every storefront's totals panel used to hardcode.
   delivery: StoreDelivery;
+  // See Category.createdAtMs. Both store lists order by this, in opposite
+  // directions, because they are different jobs: discovery is a feed and runs
+  // newest first, while the superadmin review queue runs oldest first so the
+  // submission that has waited longest surfaces to be worked next.
+  createdAtMs: number;
 };
 
 // Array order is the order the language pickers render (Settings, and the

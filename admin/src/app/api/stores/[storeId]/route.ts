@@ -36,6 +36,9 @@ function mapAdminStoreDoc(
     language: (data.language as string) ?? "en",
     currency: (data.currency as string) ?? "INR",
     delivery: mapStoreDelivery(data.delivery),
+    createdAtMs:
+      (data.createdAt as FirebaseFirestore.Timestamp | null | undefined)?.toMillis() ??
+      0,
   };
 }
 

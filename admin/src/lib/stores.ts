@@ -3,8 +3,12 @@ import {
   doc,
   getDoc,
   getDocs,
+  query,
+  where,
   type DocumentSnapshot,
+  type Query,
   type QueryDocumentSnapshot,
+  type Timestamp,
 } from "firebase/firestore";
 import { db } from "./firebase";
 import { isPubliclyVisible, normalizeStoreStatus } from "./store-status";
@@ -33,6 +37,8 @@ function mapStoreDoc(d: QueryDocumentSnapshot | DocumentSnapshot): Store {
     language: (data.language as string) ?? "en",
     currency: (data.currency as string) ?? "INR",
     delivery: mapStoreDelivery(data.delivery),
+    createdAtMs:
+      (data.createdAt as Timestamp | null | undefined)?.toMillis() ?? 0,
   };
 }
 
@@ -67,14 +73,81 @@ export async function getStores(
   q?: string,
   opts: { viewerUid?: string; superAdmin?: boolean } = {},
 ): Promise<Store[]> {
-  const snap = await getDocs(storesRef());
-  const stores = snap.docs.map(mapStoreDoc).filter((s) => {
-    if (opts.superAdmin) return true;
-    if (isPubliclyVisible(s.status)) return true;
-    return Boolean(
-      opts.viewerUid && s.ownerUid === opts.viewerUid && s.previewReady,
+  // Ask Firestore for the rows we can actually show instead of reading the
+  // collection and discarding most of it in JS. Discovery is the app's first
+  // screen and every shopper loads it, while drafts are the majority of the
+  // collection and grow with every owner who signs up but never publishes —
+  // so an unfiltered read is the one query here whose cost tracks signups
+  // rather than catalog size.
+  //
+  // Both filters are single-field, so Firestore's automatic indexes cover
+  // them — no composite index, nothing to deploy alongside this.
+  const queries: Query[] = [];
+
+  if (opts.superAdmin) {
+    // The console's review queue is the one caller that genuinely needs
+    // every status, and it's a handful of admins rather than every shopper.
+    queries.push(storesRef());
+  } else {
+    // "active" is the pre-lifecycle marker normalizeStoreStatus() reads as
+    // published; a query matches the stored string, not the normalized one,
+    // so it has to be asked for by name or legacy live stores vanish from
+    // discovery. Docs with no `status` at all match neither value, which is
+    // correct — normalizeStoreStatus() calls those `draft`.
+    queries.push(
+      query(storesRef(), where("status", "in", ["published", "active"])),
     );
-  });
+    if (opts.viewerUid) {
+      // An owner previewing their own unpublished store.
+      //
+      // This is deliberately a second query rather than one `or(...)`. An or()
+      // of these two filters does run with no composite index — but it buys
+      // nothing: an anonymous caller has no uid, so the branch below has to
+      // exist either way, and the moment either form is asked to sort
+      // server-side Firestore wants composite indexes — one for the plain
+      // query, TWO for the or() ((status, createdAt) and (ownerUid,
+      // createdAt)). Keeping them apart leaves the anonymous path — nearly
+      // all discovery traffic — a single-field query.
+      queries.push(
+        query(storesRef(), where("ownerUid", "==", opts.viewerUid)),
+      );
+    }
+  }
+
+  const snaps = await Promise.all(queries.map((qy) => getDocs(qy)));
+
+  // Deduped because an owner's own published store matches both queries.
+  const byId = new Map<string, Store>();
+  for (const snap of snaps) {
+    for (const d of snap.docs) {
+      const store = mapStoreDoc(d);
+      if (
+        opts.superAdmin ||
+        isPubliclyVisible(store.status) ||
+        (store.ownerUid === opts.viewerUid && store.previewReady)
+      ) {
+        byId.set(store.id, store);
+      }
+    }
+  }
+
+  // Newest first — a shopper opening discovery should meet the stores that
+  // have just joined, and this is the opposite of the review queue's order in
+  // /api/admin/stores, which is a work queue rather than a feed. Merging two
+  // queries loses any order Firestore gave them, so this is also what stops
+  // discovery's order depending on whether the viewer happens to own a store.
+  // Done here rather than as an `orderBy` because a merge of two result sets
+  // can only be ordered after the merge — see the note on the second query.
+  //
+  // The id tiebreaker is load-bearing, not decoration: the seeder writes
+  // stores in one batch, so several docs can carry an identical
+  // serverTimestamp, and without it their relative order would flip between
+  // requests. It stays ascending whichever way the timestamps run — its only
+  // job is to be deterministic, and docs sharing a timestamp have no
+  // meaningful newest among them to honour.
+  const stores = [...byId.values()].sort(
+    (a, b) => b.createdAtMs - a.createdAtMs || (a.id < b.id ? -1 : 1),
+  );
 
   if (!q) return stores;
   const needle = q.trim().toLowerCase();
