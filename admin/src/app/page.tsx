@@ -19,20 +19,11 @@ export const metadata: Metadata = {
     url: "/",
     siteName: "CordeliaApps",
     locale: "en_IN",
-    images: [
-      {
-        url: "/og.png",
-        width: 1200,
-        height: 630,
-        alt: "CordeliaApps — a branded store app with zero commission",
-      },
-    ],
   },
   twitter: {
     card: "summary_large_image",
     title,
     description,
-    images: ["/og.png"],
   },
 };
 
