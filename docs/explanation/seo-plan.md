@@ -124,9 +124,21 @@ Small, concrete, and each one is currently costing traffic or clicks.
       `Your store. Your own shopping app. Zero commission.` as the `<h1>` and add a keyword-bearing
       eyebrow or sub-headline above/below it, e.g. *"Online ordering app for grocery, kirana and
       retail stores in India."* (`admin/src/components/site/Hero.tsx`)
+      **Decide between two shapes before writing it.** (a) Keep the slogan as the `<h1>` and put
+      the category line in an eyebrow — best for the first two seconds a visitor spends, which is
+      what the slogan already wins. (b) Promote the category line *to* the `<h1>`
+      (`Grocery & Retail Shopping App for Your Store — Zero Commission`) and demote the slogan to
+      the sub-headline beneath it — slightly better for search, since the `<h1>` is a stronger
+      signal than an eyebrow. An external review argued for (b). Either is defensible; what is
+      not defensible is leaving the category out of the region entirely, which is today's state.
 - [ ] **Fix the "App reviews — None" stat.** It is meant to say *"no App Store review process to
       wait through"*, but it reads to a skeptical visitor as *"nobody has reviewed this product."*
-      Relabel to `App store approval` / `Not needed`. (`admin/src/components/site/Hero.tsx`)
+      Relabel to `App store approval` / `Not needed` — one line of copy, and the cheapest fix.
+      The alternative, if the stat row is being reworked anyway, is to retire this slot and use it
+      for a claim that carries weight now (`No developer required`, `Payments settle to your own
+      account`), then replace the whole row with real testimonials once a live store consents —
+      see P4 "Proof". Do **not** fill it with a fabricated rating.
+      (`admin/src/components/site/Hero.tsx`)
 - [ ] **Add `WebSite` JSON-LD** alongside the existing three blocks, with `publisher` pointing at
       the `Organization` node. It is the block that lets Google bind the domain to the brand
       entity. (`admin/src/components/site/structured-data.tsx`)
@@ -184,6 +196,232 @@ One page, one intent, genuinely different content. Do **not** ship near-duplicat
 - [ ] `/grocery-delivery-app`
 - [ ] Comparison pages (see P3).
 
+---
+
+### Appendix — page specs
+
+P1 above decides *which* pages exist. This decides what each one says, so six pages written
+weeks apart do not drift into the near-duplicates the "Explicitly not doing" list rules out.
+
+Rules that apply to every page below:
+
+- **One intent per page.** If two specs would share a section outline, they are one page.
+- **Title ≤ 60 characters, meta description ≤ 155** — beyond that Google truncates and the
+  words you cared about are the ones cut. Lengths are counted in each spec.
+- **The H1 is not the title tag.** The title is written for a search result; the H1 is written
+  for the person who arrived. They should agree without being identical.
+- **Every page links out to two or three siblings from its body**, not just from the nav.
+  An in-content link is weighted far above a footer one, and it is the link a reader follows.
+- **Add the route to `sitemap.ts` in the same commit** that creates it, and **decide the slug
+  once** — changing a URL after it is indexed is on the do-not-do list.
+- Reuse `SiteNav` / `SiteFooter` / the `ui.tsx` section primitives, so a new page costs copy
+  and not design.
+
+**Slug conflicts settled here** (an external review proposed a longer list; these are the
+decisions, so the question does not reopen): `/grocery-store-app` is the head term — there is
+no separate `/grocery-app`, which would be a near-duplicate of it. Pricing lives at `/pricing`,
+not `/grocery-app-pricing`; one intent, one URL, and the shorter slug survives a redesign.
+`/retail-store-app` and `/grocery-delivery-app` stay in Wave 3, gated on Search Console data
+rather than written on spec — the second in particular describes a delivery operation this
+platform does not run, and the page has to be honest about who does the delivering.
+
+#### Wave 1 — promoted from homepage sections
+
+#### `/pricing` — *what does this cost?*
+
+- **Primary keyword** — grocery app pricing
+- **Secondary** — grocery app cost · free grocery app builder · online store app subscription cost · no commission ecommerce platform
+- **Title** (58) — `Grocery App Pricing — Free, Zero Commission | CordeliaApps`
+- **H1** — Pricing: free to use, zero commission on every order
+- **Meta** (148) — CordeliaApps is free for grocery and retail stores: no subscription, no setup fee, no cut of any order. Your provider settles into your own account.
+- **Links out** — `/zero-commission-online-store`, `/features`, `/faq`
+- **Sections**
+  1. What free means, stated once and plainly — free shopper app, free console, no revenue share, no settlement delay imposed by us.
+  2. What it does *not* cover: your own Razorpay or Stripe account and that provider's transaction fees. Say it here rather than let a visitor discover it at checkout.
+  3. Cost comparison table — custom development / agency / no-code builder / marketplace listing / CordeliaApps, across upfront cost, monthly cost, commission, developer needed, app-store submission, time to launch. Be fair to the alternatives; a rigged table reads as one.
+  4. What happens when we start charging (there is no paid tier today, and the page should not imply a trial that expires).
+  5. Four FAQ entries lifted from /faq, then the signup CTA.
+
+#### `/templates` — *which design will my store have?*
+
+- **Primary keyword** — grocery app templates
+- **Secondary** — grocery store app design · ready made grocery app · supermarket app template · shopping app ui for stores
+- **Title** (53) — `Grocery App Templates — Three Store Designs to Choose`
+- **H1** — Grocery app templates for your store
+- **Meta** (149) — Three ready store designs — Gravia, DailyMart and GroFast. Switching template is one dropdown, with no data migration and no rebuild of your catalog.
+- **Links out** — `/features`, `/how-it-works`, `/grocery-store-app`
+- **Sections**
+  1. What a template actually is: it restyles the whole shopper experience at runtime — theme, layout, navigation, icons, motion — over the same store data.
+  2. One block per template, each with a *prose paragraph naming who it suits* (the demo videos are invisible to a crawler; the words around them are what ranks).
+  3. Switching later is one dropdown and no migration — the objection that stops people choosing.
+  4. Poster images renamed and described: `cordeliaapps-grocery-app-template-grofast.jpg`, with alt text describing the screen, not the file.
+  5. CTA.
+
+#### `/features` — *what do I actually get?*
+
+- **Primary keyword** — grocery store app features
+- **Secondary** — online ordering app features · grocery admin dashboard · store management console · shopping app for small business
+- **Title** (52) — `Grocery Store App Features — Shopper App and Console`
+- **H1** — Everything in the shopper app and the admin console
+- **Meta** (151) — Catalog, cart, coupons, order tracking, reviews and notifications for your shoppers — plus the console where you run your catalog and the day's orders.
+- **Links out** — `/how-it-works`, `/security`, `/online-ordering-app`
+- **Sections**
+  1. For your customers — catalog and search, cart, coupons, saved addresses, order tracking, cancellations, product and order reviews, notifications, six UI languages.
+  2. For you — categories, brands, products, CSV import, banners, coupons, order queue, refunds, review moderation, analytics.
+  3. Payments — Razorpay or Stripe, settling into your own account.
+  4. Delivery — flat fee, free-above threshold, serviceable postal-code areas.
+  5. Publishing — the readiness checklist and review before a store goes live.
+  6. Each block links to its guide in `/docs`, which is the depth this page deliberately does not repeat.
+
+#### `/how-it-works` — *how do I get from signup to a first order?*
+
+- **Primary keyword** — create a grocery app without coding
+- **Secondary** — how to launch a store app · sell groceries online without a developer · no app store submission · online store setup steps
+- **Title** (51) — `How It Works — Launch Your Store App in Three Steps`
+- **H1** — How to launch your store app without app store approval
+- **Meta** (147) — Create your store, add your catalog, connect payments and publish. No developer, no build step and no app-store submission before your first order.
+- **Links out** — `/features`, `/pricing`, `/docs`
+- **Sections**
+  1. Step 1 — create the store and pick a template.
+  2. Step 2 — the catalog, three ways: add products one at a time, import a CSV, or generate a sample catalog and edit it.
+  3. Step 3 — connect Razorpay or Stripe, set your delivery fee and the areas you deliver to.
+  4. Step 4 — publish: the readiness checklist, the review, and previewing your own store before anyone else can see it.
+  5. After the first order — the order queue, statuses, the handoff, cancellations and refunds.
+  6. How long it takes, honestly stated.
+  7. CTA. This page is the *product* walkthrough; the broader P3 article 'How to create an online grocery store in India' is the market-level guide and must not repeat it.
+
+#### `/faq` — *the objections before signup*
+
+- **Primary keyword** — grocery store app faq
+- **Secondary** — do I need a developer for a grocery app · do customers download a separate app · who takes commission on online orders · what happens to my data if I leave
+- **Title** (48) — `Grocery Store App FAQ — Cost, Setup and Payments`
+- **H1** — Questions store owners ask before they start
+- **Meta** (145) — Cost, commission, payments, templates, whether your customers install anything, and what happens to your catalog if you leave — answered plainly.
+- **Links out** — `/pricing`, `/security`, `/kirana-store-app`
+- **Sections**
+  1. Grouped into five sets — Cost and commission · Setup and technical · Payments and money · Shoppers and discovery · Your data and leaving.
+  2. Expanded question set from P2, including the ones with an uncomfortable answer: cash on delivery is **not** supported today (payment is online through Razorpay or Stripe), iOS push is not enabled, and catalog export is on request rather than self-serve. Each of these is a query someone types; answering it honestly ranks and converts better than omitting it.
+  3. **`FAQPage` JSON-LD moves here** and is emitted on this URL only. The homepage keeps a trimmed visible set with no markup — two URLs carrying identical FAQ markup is a duplication risk with no upside.
+  4. CTA.
+
+#### `/security` — *can I trust it with my catalog and my money?*
+
+- **Primary keyword** — grocery app data security
+- **Secondary** — is my store data safe · who owns my catalog data · secure online payments for small stores · multi tenant store isolation
+- **Title** (57) — `Security — How Your Store Data and Payments Are Kept Safe`
+- **H1** — How your store data and payments are protected
+- **Meta** (153) — Tenant isolation, payment keys encrypted at rest and never shipped to a device, server-verified payments, and a plain answer about who can see your data.
+- **Links out** — `/privacy`, `/terms`, `/features`
+- **Sections**
+  1. Tenant isolation — one store's data is never reachable from another store's session.
+  2. Payment credentials — encrypted at rest, held server-side, never present in the shopper app.
+  3. Server-verified payments — an order is only written after the provider's signature or a server-side re-fetch confirms the payment.
+  4. What we can and cannot see, said explicitly.
+  5. Where it runs (Google Cloud / Firebase, Mumbai region) and what that means for latency and residency.
+  6. Your data is yours — account deletion, catalog copy on request, and the fact that export is not yet self-serve.
+  7. How to report a problem, with a real address.
+
+#### Wave 2 — new intent pages, ~600–900 words each
+
+#### `/grocery-store-app` — *head term — the product framed for grocery*
+
+- **Primary keyword** — grocery store app
+- **Secondary** — online grocery app for shop owners · grocery shopping app for my store · grocery app builder india · sell groceries online app
+- **Title** (49) — `Grocery Store App for Your Shop — Zero Commission`
+- **H1** — A grocery store app for your shop, without building one
+- **Meta** (151) — Give your grocery shop an online catalog, cart and checkout your customers can order from. Free to use, zero commission, and no app to build or submit.
+- **Links out** — `/kirana-store-app`, `/pricing`, `/templates`
+- **Sections**
+  1. The situation this replaces — orders arriving as phone calls, WhatsApp messages and screenshots, with no record, no stock check and no payment.
+  2. What your shoppers get.
+  3. What you get in the console.
+  4. **The honesty block** — a branded storefront inside the CordeliaApps shopper app, not your own Play Store listing. Stated high on the page, because it is stronger as an offer than as a discovery.
+  5. Pricing summary → `/pricing`. Templates summary → `/templates`.
+  6. Four FAQs, then CTA.
+
+#### `/kirana-store-app` — *the highest-intent India term on the list*
+
+- **Primary keyword** — kirana store app
+- **Secondary** — kirana store online order app · general store app india · provision store home delivery app · kirana dukan online
+- **Title** (52) — `Kirana Store App — Take Orders Online, No Commission`
+- **H1** — A kirana store app for taking orders online
+- **Meta** (146) — Put your kirana store's catalog online and take orders with delivery, payments and repeat customers — no developer and no commission on any order.
+- **Links out** — `/grocery-store-app`, `/online-ordering-app`, `/pricing`
+- **Sections**
+  1. Speak the vocabulary the search is typed in — kirana, general store, provision store, dukan — without stuffing it.
+  2. What changes day to day: a catalog instead of a price list read over the phone, an order record instead of a chat thread, a paid order instead of a promise to pay.
+  3. Delivery only where you actually deliver — serviceable postal-code areas and a flat fee with a free-above threshold.
+  4. Regulars — notifications, coupons, saved addresses and repeat orders.
+  5. Hindi — the storefront reads in Hindi, and your shoppers can switch on their own device.
+  6. **What it is not**, in its own block: no khata or credit ledger, no GST billing, no POS, and no cash on delivery today. A kirana owner will ask all four; being the page that answers them earns the trust the rest of the page needs.
+  7. CTA.
+
+#### `/online-ordering-app` — *the owner already taking orders, badly*
+
+- **Primary keyword** — online ordering app
+- **Secondary** — online ordering system for small business · take customer orders online · order management for local store · whatsapp orders alternative
+- **Title** (58) — `Online Ordering App for Local Stores — Catalog to Delivery`
+- **H1** — Turn your orders into a system instead of a message thread
+- **Meta** (146) — Catalog, cart, payment, order, delivery — one flow with a record at every step, so orders stop living in chat threads and stock is not guessed at.
+- **Links out** — `/features`, `/kirana-store-app`, `/how-it-works`
+- **Sections**
+  1. The full flow, named as steps a reader can recognise from their own day.
+  2. The order lifecycle — placed, on the way, delivered — with every transition dated and the shopper notified automatically.
+  3. The handoff, and what the OTP on the order is for.
+  4. Cancellations and refunds — who can cancel when, what restocks, how the refund settles.
+  5. Delivery fees and serviceable areas.
+  6. What the console shows you while it is happening.
+  7. CTA.
+
+#### `/white-label-grocery-app` — *the ambiguity page — resolve it here, in full*
+
+- **Primary keyword** — white label grocery app
+- **Secondary** — white label ecommerce app india · branded shopping app for my store · readymade grocery app for business · own branded store app
+- **Title** (52) — `White-Label Grocery App — Your Brand, No Development`
+- **H1** — A white-label grocery app, and exactly what that means here
+- **Meta** (146) — Your store name, logo, colours, catalog, customers and payment account. Shared: the app your shoppers already have, so there is nothing to submit.
+- **Links out** — `/templates`, `/grocery-store-app`, `/faq`
+- **Sections**
+  1. **What is yours** — store name, logo, palette and template, catalog, customer relationships, payment account and the money in it, your data.
+  2. **What is shared** — the CordeliaApps shopper app itself, one Play listing, one set of updates.
+  3. **Why shared is the advantage** — no submission, no review wait, no maintenance, no cold-start at zero downloads: your store has shoppers the day it publishes.
+  4. **When you would genuinely want a separate app instead** — say it. A page that names its own limit is the one a skeptical reader believes.
+  5. How far the branding actually goes today, with screenshots.
+  6. CTA.
+
+#### `/supermarket-app` — *the larger catalog, and staff who are not the owner*
+
+- **Primary keyword** — supermarket app
+- **Secondary** — supermarket online ordering system · large grocery catalog app · multi category store app · supermarket home delivery app
+- **Title** (52) — `Supermarket App — Big Catalogs, Coupons, One Console`
+- **H1** — A supermarket app for a catalog that does not fit a message
+- **Meta** (152) — Thousands of products across categories and brands, imported from a CSV, with coupons, stock, search and an order queue your staff run from one console.
+- **Links out** — `/features`, `/online-ordering-app`, `/pricing`
+- **Sections**
+  1. Catalog at scale — categories, brands, sizes, stock, CSV import, and generated sample data to start from.
+  2. Merchandising — banners, coupons, the popular rail, search and filters.
+  3. Orders at volume — the queue, statuses, cancellations, refunds.
+  4. What the console reports — revenue, orders, best sellers, reviews.
+  5. Delivery zones and fees across a wider area.
+  6. Selling in more than one market — four currencies, six storefront languages, formatted per shopper locale.
+  7. CTA.
+
+#### `/zero-commission-online-store` — *the differentiator, on its own URL*
+
+- **Primary keyword** — zero commission online store
+- **Secondary** — sell online without commission · marketplace commission alternative · no commission delivery app · keep 100 percent of online orders
+- **Title** (54) — `Zero-Commission Online Store — Keep 100% of Each Order`
+- **H1** — Sell online without giving away a cut of every order
+- **Meta** (148) — Marketplaces take a cut of every order. Here the payment settles into your own account and nothing is taken — see the arithmetic on your own volume.
+- **Links out** — `/pricing`, `/grocery-store-app`, `/faq`
+- **Sections**
+  1. What a marketplace commission is, and what it buys you (their traffic — say it, because it is real).
+  2. **The arithmetic**, worked on a stated monthly order volume, with the commission rate shown as a *range you cite rather than assert*. Marketplace rates change and vary by category; an unsourced percentage in marketing copy is the kind of number this repo has already been burned by (see the caution at the top of `superapp-ecommerce-plan.md`).
+  3. The trade you are actually making — their demand versus your customers, your data, your margin.
+  4. What still costs money: your payment provider's transaction fees. A page about fees that hides a fee is worthless.
+  5. How you bring your own customers — notifications, coupons, the storefront link, repeat orders.
+  6. This is the page most likely to earn a link on its own; write it to be citable.
+  7. CTA.
 ---
 
 ## P2 — Sharpen the homepage and the words on it
