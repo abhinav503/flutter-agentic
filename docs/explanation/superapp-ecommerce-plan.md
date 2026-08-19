@@ -3583,9 +3583,13 @@ working**.
 
 - **No crash reporting.** The app is now installable by strangers and a
   production crash is still invisible. This is the highest-value remaining gap.
-- **12 testers × 14 days** of closed testing before production access, if the
+- ~~**12 testers × 14 days** of closed testing before production access, if the
   Play account is personal and post-Nov-2023. Not shortenable — worth starting
-  early.
+  early.~~ **Testers met (2026-08-19)** — the closed-testing track has its 12
+  opted-in testers. The 14-day continuous window is the clock, not a task: it
+  runs from the day the twelfth tester opted in, and dropping below 12 at any
+  point restarts it, so the group has to stay intact until Play offers the
+  production-access application.
 - ~~**At least one real live store** before the public listing: a reviewer
   opening the app to an empty discovery list is a rejection under minimum
   functionality.~~ **Met (2026-08-11)** — a real store is published and
@@ -4482,7 +4486,7 @@ here in the same pass.
 | Play Console rejected the closed-testing submission: `Financial features → Mobile payments and digital wallets` was declared, which restricts distribution to organization accounts. Cordelia sells physical goods through third-party gateways and holds no funds — the declaration is being cleared and appealed | new (2026-08-11), no section yet |
 | The build number must exceed the `+3` already uploaded; a re-upload at the same version code is refused | — |
 | Data safety form unfilled | "Cordelia on Google Play" |
-| 12 testers × 14 days of closed testing, not shortenable on a personal account | "What this leaves open" (productionisation) |
+| ~~12 testers × 14 days of closed testing, not shortenable on a personal account~~ — **12 testers met (2026-08-19)**; the 14-day window is now just elapsing | "What this leaves open" (productionisation) |
 | Discovery must stay non-empty — it lists only *published* stores, so unpublishing the one live `grofast` store restores a minimum-functionality rejection | Corrections to earlier entries |
 
 ### The largest functional hole
