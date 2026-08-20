@@ -8,14 +8,11 @@ import 'package:cordelia/utils/localized_validations.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/button.dart';
 import 'package:core/core/ui/atoms/inline_text_link.dart';
-import 'package:core/core/ui/atoms/labeled_divider.dart';
-import 'package:core/core/ui/atoms/svg_image.dart';
 import 'package:core/core/ui/blocks/collapsing_header_sheet.dart';
 
 import 'package:cordelia/constants/app_routes.dart';
 import 'package:cordelia/constants/cordelia_color_const.dart';
 import 'package:cordelia/constants/cordelia_dimen_const.dart';
-import 'package:cordelia/constants/image_const.dart';
 import 'package:cordelia/constants/cordelia_text_style_const.dart';
 import 'package:cordelia/constants/value_const.dart';
 import 'package:cordelia/widgets/cordelia_form_field.dart';
@@ -170,54 +167,10 @@ class _LoginScreenState extends BaseScreenState<LoginScreen>
                               : AppButtonState.idle,
                           onTap: isLoading ? null : _submit,
                         ),
-                        const SizedBox(height: AppSpacing.xl2),
-                        AppLabeledDivider(
-                          label: ValueConst.orLoginWith,
-                          textStyle:
-                              CordeliaTextStyleConst.textSmRegular(
-                                Theme.of(context).textTheme,
-                              ).copyWith(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onSurfaceVariant,
-                              ),
-                        ),
-                        const SizedBox(height: AppSpacing.lg),
-                        AppButton(
-                          label: ValueConst.continueWithGoogle,
-                          variant: AppButtonVariant.secondary,
-                          fullWidth: true,
-                          leadingIcon: AppSvgImage.asset(
-                            ImageConst.googleIcon,
-                            width: 20,
-                            height: 20,
-                          ),
-
-                          labelStyle: CordeliaTextStyleConst.textMdMedium(
-                            Theme.of(context).textTheme,
-                          ),
-                          height: CordeliaDimenConst.controlHeight,
-                          onTap: () =>
-                              showSnackBar(ValueConst.comingSoonMessage),
-                        ),
-                        const SizedBox(height: AppSpacing.sm),
-                        AppButton(
-                          label: ValueConst.continueWithApple,
-                          variant: AppButtonVariant.secondary,
-                          fullWidth: true,
-                          leadingIcon: AppSvgImage.asset(
-                            ImageConst.appleIcon,
-                            width: 20,
-                            height: 20,
-                            color: Theme.of(context).colorScheme.onSurface,
-                          ),
-                          labelStyle: CordeliaTextStyleConst.textMdMedium(
-                            Theme.of(context).textTheme,
-                          ),
-                          height: CordeliaDimenConst.controlHeight,
-                          onTap: () =>
-                              showSnackBar(ValueConst.comingSoonMessage),
-                        ),
+                        // Google/Apple sign-in are not wired yet; the buttons shipped as a
+                        // coming-soon snackbar, which App Review reads as incomplete
+                        // functionality (Guideline 2.1). Restore with the divider above them
+                        // once the providers are real.
                       ],
                     );
                   },
