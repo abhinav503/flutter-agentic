@@ -4497,6 +4497,14 @@ admin while no endpoint accepts one; "Delivered" is a button a store admin
 presses at a desk. Shape agreed, entry point reserved in Discovery's top-right
 corner, deliberately unstarted. → "Delivery-agent apps — decided, not built".
 
+### Shopper-facing blockers (2026-08-21 readiness scan)
+
+| Item | Owning section |
+|---|---|
+| **Out-of-stock is invisible until checkout fails** — `stock` is enforced server-side but never serialized to the storefront, so a zero-stock product browses, adds to cart and is refused at payment | "Go-live readiness scan" |
+| **No support channel anywhere** — no email, phone, form or thread; the `/refunds` policy page on the merchant site is not linked from the app either | same |
+| **Hard login wall before any browsing** — splash routes an unauthenticated visitor to `/login`; no guest mode, no deep-link redirect-back | same |
+
 ### Commerce flows
 
 - **Post-delivery returns/refunds** — refund is wired only to *cancel*; a
@@ -4510,11 +4518,12 @@ corner, deliberately unstarted. → "Delivery-agent apps — decided, not built"
 
 ### iOS
 
-Unstarted as a track, not as scattered items: no APNs key, no `aps-environment`
-entitlement, no `remote-notification` background mode, no signing. Rich
-notification images additionally need a Notification Service Extension target,
-so that belongs in the same scoping pass rather than after it. → "What this
-leaves open" (notifications).
+~~Unstarted as a track~~ — **closed 2026-08-21**: the APNs key,
+`aps-environment` entitlement, `remote-notification` background mode and signing
+all landed, and the app is in TestFlight. What is still open is push verified on
+real hardware, a Notification Service Extension for rich notification images,
+and the App Store listing itself. → "iOS — signing, push entitlement, and the
+first TestFlight build".
 
 ### Content and data
 
@@ -4529,7 +4538,10 @@ leaves open" (notifications).
 
 ### Smaller
 
-- **Login's two social buttons** — the only `comingSoon` stubs left in the app.
+- **Login's two social buttons** — **removed** (2026-08-21) rather than wired:
+  placeholder UI that fires a coming-soon snackbar is a standing App Review
+  rejection (Guideline 2.1). The copy and the divider recipe remain, so this
+  stays open as a feature, not as a stub.
 - **Search** — `searchKeywords[]` substring matching is the whole of it;
   cross-store search unbuilt. Missing flow #9, the last of those 13 still open
   apart from parts of #1/#2.
@@ -4553,3 +4565,227 @@ reporting (`firebase_crashlytics`), the `storeAdmin` custom claim
 billing (dropped, not deferred), per-market seed catalogs (all seven ship), and
 persistent cart, stock, image hosting, CSV import validation and security rules
 from the original Missing-flows list.
+
+---
+
+## iOS — signing, push entitlement, and the first TestFlight build — DONE (2026-08-21)
+
+The iOS track was listed as unstarted ten days ago: no APNs key, no
+`aps-environment` entitlement, no `remote-notification` background mode, no
+signing. All four are done, and `com.cordeliaapps.superapp` (app Apple ID
+`6803333321`, team `6VS9Z92P4Y`) has been delivered to App Store Connect and is
+in TestFlight.
+
+### Paying for the developer program is not the same as having one
+
+Certificates, Identifiers & Profiles answers a plain **404** — not "access
+denied" — until the enrolment activates, which sent the first pass into
+debugging a URL that was correct all along. Two more traps sat behind it. The
+Mac was signed into a *different* Apple ID than the one holding the membership,
+detectable locally because the only codesigning identity was an
+`Apple Development` cert from a free Personal Team and there were no
+provisioning profiles at all. And the Signing pane's "your team has no devices"
+warning is a **development** profile problem with no bearing on an App Store
+archive — a Mac cannot be registered to clear it, since iOS development profiles
+take iOS device UDIDs only.
+
+The **Paid Apps Agreement is deliberately unsigned**. It governs charging
+*through Apple*; Cordelia sells physical goods through Razorpay/Stripe, which
+Apple exempts from IAP. Free Apps Agreement active is the entire requirement,
+and leaving Paid unsigned skips the banking and tax forms outright.
+
+### Push is three things, and two of them look like one
+
+Push Notifications and Background Modes are separate capabilities. Adding
+Background Modes alone leaves no `aps-environment` entitlement, so iOS never
+issues an APNs token and the uploaded `.p8` does nothing. The full set is: the
+APNs auth key registered under Keys and uploaded to Firebase Cloud Messaging,
+the **Push Notifications** capability (which also enables Push on the identifier
+in the portal, and writes `Runner.entitlements`), and `remote-notification` in
+`UIBackgroundModes`.
+
+The entitlements file reads `aps-environment: development` and should be left
+that way — Xcode substitutes `production` during App Store export. Verified in
+the shipped binary rather than assumed:
+`codesign -d --entitlements` on the exported `Runner.app` returns
+`aps-environment: production`, `beta-reports-active: true`,
+`get-task-allow: false`.
+
+### Four project changes made before the first build
+
+- **`ITSAppUsesNonExemptEncryption = false`** — without it every single upload
+  stalls on a manual export-compliance question.
+- **`TARGETED_DEVICE_FAMILY` `"1,2"` → `1`** — the project claimed iPad support
+  it never had. iPad would have required 13" screenshots and put three packs'
+  untuned layouts in front of a reviewer on a screen size none were designed
+  for.
+- **Login's two social buttons removed** — they fired a coming-soon snackbar,
+  and placeholder UI is a standing Guideline 2.1 rejection.
+- **Bottom-line versioning** — `1.0.3+3` delivered; `1.0.4+4` built with the two
+  delivery-warning fixes below. iOS build numbers are independent of Play's.
+
+### Both delivery warnings were real, and neither was ours
+
+`ITMS-90683` demanded `NSLocationAlwaysAndWhenInUseUsageDescription` even though
+the app only ever calls `Geolocator.requestPermission()` for when-in-use. The
+cause is `geolocator_apple`'s `PermissionHandler.m`, which calls
+`requestAlwaysAuthorization` — Apple's scan reads compiled symbols, not your
+Dart. Declaring the key changes no behaviour: iOS only offers "Always" when the
+app requests it.
+
+The missing `Razorpay.framework` dSYM was **shipped all along**, at
+`ios-arm64/dSYMs/` *inside* the vendored `.xcframework`, with exactly the UUID
+Apple named (`465D3250-8266-356E-B167-9FA7BAAD6F02`). Xcode does not copy dSYMs
+bundled inside a vendored xcframework into the archive. Fixed with a
+`Copy vendored xcframework dSYMs` run-script phase on the Runner target, guarded
+to `$ACTION = install` so it only fires on archive, and written generically so
+any future vendored xcframework is covered. Left unfixed it costs unsymbolicated
+crash reports inside the payment SDK — the highest-stakes path in the app.
+
+One incidental discovery: Flutter 3.44 resolves nearly every plugin through
+**Swift Package Manager**, and only `razorpay_flutter` still goes through
+CocoaPods. `Podfile.lock` therefore lists four pods and nothing else, and
+`Pods/` contains no `geolocator_apple` — which is why the first search for the
+`ITMS-90683` culprit came up empty.
+
+### What this leaves open
+
+- **Push is unverified on real hardware.** The Simulator cannot prove FCM token
+  registration, and the app was never run on a device in this pass. TestFlight
+  is the right proving ground: it runs against **production** APNs, the same
+  environment the shipped app uses. Foreground, background and terminated
+  delivery all need checking, plus tap-routing into the right store's
+  notification centre.
+- **Rich (image) notifications still need a Notification Service Extension
+  target** — unchanged from the previous entry, and unbuilt.
+- **Not submitted for review.** The listing has no screenshots (6.9" iPhone),
+  App Privacy labels, privacy policy URL, age rating or category, and no demo
+  account or review note explaining that physical goods sold through external
+  gateways are exempt from IAP.
+- **EU is excluded.** DSA trader status is unset, which restricts distribution
+  to the non-EU storefronts. Providing it publishes a contact address on the
+  product page — an individual account means a personal address — and Cordelia
+  being a multi-tenant marketplace additionally implies DSA Article 30 merchant
+  traceability (verified identity, address, payment account per selling store)
+  before an EU launch. Neither is scoped.
+- **The developer name on the listing is the enrolled individual's legal name**,
+  not "CordeliaApps". Changing it needs an Organization account (D-U-N-S, a
+  fresh enrolment) or an approved d/b/a.
+- **Firebase client API keys are unrestricted.** Not a leak — they are
+  extractable from any shipped binary and Google documents them as
+  non-secret — but the four keys under `corderlia-ecom` still need application
+  restrictions (bundle ID / package + SHA-1 / referrer) and App Check
+  enforcement before the listing is public.
+
+---
+
+## Go-live readiness scan — product perspective (2026-08-21)
+
+A sweep of `admin/` and `apps/ecommerce/cordelia/` for what a real shopper and a
+real store owner would hit, with store publishing deliberately excluded — that
+track is covered by the iOS section above and the Play entries earlier.
+
+Neither codebase carries a single `TODO`, `FIXME` or `HACK`. Everything below is
+**unbuilt product, not unfinished code**, which is exactly why none of it
+surfaces in a lint, an analyzer run, or a code review. It only surfaces by
+walking the flows.
+
+### Out-of-stock is invisible until checkout fails
+
+The finding that would embarrass the app fastest, and the only one here that was
+not already known in some form.
+
+Stock is fully modelled on the merchant side: every product doc carries `stock`,
+the catalog list filters in/out and sorts by it
+(`admin/src/app/dashboard/products/page.tsx:141`), and the server enforces it
+transactionally on both write paths — `Insufficient stock` → 409 at payment
+intent (`api/stores/[storeId]/payments/route.ts:70`) and at order placement
+(`api/stores/[storeId]/orders/route.ts:150,208`).
+
+It is modelled nowhere on the shopper side. `serializeProduct`
+(`admin/src/lib/api/serializers.ts:54`) returns fourteen fields and `stock` is
+not among them; grep for `stock` across `admin/src/app/api/` returns only those
+three refusal sites, all on writes. `ProductEntity` has no such field to drop it
+into. So an out-of-stock item renders as an ordinary purchasable product in all
+three packs, survives add-to-cart and the whole of checkout, and is refused at
+the last step — by a server-authored English string, in every locale.
+
+For a grocery catalog this is the ordinary path, not an edge case: stock goes to
+zero constantly and the storefront cannot tell. The fix is small on both sides
+(one serializer field, one entity field, a disabled state on the card and the
+Add button) and is bounded by no other work.
+
+### There is no support channel
+
+Not a thin one — none. The code assumes one repeatedly: "an id a shopper would
+hand to support" appears in gravia's and dailymart's Track Order screens and in
+`OrderEntity`'s doc comment, and
+`templates/dailymart/constants/dailymart_value_const.dart:213` states plainly
+that Help & Support is among the things "this app has [not]". Every Profile tab
+across the three packs runs Change Password / My Orders / My Address / Dark Mode
+/ Language / Privacy / Terms / Logout / Delete Account, and stops.
+
+A shopper with a wrong item, a missing delivery, or a refund that never landed
+has no email, no phone, no form, and no in-app thread. The admin console's own
+merchant site publishes a `/refunds` policy page, which the app does not link
+either — so the one written commitment about refunds is invisible to the person
+it is written for.
+
+### The login wall precedes discovery
+
+`feature/splash/presentation/view/splash_page.dart:44` routes anyone without a
+session to `/login`. There is no guest mode, no redirect-back-after-auth on a
+product deep link, and nothing browsable before an account exists.
+
+For a multi-tenant marketplace whose entire proposition is *discover stores*,
+the funnel opens with a signup form in front of an empty promise. This is a
+product decision to revisit rather than a defect — but it should be a decision,
+and right now it is a default.
+
+### Nothing downstream of "order placed" — re-confirmed
+
+Unchanged from "Delivery-agent apps — decided, not built": the handoff OTP is
+generated and displayed to both shopper and store admin while no endpoint
+accepts one, and `DELIVERED` is a button pressed at a desk. Worth restating with
+the status model beside it — `OrderStatus` is four values (`pending`,
+`inProcess`, `delivered`, `cancelled`), so even with an agent app there is no
+*packed* or *out for delivery* to report into, and no ETA, though all three kits
+draw one.
+
+### Known gaps this scan re-confirmed rather than found
+
+- **No post-delivery returns** — refund is wired only to cancel.
+- **Server-authored refusals stay English** in every locale — the stock refusal
+  above is the highest-traffic instance of this, which raises its priority.
+- **No pre-checkout serviceability signal** — refused at submit, not greyed out
+  in Select Address.
+- **Search** is `searchKeywords[]` substring matching, and there is still no
+  cross-store search — conspicuous in an app whose home screen is discovery.
+- **Notifications** — no shopper-side per-store mute; the feed caps at 50 per
+  source with no paging.
+- **Placeholder content** — single-image product "carousel", onboarding's
+  seeded stock photos, grofast's two bundled map images.
+- **Operational** — Firebase client keys still unrestricted with App Check off,
+  `CRON_SECRET` unset so the weekly device prune has never run, and ~1–2.5s API
+  cold starts (accepted).
+
+### What the scan found solid
+
+Recorded so the list above is not read as a verdict on the whole: two payment
+providers with per-store settlement, cancel + refund with signature-verified
+webhooks and refund idempotency, product *and* order reviews with server-derived
+verified-purchase, in-app account deletion, delivery fee + per-store
+serviceability, the store publication lifecycle, per-store notifications
+end-to-end, and five languages across seven market catalogs. Size variants are
+admin-driven and do reach the product-details payload — checked, because the
+grid serializer's omissions made it look like they might not.
+
+### The minimum set
+
+If go-live means "a stranger's first order does not go wrong in a way we cannot
+answer for", it is the first three: **stock visibility, a support channel, and
+letting people browse before signing up**. Each is small relative to what is
+already built, each is bounded, and each shows up on day one rather than at
+scale. The delivery-agent track is the larger hole but it is a whole app, and
+its absence degrades gracefully as long as order volume stays inside what a
+store admin can advance by hand.

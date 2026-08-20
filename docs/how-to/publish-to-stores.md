@@ -160,9 +160,18 @@ PDF → share) is fully functional on its own, and/or prepare a reviewer demo ke
 
 ---
 
-## App Store note (deferred)
+## App Store note (deferred for `doc_scanner`; proven on `cordelia`)
 
-App Store submission is intentionally **out of scope for now**:
+> **The iOS path is no longer untrodden.** `apps/ecommerce/cordelia` went
+> enrolment → signing → APNs → archive → TestFlight on 2026-08-21. The full
+> account-side sequence, the four project settings a Flutter app needs before
+> its first upload, and both delivery warnings it hit (`ITMS-90683` from
+> `geolocator_apple`, and the missing Razorpay dSYM) are written up in
+> `docs/explanation/superapp-ecommerce-plan.md` § "iOS — signing, push
+> entitlement, and the first TestFlight build". Read that before repeating this
+> for another app.
+
+App Store submission remains intentionally **out of scope for `doc_scanner`**:
 - $99/yr developer program vs Play's one-time $25.
 - Apple guideline **4.2 ("minimum functionality")** frequently rejects single-purpose
   utilities, and the **BYOK** requirement (item 8) compounds that risk.
