@@ -54,9 +54,14 @@ class CordeliaPrimaryButton extends StatelessWidget {
       // Pinned rather than left to inherit: the label sits on the gradient's
       // own dark end regardless of theme, so a textTheme role's ink would
       // silently win over the button's foreground colour and go invisible.
-      labelStyle: CordeliaTextStyleConst.textMdMedium(
-        tt,
-      ).copyWith(color: cs.onPrimary),
+      // Dropped while disabled for the same reason in reverse — the pin
+      // outranks AppButton's disabled ink, which would print onPrimary on
+      // the inert fill.
+      labelStyle: state == AppButtonState.disabled
+          ? CordeliaTextStyleConst.textMdMedium(tt)
+          : CordeliaTextStyleConst.textMdMedium(
+              tt,
+            ).copyWith(color: cs.onPrimary),
       onTap: onTap,
     );
   }
