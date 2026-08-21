@@ -89,7 +89,11 @@ dependencies:
   # The build number a support reply needs in order to mean anything ("which
   # version are you on"), read at runtime rather than hardcoded so it cannot
   # drift from pubspec's `version:`.
-  package_info_plus: ^8.1.2
+  # ^9, not an older pin: this already resolved to 9.x transitively (geolocator
+  # pulls it), and constraining it down breaks the Android build — the 8.x
+  # Kotlin module fails to produce its plugin class, which surfaces as
+  # `cannot find symbol PackageInfoPlugin` from GeneratedPluginRegistrant.
+  package_info_plus: ^9.0.1
 
   firebase_messaging: ^16.5.0
   flutter_local_notifications: ^22.2.0
