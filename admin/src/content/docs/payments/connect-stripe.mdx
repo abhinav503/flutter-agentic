@@ -114,11 +114,15 @@ in the console until you complete it by hand.
 ## The one difference from Razorpay
 
 Worth knowing if you've read the Razorpay guide: **Stripe has no client-side
-payment signature.** Razorpay hands the app a signed confirmation your server
-can check; Stripe doesn't. So verification is a server-side re-fetch of the
-PaymentIntent from Stripe instead.
+payment signature.** Razorpay hands the app a signed confirmation your store
+can check locally; Stripe doesn't.
 
-Same guarantee, different mechanism — and nothing you configure differently.
+It changes less than it sounds. Both providers are asked directly what was
+paid, and neither is trusted on the app's word — Razorpay just has one extra
+check on top. Same guarantee, and nothing you configure differently.
+
+See [Payment flows](/docs/payments/payment-flows) for what actually happens at
+each step, including where the two differ.
 
 ## Go live
 

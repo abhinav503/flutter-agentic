@@ -97,6 +97,29 @@ If it keeps failing, check in this order:
   </Step>
 </Steps>
 
+## Refunds for orders that were never placed
+
+Checkout takes the payment first and writes the order second. Almost always
+those happen a second apart — but if something changes in between (the last
+unit sells to somebody else, a coupon hits its limit, the address falls outside
+your delivery areas), the payment has been taken and there is no order to
+attach it to.
+
+**That refund now happens by itself.** The shopper is told what went wrong and
+that their money is coming back, in their own language, before they leave the
+screen. Nothing appears in your Orders list, because no order was ever created.
+
+You will still see the refund in your payment provider's dashboard, so it's
+worth knowing why one can show up there with no matching order. **Orders →
+Payments without orders** lists them with the payment id, the amount, the
+reason and the refund's state — it only appears when your store has some.
+
+<Callout type="warning">
+  A refund that the provider itself refuses is recorded as failed rather than
+  retried silently. That is the one case here that needs you — refund it from
+  the provider's dashboard, using the payment id.
+</Callout>
+
 ## Orders with no payment
 
 Orders placed through the test-mode payment-less path carry no payment.

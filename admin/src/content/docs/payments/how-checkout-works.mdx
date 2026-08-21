@@ -41,9 +41,23 @@ reporting "payment succeeded" isn't proof — the server checks with the provide
 directly, and only a confirmed payment for the expected amount produces an
 order.
 
+Both providers are checked the same way: the amount is read back from the
+provider, never taken from the app. A payment for a different (say, earlier and
+cheaper) basket doesn't verify, whichever provider took it.
+
+<Callout>
+  **You don't need to configure payment capture.** Some card payments arrive as
+  a *hold* rather than a completed charge, depending on your provider account's
+  capture setting. Your store claims the money itself as part of this step, so
+  a shopper's payment is always collected — never left holding, to expire back
+  to them days after you've delivered.
+</Callout>
+
 The visible consequence: **a payment can succeed while an order fails to
 appear.** That's this check refusing, and the usual cause is a payment
-configuration mismatch. See
+configuration mismatch. When it happens the payment is
+[refunded automatically](/docs/orders/cancellations-and-refunds), so a shopper
+is never left paid-but-orderless. See
 [Troubleshooting](/docs/going-live/troubleshooting).
 
 ## What's in the total

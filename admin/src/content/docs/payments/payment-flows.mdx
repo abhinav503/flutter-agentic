@@ -1,0 +1,286 @@
+---
+title: Payment flows
+description: Every path a payment can take — the ordinary one, the three that fail, and the two that end in an automatic refund — and what each looks like in your console.
+sidebarTitle: Payment flows
+order: 4
+---
+
+Most payments take the same short path and you never think about them. This
+page is for the rest: what happens when a card is held instead of charged, when
+the last item sells while someone is paying, or when your keys are wrong — and
+which of those cost you a sale versus cost you nothing.
+
+Everything here applies to **both Razorpay and Stripe** unless a step says
+otherwise.
+
+## The shape of every payment
+
+```text
+Shopper taps Pay
+      │
+      ▼
+Your store prices the cart          items − coupon + delivery = total
+      │
+      ▼
+The provider collects the money     their checkout, on the shopper's device
+      │
+      ▼
+Your store asks the provider        "what was actually paid?"
+      │
+      ├── it matches ──────▶  Order created · stock reduced · shopper notified
+      │
+      └── it doesn't ──────▶  No order · payment refunded automatically
+```
+
+The last step is the one that matters. Your store never takes the app's word
+for a payment — it asks the provider directly, and compares what came back to
+what the cart costs. That single check is why a shopper can't pay ₹1 for a
+₹1,000 basket, and why a wrong key means no order rather than a free order.
+
+<Callout type="success">
+  The cart is priced by the same code at the start and the end, so what the
+  shopper is charged and what the order records can never disagree.
+</Callout>
+
+## Flow 1 — The ordinary one
+
+<Steps>
+  <Step title="The cart is priced and a payment is started">
+    Your store totals the basket itself and asks your provider for a payment of
+    exactly that amount, in your store's currency.
+  </Step>
+  <Step title="The shopper pays">
+    Razorpay's or Stripe's own checkout runs on their device — card, UPI,
+    netbanking, wallet. You are not involved and never see card details.
+  </Step>
+  <Step title="Your store verifies">
+    It asks the provider what that payment was for and confirms three things:
+    it belongs to this checkout, it is for this exact amount and currency, and
+    the money has actually moved.
+  </Step>
+  <Step title="The order is written">
+    In one transaction: the order is created, stock comes down, the coupon is
+    recorded, and the shopper's cart empties. Then they get a notification.
+  </Step>
+</Steps>
+
+**In your console:** a new order, Pending. Nothing else to do.
+
+## Flow 2 — A card that's held rather than charged
+
+Some card payments arrive as a **hold**: the bank reserves the money but nobody
+has claimed it yet. Whether this happens depends on a setting in your
+provider account, and it only affects cards — UPI, netbanking and wallets are
+always immediate.
+
+```text
+Shopper pays by card
+      │
+      ▼
+Money is held, not taken           the shopper sees a "pending" charge
+      │
+      ▼
+Your store claims it               automatically, once it has checked the amount
+      │
+      ▼
+Order created as normal
+```
+
+<Callout type="success">
+  **Nothing for you to configure.** Your store claims the money itself as part
+  of verifying, so a held payment becomes a real one before the order is
+  written. You can leave your provider's capture setting however it is.
+</Callout>
+
+This matters because a hold that nobody claims expires. Without this step a
+shopper could be delivered to, and the money would quietly return to them days
+later.
+
+## Flow 3 — Something changed while they were paying
+
+The gap between "money taken" and "order written" is a second or two, but it is
+real, and things can move in it: the last unit sells to someone else, a coupon
+hits its usage limit, or the shopper's address falls outside your delivery
+areas.
+
+```text
+Payment taken
+      │
+      ▼
+Your store re-prices the cart      and re-checks stock, coupon, address
+      │
+      └── something moved ──▶  No order
+                                    │
+                                    ▼
+                               Payment refunded automatically
+                                    │
+                                    ▼
+                               Shopper is told what happened, in their language
+```
+
+**In your console:** nothing. No order was created, so there is nothing to
+cancel and no stock to put back — it was never taken.
+
+**In your provider's dashboard:** a payment and a matching refund, with no
+order behind either. That's this flow, and it's the reason a refund can appear
+that you didn't issue.
+
+**Where to see them:** the **Payments without orders** table at the bottom of
+your Orders page. It appears only when there are any, and lists the payment id,
+amount, reason and refund state for each.
+
+<Callout>
+  The app tries hard to make this rare: it shows what's left in stock, stops a
+  shopper adding more than you have, and re-checks the basket when they open
+  their cart and again at checkout. This flow is the race it can't win — the
+  shopper who was already paying when the last one sold.
+</Callout>
+
+## Flow 4 — Your keys are wrong
+
+The most common real failure, and the one worth recognising fast.
+
+```text
+Payment taken by the provider
+      │
+      ▼
+Your store asks the provider        with the wrong secret, this fails
+      │
+      ▼
+Verification fails ──▶  No order · payment refunded automatically
+```
+
+A mismatched key pair passes the payment step and fails the verification step:
+the shopper is charged, no order appears, and the money goes back. The shopper
+isn't out of pocket — but **every one of these is a lost sale**, and it will
+happen to every shopper until the keys are fixed.
+
+**How to spot it:** payments in your provider's dashboard with no matching
+orders in your console, repeatedly. Fix by re-saving both halves of the key
+pair together — pasting only the key id after regenerating is the usual cause.
+See [Connect Razorpay](/docs/payments/connect-razorpay) or
+[Connect Stripe](/docs/payments/connect-stripe).
+
+## Flow 5 — Test mode, and the payment-less path
+
+A store connected with **test keys** can place orders without any payment at
+all. That's what lets checkout be exercised in the web preview, where a native
+payment sheet can't run.
+
+```text
+Test store · web preview                Test store · phone
+      │                                       │
+      ▼                                       ▼
+Order written directly              Test payment sheet runs,
+No payment involved                 then verified like a real one
+```
+
+Both are real orders in your console, with real stock movements — only the
+money is absent. Orders placed this way show a refund state of **None**, and
+cancelling one restocks it without refunding anything.
+
+<Callout type="warning">
+  A store with **live** keys can never take a payment-less order. The moment
+  you paste live keys, every order requires a verified payment.
+</Callout>
+
+## Flow 6 — Cancelling, and getting money back
+
+Refunds happen in two quite different situations, and it's worth keeping them
+apart.
+
+| | What it is | Who starts it | Order in your console |
+| --- | --- | --- | --- |
+| **Cancellation refund** | A real order being called off | You, or the shopper, before delivery | Cancelled, stock restored |
+| **Failed-checkout refund** | A payment that never became an order | Nobody — automatic | No order exists |
+
+Cancellation is the one you'll see: the order is cancelled, its stock goes
+back, and a full refund starts. It's covered in
+[Cancellations and refunds](/docs/orders/cancellations-and-refunds).
+
+```text
+Cancel  ──▶  Order cancelled + stock restored   (one step, immediate)
+              │
+              ▼
+        Refund requested from your provider
+              │
+              ├─ Razorpay ──▶ Pending, then Processed days later
+              └─ Stripe   ──▶ usually Processed straight away
+```
+
+Razorpay refunds settle over days, so they sit at **Pending** and flip to
+**Processed** on their own — provided you've set up the webhook. Stripe usually
+completes immediately. A refund the provider outright rejects shows as
+**Failed**, and that's the one that needs you.
+
+## Where the two providers differ
+
+Almost nowhere that you'd notice. For completeness:
+
+| | Razorpay | Stripe |
+| --- | --- | --- |
+| Checks the amount with the provider | Yes | Yes |
+| Extra signed confirmation from the app | Yes | Not offered |
+| Held card payments claimed for you | Yes | Not possible — always immediate |
+| Refunds settle | Over days (Pending → Processed) | Usually immediately |
+| Webhook needed for refund status | Yes | Recommended |
+
+<Callout>
+  Both end up meaning the same thing when an order is written: the money is
+  taken, for exactly this basket, in your currency, into your own account.
+</Callout>
+
+## What to check when something looks wrong
+
+<Steps>
+  <Step title="Payments with no orders">
+    Open **Payments without orders** under your Orders page. Repeated entries
+    saying the payment didn't verify mean mismatched keys — Flow 4. Occasional
+    ones saying an item sold out are Flow 3, and nothing is wrong.
+  </Step>
+  <Step title="Orders that shouldn't exist">
+    Not possible for a live store — every order carries a verified payment.
+    Check whether the store is still on test keys.
+  </Step>
+  <Step title="A refund stuck at Pending">
+    Razorpay settles over days. If it never moves, your refund webhook isn't
+    configured — see [Connect Razorpay](/docs/payments/connect-razorpay).
+  </Step>
+  <Step title="A refund marked Failed">
+    The provider rejected it. Refund from their dashboard directly, using the
+    payment id.
+  </Step>
+</Steps>
+
+## Seeing these for yourself
+
+You don't need to reproduce every flow above — most of them are the platform
+doing its job whether you watch or not. Before you paste live keys, two things
+are worth confirming with your own eyes, and both are covered step by step in
+[Connect Razorpay](/docs/payments/connect-razorpay) and
+[Connect Stripe](/docs/payments/connect-stripe):
+
+- **A successful test payment** produces an order in your console within a
+  second of the payment sheet closing.
+- **A declined test card** produces no order, and no charge.
+
+After that, cancel one of your test orders from the console and watch its stock
+come back and its refund state appear. That's Flow 6, and it's the one you'll
+actually use week to week.
+
+<Callout>
+  Flows 2, 3 and 4 don't need rehearsing. They exist so that a held card, a
+  sold-out race or a wrong key can't quietly cost a shopper money — and if one
+  ever happens, **Payments without orders** on your Orders page will show it.
+</Callout>
+
+## Next
+
+<CardGroup>
+  <Card title="How checkout works" icon="credit-card" href="/docs/payments/how-checkout-works">
+    The short version, plus what's in the total.
+  </Card>
+  <Card title="Cancellations and refunds" icon="receipt" href="/docs/orders/cancellations-and-refunds">
+    Who can cancel, and the refund states.
+  </Card>
+</CardGroup>

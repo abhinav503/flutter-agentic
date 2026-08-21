@@ -114,9 +114,14 @@ paste the `rzp_live_` pair over the test one. The badge flips from Test to Live.
 <Accordion title="The payment succeeded but no order was created">
   Checkout is two steps: Razorpay confirms the payment, then your store
   verifies that confirmation server-side before writing the order. A mismatched
-  Key Secret passes step one and fails step two — the shopper is charged and no
-  order appears. Re-save both halves of the key pair together; pasting only the
-  Key ID after regenerating in Razorpay is the usual cause.
+  Key Secret passes step one and fails step two. Re-save both halves of the key
+  pair together; pasting only the Key ID after regenerating in Razorpay is the
+  usual cause.
+
+  The shopper isn't left out of pocket — a payment taken for an order that
+  fails to write is
+  [refunded automatically](/docs/orders/cancellations-and-refunds). But every
+  such refund is a sale you lost, so fix the keys.
 </Accordion>
 
 <Accordion title="Can I take orders without connecting a payment provider?">

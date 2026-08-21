@@ -4501,7 +4501,7 @@ corner, deliberately unstarted. → "Delivery-agent apps — decided, not built"
 
 | Item | Owning section |
 |---|---|
-| **Out-of-stock is invisible until checkout fails** — `stock` is enforced server-side but never serialized to the storefront, so a zero-stock product browses, adds to cart and is refused at payment | "Go-live readiness scan" |
+| ~~**Out-of-stock is invisible until checkout fails**~~ — **closed 2026-08-21**: `stock` is serialized, sold-out products are marked and unbuyable in all three packs, quantity caps at what remains, and an unbuyable cart blocks checkout in the shopper's own language | "Stock visibility" |
 | **No support channel anywhere** — no email, phone, form or thread; the `/refunds` policy page on the merchant site is not linked from the app either | same |
 | **Hard login wall before any browsing** — splash routes an unauthenticated visitor to `/login`; no guest mode, no deep-link redirect-back | same |
 
@@ -4789,3 +4789,280 @@ already built, each is bounded, and each shows up on day one rather than at
 scale. The delivery-agent track is the larger hole but it is a whole app, and
 its absence degrades gracefully as long as order volume stays inside what a
 store admin can advance by hand.
+
+---
+
+## Stock visibility — DONE (2026-08-21)
+
+The first of the readiness scan's minimum set, and the only one of the three
+that was a data gap rather than a product decision. `stock` was modelled on the
+merchant side, enforced transactionally on both checkout writes, and never
+serialized — so the storefront browsed, carted and checked out a sold-out
+product, and learned about it from a server-authored English string at payment.
+
+**One field, six surfaces.** `serializeProduct` gained `stock`, which is the
+whole server change: every product payload the app reads — grid, popular,
+category, search, favourites, product details, and each joined cart line — goes
+through that one function, so nothing else had to be routed.
+
+**Unknown is not zero.** `ProductModel.stock` is nullable rather than
+`@Default(0)`. Zero is a real answer ("sold out"); an absent key is a different
+one ("this backend doesn't say"), and defaulting the missing case would render
+an entire catalog sold out against an API older than the field. `ProductEntity`
+carries the same null, and `ProductEntityStockX` states the rule in one place:
+unknown stock sells.
+
+**Three refusals, in the order a shopper meets them.**
+
+1. *The card* — faded photo, the pack's own "Out of Stock" mark, add control
+   disabled. Each pack renders it in a recipe it already owned rather than a
+   shared badge: gravia's CTA pill becomes an inert "Out of Stock" and drops
+   its quick-add sheet, dailymart's discount pill gives up its corner (one
+   pill, one corner, in a 2-column cell), grofast grows a tag in the card's
+   only free corner and its welded **+** loses the brand gradient.
+2. *Product Details* — the CTA turns inert and the quantity stepper goes
+   entirely; there is nothing to pick. Where stock is merely low, the stepper's
+   **+** caps at it (`QuantitySelection.incrementQuantityUpTo`), the ceiling
+   counterpart of its existing floor of 1, so a cart can't be built to fail.
+3. *The cart* — an unbuyable line spends its one subtitle slot on why
+   ("Out of Stock", or "Only 3 left" for a line that outgrew its stock while it
+   sat there), its **+** stops, and checkout refuses before an address is even
+   picked. The refusal is re-run at Checkout's own submit for the two packs
+   that route there, beside the identical delivery-serviceability guard.
+
+**A latent bug this surfaced.** `CordeliaPrimaryButton` pinned its label to
+`cs.onPrimary`, and a pinned label colour outranks `AppButton`'s disabled ink
+(the forbidden pattern conventions.md already names) — so the first disabled
+CTA would have printed white text on the inert fill. The pin is now dropped
+while disabled. Nothing had hit it before because no caller had ever disabled
+that button.
+
+Copy is app-level, not per-pack: `outOfStockLabel`, `onlyNLeftLabel` (ICU
+plural) and `cartUnavailableItemsMessage`, across all six locales, at parity.
+`core`'s `ProductCard` gained `actionState` — the block had no way to say
+"disabled", only to swallow the tap — with a Sold-out variant in the gallery.
+
+The merchant docs said the opposite in two places (`catalog/products.mdx`'s
+warning callout, `going-live/troubleshooting.mdx`'s table) and were rewritten
+in the same pass; the "Insufficient stock" row now describes the race it is
+now, not the ordinary path it was.
+
+**What it does not close.** The server's refusal is still English when the race
+does happen — a shopper's cart can go stale between the last read and the
+payment intent. Stock also stays product-level: a size variant is checked
+against the same number, which is what the server does too.
+
+---
+
+## Checkout's money gap, and stock that keeps up — DONE (2026-08-21)
+
+The four follow-ons to stock visibility, in the order a shopper meets them.
+The first is not a stock feature at all — it is the hole stock visibility made
+visible.
+
+### Paid, with no order — now refunded by itself
+
+Checkout is two calls with a gap: the intent is created and paid, then the
+order route re-prices the cart, re-checks stock and writes the order. Anything
+that moves in that gap fails the second call with the money already captured.
+The code knew: `orders/route.ts` said a paid shopper reaching it "has an
+unplaced order against a captured payment… resolved the same way, by the store
+refunding from the dashboard".
+
+`refundOrphanedPayment` (`lib/orphaned-payments.ts`) makes that automatic, at
+**both** failure points — the re-pricing before verification and the order
+transaction after it. Deliberately not `settleRefund`: that one records onto an
+order document, and the whole problem is that no order exists. It writes
+`stores/{id}/orphanedPayments/{paymentId}` instead — uid, reason, refund id and
+status — so a refund with no order behind it is still explainable.
+
+**The subtle part is what has to be true before returning money.** The earlier
+failure point is *before* `verifyPayment`, because verification needs the quote
+the failure just prevented. Refunding an unverified payment id would let a
+shopper submit a deliberately doomed cart naming a stranger's payment and have
+it refunded out from under them. So the refund proves ownership first, with a
+new amount-free check (`verifyPaymentOwnership`): Razorpay's signature already
+carries no amount, and Stripe re-fetches the intent and asks only whether it
+succeeded. It runs on the error path only, so the happy path is unchanged.
+
+### The refusal now arrives in the shopper's language
+
+`OrderCreationError` carries `available`, which is also its discriminator (no
+other cause has one), and one `orderErrorBody` serves both routes: `code:
+"insufficient_stock"`, `productId`, `available`, plus `refunded`. The app
+rewrites it — naming the product from its own cart lines, distinguishing sold
+out from merely short, and appending the refund note as a second sentence when
+money came back. Same contract as the coupon engine's `min_order`; the English
+`error` string stays as the fallback for anything untagged.
+
+### The cart re-reads itself when it matters
+
+`CartCubit.hydrate` ran once per store visit, so a cart could sit for hours on
+stock read at the door — which is why "Only 3 left" was almost unreachable.
+`refresh()` re-runs the same `GET /cart` (it re-prices and re-checks every line
+off live product docs) on opening the Cart, on opening Checkout, and after a
+refused checkout, via the shared `CheckoutFailureHandling` mixin.
+
+Two races had to be closed for that to be safe, because `_emitAndPersist` fires
+its PUT un-awaited: a fetch now waits out the pending save before starting, and
+carries a revision counter so a result that lands after a local tap is dropped
+rather than putting the pre-tap cart back on screen.
+
+### Low stock says so, below five
+
+`ProductEntityStockX.isLowStock` — above zero, under `lowStockThreshold` (5).
+Unknown stock is never "low": silence is not "few". Each pack shows it in the
+slot it already owns: gravia trades the discount meta for it on the card and
+adds a third meta on details, dailymart's pill corner takes it ahead of the
+discount, grofast reuses the corner tag the sold-out stamp introduced and adds
+a badge to Product Details' badge row. Core's `ProductCardMeta` gained
+`labelColor` so one warning entry can sit among neutral ones.
+
+### Not done, and known
+
+**Nothing is reserved.** The hold that would actually close the race — decrement
+availability at intent, release it lazily on expiry — is designed and not
+built (see "What to do about staleness" in the discussion that produced this
+work). Auto-refund is the backstop that makes building it safe later: a bug in
+reservation logic degrades into a refund rather than a stuck sale.
+
+**A Razorpay amount hole predating all of this — found here, fixed here.**
+`verifyPayment` for Razorpay checked the signature over `orderId|paymentId` and
+never compared an amount: the facade took one and the adapter ignored it. The
+signature proves the shopper paid *that Razorpay order*, not that the order was
+for *this basket*, and the order id comes from the client — so a genuinely paid,
+never-placed order from an earlier smaller cart would verify against a larger
+one. The replay guard doesn't catch it, because it only rejects a payment that
+already has an order behind it. Stripe was never exposed (its verification
+re-fetches `intent.amount`).
+
+The fix mirrors Stripe rather than adding storage: Razorpay's verification now
+re-reads the **payment** from the API on top of the signature, and requires
+`order_id` matching the id presented, plus the expected amount and currency.
+The payment rather than the order, because it answers all three questions at
+once — which order it belongs to, what it was for, and whether the money moved.
+
+### The capture the same fetch exposed
+
+Reading the payment surfaced a second, quieter problem: its `status` can be
+`authorized` rather than `captured`. An authorized payment is a *hold* — the
+bank has reserved the money and nobody has claimed it; left alone it expires
+and the shopper gets it back, days after the store handed over the goods.
+Signature-only verification wrote a perfectly ordinary-looking order against
+exactly that, so the loss would have been silent on both sides.
+
+Whether it happens at all depends on a setting in the **store's own** Razorpay
+dashboard (Payment Capture: automatic or manual), which nothing on our side
+controls. Refusing those checkouts would be correct and useless — the shopper
+sees a failure caused by a setting only the owner can reach. So the server
+captures instead: an authorized payment that has *already been proved to be for
+this exact cart* is captured here, and only a `captured` result places the
+order. Ordering matters and is enforced — the cart match runs before the
+capture, so a payment for someone else's basket can never be claimed.
+
+Capture is retried-safe: Razorpay rejects a second capture, so a retried
+checkout re-reads the payment and accepts it if the money is in fact taken.
+Note this only ever arises for cards; UPI, netbanking and wallets settle
+immediately and arrive `captured`. No new collection, no migration
+window, and nothing to backfill — the amount is read from the provider that
+holds it. The local signature check survives as `verifySignature`, which is
+still exactly the right gate for the refund path (it answers "is this payment
+the shopper's own", which is all a refund needs, and costs no round trip).
+
+The one behaviour change: a Razorpay API outage now fails verification instead
+of passing it locally, which refuses the order and attempts a refund that will
+likely fail too — recorded `FAILED` on the orphaned-payment record for the store
+owner to settle by hand. That is the correct trade (an unverifiable amount must
+not become an order), but it is new exposure to provider availability that
+Razorpay checkouts did not have before, and it is the same exposure Stripe
+checkouts have always had.
+
+One refund case is benign and will show as `FAILED`: a payment that was
+authorized and never captured (verification refused it before the capture step)
+has nothing to refund — Razorpay declines, the hold expires by itself, and
+nothing is owed.
+
+### The audit that followed
+
+Both webhook routes looked a refund up by payment id and acked
+`order-not-found` — correct before, wrong now that a refund can exist with no
+order behind it, since the orphaned-payment record would sit at `PENDING` for
+ever. Both now fall through to `settleOrphanedRefund`, which updates the record
+when the payment is one of ours and leaves the old ack for a genuinely unknown
+payment.
+
+Stripe needed no capture step and now says why in the code rather than by
+omission: `createIntent` leaves `capture_method` at Stripe's default of
+`automatic`, so an intent we created cannot stop at `requires_capture`. Both
+providers reach the order write meaning the same thing.
+
+`scripts/verify-razorpay.ts` (`npm run verify:razorpay`) is the counterpart to
+the Stripe script: order creation, all four signature cases, verification
+refusing an unreal payment, and webhook signatures. It states plainly what it
+cannot cover — the amount comparison against a genuinely paid payment, and the
+capture of an authorized one, because Razorpay has no API to pay an order.
+
+That gap is now closed too: **Orders → "Payments without orders"** renders the
+records (payment id, amount, reason, refund state), and renders *nothing* when
+there are none — an exception report, not a list anyone reads daily. It sits
+under Orders rather than in its own nav item because an owner comes looking for
+it when an order they expected is missing, which is the page they are already
+on. Reading it needed a `firestore.rules` entry (`orphanedPayments`:
+owner-read, never client-writable — a client that could edit a recorded refund
+status could make money look returned that wasn't), and the amount comes from
+widening `ProviderRefund` with the `amount`/`currency` both providers already
+return, since there is no order here to read a total from.
+
+Testing split in two, because the first draft mixed them: the engineering
+drills (break the key secret, race the stock, flip an account to manual
+capture) are release checks, not merchant onboarding, and reading them in the
+merchant docs made that page look like it was written for someone with access
+nobody hands a store owner. They now live in `docs/how-to/verify-payments.md`
+alongside the offline scripts; the merchant page keeps the two things an owner
+should genuinely confirm before pasting live keys, and points at the connect
+guides that already walk through them.
+
+The merchant docs gained `payments/payment-flows.mdx` — six flows in
+store-owner language (ordinary, held card, changed-mid-payment, wrong keys,
+test mode, cancel-vs-failed-checkout), a provider difference table, and the
+four device passes that testing this actually needs. The distinction it works
+hardest to make is the one that would otherwise generate support tickets: a
+refund with no order beside it is normal; *repeated* payments with no orders is
+your keys.
+
+---
+
+## Android API key restriction — the closed-testing block (2026-08-21)
+
+Every Firebase Auth call from the closed-testing build started failing with
+*"Requests from this Android client application com.cordeliaapps.superapp are
+blocked"* — an hour lost to a problem that looks like a broken build and isn't.
+
+An API key's **application restriction** is an allow-list of (package name,
+SHA-1 signing certificate) pairs, checked server-side per request. Nothing
+about it lives in the APK, so no rebuild or reupload can fix or cause it. Two
+things made it hard to see:
+
+**Firebase's fingerprint list and the GCP key's allow-list are different
+lists.** Adding the Play SHA-1 under Project settings → Your apps changes
+nothing about the block; the restriction lives in APIs & Services →
+Credentials, on the key `firebase_options.dart` actually initialises with (not
+necessarily one of the three in `google-services.json`).
+
+**The Play Console's "Classical key" SHA-1 was not the certificate the
+installed build carried.** The app signing key had been rotated for the
+quantum-ready upgrade, so `Download certificates` yields *two* usable classical
+certs — `hybrid_classical_cert.der` (post-rotation, what future installs get)
+and `deployment_cert.der` (what the build already on the device was signed
+with). Allow-listing the console's headline value fixed nothing; the older one
+was the missing row.
+
+What made it solvable in seconds rather than by build-and-install: probing the
+key directly with the `X-Android-Package`/`X-Android-Cert` headers the SDK
+sends, against a deliberately invalid login, so each fingerprint reports
+ALLOWED/BLOCKED with no device and no side effects. The probe, the fingerprint
+inventory and the traps are now `docs/how-to/android-api-key-restrictions.md`.
+
+Left open by this: `com.flutteragentic.gravia` shares the same key and is on
+none of the rows, so gravia's next Android build hits the same wall;
+`com.example.entries` is a leftover client in the Firebase project.
