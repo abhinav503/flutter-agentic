@@ -5,6 +5,7 @@ import {
   verifyWebhookSignature,
 } from "@/lib/payments";
 import { getOrderByPaymentId, setOrderRefund } from "@/lib/orders";
+import { settleOrphanedRefund } from "@/lib/orphaned-payments";
 
 // Stripe webhook receiver, scoped per store — the sibling of ../razorpay. Each
 // store's own Stripe account posts to its own URL, because each store holds
@@ -93,15 +94,28 @@ export async function POST(
     return NextResponse.json({ ok: true, ignored: "incomplete-payload" });
   }
 
+  const refundStatus = toRefundStatus("stripe", rawStatus);
+
   // Orders store the PaymentIntent id as their payment id (Stripe has no
   // separate charge reference the client is trusted with), so this is the
   // same lookup the Razorpay route does.
   const order = await getOrderByPaymentId(storeId, paymentIntentId);
   if (!order) {
-    return NextResponse.json({ ok: true, ignored: "order-not-found" });
+    // Same as the Razorpay route: no order is the expected shape for a
+    // refund issued against a payment whose order never got written.
+    const settled = await settleOrphanedRefund(
+      storeId,
+      paymentIntentId,
+      refundId,
+      refundStatus,
+    );
+    return NextResponse.json({
+      ok: true,
+      ...(settled
+        ? { orphanedPayment: paymentIntentId, refundStatus }
+        : { ignored: "order-not-found" }),
+    });
   }
-
-  const refundStatus = toRefundStatus("stripe", rawStatus);
 
   // Already settled — nothing to do (webhooks can be delivered more than once).
   if (order.refundStatus === refundStatus && order.refundId === refundId) {

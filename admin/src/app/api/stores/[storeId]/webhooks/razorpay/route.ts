@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getStorePaymentConfig, verifyWebhookSignature } from "@/lib/payments";
 import { getOrderByPaymentId, setOrderRefund } from "@/lib/orders";
+import { settleOrphanedRefund } from "@/lib/orphaned-payments";
 import type { RefundStatus } from "@/lib/types";
 
 // Razorpay webhook receiver, scoped per store (each store's Razorpay account
@@ -52,7 +53,12 @@ export async function POST(
   }
 
   if (
-    !verifyWebhookSignature("razorpay", config.webhookSecret, rawBody, signature)
+    !verifyWebhookSignature(
+      "razorpay",
+      config.webhookSecret,
+      rawBody,
+      signature,
+    )
   ) {
     return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
   }
@@ -73,9 +79,24 @@ export async function POST(
 
   const order = await getOrderByPaymentId(storeId, paymentId);
   if (!order) {
-    // Unknown payment for this store — nothing to reconcile. Ack so Razorpay
-    // doesn't retry indefinitely.
-    return NextResponse.json({ ok: true, ignored: "order-not-found" });
+    // No order is the expected shape for one kind of refund: a payment taken
+    // for an order that then failed to write, refunded automatically (see
+    // lib/orphaned-payments.ts). Settle its record instead, so the audit
+    // trail doesn't sit at PENDING for ever.
+    const settled = await settleOrphanedRefund(
+      storeId,
+      paymentId,
+      refundId,
+      refundStatus,
+    );
+    // Genuinely unknown payment for this store — nothing to reconcile. Ack so
+    // Razorpay doesn't retry indefinitely.
+    return NextResponse.json({
+      ok: true,
+      ...(settled
+        ? { orphanedPayment: paymentId, refundStatus }
+        : { ignored: "order-not-found" }),
+    });
   }
 
   // Already settled — nothing to do (webhooks can be delivered more than once).

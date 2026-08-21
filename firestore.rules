@@ -156,6 +156,17 @@ service cloud.firestore {
         allow read, write: if isStoreOwner(storeId);
       }
 
+      // Payments taken for orders that never got written, and the refunds
+      // issued for them (see lib/orphaned-payments.ts). Owner-readable so the
+      // console can explain a refund that has no order beside it; never
+      // client-writable — every field is written by the checkout route
+      // through the Admin SDK, and a client that could edit a refund's
+      // recorded status could make money look returned that wasn't.
+      match /orphanedPayments/{paymentId} {
+        allow read: if isStoreOwner(storeId);
+        allow write: if false;
+      }
+
       // Discount codes — owner-only, NOT world-readable like the catalog:
       // shoppers validate a code through the token-verified API, so the
       // codes themselves never need to be listable client-side.

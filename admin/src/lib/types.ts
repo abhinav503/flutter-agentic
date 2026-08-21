@@ -464,6 +464,40 @@ export type OrderStatusChange = { status: OrderStatus; at: string };
 // ("pending"/"processed") maps onto PENDING/PROCESSED.
 export type RefundStatus = "NONE" | "PENDING" | "PROCESSED" | "FAILED";
 
+// A payment that was taken and never became an order.
+//
+// Checkout takes the money first and writes the order second; if the basket
+// stops being valid in between (the last unit sold, a coupon hit its limit,
+// the address left the delivery areas), there is a captured payment with
+// nothing to attach it to. The refund is automatic — this is the record of it,
+// and the only place a store owner can see why their provider's dashboard
+// shows a refund with no order beside it.
+//
+// Doc id is the payment id, which is what makes a retried checkout update one
+// record rather than stacking duplicates.
+export type OrphanedPayment = {
+  id: string;
+  uid: string;
+  paymentId: string;
+  paymentOrderId: string;
+  provider: PaymentProvider;
+  reason: OrphanedPaymentReason;
+  refundId: string;
+  refundStatus: RefundStatus;
+  // Read off the refund the provider created; absent when no refund was
+  // issued at all (the provider was unreachable, or the payment was an
+  // uncaptured hold with nothing to return).
+  amountMinor?: number;
+  currency?: string;
+  createdAtMs: number;
+};
+
+export type OrphanedPaymentReason =
+  | "insufficient_stock"
+  | "cart_repricing_failed"
+  | "payment_verification_failed"
+  | "order_write_failed";
+
 // A line item's product fields are snapshotted at order time (name, image,
 // price, formatted weight) — never re-read live from the catalog, so a
 // later price change or product deletion can't retroactively alter a past

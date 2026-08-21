@@ -14,6 +14,7 @@ import type { Address, Order, OrderStatus, RefundStatus } from "@/lib/types";
 import { MAX_RATING } from "@/lib/types";
 import { matchesSearch } from "@/lib/search";
 import { formatMoney } from "@/lib/money";
+import { OrphanedPayments } from "@/components/orphaned-payments";
 import { SearchField } from "@/components/search-field";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -373,6 +374,9 @@ export default function OrdersPage() {
           })}
         </TableBody>
       </Table>
+
+      {/* Renders nothing unless this store has some — see the component. */}
+      <OrphanedPayments />
 
       <AlertDialog
         open={!!cancelTarget}
