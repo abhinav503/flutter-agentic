@@ -73,17 +73,20 @@
             <action android:name="android.intent.action.PROCESS_TEXT"/>
             <data android:mimeType="text/plain"/>
         </intent>
-        <!-- Help & Support hands a mailto:, a tel: and an https: to the
-             device. Android 11+ hides packages that aren't declared here, so
-             without these the launch reports failure on a phone that does in
-             fact have a mail client — and the screen falls back to copying
-             an address nobody needed copied. -->
+        <!-- The schemes Help & Support hands to the device.
+             NOT required to launch them: url_launcher calls startActivity()
+             directly (UrlLauncher.java), and Android 11+ package visibility
+             does not filter startActivity — only resolveActivity, which is
+             canLaunchUrl's path and one this app never takes. Declared so
+             that a later canLaunchUrl (to grey out a channel rather than
+             letting it fail) works without a manifest change, and so the
+             action matches the ACTION_VIEW the plugin actually fires. -->
         <intent>
             <action android:name="android.intent.action.VIEW"/>
             <data android:scheme="mailto"/>
         </intent>
         <intent>
-            <action android:name="android.intent.action.DIAL"/>
+            <action android:name="android.intent.action.VIEW"/>
             <data android:scheme="tel"/>
         </intent>
         <intent>
