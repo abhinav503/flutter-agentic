@@ -4,6 +4,20 @@ import '../../domain/entities/payment_result_entity.dart';
 import '../models/order_model.dart';
 import '../models/payment_intent_model.dart';
 
+/// A checkout the server turned down for a reason it tagged with a
+/// machine-readable `code`, re-written on this side in the shopper's own
+/// language. Carries only the finished message — `BaseRepository` maps any
+/// non-Dio throw to `Failure.unexpected(message: e.toString())`, which is how
+/// it reaches the BLoC — same mechanism as `CouponRejectedException`.
+class CheckoutRefusedException implements Exception {
+  final String message;
+
+  const CheckoutRefusedException(this.message);
+
+  @override
+  String toString() => message;
+}
+
 abstract interface class OrdersRemoteDataSource {
   Future<List<OrderModel>> getOrders(String storeId);
 

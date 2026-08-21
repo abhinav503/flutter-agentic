@@ -1,7 +1,9 @@
 import 'package:cordelia/constants/api_constants.dart';
+import 'package:cordelia/constants/value_const.dart';
 import 'package:cordelia/feature/storefront/cart/domain/entities/cart_item_entity.dart';
 import 'package:cordelia/services/firebase_auth_service.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart' show visibleForTesting;
 
 import 'package:core/core/network/http_service.dart';
 
@@ -40,16 +42,22 @@ class OrdersRemoteDataSourceImpl implements OrdersRemoteDataSource {
   }) async {
     final idToken = await FirebaseAuthService.instance.idToken();
 
-    final response = await HttpService.instance.post<Map<String, dynamic>>(
-      ApiConstants.paymentsPath(storeId),
-      data: {
-        'addressId': addressId,
-        'items': _itemsPayload(items),
-        if (couponCode.isNotEmpty) 'couponCode': couponCode,
-      },
-      options: Options(headers: {'Authorization': 'Bearer $idToken'}),
-    );
-    return PaymentIntentModel.fromJson(response.data!);
+    try {
+      final response = await HttpService.instance.post<Map<String, dynamic>>(
+        ApiConstants.paymentsPath(storeId),
+        data: {
+          'addressId': addressId,
+          'items': _itemsPayload(items),
+          if (couponCode.isNotEmpty) 'couponCode': couponCode,
+        },
+        options: Options(headers: {'Authorization': 'Bearer $idToken'}),
+      );
+      return PaymentIntentModel.fromJson(response.data!);
+    } on DioException catch (e) {
+      // Nothing has been charged at this step, so a refusal here is only a
+      // message — but it's the same message, from the same `code`.
+      throw refusalFrom(e, items) ?? e;
+    }
   }
 
   @override
@@ -64,25 +72,77 @@ class OrdersRemoteDataSourceImpl implements OrdersRemoteDataSource {
     // missing/invalid token with 401, surfaced as a Failure.
     final idToken = await FirebaseAuthService.instance.idToken();
 
-    final response = await HttpService.instance.post<Map<String, dynamic>>(
-      ApiConstants.ordersPath(storeId),
-      data: {
-        'addressId': addressId,
-        'items': _itemsPayload(items),
-        if (couponCode.isNotEmpty) 'couponCode': couponCode,
-        // Present only on mobile; the server verifies the payment before
-        // placing the order. Omitted on web (test-mode payment-less path).
-        // Provider-neutral names — the signature is Razorpay's only, and is
-        // sent empty for Stripe, whose verification is a server-side re-fetch.
-        if (payment != null) ...{
-          'paymentOrderId': payment.paymentOrderId,
-          'paymentId': payment.paymentId,
-          'paymentSignature': payment.signature,
+    try {
+      final response = await HttpService.instance.post<Map<String, dynamic>>(
+        ApiConstants.ordersPath(storeId),
+        data: {
+          'addressId': addressId,
+          'items': _itemsPayload(items),
+          if (couponCode.isNotEmpty) 'couponCode': couponCode,
+          // Present only on mobile; the server verifies the payment before
+          // placing the order. Omitted on web (test-mode payment-less path).
+          // Provider-neutral names — the signature is Razorpay's only, and is
+          // sent empty for Stripe, whose verification is a server-side
+          // re-fetch.
+          if (payment != null) ...{
+            'paymentOrderId': payment.paymentOrderId,
+            'paymentId': payment.paymentId,
+            'paymentSignature': payment.signature,
+          },
         },
-      },
-      options: Options(headers: {'Authorization': 'Bearer $idToken'}),
+        options: Options(headers: {'Authorization': 'Bearer $idToken'}),
+      );
+      return OrderModel.fromJson(
+        response.data!['order'] as Map<String, dynamic>,
+      );
+    } on DioException catch (e) {
+      // This is the refusal that can arrive with the money already taken —
+      // the server refunds it and says so in `refunded`, which the shopper
+      // needs told in the same breath as the reason.
+      throw refusalFrom(e, items) ?? e;
+    }
+  }
+
+  /// A refusal the server tagged with a `code`, re-written in the shopper's
+  /// language; null for anything else, which falls through to the usual
+  /// Dio → Failure mapping and surfaces the server's own `error` text.
+  ///
+  /// Exposed for tests: reaching it through [createOrder] would need a live
+  /// HTTP call, and the translation is the part worth pinning.
+  @visibleForTesting
+  CheckoutRefusedException? refusalFrom(
+    DioException e,
+    List<CartItemEntity> items,
+  ) {
+    final body = e.response?.data;
+    if (body is! Map) return null;
+    final refunded = body['refunded'] == true;
+    final reason = _stockReason(body, items);
+    if (reason == null && !refunded) return null;
+    // Two sentences, joined: the reason, then the money. Concatenation
+    // rather than one key per combination — both halves are whole sentences
+    // in every locale, and the refund note is the same one whatever refused.
+    final base = reason ?? ValueConst.checkoutFailedMessage;
+    return CheckoutRefusedException(
+      refunded ? '$base ${ValueConst.paymentRefundedNote}' : base,
     );
-    return OrderModel.fromJson(response.data!['order'] as Map<String, dynamic>);
+  }
+
+  /// The stock half: null unless the server named `insufficient_stock` *and*
+  /// the product is one this cart knows by name — a message about "a
+  /// product" helps nobody, so an unresolvable id falls back to the generic
+  /// wording rather than printing an id.
+  String? _stockReason(Map<dynamic, dynamic> body, List<CartItemEntity> items) {
+    if (body['code'] != 'insufficient_stock') return null;
+    final productId = body['productId'];
+    final line = items
+        .where((item) => item.product.id == productId)
+        .firstOrNull;
+    if (line == null) return ValueConst.cartUnavailableItemsMessage;
+    final available = body['available'];
+    return available is num && available <= 0
+        ? ValueConst.productSoldOutMessage(line.product.name)
+        : ValueConst.productStockReducedMessage(line.product.name);
   }
 
   @override
