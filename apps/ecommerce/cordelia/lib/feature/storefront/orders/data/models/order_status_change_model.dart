@@ -23,11 +23,13 @@ abstract class OrderStatusChangeModel with _$OrderStatusChangeModel {
   factory OrderStatusChangeModel.fromEntity(OrderStatusChangeEntity e) =>
       OrderStatusChangeModel(
         status: e.status.wireValue,
-        at: e.at.toIso8601String(),
+        at: e.at.toUtc().toIso8601String(),
       );
 
   OrderStatusChangeEntity toEntity() => OrderStatusChangeEntity(
     status: status.toOrderStatus(),
-    at: DateTime.parse(at),
+    // Local, for the same reason as OrderModel.placedAt — every dated step
+    // in a status timeline arrives as a UTC string.
+    at: DateTime.parse(at).toLocal(),
   );
 }

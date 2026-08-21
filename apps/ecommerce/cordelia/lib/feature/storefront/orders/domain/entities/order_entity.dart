@@ -129,10 +129,13 @@ extension OrderEntityX on OrderEntity {
 /// The order-domain display formats, composed from core's locale-aware
 /// [DateTimePartsX] renderings.
 ///
-/// [DateTime.placedAt] is stored/parsed as a naive local timestamp (the mock
-/// JSON's `placed_at` has no timezone suffix), and `DateFormat` formats a
-/// `DateTime` in its own zone, so this still never re-interprets it through
-/// the device's timezone.
+/// `DateFormat` renders a `DateTime` in *its own* zone, so every timestamp
+/// reaching these formats must already be local — the data layer converts on
+/// the way in (`OrderModel.toEntity`). It did not always: this comment used
+/// to claim order timestamps were naive-local, which was true of the bundled
+/// mock JSON and stopped being true the day the backend began sending
+/// `toISOString()`. The claim outlived its data and is why nobody noticed an
+/// IST shopper reading their 9:33 PM order as 4:04 PM.
 extension OrderPlacedAtX on DateTime {
   /// "Mon, Mar 9, 2026 at 10:15 AM" · de: "Mo., 9. März 2026 um 10:15".
   /// The connector is copy (it isn't "at" everywhere) and the two operands are

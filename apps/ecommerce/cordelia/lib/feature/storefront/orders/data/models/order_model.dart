@@ -65,7 +65,7 @@ abstract class OrderModel with _$OrderModel {
       RefundStatus.processed => 'PROCESSED',
       RefundStatus.failed => 'FAILED',
     },
-    placedAt: e.placedAt.toIso8601String(),
+    placedAt: e.placedAt.toUtc().toIso8601String(),
     deliveryOtp: e.deliveryOtp,
     paymentId: e.paymentId,
     couponCode: e.couponCode,
@@ -73,7 +73,7 @@ abstract class OrderModel with _$OrderModel {
     deliveryFee: e.deliveryFee,
     rating: e.rating,
     reviewText: e.reviewText,
-    reviewedAt: e.reviewedAt?.toIso8601String() ?? '',
+    reviewedAt: e.reviewedAt?.toUtc().toIso8601String() ?? '',
     items: e.items.map(OrderLineItemModel.fromEntity).toList(),
     deliveryAddress: e.deliveryAddress == null
         ? null
@@ -84,7 +84,12 @@ abstract class OrderModel with _$OrderModel {
     id: id,
     status: status.toOrderStatus(),
     refundStatus: refundStatus.toRefundStatus(),
-    placedAt: DateTime.parse(placedAt),
+    // toLocal(): the server sends UTC (`new Date().toISOString()`, with the
+    // Z suffix), and DateTime.parse keeps a Z string in UTC. DateFormat then
+    // renders a DateTime in *its own* zone, so without this an IST shopper
+    // read their 9:33 PM order as 4:04 PM — and a US one would read the wrong
+    // day. UTC on the wire is right; converting on the way in is the fix.
+    placedAt: DateTime.parse(placedAt).toLocal(),
     statusHistory: statusHistory.map((m) => m.toEntity()).toList(),
     deliveryOtp: deliveryOtp,
     paymentId: paymentId,
@@ -95,7 +100,7 @@ abstract class OrderModel with _$OrderModel {
     reviewText: reviewText,
     // '' (unrated) and a malformed value both read as null — the rating
     // itself is what says whether one exists.
-    reviewedAt: DateTime.tryParse(reviewedAt),
+    reviewedAt: DateTime.tryParse(reviewedAt)?.toLocal(),
     items: items.map((m) => m.toEntity()).toList(),
     deliveryAddress: deliveryAddress?.toEntity(),
   );
