@@ -6,8 +6,13 @@ import {
   getOrderByPaymentId,
   getOrdersForStore,
   getOrdersForUser,
+  orderErrorBody,
   OrderCreationError,
 } from "@/lib/orders";
+import {
+  refundOrphanedPayment,
+  type OrphanedPaymentReason,
+} from "@/lib/orphaned-payments";
 import {
   requireAuthedUser,
   verifyIdToken,
@@ -138,6 +143,21 @@ export async function POST(
     // Stripe's verification has nothing to bind against without it — this is
     // what makes presenting somebody else's (or an older, cheaper) intent
     // useless.
+    // Everything below this line runs with the shopper's money already
+    // captured, so every exit from here is a refund, not just an error. The
+    // refund itself proves the payment is ours before returning anything —
+    // see refundOrphanedPayment.
+    const refundOrphan = (reason: OrphanedPaymentReason) =>
+      refundOrphanedPayment({
+        storeId,
+        uid,
+        provider: config.provider,
+        paymentOrderId: paymentOrderId!,
+        paymentId: paymentId ?? paymentOrderId!,
+        paymentSignature: paymentSignature ?? "",
+        reason,
+      });
+
     let quote;
     try {
       // addressId matters here, not just in the intent: the quote includes
@@ -146,19 +166,31 @@ export async function POST(
       // for a store that charges for delivery.
       quote = await quoteCart(storeId, uid, items, couponCode, addressId);
     } catch (err) {
+      // This is where the checkout race actually lands: the cart priced fine
+      // when the intent was created, and something moved while the shopper
+      // was paying.
       if (err instanceof OrderCreationError) {
-        const status = err.message.startsWith("Insufficient stock") ? 409 : 400;
+        const refunded = await refundOrphan(
+          err.isInsufficientStock
+            ? "insufficient_stock"
+            : "cart_repricing_failed",
+        );
         return NextResponse.json(
-          { error: err.message, productId: err.productId },
-          { status },
+          { ...orderErrorBody(err), refunded },
+          { status: err.isInsufficientStock ? 409 : 400 },
         );
       }
       if (err instanceof CouponError) {
-        return NextResponse.json(couponErrorBody(err), { status: 400 });
+        const refunded = await refundOrphan("cart_repricing_failed");
+        return NextResponse.json(
+          { ...couponErrorBody(err), refunded },
+          { status: 400 },
+        );
       }
       if (err instanceof DeliveryUnserviceableError) {
+        const refunded = await refundOrphan("cart_repricing_failed");
         return NextResponse.json(
-          { error: err.message, code: "unserviceable_address" },
+          { error: err.message, code: "unserviceable_address", refunded },
           { status: 400 },
         );
       }
@@ -176,8 +208,11 @@ export async function POST(
       quote.currency,
     );
     if (!valid) {
+      // A mismatched amount on an otherwise genuine payment: refuse the
+      // order, but don't keep the money either.
+      const refunded = await refundOrphan("payment_verification_failed");
       return NextResponse.json(
-        { error: "Payment verification failed" },
+        { error: "Payment verification failed", refunded },
         { status: 400 },
       );
     }
@@ -204,26 +239,50 @@ export async function POST(
     await notifyOrderPlaced(order);
     return NextResponse.json({ order: serializeOrder(order) }, { status: 201 });
   } catch (err) {
+    // Same rule as above, one step later: the transaction re-checks stock,
+    // the coupon and the address, so any of them can still lose a race here
+    // — and here the payment is not just captured but verified. A paid
+    // shopper leaves with their money coming back, not with a dashboard
+    // chore for the store owner.
+    const refundOrphan = (reason: OrphanedPaymentReason) =>
+      paymentProvided && config
+        ? refundOrphanedPayment({
+            storeId,
+            uid,
+            provider: config.provider,
+            paymentOrderId: paymentOrderId!,
+            paymentId: paymentId ?? paymentOrderId!,
+            paymentSignature: paymentSignature ?? "",
+            reason,
+          })
+        : // Nothing was taken (a test store's payment-less path), so there
+          // is nothing to give back.
+          Promise.resolve(false);
+
     if (err instanceof OrderCreationError) {
-      const status = err.message.startsWith("Insufficient stock") ? 409 : 400;
+      const refunded = await refundOrphan(
+        err.isInsufficientStock ? "insufficient_stock" : "order_write_failed",
+      );
       return NextResponse.json(
-        { error: err.message, productId: err.productId },
-        { status },
+        { ...orderErrorBody(err), refunded },
+        { status: err.isInsufficientStock ? 409 : 400 },
       );
     }
     // A coupon that stopped qualifying between Apply and checkout (expired,
     // raced to its limit) — same shopper-facing 400 shape as above.
     if (err instanceof CouponError) {
-      return NextResponse.json(couponErrorBody(err), { status: 400 });
+      const refunded = await refundOrphan("order_write_failed");
+      return NextResponse.json(
+        { ...couponErrorBody(err), refunded },
+        { status: 400 },
+      );
     }
     // The address left the store's delivery areas between the intent and
-    // here — either edited, or the owner narrowed the areas. A paid shopper
-    // reaching this has an unplaced order against a captured payment, which
-    // is the same recoverable state a failed stock check leaves and is
-    // resolved the same way, by the store refunding from the dashboard.
+    // here — either edited, or the owner narrowed the areas.
     if (err instanceof DeliveryUnserviceableError) {
+      const refunded = await refundOrphan("order_write_failed");
       return NextResponse.json(
-        { error: err.message, code: "unserviceable_address" },
+        { error: err.message, code: "unserviceable_address", refunded },
         { status: 400 },
       );
     }

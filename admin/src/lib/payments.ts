@@ -343,11 +343,14 @@ export function createPaymentIntent(
 // amount we intended — before any order is placed.
 //
 // The two providers prove this differently and both are handled here so no
-// route has to care: Razorpay signs (orderId|paymentId) with the store secret
-// and we check that HMAC locally; Stripe has no client signature, so we
-// re-fetch the PaymentIntent and assert it reached `succeeded` for
-// `expectedAmountMinor`. That amount check is what makes a stolen or replayed
-// Stripe intent id useless.
+// route has to care, but both end up asserting the same two things: this
+// payment is real, and it was for exactly what this cart costs.
+//
+// Stripe has no client signature, so it re-fetches the PaymentIntent and
+// requires `succeeded` at `expectedAmountMinor`. Razorpay checks its
+// (orderId|paymentId) HMAC locally *and* re-reads the order's own amount —
+// the signature proves the shopper paid that order, not that the order was
+// for this basket, and the order id is client-supplied.
 export function verifyPayment(
   config: StorePaymentConfig,
   receipt: PaymentReceipt,
@@ -362,8 +365,31 @@ export function verifyPayment(
       expectedCurrency,
     );
   }
+  return razorpay.verifyPayment(
+    config,
+    receipt.orderId,
+    receipt.paymentId,
+    receipt.signature,
+    expectedAmountMinor,
+    expectedCurrency,
+  );
+}
+
+// Ownership without the amount: "this proof came from our own checkout",
+// nothing about what it was for. Used only where the amount is unknowable —
+// refunding a payment whose cart just failed to price is exactly that case,
+// since the failure *is* the missing quote. Razorpay's signature already
+// carries no amount, so this is its ordinary verification; Stripe re-fetches
+// the intent and asks only whether it succeeded.
+export function verifyPaymentOwnership(
+  config: StorePaymentConfig,
+  receipt: PaymentReceipt,
+): Promise<boolean> {
+  if (config.provider === "stripe") {
+    return stripe.paymentSucceeded(config, receipt.orderId);
+  }
   return Promise.resolve(
-    razorpay.verifyPayment(
+    razorpay.verifySignature(
       config,
       receipt.orderId,
       receipt.paymentId,

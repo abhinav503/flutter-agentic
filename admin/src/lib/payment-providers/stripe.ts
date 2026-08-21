@@ -125,9 +125,12 @@ export async function createIntent(
 //
 // Deliberately strict about `succeeded`: `processing` means an async method
 // (bank debit) that may still fail, and placing an order against it would ship
-// goods for money that never arrives. Razorpay's flow captures before we're
-// called, so requiring the terminal state here keeps the two providers'
-// guarantees identical.
+// goods for money that never arrives.
+//
+// No capture step is needed here, unlike Razorpay: `createIntent` above leaves
+// `capture_method` at Stripe's default of `automatic`, so an intent we created
+// can never stop at `requires_capture`. Both providers therefore reach this
+// point meaning the same thing — the money is taken.
 export async function verifyPayment(
   config: StorePaymentConfig,
   paymentIntentId: string,
@@ -150,6 +153,26 @@ export async function verifyPayment(
     intent.amount === expectedAmountMinor &&
     intent.currency.toUpperCase() === expectedCurrency.toUpperCase()
   );
+}
+
+// "Is this a real, succeeded payment in *this store's* account?" — the
+// ownership half of verifyPayment, without the amount. Only the error paths
+// need it: before refunding a payment whose order never got written, we have
+// to know the id the client handed us is genuinely one of ours, or a shopper
+// could name a stranger's intent and have it refunded out from under them.
+export async function paymentSucceeded(
+  config: StorePaymentConfig,
+  paymentIntentId: string,
+): Promise<boolean> {
+  try {
+    const intent = await call<StripePaymentIntent>(
+      config,
+      `/payment_intents/${encodeURIComponent(paymentIntentId)}`,
+    );
+    return intent.status === "succeeded";
+  } catch {
+    return false;
+  }
 }
 
 // Refunds are created against the PaymentIntent (not a charge), so the id we

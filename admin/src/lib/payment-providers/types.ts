@@ -54,7 +54,16 @@ export type PaymentReceipt = {
 
 // A refund as the provider reports it, normalised to our RefundStatus by the
 // facade. `status` is the provider's own raw string.
-export type ProviderRefund = { id: string; status: string };
+// `amount`/`currency` are optional because nothing in the refund *flow* needs
+// them — both providers return them on every refund object, and they are typed
+// here so a caller with somewhere to put them (the orphaned-payment record,
+// which has no order to read a total from) doesn't have to re-fetch.
+export type ProviderRefund = {
+  id: string;
+  status: string;
+  amount?: number;
+  currency?: string;
+};
 
 export class PaymentProviderError extends Error {}
 

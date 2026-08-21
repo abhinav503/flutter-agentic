@@ -74,9 +74,31 @@ export class OrderCreationError extends Error {
   constructor(
     message: string,
     public readonly productId?: string,
+    // Units actually left, set only on a stock refusal — which makes it the
+    // discriminator too, since no other cause has one.
+    public readonly available?: number,
   ) {
     super(message);
   }
+
+  get isInsufficientStock(): boolean {
+    return this.available !== undefined;
+  }
+}
+
+// The shopper-facing body for an OrderCreationError, shared by the payment
+// intent and order routes so the two can't drift. `code` + `available` are
+// what let the app write the refusal in the shopper's own language and
+// correct the offending row, rather than printing this English message —
+// same contract as the coupon engine's `min_order`.
+export function orderErrorBody(err: OrderCreationError) {
+  return {
+    error: err.message,
+    productId: err.productId,
+    ...(err.isInsufficientStock
+      ? { code: "insufficient_stock" as const, available: err.available }
+      : {}),
+  };
 }
 
 function ordersRef() {
@@ -209,6 +231,7 @@ export async function priceCart(
       throw new OrderCreationError(
         `Insufficient stock for ${(data.name as string) ?? productId}`,
         productId,
+        stock,
       );
     }
     total += resolveLinePricing(pricingFields(data), sizeValue).price * quantity;
@@ -304,6 +327,7 @@ export async function createOrder(
         throw new OrderCreationError(
           `Insufficient stock for ${(data.name as string) ?? productId}`,
           productId,
+          stock,
         );
       }
 

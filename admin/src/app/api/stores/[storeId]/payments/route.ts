@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { CouponError, couponErrorBody } from "@/lib/coupon-engine";
 import { DeliveryUnserviceableError } from "@/lib/delivery";
-import { OrderCreationError } from "@/lib/orders";
+import { orderErrorBody, OrderCreationError } from "@/lib/orders";
 import { quoteCart } from "@/lib/checkout-quote";
 import {
   createPaymentIntent,
@@ -67,11 +67,12 @@ export async function POST(
     quote = await quoteCart(storeId, uid, items, couponCode, addressId);
   } catch (err) {
     if (err instanceof OrderCreationError) {
-      const status = err.message.startsWith("Insufficient stock") ? 409 : 400;
-      return NextResponse.json(
-        { error: err.message, productId: err.productId },
-        { status },
-      );
+      // No money has moved yet at this step, so there is nothing to refund —
+      // the body is the same shape the order route sends so the app has one
+      // handler for both.
+      return NextResponse.json(orderErrorBody(err), {
+        status: err.isInsufficientStock ? 409 : 400,
+      });
     }
     if (err instanceof CouponError) {
       return NextResponse.json(couponErrorBody(err), { status: 400 });

@@ -72,9 +72,12 @@ export async function createIntent(
 // Razorpay's post-payment signature: HMAC_SHA256(orderId|paymentId) keyed by
 // the store's secret, compared in constant time. A mismatch means the success
 // callback the client reported was forged or tampered — the order must not be
-// placed. Purely local, so it needs no network round trip (unlike Stripe,
-// whose verification is a re-fetch).
-export function verifyPayment(
+// placed. Purely local, so it needs no network round trip.
+//
+// This proves the client really paid *this* Razorpay order. It proves nothing
+// about what that order was FOR, which is why verifyPayment below re-fetches
+// the amount — see the comment there.
+export function verifySignature(
   config: StorePaymentConfig,
   orderId: string,
   paymentId: string,
@@ -85,6 +88,108 @@ export function verifyPayment(
     .digest("hex");
   return constantTimeEquals(expected, signature);
 }
+
+// Full verification: the signature, AND what was actually paid.
+//
+// The signature alone is not enough. It binds (orderId|paymentId), so it
+// proves the shopper paid that Razorpay order — but the order id comes from
+// the client, and a shopper can hold a *genuinely paid* order from an earlier,
+// smaller cart they never placed. Presenting it against a bigger cart passes
+// every local check: the signature is real, and the replay guard only rejects
+// a payment that already has an order behind it. So the amount is re-read from
+// Razorpay and compared to what this cart costs — the same thing Stripe's
+// verification does by re-fetching the intent.
+//
+// The payment is read rather than the order, because it answers all three
+// questions at once: which order it belongs to (belt and braces with the
+// signature), what it was for, and whether the money actually moved.
+export async function verifyPayment(
+  config: StorePaymentConfig,
+  orderId: string,
+  paymentId: string,
+  signature: string,
+  expectedAmountMinor: number,
+  expectedCurrency: string,
+): Promise<boolean> {
+  if (!verifySignature(config, orderId, paymentId, signature)) return false;
+
+  let payment: RazorpayPayment;
+  try {
+    payment = await call<RazorpayPayment>(
+      config,
+      `/payments/${encodeURIComponent(paymentId)}`,
+    );
+  } catch {
+    // An unknown id (or a key that can't read it) is a failed verification,
+    // not a server error — same rule as Stripe's.
+    return false;
+  }
+
+  // Everything about *what was paid* is settled before anything about
+  // whether it was collected — a payment for the wrong basket must never
+  // reach the capture below.
+  const matchesCart =
+    payment.order_id === orderId &&
+    payment.amount === expectedAmountMinor &&
+    payment.currency.toUpperCase() === expectedCurrency.toUpperCase();
+  if (!matchesCart) return false;
+
+  if (payment.status === "captured") return true;
+  if (payment.status !== "authorized") return false;
+
+  return capture(config, paymentId, expectedAmountMinor, expectedCurrency);
+}
+
+// An `authorized` payment is a hold, not a payment: the bank has reserved the
+// money and nobody has claimed it. Left alone it expires and the shopper gets
+// it back, while the store has already handed over the goods — so an order
+// must never be written against one.
+//
+// Whether that state is even reachable depends on a setting in the *store's*
+// own Razorpay dashboard (Payment Capture: automatic or manual), which no
+// amount of care on our side controls. Rather than refuse those checkouts and
+// send every affected owner to their dashboard, the capture is done here: the
+// storefront has already told the shopper they are paying now, so claiming
+// the money now is what both sides already believe happened.
+//
+// Only ever called for a payment that has just been proved to be for this
+// exact cart.
+async function capture(
+  config: StorePaymentConfig,
+  paymentId: string,
+  amountMinor: number,
+  currency: string,
+): Promise<boolean> {
+  try {
+    const captured = await call<RazorpayPayment>(
+      config,
+      `/payments/${encodeURIComponent(paymentId)}/capture`,
+      { method: "POST", body: { amount: amountMinor, currency } },
+    );
+    return captured.status === "captured";
+  } catch {
+    // Razorpay rejects a second capture, so a retried checkout (or a capture
+    // from the dashboard in between) lands here with the money in fact
+    // taken. Re-read before refusing an order that is genuinely paid for.
+    try {
+      const payment = await call<RazorpayPayment>(
+        config,
+        `/payments/${encodeURIComponent(paymentId)}`,
+      );
+      return payment.status === "captured";
+    } catch {
+      return false;
+    }
+  }
+}
+
+type RazorpayPayment = {
+  id: string;
+  amount: number;
+  currency: string;
+  status: string;
+  order_id: string;
+};
 
 // `amountMinor` omitted issues a full refund (the only case today: a whole
 // order is cancelled). Settles out of the same account the payment landed in.
