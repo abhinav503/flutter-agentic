@@ -256,6 +256,14 @@ class _ProfileContent extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.base),
         GrofastMenuTile(
+          // Material glyph, not a kit export — the kit has no support row and
+          // ships no glyph for one, same call as the Language row above.
+          label: ValueConst.helpAndSupportLabel,
+          icon: Icons.help_outline_rounded,
+          onTap: () => context.push(AppRoutes.support),
+        ),
+        const SizedBox(height: AppSpacing.base),
+        GrofastMenuTile(
           label: GrofastValueConst.privacyPolicyLabel,
           asset: GrofastImageConst.gear,
           onTap: () => context.push(AppRoutes.privacyPolicy),

@@ -209,8 +209,10 @@ abstract final class DailyMartValueConst {
       L10n.current.dailymartPreferencesSectionTitle;
 
   /// The row set is gravia's, not the kit's — same titles, same actions,
-  /// only the row silhouette is this pack's (the kit's own list offers
-  /// Security / Language / Help & Support, none of which this app has).
+  /// only the row silhouette is this pack's. The kit's own list offers
+  /// Security / Language / Help & Support; Language and Help & Support are
+  /// both real rows now (app-level, so their copy is on `ValueConst`), and
+  /// Security is the one this app still has nothing behind.
   static String get editProfileLabel => L10n.current.dailymartEditProfileLabel;
   static String get changePasswordLabel =>
       L10n.current.dailymartChangePasswordLabel;

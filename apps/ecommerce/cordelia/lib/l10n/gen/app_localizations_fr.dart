@@ -334,6 +334,95 @@ class AppLocalizationsFr extends AppLocalizations {
       'Une erreur s\'est produite lors du chargement de votre profil.';
 
   @override
+  String get helpAndSupportLabel => 'Aide et assistance';
+
+  @override
+  String get supportIntro =>
+      'Dites-nous ce qui s\'est mal passé et nous arrangerons cela.';
+
+  @override
+  String supportStoreSectionTitle(String storeName) {
+    return 'Contacter $storeName';
+  }
+
+  @override
+  String get supportStoreSectionSubtitle =>
+      'Pour tout ce qui concerne une commande : un article incorrect, une livraison en retard ou un remboursement qui n\'est pas arrivé.';
+
+  @override
+  String get supportEmailAction => 'Envoyer un e-mail';
+
+  @override
+  String get supportCallAction => 'Appeler';
+
+  @override
+  String supportHoursLabel(String hours) {
+    return 'Répond $hours';
+  }
+
+  @override
+  String get supportPlatformSectionTitle => 'CordeliaApps';
+
+  @override
+  String get supportPlatformSectionSubtitle =>
+      'Pour votre compte, la connexion ou un problème avec l\'application elle-même.';
+
+  @override
+  String get supportPlatformOnlySubtitle =>
+      'Cette boutique n\'a pas encore publié de contact. Écrivez-nous et nous lui transmettrons tout ce qui concerne une commande.';
+
+  @override
+  String get supportPolicySectionTitle => 'Politiques';
+
+  @override
+  String get supportRefundPolicyAction => 'Remboursement et annulation';
+
+  @override
+  String supportAppVersionLabel(String version) {
+    return 'Cordelia $version';
+  }
+
+  @override
+  String get supportOrderCtaLabel => 'Besoin d\'aide pour cette commande ?';
+
+  @override
+  String supportLaunchFailedMessage(String value) {
+    return 'Impossible d\'ouvrir cette application. $value a été copié dans le presse-papiers.';
+  }
+
+  @override
+  String supportEmailSubjectOrder(String orderId) {
+    return 'Aide pour la commande $orderId';
+  }
+
+  @override
+  String supportEmailSubjectStore(String storeName) {
+    return 'Aide pour $storeName';
+  }
+
+  @override
+  String get supportEmailSubjectPlatform => 'Aide pour CordeliaApps';
+
+  @override
+  String get supportEmailBodyPrompt => 'Décrivez ce qui s\'est mal passé :';
+
+  @override
+  String get supportEmailBodyDetailsHeading =>
+      'Informations pour l\'assistance — merci de les laisser.';
+
+  @override
+  String get supportEmailOrderLabel => 'Commande';
+
+  @override
+  String get supportEmailStoreLabel => 'Boutique';
+
+  @override
+  String get supportEmailAccountLabel => 'Compte';
+
+  @override
+  String get supportEmailAppLabel => 'Application';
+
+  @override
   String get sortRelevanceLabel => 'Pertinence';
 
   @override

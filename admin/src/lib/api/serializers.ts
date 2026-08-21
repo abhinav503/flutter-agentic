@@ -223,6 +223,16 @@ export function serializeStore(s: Store) {
       free_above: s.delivery.freeAbove,
       areas: s.delivery.areas,
     },
+    // How a shopper reaches this store when an order goes wrong. Public for
+    // the same reason a shop's phone number on its door is: it is the point
+    // of publishing it. Any field may be empty — the app falls back to the
+    // platform address, so an unfilled contact is a quieter channel, never a
+    // dead end.
+    support: {
+      email: s.support.email,
+      phone: s.support.phone,
+      hours: s.support.hours,
+    },
     // Discovery renders a "Not published yet" marker on the owner's own
     // in-progress stores and filters on it — the route has already decided
     // *whether* the caller may see this store, so this is presentation

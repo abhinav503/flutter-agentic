@@ -15,11 +15,17 @@ extension StoreStatusX on StoreStatus {
 }
 
 extension StoreStatusParse on String {
-  /// Wire → enum. Unknown values (including `''` from an older API build,
-  /// and the legacy `'active'` marker that predates the lifecycle) read as
-  /// [StoreStatus.published]: the server only sends a store this caller is
-  /// allowed to see, so the safe default is "nothing special to say about
-  /// it" rather than falsely badging a live store as a draft.
+  /// Wire → enum. Unknown values — `''` from an older API build, or anything
+  /// this app doesn't know yet — read as [StoreStatus.published]: the server
+  /// only sends a store this caller is allowed to see, so the safe default is
+  /// "nothing special to say about it" rather than falsely badging a live
+  /// store as a draft.
+  ///
+  /// Note this is the **opposite** default from the server's
+  /// `normalizeStoreStatus`, which calls an unknown value `draft`. Both are
+  /// right for their side: the server decides visibility and must not let an
+  /// unrecognised string mean live, while this app has already been told the
+  /// store is visible and is only choosing a badge.
   StoreStatus toStoreStatus() => switch (this) {
     'draft' => StoreStatus.draft,
     'pending' => StoreStatus.pending,

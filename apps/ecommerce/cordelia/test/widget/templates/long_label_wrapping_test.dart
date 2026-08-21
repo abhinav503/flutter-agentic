@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:cordelia/feature/storefront/home/domain/entities/category_entity.dart';
+import 'package:cordelia/templates/dailymart/constants/dailymart_dimen_const.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_category_tile.dart';
+import 'package:cordelia/templates/dailymart/widgets/dailymart_menu_tile.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_dimen_const.dart';
 import 'package:cordelia/templates/grofast/widgets/grofast_menu_tile.dart';
 import 'package:cordelia/templates/grofast/widgets/grofast_category_tile.dart';
@@ -200,6 +202,98 @@ void main() {
     });
   });
 
+  // Help & Support prints the address a row will open under its label, which
+  // made two fixed-height kit rows growable. Both packs record the same
+  // bargain in their wrappers: a subtitled row is sized by its content, a
+  // plain one keeps the kit's exact height. That is only true while these
+  // pass — a regression here is a clipped second line on a real device, or a
+  // Profile whose rows silently changed height.
+  group('support rows that grew a subtitle', () {
+    const address = 'support@a-fairly-long-store-domain.example.com';
+
+    testWidgets('dailymart keeps its 52px strip without a subtitle', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        host(
+          const SizedBox(
+            width: 320,
+            child: DailyMartMenuTile(icon: Icons.star, label: 'Send an email'),
+          ),
+        ),
+      );
+      expect(tester.takeException(), isNull);
+      expect(
+        tester.getSize(find.byType(DailyMartMenuTile)).height,
+        DailyMartDimenConst.menuRowHeight,
+      );
+    });
+
+    testWidgets('dailymart fits the subtitle inside the strip', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        host(
+          const SizedBox(
+            width: 320,
+            child: DailyMartMenuTile(
+              icon: Icons.star,
+              label: 'Send an email',
+              subtitle: address,
+            ),
+          ),
+        ),
+      );
+      expect(tester.takeException(), isNull);
+      expectSubtitleInsideRow(
+        tester,
+        row: find.byType(DailyMartMenuTile),
+        subtitle: address,
+        minHeight: DailyMartDimenConst.menuRowHeight,
+      );
+    });
+
+    testWidgets('grofast keeps its 60px card without a subtitle', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        host(
+          const SizedBox(
+            width: 320,
+            child: GrofastMenuTile(icon: Icons.star, label: 'Send an email'),
+          ),
+        ),
+      );
+      expect(tester.takeException(), isNull);
+      expect(
+        tester.getSize(find.byType(GrofastMenuTile)).height,
+        GrofastDimenConst.menuRowHeight,
+      );
+    });
+
+    testWidgets('grofast fits the subtitle inside the card', (tester) async {
+      await tester.pumpWidget(
+        host(
+          const SizedBox(
+            width: 320,
+            child: GrofastMenuTile(
+              icon: Icons.star,
+              label: 'Send an email',
+              subtitle: address,
+            ),
+          ),
+        ),
+      );
+      expect(tester.takeException(), isNull);
+      expectSubtitleInsideRow(
+        tester,
+        row: find.byType(GrofastMenuTile),
+        subtitle: address,
+        minHeight: GrofastDimenConst.menuRowHeight,
+      );
+    });
+  });
+
   group('gravia (core CategoryTile)', () {
     testWidgets('wraps to two lines when asked', (tester) async {
       await tester.pumpWidget(
@@ -215,4 +309,29 @@ void main() {
       expect(tester.widget<Text>(find.text(longest)).maxLines, 2);
     });
   });
+}
+
+/// Asserts a subtitled row is not clipping its second line.
+///
+/// Deliberately *not* "the row grew": whether it has to depends on how much
+/// slack the kit's fixed height already had — dailymart's 52 has none and
+/// grows, grofast's 60 swallows both lines and stays put. Both are correct,
+/// and both are wrong the moment the address renders outside the row it is
+/// drawn in, which is what this measures instead.
+void expectSubtitleInsideRow(
+  WidgetTester tester, {
+  required Finder row,
+  required String subtitle,
+  required double minHeight,
+}) {
+  final rowRect = tester.getRect(row);
+  expect(rowRect.height, greaterThanOrEqualTo(minHeight));
+
+  final subtitleRect = tester.getRect(find.text(subtitle));
+  expect(subtitleRect.top, greaterThanOrEqualTo(rowRect.top));
+  expect(subtitleRect.bottom, lessThanOrEqualTo(rowRect.bottom));
+
+  // The address ellipsises rather than wrapping — a wrapped email address
+  // reads as two addresses.
+  expect(tester.widget<Text>(find.text(subtitle)).maxLines, 1);
 }

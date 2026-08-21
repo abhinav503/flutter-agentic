@@ -333,6 +333,95 @@ class AppLocalizationsIt extends AppLocalizations {
       'Si è verificato un errore durante il caricamento del profilo.';
 
   @override
+  String get helpAndSupportLabel => 'Aiuto e assistenza';
+
+  @override
+  String get supportIntro =>
+      'Dicci cosa non ha funzionato e sistemeremo tutto.';
+
+  @override
+  String supportStoreSectionTitle(String storeName) {
+    return 'Contatta $storeName';
+  }
+
+  @override
+  String get supportStoreSectionSubtitle =>
+      'Per tutto ciò che riguarda un ordine: un articolo sbagliato, una consegna in ritardo o un rimborso che non è arrivato.';
+
+  @override
+  String get supportEmailAction => 'Invia un\'e-mail';
+
+  @override
+  String get supportCallAction => 'Chiama';
+
+  @override
+  String supportHoursLabel(String hours) {
+    return 'Risponde $hours';
+  }
+
+  @override
+  String get supportPlatformSectionTitle => 'CordeliaApps';
+
+  @override
+  String get supportPlatformSectionSubtitle =>
+      'Per il tuo account, l\'accesso o un problema con l\'app stessa.';
+
+  @override
+  String get supportPlatformOnlySubtitle =>
+      'Questo negozio non ha ancora pubblicato un contatto. Scrivici e gli inoltreremo tutto ciò che riguarda un ordine.';
+
+  @override
+  String get supportPolicySectionTitle => 'Politiche';
+
+  @override
+  String get supportRefundPolicyAction => 'Rimborso e annullamento';
+
+  @override
+  String supportAppVersionLabel(String version) {
+    return 'Cordelia $version';
+  }
+
+  @override
+  String get supportOrderCtaLabel => 'Ti serve aiuto per questo ordine?';
+
+  @override
+  String supportLaunchFailedMessage(String value) {
+    return 'Impossibile aprire quell\'app. $value è stato copiato negli appunti.';
+  }
+
+  @override
+  String supportEmailSubjectOrder(String orderId) {
+    return 'Aiuto per l\'ordine $orderId';
+  }
+
+  @override
+  String supportEmailSubjectStore(String storeName) {
+    return 'Aiuto per $storeName';
+  }
+
+  @override
+  String get supportEmailSubjectPlatform => 'Aiuto per CordeliaApps';
+
+  @override
+  String get supportEmailBodyPrompt => 'Descrivi che cosa non ha funzionato:';
+
+  @override
+  String get supportEmailBodyDetailsHeading =>
+      'Dati per l\'assistenza: lasciali pure qui.';
+
+  @override
+  String get supportEmailOrderLabel => 'Ordine';
+
+  @override
+  String get supportEmailStoreLabel => 'Negozio';
+
+  @override
+  String get supportEmailAccountLabel => 'Account';
+
+  @override
+  String get supportEmailAppLabel => 'App';
+
+  @override
   String get sortRelevanceLabel => 'Rilevanza';
 
   @override

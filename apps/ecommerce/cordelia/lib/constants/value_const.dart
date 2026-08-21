@@ -220,6 +220,74 @@ abstract final class ValueConst {
   static String get profileLoadErrorMessage =>
       L10n.current.profileLoadErrorMessage;
 
+  /// Where a shopper reaches CordeliaApps itself, and the address a store
+  /// with no published contact falls back to. Not localized and not a
+  /// getter: it is the same string in every language, and it is already
+  /// published on cordeliaapps.com's privacy, terms and refunds pages — the
+  /// two must not drift.
+  static const platformSupportEmail = 'support@cordeliaapps.com';
+
+  /// The refunds and cancellation policy on the merchant site — the one
+  /// written commitment about refunds, which until now was reachable only by
+  /// someone already on the website rather than by the shopper it is
+  /// written for.
+  static const refundPolicyUrl = 'https://cordeliaapps.com/refunds';
+
+  // ── Help & Support — app-level, not per-pack: the channels are the store's
+  // own contact plus CordeliaApps' address, neither of which is a property of
+  // the template a store happens to render in. Each pack renders these its
+  // own way; none of them owns different words for them.
+  static String get helpAndSupportLabel => L10n.current.helpAndSupportLabel;
+  static String get supportIntro => L10n.current.supportIntro;
+  static String supportStoreSectionTitle(String storeName) =>
+      L10n.current.supportStoreSectionTitle(storeName);
+  static String get supportStoreSectionSubtitle =>
+      L10n.current.supportStoreSectionSubtitle;
+  static String get supportEmailAction => L10n.current.supportEmailAction;
+  static String get supportCallAction => L10n.current.supportCallAction;
+
+  /// [hours] is the store owner's own free text, printed verbatim — it is
+  /// authored in the store's language, so nothing here reformats it.
+  static String supportHoursLabel(String hours) =>
+      L10n.current.supportHoursLabel(hours);
+  static String get supportPlatformSectionTitle =>
+      L10n.current.supportPlatformSectionTitle;
+  static String get supportPlatformSectionSubtitle =>
+      L10n.current.supportPlatformSectionSubtitle;
+
+  /// Replaces [supportPlatformSectionSubtitle] when the store publishes no
+  /// contact of its own — the platform address is then the only channel for
+  /// order problems too, and saying so is the difference between a fallback
+  /// and a dead end.
+  static String get supportPlatformOnlySubtitle =>
+      L10n.current.supportPlatformOnlySubtitle;
+  static String get supportPolicySectionTitle =>
+      L10n.current.supportPolicySectionTitle;
+  static String get supportRefundPolicyAction =>
+      L10n.current.supportRefundPolicyAction;
+  static String supportAppVersionLabel(String version) =>
+      L10n.current.supportAppVersionLabel(version);
+  static String get supportOrderCtaLabel => L10n.current.supportOrderCtaLabel;
+  static String supportLaunchFailedMessage(String value) =>
+      L10n.current.supportLaunchFailedMessage(value);
+  static String supportEmailSubjectOrder(String orderId) =>
+      L10n.current.supportEmailSubjectOrder(orderId);
+  static String supportEmailSubjectStore(String storeName) =>
+      L10n.current.supportEmailSubjectStore(storeName);
+  static String get supportEmailSubjectPlatform =>
+      L10n.current.supportEmailSubjectPlatform;
+  static String get supportEmailBodyPrompt =>
+      L10n.current.supportEmailBodyPrompt;
+  static String get supportEmailBodyDetailsHeading =>
+      L10n.current.supportEmailBodyDetailsHeading;
+  static String get supportEmailOrderLabel =>
+      L10n.current.supportEmailOrderLabel;
+  static String get supportEmailStoreLabel =>
+      L10n.current.supportEmailStoreLabel;
+  static String get supportEmailAccountLabel =>
+      L10n.current.supportEmailAccountLabel;
+  static String get supportEmailAppLabel => L10n.current.supportEmailAppLabel;
+
   // ── Language row (every pack's Profile) — app-level: the row names the
   // same mechanism everywhere, and the option labels are self-named
   // (English stays "English" in Hindi and vice versa).

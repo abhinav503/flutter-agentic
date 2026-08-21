@@ -1,5 +1,6 @@
 import { adminDb } from "@/lib/firebase-admin";
 import { getStorePaymentStatus } from "@/lib/payments";
+import { isSupportEmail, mapStoreSupport } from "@/lib/support";
 
 // What a store must have before it can be seen, and before it can go live.
 //
@@ -10,16 +11,25 @@ import { getStorePaymentStatus } from "@/lib/payments";
 //                   something. An unpublished store that clears this bar
 //                   shows up in discovery FOR ITS OWNER, so they can walk
 //                   their real app while they finish setting up.
-//   publishReady  — previewReady AND a Razorpay account connected. Payments
-//                   are the one thing a shopper cannot work around, so it
-//                   gates going live but deliberately not the owner preview.
+//   publishReady  — previewReady AND a payment account connected AND a
+//                   support email AND a trading address. None of these is
+//                   something a shopper can work around on their own — one to
+//                   pay, one to ask when the order goes wrong, one to know who
+//                   they bought from — so they gate going live but
+//                   deliberately not the owner preview.
 //
 // Computed with the Admin SDK (bypasses rules) and always server-side: the
 // submit route re-runs it rather than trusting whatever the dashboard last
 // rendered, so a stale browser tab can't submit an empty store.
 
 export type StoreReadinessCheck = {
-  id: "logo" | "categories" | "products" | "payments";
+  id:
+    | "logo"
+    | "categories"
+    | "products"
+    | "payments"
+    | "support"
+    | "address";
   label: string;
   /// Why it isn't satisfied. Empty when [passed].
   hint: string;
@@ -51,6 +61,8 @@ export async function getStoreReadiness(
 ): Promise<StoreReadiness> {
   const storeSnap = await adminDb.collection("stores").doc(storeId).get();
   const logoUrl = (storeSnap.data()?.logoUrl as string | undefined) ?? "";
+  const support = mapStoreSupport(storeSnap.data()?.support);
+  const address = ((storeSnap.data()?.address as string | undefined) ?? "").trim();
 
   const [categories, products, payment] = await Promise.all([
     countIn(storeId, "categories"),
@@ -79,6 +91,30 @@ export async function getStoreReadiness(
       hint: "Add a product — a store with an empty catalog has nothing to sell.",
       passed: products > 0,
       blocksPreview: true,
+    },
+    {
+      id: "address",
+      label: "Store address",
+      hint: "Add your trading address in Settings — a marketplace has to say who is selling and from where.",
+      passed: address.length > 0,
+      // Not a preview blocker, same as payments and support: it is a
+      // disclosure a shopper needs, not something the storefront renders
+      // from.
+      blocksPreview: false,
+    },
+    {
+      id: "support",
+      label: "Support email",
+      hint: "Add a support email in Settings → Store so shoppers can reach you about an order.",
+      // The email specifically, not "any contact": the app writes the order
+      // id, store and account into the message it opens, and none of that
+      // survives a phone call. Phone and opening hours stay optional beside
+      // it. Validated rather than merely non-empty, so a doc holding junk
+      // reads as "not done" instead of quietly passing.
+      passed: isSupportEmail(support.email),
+      // Not a preview blocker, same reasoning as payments: the owner can
+      // walk their own storefront without one.
+      blocksPreview: false,
     },
     {
       id: "payments",

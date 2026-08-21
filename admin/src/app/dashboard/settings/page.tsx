@@ -55,6 +55,7 @@ function StoreProfileCard({ storeId }: { storeId: string }) {
   const [templates, setTemplates] = useState<Template[]>([]);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [address, setAddress] = useState("");
   const [logoUrl, setLogoUrl] = useState("");
   const [keywords, setKeywords] = useState("");
   const [templateId, setTemplateId] = useState("");
@@ -71,6 +72,7 @@ function StoreProfileCard({ storeId }: { storeId: string }) {
         if (store) {
           setName(store.name);
           setDescription(store.description);
+          setAddress(store.address);
           setLogoUrl(store.logoUrl);
           setKeywords(store.searchKeywords.join(", "));
           setTemplateId(store.templateId);
@@ -103,6 +105,7 @@ function StoreProfileCard({ storeId }: { storeId: string }) {
         body: JSON.stringify({
           name: name.trim(),
           description: description.trim(),
+          address: address.trim(),
           logoUrl: logoUrl.trim(),
           searchKeywords: keywords
             .split(",")
@@ -176,6 +179,24 @@ function StoreProfileCard({ storeId }: { storeId: string }) {
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="A short line shoppers see under your store name"
               />
+            </div>
+            <div className="flex flex-col gap-2 sm:col-span-2">
+              <Label htmlFor="store-profile-address">Store address</Label>
+              <Textarea
+                id="store-profile-address"
+                required
+                rows={3}
+                maxLength={300}
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                placeholder={"12 Residency Road\nBengaluru, Karnataka 560025\nIndia"}
+              />
+              <p className="text-xs text-muted-foreground">
+                Where you trade from. Required before you can publish — a
+                marketplace has to say who is selling and from where. This
+                doesn&apos;t decide where you deliver; that&apos;s{" "}
+                <span className="font-medium">Settings → Delivery</span>.
+              </p>
             </div>
             <div className="sm:col-span-2">
               <ImageUploadField
@@ -254,6 +275,138 @@ function StoreProfileCard({ storeId }: { storeId: string }) {
               className="justify-self-start sm:col-span-2"
             >
               {saving ? "Saving…" : "Save profile"}
+            </Button>
+          </form>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+// How a shopper reaches this store when an order goes wrong. On the Store
+// tab rather than its own: this is published to shoppers exactly like the
+// name and description above it, and an owner setting up a store should meet
+// it while they are still thinking about what shoppers see.
+//
+// Nothing here is required. An owner who fills in none of it still has
+// shoppers reaching the CordeliaApps address, which the app always offers
+// underneath — so the cost of leaving it empty is a slower answer, not an
+// unanswerable one.
+function SupportCard({ storeId }: { storeId: string }) {
+  const { user } = useAuth();
+  const [loading, setLoading] = useState(true);
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [hours, setHours] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    getStore(storeId)
+      .then((store) => {
+        if (!active) return;
+        if (store) {
+          setEmail(store.support.email);
+          setPhone(store.support.phone);
+          setHours(store.support.hours);
+        }
+        setLoading(false);
+      })
+      .catch(() => {
+        if (active) setLoading(false);
+        toast.error("Could not load support settings");
+      });
+    return () => {
+      active = false;
+    };
+  }, [storeId]);
+
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+    if (!user) return;
+    setSaving(true);
+    try {
+      const token = await user.getIdToken();
+      const res = await fetch(`/api/stores/${storeId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ support: { email, phone, hours } }),
+      });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(body.error ?? "Could not save support");
+      toast.success("Support contact saved");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Something went wrong");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Support contact</CardTitle>
+        <CardDescription>
+          How shoppers reach you about an order. Shown in the app under Help &
+          Support, and offered again from any order they are tracking — with
+          the order number already filled in.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        {loading ? (
+          <p className="text-sm text-muted-foreground">Loading…</p>
+        ) : (
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="support-email">Support email</Label>
+                <Input
+                  id="support-email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="orders@yourstore.com"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Where order problems arrive. Leave empty and shoppers write
+                  to CordeliaApps instead, who will forward them to you.
+                </p>
+              </div>
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="support-phone">Support phone</Label>
+                <Input
+                  id="support-phone"
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="+91 98765 43210"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Dialled straight from the app, so include the country code.
+                  Leave empty to offer email only.
+                </p>
+              </div>
+            </div>
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="support-hours">When you answer</Label>
+              <Input
+                id="support-hours"
+                value={hours}
+                onChange={(e) => setHours(e.target.value)}
+                placeholder="Mon–Sat, 9am–7pm"
+                maxLength={120}
+              />
+              <p className="text-xs text-muted-foreground">
+                Printed to shoppers exactly as you write it, in your
+                store&apos;s language — so a message sent at midnight does not
+                read as one being ignored.
+              </p>
+            </div>
+            <Button type="submit" disabled={saving} className="self-start">
+              {saving ? "Saving…" : "Save support contact"}
             </Button>
           </form>
         )}
@@ -864,8 +1017,9 @@ export default function SettingsPage() {
       <div>
         <h1 className="text-lg font-semibold">Settings</h1>
         <p className="text-sm text-muted-foreground">
-          This store&apos;s public profile, storefront template, delivery,
-          sample data and payment account — plus the account you sign in with.
+          This store&apos;s public profile, support contact, storefront template,
+          delivery, sample data and payment account — plus the account you sign
+          in with.
         </p>
       </div>
 
@@ -883,6 +1037,7 @@ export default function SettingsPage() {
 
         <TabsContent value="store" className="space-y-6">
           <StoreProfileCard storeId={storeId} />
+          <SupportCard storeId={storeId} />
           {/* Under the profile, not on its own tab: the checklist is mostly
               about fields edited right above it, and a publish gate hidden
               behind a tab is one nobody finds. */}

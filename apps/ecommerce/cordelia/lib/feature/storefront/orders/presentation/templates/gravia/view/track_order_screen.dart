@@ -12,6 +12,7 @@ import 'package:core/core/ui/blocks/collapsing_header_sheet.dart';
 import 'package:core/core/ui/blocks/ecommerce/price_breakdown.dart';
 
 import 'package:cordelia/constants/value_const.dart';
+import 'package:cordelia/feature/support/presentation/view/support_order_link.dart';
 import 'package:cordelia/enums/order_status.dart';
 import 'package:cordelia/feature/storefront/address/domain/entities/address_entity.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_color_const.dart';
@@ -281,6 +282,8 @@ class _TrackOrderScreenState extends BaseScreenState<TrackOrderScreen>
                       ).copyWith(color: GraviaColorConst.gray500),
                     ),
                   ],
+                  divider(),
+                  SupportOrderLink(orderId: order.id),
                 ],
               ),
             ),

@@ -7,6 +7,11 @@
 import type { StoreStatus } from "./store-status";
 import type { PaymentProvider } from "./payment-providers/types";
 import type { StoreDelivery } from "./delivery";
+import type { StoreSupport } from "./support";
+
+// Long enough for a real multi-line trading address in any of the seven
+// markets, short enough that the field is an address and not a page.
+export const MAX_STORE_ADDRESS_LENGTH = 300;
 
 export type UnitType = "g" | "ml" | "pcs";
 
@@ -207,6 +212,17 @@ export type Store = {
   name: string;
   logoUrl: string;
   description: string;
+  /// The store's real trading address, as one readable block. Required
+  /// before a store can be published: a marketplace listing goods for sale
+  /// has to say who is selling them and from where — India's Consumer
+  /// Protection (E-Commerce) Rules and the EU DSA both want a seller
+  /// identity, and a shopper chasing an order wants it too.
+  ///
+  /// Free text rather than structured lines because seven markets do not
+  /// agree on what the parts are or what order they go in, and nothing here
+  /// computes with it — delivery serviceability keys off `delivery.areas`,
+  /// not this. Stores predating the field read back as `''`.
+  address: string;
   ownerUid: string;
   status: StoreStatus;
   /// Set when a superadmin rejects a submission — shown back to the store
@@ -237,6 +253,10 @@ export type Store = {
   // StoreDelivery). Stores predating the field read back as free delivery
   // everywhere — what every storefront's totals panel used to hardcode.
   delivery: StoreDelivery;
+  // How a shopper reaches this store when an order goes wrong (see
+  // StoreSupport). Stores predating the field publish no contact, which
+  // leaves their shoppers the platform address the app falls back to.
+  support: StoreSupport;
   // See Category.createdAtMs. Both store lists order by this, in opposite
   // directions, because they are different jobs: discovery is a feed and runs
   // newest first, while the superadmin review queue runs oldest first so the

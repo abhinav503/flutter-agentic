@@ -182,6 +182,14 @@ class _ProfileScreenState extends BaseScreenState<ProfileScreen>
                             onTap: _showLanguageSheet,
                           ),
                           DailyMartMenuTile(
+                            // Material glyph — the kit ships no support frame
+                            // and no bundled icon reads as "help", same call
+                            // as the Language row above.
+                            icon: Icons.help_outline_rounded,
+                            label: ValueConst.helpAndSupportLabel,
+                            onTap: () => context.push(AppRoutes.support),
+                          ),
+                          DailyMartMenuTile(
                             asset: DailyMartImageConst.menuShieldCheck,
                             label: DailyMartValueConst.privacyPolicyLabel,
                             onTap: () => context.push(AppRoutes.privacyPolicy),

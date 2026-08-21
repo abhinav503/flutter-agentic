@@ -1,4 +1,5 @@
 import 'package:cordelia/feature/home/domain/entities/store_delivery_entity.dart';
+import 'package:cordelia/feature/home/domain/entities/store_support_entity.dart';
 import 'package:cordelia/feature/home/domain/entities/store_entity.dart';
 import 'package:cordelia/feature/storefront/template/store_currency.dart';
 import 'package:cordelia/feature/storefront/template/store_language.dart';
@@ -23,6 +24,12 @@ class ActiveStoreEntity {
   /// re-fetching the store doc it was opened from.
   final StoreDeliveryEntity delivery;
 
+  /// This store's published support contact, carried in for the same reason
+  /// as [delivery]: Help & Support and every order's "need help" entry are
+  /// inside the storefront, and neither should re-fetch the store doc to
+  /// print an address the session was opened with.
+  final StoreSupportEntity support;
+
   const ActiveStoreEntity({
     required this.storeId,
     required this.storeName,
@@ -30,6 +37,7 @@ class ActiveStoreEntity {
     required this.language,
     required this.currency,
     this.delivery = StoreDeliveryEntity.free,
+    this.support = StoreSupportEntity.none,
   });
 
   /// The storefront-session view of a discovered store. Both entry points —
@@ -43,5 +51,6 @@ class ActiveStoreEntity {
     language: store.language,
     currency: store.currency,
     delivery: store.delivery,
+    support: store.support,
   );
 }

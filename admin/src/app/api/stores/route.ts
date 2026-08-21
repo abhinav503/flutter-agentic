@@ -122,7 +122,12 @@ export async function POST(request: Request) {
     language,
     currency,
     ownerUid: auth.uid,
-    status: "active",
+    // A new store starts where the lifecycle starts. It used to be written
+    // as the pre-lifecycle `"active"`, which normalized to `published` — so
+    // every store created here went straight to live in discovery, empty and
+    // unreviewed, and nothing ever actually sat in `draft`. The review gate
+    // in ./[storeId]/publish existed but nothing entered it.
+    status: "draft",
     createdAt: FieldValue.serverTimestamp(),
   });
 

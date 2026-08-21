@@ -332,6 +332,94 @@ class AppLocalizationsHi extends AppLocalizations {
       'आपकी प्रोफ़ाइल लोड करते समय कुछ गड़बड़ हो गई।';
 
   @override
+  String get helpAndSupportLabel => 'मदद और सहायता';
+
+  @override
+  String get supportIntro => 'हमें बताइए क्या गड़बड़ हुई, हम उसे ठीक कराएँगे।';
+
+  @override
+  String supportStoreSectionTitle(String storeName) {
+    return '$storeName से संपर्क करें';
+  }
+
+  @override
+  String get supportStoreSectionSubtitle =>
+      'ऑर्डर से जुड़ी किसी भी बात के लिए — गलत सामान, देर से डिलीवरी, या रिफ़ंड जो अब तक नहीं आया।';
+
+  @override
+  String get supportEmailAction => 'ईमेल भेजें';
+
+  @override
+  String get supportCallAction => 'कॉल करें';
+
+  @override
+  String supportHoursLabel(String hours) {
+    return 'जवाब देते हैं: $hours';
+  }
+
+  @override
+  String get supportPlatformSectionTitle => 'CordeliaApps';
+
+  @override
+  String get supportPlatformSectionSubtitle =>
+      'आपके खाते, साइन इन, या ऐप से जुड़ी किसी दिक्कत के लिए।';
+
+  @override
+  String get supportPlatformOnlySubtitle =>
+      'इस स्टोर ने अभी अपना संपर्क नहीं दिया है। हमें लिखिए, ऑर्डर से जुड़ी बात हम उन तक पहुँचा देंगे।';
+
+  @override
+  String get supportPolicySectionTitle => 'नीतियाँ';
+
+  @override
+  String get supportRefundPolicyAction => 'रिफ़ंड और रद्दीकरण नीति';
+
+  @override
+  String supportAppVersionLabel(String version) {
+    return 'Cordelia $version';
+  }
+
+  @override
+  String get supportOrderCtaLabel => 'इस ऑर्डर में मदद चाहिए?';
+
+  @override
+  String supportLaunchFailedMessage(String value) {
+    return 'वह ऐप नहीं खुल सका। $value आपके क्लिपबोर्ड पर कॉपी कर दिया गया है।';
+  }
+
+  @override
+  String supportEmailSubjectOrder(String orderId) {
+    return 'ऑर्डर $orderId में मदद';
+  }
+
+  @override
+  String supportEmailSubjectStore(String storeName) {
+    return '$storeName के बारे में मदद';
+  }
+
+  @override
+  String get supportEmailSubjectPlatform => 'CordeliaApps के बारे में मदद';
+
+  @override
+  String get supportEmailBodyPrompt => 'कृपया बताइए क्या गड़बड़ हुई:';
+
+  @override
+  String get supportEmailBodyDetailsHeading =>
+      'सहायता टीम के लिए जानकारी — कृपया इसे रहने दें।';
+
+  @override
+  String get supportEmailOrderLabel => 'ऑर्डर';
+
+  @override
+  String get supportEmailStoreLabel => 'स्टोर';
+
+  @override
+  String get supportEmailAccountLabel => 'खाता';
+
+  @override
+  String get supportEmailAppLabel => 'ऐप';
+
+  @override
   String get sortRelevanceLabel => 'प्रासंगिकता';
 
   @override

@@ -188,6 +188,18 @@ class _ProfileScreenState extends BaseScreenState<ProfileScreen>
                       onTap: _showLanguageSheet,
                     ),
                     ProfileMenuTile(
+                      // Material glyph, not a pack SVG — the kit ships no
+                      // support frame and no bundled icon reads as "help",
+                      // same call as the Language row above.
+                      iconBuilder: (color, size) => Icon(
+                        Icons.help_outline_rounded,
+                        color: color,
+                        size: size,
+                      ),
+                      label: ValueConst.helpAndSupportLabel,
+                      onTap: () => context.push(AppRoutes.support),
+                    ),
+                    ProfileMenuTile(
                       iconBuilder: (color, size) => AppSvgImage.asset(
                         GraviaImageConst.shieldCheck,
                         color: color,

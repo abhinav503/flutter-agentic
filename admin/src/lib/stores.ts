@@ -13,6 +13,7 @@ import {
 import { db } from "./firebase";
 import { isPubliclyVisible, normalizeStoreStatus } from "./store-status";
 import { mapStoreDelivery } from "./delivery";
+import { mapStoreSupport } from "./support";
 import type { Store } from "./types";
 
 function storesRef() {
@@ -28,6 +29,7 @@ function mapStoreDoc(d: QueryDocumentSnapshot | DocumentSnapshot): Store {
     name: (data.name as string) ?? "",
     logoUrl: (data.logoUrl as string) ?? "",
     description: (data.description as string) ?? "",
+    address: (data.address as string) ?? "",
     ownerUid: (data.ownerUid as string) ?? "",
     status: normalizeStoreStatus(data.status),
     rejectionReason: (data.rejectionReason as string) ?? "",
@@ -37,6 +39,7 @@ function mapStoreDoc(d: QueryDocumentSnapshot | DocumentSnapshot): Store {
     language: (data.language as string) ?? "en",
     currency: (data.currency as string) ?? "INR",
     delivery: mapStoreDelivery(data.delivery),
+    support: mapStoreSupport(data.support),
     createdAtMs:
       (data.createdAt as Timestamp | null | undefined)?.toMillis() ?? 0,
   };
@@ -89,14 +92,11 @@ export async function getStores(
     // every status, and it's a handful of admins rather than every shopper.
     queries.push(storesRef());
   } else {
-    // "active" is the pre-lifecycle marker normalizeStoreStatus() reads as
-    // published; a query matches the stored string, not the normalized one,
-    // so it has to be asked for by name or legacy live stores vanish from
-    // discovery. Docs with no `status` at all match neither value, which is
-    // correct — normalizeStoreStatus() calls those `draft`.
-    queries.push(
-      query(storesRef(), where("status", "in", ["published", "active"])),
-    );
+    // Matches the stored string, not the normalized one — which is why
+    // `"published"` has to be the only string that ever means live. A doc
+    // with no `status` at all matches nothing here, which is correct:
+    // normalizeStoreStatus() calls those `draft`.
+    queries.push(query(storesRef(), where("status", "==", "published")));
     if (opts.viewerUid) {
       // An owner previewing their own unpublished store.
       //

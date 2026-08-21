@@ -4,6 +4,7 @@ import 'package:cordelia/feature/storefront/template/store_language.dart';
 import 'package:cordelia/feature/storefront/template/storefront_template.dart';
 
 import 'store_delivery_entity.dart';
+import 'store_support_entity.dart';
 
 class StoreEntity {
   final String id;
@@ -24,6 +25,11 @@ class StoreEntity {
   /// that has never set a policy.
   final StoreDeliveryEntity delivery;
 
+  /// How a shopper reaches this store when an order goes wrong. Defaults to
+  /// [StoreSupportEntity.none] — a store that publishes no contact of its
+  /// own, whose shoppers reach CordeliaApps instead.
+  final StoreSupportEntity support;
+
   const StoreEntity({
     required this.id,
     required this.name,
@@ -34,5 +40,6 @@ class StoreEntity {
     required this.currency,
     this.status = StoreStatus.published,
     this.delivery = StoreDeliveryEntity.free,
+    this.support = StoreSupportEntity.none,
   });
 }

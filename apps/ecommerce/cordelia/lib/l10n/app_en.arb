@@ -126,6 +126,78 @@
   "deleteAccountConfirmMessage": "This permanently deletes your profile, addresses, cart, wishlist and reviews across every store. Orders you have already placed stay with those stores as their sales records. This cannot be undone.",
   "deleteAccountFailedMessage": "Could not delete your account. Please try again.",
   "profileLoadErrorMessage": "Something went wrong loading your profile.",
+  "helpAndSupportLabel": "Help & Support",
+  "supportIntro": "Tell us what went wrong and we'll get it put right.",
+  "supportStoreSectionTitle": "Contact {storeName}",
+  "@supportStoreSectionTitle": {
+    "description": "Header of the store's own contact block on Help & Support. {storeName} is the store as the shopper knows it.",
+    "placeholders": {
+      "storeName": {
+        "type": "String"
+      }
+    }
+  },
+  "supportStoreSectionSubtitle": "For anything about an order — a wrong item, a late delivery, or a refund that hasn't arrived.",
+  "supportEmailAction": "Send an email",
+  "supportCallAction": "Call",
+  "supportHoursLabel": "Replies {hours}",
+  "@supportHoursLabel": {
+    "description": "When the store answers. {hours} is free text the store owner wrote in the store's own language and is printed verbatim — never reformat or translate it.",
+    "placeholders": {
+      "hours": {
+        "type": "String"
+      }
+    }
+  },
+  "supportPlatformSectionTitle": "CordeliaApps",
+  "supportPlatformSectionSubtitle": "For your account, signing in, or a problem with the app itself.",
+  "supportPlatformOnlySubtitle": "This store hasn't published a contact yet. Write to us and we'll pass anything about an order on to them.",
+  "supportPolicySectionTitle": "Policies",
+  "supportRefundPolicyAction": "Refund & cancellation policy",
+  "supportAppVersionLabel": "Cordelia {version}",
+  "@supportAppVersionLabel": {
+    "description": "Build identifier shown at the foot of Help & Support and repeated in the support email. {version} is like '1.0.4 (4)'.",
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "supportOrderCtaLabel": "Need help with this order?",
+  "supportLaunchFailedMessage": "Couldn't open that app. {value} is on your clipboard instead.",
+  "@supportLaunchFailedMessage": {
+    "description": "Shown when no mail or phone app could be opened. {value} is the address or number, which has been copied to the clipboard so the shopper still has it.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "supportEmailSubjectOrder": "Help with order {orderId}",
+  "@supportEmailSubjectOrder": {
+    "description": "Subject line of a support email started from a specific order.",
+    "placeholders": {
+      "orderId": {
+        "type": "String"
+      }
+    }
+  },
+  "supportEmailSubjectStore": "Help with {storeName}",
+  "@supportEmailSubjectStore": {
+    "description": "Subject line of a support email started from Help & Support inside a store.",
+    "placeholders": {
+      "storeName": {
+        "type": "String"
+      }
+    }
+  },
+  "supportEmailSubjectPlatform": "Help with CordeliaApps",
+  "supportEmailBodyPrompt": "Please describe what went wrong:",
+  "supportEmailBodyDetailsHeading": "Details for support — please leave these in.",
+  "supportEmailOrderLabel": "Order",
+  "supportEmailStoreLabel": "Store",
+  "supportEmailAccountLabel": "Account",
+  "supportEmailAppLabel": "App",
   "sortRelevanceLabel": "Relevance",
   "sortPriceLowToHighLabel": "Price (Low to High)",
   "sortPriceHighToLowLabel": "Price (High to Low)",

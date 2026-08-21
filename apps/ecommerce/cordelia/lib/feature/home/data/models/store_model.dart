@@ -7,6 +7,7 @@ import 'package:cordelia/feature/storefront/template/storefront_template.dart';
 
 import '../../domain/entities/store_entity.dart';
 import 'store_delivery_model.dart';
+import 'store_support_model.dart';
 
 part 'store_model.freezed.dart';
 part 'store_model.g.dart';
@@ -46,6 +47,11 @@ abstract class StoreModel with _$StoreModel {
     // StoreDeliveryModel's own defaults make either case free delivery
     // everywhere.
     @Default(StoreDeliveryModel()) StoreDeliveryModel delivery,
+    // Same defaulted-not-required reasoning once more: absent from an older
+    // API build, and from a store whose owner never published a contact.
+    // Either way StoreSupportModel's own defaults mean "no store contact",
+    // and the app falls back to the platform address.
+    @Default(StoreSupportModel()) StoreSupportModel support,
   }) = _StoreModel;
 
   factory StoreModel.fromJson(Map<String, dynamic> json) =>
@@ -61,6 +67,7 @@ abstract class StoreModel with _$StoreModel {
     currency: e.currency.wireValue,
     status: e.status.name,
     delivery: StoreDeliveryModel.fromEntity(e.delivery),
+    support: StoreSupportModel.fromEntity(e.support),
   );
 
   StoreEntity toEntity() => StoreEntity(
@@ -73,5 +80,6 @@ abstract class StoreModel with _$StoreModel {
     currency: currency.toStoreCurrency(),
     status: status.toStoreStatus(),
     delivery: delivery.toEntity(),
+    support: support.toEntity(),
   );
 }

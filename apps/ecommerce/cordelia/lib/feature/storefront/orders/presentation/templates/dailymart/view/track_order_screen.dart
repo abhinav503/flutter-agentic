@@ -17,6 +17,7 @@ import 'package:cordelia/templates/dailymart/widgets/dailymart_outline_button.da
 import 'package:cordelia/templates/dailymart/widgets/dailymart_section_header.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_sheet.dart';
 
+import 'package:cordelia/feature/support/presentation/view/support_order_link.dart';
 import 'package:cordelia/constants/value_const.dart';
 
 import '../../../../../reviews/presentation/templates/dailymart/widgets/write_review_sheet_content.dart';
@@ -244,6 +245,8 @@ class _TrackOrderScreenState extends BaseScreenState<TrackOrderScreen>
               ),
               const SizedBox(height: AppSpacing.base),
               DailyMartOrderStatusTimeline(order: order),
+              const SizedBox(height: AppSpacing.xs),
+              SupportOrderLink(orderId: order.id),
             ],
           ),
         ),

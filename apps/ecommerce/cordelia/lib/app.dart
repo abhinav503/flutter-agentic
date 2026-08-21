@@ -112,6 +112,13 @@ import 'feature/legal/presentation/templates/grofast/view/legal_document_page.da
     as grofast_legal;
 import 'feature/legal/presentation/templates/gravia/view/legal_document_page.dart'
     as gravia_legal;
+import 'feature/support/presentation/templates/dailymart/view/support_page.dart'
+    as dailymart_support;
+import 'feature/support/presentation/templates/grofast/view/support_page.dart'
+    as grofast_support;
+import 'feature/support/presentation/templates/gravia/view/support_page.dart'
+    as gravia_support;
+import 'feature/support/presentation/view/support_channels.dart';
 import 'feature/onboarding/presentation/view/onboarding_page.dart';
 import 'feature/splash/presentation/view/splash_page.dart';
 import 'feature/storefront/active_store/presentation/cubit/active_store_cubit.dart';
@@ -225,6 +232,37 @@ final _router = GoRouter(
           ),
         ),
       ),
+    ),
+
+    GoRoute(
+      path: AppRoutes.support,
+      pageBuilder: (context, state) {
+        // Resolved once, outside the template switch: which channels exist
+        // and what the message says is the same question in all three packs
+        // — only the rows drawing them differ.
+        final channels = context.supportChannels(
+          orderId: state.extra as String? ?? '',
+        );
+        return CustomTransitionPage<void>(
+          key: state.pageKey,
+          transitionDuration: const Duration(milliseconds: 350),
+          reverseTransitionDuration: const Duration(milliseconds: 300),
+          transitionsBuilder:
+              (context, animation, secondaryAnimation, child) =>
+                  FadeTransition(
+                    opacity: CurveTween(
+                      curve: Curves.easeInOut,
+                    ).animate(animation),
+                    child: child,
+                  ),
+          child: StorefrontTemplateSwitch(
+            gravia: (_) => gravia_support.SupportPage(channels: channels),
+            dailymart: (_) =>
+                dailymart_support.SupportPage(channels: channels),
+            grofast: (_) => grofast_support.SupportPage(channels: channels),
+          ),
+        );
+      },
     ),
 
     GoRoute(

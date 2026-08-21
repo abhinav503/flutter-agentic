@@ -4502,7 +4502,7 @@ corner, deliberately unstarted. → "Delivery-agent apps — decided, not built"
 | Item | Owning section |
 |---|---|
 | ~~**Out-of-stock is invisible until checkout fails**~~ — **closed 2026-08-21**: `stock` is serialized, sold-out products are marked and unbuyable in all three packs, quantity caps at what remains, and an unbuyable cart blocks checkout in the shopper's own language | "Stock visibility" |
-| **No support channel anywhere** — no email, phone, form or thread; the `/refunds` policy page on the merchant site is not linked from the app either | same |
+| ~~**No support channel anywhere**~~ — **closed 2026-08-21**: the store publishes its own contact (email / phone / hours) and the app offers it from Profile and from any order being tracked, with `support@cordeliaapps.com` underneath and the `/refunds` policy linked. Still a `mailto:`, not a thread | "Support channel" |
 | **Hard login wall before any browsing** — splash routes an unauthenticated visitor to `/login`; no guest mode, no deep-link redirect-back | same |
 
 ### Commerce flows
@@ -4784,7 +4784,9 @@ grid serializer's omissions made it look like they might not.
 
 If go-live means "a stranger's first order does not go wrong in a way we cannot
 answer for", it is the first three: **stock visibility, a support channel, and
-letting people browse before signing up**. Each is small relative to what is
+letting people browse before signing up**. (Stock visibility and the support
+channel both closed on 2026-08-21 — see their own sections; the login wall is
+the one still open.) Each is small relative to what is
 already built, each is bounded, and each shows up on day one rather than at
 scale. The delivery-agent track is the larger hole but it is a whole app, and
 its absence degrades gracefully as long as order volume stays inside what a
@@ -5029,6 +5031,228 @@ four device passes that testing this actually needs. The distinction it works
 hardest to make is the one that would otherwise generate support tickets: a
 refund with no order beside it is normal; *repeated* payments with no orders is
 your keys.
+
+---
+
+---
+
+## Support channel — DONE (2026-08-21)
+
+The second of the readiness scan's minimum set, and the one that was a
+product decision rather than a data gap. There was no support channel
+anywhere: no email, no phone, no form, no thread. The code assumed one
+repeatedly — "an id a shopper would hand to support" appears in two Track
+Order screens and in `OrderEntity`'s doc comment, and dailymart's own value
+const states plainly that Help & Support is among the things this app has
+not. Every Profile tab ran Change Password / My Orders / My Address / Dark
+Mode / Language / Privacy / Terms / Logout / Delete Account, and stopped.
+
+### The contact belongs to the store, not to us
+
+The decision that shaped everything else. A wrong item, a missing delivery,
+a refund that never landed — none of these are the platform's to fix, and
+routing them here would mean forwarding every one of them by hand. So
+`support` (email, phone, and free-text opening hours) now lives on the store
+doc beside `delivery`, edited by its owner in **Settings → Store**, and
+`serializeStore` publishes it for the same reason a shop's phone number is on
+its door.
+
+The platform address stays underneath, because the other half of the
+problems — signing in, the app itself, deleting an account — is one a store
+genuinely cannot help with. `support@cordeliaapps.com` was already published
+on the site's privacy, terms and refunds pages; it is now reachable from
+inside the app, which is where the person it is written for actually is.
+
+Every field is optional, and a store that publishes nothing is not a dead
+end: the platform section's copy **changes** in that case to say that
+anything about an order will be passed on. That swap is the one rule three
+packs must not each re-decide, so it lives in `SupportChannels.build` with
+the rest of the composition, and the packs only draw the rows it produces.
+
+### The prefill is the feature
+
+A support mail that arrives as "my order is wrong" with no order number costs
+a round trip before anyone can look it up, and the shopper waits through it.
+So the message opens already carrying the order id, the store and its id, the
+shopper's account, the app version and the platform. `package_info_plus` reads
+the version at boot (`AppInfoService`) rather than a constant repeating
+pubspec's — a hand-maintained one drifts, and a version that lies is worse
+than none.
+
+Two details cost a pass each. `Uri`'s `queryParameters` encodes a space as
+`+`, which is correct for a form post and shows as a literal plus sign in a
+mail client's subject line — the `mailto:` is built with `Uri.encodeComponent`
+instead. And the details block sits *below* a rule with a line asking for it
+to be left in, not above the cursor: a shopper writing on a phone starts at
+the top, and anything in the way there gets deleted.
+
+### Where it is reached from
+
+Profile gets a **Help & Support** row in all three packs. The per-order entry
+went into the *body* of Track Order rather than the docked slot below it —
+that slot already carries Cancel while an order is coming and Rate once it has
+arrived, and asking for help is not an alternative to either. Inside the body
+it is also reachable on a **cancelled** order, which has no CTA at all and is
+when a shopper most often needs someone.
+
+That row is one shared widget styled from theme roles alone
+(`SupportOrderLink`), not three per-pack copies — the same tap looking like
+three different affordances is what the three-template sweep kept finding.
+The screens themselves are per-pack, following the legal-document precedent:
+shared content, pack chrome. No kit ships a support frame, so all three are
+composed from recipes their packs already owned, and the glyphs are Material
+(chosen once in `support_glyphs.dart`) exactly as the Language row's were.
+
+### Two fixed-height kit rows had to grow
+
+`DailyMartMenuTile`'s 52px strip and `GrofastMenuTile`'s 60px card both print
+a label and nothing else. A support row prints the address under it — the
+thing a shopper falls back to reading when nothing on the device can open it
+— so both wrappers gained an optional `subtitle` and size to their content
+when one is present, keeping the kit's exact height when it is not.
+
+Interesting that the two packs resolve this differently and both are correct:
+dailymart's 52 has no slack and grows, grofast's 60 swallows both lines and
+stays put. The first draft of the test asserted "the row grew" and failed on
+grofast for that reason. It now asserts what actually matters — the subtitle's
+box sits inside the row's — in
+`test/widget/templates/long_label_wrapping_test.dart`, beside the other labels
+that outgrew their slots.
+
+### A channel that can't open is still a channel
+
+Every launch checks its return value. A phone with no mail client, a work
+profile that blocks the dialler, the web preview with no handler registered —
+all answer "no" rather than opening something, and that is exactly where a
+support channel silently stops being one. A failure copies the address to the
+clipboard and says so, in the shopper's language. Android 11+ also hides
+packages that aren't declared, so `mailto`/`tel`/`https` went into the
+manifest's `<queries>` — without them the launch reports failure on a phone
+that does have a mail client.
+
+### Also shipped in this pass
+
+- 24 new keys across all six locales, at full parity. The parity gate earned
+  its keep immediately: it caught three French strings written with an
+  ordinary space before `:` and `?` where the language takes U+00A0.
+- `npm run verify:support` — the offline counterpart to `verify:delivery`,
+  checking the deliberate asymmetry between reading and writing. Reading a doc
+  is lenient because it prints docs written long ago and must never throw;
+  writing is strict because a typo saved as a support address is a channel
+  that silently swallows every message sent to it.
+- `docs/store-setup/support-contact.mdx` on the merchant site, including the
+  table of which problems are the owner's and which are ours, and why leaving
+  the fields empty costs them the direct line.
+- 11 unit tests over `SupportChannels`/`SupportMessage` — the composition rule
+  the three screens must not fork.
+
+### Not done, and known
+
+**Nothing is threaded.** This is a `mailto:` and a `tel:`, not an in-app
+conversation — there is no ticket, no status, and no way for a shopper to see
+that anyone read it. That is the right v1 (it needs no inbox, no queue and no
+staffing model), and it is also the reason the prefill matters as much as it
+does: the first message has to carry everything, because there is no cheap
+way to ask a follow-up.
+
+**Publishing a contact IS required — decided mid-pass, after the screens were
+built.** The first cut left it optional on the reasoning that the platform
+fallback made it harmless. That was the wrong trade: the fallback exists to
+catch the problems a store *cannot* fix (signing in, the app, deleting an
+account), and leaning on it for "where is my order" makes every one of those a
+message we forward by hand. So the readiness checklist gained a **fifth
+check** — a valid support **email**, gating `submit` server-side beside
+"Payments connected".
+
+Email specifically, not "any contact": the message the app opens already
+carries the order id, the store and the shopper's account, none of which
+survives a phone call, and a refund dispute wants a written record. Phone and
+opening hours stay optional. It is a low bar — the owner already has an
+address, they signed up with one.
+
+Not a **preview** blocker, same tier as payments: an owner can still walk
+their own half-built store in the real app before filling it in.
+
+The publish card needed no code — it renders `readiness.checks` generically,
+so the new row arrived with its own label and hint. Only the merchant docs
+hardcoded "Four checks".
+
+**A trading address joined it as a sixth check.** `Store.address` — one free
+text block on the store doc, edited in **Settings → Store → Store profile**,
+required by the form and refused empty by the PUT route. Free text rather
+than structured lines because seven markets do not agree on what the parts
+are or what order they go in, and nothing computes with it: serviceability
+keys off `delivery.areas`, which is a different question (where you deliver,
+not where you trade from) and the field's help text says so.
+
+Publish-gating it is not decoration. A marketplace listing goods for sale has
+to disclose who is selling them and from where — India's Consumer Protection
+(E-Commerce) Rules and the EU DSA both want a seller identity, and it is the
+same disclosure the unset DSA trader status still blocks EU storefronts on.
+Not a preview blocker, same tier as payments and support.
+
+The creation route deliberately does not ask for it, exactly as it does not
+ask for a description or a logo: those are filled in Settings, and
+`mapStoreDoc` reads a missing one as `''`.
+
+**The two already-published stores predate both gates.** Support email was
+filled in by hand during this pass (both now carry a real address and phone —
+the first draft had `support@cordeliapps.com`, one `a` short of the real
+domain, which passes validation and silently swallows mail; caught before it
+shipped, which is the failure mode the module comment predicted). **Address is
+still empty on both.** `publishReady`
+gates `submit` and nothing re-evaluates a live store, so they stay published —
+correctly, since retroactively unpublishing the only two stores in discovery
+is the Play minimum-functionality rejection again. They need filling in by
+hand, and they are the two stores the closed-testing testers are actually
+using.
+
+**Server-authored refusals stay English**, unchanged by this pass — but they
+now arrive somewhere a shopper can ask about them.
+
+### Adjacent: two stores routes were still pre-lifecycle — FIXED
+
+Surfaced while adding `support` to the store serializer. Two strings meant
+"published": `"active"` (the pre-lifecycle marker, kept readable so already-
+live stores survived the 2026-08-10 migration without a backfill) and
+`"published"` (what `approve` writes). Three of the four readers handled
+both, each with a comment saying why. Two sites did not:
+
+- **`GET /api/stores/{storeId}` 404'd for every store that went through the
+  lifecycle.** The guard was `data.status !== "active"` — a raw comparison
+  against the *legacy* value, accepting only it and rejecting the current
+  one. It happened to work because creation still wrote `"active"`, which is
+  why nobody noticed. The path it breaks is the notification tap: a push
+  carries only a store id, and mounting the storefront behind it starts here.
+- **`POST /api/stores` wrote `status: "active"`**, which normalized to
+  `published` — so a new store was publicly visible in Discovery the moment
+  it was created, empty and unreviewed. Nothing ever sat in `draft`, and the
+  review gate in `publish/route.ts` existed with nothing entering it.
+
+Both fixed, and `"active"` removed outright rather than left as tolerated
+input: creation now writes `"draft"`, the GET reads through
+`normalizeStoreStatus`/`isPubliclyVisible`, `normalizeStoreStatus` no longer
+maps `active → published`, and discovery's query is `where("status", "==",
+"published")` instead of an `in` over both.
+
+**No migration was needed, and this was checked rather than assumed** — a
+read-only tally of the live collection returned 14 store docs: 12 `draft`, 2
+`published`, and **no `"active"` at all**. That mattered because a Firestore
+query matches the *stored* string, so dropping `"active"` from discovery's
+`in` clause before rewriting any legacy doc would have emptied discovery —
+which is itself a Play minimum-functionality rejection (see Corrections).
+With zero such docs the removal is free; had there been any, the backfill
+would have had to land first.
+
+The merchant docs needed no edit, which is the tell: `create-your-first-store`
+already promised "it appears to shoppers once you publish it. Nothing you do
+before that is visible to anyone else." That was false when written and is
+true now — the code caught up to the documentation, not the other way round.
+
+The one behaviour change to know: **a new store is now a draft**, so it needs
+submitting and approving before it appears to anyone — including the next
+test store. Discovery must stay non-empty (the two published stores are
+untouched by this).
 
 ---
 

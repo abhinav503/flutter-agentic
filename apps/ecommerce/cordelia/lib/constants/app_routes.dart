@@ -29,6 +29,12 @@ abstract final class AppRoutes {
   /// exists, so `extra` is never null here.
   static const editProfile = '/edit-profile';
   static const changePassword = '/change-password';
+
+  /// Help & Support. An order id may travel via GoRouter's `extra` (a plain
+  /// String, since the screen needs nothing else off the order) — set when
+  /// the shopper arrived from an order they were tracking, which puts the
+  /// number in the support message instead of asking them to find it.
+  static const support = '/support';
   static const cart = '/cart';
 
   /// The chosen delivery address travels via GoRouter's `extra` — the Cart

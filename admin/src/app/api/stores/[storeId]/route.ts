@@ -7,13 +7,24 @@ import {
 } from "@/lib/api/admin-guard";
 import { getTemplates } from "@/lib/templates";
 import { serializeStore } from "@/lib/api/serializers";
-import { normalizeStoreStatus } from "@/lib/store-status";
+import { isPubliclyVisible, normalizeStoreStatus } from "@/lib/store-status";
 import {
   MAX_DELIVERY_AREAS,
   mapStoreDelivery,
   normalizeDeliveryAreas,
 } from "@/lib/delivery";
-import { STORE_CURRENCIES, STORE_LANGUAGES, type Store } from "@/lib/types";
+import {
+  MAX_SUPPORT_HOURS_LENGTH,
+  isSupportEmail,
+  isSupportPhone,
+  mapStoreSupport,
+} from "@/lib/support";
+import {
+  MAX_STORE_ADDRESS_LENGTH,
+  STORE_CURRENCIES,
+  STORE_LANGUAGES,
+  type Store,
+} from "@/lib/types";
 
 // Same doc→Store defaults as mapStoreDoc in src/lib/stores.ts, but over an
 // Admin-SDK snapshot (that helper is typed to the client SDK the dashboard
@@ -27,6 +38,7 @@ function mapAdminStoreDoc(
     name: (data.name as string) ?? "",
     logoUrl: (data.logoUrl as string) ?? "",
     description: (data.description as string) ?? "",
+    address: (data.address as string) ?? "",
     ownerUid: (data.ownerUid as string) ?? "",
     status: normalizeStoreStatus(data.status),
     rejectionReason: (data.rejectionReason as string) ?? "",
@@ -36,6 +48,7 @@ function mapAdminStoreDoc(
     language: (data.language as string) ?? "en",
     currency: (data.currency as string) ?? "INR",
     delivery: mapStoreDelivery(data.delivery),
+    support: mapStoreSupport(data.support),
     createdAtMs:
       (data.createdAt as FirebaseFirestore.Timestamp | null | undefined)?.toMillis() ??
       0,
@@ -53,6 +66,12 @@ function money(value: unknown): number | null {
   return Math.round(n * 100) / 100;
 }
 
+// A trimmed string off the request body. Non-strings become "" rather than
+// "undefined" — this is a form field the owner may deliberately be clearing.
+function str(value: unknown): string {
+  return typeof value === "string" ? value.trim() : "";
+}
+
 // Public single-store read — same world-readable reasoning as the
 // discovery GET in ../route.ts.
 export async function GET(
@@ -62,7 +81,12 @@ export async function GET(
   const { storeId } = await params;
   const snap = await adminDb.collection("stores").doc(storeId).get();
   const data = snap.data();
-  if (!data || data.status !== "active") {
+  // Through the normalizer, like every other reader. This used to compare
+  // raw against the pre-lifecycle `"active"`, so a store that reached
+  // `published` the ordinary way — submit, approve — answered 404 here. The
+  // path that breaks is the notification tap: a push carries only a store
+  // id, and mounting the storefront behind it starts with this call.
+  if (!data || !isPubliclyVisible(normalizeStoreStatus(data.status))) {
     return NextResponse.json({ error: "Store not found" }, { status: 404 });
   }
   return NextResponse.json({
@@ -106,6 +130,27 @@ export async function PUT(
   if (body.description !== undefined) {
     update.description =
       typeof body.description === "string" ? body.description.trim() : "";
+  }
+  if (body.address !== undefined) {
+    const address = str(body.address);
+    // Refused only when the key is *sent* empty — this is a partial update,
+    // so the Support and Delivery forms, which send neither name nor address,
+    // must keep saving. Publishing is gated separately in store-readiness.
+    if (!address) {
+      return NextResponse.json(
+        { error: "address cannot be empty" },
+        { status: 400 },
+      );
+    }
+    if (address.length > MAX_STORE_ADDRESS_LENGTH) {
+      return NextResponse.json(
+        {
+          error: `Address must be ${MAX_STORE_ADDRESS_LENGTH} characters or fewer`,
+        },
+        { status: 400 },
+      );
+    }
+    update.address = address;
   }
   if (body.logoUrl !== undefined) {
     update.logoUrl = typeof body.logoUrl === "string" ? body.logoUrl.trim() : "";
@@ -193,6 +238,38 @@ export async function PUT(
       freeAbove,
       areas: normalizeDeliveryAreas(raw.areas),
     };
+  }
+
+  if (body.support !== undefined) {
+    // Whole map, same reasoning as delivery: the form edits the three
+    // together, and a partial write could leave opening hours advertised
+    // against a contact that has since been removed.
+    const raw = (body.support ?? {}) as Record<string, unknown>;
+    const email = str(raw.email);
+    const phone = str(raw.phone);
+    const hours = str(raw.hours);
+    // Empty is always allowed — publishing no contact is a legitimate choice
+    // (the app falls back to the platform address), and requiring one here
+    // would lock an owner out of *clearing* a stale address.
+    if (email && !isSupportEmail(email)) {
+      return NextResponse.json(
+        { error: `"${email}" is not a valid email address` },
+        { status: 400 },
+      );
+    }
+    if (phone && !isSupportPhone(phone)) {
+      return NextResponse.json(
+        { error: `"${phone}" is not a valid phone number` },
+        { status: 400 },
+      );
+    }
+    if (hours.length > MAX_SUPPORT_HOURS_LENGTH) {
+      return NextResponse.json(
+        { error: `Opening hours must be ${MAX_SUPPORT_HOURS_LENGTH} characters or fewer` },
+        { status: 400 },
+      );
+    }
+    update.support = { email, phone, hours };
   }
 
   if (Object.keys(update).length === 0) {

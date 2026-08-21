@@ -664,6 +664,150 @@ abstract class AppLocalizations {
   /// **'Something went wrong loading your profile.'**
   String get profileLoadErrorMessage;
 
+  /// No description provided for @helpAndSupportLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Help & Support'**
+  String get helpAndSupportLabel;
+
+  /// No description provided for @supportIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell us what went wrong and we\'ll get it put right.'**
+  String get supportIntro;
+
+  /// Header of the store's own contact block on Help & Support. {storeName} is the store as the shopper knows it.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact {storeName}'**
+  String supportStoreSectionTitle(String storeName);
+
+  /// No description provided for @supportStoreSectionSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'For anything about an order — a wrong item, a late delivery, or a refund that hasn\'t arrived.'**
+  String get supportStoreSectionSubtitle;
+
+  /// No description provided for @supportEmailAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Send an email'**
+  String get supportEmailAction;
+
+  /// No description provided for @supportCallAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Call'**
+  String get supportCallAction;
+
+  /// When the store answers. {hours} is free text the store owner wrote in the store's own language and is printed verbatim — never reformat or translate it.
+  ///
+  /// In en, this message translates to:
+  /// **'Replies {hours}'**
+  String supportHoursLabel(String hours);
+
+  /// No description provided for @supportPlatformSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'CordeliaApps'**
+  String get supportPlatformSectionTitle;
+
+  /// No description provided for @supportPlatformSectionSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'For your account, signing in, or a problem with the app itself.'**
+  String get supportPlatformSectionSubtitle;
+
+  /// No description provided for @supportPlatformOnlySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This store hasn\'t published a contact yet. Write to us and we\'ll pass anything about an order on to them.'**
+  String get supportPlatformOnlySubtitle;
+
+  /// No description provided for @supportPolicySectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Policies'**
+  String get supportPolicySectionTitle;
+
+  /// No description provided for @supportRefundPolicyAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Refund & cancellation policy'**
+  String get supportRefundPolicyAction;
+
+  /// Build identifier shown at the foot of Help & Support and repeated in the support email. {version} is like '1.0.4 (4)'.
+  ///
+  /// In en, this message translates to:
+  /// **'Cordelia {version}'**
+  String supportAppVersionLabel(String version);
+
+  /// No description provided for @supportOrderCtaLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Need help with this order?'**
+  String get supportOrderCtaLabel;
+
+  /// Shown when no mail or phone app could be opened. {value} is the address or number, which has been copied to the clipboard so the shopper still has it.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t open that app. {value} is on your clipboard instead.'**
+  String supportLaunchFailedMessage(String value);
+
+  /// Subject line of a support email started from a specific order.
+  ///
+  /// In en, this message translates to:
+  /// **'Help with order {orderId}'**
+  String supportEmailSubjectOrder(String orderId);
+
+  /// Subject line of a support email started from Help & Support inside a store.
+  ///
+  /// In en, this message translates to:
+  /// **'Help with {storeName}'**
+  String supportEmailSubjectStore(String storeName);
+
+  /// No description provided for @supportEmailSubjectPlatform.
+  ///
+  /// In en, this message translates to:
+  /// **'Help with CordeliaApps'**
+  String get supportEmailSubjectPlatform;
+
+  /// No description provided for @supportEmailBodyPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Please describe what went wrong:'**
+  String get supportEmailBodyPrompt;
+
+  /// No description provided for @supportEmailBodyDetailsHeading.
+  ///
+  /// In en, this message translates to:
+  /// **'Details for support — please leave these in.'**
+  String get supportEmailBodyDetailsHeading;
+
+  /// No description provided for @supportEmailOrderLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Order'**
+  String get supportEmailOrderLabel;
+
+  /// No description provided for @supportEmailStoreLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Store'**
+  String get supportEmailStoreLabel;
+
+  /// No description provided for @supportEmailAccountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get supportEmailAccountLabel;
+
+  /// No description provided for @supportEmailAppLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'App'**
+  String get supportEmailAppLabel;
+
   /// No description provided for @sortRelevanceLabel.
   ///
   /// In en, this message translates to:

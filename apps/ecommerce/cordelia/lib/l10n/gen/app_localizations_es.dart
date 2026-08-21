@@ -335,6 +335,94 @@ class AppLocalizationsEs extends AppLocalizations {
       'Se ha producido un error al cargar tu perfil.';
 
   @override
+  String get helpAndSupportLabel => 'Ayuda y soporte';
+
+  @override
+  String get supportIntro => 'Cuéntanos qué ha salido mal y lo solucionaremos.';
+
+  @override
+  String supportStoreSectionTitle(String storeName) {
+    return 'Contactar con $storeName';
+  }
+
+  @override
+  String get supportStoreSectionSubtitle =>
+      'Para cualquier cosa sobre un pedido: un artículo equivocado, una entrega tardía o un reembolso que no ha llegado.';
+
+  @override
+  String get supportEmailAction => 'Enviar un correo';
+
+  @override
+  String get supportCallAction => 'Llamar';
+
+  @override
+  String supportHoursLabel(String hours) {
+    return 'Responde $hours';
+  }
+
+  @override
+  String get supportPlatformSectionTitle => 'CordeliaApps';
+
+  @override
+  String get supportPlatformSectionSubtitle =>
+      'Para tu cuenta, el inicio de sesión o un problema con la propia aplicación.';
+
+  @override
+  String get supportPlatformOnlySubtitle =>
+      'Esta tienda aún no ha publicado un contacto. Escríbenos y le trasladaremos todo lo relativo a un pedido.';
+
+  @override
+  String get supportPolicySectionTitle => 'Políticas';
+
+  @override
+  String get supportRefundPolicyAction => 'Reembolso y cancelación';
+
+  @override
+  String supportAppVersionLabel(String version) {
+    return 'Cordelia $version';
+  }
+
+  @override
+  String get supportOrderCtaLabel => '¿Necesitas ayuda con este pedido?';
+
+  @override
+  String supportLaunchFailedMessage(String value) {
+    return 'No se ha podido abrir esa aplicación. $value está en el portapapeles.';
+  }
+
+  @override
+  String supportEmailSubjectOrder(String orderId) {
+    return 'Ayuda con el pedido $orderId';
+  }
+
+  @override
+  String supportEmailSubjectStore(String storeName) {
+    return 'Ayuda con $storeName';
+  }
+
+  @override
+  String get supportEmailSubjectPlatform => 'Ayuda con CordeliaApps';
+
+  @override
+  String get supportEmailBodyPrompt => 'Describe qué ha salido mal:';
+
+  @override
+  String get supportEmailBodyDetailsHeading =>
+      'Datos para soporte: déjalos, por favor.';
+
+  @override
+  String get supportEmailOrderLabel => 'Pedido';
+
+  @override
+  String get supportEmailStoreLabel => 'Tienda';
+
+  @override
+  String get supportEmailAccountLabel => 'Cuenta';
+
+  @override
+  String get supportEmailAppLabel => 'Aplicación';
+
+  @override
   String get sortRelevanceLabel => 'Relevancia';
 
   @override

@@ -30,6 +30,12 @@ class GrofastMenuTile extends StatelessWidget {
   /// Tints the glyph — omit for the pack's default `cs.primary`.
   final Color? iconColor;
 
+  /// A second line under [label], which lets the card grow past the kit's
+  /// fixed 60px. Help & Support's rows print the address or number they open
+  /// — the thing a shopper is left reading when nothing on the device can
+  /// open it. Rows without one keep the kit's proportions exactly.
+  final String? subtitle;
+
   /// Set false on a terminal row (Log Out), which the kit draws without one.
   final bool showChevron;
 
@@ -42,6 +48,7 @@ class GrofastMenuTile extends StatelessWidget {
     required this.label,
     this.asset,
     this.icon,
+    this.subtitle,
     this.onTap,
     this.iconColor,
     this.showChevron = true,
@@ -64,10 +71,18 @@ class GrofastMenuTile extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
-        child: SizedBox(
-          height: GrofastDimenConst.menuRowHeight,
+        child: ConstrainedBox(
+          // A subtitled row is sized by its content: pinning the kit's height
+          // would clip the second line, and the card is the same shape either
+          // way.
+          constraints: const BoxConstraints(
+            minHeight: GrofastDimenConst.menuRowHeight,
+          ),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl2),
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.xl2,
+              vertical: AppSpacing.xs,
+            ),
             child: Row(
               children: [
                 asset != null
@@ -80,13 +95,28 @@ class GrofastMenuTile extends StatelessWidget {
                     : Icon(icon, size: AppSpacing.xl4, color: glyphColor),
                 const SizedBox(width: AppSpacing.lg),
                 Expanded(
-                  child: Text(
-                    label,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: GrofastTextStyleConst.bodyMedium(
-                      tt,
-                    ).copyWith(color: cs.onSurfaceVariant),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        label,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: GrofastTextStyleConst.bodyMedium(
+                          tt,
+                        ).copyWith(color: cs.onSurfaceVariant),
+                      ),
+                      if (subtitle != null)
+                        Text(
+                          subtitle!,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: GrofastTextStyleConst.bodySmall(
+                            tt,
+                          ).copyWith(color: cs.onSurfaceVariant),
+                        ),
+                    ],
                   ),
                 ),
                 if (trailing != null)

@@ -14,6 +14,7 @@ import 'package:core/core/ui/atoms/button.dart';
 import 'package:cordelia/enums/order_status.dart';
 import 'package:cordelia/feature/storefront/orders/domain/entities/order_entity.dart';
 import 'package:cordelia/feature/storefront/orders/domain/entities/order_line_item_entity.dart';
+import 'package:cordelia/feature/support/presentation/view/support_order_link.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_color_const.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_dimen_const.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_text_style_const.dart';
@@ -314,6 +315,8 @@ class _TrackOrderContent extends StatelessWidget {
             ),
           ],
         ),
+        const SizedBox(height: AppSpacing.xs),
+        SupportOrderLink(orderId: order.id),
       ],
     );
   }

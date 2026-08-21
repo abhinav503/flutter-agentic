@@ -21,6 +21,12 @@ import 'package:cordelia/templates/dailymart/constants/dailymart_text_style_cons
 /// convention as [DailyMartIconDisc], so a fallback is visible at the call
 /// site rather than hidden inside the wrapper.
 ///
+/// [subtitle] puts a second line under the label and lets the strip grow
+/// past its fixed height — Help & Support's rows print the address or number
+/// they will open, which is what a shopper falls back to reading when
+/// nothing on the device can open it. Rows without one keep the kit's
+/// single-line 52px strip exactly.
+///
 /// [trailing] replaces the chevron (Dark Mode passes a switch); pass
 /// [iconColor] for a row whose glyph carries meaning of its own (Logout's
 /// red), and [flipIconHorizontally] for the Logout glyph specifically — see
@@ -29,6 +35,7 @@ class DailyMartMenuTile extends StatelessWidget {
   final String? asset;
   final IconData? icon;
   final String label;
+  final String? subtitle;
   final VoidCallback? onTap;
   final Widget? trailing;
   final Color? iconColor;
@@ -39,6 +46,7 @@ class DailyMartMenuTile extends StatelessWidget {
     this.asset,
     this.icon,
     required this.label,
+    this.subtitle,
     this.onTap,
     this.trailing,
     this.iconColor,
@@ -76,8 +84,19 @@ class DailyMartMenuTile extends StatelessWidget {
         onTap: onTap,
         borderRadius: AppRadius.lg,
         child: Container(
-          height: DailyMartDimenConst.menuRowHeight,
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+          // A subtitled row is sized by its content instead: pinning the
+          // kit's height would clip the second line, and the strip is the
+          // same shape either way.
+          height: subtitle == null
+              ? DailyMartDimenConst.menuRowHeight
+              : null,
+          constraints: const BoxConstraints(
+            minHeight: DailyMartDimenConst.menuRowHeight,
+          ),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.lg,
+            vertical: AppSpacing.xs,
+          ),
           decoration: BoxDecoration(
             border: Border.all(color: cs.outline),
             borderRadius: AppRadius.lg,
@@ -87,13 +106,28 @@ class DailyMartMenuTile extends StatelessWidget {
               leading,
               const SizedBox(width: AppSpacing.xs),
               Expanded(
-                child: Text(
-                  label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: DailyMartTextStyleConst.bodySmMedium(
-                    tt,
-                  ).copyWith(color: cs.onSurface),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      label,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: DailyMartTextStyleConst.bodySmMedium(
+                        tt,
+                      ).copyWith(color: cs.onSurface),
+                    ),
+                    if (subtitle != null)
+                      Text(
+                        subtitle!,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: DailyMartTextStyleConst.bodyXsMedium(
+                          tt,
+                        ).copyWith(color: cs.onSurfaceVariant),
+                      ),
+                  ],
                 ),
               ),
               const SizedBox(width: AppSpacing.xs),
