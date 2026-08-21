@@ -6,12 +6,14 @@ import 'package:core/core/theme/app_shapes_extension.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/network_image.dart';
 
+import 'package:cordelia/constants/value_const.dart';
 import 'package:cordelia/enums/product_unit_type.dart';
 import 'package:cordelia/feature/storefront/home/domain/entities/product_entity.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_dimen_const.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_text_style_const.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_value_const.dart';
 
+import 'dailymart_product_card.dart';
 import 'dailymart_quantity_stepper.dart';
 
 /// The pack's product line (kit frames `24`/`25`): a recessed card with the
@@ -36,6 +38,12 @@ class DailyMartProductListTile extends StatelessWidget {
   final double? unitPrice;
   final double? packSize;
 
+  /// Why this line can't be bought as it stands, taking the pack-size
+  /// subtitle's slot. A cart row passes `item.availabilityLabel`, which also
+  /// covers "only N left" — a quantity problem the tile can't see from the
+  /// product alone. A sold-out product falls back to saying so without it.
+  final String? unavailableLabel;
+
   const DailyMartProductListTile({
     super.key,
     required this.product,
@@ -45,6 +53,7 @@ class DailyMartProductListTile extends StatelessWidget {
     this.showStepper = true,
     this.unitPrice,
     this.packSize,
+    this.unavailableLabel,
   });
 
   @override
@@ -52,6 +61,9 @@ class DailyMartProductListTile extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
     final shapes = context.appShapes;
+    final soldOut = product.isOutOfStock;
+    final unavailable =
+        unavailableLabel ?? (soldOut ? ValueConst.outOfStockLabel : null);
 
     return Container(
       padding: const EdgeInsets.all(AppSpacing.base),
@@ -67,7 +79,13 @@ class DailyMartProductListTile extends StatelessWidget {
               width: DailyMartDimenConst.cartThumbSize,
               height: DailyMartDimenConst.cartThumbSize,
               color: cs.surfaceContainerHighest,
-              child: AppNetworkImage(url: product.imageUrl, fit: BoxFit.cover),
+              child: Opacity(
+                opacity: soldOut ? DailyMartProductCard.soldOutImageOpacity : 1,
+                child: AppNetworkImage(
+                  url: product.imageUrl,
+                  fit: BoxFit.cover,
+                ),
+              ),
             ),
           ),
           const SizedBox(width: AppSpacing.base),
@@ -84,11 +102,15 @@ class DailyMartProductListTile extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: AppSpacing.xs4),
+                // The pack size gives way to the reason this line can't be
+                // bought — a cart row has one subtitle slot, and which pack
+                // of an unavailable product this is doesn't help anyone.
                 Text(
-                  product.unitType.format(packSize ?? product.unitValue),
-                  style: DailyMartTextStyleConst.bodySmRegular(
-                    tt,
-                  ).copyWith(color: cs.onSurfaceVariant),
+                  unavailable ??
+                      product.unitType.format(packSize ?? product.unitValue),
+                  style: DailyMartTextStyleConst.bodySmRegular(tt).copyWith(
+                    color: unavailable == null ? cs.onSurfaceVariant : cs.error,
+                  ),
                 ),
                 const SizedBox(height: AppSpacing.xs2),
                 Row(

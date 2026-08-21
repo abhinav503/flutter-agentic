@@ -26,6 +26,18 @@ class CartCubit extends Cubit<List<CartItemEntity>> {
   // stores doesn't leak the previous store's items into the new one.
   String? _storeId;
 
+  // Bumped by every local mutation. A server fetch captures it before it
+  // starts and drops its result if it changed while in flight — otherwise a
+  // refresh landing just after a tap on **+** would put the pre-tap cart back
+  // on screen.
+  int _revision = 0;
+
+  // The last persist, so a fetch can wait for it. `_emitAndPersist` fires the
+  // PUT without awaiting (the UI must not wait on the network), which leaves
+  // a window where a GET would read back the cart as it was *before* the
+  // mutation and then save that over it.
+  Future<void>? _pendingSave;
+
   CartCubit({
     required GetCartUseCase getCartUseCase,
     required SaveCartUseCase saveCartUseCase,
@@ -46,7 +58,31 @@ class CartCubit extends Cubit<List<CartItemEntity>> {
       // cart, so don't leave them on screen while the fresh fetch is in flight.
       emit(const []);
     }
+    await _fetch(storeId);
+  }
+
+  /// Re-reads the same store's cart from the server, which re-prices every
+  /// line and re-checks its stock against the live catalog. Called where a
+  /// stale line stops being cosmetic and starts costing money — opening the
+  /// Cart, opening Checkout, and after a checkout the server turned down —
+  /// since [hydrate] otherwise runs only once, when the storefront mounts.
+  ///
+  /// Silent: the rows are already on screen and a failed refresh just leaves
+  /// them as they were, same reasoning as [hydrate]'s ignored failure.
+  Future<void> refresh() async {
+    final storeId = _storeId;
+    if (storeId == null) return;
+    await _fetch(storeId);
+  }
+
+  Future<void> _fetch(String storeId) async {
+    // Order matters: wait out any in-flight save first, then snapshot the
+    // revision, so the result can only be discarded for a mutation that
+    // happened *during* the fetch.
+    await _pendingSave;
+    final revision = _revision;
     final result = await _getCart(GetCartParams(storeId: storeId));
+    if (_revision != revision || _storeId != storeId) return;
     result.fold((failure) {}, (items) => emit(items));
   }
 
@@ -146,10 +182,13 @@ class CartCubit extends Cubit<List<CartItemEntity>> {
   void reset() => emit(const []);
 
   void _emitAndPersist(List<CartItemEntity> items) {
+    _revision++;
     emit(items);
     final storeId = _storeId;
     if (storeId != null) {
-      unawaited(_saveCart(SaveCartParams(storeId: storeId, items: items)));
+      final save = _saveCart(SaveCartParams(storeId: storeId, items: items));
+      _pendingSave = save;
+      unawaited(save);
     }
   }
 }

@@ -23,6 +23,12 @@ class ProductEntity {
   final double ratingAverage;
   final int reviewCount;
 
+  /// Units the store has left, or null when the backend didn't say. The
+  /// server enforces this at both checkout steps, so a storefront that
+  /// ignored it would let a shopper fill a cart it can never pay for.
+  /// Null is deliberately *not* zero — see [ProductEntityStockX].
+  final int? stock;
+
   const ProductEntity({
     required this.id,
     required this.name,
@@ -36,9 +42,40 @@ class ProductEntity {
     required this.isFavourite,
     this.ratingAverage = 0,
     this.reviewCount = 0,
+    this.stock,
   });
 }
 
 extension ProductEntityRatingX on ProductEntity {
   bool get hasRating => reviewCount > 0;
+}
+
+extension ProductEntityStockX on ProductEntity {
+  /// Below this many units left, a product says so on its card and its
+  /// details page. A threshold, not a rule of nature: high enough that a
+  /// shopper has time to act on it, low enough that an ordinary grocery
+  /// shelf isn't shouting on every tile.
+  static const int lowStockThreshold = 5;
+
+  /// Unknown stock ([stock] null) sells: refusing a sale because the backend
+  /// stayed silent would break every storefront the moment it talks to an
+  /// API older than this field.
+  bool get isOutOfStock => stock != null && stock! <= 0;
+
+  bool get isInStock => !isOutOfStock;
+
+  /// Running out, but still buyable — the state worth telling a shopper
+  /// about while they can still do something about it. Unknown stock is
+  /// never low: the backend said nothing, which is not the same as saying
+  /// "few".
+  bool get isLowStock {
+    final left = stock;
+    return left != null && left > 0 && left < lowStockThreshold;
+  }
+
+  /// The most a shopper may put in the cart, or null when unbounded — what
+  /// a quantity stepper caps at, so the cart can't be built to fail at
+  /// payment. Zero stock has no ceiling to express: nothing is addable, and
+  /// the add control is disabled outright.
+  int? get purchaseLimit => isOutOfStock ? null : stock;
 }

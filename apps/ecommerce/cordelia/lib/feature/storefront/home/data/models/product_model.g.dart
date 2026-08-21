@@ -20,6 +20,7 @@ _ProductModel _$ProductModelFromJson(Map<String, dynamic> json) =>
       isFavourite: json['is_favourite'] as bool? ?? false,
       ratingAverage: (json['rating_average'] as num?)?.toDouble() ?? 0.0,
       reviewCount: (json['review_count'] as num?)?.toInt() ?? 0,
+      stock: (json['stock'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$ProductModelToJson(_ProductModel instance) =>
@@ -36,4 +37,5 @@ Map<String, dynamic> _$ProductModelToJson(_ProductModel instance) =>
       'is_favourite': instance.isFavourite,
       'rating_average': instance.ratingAverage,
       'review_count': instance.reviewCount,
+      'stock': instance.stock,
     };

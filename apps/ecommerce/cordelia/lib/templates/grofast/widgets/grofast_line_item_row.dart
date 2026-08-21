@@ -27,6 +27,11 @@ class GrofastLineItemRow extends StatelessWidget {
 
   /// The pack size line under the name ("3 kg").
   final String? subtitle;
+
+  /// Overrides the subtitle's muted ink — the Bag prints `cs.error` there
+  /// when the line can't be bought as it stands (sold out, or more units
+  /// than remain).
+  final Color? subtitleColor;
   final double price;
 
   /// The per-unit suffix on the price. Omit on rows whose price is already a
@@ -47,6 +52,7 @@ class GrofastLineItemRow extends StatelessWidget {
     required this.name,
     required this.price,
     this.subtitle,
+    this.subtitleColor,
     this.unit,
     this.topTrailing,
     this.trailing,
@@ -91,9 +97,9 @@ class GrofastLineItemRow extends StatelessWidget {
                         const SizedBox(height: AppSpacing.xs4),
                         Text(
                           subtitle!,
-                          style: GrofastTextStyleConst.meta(
-                            tt,
-                          ).copyWith(color: cs.onSurfaceVariant),
+                          style: GrofastTextStyleConst.meta(tt).copyWith(
+                            color: subtitleColor ?? cs.onSurfaceVariant,
+                          ),
                         ),
                       ],
                       const SizedBox(height: AppSpacing.xs3),
@@ -137,7 +143,10 @@ class GrofastLineItemRow extends StatelessWidget {
 /// re-specifying every key, so the pack draws its own.
 class GrofastQuantityStepper extends StatelessWidget {
   final int quantity;
-  final VoidCallback onIncrement;
+
+  /// Null disables the plus — the ceiling is the product's remaining stock,
+  /// so a shopper can't build a quantity checkout will refuse.
+  final VoidCallback? onIncrement;
 
   /// Null disables the minus (the pack floors quantity at 1 rather than
   /// letting a stepper delete the row).

@@ -20,7 +20,12 @@ mixin _$ProductModel {
 @JsonKey(name: 'unit_type') String get unitType;@JsonKey(name: 'prep_time') String get prepTime;@JsonKey(name: 'is_favourite') bool get isFavourite;// Defaulted, not required: a store whose products predate reviews (or a
 // mock fixture) answers without these keys, and an unrated product is
 // exactly what zeros mean.
-@JsonKey(name: 'rating_average') double get ratingAverage;@JsonKey(name: 'review_count') int get reviewCount;
+@JsonKey(name: 'rating_average') double get ratingAverage;@JsonKey(name: 'review_count') int get reviewCount;// Nullable rather than defaulted: 0 is a real answer ("sold out") and an
+// absent key is a different one ("this backend doesn't say"). Defaulting
+// the missing case to 0 would render an entire catalog sold out against
+// an older API, so unknown stays unknown and sells — see
+// ProductEntityStockX.
+ int? get stock;
 /// Create a copy of ProductModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -33,16 +38,16 @@ $ProductModelCopyWith<ProductModel> get copyWith => _$ProductModelCopyWithImpl<P
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProductModel&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.image, image) || other.image == image)&&(identical(other.price, price) || other.price == price)&&(identical(other.originalPrice, originalPrice) || other.originalPrice == originalPrice)&&(identical(other.discountPercentage, discountPercentage) || other.discountPercentage == discountPercentage)&&(identical(other.unitValue, unitValue) || other.unitValue == unitValue)&&(identical(other.unitType, unitType) || other.unitType == unitType)&&(identical(other.prepTime, prepTime) || other.prepTime == prepTime)&&(identical(other.isFavourite, isFavourite) || other.isFavourite == isFavourite)&&(identical(other.ratingAverage, ratingAverage) || other.ratingAverage == ratingAverage)&&(identical(other.reviewCount, reviewCount) || other.reviewCount == reviewCount));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProductModel&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.image, image) || other.image == image)&&(identical(other.price, price) || other.price == price)&&(identical(other.originalPrice, originalPrice) || other.originalPrice == originalPrice)&&(identical(other.discountPercentage, discountPercentage) || other.discountPercentage == discountPercentage)&&(identical(other.unitValue, unitValue) || other.unitValue == unitValue)&&(identical(other.unitType, unitType) || other.unitType == unitType)&&(identical(other.prepTime, prepTime) || other.prepTime == prepTime)&&(identical(other.isFavourite, isFavourite) || other.isFavourite == isFavourite)&&(identical(other.ratingAverage, ratingAverage) || other.ratingAverage == ratingAverage)&&(identical(other.reviewCount, reviewCount) || other.reviewCount == reviewCount)&&(identical(other.stock, stock) || other.stock == stock));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,image,price,originalPrice,discountPercentage,unitValue,unitType,prepTime,isFavourite,ratingAverage,reviewCount);
+int get hashCode => Object.hash(runtimeType,id,name,image,price,originalPrice,discountPercentage,unitValue,unitType,prepTime,isFavourite,ratingAverage,reviewCount,stock);
 
 @override
 String toString() {
-  return 'ProductModel(id: $id, name: $name, image: $image, price: $price, originalPrice: $originalPrice, discountPercentage: $discountPercentage, unitValue: $unitValue, unitType: $unitType, prepTime: $prepTime, isFavourite: $isFavourite, ratingAverage: $ratingAverage, reviewCount: $reviewCount)';
+  return 'ProductModel(id: $id, name: $name, image: $image, price: $price, originalPrice: $originalPrice, discountPercentage: $discountPercentage, unitValue: $unitValue, unitType: $unitType, prepTime: $prepTime, isFavourite: $isFavourite, ratingAverage: $ratingAverage, reviewCount: $reviewCount, stock: $stock)';
 }
 
 
@@ -53,7 +58,7 @@ abstract mixin class $ProductModelCopyWith<$Res>  {
   factory $ProductModelCopyWith(ProductModel value, $Res Function(ProductModel) _then) = _$ProductModelCopyWithImpl;
 @useResult
 $Res call({
- String id, String name, String image, double price,@JsonKey(name: 'original_price') double originalPrice,@JsonKey(name: 'discount_percentage') double discountPercentage,@JsonKey(name: 'unit_value') double unitValue,@JsonKey(name: 'unit_type') String unitType,@JsonKey(name: 'prep_time') String prepTime,@JsonKey(name: 'is_favourite') bool isFavourite,@JsonKey(name: 'rating_average') double ratingAverage,@JsonKey(name: 'review_count') int reviewCount
+ String id, String name, String image, double price,@JsonKey(name: 'original_price') double originalPrice,@JsonKey(name: 'discount_percentage') double discountPercentage,@JsonKey(name: 'unit_value') double unitValue,@JsonKey(name: 'unit_type') String unitType,@JsonKey(name: 'prep_time') String prepTime,@JsonKey(name: 'is_favourite') bool isFavourite,@JsonKey(name: 'rating_average') double ratingAverage,@JsonKey(name: 'review_count') int reviewCount, int? stock
 });
 
 
@@ -70,7 +75,7 @@ class _$ProductModelCopyWithImpl<$Res>
 
 /// Create a copy of ProductModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? image = null,Object? price = null,Object? originalPrice = null,Object? discountPercentage = null,Object? unitValue = null,Object? unitType = null,Object? prepTime = null,Object? isFavourite = null,Object? ratingAverage = null,Object? reviewCount = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? image = null,Object? price = null,Object? originalPrice = null,Object? discountPercentage = null,Object? unitValue = null,Object? unitType = null,Object? prepTime = null,Object? isFavourite = null,Object? ratingAverage = null,Object? reviewCount = null,Object? stock = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
@@ -84,7 +89,8 @@ as String,prepTime: null == prepTime ? _self.prepTime : prepTime // ignore: cast
 as String,isFavourite: null == isFavourite ? _self.isFavourite : isFavourite // ignore: cast_nullable_to_non_nullable
 as bool,ratingAverage: null == ratingAverage ? _self.ratingAverage : ratingAverage // ignore: cast_nullable_to_non_nullable
 as double,reviewCount: null == reviewCount ? _self.reviewCount : reviewCount // ignore: cast_nullable_to_non_nullable
-as int,
+as int,stock: freezed == stock ? _self.stock : stock // ignore: cast_nullable_to_non_nullable
+as int?,
   ));
 }
 
@@ -169,10 +175,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  String image,  double price, @JsonKey(name: 'original_price')  double originalPrice, @JsonKey(name: 'discount_percentage')  double discountPercentage, @JsonKey(name: 'unit_value')  double unitValue, @JsonKey(name: 'unit_type')  String unitType, @JsonKey(name: 'prep_time')  String prepTime, @JsonKey(name: 'is_favourite')  bool isFavourite, @JsonKey(name: 'rating_average')  double ratingAverage, @JsonKey(name: 'review_count')  int reviewCount)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  String image,  double price, @JsonKey(name: 'original_price')  double originalPrice, @JsonKey(name: 'discount_percentage')  double discountPercentage, @JsonKey(name: 'unit_value')  double unitValue, @JsonKey(name: 'unit_type')  String unitType, @JsonKey(name: 'prep_time')  String prepTime, @JsonKey(name: 'is_favourite')  bool isFavourite, @JsonKey(name: 'rating_average')  double ratingAverage, @JsonKey(name: 'review_count')  int reviewCount,  int? stock)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ProductModel() when $default != null:
-return $default(_that.id,_that.name,_that.image,_that.price,_that.originalPrice,_that.discountPercentage,_that.unitValue,_that.unitType,_that.prepTime,_that.isFavourite,_that.ratingAverage,_that.reviewCount);case _:
+return $default(_that.id,_that.name,_that.image,_that.price,_that.originalPrice,_that.discountPercentage,_that.unitValue,_that.unitType,_that.prepTime,_that.isFavourite,_that.ratingAverage,_that.reviewCount,_that.stock);case _:
   return orElse();
 
 }
@@ -190,10 +196,10 @@ return $default(_that.id,_that.name,_that.image,_that.price,_that.originalPrice,
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  String image,  double price, @JsonKey(name: 'original_price')  double originalPrice, @JsonKey(name: 'discount_percentage')  double discountPercentage, @JsonKey(name: 'unit_value')  double unitValue, @JsonKey(name: 'unit_type')  String unitType, @JsonKey(name: 'prep_time')  String prepTime, @JsonKey(name: 'is_favourite')  bool isFavourite, @JsonKey(name: 'rating_average')  double ratingAverage, @JsonKey(name: 'review_count')  int reviewCount)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  String image,  double price, @JsonKey(name: 'original_price')  double originalPrice, @JsonKey(name: 'discount_percentage')  double discountPercentage, @JsonKey(name: 'unit_value')  double unitValue, @JsonKey(name: 'unit_type')  String unitType, @JsonKey(name: 'prep_time')  String prepTime, @JsonKey(name: 'is_favourite')  bool isFavourite, @JsonKey(name: 'rating_average')  double ratingAverage, @JsonKey(name: 'review_count')  int reviewCount,  int? stock)  $default,) {final _that = this;
 switch (_that) {
 case _ProductModel():
-return $default(_that.id,_that.name,_that.image,_that.price,_that.originalPrice,_that.discountPercentage,_that.unitValue,_that.unitType,_that.prepTime,_that.isFavourite,_that.ratingAverage,_that.reviewCount);case _:
+return $default(_that.id,_that.name,_that.image,_that.price,_that.originalPrice,_that.discountPercentage,_that.unitValue,_that.unitType,_that.prepTime,_that.isFavourite,_that.ratingAverage,_that.reviewCount,_that.stock);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -210,10 +216,10 @@ return $default(_that.id,_that.name,_that.image,_that.price,_that.originalPrice,
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  String image,  double price, @JsonKey(name: 'original_price')  double originalPrice, @JsonKey(name: 'discount_percentage')  double discountPercentage, @JsonKey(name: 'unit_value')  double unitValue, @JsonKey(name: 'unit_type')  String unitType, @JsonKey(name: 'prep_time')  String prepTime, @JsonKey(name: 'is_favourite')  bool isFavourite, @JsonKey(name: 'rating_average')  double ratingAverage, @JsonKey(name: 'review_count')  int reviewCount)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  String image,  double price, @JsonKey(name: 'original_price')  double originalPrice, @JsonKey(name: 'discount_percentage')  double discountPercentage, @JsonKey(name: 'unit_value')  double unitValue, @JsonKey(name: 'unit_type')  String unitType, @JsonKey(name: 'prep_time')  String prepTime, @JsonKey(name: 'is_favourite')  bool isFavourite, @JsonKey(name: 'rating_average')  double ratingAverage, @JsonKey(name: 'review_count')  int reviewCount,  int? stock)?  $default,) {final _that = this;
 switch (_that) {
 case _ProductModel() when $default != null:
-return $default(_that.id,_that.name,_that.image,_that.price,_that.originalPrice,_that.discountPercentage,_that.unitValue,_that.unitType,_that.prepTime,_that.isFavourite,_that.ratingAverage,_that.reviewCount);case _:
+return $default(_that.id,_that.name,_that.image,_that.price,_that.originalPrice,_that.discountPercentage,_that.unitValue,_that.unitType,_that.prepTime,_that.isFavourite,_that.ratingAverage,_that.reviewCount,_that.stock);case _:
   return null;
 
 }
@@ -225,7 +231,7 @@ return $default(_that.id,_that.name,_that.image,_that.price,_that.originalPrice,
 @JsonSerializable()
 
 class _ProductModel extends ProductModel {
-  const _ProductModel({required this.id, required this.name, required this.image, required this.price, @JsonKey(name: 'original_price') required this.originalPrice, @JsonKey(name: 'discount_percentage') required this.discountPercentage, @JsonKey(name: 'unit_value') required this.unitValue, @JsonKey(name: 'unit_type') required this.unitType, @JsonKey(name: 'prep_time') required this.prepTime, @JsonKey(name: 'is_favourite') this.isFavourite = false, @JsonKey(name: 'rating_average') this.ratingAverage = 0.0, @JsonKey(name: 'review_count') this.reviewCount = 0}): super._();
+  const _ProductModel({required this.id, required this.name, required this.image, required this.price, @JsonKey(name: 'original_price') required this.originalPrice, @JsonKey(name: 'discount_percentage') required this.discountPercentage, @JsonKey(name: 'unit_value') required this.unitValue, @JsonKey(name: 'unit_type') required this.unitType, @JsonKey(name: 'prep_time') required this.prepTime, @JsonKey(name: 'is_favourite') this.isFavourite = false, @JsonKey(name: 'rating_average') this.ratingAverage = 0.0, @JsonKey(name: 'review_count') this.reviewCount = 0, this.stock}): super._();
   factory _ProductModel.fromJson(Map<String, dynamic> json) => _$ProductModelFromJson(json);
 
 @override final  String id;
@@ -245,6 +251,12 @@ class _ProductModel extends ProductModel {
 // exactly what zeros mean.
 @override@JsonKey(name: 'rating_average') final  double ratingAverage;
 @override@JsonKey(name: 'review_count') final  int reviewCount;
+// Nullable rather than defaulted: 0 is a real answer ("sold out") and an
+// absent key is a different one ("this backend doesn't say"). Defaulting
+// the missing case to 0 would render an entire catalog sold out against
+// an older API, so unknown stays unknown and sells — see
+// ProductEntityStockX.
+@override final  int? stock;
 
 /// Create a copy of ProductModel
 /// with the given fields replaced by the non-null parameter values.
@@ -259,16 +271,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProductModel&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.image, image) || other.image == image)&&(identical(other.price, price) || other.price == price)&&(identical(other.originalPrice, originalPrice) || other.originalPrice == originalPrice)&&(identical(other.discountPercentage, discountPercentage) || other.discountPercentage == discountPercentage)&&(identical(other.unitValue, unitValue) || other.unitValue == unitValue)&&(identical(other.unitType, unitType) || other.unitType == unitType)&&(identical(other.prepTime, prepTime) || other.prepTime == prepTime)&&(identical(other.isFavourite, isFavourite) || other.isFavourite == isFavourite)&&(identical(other.ratingAverage, ratingAverage) || other.ratingAverage == ratingAverage)&&(identical(other.reviewCount, reviewCount) || other.reviewCount == reviewCount));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ProductModel&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.image, image) || other.image == image)&&(identical(other.price, price) || other.price == price)&&(identical(other.originalPrice, originalPrice) || other.originalPrice == originalPrice)&&(identical(other.discountPercentage, discountPercentage) || other.discountPercentage == discountPercentage)&&(identical(other.unitValue, unitValue) || other.unitValue == unitValue)&&(identical(other.unitType, unitType) || other.unitType == unitType)&&(identical(other.prepTime, prepTime) || other.prepTime == prepTime)&&(identical(other.isFavourite, isFavourite) || other.isFavourite == isFavourite)&&(identical(other.ratingAverage, ratingAverage) || other.ratingAverage == ratingAverage)&&(identical(other.reviewCount, reviewCount) || other.reviewCount == reviewCount)&&(identical(other.stock, stock) || other.stock == stock));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,image,price,originalPrice,discountPercentage,unitValue,unitType,prepTime,isFavourite,ratingAverage,reviewCount);
+int get hashCode => Object.hash(runtimeType,id,name,image,price,originalPrice,discountPercentage,unitValue,unitType,prepTime,isFavourite,ratingAverage,reviewCount,stock);
 
 @override
 String toString() {
-  return 'ProductModel(id: $id, name: $name, image: $image, price: $price, originalPrice: $originalPrice, discountPercentage: $discountPercentage, unitValue: $unitValue, unitType: $unitType, prepTime: $prepTime, isFavourite: $isFavourite, ratingAverage: $ratingAverage, reviewCount: $reviewCount)';
+  return 'ProductModel(id: $id, name: $name, image: $image, price: $price, originalPrice: $originalPrice, discountPercentage: $discountPercentage, unitValue: $unitValue, unitType: $unitType, prepTime: $prepTime, isFavourite: $isFavourite, ratingAverage: $ratingAverage, reviewCount: $reviewCount, stock: $stock)';
 }
 
 
@@ -279,7 +291,7 @@ abstract mixin class _$ProductModelCopyWith<$Res> implements $ProductModelCopyWi
   factory _$ProductModelCopyWith(_ProductModel value, $Res Function(_ProductModel) _then) = __$ProductModelCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String name, String image, double price,@JsonKey(name: 'original_price') double originalPrice,@JsonKey(name: 'discount_percentage') double discountPercentage,@JsonKey(name: 'unit_value') double unitValue,@JsonKey(name: 'unit_type') String unitType,@JsonKey(name: 'prep_time') String prepTime,@JsonKey(name: 'is_favourite') bool isFavourite,@JsonKey(name: 'rating_average') double ratingAverage,@JsonKey(name: 'review_count') int reviewCount
+ String id, String name, String image, double price,@JsonKey(name: 'original_price') double originalPrice,@JsonKey(name: 'discount_percentage') double discountPercentage,@JsonKey(name: 'unit_value') double unitValue,@JsonKey(name: 'unit_type') String unitType,@JsonKey(name: 'prep_time') String prepTime,@JsonKey(name: 'is_favourite') bool isFavourite,@JsonKey(name: 'rating_average') double ratingAverage,@JsonKey(name: 'review_count') int reviewCount, int? stock
 });
 
 
@@ -296,7 +308,7 @@ class __$ProductModelCopyWithImpl<$Res>
 
 /// Create a copy of ProductModel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? image = null,Object? price = null,Object? originalPrice = null,Object? discountPercentage = null,Object? unitValue = null,Object? unitType = null,Object? prepTime = null,Object? isFavourite = null,Object? ratingAverage = null,Object? reviewCount = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? image = null,Object? price = null,Object? originalPrice = null,Object? discountPercentage = null,Object? unitValue = null,Object? unitType = null,Object? prepTime = null,Object? isFavourite = null,Object? ratingAverage = null,Object? reviewCount = null,Object? stock = freezed,}) {
   return _then(_ProductModel(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
@@ -310,7 +322,8 @@ as String,prepTime: null == prepTime ? _self.prepTime : prepTime // ignore: cast
 as String,isFavourite: null == isFavourite ? _self.isFavourite : isFavourite // ignore: cast_nullable_to_non_nullable
 as bool,ratingAverage: null == ratingAverage ? _self.ratingAverage : ratingAverage // ignore: cast_nullable_to_non_nullable
 as double,reviewCount: null == reviewCount ? _self.reviewCount : reviewCount // ignore: cast_nullable_to_non_nullable
-as int,
+as int,stock: freezed == stock ? _self.stock : stock // ignore: cast_nullable_to_non_nullable
+as int?,
   ));
 }
 

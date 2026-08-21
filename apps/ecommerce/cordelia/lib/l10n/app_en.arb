@@ -177,6 +177,35 @@
   "reviewsEmptyTitle": "No reviews yet",
   "reviewsEmptySubtitle": "Be the first to rate this product and help other shoppers decide.",
   "unratedLabel": "No ratings yet",
+  "outOfStockLabel": "Out of Stock",
+  "onlyNLeftLabel": "{count, plural, one{Only 1 left} other{Only {count} left}}",
+  "@onlyNLeftLabel": {
+    "description": "Cart-row warning when the line holds more units than the store has left. Sits in a narrow subtitle slot beside the product name — keep it short.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cartUnavailableItemsMessage": "Some items in your cart are no longer available. Update your cart to continue.",
+  "productSoldOutMessage": "{name} just sold out. Update your cart to continue.",
+  "@productSoldOutMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "productStockReducedMessage": "There isn't enough {name} left. Update your cart to continue.",
+  "@productStockReducedMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "checkoutFailedMessage": "Your order couldn't be placed.",
+  "paymentRefundedNote": "Your payment has been refunded.",
   "rateOrderLabel": "Rate Order",
   "editOrderRatingLabel": "Edit Rating",
   "rateOrderSheetTitle": "How was this order?",

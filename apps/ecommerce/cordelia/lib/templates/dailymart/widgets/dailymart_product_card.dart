@@ -28,6 +28,10 @@ import 'package:cordelia/templates/dailymart/widgets/dailymart_pill.dart';
 /// this would mean overriding every slot (see spec sheet §12 — recorded so
 /// nobody "fixes" it back).
 class DailyMartProductCard extends StatelessWidget {
+  /// How far the photo fades once the product is unbuyable — public so the
+  /// pack's list tile fades by the same amount as its card.
+  static const double soldOutImageOpacity = 0.45;
+
   final ProductEntity product;
 
   /// Adds one unit straight to the cart — the green **+** disc. This pack has
@@ -53,6 +57,7 @@ class DailyMartProductCard extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
     final shapes = context.appShapes;
+    final soldOut = product.isOutOfStock;
 
     // Shadow on the outer box, surface inside it: a `boxShadow` declared on a
     // child of the Material paints *after* the white fill, so the two have to
@@ -87,6 +92,7 @@ class DailyMartProductCard extends StatelessWidget {
                   isFavourite: isFavourite,
                   onFavouriteToggle: onFavouriteToggle,
                   radius: shapes.cardRadius - AppSpacing.xs4,
+                  soldOut: soldOut,
                 ),
                 const SizedBox(height: AppSpacing.sm),
                 Padding(
@@ -123,7 +129,7 @@ class DailyMartProductCard extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(width: AppSpacing.xs),
-                          _AddButton(onTap: onAdd),
+                          _AddButton(onTap: soldOut ? null : onAdd),
                         ],
                       ),
                       const SizedBox(height: AppSpacing.xs3),
@@ -145,12 +151,14 @@ class _ImageWell extends StatelessWidget {
   final bool isFavourite;
   final VoidCallback? onFavouriteToggle;
   final double radius;
+  final bool soldOut;
 
   const _ImageWell({
     required this.product,
     required this.isFavourite,
     required this.onFavouriteToggle,
     required this.radius,
+    required this.soldOut,
   });
 
   @override
@@ -167,13 +175,40 @@ class _ImageWell extends StatelessWidget {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            AppNetworkImage(url: product.imageUrl, fit: BoxFit.cover),
+            // Faded rather than scrimmed — the pill on top of it says why,
+            // and a scrim would darken the white favourite disc beside it.
+            Opacity(
+              opacity: soldOut ? DailyMartProductCard.soldOutImageOpacity : 1,
+              child: AppNetworkImage(url: product.imageUrl, fit: BoxFit.cover),
+            ),
             Padding(
               padding: const EdgeInsets.all(AppSpacing.xs),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (product.discountPercentage > 0)
+                  // One pill, one corner: availability is the news when
+                  // there is any, so it takes the slot rather than stacking
+                  // a second pill into a 2-column grid cell.
+                  if (soldOut)
+                    DailyMartPill(
+                      label: ValueConst.outOfStockLabel,
+                      color: cs.onSurface,
+                      style: DailyMartTextStyleConst.bodyXsSemibold(
+                        Theme.of(context).textTheme,
+                      ).copyWith(color: cs.surface),
+                    )
+                  // Running low outranks the discount for the same slot: a
+                  // shopper can act on "nearly gone", and the price is right
+                  // below it either way.
+                  else if (product.isLowStock)
+                    DailyMartPill(
+                      label: ValueConst.onlyNLeftLabel(product.stock!),
+                      color: cs.error,
+                      style: DailyMartTextStyleConst.bodyXsSemibold(
+                        Theme.of(context).textTheme,
+                      ).copyWith(color: cs.onError),
+                    )
+                  else if (product.discountPercentage > 0)
                     DailyMartPill(
                       label: DailyMartValueConst.discountPercentOffLabel(
                         product.discountPercentage,
@@ -206,7 +241,9 @@ class _ImageWell extends StatelessWidget {
 }
 
 class _AddButton extends StatelessWidget {
-  final VoidCallback onTap;
+  /// Null while the product is sold out — the disc stays in place (the row
+  /// is laid out around it) but greys out and stops responding.
+  final VoidCallback? onTap;
 
   const _AddButton({required this.onTap});
 
@@ -218,13 +255,19 @@ class _AddButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
 
+    final enabled = onTap != null;
+
     return DailyMartIconDisc(
       asset: DailyMartImageConst.plus,
       onTap: onTap,
       size: DailyMartDimenConst.cardActionSize,
       iconSize: _glyphSize,
-      backgroundColor: cs.primary,
-      foregroundColor: cs.onPrimary,
+      backgroundColor: enabled
+          ? cs.primary
+          : cs.onSurface.withValues(alpha: 0.12),
+      foregroundColor: enabled
+          ? cs.onPrimary
+          : cs.onSurface.withValues(alpha: 0.38),
     );
   }
 }

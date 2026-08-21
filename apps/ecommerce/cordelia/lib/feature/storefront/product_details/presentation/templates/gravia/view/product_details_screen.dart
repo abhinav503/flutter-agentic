@@ -245,6 +245,17 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
                           discountPercentage,
                         ),
                       ),
+                      // Third here, unlike the card's two: the details page
+                      // has the full width to spend, so running low is added
+                      // to the row rather than taking the discount's place.
+                      if (product.isLowStock)
+                        ProductCardMeta(
+                          icon: GraviaProductCard.metaIcon(
+                            GraviaImageConst.flash,
+                          ),
+                          label: ValueConst.onlyNLeftLabel(product.stock!),
+                          labelColor: cs.error,
+                        ),
                     ],
                     labelStyle: GraviaTextStyleConst.textXsRegular(
                       tt,
@@ -328,8 +339,9 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
           storeId: widget.storeId,
           quantity: quantity,
           unitPrice: unitPrice,
-          onIncrement: incrementQuantity,
+          onIncrement: incrementQuantityUpTo(product.purchaseLimit),
           onDecrement: decrementQuantity,
+          soldOut: product.isOutOfStock,
           onAddToCart: () {
             addSelectedToCart(detail, quantity);
             resetQuantity();

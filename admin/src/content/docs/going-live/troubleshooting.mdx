@@ -55,7 +55,7 @@ In order of likelihood:
 | "Doesn't deliver here" | Their address is outside your [delivery areas](/docs/store-setup/delivery-and-areas). A prefix that's too specific excludes more than you meant. |
 | Payment sheet doesn't open | No provider connected, or it's saved but not activated — you have to choose **Use … for checkout**. |
 | Coupon rejected | A minimum, a window, or a usage limit. The app names which. |
-| Checkout fails with "Insufficient stock" | That product's stock is below what they're buying. Note the shopper could add it to the cart — stock isn't sent to the storefront, so it's only checked at checkout. |
+| Checkout fails with "Insufficient stock" | That product's stock dropped below what they're buying *after* they filled their cart. The app knows what's left now, so it normally refuses before payment; this is the race where it can't — and if they had already paid, the payment is refunded automatically ([details](/docs/orders/cancellations-and-refunds)). |
 
 ## A CSV import won't go through
 

@@ -3,8 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:core/core/theme/app_spacing.dart';
+import 'package:core/core/ui/atoms/button.dart';
 
 import 'package:cordelia/constants/app_routes.dart';
+import 'package:cordelia/constants/value_const.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_dimen_const.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_image_const.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_value_const.dart';
@@ -22,10 +24,16 @@ class DailyMartProductDetailBottomBar extends StatelessWidget {
   final String storeId;
   final VoidCallback onAddToCart;
 
+  /// Sold out: the pill turns into an inert "Out of Stock". The cart disc
+  /// beside it stays live — a cart that already holds other items is still
+  /// worth opening.
+  final bool soldOut;
+
   const DailyMartProductDetailBottomBar({
     super.key,
     required this.storeId,
     required this.onAddToCart,
+    this.soldOut = false,
   });
 
   @override
@@ -47,8 +55,13 @@ class DailyMartProductDetailBottomBar extends StatelessWidget {
               const SizedBox(width: AppSpacing.base),
               Expanded(
                 child: DailyMartPrimaryButton(
-                  label: DailyMartValueConst.addToCart,
-                  onTap: onAddToCart,
+                  label: soldOut
+                      ? ValueConst.outOfStockLabel
+                      : DailyMartValueConst.addToCart,
+                  onTap: soldOut ? null : onAddToCart,
+                  state: soldOut
+                      ? AppButtonState.disabled
+                      : AppButtonState.idle,
                 ),
               ),
             ],

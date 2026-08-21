@@ -5,6 +5,7 @@ import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/network_image.dart';
 import 'package:core/core/ui/atoms/svg_image.dart';
 
+import 'package:cordelia/constants/value_const.dart';
 import 'package:cordelia/enums/product_unit_type.dart';
 import 'package:cordelia/feature/storefront/home/domain/entities/product_entity.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_color_const.dart';
@@ -47,6 +48,10 @@ class GrofastProductCard extends StatelessWidget {
   /// staggers the two columns — see `GrofastProductGrid`.
   final double height;
 
+  /// Matches the other packs' sold-out fade, so the same product reads the
+  /// same wherever a shopper meets it.
+  static const double _soldOutImageOpacity = 0.45;
+
   const GrofastProductCard({
     super.key,
     required this.product,
@@ -62,6 +67,7 @@ class GrofastProductCard extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
     final radius = BorderRadius.circular(context.appShapes.cardRadius);
+    final soldOut = product.isOutOfStock;
 
     return SizedBox(
       height: height,
@@ -85,9 +91,12 @@ class GrofastProductCard extends StatelessWidget {
                         padding: const EdgeInsets.all(
                           GrofastDimenConst.productImageInset,
                         ),
-                        child: AppNetworkImage(
-                          url: product.imageUrl,
-                          fit: BoxFit.contain,
+                        child: Opacity(
+                          opacity: soldOut ? _soldOutImageOpacity : 1,
+                          child: AppNetworkImage(
+                            url: product.imageUrl,
+                            fit: BoxFit.contain,
+                          ),
                         ),
                       ),
                     ),
@@ -121,8 +130,26 @@ class GrofastProductCard extends StatelessWidget {
             Positioned(
               right: 0,
               bottom: 0,
-              child: _AddButton(onTap: onAdd, cardRadius: radius.bottomRight),
+              child: _AddButton(
+                onTap: soldOut ? null : onAdd,
+                cardRadius: radius.bottomRight,
+              ),
             ),
+            // Top-left, mirroring the heart — the card's only free corner,
+            // and the kit draws nothing there. Sold out reads as a neutral
+            // stamp, running low as a warning; both are the same tag.
+            if (soldOut || product.isLowStock)
+              Positioned(
+                top: GrofastDimenConst.productHeartInset,
+                left: GrofastDimenConst.productHeartInset,
+                child: _StockTag(
+                  label: soldOut
+                      ? ValueConst.outOfStockLabel
+                      : ValueConst.onlyNLeftLabel(product.stock!),
+                  color: soldOut ? cs.onSurface : cs.error,
+                  labelColor: soldOut ? cs.surface : cs.onError,
+                ),
+              ),
             if (onFavouriteToggle != null)
               Positioned(
                 top: GrofastDimenConst.productHeartInset,
@@ -142,7 +169,10 @@ class GrofastProductCard extends StatelessWidget {
 /// The corner add-to-bag control. Not an [AppButton]: it is a notched shape
 /// welded into the card, with no label and no pill radius.
 class _AddButton extends StatelessWidget {
-  final VoidCallback onTap;
+  /// Null while the product is sold out. The shape stays — it is cut out of
+  /// the card, so removing it would leave a hole — but it loses the brand
+  /// gradient and its tap.
+  final VoidCallback? onTap;
   final Radius cardRadius;
 
   const _AddButton({required this.onTap, required this.cardRadius});
@@ -150,9 +180,11 @@ class _AddButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final enabled = onTap != null;
 
     return Semantics(
       button: true,
+      enabled: enabled,
       label: GrofastValueConst.addToBagTooltip,
       child: GestureDetector(
         onTap: onTap,
@@ -160,7 +192,8 @@ class _AddButton extends StatelessWidget {
           width: GrofastDimenConst.productAddButtonWidth,
           height: GrofastDimenConst.productAddButtonHeight,
           decoration: BoxDecoration(
-            gradient: GrofastColorConst.brandGradient,
+            gradient: enabled ? GrofastColorConst.brandGradient : null,
+            color: enabled ? null : cs.onSurface.withValues(alpha: 0.12),
             borderRadius: BorderRadius.only(
               topLeft: const Radius.circular(
                 GrofastDimenConst.productAddButtonNotchRadius,
@@ -173,9 +206,50 @@ class _AddButton extends StatelessWidget {
             GrofastImageConst.plus,
             width: AppSpacing.lg,
             height: AppSpacing.lg,
-            color: cs.onPrimary,
+            color: enabled
+                ? cs.onPrimary
+                : cs.onSurface.withValues(alpha: 0.38),
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// The pack's availability tag: the kit has no badge for this, so it is
+/// built from the recipe the pack already uses for a small pill —
+/// [GrofastDimenConst.tileRadius], the 10px bold pill label — filled rather
+/// than outlined so it reads as a stamp on the photo instead of another
+/// selectable chip.
+class _StockTag extends StatelessWidget {
+  final String label;
+  final Color color;
+  final Color labelColor;
+
+  const _StockTag({
+    required this.label,
+    required this.color,
+    required this.labelColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final tt = Theme.of(context).textTheme;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.xs,
+        vertical: AppSpacing.xs3,
+      ),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(GrofastDimenConst.tileRadius),
+      ),
+      child: Text(
+        label,
+        style: GrofastTextStyleConst.pillLabelBold(
+          tt,
+        ).copyWith(color: labelColor),
       ),
     );
   }

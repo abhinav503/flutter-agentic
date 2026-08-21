@@ -423,6 +423,40 @@ class AppLocalizationsFr extends AppLocalizations {
   String get unratedLabel => 'Aucune note pour le moment';
 
   @override
+  String get outOfStockLabel => 'Rupture de stock';
+
+  @override
+  String onlyNLeftLabel(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Plus que $count en stock',
+      one: 'Plus qu\'1 en stock',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get cartUnavailableItemsMessage =>
+      'Certains articles de votre panier ne sont plus disponibles. Modifiez votre panier pour continuer.';
+
+  @override
+  String productSoldOutMessage(String name) {
+    return '$name vient d\'être épuisé. Modifiez votre panier pour continuer.';
+  }
+
+  @override
+  String productStockReducedMessage(String name) {
+    return 'Il ne reste pas assez de $name. Modifiez votre panier pour continuer.';
+  }
+
+  @override
+  String get checkoutFailedMessage => 'Votre commande n\'a pas pu être passée.';
+
+  @override
+  String get paymentRefundedNote => 'Votre paiement a été remboursé.';
+
+  @override
   String get rateOrderLabel => 'Noter la commande';
 
   @override

@@ -50,7 +50,7 @@ class _DailyMartAddToCartSheetContentState
             product: widget.product,
             quantity: quantity,
             onDecrement: decrementQuantity,
-            onIncrement: incrementQuantity,
+            onIncrement: incrementQuantityUpTo(widget.product.purchaseLimit),
           ),
           const SizedBox(height: AppSpacing.xl4),
           DailyMartPrimaryButton(

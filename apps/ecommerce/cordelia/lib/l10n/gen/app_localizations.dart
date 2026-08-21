@@ -820,6 +820,48 @@ abstract class AppLocalizations {
   /// **'No ratings yet'**
   String get unratedLabel;
 
+  /// No description provided for @outOfStockLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Out of Stock'**
+  String get outOfStockLabel;
+
+  /// Cart-row warning when the line holds more units than the store has left. Sits in a narrow subtitle slot beside the product name — keep it short.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{Only 1 left} other{Only {count} left}}'**
+  String onlyNLeftLabel(int count);
+
+  /// No description provided for @cartUnavailableItemsMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Some items in your cart are no longer available. Update your cart to continue.'**
+  String get cartUnavailableItemsMessage;
+
+  /// No description provided for @productSoldOutMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} just sold out. Update your cart to continue.'**
+  String productSoldOutMessage(String name);
+
+  /// No description provided for @productStockReducedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'There isn\'t enough {name} left. Update your cart to continue.'**
+  String productStockReducedMessage(String name);
+
+  /// No description provided for @checkoutFailedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Your order couldn\'t be placed.'**
+  String get checkoutFailedMessage;
+
+  /// No description provided for @paymentRefundedNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Your payment has been refunded.'**
+  String get paymentRefundedNote;
+
   /// No description provided for @rateOrderLabel.
   ///
   /// In en, this message translates to:

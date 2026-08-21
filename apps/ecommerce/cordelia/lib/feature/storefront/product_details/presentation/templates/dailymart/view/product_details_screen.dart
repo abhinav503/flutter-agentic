@@ -248,11 +248,23 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
                   Expanded(
                     child: _PriceLabel(product: product, variant: variant),
                   ),
-                  DailyMartQuantityStepper(
-                    value: quantity,
-                    onDecrement: decrementQuantity,
-                    onIncrement: incrementQuantity,
-                  ),
+                  // Between the price and the stepper, which is where the
+                  // shopper is looking as they decide how many to take.
+                  if (product.isLowStock) ...[
+                    Text(
+                      ValueConst.onlyNLeftLabel(product.stock!),
+                      style: DailyMartTextStyleConst.bodyXsSemibold(
+                        tt,
+                      ).copyWith(color: cs.error),
+                    ),
+                    const SizedBox(width: AppSpacing.base),
+                  ],
+                  if (product.isInStock)
+                    DailyMartQuantityStepper(
+                      value: quantity,
+                      onDecrement: decrementQuantity,
+                      onIncrement: incrementQuantityUpTo(product.purchaseLimit),
+                    ),
                 ],
               ),
               // Kit deviation (recorded in the spec sheet): the kit has no
@@ -338,6 +350,7 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
           bottom: MediaQuery.paddingOf(context).bottom + AppSpacing.lg,
           child: DailyMartProductDetailBottomBar(
             storeId: widget.storeId,
+            soldOut: product.isOutOfStock,
             onAddToCart: () {
               addSelectedToCart(detail, quantity);
               showSnackBar(

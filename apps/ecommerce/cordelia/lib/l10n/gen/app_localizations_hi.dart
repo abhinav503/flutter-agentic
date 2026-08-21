@@ -419,6 +419,40 @@ class AppLocalizationsHi extends AppLocalizations {
   String get unratedLabel => 'अभी कोई रेटिंग नहीं';
 
   @override
+  String get outOfStockLabel => 'स्टॉक में नहीं';
+
+  @override
+  String onlyNLeftLabel(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'सिर्फ़ $count बचे हैं',
+      one: 'सिर्फ़ 1 बचा है',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get cartUnavailableItemsMessage =>
+      'आपकी कार्ट में कुछ आइटम अब उपलब्ध नहीं हैं। जारी रखने के लिए कार्ट अपडेट करें।';
+
+  @override
+  String productSoldOutMessage(String name) {
+    return '$name अभी-अभी बिक गया। जारी रखने के लिए कार्ट अपडेट करें।';
+  }
+
+  @override
+  String productStockReducedMessage(String name) {
+    return '$name पर्याप्त मात्रा में उपलब्ध नहीं है। जारी रखने के लिए कार्ट अपडेट करें।';
+  }
+
+  @override
+  String get checkoutFailedMessage => 'आपका ऑर्डर नहीं दिया जा सका।';
+
+  @override
+  String get paymentRefundedNote => 'आपका भुगतान वापस कर दिया गया है।';
+
+  @override
   String get rateOrderLabel => 'ऑर्डर रेट करें';
 
   @override

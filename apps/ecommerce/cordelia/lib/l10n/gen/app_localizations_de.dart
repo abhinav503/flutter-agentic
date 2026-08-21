@@ -420,6 +420,41 @@ class AppLocalizationsDe extends AppLocalizations {
   String get unratedLabel => 'Noch keine Bewertungen';
 
   @override
+  String get outOfStockLabel => 'Nicht auf Lager';
+
+  @override
+  String onlyNLeftLabel(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Nur noch $count verfügbar',
+      one: 'Nur noch 1 verfügbar',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get cartUnavailableItemsMessage =>
+      'Einige Artikel in Ihrem Warenkorb sind nicht mehr verfügbar. Bitte aktualisieren Sie Ihren Warenkorb, um fortzufahren.';
+
+  @override
+  String productSoldOutMessage(String name) {
+    return '$name ist gerade ausverkauft. Bitte aktualisieren Sie Ihren Warenkorb.';
+  }
+
+  @override
+  String productStockReducedMessage(String name) {
+    return 'Von $name ist nicht mehr genug vorrätig. Bitte aktualisieren Sie Ihren Warenkorb.';
+  }
+
+  @override
+  String get checkoutFailedMessage =>
+      'Ihre Bestellung konnte nicht aufgegeben werden.';
+
+  @override
+  String get paymentRefundedNote => 'Ihre Zahlung wurde erstattet.';
+
+  @override
   String get rateOrderLabel => 'Bestellung bewerten';
 
   @override

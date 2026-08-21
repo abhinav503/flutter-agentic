@@ -8,6 +8,7 @@ import 'package:cordelia/templates/dailymart/constants/dailymart_image_const.dar
 import 'package:cordelia/templates/dailymart/widgets/dailymart_product_list_tile.dart';
 
 import '../../../../domain/entities/cart_item_entity.dart';
+import '../../../cart_availability.dart';
 
 /// One cart line (kit frames `24`/`25`) — the pack's shared product line
 /// ([DailyMartProductListTile]) on core's [SwipeToDeleteRow].
@@ -16,7 +17,9 @@ import '../../../../domain/entities/cart_item_entity.dart';
 /// at the card size instead (recorded as a deviation in the spec sheet).
 class DailyMartCartItemCard extends StatelessWidget {
   final CartItemEntity item;
-  final VoidCallback onIncrement;
+
+  /// Null at the product's remaining stock — see [DailyMartQuantityStepper].
+  final VoidCallback? onIncrement;
   final VoidCallback onDecrement;
   final VoidCallback onRemove;
 
@@ -44,6 +47,7 @@ class DailyMartCartItemCard extends StatelessWidget {
         packSize: item.effectiveSizeValue,
         onIncrement: onIncrement,
         onDecrement: onDecrement,
+        unavailableLabel: item.availabilityLabel,
       ),
     );
   }

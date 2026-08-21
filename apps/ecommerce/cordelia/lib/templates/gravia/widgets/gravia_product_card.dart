@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:core/core/extensions/num_extensions.dart';
 import 'package:core/core/theme/app_colors_extension.dart';
 import 'package:core/core/theme/app_spacing.dart';
+import 'package:core/core/ui/atoms/button.dart';
 import 'package:core/core/ui/atoms/icon_button.dart';
 import 'package:core/core/ui/atoms/network_image.dart';
 import 'package:core/core/ui/atoms/svg_image.dart';
 import 'package:core/core/ui/blocks/ecommerce/product_card.dart';
 
+import 'package:cordelia/constants/value_const.dart';
 import 'package:cordelia/enums/product_unit_type.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_color_const.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_image_const.dart';
@@ -79,6 +81,11 @@ class GraviaProductCard extends StatelessWidget {
     this.onFavouriteToggle,
   });
 
+  /// How far the photo fades once the product is unbuyable — enough to read
+  /// as inactive beside an in-stock card in the same rail, not so far the
+  /// product stops being recognisable.
+  static const double _soldOutImageOpacity = 0.45;
+
   /// The pack's 14px Gray/500 meta-row glyph (flash, percent, …) — public so
   /// a standalone meta row (same icons, outside a full card) doesn't
   /// re-inline the same size/colour recipe.
@@ -94,9 +101,16 @@ class GraviaProductCard extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
     final onOverlay = context.appColors.onOverlay;
+    final soldOut = product.isOutOfStock;
+
+    final image = AppNetworkImage(url: product.imageUrl, fit: BoxFit.cover);
 
     final card = ProductCard(
-      image: AppNetworkImage(url: product.imageUrl, fit: BoxFit.cover),
+      // Faded, not veiled: the pill below already says why, and a scrim
+      // over the photo would fight the glass favourite heart sitting on it.
+      image: soldOut
+          ? Opacity(opacity: _soldOutImageOpacity, child: image)
+          : image,
       title: product.name,
       titleStyle: GraviaTextStyleConst.textMdBold(tt),
       badgeLabel: product.unitType.format(product.unitValue),
@@ -108,7 +122,16 @@ class GraviaProductCard extends StatelessWidget {
             icon: metaIcon(GraviaImageConst.flash),
             label: product.prepTime,
           ),
-        if (showDiscount)
+        // Running low takes the discount's slot rather than adding a third
+        // meta item: at 184 wide the row fits two, and "nearly gone" is the
+        // more useful of the two things to know.
+        if (product.isLowStock)
+          ProductCardMeta(
+            icon: metaIcon(GraviaImageConst.flash),
+            label: ValueConst.onlyNLeftLabel(product.stock!),
+            labelColor: cs.error,
+          )
+        else if (showDiscount)
           ProductCardMeta(
             icon: metaIcon(GraviaImageConst.badgePercent),
             label:
@@ -123,25 +146,35 @@ class GraviaProductCard extends StatelessWidget {
       ).copyWith(color: cs.onSurface),
       price: product.price.asPrice,
       originalPrice: product.originalPrice.asPrice,
-      actionLabel: GraviaValueConst.addToCart,
-      actionLabelStyle: GraviaTextStyleConst.textSmMedium(
-        tt,
-      ).copyWith(color: onOverlay),
-      onAction: onAddToCart,
-      trailingAction: AppIconButton(
-        variant: AppIconButtonVariant.glass,
-        containerSize: AppSpacing.xl6,
-        iconSize: AppSpacing.lg,
-        glassHighlightThickness: AppSpacing.xs3,
-        glassBlurSigma: AppSpacing.xs4,
-        iconBuilder: (color, size) => AppSvgImage.asset(
-          GraviaImageConst.bagAdd,
-          color: color,
-          width: size,
-          height: size,
-        ),
-        onTap: onQuickAdd,
-      ),
+      actionLabel: soldOut
+          ? ValueConst.outOfStockLabel
+          : GraviaValueConst.addToCart,
+      // The onOverlay pin is dropped while sold out: a pinned label colour
+      // outranks AppButton's disabled ink, so keeping it would print white
+      // text on the disabled fill.
+      actionLabelStyle: soldOut
+          ? GraviaTextStyleConst.textSmMedium(tt)
+          : GraviaTextStyleConst.textSmMedium(tt).copyWith(color: onOverlay),
+      onAction: soldOut ? null : onAddToCart,
+      actionState: soldOut ? AppButtonState.disabled : AppButtonState.idle,
+      // The quick-add sheet is dropped rather than disabled — a quantity
+      // picker for a product with no units left has nothing to pick.
+      trailingAction: soldOut
+          ? null
+          : AppIconButton(
+              variant: AppIconButtonVariant.glass,
+              containerSize: AppSpacing.xl6,
+              iconSize: AppSpacing.lg,
+              glassHighlightThickness: AppSpacing.xs3,
+              glassBlurSigma: AppSpacing.xs4,
+              iconBuilder: (color, size) => AppSvgImage.asset(
+                GraviaImageConst.bagAdd,
+                color: color,
+                width: size,
+                height: size,
+              ),
+              onTap: onQuickAdd,
+            ),
       favouriteAction: onFavouriteToggle == null
           ? null
           : AppIconButton(

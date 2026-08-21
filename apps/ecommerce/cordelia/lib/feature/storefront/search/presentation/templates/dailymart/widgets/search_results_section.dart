@@ -7,6 +7,7 @@ import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/network_image.dart';
 import 'package:core/core/ui/molecules/icon_info_row.dart';
 
+import 'package:cordelia/constants/value_const.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_image_const.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_text_style_const.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_value_const.dart';
@@ -84,16 +85,26 @@ class DailyMartSearchResultsSection extends StatelessWidget {
           _ResultRow(
             imageUrl: product.imageUrl,
             name: product.name,
-            subtitle: product.price.asPrice,
+            // A sold-out result says so where its price would go: the row is
+            // an add control with a number beside it, and the number is the
+            // wrong thing to lead with when nothing can be added.
+            subtitle: product.isOutOfStock
+                ? ValueConst.outOfStockLabel
+                : product.price.asPrice,
+            subtitleColor: product.isOutOfStock ? cs.error : null,
             // The kit's 24 disc with its 14/24 glyph-to-disc ratio — the
             // container is drawn here now that `plus.svg` is a bare glyph.
             trailing: DailyMartIconDisc(
               asset: DailyMartImageConst.plus,
-              onTap: () => onAdd(product),
+              onTap: product.isOutOfStock ? null : () => onAdd(product),
               size: 24,
               iconSize: 14,
-              backgroundColor: cs.primary,
-              foregroundColor: cs.onPrimary,
+              backgroundColor: product.isOutOfStock
+                  ? cs.onSurface.withValues(alpha: 0.12)
+                  : cs.primary,
+              foregroundColor: product.isOutOfStock
+                  ? cs.onSurface.withValues(alpha: 0.38)
+                  : cs.onPrimary,
             ),
             onTap: () => onProductTap(product),
           ),
@@ -106,6 +117,10 @@ class _ResultRow extends StatelessWidget {
   final String imageUrl;
   final String name;
   final String? subtitle;
+
+  /// Overrides the subtitle's ink — a sold-out product prints `cs.error`
+  /// there instead of its price.
+  final Color? subtitleColor;
   final Widget trailing;
   final VoidCallback onTap;
 
@@ -115,6 +130,7 @@ class _ResultRow extends StatelessWidget {
     required this.imageUrl,
     required this.name,
     this.subtitle,
+    this.subtitleColor,
     required this.trailing,
     required this.onTap,
   });
@@ -142,7 +158,9 @@ class _ResultRow extends StatelessWidget {
       titleStyle: rowStyle,
       titleMaxLines: 1,
       subtitle: subtitle,
-      subtitleStyle: rowStyle,
+      subtitleStyle: subtitleColor == null
+          ? rowStyle
+          : rowStyle.copyWith(color: subtitleColor),
       lineGap: AppSpacing.xs4,
       padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
       trailing: trailing,

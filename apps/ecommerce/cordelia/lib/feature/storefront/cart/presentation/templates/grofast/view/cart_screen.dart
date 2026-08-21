@@ -13,6 +13,7 @@ import 'package:core/core/ui/molecules/swipe_to_delete_row.dart';
 
 import 'package:cordelia/feature/storefront/active_store/presentation/active_store_capture.dart';
 import 'package:cordelia/constants/app_routes.dart';
+import 'package:cordelia/constants/value_const.dart';
 import 'package:cordelia/enums/product_unit_type.dart';
 import 'package:cordelia/feature/storefront/address/presentation/templates/grofast/widgets/address_picker_sheet.dart';
 import 'package:cordelia/feature/storefront/cart/domain/entities/cart_item_entity.dart';
@@ -30,6 +31,7 @@ import 'package:cordelia/templates/grofast/widgets/grofast_state_views.dart';
 import 'package:cordelia/feature/storefront/active_store/presentation/cubit/active_store_cubit.dart';
 import 'package:cordelia/feature/home/domain/entities/store_delivery_entity.dart';
 
+import '../../../cart_availability.dart';
 import '../../../cubit/cart_cubit.dart';
 import '../../../cubit/coupon_cubit.dart';
 
@@ -55,11 +57,29 @@ class CartScreen extends BaseScreen {
 
 class _CartScreenState extends BaseScreenState<CartScreen>
     with ActiveStoreCapture {
+  @override
+  void initState() {
+    super.initState();
+    // The cart is hydrated once, when the storefront mounts, so by the time
+    // it's opened its prices and stock can be hours old. This re-reads the
+    // same lines off the live catalog — the last moment before money is
+    // involved where a stale row is still free to correct.
+    context.read<CartCubit>().refresh();
+  }
+
   /// Checkout gates on picking a delivery address first — the kit's Select
   /// Location sheet, which resolves with the chosen address (null if the
   /// shopper swipes it away) — then hands off to the Checkout route, which
   /// owns the order from there.
   Future<void> _startCheckout() async {
+    // Refused before the shopper picks an address, let alone pays: the
+    // server enforces the same rule at both checkout steps, and its refusal
+    // can only be English. This is the localized half, and it points at the
+    // rows already flagged above.
+    if (context.read<CartCubit>().state.hasUnavailableItems) {
+      showSnackBar(ValueConst.cartUnavailableItemsMessage);
+      return;
+    }
     final address = await showGrofastAddressPicker(this);
     if (address == null || !mounted) return;
     await context.push(AppRoutes.checkout, extra: address);
@@ -210,7 +230,15 @@ class _BagContent extends StatelessWidget {
             child: GrofastLineItemRow(
               imageUrl: item.product.imageUrl,
               name: item.product.name,
-              subtitle: item.product.unitType.format(item.effectiveSizeValue),
+              // The row's one subtitle slot goes to why this line can't be
+              // bought, when it can't — the pack size no longer decides
+              // anything at that point.
+              subtitle:
+                  item.availabilityLabel ??
+                  item.product.unitType.format(item.effectiveSizeValue),
+              subtitleColor: item.isUnavailable
+                  ? Theme.of(context).colorScheme.error
+                  : null,
               price: item.lineTotal,
               // The kit's row carries the *favourite* heart here, not a
               // remove control — removing is the swipe (see `_DismissibleRow`),
@@ -224,10 +252,12 @@ class _BagContent extends StatelessWidget {
               ),
               trailing: GrofastQuantityStepper(
                 quantity: item.quantity,
-                onIncrement: () => cart.incrementQuantity(
-                  item.product.id,
-                  sizeValue: item.sizeValue,
-                ),
+                onIncrement: item.canAddMore
+                    ? () => cart.incrementQuantity(
+                        item.product.id,
+                        sizeValue: item.sizeValue,
+                      )
+                    : null,
                 onDecrement: item.quantity > 1
                     ? () => cart.decrementQuantity(
                         item.product.id,

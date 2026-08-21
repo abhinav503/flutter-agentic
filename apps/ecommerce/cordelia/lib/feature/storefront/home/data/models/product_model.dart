@@ -29,6 +29,12 @@ abstract class ProductModel with _$ProductModel {
     // exactly what zeros mean.
     @JsonKey(name: 'rating_average') @Default(0.0) double ratingAverage,
     @JsonKey(name: 'review_count') @Default(0) int reviewCount,
+    // Nullable rather than defaulted: 0 is a real answer ("sold out") and an
+    // absent key is a different one ("this backend doesn't say"). Defaulting
+    // the missing case to 0 would render an entire catalog sold out against
+    // an older API, so unknown stays unknown and sells — see
+    // ProductEntityStockX.
+    int? stock,
   }) = _ProductModel;
 
   factory ProductModel.fromJson(Map<String, dynamic> json) =>
@@ -47,6 +53,7 @@ abstract class ProductModel with _$ProductModel {
     isFavourite: e.isFavourite,
     ratingAverage: e.ratingAverage,
     reviewCount: e.reviewCount,
+    stock: e.stock,
   );
 
   ProductEntity toEntity() => ProductEntity(
@@ -62,5 +69,6 @@ abstract class ProductModel with _$ProductModel {
     isFavourite: isFavourite,
     ratingAverage: ratingAverage,
     reviewCount: reviewCount,
+    stock: stock,
   );
 }

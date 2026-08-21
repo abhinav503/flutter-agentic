@@ -8,13 +8,17 @@ import 'package:core/core/extensions/num_extensions.dart';
 import 'package:core/core/theme/app_spacing.dart';
 
 import '../../../../domain/entities/cart_item_entity.dart';
+import '../../../cart_availability.dart';
 
 /// One cart line: thumbnail + name/weight on the left, price + a live
 /// quantity stepper on the right — the "pill quantity stepper on cart rows"
 /// composition from design.md.
 class CartItemRow extends StatelessWidget {
   final CartItemEntity item;
-  final VoidCallback onIncrement;
+
+  /// Null at the product's remaining stock — the row can't grow a quantity
+  /// checkout would refuse.
+  final VoidCallback? onIncrement;
   final VoidCallback onDecrement;
 
   const CartItemRow({
@@ -29,6 +33,7 @@ class CartItemRow extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
     final product = item.product;
+    final unavailable = item.availabilityLabel;
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -48,12 +53,14 @@ class CartItemRow extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
               Text(
-                // The pack this line actually holds — the selected size when
-                // one was chosen on Product Details, the base pack otherwise.
-                product.unitType.format(item.effectiveSizeValue),
-                style: GraviaTextStyleConst.textSmRegular(
-                  tt,
-                ).copyWith(color: cs.onSurfaceVariant),
+                // The row has one subtitle slot: an unbuyable line spends it
+                // on why, since which pack size it holds no longer decides
+                // anything. Otherwise it's the pack this line actually holds
+                // — the size chosen on Product Details, or the base pack.
+                unavailable ?? product.unitType.format(item.effectiveSizeValue),
+                style: GraviaTextStyleConst.textSmRegular(tt).copyWith(
+                  color: unavailable == null ? cs.onSurfaceVariant : cs.error,
+                ),
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,

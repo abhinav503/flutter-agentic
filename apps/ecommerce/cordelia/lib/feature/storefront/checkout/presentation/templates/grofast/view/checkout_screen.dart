@@ -16,6 +16,7 @@ import 'package:cordelia/feature/storefront/address/domain/entities/address_enti
 import 'package:cordelia/feature/storefront/address/presentation/templates/grofast/widgets/address_picker_sheet.dart';
 import 'package:cordelia/feature/storefront/address/presentation/templates/grofast/widgets/grofast_address_tile.dart';
 import 'package:cordelia/feature/storefront/cart/domain/entities/cart_item_entity.dart';
+import 'package:cordelia/feature/storefront/cart/presentation/cart_availability.dart';
 import 'package:cordelia/feature/storefront/cart/presentation/cubit/cart_cubit.dart';
 import 'package:cordelia/feature/storefront/cart/presentation/cubit/coupon_cubit.dart';
 import 'package:cordelia/feature/storefront/presentation/view/storefront_page.dart';
@@ -33,6 +34,7 @@ import 'package:cordelia/constants/value_const.dart';
 import 'package:cordelia/feature/home/domain/entities/store_delivery_entity.dart';
 
 import '../../../bloc/checkout_bloc.dart';
+import '../../../checkout_failure_handling.dart';
 
 /// `grofast` template's Checkout (kit frame `119:819`) — the items, the
 /// delivery address, the promo stub, the totals, and "Confirm Order" floating
@@ -61,7 +63,17 @@ class CheckoutScreen extends BaseScreen {
 }
 
 class _CheckoutScreenState extends BaseScreenState<CheckoutScreen>
-    with ActiveStoreCapture {
+    with ActiveStoreCapture, CheckoutFailureHandling {
+  @override
+  void initState() {
+    super.initState();
+    // The cart is hydrated once, when the storefront mounts, so by the time
+    // it's opened its prices and stock can be hours old. This re-reads the
+    // same lines off the live catalog — the last moment before money is
+    // involved where a stale row is still free to correct.
+    context.read<CartCubit>().refresh();
+  }
+
   late AddressEntity _address = widget.address;
 
   Future<void> _changeAddress() async {
@@ -71,6 +83,14 @@ class _CheckoutScreenState extends BaseScreenState<CheckoutScreen>
   }
 
   void _submit(List<CartItemEntity> items) {
+    // Same shape as the delivery refusal below: the server checks stock at
+    // both checkout steps and can only answer in English, so the cart is
+    // re-checked here — the lines have been on screen since the Cart, where
+    // each unbuyable row is already flagged.
+    if (items.hasUnavailableItems) {
+      showSnackBar(ValueConst.cartUnavailableItemsMessage);
+      return;
+    }
     // Refused here, before the payment intent exists, so an address the
     // store doesn't reach costs a message instead of a charge to unwind.
     // The server enforces the same rule — this is the localized half of it,
@@ -130,7 +150,7 @@ class _CheckoutScreenState extends BaseScreenState<CheckoutScreen>
       child: BlocConsumer<CheckoutBloc, CheckoutState>(
         listener: (context, state) => switch (state) {
           CheckoutSuccess() => _onOrderPlaced(),
-          CheckoutFailure(:final message) => showSnackBar(message),
+          CheckoutFailure(:final message) => onCheckoutFailed(message),
           CheckoutIdle() || CheckoutSubmitting() => null,
         },
         builder: (context, state) => GrofastScreenBody(
@@ -206,7 +226,10 @@ class _CheckoutForm extends StatelessWidget {
           GrofastLineItemRow(
             imageUrl: item.product.imageUrl,
             name: item.product.name,
-            subtitle: item.product.unitType.format(item.effectiveSizeValue),
+            subtitle:
+                item.availabilityLabel ??
+                item.product.unitType.format(item.effectiveSizeValue),
+            subtitleColor: item.isUnavailable ? cs.error : null,
             price: item.lineTotal,
             trailing: Text(
               GrofastValueConst.orderLineQuantity(item.quantity),

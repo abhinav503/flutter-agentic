@@ -72,6 +72,11 @@ export function serializeProduct(p: Product, isFavourite = false) {
     // "unrated": clients must render that as such, not as 0.0 stars.
     rating_average: p.ratingAverage,
     review_count: p.reviewCount,
+    // The same number the order transaction enforces (lib/orders.ts), so the
+    // storefront can refuse a sale before the shopper reaches payment
+    // instead of after. Sent on every product payload — a card, a grid cell
+    // and a cart line all need it, and it rides on the doc they already read.
+    stock: p.stock,
   };
 }
 

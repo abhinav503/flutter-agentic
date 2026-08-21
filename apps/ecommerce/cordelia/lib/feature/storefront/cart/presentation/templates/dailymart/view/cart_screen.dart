@@ -10,6 +10,7 @@ import 'package:core/core/ui/atoms/button.dart';
 
 import 'package:cordelia/feature/storefront/active_store/presentation/active_store_capture.dart';
 import 'package:cordelia/constants/app_routes.dart';
+import 'package:cordelia/constants/value_const.dart';
 import 'package:cordelia/feature/storefront/address/domain/entities/address_entity.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_value_const.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_header_row.dart';
@@ -44,11 +45,29 @@ class CartScreen extends BaseScreen {
 
 class _CartScreenState extends BaseScreenState<CartScreen>
     with ActiveStoreCapture {
+  @override
+  void initState() {
+    super.initState();
+    // The cart is hydrated once, when the storefront mounts, so by the time
+    // it's opened its prices and stock can be hours old. This re-reads the
+    // same lines off the live catalog — the last moment before money is
+    // involved where a stale row is still free to correct.
+    context.read<CartCubit>().refresh();
+  }
+
   // Checkout gates on picking a delivery address first — reuses the Select
   // Address screen, which pops with the chosen address (null if the shopper
   // backs out) — then hands off to the Checkout route, which owns the order
   // from there (its own CheckoutBloc, its own success state).
   Future<void> _startCheckout() async {
+    // Refused before the shopper picks an address, let alone pays: the
+    // server enforces the same rule at both checkout steps, and its refusal
+    // can only be English. This is the localized half, and it points at the
+    // rows already flagged above.
+    if (context.read<CartCubit>().state.hasUnavailableItems) {
+      showSnackBar(ValueConst.cartUnavailableItemsMessage);
+      return;
+    }
     final address = await context.push<AddressEntity>(AppRoutes.selectAddress);
     if (address == null || !mounted) return;
     if (!context.mounted) return;
@@ -127,11 +146,14 @@ class _CartScreenState extends BaseScreenState<CartScreen>
                             // sizeValue scopes each tap to this exact line —
                             // the same product can sit here twice in two pack
                             // sizes.
-                            onIncrement: () =>
-                                context.read<CartCubit>().incrementQuantity(
-                                  cartItems[i].product.id,
-                                  sizeValue: cartItems[i].sizeValue,
-                                ),
+                            onIncrement: cartItems[i].canAddMore
+                                ? () => context
+                                      .read<CartCubit>()
+                                      .incrementQuantity(
+                                        cartItems[i].product.id,
+                                        sizeValue: cartItems[i].sizeValue,
+                                      )
+                                : null,
                             onDecrement: () =>
                                 context.read<CartCubit>().decrementQuantity(
                                   cartItems[i].product.id,

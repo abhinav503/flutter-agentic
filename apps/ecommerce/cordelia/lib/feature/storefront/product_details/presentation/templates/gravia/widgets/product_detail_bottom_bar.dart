@@ -1,4 +1,5 @@
 import 'package:cordelia/constants/app_routes.dart';
+import 'package:cordelia/constants/value_const.dart';
 import 'package:cordelia/feature/storefront/cart/domain/entities/cart_item_entity.dart';
 import 'package:cordelia/feature/storefront/cart/presentation/cubit/cart_cubit.dart';
 import 'package:cordelia/feature/storefront/cart/presentation/templates/gravia/widgets/cart_status_bar.dart';
@@ -8,6 +9,7 @@ import 'package:cordelia/templates/gravia/widgets/gravia_primary_button.dart';
 import 'package:flutter/material.dart';
 
 import 'package:core/core/theme/app_spacing.dart';
+import 'package:core/core/ui/atoms/button.dart';
 import 'package:core/core/ui/blocks/docked_bar.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -18,9 +20,16 @@ class ProductDetailBottomBar extends StatelessWidget {
   final String storeId;
   final int quantity;
   final double unitPrice;
-  final VoidCallback onIncrement;
+
+  /// Null at the product's remaining stock, same as [onDecrement] at 1.
+  final VoidCallback? onIncrement;
   final VoidCallback? onDecrement;
   final VoidCallback onAddToCart;
+
+  /// Sold out: the stepper goes (there is no quantity to pick) and the CTA
+  /// becomes an inert "Out of Stock", so the refusal lands here rather than
+  /// at payment.
+  final bool soldOut;
 
   const ProductDetailBottomBar({
     super.key,
@@ -30,6 +39,7 @@ class ProductDetailBottomBar extends StatelessWidget {
     required this.onIncrement,
     required this.onDecrement,
     required this.onAddToCart,
+    this.soldOut = false,
   });
 
   @override
@@ -49,19 +59,26 @@ class ProductDetailBottomBar extends StatelessWidget {
         DockedBar(
           child: Row(
             children: [
-              GraviaQuantityStepper(
-                value: quantity,
-                height: GraviaPrimaryButton.barHeight,
-                onDecrement: onDecrement,
-                onIncrement: onIncrement,
-              ),
-              const SizedBox(width: AppSpacing.base),
+              if (!soldOut) ...[
+                GraviaQuantityStepper(
+                  value: quantity,
+                  height: GraviaPrimaryButton.barHeight,
+                  onDecrement: onDecrement,
+                  onIncrement: onIncrement,
+                ),
+                const SizedBox(width: AppSpacing.base),
+              ],
               Expanded(
                 child: GraviaPrimaryButton(
-                  label: GraviaValueConst.addToCartWithPrice(
-                    unitPrice * quantity,
-                  ),
-                  onTap: onAddToCart,
+                  label: soldOut
+                      ? ValueConst.outOfStockLabel
+                      : GraviaValueConst.addToCartWithPrice(
+                          unitPrice * quantity,
+                        ),
+                  onTap: soldOut ? null : onAddToCart,
+                  state: soldOut
+                      ? AppButtonState.disabled
+                      : AppButtonState.idle,
                 ),
               ),
             ],

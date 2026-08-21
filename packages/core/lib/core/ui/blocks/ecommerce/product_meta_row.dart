@@ -8,7 +8,16 @@ import '../../../theme/app_spacing.dart';
 class ProductCardMeta {
   final Widget icon;
   final String label;
-  const ProductCardMeta({required this.icon, required this.label});
+
+  /// Overrides the row's shared label colour for this pair alone — for the
+  /// one entry that carries a warning (running low) among neutral ones.
+  final Color? labelColor;
+
+  const ProductCardMeta({
+    required this.icon,
+    required this.label,
+    this.labelColor,
+  });
 }
 
 /// Icon + label meta row (delivery time, discount, …). Shared by [ProductCard]
@@ -56,7 +65,7 @@ class ProductMetaRow extends StatelessWidget {
           Text(
             m.label,
             style: (labelStyle ?? tt.labelSmall)!.copyWith(
-              color: labelStyle?.color ?? cs.onSurfaceVariant,
+              color: m.labelColor ?? labelStyle?.color ?? cs.onSurfaceVariant,
             ),
           ),
           const SizedBox(width: AppSpacing.xs),

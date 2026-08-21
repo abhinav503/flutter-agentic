@@ -314,6 +314,24 @@ abstract final class ValueConst {
   static String get reviewsEmptySubtitle => L10n.current.reviewsEmptySubtitle;
   static String get unratedLabel => L10n.current.unratedLabel;
 
+  // ── Stock. App-level, not pack-level: the same two strings serve
+  // every template, and a sold-out product reads the same in all of
+  // them.
+  static String get outOfStockLabel => L10n.current.outOfStockLabel;
+  static String onlyNLeftLabel(int count) => L10n.current.onlyNLeftLabel(count);
+  static String get cartUnavailableItemsMessage =>
+      L10n.current.cartUnavailableItemsMessage;
+
+  // The server's own refusals are English whatever the storefront's language,
+  // so a checkout it turns down is re-written here from the machine-readable
+  // `code` it sends alongside — same contract as the coupon rejection above.
+  static String productSoldOutMessage(String name) =>
+      L10n.current.productSoldOutMessage(name);
+  static String productStockReducedMessage(String name) =>
+      L10n.current.productStockReducedMessage(name);
+  static String get checkoutFailedMessage => L10n.current.checkoutFailedMessage;
+  static String get paymentRefundedNote => L10n.current.paymentRefundedNote;
+
   // ── Order rating — the shopper's verdict on a *delivery*, not on a
   // product. App-level for the same reason product-review copy is: one
   // shared orders stack serves every storefront.

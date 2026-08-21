@@ -27,6 +27,7 @@ import 'package:core/core/ui/blocks/docked_bar.dart';
 import '../../../../domain/entities/cart_item_entity.dart';
 import '../../../bloc/cart_bloc.dart';
 import 'package:cordelia/feature/storefront/checkout/presentation/bloc/checkout_bloc.dart';
+import 'package:cordelia/feature/storefront/checkout/presentation/checkout_failure_handling.dart';
 import 'package:cordelia/feature/home/domain/entities/store_delivery_entity.dart';
 import 'package:cordelia/constants/value_const.dart';
 import '../../../cubit/cart_cubit.dart';
@@ -43,7 +44,18 @@ class CartScreen extends BaseScreen {
   State<CartScreen> createState() => _CartScreenState();
 }
 
-class _CartScreenState extends BaseScreenState<CartScreen> {
+class _CartScreenState extends BaseScreenState<CartScreen>
+    with CheckoutFailureHandling {
+  @override
+  void initState() {
+    super.initState();
+    // The cart is hydrated once, when the storefront mounts, so by the time
+    // it's opened its prices and stock can be hours old. This re-reads the
+    // same lines off the live catalog — the last moment before money is
+    // involved where a stale row is still free to correct.
+    context.read<CartCubit>().refresh();
+  }
+
   // Checkout first gates on picking a delivery address — reuses the Select
   // Address screen, which pops with the chosen address (null if the shopper
   // backs out, in which case no order is placed). Submitting hands the whole
@@ -51,6 +63,14 @@ class _CartScreenState extends BaseScreenState<CartScreen> {
   // once the server confirms the order (see the CheckoutBloc listener in
   // `body`), not optimistically here, since the request can still fail.
   Future<void> _startCheckout(List<CartItemEntity> items) async {
+    // Refused before the shopper picks an address, let alone pays: the
+    // server enforces the same rule at both checkout steps, and its refusal
+    // can only be English. This is the localized half, and it points at the
+    // rows already flagged above.
+    if (context.read<CartCubit>().state.hasUnavailableItems) {
+      showSnackBar(ValueConst.cartUnavailableItemsMessage);
+      return;
+    }
     final address = await context.push<AddressEntity>(AppRoutes.selectAddress);
     if (address == null || !mounted) return;
     // Refused here, before the payment intent exists, so an address the store
@@ -117,7 +137,7 @@ class _CartScreenState extends BaseScreenState<CartScreen> {
               case CheckoutSuccess():
                 _onOrderPlaced();
               case CheckoutFailure(:final message):
-                showSnackBar(message);
+                onCheckoutFailed(message);
               case CheckoutIdle() || CheckoutSubmitting():
                 break;
             }
@@ -177,11 +197,14 @@ class _CartScreenState extends BaseScreenState<CartScreen> {
                               // sizeValue scopes the tap to this exact line —
                               // the same product can sit here twice in two
                               // pack sizes.
-                              onIncrement: () =>
-                                  context.read<CartCubit>().incrementQuantity(
-                                    cartItems[i].product.id,
-                                    sizeValue: cartItems[i].sizeValue,
-                                  ),
+                              onIncrement: cartItems[i].canAddMore
+                                  ? () => context
+                                        .read<CartCubit>()
+                                        .incrementQuantity(
+                                          cartItems[i].product.id,
+                                          sizeValue: cartItems[i].sizeValue,
+                                        )
+                                  : null,
                               onDecrement: () =>
                                   context.read<CartCubit>().decrementQuantity(
                                     cartItems[i].product.id,

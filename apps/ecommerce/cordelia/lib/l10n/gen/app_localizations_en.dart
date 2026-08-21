@@ -419,6 +419,40 @@ class AppLocalizationsEn extends AppLocalizations {
   String get unratedLabel => 'No ratings yet';
 
   @override
+  String get outOfStockLabel => 'Out of Stock';
+
+  @override
+  String onlyNLeftLabel(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Only $count left',
+      one: 'Only 1 left',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get cartUnavailableItemsMessage =>
+      'Some items in your cart are no longer available. Update your cart to continue.';
+
+  @override
+  String productSoldOutMessage(String name) {
+    return '$name just sold out. Update your cart to continue.';
+  }
+
+  @override
+  String productStockReducedMessage(String name) {
+    return 'There isn\'t enough $name left. Update your cart to continue.';
+  }
+
+  @override
+  String get checkoutFailedMessage => 'Your order couldn\'t be placed.';
+
+  @override
+  String get paymentRefundedNote => 'Your payment has been refunded.';
+
+  @override
   String get rateOrderLabel => 'Rate Order';
 
   @override

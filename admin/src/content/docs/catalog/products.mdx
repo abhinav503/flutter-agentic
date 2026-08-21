@@ -84,15 +84,18 @@ A whole number, 0 or more.
   two orders.
 
 <Callout type="warning">
-  **Setting stock to 0 does not hide a product.** The storefront isn't sent
-  stock at all, so a sold-out product still appears in the grid and can still
-  be added to a cart. The refusal happens server-side at checkout, where the
-  order fails with *Insufficient stock*.
+  **Setting stock to 0 does not hide a product.** A sold-out product still
+  appears in the grid — faded, marked *Out of Stock*, with its add button
+  disabled — and can't be added to a cart. A cart line that holds more than
+  you have left says so on the row and blocks checkout until it's changed.
 
-  So 0 is a safety net, not a way to withdraw something. To take a product off
-  sale, delete it — or accept that shoppers may reach checkout before they find
-  out.
+  So 0 takes something off sale without hiding it, which is what you want when
+  it's coming back. To remove a product for good, delete it.
 </Callout>
+
+**Below five units, the storefront starts saying so** — "Only 3 left" on the
+card, on the product page, and in the cart, and a quantity picker that stops at
+what you actually have. Nothing to configure; it follows the number you set.
 
 The console's product list filters by **In stock** / **Out of stock**, which is
 the fastest way to find what needs restocking.

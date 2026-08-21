@@ -40,6 +40,13 @@ class ProductCard extends StatelessWidget {
   final String? actionLabel;
   final TextStyle? actionLabelStyle;
   final VoidCallback? onAction;
+
+  /// The CTA's [AppButton] state — pass [AppButtonState.disabled] for a
+  /// product that cannot be bought right now (sold out) so the pill reads
+  /// inert instead of silently ignoring taps. Note [actionLabelStyle] still
+  /// wins on colour, so a caller that pins its label ink must drop that pin
+  /// while disabled.
+  final AppButtonState actionState;
   final VoidCallback? onTap;
 
   /// Optional widget shown to the right of the CTA button (e.g. a glass
@@ -67,6 +74,7 @@ class ProductCard extends StatelessWidget {
     this.actionLabel,
     this.actionLabelStyle,
     this.onAction,
+    this.actionState = AppButtonState.idle,
     this.onTap,
     this.trailingAction,
     this.favouriteAction,
@@ -154,6 +162,7 @@ class ProductCard extends StatelessWidget {
             AppButton(
               label: actionLabel!,
               onTap: onAction,
+              state: actionState,
               size: AppButtonSize.small,
               fullWidth: true,
               height: AppSpacing.xl9,

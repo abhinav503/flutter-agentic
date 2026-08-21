@@ -173,7 +173,7 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
               variant: selectedVariant(detail),
               selectedSizeIndex: effectiveSizeIndex(detail),
               onSelectSize: selectSize,
-              onIncrement: incrementQuantity,
+              onIncrement: incrementQuantityUpTo(detail.product.purchaseLimit),
               onDecrement: decrementQuantity,
               onAddToBag: () => _addToBag(detail),
               onSimilarTap: openProductDetails,
@@ -204,7 +204,8 @@ class _DetailsContent extends StatelessWidget {
   final int selectedSizeIndex;
   final ValueChanged<int> onSelectSize;
 
-  final VoidCallback onIncrement;
+  /// Null at the product's remaining stock, same as [onDecrement] at 1.
+  final VoidCallback? onIncrement;
   final VoidCallback? onDecrement;
   final VoidCallback onAddToBag;
   final ValueChanged<ProductEntity> onSimilarTap;
@@ -297,6 +298,21 @@ class _DetailsContent extends StatelessWidget {
                                       : cs.onSurfaceVariant,
                                 ),
                               ),
+                              // The kit's badge row is where this page says
+                              // what a product *is*; running out is the one
+                              // fact on it that changes by the minute, so it
+                              // leads.
+                              if (product.isLowStock)
+                                GrofastBadge.outlined(
+                                  label: ValueConst.onlyNLeftLabel(
+                                    product.stock!,
+                                  ),
+                                  leading: Icon(
+                                    Icons.inventory_2_outlined,
+                                    size: GrofastDimenConst.badgeLeadingSize,
+                                    color: cs.error,
+                                  ),
+                                ),
                               if (detail.category case final category?)
                                 GrofastBadge.tinted(
                                   label: category.name,
@@ -418,6 +434,7 @@ class _DetailsContent extends StatelessWidget {
             onIncrement: onIncrement,
             onDecrement: onDecrement,
             onAddToBag: onAddToBag,
+            soldOut: product.isOutOfStock,
           ),
         ),
         // Pinned over the scrolling hero, not inside it — every back-button
@@ -443,15 +460,21 @@ class _DetailsContent extends StatelessWidget {
 /// nothing scrolls through the row.
 class _AddToBagDock extends StatelessWidget {
   final int quantity;
-  final VoidCallback onIncrement;
+  final VoidCallback? onIncrement;
   final VoidCallback? onDecrement;
   final VoidCallback onAddToBag;
+
+  /// Sold out: the panel keeps its welded shape (it is part of the band's
+  /// silhouette) but loses the gradient and its tap, and the stepper goes —
+  /// there is no quantity to pick.
+  final bool soldOut;
 
   const _AddToBagDock({
     required this.quantity,
     required this.onIncrement,
     required this.onDecrement,
     required this.onAddToBag,
+    required this.soldOut,
   });
 
   @override
@@ -473,12 +496,18 @@ class _AddToBagDock extends StatelessWidget {
                 heightFactor: 1,
                 child: Semantics(
                   button: true,
+                  enabled: !soldOut,
                   child: GestureDetector(
-                    onTap: onAddToBag,
+                    onTap: soldOut ? null : onAddToBag,
                     child: Container(
-                      decoration: const BoxDecoration(
-                        gradient: GrofastColorConst.brandGradient,
-                        borderRadius: BorderRadius.only(
+                      decoration: BoxDecoration(
+                        gradient: soldOut
+                            ? null
+                            : GrofastColorConst.brandGradient,
+                        color: soldOut
+                            ? cs.onSurface.withValues(alpha: 0.12)
+                            : null,
+                        borderRadius: const BorderRadius.only(
                           topLeft: Radius.circular(
                             GrofastDimenConst.detailDockPanelRadius,
                           ),
@@ -493,10 +522,15 @@ class _AddToBagDock extends StatelessWidget {
                         height: GrofastDimenConst.detailStepperButtonSize,
                         child: Center(
                           child: Text(
-                            GrofastValueConst.addToBag,
-                            style: GrofastTextStyleConst.labelSemibold(
-                              tt,
-                            ).copyWith(color: cs.onPrimary),
+                            soldOut
+                                ? ValueConst.outOfStockLabel
+                                : GrofastValueConst.addToBag,
+                            style: GrofastTextStyleConst.labelSemibold(tt)
+                                .copyWith(
+                                  color: soldOut
+                                      ? cs.onSurface.withValues(alpha: 0.38)
+                                      : cs.onPrimary,
+                                ),
                           ),
                         ),
                       ),
@@ -505,15 +539,16 @@ class _AddToBagDock extends StatelessWidget {
                 ),
               ),
             ),
-            Positioned(
-              left: GrofastDimenConst.screenGutter,
-              bottom: bottomInset,
-              child: GrofastQuantityStepper.large(
-                quantity: quantity,
-                onIncrement: onIncrement,
-                onDecrement: onDecrement,
+            if (!soldOut)
+              Positioned(
+                left: GrofastDimenConst.screenGutter,
+                bottom: bottomInset,
+                child: GrofastQuantityStepper.large(
+                  quantity: quantity,
+                  onIncrement: onIncrement,
+                  onDecrement: onDecrement,
+                ),
               ),
-            ),
           ],
         ),
       ),

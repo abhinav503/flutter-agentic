@@ -91,7 +91,9 @@ class _AddToCartSheetContentState extends State<AddToCartSheetContent>
                         GraviaQuantityStepper(
                           value: quantity,
                           onDecrement: decrementQuantity,
-                          onIncrement: incrementQuantity,
+                          onIncrement: incrementQuantityUpTo(
+                            widget.product.purchaseLimit,
+                          ),
                         ),
                       ],
                     ),

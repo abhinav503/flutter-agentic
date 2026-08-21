@@ -1,3 +1,4 @@
+import 'package:core/core/ui/atoms/button.dart';
 import 'package:core/core/ui/atoms/icon_button.dart';
 import 'package:core/core/ui/blocks/ecommerce/category_tile.dart';
 import 'package:core/core/ui/blocks/ecommerce/price_breakdown.dart';
@@ -44,6 +45,52 @@ WidgetbookFolder ecommerceBlocksFolder() {
               originalPrice: '₹8.00',
               actionLabel: 'Add To Cart',
               onAction: () {},
+            ),
+          ),
+          Variant(
+            'Running low',
+            Builder(
+              builder: (context) {
+                final cs = Theme.of(context).colorScheme;
+                return ProductCard(
+                  image: placeholderImage(context),
+                  title: 'Washington Red Apple',
+                  badgeLabel: '300 g',
+                  meta: [
+                    const ProductCardMeta(
+                      icon: Icon(Icons.bolt),
+                      label: '10 Min',
+                    ),
+                    // One warning entry among neutral ones — the reason
+                    // ProductCardMeta carries its own label colour.
+                    ProductCardMeta(
+                      icon: const Icon(Icons.inventory_2_outlined),
+                      label: 'Only 3 left',
+                      labelColor: cs.error,
+                    ),
+                  ],
+                  price: '₹6.30',
+                  originalPrice: '₹8.00',
+                  actionLabel: 'Add To Cart',
+                  onAction: () {},
+                );
+              },
+            ),
+          ),
+          Variant(
+            'Sold out',
+            ProductCard(
+              image: placeholderImage(context),
+              title: 'Washington Red Apple',
+              badgeLabel: '300 g',
+              meta: const [
+                ProductCardMeta(icon: Icon(Icons.bolt), label: '10 Min'),
+              ],
+              price: '₹6.30',
+              originalPrice: '₹8.00',
+              actionLabel: 'Out of Stock',
+              // No onAction: an inert pill, not one that swallows taps.
+              actionState: AppButtonState.disabled,
             ),
           ),
           Variant(
