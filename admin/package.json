@@ -17,7 +17,8 @@
     "verify:razorpay": "tsx --env-file=.env.local scripts/verify-razorpay.ts",
     "verify:payment-config": "tsx --env-file=.env.local scripts/verify-payment-config.ts",
     "verify:delivery": "tsx scripts/verify-delivery.ts",
-    "verify:support": "tsx scripts/verify-support.ts"
+    "verify:support": "tsx scripts/verify-support.ts",
+    "verify:restricted-products": "tsx scripts/verify-restricted-products.ts"
   },
   "dependencies": {
     "class-variance-authority": "^0.7.1",

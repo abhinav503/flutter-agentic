@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { LegalPage, LegalSection } from "@/components/site/legal-page";
 
-const LAST_UPDATED = "7 August 2026";
+const LAST_UPDATED = "22 August 2026";
 
 export const metadata: Metadata = {
   title: "Terms of service — CordeliaApps",
@@ -109,6 +109,25 @@ export default function TermsPage() {
           that infringes someone else&apos;s rights, or to interfere with how
           the platform works for anyone else. We may suspend or close a store
           that does, and we will say why.
+        </p>
+        <p>
+          Some things are off the platform even where you are licensed to sell
+          them. You may not list <strong>alcoholic drinks</strong>, or{" "}
+          <strong>tobacco, nicotine and related products</strong> — cigarettes,
+          cigars, bidis, chewing tobacco, gutkha, hookah and shisha supplies,
+          vapes and e-cigarettes. Alcohol-free and nicotine-free versions of a
+          product are fine, and so are everyday goods that merely mention one
+          of these words, such as wine vinegar, root beer or a lighter.
+        </p>
+        <p>
+          This is a platform-wide rule, not a legal one: the shopping app is
+          rated for a general audience on the App Store and Google Play on the
+          basis that its stores do not carry these products, and one store
+          listing them puts every store&apos;s app at risk. The console blocks
+          products that look like these when you add or import them, and a
+          store cannot be submitted for review while its catalog contains any.
+          If a legitimate product is refused, rename it or email us and we will
+          sort it out.
         </p>
       </LegalSection>
 

@@ -17,6 +17,10 @@ import {
 import type { Brand, Category, Product, UnitType } from "@/lib/types";
 import { UNIT_TYPE_LABELS } from "@/lib/types";
 import { matchesSearch } from "@/lib/search";
+import {
+  findRestrictedTerms,
+  restrictedProductMessage,
+} from "@/lib/restricted-products";
 import { currencySymbol, formatMoney } from "@/lib/money";
 import {
   applySort,
@@ -505,6 +509,13 @@ function ProductDialog({
     event.preventDefault();
     if (categoryIds.length === 0) {
       toast.error("Select at least one category");
+      return;
+    }
+    // Refused here rather than only at publish, so the owner learns the rule
+    // on the product that broke it instead of on a checklist weeks later.
+    const restricted = findRestrictedTerms(name, description);
+    if (restricted.length > 0) {
+      toast.error(restrictedProductMessage(restricted));
       return;
     }
     setSubmitting(true);

@@ -1,5 +1,9 @@
 import { computeDiscountPercentage, type ProductInput } from "@/lib/products";
 import type { GrocerySeed } from "@/lib/seed/seed-types";
+import {
+  findRestrictedTerms,
+  restrictedProductMessage,
+} from "@/lib/restricted-products";
 import type { UnitType } from "@/lib/types";
 import {
   eachRow,
@@ -57,6 +61,14 @@ export function buildProductPlan(
       return;
     }
     if (!identify(name, get("id") || name)) return;
+
+    // Same rule as the product form — a CSV is the other way a catalog gets
+    // filled, and the ban is worth nothing if one path enforces it.
+    const restricted = findRestrictedTerms(name, get("description"));
+    if (restricted.length > 0) {
+      fail(restrictedProductMessage(restricted));
+      return;
+    }
 
     const price = parseNumber(get("price"));
     if (price === null || price <= 0) {

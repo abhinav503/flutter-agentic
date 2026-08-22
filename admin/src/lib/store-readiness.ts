@@ -1,5 +1,9 @@
 import { adminDb } from "@/lib/firebase-admin";
 import { getStorePaymentStatus } from "@/lib/payments";
+import {
+  findRestrictedTerms,
+  type RestrictedMatch,
+} from "@/lib/restricted-products";
 import { isSupportEmail, mapStoreSupport } from "@/lib/support";
 
 // What a store must have before it can be seen, and before it can go live.
@@ -12,11 +16,15 @@ import { isSupportEmail, mapStoreSupport } from "@/lib/support";
 //                   shows up in discovery FOR ITS OWNER, so they can walk
 //                   their real app while they finish setting up.
 //   publishReady  — previewReady AND a payment account connected AND a
-//                   support email AND a trading address. None of these is
-//                   something a shopper can work around on their own — one to
-//                   pay, one to ask when the order goes wrong, one to know who
-//                   they bought from — so they gate going live but
-//                   deliberately not the owner preview.
+//                   support email AND a trading address AND no banned
+//                   products. The first three are things a shopper cannot
+//                   work around on their own — one to pay, one to ask when
+//                   the order goes wrong, one to know who they bought from.
+//                   The last is ours: the app's App Store age rating is
+//                   declared free of alcohol and tobacco references, which
+//                   only stays true if no published catalog carries them.
+//                   All of them gate going live but deliberately not the
+//                   owner preview.
 //
 // Computed with the Admin SDK (bypasses rules) and always server-side: the
 // submit route re-runs it rather than trusting whatever the dashboard last
@@ -29,7 +37,8 @@ export type StoreReadinessCheck = {
     | "products"
     | "payments"
     | "support"
-    | "address";
+    | "address"
+    | "restricted";
   label: string;
   /// Why it isn't satisfied. Empty when [passed].
   hint: string;
@@ -56,6 +65,31 @@ async function countIn(storeId: string, sub: string): Promise<number> {
   return snap.data().count;
 }
 
+// Names + descriptions only, and only those two fields off the wire: the
+// alternative is pulling a 90-product catalog in full on every settings page
+// render just to read two strings per doc.
+async function findBannedProducts(
+  storeId: string,
+): Promise<{ name: string; matches: RestrictedMatch[] }[]> {
+  const snap = await adminDb
+    .collection("stores")
+    .doc(storeId)
+    .collection("products")
+    .select("name", "description")
+    .get();
+
+  const banned: { name: string; matches: RestrictedMatch[] }[] = [];
+  for (const doc of snap.docs) {
+    const name = (doc.get("name") as string | undefined) ?? "";
+    const matches = findRestrictedTerms(
+      name,
+      doc.get("description") as string | undefined,
+    );
+    if (matches.length > 0) banned.push({ name: name || doc.id, matches });
+  }
+  return banned;
+}
+
 export async function getStoreReadiness(
   storeId: string,
 ): Promise<StoreReadiness> {
@@ -64,11 +98,20 @@ export async function getStoreReadiness(
   const support = mapStoreSupport(storeSnap.data()?.support);
   const address = ((storeSnap.data()?.address as string | undefined) ?? "").trim();
 
-  const [categories, products, payment] = await Promise.all([
+  const [categories, products, payment, banned] = await Promise.all([
     countIn(storeId, "categories"),
     countIn(storeId, "products"),
     getStorePaymentStatus(storeId),
+    findBannedProducts(storeId),
   ]);
+
+  // Three names is enough to show the owner what kind of thing tripped;
+  // beyond that the hint stops being readable and the Products page is the
+  // better place to work through the rest.
+  const bannedPreview = banned
+    .slice(0, 3)
+    .map((b) => b.name)
+    .join(", ");
 
   const checks: StoreReadinessCheck[] = [
     {
@@ -100,6 +143,18 @@ export async function getStoreReadiness(
       // Not a preview blocker, same as payments and support: it is a
       // disclosure a shopper needs, not something the storefront renders
       // from.
+      blocksPreview: false,
+    },
+    {
+      id: "restricted",
+      label: "No banned products",
+      hint: banned.length
+        ? `Remove or rename ${banned.length === 1 ? "" : `${banned.length} products, including `}${bannedPreview} — alcohol and tobacco cannot be sold on CordeliaApps.`
+        : "",
+      passed: banned.length === 0,
+      // Not a preview blocker: an owner tidying their catalog should still be
+      // able to walk their own storefront while they do it. Only going live,
+      // where a shopper (or an app reviewer) would see the product, is gated.
       blocksPreview: false,
     },
     {
