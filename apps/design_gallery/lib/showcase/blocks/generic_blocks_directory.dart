@@ -353,6 +353,34 @@ WidgetbookFolder genericBlocksFolder() {
               ),
             ),
           ),
+          Variant(
+            'Pinned header — body clips at the viewport, not under the title',
+            SizedBox(
+              width: 360,
+              height: 320,
+              child: ScreenBody(
+                pinnedHeader: true,
+                header: Builder(
+                  builder: (context) => Text(
+                    'My Orders',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                ),
+                body: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    for (var i = 0; i < 12; i++)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: AppSpacing.xs,
+                        ),
+                        child: Text('Content row $i'),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          ),
         ]),
       ),
       allVariants(

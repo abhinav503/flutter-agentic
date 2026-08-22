@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:core/core/theme/app_spacing.dart';
+import 'package:core/core/ui/blocks/screen_body.dart';
 
 import 'package:cordelia/templates/dailymart/constants/dailymart_dimen_const.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_bottom_fade.dart';
@@ -12,16 +13,11 @@ import 'package:cordelia/templates/dailymart/widgets/dailymart_header_row.dart';
 /// above the scroll (see [pinnedHeader]); a back-less one scrolls away with
 /// the content.
 ///
-/// One padding recipe for every state a screen swaps through, so a
-/// loading → loaded → error transition never shifts the content sideways.
-///
-/// With a [floatingAction] the shell becomes a `Stack(fit: StackFit.expand)`:
-/// the scroll view shrink-wraps its content, so without expanding, a short
-/// page ends the stack early and the positioned fade + CTA pin to the
-/// content's bottom edge instead of the device's. The scroll view then pays
-/// [DailyMartDimenConst.floatingActionScrollInset] so its last row clears
-/// the CTA; without one it pays the device inset alone (the screen's
-/// `SafeArea` deliberately leaves the bottom edge to this shell).
+/// Core's [ScreenBody] carrying this pack's gutter, fade and inset — the
+/// layout algorithm (one padding recipe for every state a screen swaps
+/// through, the expand-the-stack rule a floating CTA needs) lives there
+/// once. What stays here is the kit's `title/onBack → DailyMartHeaderRow`
+/// convenience and its rule for which headers pin.
 class DailyMartScreenBody extends StatelessWidget {
   /// The content below the header row.
   final Widget body;
@@ -96,86 +92,22 @@ class DailyMartScreenBody extends StatelessWidget {
                 trailing: trailing,
               ));
 
-    final horizontal = fullBleedBody ? 0.0 : AppSpacing.lg;
-    final bottom = floatingAction != null
-        ? DailyMartDimenConst.floatingActionScrollInset(context)
-        : bottomInset ?? MediaQuery.paddingOf(context).bottom + AppSpacing.lg;
-    final pinned =
-        header != null && (pinnedHeader ?? (title != null && onBack != null));
-
-    final Widget view;
-    if (pinned) {
-      // The header docks above the scroll view — content clips at the
-      // viewport's top edge instead of sliding under the back button.
-      view = Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: EdgeInsets.fromLTRB(
-              AppSpacing.lg,
-              topPadding,
-              AppSpacing.lg,
-              0,
-            ),
-            child: header,
-          ),
-          SizedBox(height: gap),
-          Expanded(
-            child: SingleChildScrollView(
-              padding: EdgeInsets.fromLTRB(horizontal, 0, horizontal, bottom),
-              child: body,
-            ),
-          ),
-        ],
-      );
-    } else {
-      view = SingleChildScrollView(
-        padding: EdgeInsets.fromLTRB(
-          horizontal,
-          topPadding,
-          horizontal,
-          bottom,
-        ),
-        child: header == null
-            ? body
-            : Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (fullBleedBody)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: AppSpacing.lg,
-                      ),
-                      child: header,
-                    )
-                  else
-                    header,
-                  SizedBox(height: gap),
-                  body,
-                ],
-              ),
-      );
-    }
-
-    if (floatingAction == null) return view;
-
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        view,
-        const Positioned(
-          left: 0,
-          right: 0,
-          bottom: 0,
-          child: DailyMartBottomFade(),
-        ),
-        Positioned(
-          left: AppSpacing.lg,
-          right: AppSpacing.lg,
-          bottom: MediaQuery.paddingOf(context).bottom + AppSpacing.lg,
-          child: floatingAction!,
-        ),
-      ],
+    return ScreenBody(
+      body: body,
+      header: header,
+      gutter: AppSpacing.lg,
+      gap: gap,
+      topPadding: topPadding,
+      bottomInset: bottomInset,
+      floatingAction: floatingAction,
+      floatingActionScrollInset: floatingAction == null
+          ? null
+          : DailyMartDimenConst.floatingActionScrollInset(context),
+      bottomFade: const DailyMartBottomFade(),
+      fullBleedBody: fullBleedBody,
+      // This pack pins exactly the headers that carry a back button; tab
+      // roots and custom header rows scroll away unless a caller opts in.
+      pinnedHeader: pinnedHeader ?? (title != null && onBack != null),
     );
   }
 }

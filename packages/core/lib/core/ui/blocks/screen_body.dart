@@ -66,6 +66,15 @@ class ScreenBody extends StatelessWidget {
   /// is itself a scrollable that must own the viewport.
   final bool scrollable;
 
+  /// Docks [header] *above* the scroll view instead of scrolling it away
+  /// with the content, so the body clips at the viewport's top edge rather
+  /// than sliding under a back button.
+  ///
+  /// Which headers pin is the pack's rule, not this block's — one pins the
+  /// ones carrying a back button, another every non-custom header — so the
+  /// wrapper resolves it and passes a plain bool.
+  final bool pinnedHeader;
+
   const ScreenBody({
     super.key,
     required this.body,
@@ -79,6 +88,7 @@ class ScreenBody extends StatelessWidget {
     this.bottomFade,
     this.fullBleedBody = false,
     this.scrollable = true,
+    this.pinnedHeader = false,
   }) : assert(
          floatingAction == null || floatingActionScrollInset != null,
          'A floatingAction needs floatingActionScrollInset so the last row '
@@ -92,6 +102,61 @@ class ScreenBody extends StatelessWidget {
         ? floatingActionScrollInset!
         : bottomInset ?? MediaQuery.paddingOf(context).bottom + AppSpacing.lg;
 
+    final view = pinnedHeader && header != null
+        ? _pinned(context, horizontal: horizontal, bottom: bottom)
+        : _scrolling(context, horizontal: horizontal, bottom: bottom);
+
+    if (floatingAction == null) return view;
+
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        view,
+        if (bottomFade != null)
+          Positioned(left: 0, right: 0, bottom: 0, child: bottomFade!),
+        Positioned(
+          left: gutter,
+          right: gutter,
+          bottom: MediaQuery.paddingOf(context).bottom + AppSpacing.lg,
+          child: floatingAction!,
+        ),
+      ],
+    );
+  }
+
+  /// Header docked above, body scrolling beneath it. The header keeps the
+  /// full gutter even when the body bleeds — a title hard against the screen
+  /// edge reads as a mistake.
+  Widget _pinned(
+    BuildContext context, {
+    required double horizontal,
+    required double bottom,
+  }) {
+    final bodyPadding = EdgeInsets.fromLTRB(horizontal, 0, horizontal, bottom);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: EdgeInsets.fromLTRB(gutter, topPadding, gutter, 0),
+          child: header,
+        ),
+        SizedBox(height: gap),
+        Expanded(
+          child: scrollable
+              ? SingleChildScrollView(padding: bodyPadding, child: body)
+              : Padding(padding: bodyPadding, child: body),
+        ),
+      ],
+    );
+  }
+
+  /// Header as the scroll view's first item, scrolling away with the body.
+  Widget _scrolling(
+    BuildContext context, {
+    required double horizontal,
+    required double bottom,
+  }) {
     final content = header == null
         ? body
         : Column(
@@ -116,25 +181,9 @@ class ScreenBody extends StatelessWidget {
       bottom,
     );
 
-    final view = scrollable
+    return scrollable
         ? SingleChildScrollView(padding: padding, child: content)
         : Padding(padding: padding, child: content);
-
-    if (floatingAction == null) return view;
-
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        view,
-        if (bottomFade != null)
-          Positioned(left: 0, right: 0, bottom: 0, child: bottomFade!),
-        Positioned(
-          left: gutter,
-          right: gutter,
-          bottom: MediaQuery.paddingOf(context).bottom + AppSpacing.lg,
-          child: floatingAction!,
-        ),
-      ],
-    );
   }
+
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/bottom_fade.dart';
+import 'package:core/core/ui/blocks/screen_body.dart';
 
 import 'package:cordelia/templates/grofast/constants/grofast_dimen_const.dart';
 
@@ -13,17 +14,11 @@ import 'grofast_header_row.dart';
 /// scroll (see [pinnedHeader]); a back-less one scrolls away with the
 /// content.
 ///
-/// One padding recipe for **every** state a screen swaps through, so a
-/// loading → loaded → empty → error transition never shifts content sideways
-/// and every branch pays the same bottom inset.
-///
-/// With a [floatingAction] the shell becomes a `Stack(fit: StackFit.expand)`:
-/// the scroll view shrink-wraps its content, so without expanding, a short
-/// page ends the stack early and the fade + CTA pin to the content's bottom
-/// edge instead of the device's. The scroll view then pays
-/// [GrofastDimenConst.floatingActionScrollInset] so its last row clears the
-/// CTA; without one it pays the device inset alone (the screen's `SafeArea`
-/// deliberately leaves the bottom edge to this shell).
+/// Core's [ScreenBody] carrying this pack's 30px gutter, its fade and its
+/// inset — the layout algorithm (one padding recipe for every state a screen
+/// swaps through, the expand-the-stack rule a floating CTA needs) lives
+/// there once. What stays here is the kit's `title/onBack → GrofastHeaderRow`
+/// convenience and its rule for which headers pin.
 class GrofastScreenBody extends StatelessWidget {
   final Widget body;
 
@@ -102,91 +97,23 @@ class GrofastScreenBody extends StatelessWidget {
                 trailing: trailing,
               ));
 
-    final horizontal = fullBleedBody ? 0.0 : GrofastDimenConst.screenGutter;
-    final bottom = floatingAction != null
-        ? GrofastDimenConst.floatingActionScrollInset(context)
-        : bottomInset ?? MediaQuery.paddingOf(context).bottom + AppSpacing.lg;
-    final pinned =
-        header != null && (pinnedHeader ?? (headerRow == null && showBack));
-
-    final Widget view;
-    if (pinned) {
-      // The header docks above the scroll view — content clips at the
-      // viewport's top edge instead of sliding under the back control.
-      final bodyPadding = EdgeInsets.fromLTRB(
-        horizontal,
-        0,
-        horizontal,
-        bottom,
-      );
-      view = Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: GrofastDimenConst.screenGutter,
-            ).copyWith(top: topPadding),
-            child: header,
-          ),
-          SizedBox(height: gap),
-          Expanded(
-            child: scrollable
-                ? SingleChildScrollView(padding: bodyPadding, child: body)
-                : Padding(padding: bodyPadding, child: body),
-          ),
-        ],
-      );
-    } else {
-      final content = header == null
-          ? body
-          : Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (fullBleedBody)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: GrofastDimenConst.screenGutter,
-                    ),
-                    child: header,
-                  )
-                else
-                  header,
-                SizedBox(height: gap),
-                body,
-              ],
-            );
-
-      final padding = EdgeInsets.fromLTRB(
-        horizontal,
-        topPadding,
-        horizontal,
-        bottom,
-      );
-
-      view = scrollable
-          ? SingleChildScrollView(padding: padding, child: content)
-          : Padding(padding: padding, child: content);
-    }
-
-    if (floatingAction == null) return view;
-
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        view,
-        const Positioned(
-          left: 0,
-          right: 0,
-          bottom: 0,
-          child: GrofastBottomFade(),
-        ),
-        Positioned(
-          left: GrofastDimenConst.screenGutter,
-          right: GrofastDimenConst.screenGutter,
-          bottom: MediaQuery.paddingOf(context).bottom + AppSpacing.lg,
-          child: floatingAction!,
-        ),
-      ],
+    return ScreenBody(
+      body: body,
+      header: header,
+      gutter: GrofastDimenConst.screenGutter,
+      gap: gap,
+      topPadding: topPadding,
+      bottomInset: bottomInset,
+      floatingAction: floatingAction,
+      floatingActionScrollInset: floatingAction == null
+          ? null
+          : GrofastDimenConst.floatingActionScrollInset(context),
+      bottomFade: const GrofastBottomFade(),
+      fullBleedBody: fullBleedBody,
+      scrollable: scrollable,
+      // This pack pins every standard header that shows a back control; a
+      // custom headerRow scrolls away unless a caller opts in.
+      pinnedHeader: pinnedHeader ?? (headerRow == null && showBack),
     );
   }
 }
