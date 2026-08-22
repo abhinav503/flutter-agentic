@@ -93,13 +93,13 @@ abstract final class ApiConstants {
   static String addressPath(String addressId) =>
       '$baseUrl/users/addresses/$addressId';
 
-  /// Geo lookups for the address form — store-agnostic and token-authed
-  /// like [addressesPath]; the server proxies Ola Maps / India Post so no
-  /// key ships in the app and web builds dodge CORS.
-  static String get geoReversePath => '$baseUrl/geo/reverse';
-
-  static String get geoAutocompletePath => '$baseUrl/geo/autocomplete';
-
+  /// Pincode → city/state for the address form — store-agnostic and
+  /// token-authed like [addressesPath]; the server proxies India Post so
+  /// the app has one code path and web builds dodge CORS.
+  ///
+  /// Reverse geocoding and place search used to sit beside this against an
+  /// Ola Maps proxy. Both are now the device's own geocoder — no key, no
+  /// quota, and it works outside India, which Ola does not.
   static String geoPincodePath(String pincode) =>
       '$baseUrl/geo/pincode/$pincode';
 }

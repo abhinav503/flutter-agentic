@@ -155,8 +155,6 @@ abstract final class GraviaValueConst {
   static String get useMyLocationLabel => L10n.current.graviaUseMyLocationLabel;
   static String get locationUnavailableMessage =>
       L10n.current.graviaLocationUnavailableMessage;
-  static String get addressSearchLabel => L10n.current.graviaAddressSearchLabel;
-  static String get addressSearchHint => L10n.current.graviaAddressSearchHint;
 
   // Data values, not copy — what the picklist stores on the address doc, so
   // they stay locale-independent English. (City stopped being a picklist

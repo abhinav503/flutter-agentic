@@ -5,7 +5,6 @@ import 'package:fpdart/fpdart.dart';
 
 import '../../domain/entities/geo_address_entity.dart';
 import '../../domain/entities/pincode_info_entity.dart';
-import '../../domain/entities/place_suggestion_entity.dart';
 import '../../domain/repository/geo_repository.dart';
 import '../data_source/geo_remote_data_source.dart';
 
@@ -16,47 +15,49 @@ class GeoRepositoryImpl with BaseRepository implements GeoRepository {
   @override
   Future<Either<Failure, GeoAddressEntity>> currentLocationAddress() =>
       handleRequest(() async {
-        // The GPS read is a device call, not a remote one, so it lives here
-        // (composed with the network half) rather than in the remote data
-        // source; LocationService returns a result, never throws.
-        final location = await LocationService.instance.currentPosition();
+        // Entirely on-device: LocationService does the permission dance, the
+        // fix and the geocode, and returns a result rather than throwing.
+        final location = await LocationService.instance.currentPlace();
         switch (location) {
           case LocationUnavailable(:final reason):
             return left(Failure.location(message: 'Device location: $reason'));
-          case LocationSuccess(:final latitude, :final longitude):
-            return _resolve(latitude, longitude);
+          case LocationSuccess(hasPlace: false):
+            // A fix the geocoder had no name for — ordinary with no network
+            // or no Play services. Nothing to prefill, so say so rather than
+            // handing the form six empty fields.
+            return left(
+              const Failure.location(message: 'No address at this location'),
+            );
+          case LocationSuccess(
+            :final street,
+            :final subLocality,
+            :final locality,
+            :final administrativeArea,
+            :final postalCode,
+            :final country,
+            :final latitude,
+            :final longitude,
+            :final formattedAddress,
+          ):
+            return right(
+              GeoAddressEntity(
+                formatted: formattedAddress,
+                // The street and whatever sits under the city — the two the
+                // shopper would write on the first line themselves.
+                addressLine: [
+                  street,
+                  subLocality,
+                ].where((part) => part.isNotEmpty).join(', '),
+                city: locality,
+                state: administrativeArea,
+                postalCode: postalCode,
+                country: country,
+                latitude: latitude,
+                longitude: longitude,
+              ),
+            );
         }
       });
-
-  @override
-  Future<Either<Failure, GeoAddressEntity>> reverseGeocode({
-    required double latitude,
-    required double longitude,
-  }) => handleRequest(() => _resolve(latitude, longitude));
-
-  Future<Either<Failure, GeoAddressEntity>> _resolve(
-    double latitude,
-    double longitude,
-  ) async {
-    final model = await _dataSource.reverseGeocode(
-      latitude: latitude,
-      longitude: longitude,
-    );
-    if (model == null) {
-      return left(
-        const Failure.location(message: 'No address at this location'),
-      );
-    }
-    return right(model.toEntity());
-  }
-
-  @override
-  Future<Either<Failure, List<PlaceSuggestionEntity>>> searchPlaces(
-    String query,
-  ) => handleRequest(() async {
-    final models = await _dataSource.autocomplete(query);
-    return right(models.map((m) => m.toEntity()).toList());
-  });
 
   @override
   Future<Either<Failure, PincodeInfoEntity?>> lookupPincode(String pincode) =>

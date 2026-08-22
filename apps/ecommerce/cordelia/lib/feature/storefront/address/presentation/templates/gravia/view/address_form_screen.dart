@@ -9,7 +9,6 @@ import 'package:cordelia/templates/gravia/widgets/gravia_primary_button.dart';
 import 'package:cordelia/templates/gravia/widgets/gravia_tinted_button.dart';
 import 'package:core/core/ui/atoms/loading_dots.dart';
 import 'package:core/core/ui/blocks/docked_bar.dart';
-import 'package:core/core/ui/molecules/icon_info_row.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -21,7 +20,6 @@ import 'package:cordelia/utils/localized_validations.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/blocks/collapsing_header_sheet.dart';
 
-import '../../../../../geo/domain/entities/place_suggestion_entity.dart';
 import '../../../../../geo/presentation/bloc/address_lookup_bloc.dart';
 import '../../../../domain/entities/address_entity.dart';
 import '../../../address_form_fields.dart';
@@ -45,8 +43,6 @@ class AddressFormScreen extends BaseScreen {
 
 class _AddressFormScreenState extends BaseScreenState<AddressFormScreen>
     with TextfieldValidations, LocalizedValidations, AddressFormFields {
-  final _searchController = TextEditingController();
-
   @override
   AddressEntity? get address => widget.address;
 
@@ -68,7 +64,6 @@ class _AddressFormScreenState extends BaseScreenState<AddressFormScreen>
   @override
   void dispose() {
     postalCodeController.removeListener(_onPostalCodeChanged);
-    _searchController.dispose();
     super.dispose();
   }
 
@@ -79,14 +74,6 @@ class _AddressFormScreenState extends BaseScreenState<AddressFormScreen>
         AddressLookupEvent.pincodeEntered(pincode: pincode),
       );
     }
-  }
-
-  void _selectSuggestion(PlaceSuggestionEntity suggestion) {
-    _searchController.clear();
-    FocusManager.instance.primaryFocus?.unfocus();
-    context.read<AddressLookupBloc>().add(
-      AddressLookupEvent.suggestionSelected(suggestion: suggestion),
-    );
   }
 
   /// Opens a radio-list bottom sheet for a bounded picklist field — same
@@ -144,7 +131,11 @@ class _AddressFormScreenState extends BaseScreenState<AddressFormScreen>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // ── Location helpers: GPS prefill + address type-ahead ──
+                  // ── Location helper: GPS prefill. Address type-ahead sat
+                  // beside it until the Ola Maps proxy behind it was
+                  // removed; every replacement needs a billed API key, and
+                  // the device geocoder that took over the reverse lookup
+                  // does not search. ──
                   if (lookupState is AddressLookupLocating)
                     const SizedBox(
                       height: GraviaTintedButton.height,
@@ -162,31 +153,6 @@ class _AddressFormScreenState extends BaseScreenState<AddressFormScreen>
                         const AddressLookupEvent.locationRequested(),
                       ),
                     ),
-                  const SizedBox(height: AppSpacing.lg),
-                  GraviaFormField(
-                    label: GraviaValueConst.addressSearchLabel,
-                    controller: _searchController,
-                    hint: GraviaValueConst.addressSearchHint,
-                    onChanged: (query) => context.read<AddressLookupBloc>().add(
-                      AddressLookupEvent.queryChanged(query: query),
-                    ),
-                  ),
-                  if (lookupState case AddressLookupSuggestions(
-                    :final suggestions,
-                  ))
-                    for (final suggestion in suggestions)
-                      IconInfoRow(
-                        leading: Icon(
-                          Icons.location_on_outlined,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                        title: suggestion.description,
-                        titleMaxLines: 2,
-                        padding: const EdgeInsets.symmetric(
-                          vertical: AppSpacing.sm,
-                        ),
-                        onTap: () => _selectSuggestion(suggestion),
-                      ),
                   const SizedBox(height: AppSpacing.lg),
                   _field(
                     GraviaValueConst.nameLabel,

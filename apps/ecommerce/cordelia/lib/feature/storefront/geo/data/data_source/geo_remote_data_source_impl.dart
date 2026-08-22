@@ -3,14 +3,13 @@ import 'package:cordelia/services/firebase_auth_service.dart';
 import 'package:core/core/network/http_service.dart';
 import 'package:dio/dio.dart';
 
-import '../models/geo_address_model.dart';
 import '../models/pincode_info_model.dart';
-import '../models/place_suggestion_model.dart';
 import 'geo_remote_data_source.dart';
 
-/// Backed by the admin API's token-authed `/api/geo/*` proxy — the Ola Maps
-/// key lives server-side, and web builds dodge third-party CORS. Same auth
-/// shape as `AddressRemoteDataSourceImpl`.
+/// Backed by the admin API's token-authed `/api/geo/pincode` proxy — India
+/// Post is keyless but proxied anyway, so the app has one code path and web
+/// builds dodge third-party CORS. Same auth shape as
+/// `AddressRemoteDataSourceImpl`.
 class GeoRemoteDataSourceImpl implements GeoRemoteDataSource {
   const GeoRemoteDataSourceImpl();
 
@@ -20,51 +19,17 @@ class GeoRemoteDataSourceImpl implements GeoRemoteDataSource {
   }
 
   @override
-  Future<GeoAddressModel?> reverseGeocode({
-    required double latitude,
-    required double longitude,
-  }) async {
-    final response = await _getOrNullOn404(
-      '${ApiConstants.geoReversePath}?latlng=$latitude,$longitude',
-    );
-    if (response == null) return null;
-    return GeoAddressModel.fromJson(
-      response['address'] as Map<String, dynamic>,
-    );
-  }
-
-  @override
-  Future<List<PlaceSuggestionModel>> autocomplete(String query) async {
-    final response = await HttpService.instance.get<Map<String, dynamic>>(
-      ApiConstants.geoAutocompletePath,
-      queryParameters: {'q': query},
-      options: await _authOptions(),
-    );
-    return (response.data!['suggestions'] as List<dynamic>)
-        .map((s) => PlaceSuggestionModel.fromJson(s as Map<String, dynamic>))
-        .toList();
-  }
-
-  @override
   Future<PincodeInfoModel?> lookupPincode(String pincode) async {
-    final response = await _getOrNullOn404(
-      ApiConstants.geoPincodePath(pincode),
-    );
-    if (response == null) return null;
-    return PincodeInfoModel.fromJson(
-      response['pincode'] as Map<String, dynamic>,
-    );
-  }
-
-  /// 404 means "nothing found there" for both reverse geocode and pincode —
-  /// a normal outcome the caller maps to null, not an error to surface.
-  Future<Map<String, dynamic>?> _getOrNullOn404(String url) async {
+    // 404 means "no such pincode" — a normal outcome the caller maps to
+    // null, not an error to surface. The form is hand-typeable either way.
     try {
       final response = await HttpService.instance.get<Map<String, dynamic>>(
-        url,
+        ApiConstants.geoPincodePath(pincode),
         options: await _authOptions(),
       );
-      return response.data!;
+      return PincodeInfoModel.fromJson(
+        response.data!['pincode'] as Map<String, dynamic>,
+      );
     } on DioException catch (e) {
       if (e.response?.statusCode == 404) return null;
       rethrow;

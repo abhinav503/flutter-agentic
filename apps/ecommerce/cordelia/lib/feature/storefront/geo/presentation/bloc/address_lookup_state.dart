@@ -4,14 +4,9 @@ part of 'address_lookup_bloc.dart';
 sealed class AddressLookupState with _$AddressLookupState {
   const factory AddressLookupState.idle() = AddressLookupIdle;
 
-  /// GPS + reverse geocode in flight — drives the location button's spinner.
+  /// The fix and the geocode are in flight — drives the location button's
+  /// spinner.
   const factory AddressLookupState.locating() = AddressLookupLocating;
-
-  /// Type-ahead results for [query].
-  const factory AddressLookupState.suggestions({
-    required String query,
-    required List<PlaceSuggestionEntity> suggestions,
-  }) = AddressLookupSuggestions;
 
   /// A structured address is ready — the screen's listener prefills the
   /// form controllers from it.
@@ -24,11 +19,11 @@ sealed class AddressLookupState with _$AddressLookupState {
     required PincodeInfoEntity info,
   }) = AddressLookupPincodeReady;
 
-  /// [isLocation] picks the pack's own localized copy over [message] (which
-  /// is technical); [query] is the retry context for a failed search.
+  /// [isLocation] picks the pack's own localized copy over [message], which
+  /// is technical. Only location can fail loudly now: a pincode miss is
+  /// silent by design.
   const factory AddressLookupState.error({
     required String message,
     required bool isLocation,
-    @Default('') String query,
   }) = AddressLookupError;
 }

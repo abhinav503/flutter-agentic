@@ -13,8 +13,6 @@ BlocProvider<AddressLookupBloc> addressLookupBlocProvider({
 }) => BlocProvider(
   create: (_) => AddressLookupBloc(
     getCurrentLocationAddressUseCase: sl(),
-    reverseGeocodeUseCase: sl(),
-    searchPlacesUseCase: sl(),
     lookupPincodeUseCase: sl(),
   ),
   child: child,
