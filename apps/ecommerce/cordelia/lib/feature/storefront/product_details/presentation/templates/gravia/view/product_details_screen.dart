@@ -70,7 +70,6 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
           initialRating: existing?.rating ?? 0,
           initialText: existing?.text ?? '',
           onSubmit: submitReview,
-          onMessage: showSnackBar,
         ),
       );
 
@@ -80,7 +79,6 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
         title: ValueConst.reportReviewSheetTitle,
         child: GraviaReportReviewSheetContent(
           onSubmit: (reason, block) => submitReport(review.uid, reason, block),
-          onMessage: showSnackBar,
         ),
       );
 

@@ -35,6 +35,7 @@ import 'package:cordelia/templates/dailymart/widgets/dailymart_quantity_stepper.
 import 'package:cordelia/templates/dailymart/widgets/dailymart_section_header.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_sheet.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_top_switcher.dart';
+import 'package:cordelia/feature/storefront/home/presentation/product_rating_label.dart';
 
 import '../../../../../reviews/domain/entities/product_reviews_entity.dart';
 import '../../../../../reviews/domain/entities/review_entity.dart';
@@ -79,7 +80,6 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
           initialRating: existing?.rating ?? 0,
           initialText: existing?.text ?? '',
           onSubmit: submitReview,
-          onMessage: showSnackBar,
         ),
       );
 
@@ -89,7 +89,6 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
         title: ValueConst.reportReviewSheetTitle,
         child: DailyMartReportReviewSheetContent(
           onSubmit: (reason, block) => submitReport(review.uid, reason, block),
-          onMessage: showSnackBar,
         ),
       );
 
@@ -492,12 +491,7 @@ class _RatingPill extends StatelessWidget {
           ),
           const SizedBox(width: AppSpacing.xs3),
           Text(
-            rated
-                ? ValueConst.ratingLabel(
-                    product.ratingAverage,
-                    product.reviewCount,
-                  )
-                : ValueConst.unratedLabel,
+            product.ratingLabel,
             style: DailyMartTextStyleConst.bodyXsMedium(
               tt,
             ).copyWith(color: rated ? cs.onSurface : cs.onSurfaceVariant),

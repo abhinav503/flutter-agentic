@@ -26,9 +26,13 @@ mixin WriteReviewForm<T extends StatefulWidget> on State<T> {
   /// Shown when submit is tapped with no star picked.
   String get missingRatingMessage;
 
-  /// The pack's own way of surfacing that message (a snackbar on the host
-  /// screen, usually) — a sheet has no `BaseScreenState` of its own.
-  void showFormMessage(String message);
+  /// The gate's complaint, or null while there is nothing to say.
+  ///
+  /// Held here and rendered *inside* the sheet rather than sent to the host
+  /// screen's `showSnackBar`: a snack bar belongs to the Scaffold underneath,
+  /// so a modal sheet covers it completely — the shopper tapped submit and
+  /// nothing appeared to happen. Cleared the moment they act on it.
+  String? formError;
 
   late final reviewController = TextEditingController(text: initialText);
 
@@ -44,14 +48,17 @@ mixin WriteReviewForm<T extends StatefulWidget> on State<T> {
     super.dispose();
   }
 
-  void selectRating(int value) => setState(() => rating = value);
+  void selectRating(int value) => setState(() {
+    rating = value;
+    formError = null;
+  });
 
   /// Validates, hands the review to the host, and closes the sheet. The text
   /// is optional — a star-only review is a real review — but the rating
   /// isn't: without it there is nothing to average.
   void submitReview() {
     if (!hasRating) {
-      showFormMessage(missingRatingMessage);
+      setState(() => formError = missingRatingMessage);
       return;
     }
     onSubmit(rating, reviewController.text.trim());

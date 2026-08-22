@@ -12,6 +12,8 @@ import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/button.dart';
 
 import 'package:cordelia/enums/order_status.dart';
+
+import '../../../order_timeline_steps.dart';
 import 'package:cordelia/feature/storefront/orders/domain/entities/order_entity.dart';
 import 'package:cordelia/feature/storefront/orders/domain/entities/order_line_item_entity.dart';
 import 'package:cordelia/feature/support/presentation/view/support_order_link.dart';
@@ -70,7 +72,6 @@ class _TrackOrderScreenState extends BaseScreenState<TrackOrderScreen>
       textLabel: ValueConst.rateOrderTextLabel,
       textHint: ValueConst.rateOrderTextHint,
       onSubmit: onSubmit,
-      onMessage: showSnackBar,
     ),
   );
 
@@ -86,11 +87,8 @@ class _TrackOrderScreenState extends BaseScreenState<TrackOrderScreen>
     ),
   );
 
-  Future<void> _copy(String label, String value) async {
-    await Clipboard.setData(ClipboardData(text: value));
-    if (!mounted) return;
-    showSnackBar(GrofastValueConst.copiedMessage(label));
-  }
+  Future<void> _copy(String label, String value) =>
+      copyToClipboard(value, GrofastValueConst.copiedMessage(label));
 
   @override
   SystemUiOverlayStyle? overlayStyle(BuildContext context) =>
@@ -525,23 +523,19 @@ class _TrackingDetail extends StatelessWidget {
 
   /// Reached steps, oldest → newest. Placement is always reached — orders
   /// predating `statusHistory` still know when they were placed.
-  List<(OrderStatus, DateTime?)> get _reached {
-    final steps = order.status == OrderStatus.cancelled
-        ? const [OrderStatus.pending, OrderStatus.cancelled]
-        : const [
-            OrderStatus.pending,
-            OrderStatus.inProcess,
-            OrderStatus.delivered,
-          ];
-
-    return [
-      for (final step in steps)
-        if (step == OrderStatus.pending)
-          (step, order.statusReachedAt(step) ?? order.placedAt)
-        else if (order.statusReachedAt(step) != null || step == order.status)
-          (step, order.statusReachedAt(step)),
-    ];
-  }
+  /// Reached steps only, oldest → newest — this pack lists what *has*
+  /// happened rather than a pipeline of what might, so it filters the shared
+  /// derivation ([OrderTimelineX.timelineSteps]) rather than drawing the
+  /// unreached ones greyed out.
+  ///
+  /// A step counts once it is dated, or once it *is* the current status —
+  /// an order predating `statusHistory` has no timestamp for the step it is
+  /// sitting on, and dropping it would leave the list empty below Placed.
+  List<(OrderStatus, DateTime?)> get _reached => [
+    for (final step in order.timelineSteps)
+      if (step.at != null || step.status == order.status)
+        (step.status, step.at),
+  ];
 
   @override
   Widget build(BuildContext context) {

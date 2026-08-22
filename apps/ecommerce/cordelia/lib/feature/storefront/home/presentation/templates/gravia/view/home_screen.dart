@@ -5,8 +5,6 @@ import 'package:cordelia/feature/storefront/address/presentation/selected_addres
 import 'package:cordelia/feature/storefront/home/domain/entities/category_entity.dart';
 import 'package:cordelia/feature/storefront/home/domain/entities/product_entity.dart';
 import 'package:cordelia/feature/storefront/home/presentation/templates/gravia/widgets/home_hero_header.dart';
-import 'package:cordelia/feature/storefront/presentation/view/storefront_page.dart';
-import 'package:cordelia/feature/storefront/shell/presentation/templates/gravia/view/shell_page.dart';
 import 'package:cordelia/templates/gravia/widgets/gravia_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -33,7 +31,13 @@ import '../widgets/home_skeleton_body.dart';
 /// config. Every read here is scoped to the active store, so the same widget
 /// tree serves any store that selects the `gravia` template.
 class HomeScreen extends BaseScreen {
-  const HomeScreen({super.key});
+  /// Switches the shell to its Categories tab — same reasoning as
+  /// `ProfileScreen.onOpenOrders`: this screen is already inside that shell,
+  /// so "see all" changes the tab instead of re-entering the storefront
+  /// route, which only looks like a navigation the first time per visit.
+  final VoidCallback onSeeAllCategories;
+
+  const HomeScreen({super.key, required this.onSeeAllCategories});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -112,13 +116,7 @@ class _HomeScreenState extends BaseScreenState<HomeScreen>
                   context.toggleFavouriteOrSignIn(product),
               onProductTap: _openProductDetails,
               onCategoryTap: _openCategoryDetails,
-              onSeeAllCategories: () => context.go(
-                AppRoutes.storefront,
-                extra: StorefrontRouteArgs(
-                  store: activeStore,
-                  initialTab: ShellPage.categoriesTabIndex,
-                ),
-              ),
+              onSeeAllCategories: widget.onSeeAllCategories,
             ),
           },
         ),

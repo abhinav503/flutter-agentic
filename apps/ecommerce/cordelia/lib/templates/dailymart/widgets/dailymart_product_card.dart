@@ -16,6 +16,8 @@ import 'package:cordelia/templates/dailymart/constants/dailymart_text_style_cons
 import 'package:cordelia/templates/dailymart/constants/dailymart_value_const.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_icon_disc.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_pill.dart';
+import 'package:cordelia/feature/storefront/home/presentation/product_rating_label.dart';
+import 'package:cordelia/feature/storefront/cart/presentation/cart_availability.dart';
 
 /// DailyMart's one true product card. Every surface that shows a product
 /// renders THIS widget, never a hand-styled composition — four call sites
@@ -29,10 +31,6 @@ import 'package:cordelia/templates/dailymart/widgets/dailymart_pill.dart';
 /// this would mean overriding every slot (see spec sheet §12 — recorded so
 /// nobody "fixes" it back).
 class DailyMartProductCard extends StatelessWidget {
-  /// How far the photo fades once the product is unbuyable — public so the
-  /// pack's list tile fades by the same amount as its card.
-  static const double soldOutImageOpacity = 0.45;
-
   final ProductEntity product;
 
   /// Adds one unit straight to the cart — the green **+** disc. This pack has
@@ -170,7 +168,7 @@ class _ImageWell extends StatelessWidget {
             // Faded rather than scrimmed — the pill on top of it says why,
             // and a scrim would darken the white favourite disc beside it.
             Opacity(
-              opacity: soldOut ? DailyMartProductCard.soldOutImageOpacity : 1,
+              opacity: soldOut ? kSoldOutImageOpacity : 1,
               child: AppNetworkImage(url: product.imageUrl, fit: BoxFit.cover),
             ),
             Padding(
@@ -293,12 +291,7 @@ class _RatingRow extends StatelessWidget {
         const SizedBox(width: AppSpacing.xs3),
         Expanded(
           child: Text(
-            rated
-                ? ValueConst.ratingLabel(
-                    product.ratingAverage,
-                    product.reviewCount,
-                  )
-                : ValueConst.unratedLabel,
+            product.ratingLabel,
             style: DailyMartTextStyleConst.bodyXsMedium(
               tt,
             ).copyWith(color: rated ? cs.onSurface : cs.onSurfaceVariant),

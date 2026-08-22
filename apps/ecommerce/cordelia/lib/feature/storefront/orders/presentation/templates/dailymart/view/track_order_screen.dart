@@ -88,7 +88,6 @@ class _TrackOrderScreenState extends BaseScreenState<TrackOrderScreen>
       textLabel: ValueConst.rateOrderTextLabel,
       textHint: ValueConst.rateOrderTextHint,
       onSubmit: onSubmit,
-      onMessage: showSnackBar,
     ),
   );
 
@@ -100,11 +99,8 @@ class _TrackOrderScreenState extends BaseScreenState<TrackOrderScreen>
     onConfirm: () => context.pop(widget.order.id),
   );
 
-  Future<void> _copy(String value) async {
-    await Clipboard.setData(ClipboardData(text: value));
-    if (!mounted) return;
-    showSnackBar(DailyMartValueConst.copiedMessage);
-  }
+  Future<void> _copy(String value) =>
+      copyToClipboard(value, DailyMartValueConst.copiedMessage);
 
   @override
   SystemUiOverlayStyle? overlayStyle(BuildContext context) =>

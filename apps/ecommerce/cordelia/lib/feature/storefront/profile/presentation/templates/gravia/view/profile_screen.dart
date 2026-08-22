@@ -2,9 +2,6 @@ import 'package:cordelia/constants/app_routes.dart';
 import 'package:cordelia/constants/value_const.dart';
 import 'package:cordelia/feature/auth/presentation/delete_account.dart';
 import 'package:cordelia/feature/auth/presentation/sign_out.dart';
-import 'package:cordelia/feature/storefront/active_store/presentation/cubit/active_store_cubit.dart';
-import 'package:cordelia/feature/storefront/presentation/view/storefront_page.dart';
-import 'package:cordelia/feature/storefront/shell/presentation/templates/gravia/view/shell_page.dart';
 import 'package:cordelia/feature/storefront/template/store_language.dart';
 import 'package:cordelia/l10n/store_language_switch.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_color_const.dart';
@@ -33,7 +30,15 @@ import '../widgets/profile_menu_tile.dart';
 import '../widgets/profile_skeleton_body.dart';
 
 class ProfileScreen extends BaseScreen {
-  const ProfileScreen({super.key});
+  /// Switches the shell to its Orders tab. Orders is a tab, not a route, and
+  /// this screen is already inside that shell — so the row changes the tab
+  /// rather than navigating to the storefront again. Re-entering the route
+  /// works too, but only the first time per visit looks like a navigation
+  /// (it remounts the page), which made the same row behave two different
+  /// ways.
+  final VoidCallback onOpenOrders;
+
+  const ProfileScreen({super.key, required this.onOpenOrders});
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -137,17 +142,7 @@ class _ProfileScreenState extends BaseScreenState<ProfileScreen>
                         height: size,
                       ),
                       label: GraviaValueConst.myOrdersLabel,
-                      // Orders isn't a standalone route — it's a ShellPage tab
-                      // — so this jumps the shell there directly, same
-                      // mechanism as the Order Placed sheet's "Track Your
-                      // Order" (docs/ai-rules/design.md).
-                      onTap: () => context.go(
-                        AppRoutes.storefront,
-                        extra: StorefrontRouteArgs(
-                          store: context.read<ActiveStoreCubit>().state!,
-                          initialTab: ShellPage.ordersTabIndex,
-                        ),
-                      ),
+                      onTap: widget.onOpenOrders,
                     ),
                     ProfileMenuTile(
                       iconBuilder: (color, size) => AppSvgImage.asset(

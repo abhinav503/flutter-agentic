@@ -34,7 +34,11 @@ class ShellPage extends StorefrontShellPage {
   static const bagTabIndex = 2;
   static const accountTabIndex = 3;
 
-  const ShellPage({super.key, super.initialTab = homeTabIndex});
+  const ShellPage({
+    super.key,
+    super.initialTab = homeTabIndex,
+    super.tabRequest,
+  });
 
   @override
   State<ShellPage> createState() => _ShellPageState();

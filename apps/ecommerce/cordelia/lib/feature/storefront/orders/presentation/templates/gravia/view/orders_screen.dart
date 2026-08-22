@@ -51,7 +51,6 @@ class _OrdersScreenState extends BaseScreenState<OrdersScreen>
       textLabel: ValueConst.rateOrderTextLabel,
       textHint: ValueConst.rateOrderTextHint,
       onSubmit: onSubmit,
-      onMessage: showSnackBar,
     ),
   );
 

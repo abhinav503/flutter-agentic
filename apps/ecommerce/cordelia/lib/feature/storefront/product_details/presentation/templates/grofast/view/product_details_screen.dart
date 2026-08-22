@@ -39,6 +39,7 @@ import 'package:cordelia/templates/grofast/widgets/grofast_screen_body.dart';
 import 'package:cordelia/templates/grofast/widgets/grofast_section_header.dart';
 import 'package:cordelia/templates/grofast/widgets/grofast_sheet.dart';
 import 'package:cordelia/templates/grofast/widgets/grofast_state_views.dart';
+import 'package:cordelia/feature/storefront/home/presentation/product_rating_label.dart';
 
 import '../../../bloc/product_details_bloc.dart';
 
@@ -72,7 +73,6 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
           initialRating: existing?.rating ?? 0,
           initialText: existing?.text ?? '',
           onSubmit: submitReview,
-          onMessage: showSnackBar,
         ),
       );
 
@@ -82,7 +82,6 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
         title: ValueConst.reportReviewSheetTitle,
         child: GrofastReportReviewSheetContent(
           onSubmit: (reason, block) => submitReport(review.uid, reason, block),
-          onMessage: showSnackBar,
         ),
       );
 
@@ -297,12 +296,7 @@ class _DetailsContent extends StatelessWidget {
                               // so rather than printing 0.0, which would
                               // read as a badly-reviewed product.
                               GrofastBadge.outlined(
-                                label: product.hasRating
-                                    ? ValueConst.ratingLabel(
-                                        product.ratingAverage,
-                                        product.reviewCount,
-                                      )
-                                    : ValueConst.unratedLabel,
+                                label: product.ratingLabel,
                                 leading: Icon(
                                   Icons.star_rounded,
                                   size: GrofastDimenConst.badgeLeadingSize,

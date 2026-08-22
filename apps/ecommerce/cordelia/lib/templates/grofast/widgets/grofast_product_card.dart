@@ -13,6 +13,7 @@ import 'package:cordelia/templates/grofast/constants/grofast_dimen_const.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_image_const.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_text_style_const.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_value_const.dart';
+import 'package:cordelia/feature/storefront/cart/presentation/cart_availability.dart';
 
 import 'grofast_price.dart';
 
@@ -47,10 +48,6 @@ class GrofastProductCard extends StatelessWidget {
   /// The kit's grid gives its first cell a shorter card, which is what
   /// staggers the two columns — see `GrofastProductGrid`.
   final double height;
-
-  /// Matches the other packs' sold-out fade, so the same product reads the
-  /// same wherever a shopper meets it.
-  static const double _soldOutImageOpacity = 0.45;
 
   const GrofastProductCard({
     super.key,
@@ -92,7 +89,7 @@ class GrofastProductCard extends StatelessWidget {
                           GrofastDimenConst.productImageInset,
                         ),
                         child: Opacity(
-                          opacity: soldOut ? _soldOutImageOpacity : 1,
+                          opacity: soldOut ? kSoldOutImageOpacity : 1,
                           child: AppNetworkImage(
                             url: product.imageUrl,
                             fit: BoxFit.contain,

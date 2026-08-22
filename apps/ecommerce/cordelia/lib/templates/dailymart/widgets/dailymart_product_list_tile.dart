@@ -12,8 +12,8 @@ import 'package:cordelia/feature/storefront/home/domain/entities/product_entity.
 import 'package:cordelia/templates/dailymart/constants/dailymart_dimen_const.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_text_style_const.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_value_const.dart';
+import 'package:cordelia/feature/storefront/cart/presentation/cart_availability.dart';
 
-import 'dailymart_product_card.dart';
 import 'dailymart_quantity_stepper.dart';
 
 /// The pack's product line (kit frames `24`/`25`): a recessed card with the
@@ -80,7 +80,7 @@ class DailyMartProductListTile extends StatelessWidget {
               height: DailyMartDimenConst.cartThumbSize,
               color: cs.surfaceContainerHighest,
               child: Opacity(
-                opacity: soldOut ? DailyMartProductCard.soldOutImageOpacity : 1,
+                opacity: soldOut ? kSoldOutImageOpacity : 1,
                 child: AppNetworkImage(
                   url: product.imageUrl,
                   fit: BoxFit.cover,

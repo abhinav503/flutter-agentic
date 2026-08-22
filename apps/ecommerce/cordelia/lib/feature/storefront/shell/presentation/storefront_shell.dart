@@ -38,7 +38,16 @@ abstract class StorefrontShellPage extends BasePage {
   /// only catch the very first (cold-start) navigation to the storefront.
   final int initialTab;
 
-  const StorefrontShellPage({super.key, required this.initialTab});
+  /// See `StorefrontRouteArgs.tabRequest` — which navigation asked for
+  /// [initialTab], so a repeat jump to the tab already showing is still a
+  /// request, while an ordinary rebuild is not.
+  final int tabRequest;
+
+  const StorefrontShellPage({
+    super.key,
+    required this.initialTab,
+    this.tabRequest = 0,
+  });
 }
 
 /// The State machinery every template's shell repeats identically — tab
@@ -92,7 +101,15 @@ mixin StorefrontShellState<T extends StorefrontShellPage> on BasePageState<T> {
   @override
   void didUpdateWidget(covariant T oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.initialTab != oldWidget.initialTab) {
+    // Keyed on the *request*, not the tab. The storefront page is rebuilt
+    // often — the app-level theme and locale controllers both sit above
+    // `MaterialApp` — and every one of those rebuilds carries the same
+    // `initialTab`, so reacting to the tab alone would snap a shopper back
+    // out of whatever they had tapped. Reacting to `initialTab` *changing*
+    // avoided that but broke the other half: a second jump to the same tab
+    // looked identical to a rebuild and was ignored, which is why Profile's
+    // "My Orders" worked once per visit and then went dead.
+    if (widget.tabRequest != oldWidget.tabRequest) {
       setState(() => currentTab = openableTab(widget.initialTab));
     }
   }

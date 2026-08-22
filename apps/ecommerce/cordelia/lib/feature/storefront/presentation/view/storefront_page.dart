@@ -30,6 +30,8 @@ import 'package:cordelia/theme/active_theme_scope.dart';
 /// from Cart's "Track Your Order", Profile's "My Orders", Home's "see all")
 /// can rebuild it straight from `ActiveStoreCubit.state`.
 class StorefrontRouteArgs {
+  static int _requests = 0;
+
   final ActiveStoreEntity store;
 
   /// Which shell tab to land on — a template's shell defines its own tab
@@ -37,7 +39,24 @@ class StorefrontRouteArgs {
   /// template's home tab.
   final int initialTab;
 
-  const StorefrontRouteArgs({required this.store, this.initialTab = 0});
+  /// Which *navigation* asked for [initialTab] — new on every construction,
+  /// stable across rebuilds of the route it lands on.
+  ///
+  /// The tab a jump asks for is not enough on its own. The first jump of a
+  /// visit swaps the imperatively-pushed storefront route for a declarative
+  /// one, so the page remounts and reads [initialTab] fresh. Every jump
+  /// after that reuses the route, and the shell only sees `didUpdateWidget`
+  /// — where "same tab as last time" is indistinguishable from "an ordinary
+  /// rebuild", and both were ignored. Profile's "My Orders" therefore worked
+  /// exactly once per storefront session and was silently dead afterwards.
+  ///
+  /// A counter rather than a timestamp so the value is deterministic in
+  /// tests, and an `int` rather than object identity so it survives being
+  /// copied through [StorefrontPage].
+  final int tabRequest;
+
+  StorefrontRouteArgs({required this.store, this.initialTab = 0})
+    : tabRequest = ++_requests;
 }
 
 /// Landing page for a selected store — owns the storefront session: seeds
@@ -49,7 +68,16 @@ class StorefrontPage extends BasePage {
   final ActiveStoreEntity store;
   final int initialTab;
 
-  const StorefrontPage({super.key, required this.store, this.initialTab = 0});
+  /// See [StorefrontRouteArgs.tabRequest] — 0 for a storefront opened
+  /// directly rather than jumped to.
+  final int tabRequest;
+
+  const StorefrontPage({
+    super.key,
+    required this.store,
+    this.initialTab = 0,
+    this.tabRequest = 0,
+  });
 
   @override
   State<StorefrontPage> createState() => _StorefrontPageState();
@@ -185,12 +213,15 @@ class _StorefrontPageState extends BasePageState<StorefrontPage> {
   Widget buildBody(BuildContext context) => switch (widget.store.templateId) {
     StorefrontTemplate.gravia => gravia.ShellPage(
       initialTab: widget.initialTab,
+      tabRequest: widget.tabRequest,
     ),
     StorefrontTemplate.dailymart => dailymart.ShellPage(
       initialTab: widget.initialTab,
+      tabRequest: widget.tabRequest,
     ),
     StorefrontTemplate.grofast => grofast.ShellPage(
       initialTab: widget.initialTab,
+      tabRequest: widget.tabRequest,
     ),
   };
 }

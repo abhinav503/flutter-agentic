@@ -15,3 +15,13 @@ extension CartItemAvailabilityX on CartItemEntity {
     return null;
   }
 }
+
+/// How far a product's photo fades once it can't be bought — enough to read
+/// as inactive beside an in-stock card in the same rail, not so far the
+/// product stops being recognisable.
+///
+/// One number for all three packs: a sold-out card in one template and a
+/// sold-out card in another are the same statement, and three copies of the
+/// value is three chances for them to stop agreeing. The *treatment* is
+/// still each pack's own — a fade here, a pill there.
+const double kSoldOutImageOpacity = 0.45;

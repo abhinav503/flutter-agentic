@@ -16,6 +16,7 @@ import 'package:cordelia/templates/gravia/constants/gravia_image_const.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_text_style_const.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_value_const.dart';
 import 'package:cordelia/feature/storefront/home/domain/entities/product_entity.dart';
+import 'package:cordelia/feature/storefront/cart/presentation/cart_availability.dart';
 
 import 'gravia_tint_badge.dart';
 
@@ -81,11 +82,6 @@ class GraviaProductCard extends StatelessWidget {
     this.onFavouriteToggle,
   });
 
-  /// How far the photo fades once the product is unbuyable — enough to read
-  /// as inactive beside an in-stock card in the same rail, not so far the
-  /// product stops being recognisable.
-  static const double _soldOutImageOpacity = 0.45;
-
   /// The pack's 14px Gray/500 meta-row glyph (flash, percent, …) — public so
   /// a standalone meta row (same icons, outside a full card) doesn't
   /// re-inline the same size/colour recipe.
@@ -109,7 +105,7 @@ class GraviaProductCard extends StatelessWidget {
       // Faded, not veiled: the pill below already says why, and a scrim
       // over the photo would fight the glass favourite heart sitting on it.
       image: soldOut
-          ? Opacity(opacity: _soldOutImageOpacity, child: image)
+          ? Opacity(opacity: kSoldOutImageOpacity, child: image)
           : image,
       title: product.name,
       titleStyle: GraviaTextStyleConst.textMdBold(tt),

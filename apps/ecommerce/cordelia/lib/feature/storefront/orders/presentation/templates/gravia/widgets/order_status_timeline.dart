@@ -4,6 +4,8 @@ import 'package:core/core/theme/app_colors_extension.dart';
 import 'package:core/core/theme/app_spacing.dart';
 
 import 'package:cordelia/enums/order_status.dart';
+
+import '../../../order_timeline_steps.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_color_const.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_text_style_const.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_value_const.dart';
@@ -28,43 +30,23 @@ class GraviaOrderStatusTimeline extends StatelessWidget {
 
   const GraviaOrderStatusTimeline({super.key, required this.order});
 
-  List<_Step> _steps() {
-    final placed = _Step(
-      label: GraviaValueConst.orderStepPlacedLabel,
-      // placedAt is always known, so the first step is never undated even on
-      // an order written before statusHistory existed.
-      at: order.statusReachedAt(OrderStatus.pending) ?? order.placedAt,
-      reached: true,
-    );
-
-    if (order.status == OrderStatus.cancelled) {
-      return [
-        placed,
-        _Step(
-          label: GraviaValueConst.orderStepCancelledLabel,
-          at: order.statusReachedAt(OrderStatus.cancelled),
-          reached: true,
-          isCancellation: true,
-        ),
-      ];
-    }
-
-    return [
-      placed,
+  /// The pack's wording over the shared derivation
+  /// ([OrderTimelineX.timelineSteps]) — which steps exist and when each was
+  /// reached is the order's business, not this pack's.
+  List<_Step> _steps() => [
+    for (final step in order.timelineSteps)
       _Step(
-        label: GraviaValueConst.orderStepOnTheWayLabel,
-        at: order.statusReachedAt(OrderStatus.inProcess),
-        reached:
-            order.status == OrderStatus.inProcess ||
-            order.status == OrderStatus.delivered,
+        label: switch (step.status) {
+          OrderStatus.pending => GraviaValueConst.orderStepPlacedLabel,
+          OrderStatus.inProcess => GraviaValueConst.orderStepOnTheWayLabel,
+          OrderStatus.delivered => GraviaValueConst.orderStepDeliveredLabel,
+          OrderStatus.cancelled => GraviaValueConst.orderStepCancelledLabel,
+        },
+        at: step.at,
+        reached: step.reached,
+        isCancellation: step.status == OrderStatus.cancelled,
       ),
-      _Step(
-        label: GraviaValueConst.orderStepDeliveredLabel,
-        at: order.statusReachedAt(OrderStatus.delivered),
-        reached: order.status == OrderStatus.delivered,
-      ),
-    ];
-  }
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -147,7 +129,11 @@ class _StepRow extends StatelessWidget {
                           ? Icons.close_rounded
                           : Icons.check_rounded,
                       size: AppSpacing.base,
-                      color: cs.onPrimary,
+                      // Each disc's own foreground: the cancelled one is
+                      // filled with `error`, and `onPrimary` is white — which
+                      // all but disappears on the pale red the dark theme
+                      // resolves `error` to.
+                      color: step.isCancellation ? cs.onError : cs.onPrimary,
                     )
                   : null,
             ),

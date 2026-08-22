@@ -113,6 +113,18 @@ abstract class BaseScreenState<T extends BaseScreen> extends State<T> {
 
   /// Clears any visible snack bar immediately.
   void clearSnackBar() => context.clearSnackBar();
+
+  // ── Clipboard ──────────────────────────────────────────────────────────────
+
+  /// Copies [value] and confirms it with [message].
+  ///
+  /// Here rather than per screen because the `mounted` check between the two
+  /// halves is the easy thing to forget: the copy is an await, and a snack
+  /// bar after a dispose throws. Every screen that offers a copyable value —
+  /// an order id, a payment reference, a support address a launcher could
+  /// not open — does exactly this.
+  Future<void> copyToClipboard(String value, String message) =>
+      context.copyToClipboard(value, message);
 }
 
 /// The same overlay helpers as [BaseScreenState], reachable from **any**
@@ -164,6 +176,19 @@ extension AppOverlaysX on BuildContext {
     enableDrag: enableDrag,
     maxHeightFraction: maxHeightFraction,
   );
+
+  /// Copies [value] and confirms it with [message].
+  ///
+  /// Here rather than at each call site because the `mounted` check between
+  /// the two halves is the easy thing to forget: the copy is an await, and a
+  /// snack bar after a dispose throws. Every surface that offers a copyable
+  /// value — an order id, a payment reference, a support address a launcher
+  /// could not open — does exactly this.
+  Future<void> copyToClipboard(String value, String message) async {
+    await Clipboard.setData(ClipboardData(text: value));
+    if (!mounted) return;
+    showSnackBar(message);
+  }
 
   /// Shows a floating snack bar. Clears any existing snack bar first.
   void showSnackBar(

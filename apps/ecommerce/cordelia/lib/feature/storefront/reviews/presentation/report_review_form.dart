@@ -14,9 +14,13 @@ import '../domain/entities/review_report_reason.dart';
 mixin ReportReviewForm<T extends StatefulWidget> on State<T> {
   void Function(ReviewReportReason reason, bool block) get onSubmit;
 
-  /// The pack's own way of surfacing a message — a sheet has no
-  /// `BaseScreenState` of its own.
-  void showFormMessage(String message);
+  /// The gate's complaint, or null while there is nothing to say.
+  ///
+  /// Held here and rendered *inside* the sheet rather than sent to the host
+  /// screen's `showSnackBar`: a snack bar belongs to the Scaffold underneath,
+  /// so a modal sheet covers it completely — the shopper tapped Report and
+  /// nothing appeared to happen. Cleared the moment they pick a reason.
+  String? formError;
 
   /// Null until one is picked, which is what gates the submit. There is no
   /// sensible default: guessing "offensive" would file the harshest
@@ -28,14 +32,17 @@ mixin ReportReviewForm<T extends StatefulWidget> on State<T> {
   /// otherwise — the opposite default makes the common case two taps.
   bool block = true;
 
-  void selectReason(ReviewReportReason value) => setState(() => reason = value);
+  void selectReason(ReviewReportReason value) => setState(() {
+    reason = value;
+    formError = null;
+  });
 
   void toggleBlock(bool value) => setState(() => block = value);
 
   void submitReport() {
     final picked = reason;
     if (picked == null) {
-      showFormMessage(ValueConst.reportReviewMissingReasonMessage);
+      setState(() => formError = ValueConst.reportReviewMissingReasonMessage);
       return;
     }
     onSubmit(picked, block);

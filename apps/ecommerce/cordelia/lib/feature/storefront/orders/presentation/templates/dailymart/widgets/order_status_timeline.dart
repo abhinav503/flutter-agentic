@@ -4,6 +4,8 @@ import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/svg_image.dart';
 
 import 'package:cordelia/enums/order_status.dart';
+
+import '../../../order_timeline_steps.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_dimen_const.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_image_const.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_text_style_const.dart';
@@ -32,42 +34,21 @@ class DailyMartOrderStatusTimeline extends StatelessWidget {
 
   const DailyMartOrderStatusTimeline({super.key, required this.order});
 
-  List<_Step> _steps() {
-    final placed = _Step(
-      label: DailyMartValueConst.orderStepPlacedLabel,
-      // placedAt is always known, so the first step is never undated even on
-      // an order written before statusHistory existed.
-      at: order.statusReachedAt(OrderStatus.pending) ?? order.placedAt,
-      reached: true,
-    );
-
-    if (order.status == OrderStatus.cancelled) {
-      return [
-        placed,
-        _Step(
-          label: DailyMartValueConst.orderStepCancelledLabel,
-          at: order.statusReachedAt(OrderStatus.cancelled),
-          reached: true,
-        ),
-      ];
-    }
-
-    return [
-      placed,
+  /// The pack's wording over the shared derivation
+  /// ([OrderTimelineX.timelineSteps]).
+  List<_Step> _steps() => [
+    for (final step in order.timelineSteps)
       _Step(
-        label: DailyMartValueConst.orderStepOnTheWayLabel,
-        at: order.statusReachedAt(OrderStatus.inProcess),
-        reached:
-            order.status == OrderStatus.inProcess ||
-            order.status == OrderStatus.delivered,
+        label: switch (step.status) {
+          OrderStatus.pending => DailyMartValueConst.orderStepPlacedLabel,
+          OrderStatus.inProcess => DailyMartValueConst.orderStepOnTheWayLabel,
+          OrderStatus.delivered => DailyMartValueConst.orderStepDeliveredLabel,
+          OrderStatus.cancelled => DailyMartValueConst.orderStepCancelledLabel,
+        },
+        at: step.at,
+        reached: step.reached,
       ),
-      _Step(
-        label: DailyMartValueConst.orderStepDeliveredLabel,
-        at: order.statusReachedAt(OrderStatus.delivered),
-        reached: order.status == OrderStatus.delivered,
-      ),
-    ];
-  }
+  ];
 
   @override
   Widget build(BuildContext context) {

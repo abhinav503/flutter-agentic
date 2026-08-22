@@ -152,7 +152,6 @@ class AppPickerField extends StatelessWidget {
       ],
     );
   }
-
 }
 
 /// The box's tap target: an ink ripple where the pack asks for one, a plain

@@ -415,4 +415,108 @@ void main() {
     );
     expect(getHome.calls, 1, reason: 'the Home tab it fell back to loaded');
   });
+
+  // Uses the Wishlist tab throughout: it renders `FavouritesCubit` directly,
+  // so the jump can be exercised without registering Orders/Profile use cases
+  // this harness deliberately leaves out. The mechanism under test is the
+  // shell's, and is the same whichever tab is asked for.
+  testWidgets('a repeat jump to the tab already requested still lands', (
+    tester,
+  ) async {
+    FirebaseAuthService.debugSignedIn = true;
+
+    final activeTheme = ActiveThemeController(AppThemeConfig.defaults);
+    final activeLocale = ActiveLocaleController();
+    final activeStore = ActiveStoreCubit();
+    addTearDown(activeTheme.dispose);
+    addTearDown(activeLocale.dispose);
+    addTearDown(activeStore.close);
+
+    // Rebuilt below with a fresh request each time, the way `go` does.
+    Widget page(int tab) {
+      final args = StorefrontRouteArgs(store: _store, initialTab: tab);
+      return StorefrontPage(
+        store: args.store,
+        initialTab: args.initialTab,
+        tabRequest: args.tabRequest,
+      );
+    }
+
+    Widget host(Widget child) => MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (_) => CartCubit(
+            getCartUseCase: getCart,
+            saveCartUseCase: _FakeSaveCartUseCase(),
+          ),
+        ),
+        BlocProvider(
+          create: (_) =>
+              CouponCubit(validateCouponUseCase: _FakeValidateCouponUseCase()),
+        ),
+        BlocProvider(
+          create: (_) => FavouritesCubit(
+            getFavouritesUseCase: getFavourites,
+            addFavouriteUseCase: _FakeAddFavouriteUseCase(),
+            removeFavouriteUseCase: _FakeRemoveFavouriteUseCase(),
+          ),
+        ),
+        BlocProvider.value(value: activeStore),
+      ],
+      child: ActiveThemeScope(
+        controller: activeTheme,
+        child: ActiveLocaleScope(
+          controller: activeLocale,
+          child: MaterialApp(
+            theme: AppTheme.fromConfig(AppThemeConfig.defaults),
+            home: child,
+          ),
+        ),
+      ),
+    );
+
+    // The jump lands once...
+    await tester.pumpWidget(host(page(ShellPage.favouriteTabIndex)));
+    await tester.pump(const Duration(seconds: 2));
+    int tabOf() =>
+        // ignore: avoid_dynamic_calls
+        (tester.state(find.byType(ShellPage)) as dynamic).currentTab as int;
+    expect(tabOf(), ShellPage.favouriteTabIndex);
+
+    // ...the shopper moves away by hand...
+    // ignore: avoid_dynamic_calls
+    (tester.state(find.byType(ShellPage)) as dynamic).onTabSelected(
+      ShellPage.homeTabIndex,
+    );
+    await tester.pump();
+    expect(tabOf(), ShellPage.homeTabIndex);
+
+    // ...an ordinary rebuild must NOT drag them back to the jumped tab.
+    await tester.pumpWidget(
+      host(
+        StorefrontPage(
+          store: _store,
+          initialTab: ShellPage.favouriteTabIndex,
+          tabRequest: 1,
+        ),
+      ),
+    );
+    await tester.pump();
+    expect(
+      tabOf(),
+      ShellPage.homeTabIndex,
+      reason: 'a rebuild carries the same request and must change nothing',
+    );
+
+    // ...but tapping "My Orders" a second time must land again. Keyed on the
+    // tab alone this was indistinguishable from the rebuild above, so it was
+    // ignored and the row went dead for the rest of the visit.
+    await tester.pumpWidget(host(page(ShellPage.favouriteTabIndex)));
+    await tester.pump();
+    expect(
+      tabOf(),
+      ShellPage.favouriteTabIndex,
+      reason: 'a second jump to the same tab is still a jump',
+    );
+  });
 }

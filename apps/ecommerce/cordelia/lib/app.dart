@@ -153,6 +153,7 @@ final _router = GoRouter(
             return StorefrontPage(
               store: args.store,
               initialTab: args.initialTab,
+              tabRequest: args.tabRequest,
             );
           },
         ),

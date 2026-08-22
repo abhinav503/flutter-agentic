@@ -39,7 +39,11 @@ class ShellPage extends StorefrontShellPage {
   static const ordersTabIndex = 3;
   static const profileTabIndex = 4;
 
-  const ShellPage({super.key, super.initialTab = homeTabIndex});
+  const ShellPage({
+    super.key,
+    super.initialTab = homeTabIndex,
+    super.tabRequest,
+  });
 
   @override
   State<ShellPage> createState() => _ShellPageState();
@@ -137,7 +141,10 @@ class _ShellPageState extends BasePageState<ShellPage>
     final content = switch (currentTab) {
       ShellPage.homeTabIndex => homeBlocProvider(
         storeId: storeId,
-        child: const HomeScreen(),
+        child: HomeScreen(
+          onSeeAllCategories: () =>
+              onTabSelected(ShellPage.categoriesTabIndex),
+        ),
       ),
       ShellPage.categoriesTabIndex => categoriesBlocProvider(
         storeId: storeId,
@@ -148,7 +155,9 @@ class _ShellPageState extends BasePageState<ShellPage>
         storeId: storeId,
         child: const OrdersScreen(),
       ),
-      _ => const ProfileScreen(),
+      _ => ProfileScreen(
+        onOpenOrders: () => onTabSelected(ShellPage.ordersTabIndex),
+      ),
     };
 
     // Cart is not a nav tab (see _tabs above) — instead a persistent bar

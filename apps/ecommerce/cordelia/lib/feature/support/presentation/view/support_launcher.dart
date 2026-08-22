@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:core/core/base/base_screen.dart';
@@ -48,8 +47,9 @@ extension SupportLaunchX on BuildContext {
     final fallback = channel.value.isEmpty
         ? channel.uri.toString()
         : channel.value;
-    await Clipboard.setData(ClipboardData(text: fallback));
-    if (!mounted) return;
-    showSnackBar(ValueConst.supportLaunchFailedMessage(fallback));
+    await copyToClipboard(
+      fallback,
+      ValueConst.supportLaunchFailedMessage(fallback),
+    );
   }
 }
