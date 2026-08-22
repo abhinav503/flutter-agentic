@@ -58,7 +58,10 @@ class GrofastProfileAvatarPicker extends StatelessWidget {
                 decoration: BoxDecoration(
                   gradient: GrofastColorConst.brandGradient,
                   shape: BoxShape.circle,
-                  border: Border.all(color: cs.surface, width: 2),
+                  border: Border.all(
+                    color: cs.surface,
+                    width: GrofastDimenConst.avatarBadgeBorderWidth,
+                  ),
                 ),
                 alignment: Alignment.center,
                 child: Icon(

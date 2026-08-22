@@ -130,15 +130,22 @@ class GrofastSearchField extends StatelessWidget {
                       tt,
                     ).copyWith(color: cs.onSurface),
                     cursorColor: cs.primary,
+                    // The bar around it *is* the field, so every border state
+                    // is stripped — the theme's `inputDecorationTheme` injects
+                    // the pack's input border into anything it isn't.
                     decoration: InputDecoration(
-                      isDense: true,
+                      isCollapsed: true,
                       border: InputBorder.none,
                       enabledBorder: InputBorder.none,
                       focusedBorder: InputBorder.none,
-                      contentPadding: EdgeInsets.zero,
+                      disabledBorder: InputBorder.none,
                       hintText: hint,
                       hintStyle: placeholderStyle,
                     ),
+                    // Flutter's default keeps focus on mobile, so without
+                    // this the keyboard outlives a tap on the results.
+                    onTapOutside: (_) =>
+                        FocusManager.instance.primaryFocus?.unfocus(),
                   ),
           ),
         ],

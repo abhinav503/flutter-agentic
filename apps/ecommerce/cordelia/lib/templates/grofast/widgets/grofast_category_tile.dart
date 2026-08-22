@@ -122,7 +122,10 @@ class GrofastCategoryRailTile extends StatelessWidget {
                 color: cs.categoryTint(index),
                 borderRadius: radius,
                 border: isSelected
-                    ? Border.all(color: cs.primary, width: 1.5)
+                    ? Border.all(
+                        color: cs.primary,
+                        width: GrofastDimenConst.selectedTileBorderWidth,
+                      )
                     : null,
               ),
               padding: const EdgeInsets.all(AppSpacing.lg),

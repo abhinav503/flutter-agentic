@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:cordelia/constants/value_const.dart';
 import 'package:cordelia/services/firebase_auth_service.dart';
 import 'package:cordelia/services/razorpay/razorpay_service.dart';
@@ -29,12 +30,14 @@ class RazorpayGatewayDataSourceImpl implements PaymentGatewayDataSource {
         email: FirebaseAuthService.instance.currentUser?.email,
       );
     } on RazorpayFailure catch (e) {
+      // `e.message` is the provider's own wording — English whatever the
+      // storefront's language, and written for a developer. It goes to the
+      // log; the shopper gets this app's sentence.
+      debugPrint('payment failed: ${e.message}');
       throw PaymentGatewayException(
         message: e.isCancelled
             ? ValueConst.paymentCancelledMessage
-            : (e.message.isNotEmpty
-                  ? e.message
-                  : ValueConst.paymentFailedMessage),
+            : ValueConst.paymentFailedMessage,
         cancelled: e.isCancelled,
       );
     }

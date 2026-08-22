@@ -19,6 +19,16 @@ abstract final class CordeliaColorConst {
   static const brandGradientStart = Color(0xFF02291F);
   static const brandGradientEnd = Color(0xFF027A60);
 
+  /// The accent Android tints a notification's small icon and title with.
+  /// The launcher mark's own deep stop (`assets/icons/cordelia-icon.svg`),
+  /// a shade off [brandGradientEnd] — the notification sits beside that
+  /// icon in the shade, so it matches the icon rather than the app chrome.
+  ///
+  /// Here rather than inline in `LocalNotificationService`: that file has no
+  /// `BuildContext` to read a role from, which is exactly when a raw swatch
+  /// belongs in a constants file instead of at the call site.
+  static const notificationAccent = Color(0xFF007A60);
+
   /// Header canvases. Strictly vertical, not the diagonal a button gets:
   /// `CollapsingHeaderSheet` paints [brandGradientEnd] flat behind the
   /// sheet's rounded top corners, and only a vertical ramp leaves the

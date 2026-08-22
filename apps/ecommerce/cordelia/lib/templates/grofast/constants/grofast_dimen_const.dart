@@ -60,6 +60,19 @@ abstract final class GrofastDimenConst {
   /// assets is added here instead, at the same measured value.
   static const double productImageInset = 20;
 
+  /// The per-unit suffix beside a price ("/kg"). Nudged down and right off
+  /// the price's baseline box so it sits with the amount rather than
+  /// aligning to it — the kit sets it as a superscript-ish tail.
+  static const double unitSuffixInset = 2;
+
+  /// Selection rings. The category tile's is drawn *inside* a tinted square
+  /// so it stays under a hairline; an address card's is the heavier stroke
+  /// of the two because it carries the brand colour on a plain white card,
+  /// and the avatar badge's separates the badge from the photo behind it.
+  static const double selectedTileBorderWidth = 1.5;
+  static const double selectedCardBorderWidth = 2;
+  static const double avatarBadgeBorderWidth = 2;
+
   /// The card's corner add-to-bag button, welded into the bottom-right: it
   /// shares the card's 28 radius on that corner and rounds its top-left by
   /// [productAddButtonNotchRadius].

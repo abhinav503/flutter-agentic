@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_shapes_extension.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../atoms/sheet_handle.dart';
 
 /// Bottom sheet with an optional pinned header and a scrollable body.
 ///
@@ -219,15 +220,9 @@ class AppBottomSheet extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(
                       vertical: AppSpacing.xs2,
                     ),
-                    child: Container(
-                      width: handleSize?.width ?? 44,
-                      height: handleSize?.height ?? 3,
-                      decoration: BoxDecoration(
-                        color:
-                            handleColor ??
-                            cs.onSurfaceVariant.withValues(alpha: 0.4),
-                        borderRadius: AppRadius.full,
-                      ),
+                    child: SheetHandle(
+                      color: handleColor,
+                      size: handleSize ?? SheetHandle.defaultSize,
                     ),
                   ),
                 ),

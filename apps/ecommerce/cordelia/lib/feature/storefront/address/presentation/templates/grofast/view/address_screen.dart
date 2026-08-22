@@ -231,7 +231,7 @@ class _DismissibleAddressTile extends StatelessWidget {
                     borderRadius: radius,
                     side: const BorderSide(
                       color: GrofastColorConst.gradientStart,
-                      width: 2,
+                      width: GrofastDimenConst.selectedCardBorderWidth,
                     ),
                   ),
                 ),

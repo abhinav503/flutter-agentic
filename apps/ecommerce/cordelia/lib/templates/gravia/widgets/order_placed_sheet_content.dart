@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 import 'package:core/core/theme/app_colors_extension.dart';
-import 'package:core/core/theme/app_radius.dart';
 import 'package:core/core/theme/app_spacing.dart';
+import 'package:core/core/ui/atoms/sheet_handle.dart';
 import 'package:core/core/ui/atoms/concentric_circles.dart';
 import 'package:core/core/ui/atoms/svg_image.dart';
 
@@ -39,14 +39,9 @@ class OrderPlacedSheetContent extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Container(
-            width: 44,
-            height: 3,
-            margin: const EdgeInsets.only(bottom: AppSpacing.xl4),
-            decoration: BoxDecoration(
-              color: context.appColors.sheetHairline,
-              borderRadius: AppRadius.full,
-            ),
+          SheetHandle(
+            color: context.appColors.sheetHairline,
+            bottomSpacing: AppSpacing.xl4,
           ),
           _SuccessIcon(cs: cs),
           const SizedBox(height: AppSpacing.xl4),

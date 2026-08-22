@@ -20,6 +20,7 @@ import 'package:core/core/ui/atoms/network_image.dart';
 import 'package:core/core/ui/atoms/page_indicator.dart';
 import 'package:core/core/ui/atoms/radio_dot.dart';
 import 'package:core/core/ui/atoms/rating_stars.dart';
+import 'package:core/core/ui/atoms/sheet_handle.dart';
 import 'package:core/core/ui/atoms/shimmer_box.dart';
 import 'package:core/core/ui/atoms/surface_card.dart';
 import 'package:core/core/ui/atoms/svg_image.dart';
@@ -344,6 +345,20 @@ WidgetbookCategory atomsCategory() {
         (context) => showcase(context, const [
           Variant('Unselected', AppRadioDot(selected: false)),
           Variant('Selected', AppRadioDot(selected: true)),
+        ]),
+      ),
+      allVariants(
+        'SheetHandle',
+        (context) => showcase(context, [
+          const Variant('Default (44 x 3)', SheetHandle()),
+          Variant(
+            'Pack hairline (AppColors.sheetHairline)',
+            SheetHandle(color: context.appColors.sheetHairline),
+          ),
+          const Variant(
+            'With bottom spacing',
+            SheetHandle(bottomSpacing: AppSpacing.xl4),
+          ),
         ]),
       ),
       allVariants(

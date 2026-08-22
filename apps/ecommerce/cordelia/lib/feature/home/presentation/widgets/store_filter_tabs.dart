@@ -96,9 +96,14 @@ class _Segment extends StatelessWidget {
           boxShadow: selected
               ? [
                   BoxShadow(
-                    color: cs.shadow.withValues(alpha: 0.08),
-                    blurRadius: 3,
-                    offset: const Offset(0, 1),
+                    color: cs.shadow.withValues(
+                      alpha: CordeliaDimenConst.segmentedPillShadowOpacity,
+                    ),
+                    blurRadius: CordeliaDimenConst.segmentedPillShadowBlur,
+                    offset: const Offset(
+                      0,
+                      CordeliaDimenConst.segmentedPillShadowY,
+                    ),
                   ),
                 ]
               : null,

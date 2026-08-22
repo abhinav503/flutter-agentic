@@ -36,7 +36,9 @@ class StripeService {
     if (intent.clientSecret.isEmpty) {
       // The server said Stripe but sent no client secret — the sheet cannot
       // be opened, and failing here is clearer than a confusing SDK error.
-      throw const StripeFailure(message: 'Payment could not be started');
+      // Log text, not copy: the gateway data source is what turns any
+      // failure into a sentence the shopper's locale can read.
+      throw const StripeFailure(message: 'no client secret in payment intent');
     }
 
     try {

@@ -6,8 +6,9 @@ import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart' show debugPrint;
-import 'package:flutter/material.dart' show Color;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+
+import 'package:cordelia/constants/cordelia_color_const.dart';
 
 import 'notification_payload.dart';
 import 'notification_router.dart';
@@ -93,7 +94,7 @@ class LocalNotificationService {
           importance: Importance.high,
           priority: Priority.high,
           icon: '@drawable/ic_notification',
-          color: const Color(0xFF007A60),
+          color: CordeliaColorConst.notificationAccent,
           largeIcon: bitmap,
           styleInformation: bitmap == null
               ? null

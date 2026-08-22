@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:core/core/extensions/num_extensions.dart';
 import 'package:core/core/formatting/app_format.dart';
 
+import 'package:cordelia/templates/grofast/constants/grofast_dimen_const.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_text_style_const.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_value_const.dart';
 
@@ -87,7 +88,10 @@ class GrofastPrice extends StatelessWidget {
         ),
         if (unit != null)
           Padding(
-            padding: const EdgeInsets.only(left: 2, bottom: 2),
+            padding: const EdgeInsets.only(
+              left: GrofastDimenConst.unitSuffixInset,
+              bottom: GrofastDimenConst.unitSuffixInset,
+            ),
             child: Opacity(
               opacity: 0.5,
               child: Text(

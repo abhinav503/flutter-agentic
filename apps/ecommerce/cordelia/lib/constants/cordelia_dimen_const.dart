@@ -60,6 +60,14 @@ abstract final class CordeliaDimenConst {
   /// Horizontal padding inside each segment.
   static const double segmentedSegmentInset = 14;
 
+  /// The lift under the *selected* segment. Deliberately not an `AppShadows`
+  /// tier — the nearest, `card`, is blur 12 at y 4, and a segment rises a
+  /// hair off its track rather than floating over it. Kept with the rest of
+  /// this control's spec so the whole thing reads in one place.
+  static const double segmentedPillShadowBlur = 3;
+  static const double segmentedPillShadowY = 1;
+  static const double segmentedPillShadowOpacity = 0.08;
+
   /// Discovery's search field. Taller than [controlHeight] on purpose — it is
   /// the header's one interactive target, sits alone on the canvas, and at
   /// the form-field height read as a cramped strip against the greeting
