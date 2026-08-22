@@ -71,10 +71,24 @@ Across packages: **`apps/*` depend on `core`; `core` never imports an app.** Sha
 
 ```
 core/
+├── auth/
+│   └── auth_session.dart        AuthSession — the *reads* an app makes about the current
+│                                 session (isSignedIn, currentUid, currentEmail,
+│                                 uidChanges, expirations) plus endSession. Pure Dart, no
+│                                 provider: the app registers one implementation and
+│                                 nothing above `data/` names Firebase (or whatever
+│                                 replaces it). Auth *operations* stay behind a repository
+│                                 and use cases like any other write
 ├── base/
-│   ├── base_page.dart           BasePage + BasePageState (Scaffold + getter-based bottom nav)
+│   ├── base_page.dart           BasePage + BasePageState (Scaffold + getter-based bottom
+│   │                             nav) + ChromelessPage (no app bar over an explicit
+│   │                             surface — the pairing a screen that draws its own
+│   │                             header wants)
 │   ├── base_repository.dart     BaseRepository mixin (Dio→Failure mapping; handleRequest + handleStream)
-│   ├── base_screen.dart         BaseScreen + BaseScreenState (showAppBottomSheet, showSnackBar)
+│   ├── base_screen.dart         BaseScreen + BaseScreenState (showAppBottomSheet,
+│   │                             showSnackBar, copyToClipboard) — the overlay helpers
+│   │                             also live on AppOverlaysX, a BuildContext extension, so
+│   │                             a mixin or a plain widget can reach them too
 │   └── bloc_cache.dart          BlocCache<T> + ScopedBlocCache<T> (the same cache keyed
 │                                 to a store/user, so switching owners can't flash the
 │                                 previous one's data) — warm-start cache a frequently-revisited
@@ -86,7 +100,10 @@ core/
 ├── di/
 │   └── core_injection.dart      shared `sl` (GetIt) + initCoreDependencies()
 ├── error/
-│   └── failure.dart             sealed Failure class; add variants only here
+│   └── failure.dart             sealed Failure class; add variants only here. `refused`
+│                                 carries the server's machine-readable `code` beside the
+│                                 message, so a caller can react to *why*; `location`
+│                                 carries a LocationFailureReason for the same purpose
 ├── extensions/
 │   ├── num_extensions.dart      PriceFormatX (asPrice, asPriceParts, asPercent) over
 │   │                             AppFormat — locale separators + the store's currency
@@ -112,9 +129,14 @@ core/
 │                                 initCoreDependencies() calls AppFormat.init() to
 │                                 load the CLDR date tables
 ├── mixins/
-│   └── textfield_validations.dart  TextfieldValidations — validate* methods returning
-│                                 user-facing messages (defaults in CoreConst; override
-│                                 a method for custom copy)
+│   └── textfield_validations.dart  TextfieldValidations — `*Error` predicates return a
+│                                 typed FieldValidationError, `messageFor` turns one into
+│                                 words, and `validate*` composes the two into the
+│                                 `String?` a field wants. An app with its own copy (a
+│                                 localized one) overrides **messageFor alone** and
+│                                 inherits every predicate. Never match on the returned
+│                                 message to work out which failure occurred — rewording
+│                                 a default then silently shows the wrong error
 ├── network/
 │   ├── http_service.dart        HttpService static singleton (get/post/put/delete/postStream via single Dio)
 │   └── interceptors/            logging and other Dio interceptors
@@ -155,15 +177,21 @@ core/
 │   │   │                        AnimatedSwitcher so durations can't drift)
 │   │   ├── dropdown_menu.dart   AppDropdownMenu (themed PopupMenuButton + AppDropdownItem)
 │   │   ├── file_thumbnail.dart  AppFileThumbnail (local image file thumbnail, rounded)
-│   │   ├── icon_button.dart     AppIconButton (icon-only circular action; filled / translucent)
+│   │   ├── avatar_image.dart    AppAvatarImage (a person's photo in a circle — owns the
+│   │   │                        bytes → url → fallback order every avatar re-derives)
+│   │   ├── icon_button.dart     AppIconButton (icon-only circular action; filled /
+│   │   │                        translucent; `svgAsset` for a kit glyph)
 │   │   ├── icon_circle.dart     AppIconCircle (non-interactive tinted disc + centred
 │   │   │                        glyph — the decorative sibling of AppIconButton)
 │   │   ├── loading_dots.dart    LoadingDots (pulsing "working…" dots)
 │   │   ├── loading_indicator.dart
-│   │   ├── network_image.dart   AppNetworkImage (built-in loading/error states;
+│   │   ├── network_image.dart   AppNetworkImage (built-in loading/error states, and a
+│   │   │                        `borderRadius` that clips them with the image;
 │   │   │                        `.placeholder()` factory for seeded stock photos)
 │   │   ├── page_indicator.dart  PageIndicator (dot row for paged flows — onboarding,
 │   │   │                        carousels)
+│   │   ├── rating_distribution_bar.dart  RatingDistributionBar (one row of a rating
+│   │   │                        histogram; the label beside it stays with the caller)
 │   │   ├── rating_stars.dart    RatingStars (star row for a fractional rating — an
 │   │   │                        average lands between stars, so the trailing one
 │   │   │                        fills partially) + RatingStarsField (whole-star
@@ -176,6 +204,7 @@ core/
 │   │   │                        before stacking DecoratedBox/Material/InkWell by hand)
 │   │   ├── bottom_fade.dart     BottomFade (surface→transparent gradient a floating
 │   │   │                        CTA sits on, so content dissolves under it)
+│   │   ├── sheet_handle.dart    SheetHandle (a bottom sheet's grab bar, 44 x 3)
 │   │   ├── shimmer_box.dart     ShimmerBox (the shimmering rectangle every skeleton
 │   │   │                        is built from)
 │   │   ├── svg_image.dart       AppSvgImage (asset/network SVG with tinting)
@@ -194,7 +223,8 @@ core/
 │   │   │                        subtitle/trailing/onTap — the notification, activity-
 │   │   │                        feed, and tappable-list-result row silhouette; extend
 │   │   │                        it rather than forking a private _Row)
-│   │   ├── menu_tile.dart       AppMenuTile (settings/profile row: icon circle +
+│   │   ├── menu_tile.dart       AppMenuTile (settings/profile row: icon circle or
+│   │   │                        `svgAsset` +
 │   │   │                        label + chevron/trailing; danger variant)
 │   │   ├── radio_group.dart     AppRadioGroup<T> + AppRadioRow (single-select list)
 │   │   ├── picker_field.dart    AppPickerField (read-only field-shaped trigger for a

@@ -62,6 +62,70 @@ The pre-commit hook formats staged Dart files and runs `flutter analyze` at the 
   - a private `_months`/`_weekdays` list, or composing `hour12`/`meridiem` into a time — name a CLDR skeleton instead and let the locale order the pieces
   - a connector baked into a format string (`'$date at $time'`) — "at" is copy; it goes in the string table with the operands as placeholders, so a translator can move or replace it
   - a currency amount inside a translated string (`"Under ₹100"`) — pass the amount in already formatted, so one key serves every currency
+- **Showing a user text a machine wrote.** An HTTP client's message, an SDK's
+  exception, `e.toString()` — these are written for a developer, in one
+  language, and every one of them has shipped to a user here. Map a failure to
+  copy once, at the presentation boundary, and rewrite only what was never
+  written for a person: a server refusal or an app-authored message passes
+  through untouched
+- Crossing a layer boundary with only a **sentence** when the caller has to
+  react to *why*. A failure two callers handle differently carries a
+  machine-readable `code` (see `Failure.refused`), parsed once by the layer
+  that owns the vocabulary. A screen that can only print the message will
+  handle one refusal as though it were another
+- A **sheet reporting its own validation through the host screen's
+  `showSnackBar`** — a snack bar renders behind the modal barrier, so it is
+  invisible exactly while it matters and stale by the time it isn't. A sheet
+  shows its own errors inline; if a screen reports the same failure, the state
+  carries a flag saying the sheet already has it
+- **Closing a surface before the write it started has come back.** Popping on
+  dispatch throws away whatever the user typed and then tells them it failed
+  over an empty screen. An async submit resolves first; on failure the surface
+  stays, holding the input
+- A BLoC/Cubit handler that **returns without emitting** on a guard clause,
+  when anything awaits it — the awaiting caller hangs forever. Every path
+  answers, guards included. Note a value-equal state is dropped by `emit`, so
+  "emit the same thing" is not an answer
+- A **reset that leaves work in flight**. Clearing state must also invalidate
+  what is already on the wire (bump the revision token, clear the scope key),
+  or a late response repaints the state you just cleared
+- **Denylist guards.** A guard that enumerates what is *blocked* silently
+  grants every route added afterwards. Enumerate what is permitted
+- **A branch that renders a skeleton (or nothing) behind a comment saying it
+  is unreachable.** It is reachable. Every branch renders something a user can
+  live with
+- **Deriving state from a global fact by waiting to be told.** Anything that
+  follows "who is signed in" or "which store is open" subscribes to it. A
+  screen that has to notify it will one day sit outside the provider it needs
+  and fail silently
+- **Reacting to a route's arguments to detect a new navigation.** The same
+  destination requested twice looks identical to an ordinary rebuild, so the
+  second request is dropped; reacting to every rebuild instead drags the user
+  off what they chose. Give the request its own identity (a counter stamped
+  per call) and compare that
+- Navigating to reach something **already in the widget tree** — change state
+  instead. Re-entering a route to select a tab you are inside costs a remount,
+  and only the first use looks like a navigation
+- **Deduplicating copy by comparing the source-language value.** Two strings
+  identical in English are routinely different elsewhere — one may be a
+  width-budgeted short form. Compare every locale before merging, and keep a
+  test asserting the character budget of any string in a narrow slot
+- **A widget in `core/ui/` with no callers.** Extracting and adopting are one
+  task, in one commit: a promotion that stops at "the shared version exists"
+  leaves the duplication in place *and* adds a second thing to maintain
+- Forking a shared widget without first naming **the one parameter that is
+  missing** — that is what nearly every fork turns out to be. The converse is
+  also a rule: if absorbing a variant needs **three or more** new config
+  params, the fork is correct, and the reason belongs in the file so the next
+  review doesn't undo it
+- **A test that touches the network**, or a **test seam in production code**.
+  Fakes are injected at the data-source (or repository) boundary. A static
+  override added so a test can express something is a missing dependency
+  boundary — add the boundary; global mutable state outlives the test that set
+  it
+- A **subscription with no error path**, or an empty state and an error state
+  that render the same. Permission-denied, offline and genuinely-empty must be
+  distinguishable, or a broken listener reads as "nothing here"
 - Error states that omit the data needed to retry — every `*Error` state must carry enough context (e.g. `searchTerm`, `page`) for the BLoC to re-dispatch without reading prior state; screens must never inspect preceding states for retry inputs
 - Creating a new entity that is structurally identical to an existing one — reuse the existing entity; a single `JokeEntity` works for both single-result and list-result use cases
 - Adding constructor parameters to data source impls for infrastructure — data sources are `const` no-arg; they reach infrastructure through static singleton `.instance` calls

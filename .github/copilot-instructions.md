@@ -32,6 +32,7 @@ Read on demand:
   8. Merge: `git checkout main && git pull origin main && git merge --no-ff {BRANCH} -m "chore: merge {BRANCH} into main for v{VERSION}" && git push origin main`
   9. Tag and release: `git tag v{VERSION} && git push origin v{VERSION}` then `gh release create v{VERSION} --title "v{VERSION} — {TITLE}" --notes-file docs/releases/v{VERSION}.md --target main`. Report URL.
   10. Ask to delete release branch. If yes: `git branch -d {BRANCH} && git push origin --delete {BRANCH}`
+- `docs/explanation/review-lessons.md` — before a large refactor, a reuse sweep, or a code review: the failure modes a mature app of this shape grows on its own, each with the rule that follows and why. The conventions one-liners are the enforcement; this is the reasoning
 - `docs/tutorials/solid-principles.md` — how SOLID principles are applied across all layers; useful when designing new classes or reviewing layer boundaries
 - `docs/tutorials/design-patterns-and-concepts.md` — design patterns used in this codebase (Singleton, Repository, DTO, Either, Sealed Classes, Strategy, and more)
 
@@ -133,6 +134,45 @@ Run `make gen` after changing any `@freezed` or `@JsonSerializable` file. Never 
   - a private `_months`/`_weekdays` list, or composing `hour12`/`meridiem` into a time — name a CLDR skeleton instead and let the locale order the pieces
   - a connector baked into a format string (`'$date at $time'`) — "at" is copy; it goes in the string table with the operands as placeholders, so a translator can move or replace it
   - a currency amount inside a translated string (`"Under ₹100"`) — pass the amount in already formatted, so one key serves every currency
+- **Showing a user text a machine wrote.** An HTTP client's message, an SDK's
+  exception, `e.toString()` — developer copy, in one language. Map a failure to
+  words once at the presentation boundary, rewriting only what was never
+  written for a person
+- Crossing a layer boundary with only a **sentence** when the caller must react
+  to *why*. A failure two callers handle differently carries a machine-readable
+  `code` (see `Failure.refused`), parsed once by the layer that owns the
+  vocabulary
+- A **sheet reporting its own validation through the host screen's
+  `showSnackBar`** — that renders behind the modal barrier, invisible exactly
+  while it matters. A sheet shows its errors inline
+- **Closing a surface before the write it started has come back** — it throws
+  away what the user typed, then reports the failure over an empty screen
+- A BLoC/Cubit handler that **returns without emitting** on a guard clause when
+  anything awaits it. Every path answers; a value-equal state is dropped by
+  `emit`, so re-emitting the same value is not an answer
+- A **reset that leaves work in flight** — bump the guard token and clear the
+  scope key, or a late response repaints what you just cleared
+- **Denylist guards.** Enumerate what is permitted; a denylist silently grants
+  every route added later
+- **A branch rendering a skeleton behind a comment saying it is unreachable.**
+  It is reachable
+- **Deriving state from a global fact by waiting to be told.** Anything that
+  follows "who is signed in" subscribes to it; a notifier in the wrong part of
+  the tree fails silently
+- **Reacting to a route's arguments to detect a new navigation** — the same
+  destination twice looks like a rebuild. Give the request its own identity
+- Navigating to reach something **already in the widget tree** — change state
+- **Deduplicating copy by comparing the source-language value.** Identical in
+  English is routinely different elsewhere; keep the character-budget test
+- **A widget in `core/ui/` with no callers.** Extracting and adopting are one
+  task, in one commit
+- Forking a shared widget without naming **the one missing parameter**; and
+  conversely, absorbing a variant that needs **three or more** new config
+  params — that fork is correct, and the reason belongs in the file
+- **A test that touches the network**, or a **test seam in production code**
+  (a `@visibleForTesting` static override is a missing dependency boundary)
+- A **subscription with no error path**, or an empty state and an error state
+  that render identically
 - Error states that omit the data needed to retry — every `*Error` state must carry enough context (e.g. `searchTerm`, `page`) for the BLoC to re-dispatch without reading prior state; screens must never inspect preceding states for retry inputs
 - Creating a new entity that is structurally identical to an existing one — reuse the existing entity; a single entity works for both single-result and list-result use cases
 - Adding constructor parameters to data source impls for infrastructure — data sources are `const` no-arg; they reach infrastructure through static singleton `.instance` calls

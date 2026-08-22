@@ -317,6 +317,22 @@ The template layer is *only* chrome — before writing any widget or screen
 behaviour, check these three shelves in order. Hand-rolling something a
 shelf already has is the #1 review finding on every port.
 
+**Check for a zero-usage shelf item first.** A full review of this codebase
+found six `core/ui/` widgets that had been extracted and then never adopted —
+so the shelf *looked* bare while the shared version sat unused beside the
+hand-rolled copies. Before concluding core has nothing for a job, grep the
+widget name across the workspace: a promoted widget with no callers is the
+strongest possible sign it is the thing you are about to write again.
+
+**When core is nearly right, name the missing parameter.** Almost every
+pack-local fork in this codebase existed because the shared widget lacked
+exactly one knob — a pinned-header mode, a subtitle line, an asset shorthand,
+a ripple, a text alignment. Adding the parameter (plus its gallery variant) is
+right. **But if absorbing your variant would need three or more new config
+params**, the fork is correct: that turns the shared widget into a switchboard
+and every caller into an override list. Write the reason in the file so the
+next review doesn't undo it.
+
 **a. The blocs are already built and already cached — you only provide
 them.** A template writes **no** bloc wiring of its own:
 
@@ -487,7 +503,9 @@ the next reader wouldn't look:
 
 1. Run the **`/review-code`** checklist over everything added.
 2. **Reusability sweep across all packs** — diff the new pack against the
-   existing ones for repeated code and promote by scope:
+   existing ones for repeated code and promote by scope. Promoting and
+   **adopting** are one task in one commit: leaving the old copies in place
+   keeps the duplication *and* adds a second thing to maintain.
    - generic mechanism/widget → `packages/core/lib/core/ui/` (**with its
      `apps/design_gallery` entry in the same commit**);
    - app-generic (used by shared chrome too) → `lib/widgets/` as
@@ -497,7 +515,22 @@ the next reader wouldn't look:
      beside the bloc (the `EditProfileForm` shape);
    - pack-only recurring recipe → the pack kit. Extract on the second
      screen that repeats a composition, not the third.
-3. `flutter analyze` at the repo root (must be clean) and `make test`.
+3. `flutter analyze` at the repo root (must be clean) and `make test` — the
+   **whole workspace**, not just the app you touched. Two apps in this repo
+   accumulated failing tests precisely because only the app under active work
+   was ever run.
+4. **Copy audit before any string merge.** Two strings identical in the source
+   language are routinely different elsewhere — one may be a width-budgeted
+   short form for a badge while its twin is an uncapped timeline label.
+   Compare *every* locale before sharing a key, and keep the character-budget
+   test that catches the mistake. Equally: when the same concept has a copy
+   per pack, a fix to one pack's wording is a bug report for the others.
+5. **Failure-path audit.** Grep the new pack for: text a machine wrote
+   reaching a user (an HTTP client's message, an SDK exception); a sheet
+   reporting validation through the host screen's `showSnackBar` (invisible
+   behind the modal barrier); a submit that closes its surface before the
+   write resolves (it throws away what was typed); and any branch rendering a
+   skeleton behind a comment claiming it is unreachable.
 4. **Contract audit — every row of the spec sheet must have a call site.**
    Phase 1 writes the contracts *before* the screens exist, so a row can
    describe behaviour nobody ever wired up, and nothing fails: the app

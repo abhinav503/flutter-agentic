@@ -6,6 +6,36 @@ The skill does not run tests or static analysis — it reads the project's own r
 
 ---
 
+## Before you report anything: verify
+
+A finding is a **hypothesis** until you have followed the code path it claims
+is broken. In a fifty-item review of a mature app, several of the most
+convincing findings were wrong:
+
+- three error states flagged for "missing retry context" each retried
+  correctly, through a parameterless event, because the BLoC held the inputs
+  as fields — the rule exists to stop screens reading *previous states*, and
+  none of them did;
+- two entity/model pairs flagged as "structurally identical" were distinct
+  concepts that happened to share three fields, and merging them would have
+  made the surviving type mean "either of two things";
+- four strings flagged as duplicated were identical **in English only** —
+  elsewhere one was a width-budgeted short form, and the merge overflowed its
+  slot in four languages.
+
+Each was derived from the letter of a rule without reading what the rule
+protects. So:
+
+- Read the retry path before reporting a missing retry field.
+- Read every locale before reporting duplicated copy.
+- Read the *reason* a fork exists before proposing to remove it — if the file
+  documents the decision, argue with the documented reason or leave it.
+- When the claim is behavioural ("this navigation doesn't work"), reproduce
+  it. One such bug here was settled only by a runnable repro, and the leading
+  theory turned out to be wrong.
+
+Report what survives that, and say plainly when a finding did not.
+
 ## What to check
 
 Work through each section below. For every item, read the relevant source files and report: ✅ pass, ❌ violation (with file path and line), or ⚠️ warning (worth a second look).
@@ -60,6 +90,20 @@ Before accepting new widgets, utilities, or services, check whether the capabili
 
 **No raw Material widgets where a design-system equivalent exists.** Flag direct use of `PopupMenuButton` / `DropdownButton` (→ `AppDropdownMenu`), `TextField` (→ `AppTextField`), `ElevatedButton` / `TextButton` / `OutlinedButton` / `FilledButton` (→ `AppButton`), `CircularProgressIndicator` (→ `LoadingIndicator`), or a hand-rolled empty/error view (→ `EmptyState` / `ErrorView`). If no atom fits, the fix is to add one to core (next point) — not to inline raw Material.
 
+**Flag any `core/ui/` widget with no callers (❌).** Extraction and adoption
+are one task. A shared widget that nothing uses means the hand-rolled
+predecessors are still shipping, and there are now two things to maintain
+instead of one. `grep -r <WidgetName> --include='*.dart'` over the workspace
+settles it in seconds, and it is the single highest-yield check in this
+section.
+
+**Before proposing a merge, apply the three-parameter test (⚠️).** Nearly
+every justified extraction is a shared widget missing *one* parameter. If
+absorbing a variant would need **three or more** new config params — a
+different disabled treatment, a fixed-width slot, its own semantics — the fork
+is correct; say so instead of filing it. Check whether the file already
+explains the decision before re-opening it.
+
 **Promote genuinely generic code to core (⚠️).** Flag app-local code that is dependency-free, app-agnostic, and reusable, and recommend moving it down:
 - generic widgets → `core/ui/atoms` or `core/ui/molecules`
 - generic mechanism (networking, base classes, stream/error handling) → the matching `core/` folder
@@ -102,6 +146,17 @@ Every `*Error` state must carry enough fields for the BLoC to re-dispatch withou
 
 ---
 
+### 6b. Failures the user reads
+
+- Does any failure path show text a machine wrote — an HTTP client's message,
+  an SDK exception, `e.toString()`? Those are developer copy in one language.
+- Does a bottom sheet report its own validation through the host screen's
+  `showSnackBar`? That renders behind the modal barrier.
+- Does a submit close its surface before the write resolves, throwing away
+  what the user typed?
+- Does every subscription have an error path, and do empty and failed render
+  differently?
+
 ### 7. Test coverage
 
 Check that new code has a corresponding test file:
@@ -111,6 +166,14 @@ Check that new code has a corresponding test file:
 - Fakes → `apps/{app}/test/helpers/` (shared, no duplicates)
 
 Tests must use manual fakes only — no `mockito` or `mocktail` imports.
+
+Two failures worth grepping for explicitly:
+- **A test that reaches the network.** Look for tests calling the app's real
+  `initDependencies()` without overriding the data sources — those pass only
+  while some deployment answers, and fail the day it stops.
+- **A test seam in production code** (`@visibleForTesting` static overrides,
+  `debug*` flags). That is a missing dependency boundary; the fix is to inject
+  the dependency, not to keep the seam.
 
 ---
 
@@ -138,6 +201,7 @@ Report a checklist:
 ### Naming conventions      ✅ / ❌
 ### DI registration         ✅ / ❌
 ### Error state retry ctx   ✅ / ❌
+### Failures the user reads ✅ / ❌
 ### Test coverage           ✅ / ⚠️ / ❌
 ### Web-safe native guards  ✅ / ❌
 
