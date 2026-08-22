@@ -34,6 +34,7 @@ class _LoginPageState extends BasePageState<LoginPage> {
       resendVerificationEmailUseCase: sl(),
       checkEmailVerifiedUseCase: sl(),
       forgotPasswordUseCase: sl(),
+      authSession: sl(),
     )..add(const AuthEvent.started()),
     child: const LoginScreen(),
   );

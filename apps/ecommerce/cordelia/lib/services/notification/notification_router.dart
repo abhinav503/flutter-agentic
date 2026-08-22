@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:cordelia/constants/app_routes.dart';
+import 'package:core/core/auth/auth_session.dart';
+
 import 'package:cordelia/di/injection_container.dart';
 import 'package:cordelia/enums/notification_type.dart';
 import 'package:cordelia/feature/home/domain/entities/store_entity.dart';
@@ -10,7 +12,6 @@ import 'package:cordelia/feature/home/domain/usecase/get_store_usecase.dart';
 import 'package:cordelia/feature/storefront/active_store/domain/entities/active_store_entity.dart';
 import 'package:cordelia/feature/storefront/active_store/presentation/cubit/active_store_cubit.dart';
 import 'package:cordelia/feature/storefront/presentation/view/storefront_page.dart';
-import 'package:cordelia/services/firebase_auth_service.dart';
 
 import 'notification_navigator.dart';
 import 'notification_payload.dart';
@@ -65,7 +66,7 @@ class NotificationRouter {
   ];
 
   static bool _canOpen(String path) =>
-      FirebaseAuthService.instance.isSignedIn ||
+      sl<AuthSession>().isSignedIn ||
       _guestRoutes.contains(path) ||
       _guestRoutePrefixes.any(path.startsWith);
 

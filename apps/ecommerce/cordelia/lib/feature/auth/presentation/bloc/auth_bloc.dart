@@ -4,11 +4,11 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import 'package:core/core/auth/auth_session.dart';
 import 'package:core/core/services/shared_pref_service/shared_preference_service.dart';
 import 'package:core/core/usecase/usecase.dart';
 
 import 'package:cordelia/constants/value_const.dart';
-import 'package:cordelia/services/firebase_auth_service.dart';
 
 import '../../domain/entities/user_entity.dart';
 import '../../domain/usecase/check_email_verified_usecase.dart';
@@ -49,6 +49,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final ResendVerificationEmailUseCase _resendVerification;
   final CheckEmailVerifiedUseCase _checkEmailVerified;
   final ForgotPasswordUseCase _forgotPassword;
+  final AuthSession _session;
 
   Timer? _verificationTimer;
 
@@ -58,11 +59,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required ResendVerificationEmailUseCase resendVerificationEmailUseCase,
     required CheckEmailVerifiedUseCase checkEmailVerifiedUseCase,
     required ForgotPasswordUseCase forgotPasswordUseCase,
+    required AuthSession authSession,
   }) : _signUp = signUpUseCase,
        _signIn = signInUseCase,
        _resendVerification = resendVerificationEmailUseCase,
        _checkEmailVerified = checkEmailVerifiedUseCase,
        _forgotPassword = forgotPasswordUseCase,
+       _session = authSession,
        super(const AuthState.initial()) {
     on<AuthStarted>(_onStarted);
     on<AuthSignUpRequested>(_onSignUpRequested);
@@ -73,14 +76,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   Future<void> _onStarted(AuthStarted event, Emitter<AuthState> emit) async {
-    final user = FirebaseAuthService.instance.currentUser;
+    final uid = _session.currentUid;
     final pending =
         SharedPreferenceService.instance.getBool(
           kPendingEmailVerificationPrefKey,
         ) ??
         false;
-    if (user != null && pending) {
-      final email = user.email ?? '';
+    if (uid != null && pending) {
+      final email = _session.currentEmail ?? '';
       // A bypass account relaunches exactly like a verified one. The stale
       // flag is cleared with it, so removing the bypass later doesn't strand
       // an already-signed-in tester behind the sheet.

@@ -1,9 +1,10 @@
+import 'package:core/core/auth/auth_session.dart';
 import 'package:core/core/di/core_injection.dart';
 import 'package:core/core/network/http_service.dart';
 
 import '../constants/api_constants.dart';
 import '../services/app_info_service.dart';
-import '../services/firebase_auth_service.dart';
+import '../services/firebase_auth_session.dart';
 import '../services/network/session_expiry_interceptor.dart';
 
 import '../feature/auth/data/data_source/auth_remote_data_source.dart';
@@ -132,13 +133,19 @@ Future<void> initDependencies() async {
   // the build without an async hop mid-screen.
   await AppInfoService.instance.init();
 
+  // The one registration that names the auth provider. Everything above the
+  // data layer asks `AuthSession` who is signed in, so swapping providers is
+  // this line plus a sibling adapter — not a sweep through the gate, the
+  // BLoCs and the notification router.
+  sl.registerLazySingleton<AuthSession>(FirebaseAuthSession.new);
+
   // A 401 from our API ends the session, once, wherever it happens. Registered
   // here rather than per data source because every authenticated call in the
   // app already funnels through the one shared Dio instance — see
   // SessionExpiryInterceptor for why Firebase's own signal isn't enough.
   HttpService.instance.addInterceptor(
     SessionExpiryInterceptor(
-      onUnauthorized: FirebaseAuthService.instance.endSession,
+      onUnauthorized: sl<AuthSession>().endSession,
       apiBaseUrl: ApiConstants.baseUrl,
     ),
   );

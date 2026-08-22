@@ -5,7 +5,9 @@ import 'package:core/core/base/base_screen.dart';
 
 import 'package:cordelia/constants/value_const.dart';
 import 'package:cordelia/feature/auth/presentation/sign_in_gate.dart';
-import 'package:cordelia/services/firebase_auth_service.dart';
+import 'package:core/core/auth/auth_session.dart';
+
+import 'package:cordelia/di/injection_container.dart';
 
 import '../../product_details/presentation/bloc/product_details_bloc.dart';
 import '../domain/entities/product_reviews_entity.dart';
@@ -35,7 +37,7 @@ mixin ProductReviewsActions<T extends BaseScreen> on BaseScreenState<T> {
 
   /// The signed-in shopper's uid, or null — what tells their own review
   /// apart from everyone else's in a loaded list.
-  String? get currentUid => FirebaseAuthService.instance.currentUser?.uid;
+  String? get currentUid => sl<AuthSession>().currentUid;
 
   /// The write CTA's entry point. A guest meets Login first and comes back
   /// to this product — the reviews *list* stays readable either way, since

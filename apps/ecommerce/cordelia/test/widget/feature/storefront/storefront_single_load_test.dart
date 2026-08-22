@@ -22,7 +22,7 @@ import 'package:cordelia/feature/storefront/template/store_language.dart';
 import 'package:cordelia/feature/storefront/template/storefront_template.dart';
 import 'package:cordelia/l10n/active_locale_controller.dart';
 import 'package:cordelia/l10n/active_locale_scope.dart';
-import 'package:cordelia/services/firebase_auth_service.dart';
+import '../../../helpers/fake_auth_session.dart';
 import 'package:cordelia/theme/active_theme_controller.dart';
 import 'package:cordelia/theme/active_theme_scope.dart';
 import 'package:core/core/di/core_injection.dart';
@@ -148,8 +148,7 @@ void main() {
     // The bag and the wishlist are the signed-in shopper's own, so the shell
     // only fetches them for one. There is no Firebase app in a test to say
     // so — hence the seam.
-    FirebaseAuthService.debugSignedIn = true;
-    addTearDown(() => FirebaseAuthService.debugSignedIn = null);
+    signIntoFakeSession();
   });
 
   testWidgets(
@@ -268,7 +267,7 @@ void main() {
 
   testWidgets('a guest fetches neither cart nor favourites, and is not left '
       'holding an unresolvable loading state', (tester) async {
-    FirebaseAuthService.debugSignedIn = false;
+    signOutFakeSession();
 
     final activeTheme = ActiveThemeController(AppThemeConfig.defaults);
     final activeLocale = ActiveLocaleController();
@@ -345,7 +344,7 @@ void main() {
   testWidgets('a guest aimed at a gated tab lands on Home instead', (
     tester,
   ) async {
-    FirebaseAuthService.debugSignedIn = false;
+    signOutFakeSession();
 
     final activeTheme = ActiveThemeController(AppThemeConfig.defaults);
     final activeLocale = ActiveLocaleController();
@@ -423,7 +422,7 @@ void main() {
   testWidgets('a repeat jump to the tab already requested still lands', (
     tester,
   ) async {
-    FirebaseAuthService.debugSignedIn = true;
+    signIntoFakeSession();
 
     final activeTheme = ActiveThemeController(AppThemeConfig.defaults);
     final activeLocale = ActiveLocaleController();

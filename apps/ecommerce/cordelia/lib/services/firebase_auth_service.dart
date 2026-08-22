@@ -47,18 +47,12 @@ class FirebaseAuthService {
     }
   }
 
-  /// Stands in for [currentUser] when there is no Firebase app to ask —
-  /// which, per [currentUser]'s own note, is every widget test. Without it a
-  /// test can only ever exercise the signed-out half of a screen, because
-  /// "no initialized Firebase app" and "nobody is signed in" are the same
-  /// answer.
-  @visibleForTesting
-  static bool? debugSignedIn;
-
-  /// The single answer to "is anyone signed in" — `SignInGateX.isSignedIn`
-  /// and the notification router both read it, so the question can't be
-  /// asked two slightly different ways.
-  bool get isSignedIn => debugSignedIn ?? currentUser != null;
+  /// The single answer to "is anyone signed in", for the one adapter above
+  /// this ([FirebaseAuthSession]) and this class's own methods. Everything
+  /// else in the app asks `AuthSession`, which is what a test fakes — there
+  /// is deliberately no override here, because a static one is global
+  /// mutable state that outlives the test that set it.
+  bool get isSignedIn => currentUser != null;
 
   /// Emits whenever *who* is signed in changes — a sign-in, a sign-out, or a
   /// session ending. What anything derived from the account (the profile)

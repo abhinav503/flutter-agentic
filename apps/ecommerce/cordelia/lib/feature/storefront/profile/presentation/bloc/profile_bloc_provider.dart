@@ -15,7 +15,7 @@ import 'profile_bloc.dart';
 BlocProvider<ProfileBloc> profileBlocProvider({required Widget child}) =>
     BlocProvider(
       create: (_) =>
-          ProfileBloc(getProfileUseCase: sl())
+          ProfileBloc(getProfileUseCase: sl(), authSession: sl())
             ..add(const ProfileEvent.started()),
       child: child,
     );

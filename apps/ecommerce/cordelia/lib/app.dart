@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cordelia/feature/home/presentation/view/discovery_page.dart';
 import 'package:cordelia/feature/storefront/address/domain/entities/address_entity.dart';
 import 'package:cordelia/feature/storefront/address/presentation/templates/dailymart/view/address_form_page.dart'
@@ -90,6 +92,7 @@ import 'package:cordelia/feature/storefront/template/storefront_template_switch.
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:core/core/auth/auth_session.dart';
 import 'package:core/core/theme/app_theme.dart';
 import 'package:core/core/theme/app_theme_config.dart';
 import 'package:core/core/theme/theme_mode_controller.dart';
@@ -125,7 +128,6 @@ import 'feature/support/presentation/view/support_channels.dart';
 import 'l10n/active_locale_controller.dart';
 import 'l10n/active_locale_scope.dart';
 import 'l10n/gen/app_localizations.dart';
-import 'services/firebase_auth_service.dart';
 import 'theme/active_theme_controller.dart';
 import 'services/notification/notification_navigator.dart';
 import 'theme/active_theme_scope.dart';
@@ -607,15 +609,17 @@ class _SessionExpiredGuard extends StatefulWidget {
 }
 
 class _SessionExpiredGuardState extends State<_SessionExpiredGuard> {
+  StreamSubscription<void>? _expirations;
+
   @override
   void initState() {
     super.initState();
-    FirebaseAuthService.instance.sessionExpired.addListener(_handleExpired);
+    _expirations = sl<AuthSession>().expirations.listen((_) => _handleExpired());
   }
 
   @override
   void dispose() {
-    FirebaseAuthService.instance.sessionExpired.removeListener(_handleExpired);
+    _expirations?.cancel();
     super.dispose();
   }
 

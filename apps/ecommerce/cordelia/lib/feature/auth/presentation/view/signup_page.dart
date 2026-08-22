@@ -24,6 +24,7 @@ class _SignupPageState extends BasePageState<SignupPage> {
       resendVerificationEmailUseCase: sl(),
       checkEmailVerifiedUseCase: sl(),
       forgotPasswordUseCase: sl(),
+      authSession: sl(),
     )..add(const AuthEvent.started()),
     child: const SignupScreen(),
   );

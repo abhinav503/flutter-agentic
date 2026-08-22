@@ -6,7 +6,9 @@ import 'package:cordelia/feature/home/domain/entities/store_support_entity.dart'
 import 'package:cordelia/feature/storefront/active_store/domain/entities/active_store_entity.dart';
 import 'package:cordelia/feature/storefront/active_store/presentation/cubit/active_store_cubit.dart';
 import 'package:cordelia/services/app_info_service.dart';
-import 'package:cordelia/services/firebase_auth_service.dart';
+import 'package:core/core/auth/auth_session.dart';
+
+import 'package:cordelia/di/injection_container.dart';
 
 import 'support_message.dart';
 
@@ -175,7 +177,7 @@ extension SupportChannelsX on BuildContext {
         store: read<ActiveStoreCubit>().state,
         // Null before sign-in and on a session that has just ended — the
         // account line is then dropped rather than printed empty.
-        accountEmail: FirebaseAuthService.instance.currentUser?.email ?? '',
+        accountEmail: sl<AuthSession>().currentEmail ?? '',
         orderId: orderId,
       );
 }

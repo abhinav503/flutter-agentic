@@ -1,12 +1,10 @@
 import 'dart:async';
 
-import 'package:firebase_auth/firebase_auth.dart' show User;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import 'package:core/core/auth/auth_session.dart';
 import 'package:core/core/usecase/usecase.dart';
-
-import 'package:cordelia/services/firebase_auth_service.dart';
 
 import '../../domain/entities/profile_entity.dart';
 import '../../domain/usecase/get_profile_usecase.dart';
@@ -17,8 +15,9 @@ part 'profile_state.dart';
 
 class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   final GetProfileUseCase _getProfile;
+  final AuthSession _session;
 
-  StreamSubscription<User?>? _authChanges;
+  StreamSubscription<String?>? _uidChanges;
 
   /// Who the current state describes. Seeded at construction because the
   /// provider dispatches `started` itself, and `authStateChanges` replays
@@ -26,9 +25,12 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   /// emission would fetch the same profile a second time.
   String? _uid;
 
-  ProfileBloc({required GetProfileUseCase getProfileUseCase})
-    : _getProfile = getProfileUseCase,
-      super(const ProfileState.loading()) {
+  ProfileBloc({
+    required GetProfileUseCase getProfileUseCase,
+    required AuthSession authSession,
+  }) : _getProfile = getProfileUseCase,
+       _session = authSession,
+       super(const ProfileState.loading()) {
     on<ProfileStarted>(_onStarted);
     on<ProfileSaved>(_onSaved);
 
@@ -38,17 +40,17 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     // above this bloc's provider — so nothing on that path could reach in
     // and refresh it, and the Profile tab sat on its skeleton for the rest
     // of the visit.
-    _uid = FirebaseAuthService.instance.currentUser?.uid;
-    _authChanges = FirebaseAuthService.instance.authStateChanges.listen((user) {
-      if (user?.uid == _uid) return;
-      _uid = user?.uid;
+    _uid = _session.currentUid;
+    _uidChanges = _session.uidChanges.listen((uid) {
+      if (uid == _uid) return;
+      _uid = uid;
       add(const ProfileEvent.started());
     });
   }
 
   @override
   Future<void> close() {
-    _authChanges?.cancel();
+    _uidChanges?.cancel();
     return super.close();
   }
 
@@ -60,11 +62,11 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     // resulting error state reads to a header as "still loading". Settled
     // here rather than at the provider so every caller of `started` gets the
     // same answer, including one dispatched after a sign-out.
-    if (!FirebaseAuthService.instance.isSignedIn) {
+    if (!_session.isSignedIn) {
       emit(const ProfileState.signedOut());
       return;
     }
-    _uid = FirebaseAuthService.instance.currentUser?.uid;
+    _uid = _session.currentUid;
     final result = await _getProfile(const NoParams());
     result.fold(
       (failure) => emit(ProfileState.error(message: failure.message)),

@@ -32,6 +32,8 @@ import 'package:core/core/theme/app_theme_config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import '../../../helpers/fake_auth_session.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -110,6 +112,11 @@ void main() {
       sl.registerLazySingleton<GetHomeUseCase>(() => _FakeGetHomeUseCase());
     }
     HomeBloc.resetCache();
+    // This one walks the storefront as a guest; the session has to be
+    // registered either way now, which is the point — a screen that gates on
+    // an account no longer silently reads "signed out" from an absent
+    // Firebase app.
+    signOutFakeSession();
   });
 
   testWidgets(

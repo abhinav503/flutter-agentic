@@ -23,7 +23,7 @@ import 'package:cordelia/feature/storefront/template/store_language.dart';
 import 'package:cordelia/feature/storefront/template/storefront_template.dart';
 import 'package:cordelia/l10n/active_locale_controller.dart';
 import 'package:cordelia/l10n/active_locale_scope.dart';
-import 'package:cordelia/services/firebase_auth_service.dart';
+import '../../../helpers/fake_auth_session.dart';
 import 'package:cordelia/theme/active_theme_controller.dart';
 import 'package:cordelia/theme/active_theme_scope.dart';
 import 'package:core/core/di/core_injection.dart';
@@ -135,8 +135,7 @@ void main() {
     // This exercises the signed-in storefront: the shell hydrates the bag and
     // the wishlist, which is the path the tab jump has to survive. No
     // Firebase app exists in a test to answer that question.
-    FirebaseAuthService.debugSignedIn = true;
-    addTearDown(() => FirebaseAuthService.debugSignedIn = null);
+    signIntoFakeSession();
   });
 
   testWidgets(

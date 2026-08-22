@@ -2,13 +2,15 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:core/core/auth/auth_session.dart';
+
 import 'package:cordelia/constants/app_routes.dart';
+import 'package:cordelia/di/injection_container.dart';
 import 'package:cordelia/feature/storefront/active_store/presentation/cubit/active_store_cubit.dart';
 import 'package:cordelia/feature/storefront/cart/presentation/cubit/cart_cubit.dart';
 import 'package:cordelia/feature/storefront/favourites/presentation/cubit/favourites_cubit.dart';
 import 'package:cordelia/feature/storefront/home/domain/entities/product_entity.dart';
 import 'package:cordelia/feature/storefront/reviews/presentation/bloc/product_reviews_bloc.dart';
-import 'package:cordelia/services/firebase_auth_service.dart';
 
 /// The account gate every signed-in-only action runs through.
 ///
@@ -23,7 +25,7 @@ import 'package:cordelia/services/firebase_auth_service.dart';
 /// shopper lands back on the exact product they were looking at rather than
 /// on discovery, and no return-path has to be encoded in a route.
 extension SignInGateX on BuildContext {
-  bool get isSignedIn => FirebaseAuthService.instance.isSignedIn;
+  bool get isSignedIn => sl<AuthSession>().isSignedIn;
 
   /// True if the shopper has an account by the time this resolves — already
   /// signed in, or signed in through the pushed Login flow. False means they

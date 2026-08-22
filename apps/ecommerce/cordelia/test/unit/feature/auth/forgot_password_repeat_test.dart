@@ -3,6 +3,8 @@ import 'dart:typed_data';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:core/core/error/failure.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import '../../../helpers/fake_auth_session.dart';
 import 'package:fpdart/fpdart.dart';
 
 import 'package:cordelia/feature/auth/domain/entities/user_entity.dart';
@@ -89,6 +91,7 @@ void main() {
     signInUseCase: SignInUseCase(repository),
     resendVerificationEmailUseCase: ResendVerificationEmailUseCase(repository),
     checkEmailVerifiedUseCase: CheckEmailVerifiedUseCase(repository),
+    authSession: FakeAuthSession(),
     forgotPasswordUseCase: ForgotPasswordUseCase(repository),
   );
 

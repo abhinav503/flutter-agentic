@@ -42,6 +42,7 @@ class _DiscoveryPageState extends BasePageState<DiscoveryPage> {
       resendVerificationEmailUseCase: sl(),
       checkEmailVerifiedUseCase: sl(),
       forgotPasswordUseCase: sl(),
+      authSession: sl(),
     )..add(const AuthEvent.started()),
     child: Builder(
       builder: (context) => BlocListener<AuthBloc, AuthState>(
