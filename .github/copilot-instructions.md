@@ -97,6 +97,20 @@ Run `make gen` after changing any `@freezed` or `@JsonSerializable` file. Never 
 
 ---
 
+The pre-commit hook and CI additionally run two convention checks a compiler
+cannot see — `make checks` runs them on demand:
+
+- `scripts/check-core-adoption.py` — fails on a widget in
+  `packages/core/lib/core/ui/` that nothing calls. Extracting and adopting are
+  one task; six widgets here were extracted and never adopted while every pack
+  shipped its own copy of what they replaced.
+- `scripts/check-test-isolation.py` — fails on a test that calls the app's real
+  `initDependencies()` without registering overrides, or names a live host. A
+  test like that passes only while some deployment answers.
+
+Each takes a marker comment for a deliberate exception
+(`// core-adoption: ignore — why`, `// test-isolation: ignore — why`).
+
 ## Forbidden Patterns
 
 - Hardcoded colours, strings, spacing, or radii in widget files

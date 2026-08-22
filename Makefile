@@ -16,7 +16,8 @@ GEN_PACKAGES = packages/core apps/jokes apps/doc_scanner apps/ai_chat apps/ecomm
 .PHONY: setup run-jokes run-doc-scanner run-ai-chat run-design-gallery \
         run-gravia run-cordelia web-jokes web-doc-scanner web-ai-chat web-design-gallery \
         web-gravia web-cordelia console terminal-bridge dev-web-terminal analyze test gen \
-        clean docker-build docker-up ws-image ws-create ws-delete
+        clean docker-build docker-up ws-image ws-create ws-delete \
+        check-core-adoption check-test-isolation checks
 
 setup:
 	git config core.hooksPath .githooks
@@ -107,6 +108,17 @@ ws-delete:
 # --- workspace-wide ---
 analyze:
 	$(FLUTTER) analyze --no-pub
+
+# Conventions a compiler can't see. Both encode a failure this repo actually
+# shipped — see docs/explanation/review-lessons.md §1.1 and §5.1.
+check-core-adoption:
+	@python3 scripts/check-core-adoption.py
+
+check-test-isolation:
+	@python3 scripts/check-test-isolation.py
+
+# Everything the pre-commit hook runs, on demand.
+checks: check-core-adoption check-test-isolation analyze
 
 test:
 	@for app in $(APPS); do \

@@ -41,6 +41,16 @@ jobs:
             (cd "$pkg" && dart run build_runner build --delete-conflicting-outputs)
           done
 
+      # Conventions a compiler can't see. Each encodes a failure this repo
+      # actually shipped — see docs/explanation/review-lessons.md. They run
+      # before analyze because they are near-instant and their failures are
+      # easier to read on their own.
+      - name: Check core adoption
+        run: python3 scripts/check-core-adoption.py
+
+      - name: Check test isolation
+        run: python3 scripts/check-test-isolation.py
+
       # Root analyze covers every package in the workspace.
       - name: Analyze
         run: flutter analyze --fatal-infos

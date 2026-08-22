@@ -65,7 +65,18 @@ make gen              # build_runner in core + each app
 make clean            # flutter clean per package, then root pub get
 ```
 
-The pre-commit hook formats staged Dart files and runs `flutter analyze` at the root — commits are blocked if analysis fails.
+The pre-commit hook formats staged Dart files, runs two convention checks, and
+runs `flutter analyze` at the root — commits are blocked if any fails. CI runs
+the same three. `make checks` runs them on demand.
+
+- `scripts/check-core-adoption.py` — a widget in `packages/core/lib/core/ui/`
+  that nothing calls. Extracting and adopting are one task.
+- `scripts/check-test-isolation.py` — a test that calls the real
+  `initDependencies()` without overrides, or names a live host.
+
+Each takes a marker comment for a deliberate exception
+(`// core-adoption: ignore — why`, `// test-isolation: ignore — why`).
+Reasoning: `docs/explanation/review-lessons.md`.
 
 ---
 

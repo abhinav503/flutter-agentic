@@ -18,7 +18,21 @@ make clean            # flutter clean per package, then root pub get
 
 Dependencies: always `flutter pub get` **at the repo root** (never inside an app folder). Apps are run **from their own folder** (`apps/<app>`) — the root has no runnable app.
 
-The pre-commit hook formats staged Dart files and runs `flutter analyze` at the root — commits are blocked if analysis fails.
+The pre-commit hook formats staged Dart files, runs the two convention checks
+below, and runs `flutter analyze` at the root — commits are blocked if any of
+them fails. CI runs the same three, so `--no-verify` only defers them.
+
+```bash
+make checks                  # everything the hook runs, on demand
+make check-core-adoption     # a widget in core/ui/ that nobody calls
+make check-test-isolation    # a test that builds the real graph or names a live host
+```
+
+Both encode a failure this repo shipped, and both are greppable rules that had
+already drifted: six core widgets were extracted and never adopted, and a
+widget test ran against a live API for months. Each takes a marker comment
+(`// core-adoption: ignore — why`, `// test-isolation: ignore — why`) for a
+deliberate exception. Reasoning: `docs/explanation/review-lessons.md`.
 
 > First-time setup and contributor workflow: `docs/how-to/contributing.md`
 > For folder structure, naming conventions, layer patterns, DI, and code examples see `docs/reference/architecture.md`.

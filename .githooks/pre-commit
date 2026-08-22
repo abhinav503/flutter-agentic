@@ -1,7 +1,9 @@
 #!/bin/sh
 # Runs on every commit:
 #   1. Formats staged Dart files
-#   2. Runs flutter analyze at the workspace root — analyzes every package
+#   2. Runs the convention checks a compiler can't see — see
+#      docs/explanation/review-lessons.md for why each exists
+#   3. Runs flutter analyze at the workspace root — analyzes every package
 #      and blocks the commit on any error
 #
 # All Flutter/Dart commands go through fvm (the SDK version is pinned in .fvm).
@@ -17,6 +19,18 @@ if [ -n "$STAGED" ]; then
   fvm dart format $STAGED
   git add $STAGED
 fi
+
+# Cheap (a few hundred ms) and they catch two things that otherwise rot
+# silently: a widget promoted into core that nobody adopted, and a test that
+# reaches the network. Both have happened here.
+for check in check-core-adoption check-test-isolation; do
+  python3 "scripts/$check.py" || {
+    echo ""
+    echo "Commit blocked: see above. Mark a deliberate exception with the"
+    echo "marker comment the script names, if that is genuinely the case."
+    exit 1
+  }
+done
 
 echo "Running flutter analyze (workspace)..."
 fvm flutter analyze --no-pub --fatal-infos

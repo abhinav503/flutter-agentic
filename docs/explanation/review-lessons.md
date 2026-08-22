@@ -29,6 +29,8 @@ keep in step with it.
 
 > **Rule.** Promoting and adopting are one task, in one commit. A widget in
 > `core/ui/` with no callers is a defect, not a head start.
+>
+> **Enforced** by `scripts/check-core-adoption.py` (pre-commit hook + CI).
 
 ### 1.2 A fork is usually a missing parameter
 
@@ -241,6 +243,8 @@ with the fakes they needed already sitting unused in the test helpers folder.
 > **Rule.** No test touches the network. Fakes are injected at the boundary,
 > and the boundary is named in the architecture doc so there is no argument
 > about where.
+>
+> **Enforced** by `scripts/check-test-isolation.py` (pre-commit hook + CI).
 
 ### 5.2 A test seam in production code is a missing dependency boundary
 
@@ -290,6 +294,12 @@ files.
 
 > **Rule.** A convention worth writing down is worth a grep in review. The
 > ones that survive are the ones something checks.
+>
+> Two of the lessons above are now scripts rather than prose — §1.1 and §5.1.
+> Both were verified against the real historical failure before being wired
+> in: run them against the commit that opened this review and they fail. The
+> rest of this document is still only prose, which is a fair description of
+> how much it can be relied on.
 
 ### 6.2 Pin the formatter
 
