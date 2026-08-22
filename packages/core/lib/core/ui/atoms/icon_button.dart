@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'svg_image.dart';
+
 import 'package:core/core/theme/app_colors_extension.dart';
 import 'package:core/core/ui/atoms/glass_surface.dart';
 
@@ -45,6 +47,12 @@ enum AppIconButtonVariant { filled, translucent, glass }
 class AppIconButton extends StatelessWidget {
   final IconData? icon;
   final Widget Function(Color color, double size)? iconBuilder;
+
+  /// An SVG asset for the glyph — shorthand for the [iconBuilder] closure
+  /// that tints and sizes one, which every caller was otherwise re-typing.
+  /// A pack's controls are nearly always kit SVGs, so this is the common
+  /// case, not the exotic one.
+  final String? svgAsset;
   final VoidCallback? onTap;
   final AppIconButtonVariant variant;
   final double containerSize;
@@ -105,6 +113,7 @@ class AppIconButton extends StatelessWidget {
     super.key,
     this.icon,
     this.iconBuilder,
+    this.svgAsset,
     this.onTap,
     this.variant = AppIconButtonVariant.filled,
     this.containerSize = 40,
@@ -120,8 +129,8 @@ class AppIconButton extends StatelessWidget {
     this.dotColor,
     this.dotSize = 8,
   }) : assert(
-         icon != null || iconBuilder != null,
-         'AppIconButton requires either icon or iconBuilder',
+         icon != null || iconBuilder != null || svgAsset != null,
+         'AppIconButton requires an icon, an svgAsset or an iconBuilder',
        );
 
   @override
@@ -145,11 +154,22 @@ class AppIconButton extends StatelessWidget {
           AppIconButtonVariant.glass => fg.withValues(alpha: 0.1),
         };
 
-    Widget iconWidget = iconBuilder != null
+    final builder =
+        iconBuilder ??
+        (svgAsset == null
+            ? null
+            : (Color color, double size) => AppSvgImage.asset(
+                svgAsset!,
+                color: color,
+                width: size,
+                height: size,
+              ));
+
+    Widget iconWidget = builder != null
         ? SizedBox(
             width: iconSize,
             height: iconSize,
-            child: iconBuilder!(fg, iconSize),
+            child: builder(fg, iconSize),
           )
         : Icon(icon, size: iconSize, color: fg);
 

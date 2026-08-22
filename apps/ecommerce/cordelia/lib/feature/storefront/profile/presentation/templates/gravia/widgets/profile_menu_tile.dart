@@ -10,10 +10,11 @@ import 'package:core/core/theme/app_spacing.dart';
 /// baked in: Gray/50-light / Gray/950-dark icon circle, Text/md/medium
 /// label, and the kit's own chevron SVG.
 class ProfileMenuTile extends StatelessWidget {
-  /// Same convention as [AppMenuTile.iconBuilder] — most rows pass an
-  /// `AppSvgImage.asset`, but a row without a dedicated kit SVG yet (e.g.
-  /// "My Cards") can pass a plain `Icon` instead.
-  final Widget Function(Color color, double size) iconBuilder;
+  /// Same convention as [AppMenuTile] — most rows name a kit SVG through
+  /// [svgAsset], and a row without one yet (e.g. "My Cards") passes an
+  /// [iconBuilder] with a plain `Icon` instead. Exactly one of the two.
+  final Widget Function(Color color, double size)? iconBuilder;
+  final String? svgAsset;
   final String label;
   final VoidCallback? onTap;
   final Widget? trailing;
@@ -21,7 +22,8 @@ class ProfileMenuTile extends StatelessWidget {
 
   const ProfileMenuTile({
     super.key,
-    required this.iconBuilder,
+    this.iconBuilder,
+    this.svgAsset,
     required this.label,
     this.onTap,
     this.trailing,
@@ -35,6 +37,7 @@ class ProfileMenuTile extends StatelessWidget {
 
     return AppMenuTile(
       iconBuilder: iconBuilder,
+      svgAsset: svgAsset,
       label: label,
       onTap: onTap,
       trailing: trailing,

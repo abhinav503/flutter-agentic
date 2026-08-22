@@ -4,11 +4,13 @@ import {
   addDoc,
   updateDoc,
   deleteDoc,
-  onSnapshot,
   serverTimestamp,
   type QueryDocumentSnapshot,
   type Timestamp,
+  type FirestoreError,
 } from "firebase/firestore";
+
+import { watchQuery } from "./watch";
 import { db } from "./firebase";
 import type { Coupon, CouponScope, CouponType } from "./types";
 
@@ -41,10 +43,9 @@ function mapCouponDoc(d: QueryDocumentSnapshot): Coupon {
 export function watchCoupons(
   storeId: string,
   onChange: (coupons: Coupon[]) => void,
+  onError?: (error: FirestoreError) => void,
 ) {
-  return onSnapshot(couponsRef(storeId), (snap) => {
-    onChange(snap.docs.map(mapCouponDoc));
-  });
+  return watchQuery(couponsRef(storeId), (snap) => snap.docs.map(mapCouponDoc), onChange, onError);
 }
 
 // usedCount is deliberately not accepted here — it belongs to the order

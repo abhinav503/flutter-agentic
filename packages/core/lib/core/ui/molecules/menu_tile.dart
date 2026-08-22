@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../atoms/icon_circle.dart';
+import '../atoms/svg_image.dart';
 
 import '../../theme/app_spacing.dart';
 
@@ -23,7 +24,11 @@ import '../../theme/app_spacing.dart';
 class AppMenuTile extends StatelessWidget {
   /// Receives the resolved foreground colour + icon size — pass an SVG asset
   /// or a plain [Icon].
-  final Widget Function(Color color, double size) iconBuilder;
+  final Widget Function(Color color, double size)? iconBuilder;
+
+  /// An SVG asset for the leading glyph — shorthand for the [iconBuilder]
+  /// closure that tints and sizes one. Pass exactly one of the two.
+  final String? svgAsset;
   final String label;
   final VoidCallback? onTap;
 
@@ -61,7 +66,8 @@ class AppMenuTile extends StatelessWidget {
 
   const AppMenuTile({
     super.key,
-    required this.iconBuilder,
+    this.iconBuilder,
+    this.svgAsset,
     required this.label,
     this.onTap,
     this.trailing,
@@ -78,7 +84,19 @@ class AppMenuTile extends StatelessWidget {
     this.borderRadius,
     this.padding,
     this.gap = AppSpacing.base,
-  });
+  }) : assert(
+         (iconBuilder == null) != (svgAsset == null),
+         'AppMenuTile takes an iconBuilder or an svgAsset, not both',
+       );
+
+  Widget _glyph(Color color) =>
+      iconBuilder?.call(color, iconSize) ??
+      AppSvgImage.asset(
+        svgAsset!,
+        color: color,
+        width: iconSize,
+        height: iconSize,
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -97,10 +115,10 @@ class AppMenuTile extends StatelessWidget {
           AppIconCircle(
             size: iconCircleSize,
             color: circleColor,
-            child: iconBuilder(foregroundColor, iconSize),
+            child: _glyph(foregroundColor),
           )
         else
-          iconBuilder(foregroundColor, iconSize),
+          _glyph(foregroundColor),
         SizedBox(width: gap),
         Expanded(
           child: Text(

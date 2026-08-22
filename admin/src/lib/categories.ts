@@ -4,13 +4,15 @@ import {
   addDoc,
   updateDoc,
   deleteDoc,
-  onSnapshot,
   getCountFromServer,
   getDocs,
   serverTimestamp,
   type QueryDocumentSnapshot,
   type Timestamp,
+  type FirestoreError,
 } from "firebase/firestore";
+
+import { watchQuery } from "./watch";
 import { db } from "./firebase";
 import type { Category } from "./types";
 
@@ -32,10 +34,9 @@ function mapCategoryDoc(d: QueryDocumentSnapshot): Category {
 export function watchCategories(
   storeId: string,
   onChange: (categories: Category[]) => void,
+  onError?: (error: FirestoreError) => void,
 ) {
-  return onSnapshot(categoriesRef(storeId), (snap) => {
-    onChange(snap.docs.map(mapCategoryDoc));
-  });
+  return watchQuery(categoriesRef(storeId), (snap) => snap.docs.map(mapCategoryDoc), onChange, onError);
 }
 
 // One-shot fetch (vs. watchCategories' live listener) — for server contexts

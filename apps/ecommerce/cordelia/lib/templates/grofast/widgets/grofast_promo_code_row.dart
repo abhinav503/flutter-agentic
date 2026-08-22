@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:cordelia/feature/storefront/cart/presentation/coupon_input.dart';
+
 import 'package:core/core/theme/app_shapes_extension.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/loading_dots.dart';
@@ -33,14 +35,16 @@ class GrofastPromoCodeRow extends StatefulWidget {
   State<GrofastPromoCodeRow> createState() => _GrofastPromoCodeRowState();
 }
 
-class _GrofastPromoCodeRowState extends State<GrofastPromoCodeRow> {
-  final TextEditingController _code = TextEditingController();
+class _GrofastPromoCodeRowState extends State<GrofastPromoCodeRow>
+    with CouponInput {
+  @override
+  CouponState get couponState => widget.couponState;
 
   @override
-  void dispose() {
-    _code.dispose();
-    super.dispose();
-  }
+  ValueChanged<String> get onApplyCoupon => widget.onApply;
+
+  @override
+  VoidCallback get onRemoveCoupon => widget.onRemove;
 
   @override
   Widget build(BuildContext context) {
@@ -48,15 +52,10 @@ class _GrofastPromoCodeRowState extends State<GrofastPromoCodeRow> {
     final tt = Theme.of(context).textTheme;
     final radius = BorderRadius.circular(context.appShapes.cardRadius);
 
-    final applied = switch (widget.couponState) {
-      CouponApplied(:final coupon) => coupon,
-      _ => null,
-    };
-    final errorMessage = switch (widget.couponState) {
-      CouponFailed(:final message) => message,
-      _ => null,
-    };
-    final applying = widget.couponState is CouponApplying;
+    // Read into locals so the null checks below promote — a getter can't.
+    final applied = appliedCoupon;
+    final errorMessage = couponError;
+    final applying = isApplyingCoupon;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -96,7 +95,7 @@ class _GrofastPromoCodeRowState extends State<GrofastPromoCodeRow> {
                           // theme's inputDecorationTheme injects the pack's
                           // input border even into a collapsed decoration.
                           : TextField(
-                              controller: _code,
+                              controller: codeController,
                               enabled: !applying,
                               textCapitalization: TextCapitalization.characters,
                               style: GrofastTextStyleConst.bodyMedium(
@@ -113,7 +112,7 @@ class _GrofastPromoCodeRowState extends State<GrofastPromoCodeRow> {
                                   tt,
                                 ).copyWith(color: cs.onSurfaceVariant),
                               ),
-                              onSubmitted: widget.onApply,
+                              onSubmitted: (_) => applyCoupon(),
                               // Same dismissal rule AppTextField bakes in — tapping
                               // outside drops focus and the keyboard.
                               onTapOutside: (_) =>
@@ -127,12 +126,7 @@ class _GrofastPromoCodeRowState extends State<GrofastPromoCodeRow> {
                         label: applied != null
                             ? GrofastValueConst.promoRemoveLabel
                             : GrofastValueConst.promoApplyLabel,
-                        onTap: applied != null
-                            ? () {
-                                _code.clear();
-                                widget.onRemove();
-                              }
-                            : () => widget.onApply(_code.text),
+                        onTap: applied != null ? removeCoupon : applyCoupon,
                       ),
                   ],
                 ),

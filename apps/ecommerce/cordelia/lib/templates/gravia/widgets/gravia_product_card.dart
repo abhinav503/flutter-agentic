@@ -163,12 +163,7 @@ class GraviaProductCard extends StatelessWidget {
               iconSize: AppSpacing.lg,
               glassHighlightThickness: AppSpacing.xs3,
               glassBlurSigma: AppSpacing.xs4,
-              iconBuilder: (color, size) => AppSvgImage.asset(
-                GraviaImageConst.bagAdd,
-                color: color,
-                width: size,
-                height: size,
-              ),
+              svgAsset: GraviaImageConst.bagAdd,
               onTap: onQuickAdd,
             ),
       favouriteAction: onFavouriteToggle == null
@@ -179,14 +174,9 @@ class GraviaProductCard extends StatelessWidget {
               iconSize: AppSpacing.lg,
               glassHighlightThickness: AppSpacing.xs3,
               glassBlurSigma: AppSpacing.xs4,
-              iconBuilder: (color, size) => AppSvgImage.asset(
-                isFavourite
-                    ? GraviaImageConst.favouriteFilled
-                    : GraviaImageConst.navFavourite,
-                color: color,
-                width: size,
-                height: size,
-              ),
+              svgAsset: isFavourite
+                  ? GraviaImageConst.favouriteFilled
+                  : GraviaImageConst.navFavourite,
               onTap: onFavouriteToggle,
             ),
       onTap: onTap,

@@ -4,7 +4,6 @@ import {
   addDoc,
   updateDoc,
   deleteDoc,
-  onSnapshot,
   getCountFromServer,
   getDocs,
   getDoc,
@@ -13,7 +12,10 @@ import {
   serverTimestamp,
   type QueryDocumentSnapshot,
   type Timestamp,
+  type FirestoreError,
 } from "firebase/firestore";
+
+import { watchQuery } from "./watch";
 import { db } from "./firebase";
 import {
   EMPTY_RATING_BUCKETS,
@@ -145,10 +147,9 @@ export function computeDiscountPercentage(
 export function watchProducts(
   storeId: string,
   onChange: (products: Product[]) => void,
+  onError?: (error: FirestoreError) => void,
 ) {
-  return onSnapshot(productsRef(storeId), (snap) => {
-    onChange(snap.docs.map(mapProductDoc));
-  });
+  return watchQuery(productsRef(storeId), (snap) => snap.docs.map(mapProductDoc), onChange, onError);
 }
 
 // One-shot fetches for server contexts (API routes) — no live listener held open.

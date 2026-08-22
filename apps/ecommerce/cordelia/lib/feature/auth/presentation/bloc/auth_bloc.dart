@@ -210,8 +210,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       ForgotPasswordParams(email: event.email),
     );
     result.fold(
-      (failure) =>
-          emit(AuthState.error(message: failure.shopperMessage, attempt: attempt)),
+      (failure) => emit(
+        AuthState.error(message: failure.shopperMessage, attempt: attempt),
+      ),
       (_) => emit(
         AuthState.passwordResetEmailSent(email: event.email, attempt: attempt),
       ),

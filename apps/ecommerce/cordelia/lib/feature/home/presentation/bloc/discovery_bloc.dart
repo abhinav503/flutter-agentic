@@ -85,8 +85,9 @@ class DiscoveryBloc extends Bloc<DiscoveryEvent, DiscoveryState> {
     };
     final result = await _getStores(GetStoresParams(query: query));
     result.fold(
-      (failure) =>
-          emit(DiscoveryState.error(message: failure.shopperMessage, query: query)),
+      (failure) => emit(
+        DiscoveryState.error(message: failure.shopperMessage, query: query),
+      ),
       (stores) => emit(
         stores.isEmpty
             ? DiscoveryState.empty(query: query)

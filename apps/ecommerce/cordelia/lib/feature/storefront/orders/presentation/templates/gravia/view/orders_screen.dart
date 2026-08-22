@@ -72,9 +72,6 @@ class _OrdersScreenState extends BaseScreenState<OrdersScreen>
         if (state case OrdersLoaded(cancelFailed: true)) {
           showSnackBar(GraviaValueConst.cancelFailedMessage);
         }
-        if (state case OrdersLoaded(rateFailed: true)) {
-          showSnackBar(ValueConst.orderRatingFailedMessage);
-        }
       },
       builder: (context, state) => GraviaSwitcher(
         child: switch (state) {

@@ -19,7 +19,6 @@ import 'package:cordelia/templates/gravia/widgets/gravia_switcher.dart';
 import 'package:core/core/base/base_screen.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/theme/theme_mode_scope.dart';
-import 'package:core/core/ui/atoms/svg_image.dart';
 import 'package:core/core/ui/atoms/switch.dart';
 import 'package:core/core/ui/blocks/collapsing_header_sheet.dart';
 import 'package:core/core/ui/molecules/error_view.dart';
@@ -125,42 +124,22 @@ class _ProfileScreenState extends BaseScreenState<ProfileScreen>
                 child: Column(
                   children: [
                     ProfileMenuTile(
-                      iconBuilder: (color, size) => AppSvgImage.asset(
-                        GraviaImageConst.lock,
-                        color: color,
-                        width: size,
-                        height: size,
-                      ),
+                      svgAsset: GraviaImageConst.lock,
                       label: GraviaValueConst.changePasswordLabel,
                       onTap: () => context.push(AppRoutes.changePassword),
                     ),
                     ProfileMenuTile(
-                      iconBuilder: (color, size) => AppSvgImage.asset(
-                        GraviaImageConst.shoppingBag,
-                        color: color,
-                        width: size,
-                        height: size,
-                      ),
+                      svgAsset: GraviaImageConst.shoppingBag,
                       label: GraviaValueConst.myOrdersLabel,
                       onTap: widget.onOpenOrders,
                     ),
                     ProfileMenuTile(
-                      iconBuilder: (color, size) => AppSvgImage.asset(
-                        GraviaImageConst.locationIcon,
-                        color: color,
-                        width: size,
-                        height: size,
-                      ),
+                      svgAsset: GraviaImageConst.locationIcon,
                       label: GraviaValueConst.myAddressLabel,
                       onTap: () => context.push(AppRoutes.selectAddress),
                     ),
                     ProfileMenuTile(
-                      iconBuilder: (color, size) => AppSvgImage.asset(
-                        GraviaImageConst.eye,
-                        color: color,
-                        width: size,
-                        height: size,
-                      ),
+                      svgAsset: GraviaImageConst.eye,
                       label: GraviaValueConst.darkModeLabel,
                       // Material's own Switch grows the thumb when selected
                       // (M3 spec: active radius 12, inactive 8) with no public
@@ -198,32 +177,17 @@ class _ProfileScreenState extends BaseScreenState<ProfileScreen>
                       onTap: () => context.push(AppRoutes.support),
                     ),
                     ProfileMenuTile(
-                      iconBuilder: (color, size) => AppSvgImage.asset(
-                        GraviaImageConst.shieldCheck,
-                        color: color,
-                        width: size,
-                        height: size,
-                      ),
+                      svgAsset: GraviaImageConst.shieldCheck,
                       label: GraviaValueConst.privacyPolicyLabel,
                       onTap: () => context.push(AppRoutes.privacyPolicy),
                     ),
                     ProfileMenuTile(
-                      iconBuilder: (color, size) => AppSvgImage.asset(
-                        GraviaImageConst.notes,
-                        color: color,
-                        width: size,
-                        height: size,
-                      ),
+                      svgAsset: GraviaImageConst.notes,
                       label: GraviaValueConst.termsAndConditionsLabel,
                       onTap: () => context.push(AppRoutes.termsAndConditions),
                     ),
                     ProfileMenuTile(
-                      iconBuilder: (color, size) => AppSvgImage.asset(
-                        GraviaImageConst.logout,
-                        color: color,
-                        width: size,
-                        height: size,
-                      ),
+                      svgAsset: GraviaImageConst.logout,
                       label: GraviaValueConst.logoutLabel,
                       danger: true,
                       trailing: const SizedBox.shrink(),
@@ -238,12 +202,7 @@ class _ProfileScreenState extends BaseScreenState<ProfileScreen>
                     // Last row on purpose: the most destructive action sits
                     // furthest from the ones a shopper opens Profile to use.
                     ProfileMenuTile(
-                      iconBuilder: (color, size) => AppSvgImage.asset(
-                        GraviaImageConst.trash,
-                        color: color,
-                        width: size,
-                        height: size,
-                      ),
+                      svgAsset: GraviaImageConst.trash,
                       label: ValueConst.deleteAccountLabel,
                       danger: true,
                       trailing: const SizedBox.shrink(),

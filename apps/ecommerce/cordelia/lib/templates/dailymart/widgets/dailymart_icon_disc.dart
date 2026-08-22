@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import 'package:core/core/ui/atoms/icon_button.dart';
-import 'package:core/core/ui/atoms/svg_image.dart';
 
 import 'package:cordelia/templates/dailymart/constants/dailymart_dimen_const.dart';
 
@@ -74,14 +73,7 @@ class DailyMartIconDisc extends StatelessWidget {
 
     return AppIconButton(
       icon: icon,
-      iconBuilder: asset == null
-          ? null
-          : (color, iconSize) => AppSvgImage.asset(
-              asset!,
-              color: color,
-              width: iconSize,
-              height: iconSize,
-            ),
+      svgAsset: asset,
       onTap: onTap,
       containerSize: size,
       iconSize: iconSize,

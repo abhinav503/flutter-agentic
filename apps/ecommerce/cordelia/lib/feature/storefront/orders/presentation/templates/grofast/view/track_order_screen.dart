@@ -103,9 +103,6 @@ class _TrackOrderScreenState extends BaseScreenState<TrackOrderScreen>
           if (state case OrdersLoaded(cancelFailed: true)) {
             showSnackBar(GrofastValueConst.orderCancelFailedMessage);
           }
-          if (state case OrdersLoaded(rateFailed: true)) {
-            showSnackBar(ValueConst.orderRatingFailedMessage);
-          }
         },
         builder: (context, state) {
           final order = state.freshest(widget.order);

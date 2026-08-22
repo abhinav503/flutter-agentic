@@ -144,9 +144,16 @@ class OrdersBloc extends Bloc<OrdersEvent, OrdersState> {
   Future<void> _onRated(OrdersRated event, Emitter<OrdersState> emit) async {
     if (state case final OrdersLoaded loaded) {
       final index = loaded.orders.indexWhere((o) => o.id == event.orderId);
-      // Ignore a stale tap on an order that has since left the list, or one
-      // the server would refuse anyway — only a delivered order can be rated.
-      if (index == -1 || !loaded.orders[index].canBeRated) return;
+      // A stale tap on an order that has since left the list, or one the
+      // server would refuse anyway — only a delivered order can be rated.
+      //
+      // Answered rather than dropped: the sheet that dispatched this is
+      // waiting on the outcome before it closes, and a silent return would
+      // leave it spinning for the rest of the session.
+      if (index == -1 || !loaded.orders[index].canBeRated) {
+        emit(loaded.copyWith(rateFailed: true));
+        return;
+      }
 
       final result = await _rateOrder(
         RateOrderParams(

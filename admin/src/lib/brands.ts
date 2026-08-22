@@ -4,12 +4,14 @@ import {
   addDoc,
   updateDoc,
   deleteDoc,
-  onSnapshot,
   getDocs,
   serverTimestamp,
   type QueryDocumentSnapshot,
   type Timestamp,
+  type FirestoreError,
 } from "firebase/firestore";
+
+import { watchQuery } from "./watch";
 import { db } from "./firebase";
 import type { Brand } from "./types";
 
@@ -30,10 +32,9 @@ function mapBrandDoc(d: QueryDocumentSnapshot): Brand {
 export function watchBrands(
   storeId: string,
   onChange: (brands: Brand[]) => void,
+  onError?: (error: FirestoreError) => void,
 ) {
-  return onSnapshot(brandsRef(storeId), (snap) => {
-    onChange(snap.docs.map(mapBrandDoc));
-  });
+  return watchQuery(brandsRef(storeId), (snap) => snap.docs.map(mapBrandDoc), onChange, onError);
 }
 
 // One-shot fetch (vs. watchBrands' live listener) — for server contexts

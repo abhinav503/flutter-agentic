@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import 'package:core/core/ui/atoms/icon_button.dart';
-import 'package:core/core/ui/atoms/svg_image.dart';
 
 import 'package:cordelia/constants/cordelia_dimen_const.dart';
 
@@ -52,14 +51,7 @@ class CordeliaGlassIconButton extends StatelessWidget {
     containerSize: containerSize,
     iconSize: iconSize,
     icon: icon,
-    iconBuilder: asset == null
-        ? null
-        : (color, size) => AppSvgImage.asset(
-            asset!,
-            color: color,
-            width: size,
-            height: size,
-          ),
+    svgAsset: asset,
     onTap: onTap,
   );
 }

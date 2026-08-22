@@ -4,11 +4,13 @@ import {
   addDoc,
   updateDoc,
   deleteDoc,
-  onSnapshot,
   getDocs,
   serverTimestamp,
   type QueryDocumentSnapshot,
+  type FirestoreError,
 } from "firebase/firestore";
+
+import { watchQuery } from "./watch";
 import { db } from "./firebase";
 import type { Banner, BannerTargetType } from "./types";
 
@@ -43,10 +45,9 @@ function bySortOrder(a: Banner, b: Banner) {
 export function watchBanners(
   storeId: string,
   onChange: (banners: Banner[]) => void,
+  onError?: (error: FirestoreError) => void,
 ) {
-  return onSnapshot(bannersRef(storeId), (snap) => {
-    onChange(snap.docs.map(mapBannerDoc).sort(bySortOrder));
-  });
+  return watchQuery(bannersRef(storeId), (snap) => snap.docs.map(mapBannerDoc).sort(bySortOrder), onChange, onError);
 }
 
 // One-shot fetch (vs. watchBanners' live listener) — for server contexts

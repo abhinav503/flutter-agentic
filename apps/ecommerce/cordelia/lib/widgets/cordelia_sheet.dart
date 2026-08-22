@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import 'package:core/core/base/base_screen.dart';
+import 'package:core/core/theme/app_colors_extension.dart';
+import 'package:core/core/ui/molecules/bottom_sheet.dart';
 
 import 'package:cordelia/feature/auth/presentation/widgets/verify_email_sheet_content.dart';
 
@@ -16,13 +18,17 @@ Future<void> showVerifyEmailSheet({
   required BuildContext context,
   required String email,
   required VoidCallback onResend,
-}) => showModalBottomSheet<void>(
-  context: context,
-  isScrollControlled: true,
+}) => AppBottomSheet.show<void>(
+  context,
+  // Chromeless: no title row and no close action, because there is no way
+  // out of this step but verifying. The handle is kept — it is the only
+  // thing that makes the surface read as a sheet without one.
+  showHeader: false,
+  showHandle: true,
+  handleColor: context.appColors.sheetHairline,
   isDismissible: false,
   enableDrag: false,
-  backgroundColor: Colors.transparent,
-  builder: (_) => VerifyEmailSheetContent(email: email, onResend: onResend),
+  child: VerifyEmailSheetContent(email: email, onResend: onResend),
 );
 
 /// Convenience for a [BaseScreenState] caller — delegates to the top-level

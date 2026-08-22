@@ -4,6 +4,8 @@ import 'package:cordelia/templates/gravia/constants/gravia_text_style_const.dart
 import 'package:cordelia/templates/gravia/constants/gravia_value_const.dart';
 import 'package:flutter/material.dart';
 
+import '../../../coupon_input.dart';
+
 import 'package:core/core/extensions/num_extensions.dart';
 import 'package:core/core/theme/app_radius.dart';
 import 'package:core/core/theme/app_spacing.dart';
@@ -45,14 +47,16 @@ class CartSummarySection extends StatefulWidget {
   State<CartSummarySection> createState() => _CartSummarySectionState();
 }
 
-class _CartSummarySectionState extends State<CartSummarySection> {
-  final TextEditingController _code = TextEditingController();
+class _CartSummarySectionState extends State<CartSummarySection>
+    with CouponInput {
+  @override
+  CouponState get couponState => widget.couponState;
 
   @override
-  void dispose() {
-    _code.dispose();
-    super.dispose();
-  }
+  ValueChanged<String> get onApplyCoupon => widget.onApplyCoupon;
+
+  @override
+  VoidCallback get onRemoveCoupon => widget.onRemoveCoupon;
 
   @override
   Widget build(BuildContext context) {
@@ -60,15 +64,10 @@ class _CartSummarySectionState extends State<CartSummarySection> {
     final tt = Theme.of(context).textTheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    final applied = switch (widget.couponState) {
-      CouponApplied(:final coupon) => coupon,
-      _ => null,
-    };
-    final errorMessage = switch (widget.couponState) {
-      CouponFailed(:final message) => message,
-      _ => null,
-    };
-    final applying = widget.couponState is CouponApplying;
+    // Read into locals so the null checks below promote — a getter can't.
+    final applied = appliedCoupon;
+    final errorMessage = couponError;
+    final applying = isApplyingCoupon;
     // Delivery is charged on the basket *after* the coupon, matching the
     // server; the grand total is that basket plus the fee.
     final goods = widget.items.grandTotal - (applied?.discount ?? 0);
@@ -110,7 +109,7 @@ class _CartSummarySectionState extends State<CartSummarySection> {
                       // inputDecorationTheme injects the pack's input border
                       // even into a collapsed decoration.
                       : TextField(
-                          controller: _code,
+                          controller: codeController,
                           enabled: !applying,
                           textCapitalization: TextCapitalization.characters,
                           style: GraviaTextStyleConst.textSmRegular(
@@ -127,7 +126,7 @@ class _CartSummarySectionState extends State<CartSummarySection> {
                               tt,
                             ).copyWith(color: cs.onSurfaceVariant),
                           ),
-                          onSubmitted: widget.onApplyCoupon,
+                          onSubmitted: (_) => applyCoupon(),
                           // Same dismissal rule AppTextField bakes in — tapping
                           // outside drops focus and the keyboard.
                           onTapOutside: (_) =>
@@ -138,12 +137,7 @@ class _CartSummarySectionState extends State<CartSummarySection> {
                   const LoadingDots()
                 else
                   GestureDetector(
-                    onTap: applied != null
-                        ? () {
-                            _code.clear();
-                            widget.onRemoveCoupon();
-                          }
-                        : () => widget.onApplyCoupon(_code.text),
+                    onTap: applied != null ? removeCoupon : applyCoupon,
                     child: Text(
                       applied != null
                           ? GraviaValueConst.couponRemoveLabel

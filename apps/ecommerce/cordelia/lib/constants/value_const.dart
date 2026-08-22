@@ -418,6 +418,7 @@ abstract final class ValueConst {
       L10n.current.productSoldOutMessage(name);
   static String productStockReducedMessage(String name) =>
       L10n.current.productStockReducedMessage(name);
+
   /// The one failure whose own text must never be shown — see
   /// `FailureMessageX.shopperMessage`.
   static String get noConnectionMessage => L10n.current.noConnectionMessage;

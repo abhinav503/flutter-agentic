@@ -113,10 +113,23 @@ export default function ProductsPage() {
   const [brandFilter, setBrandFilter] = useState(ALL);
   const [stockFilter, setStockFilter] = useState<StockFilter>("all");
   const { sort, toggle } = useTableSort<ProductSortKey>("name");
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!storeId) return;
-    const unsubProducts = watchProducts(storeId, setProducts);
+    // Only the products listener reports its failure: it is the one whose
+    // empty state ("No products yet.") is indistinguishable from a broken
+    // listen, and the one that sent someone hunting for a catalog that was
+    // there all along. The error clears when data actually arrives, not on
+    // subscribe — a listener that recovers should clear its own message.
+    const unsubProducts = watchProducts(
+      storeId,
+      (next) => {
+        setProducts(next);
+        setLoadError(null);
+      },
+      (error) => setLoadError(error.message),
+    );
     const unsubCategories = watchCategories(storeId, setCategories);
     const unsubBrands = watchBrands(storeId, setBrands);
     return () => {
@@ -280,10 +293,19 @@ export default function ProductsPage() {
         <TableBody>
           {visible.length === 0 && (
             <TableRow>
-              <TableCell colSpan={9} className="text-center text-muted-foreground">
-                {search || hasActiveFilter
-                  ? "No products match your filters."
-                  : "No products yet."}
+              <TableCell
+                colSpan={9}
+                className={
+                  loadError
+                    ? "text-center text-destructive"
+                    : "text-center text-muted-foreground"
+                }
+              >
+                {loadError
+                  ? `Couldn't load products: ${loadError}`
+                  : search || hasActiveFilter
+                    ? "No products match your filters."
+                    : "No products yet."}
               </TableCell>
             </TableRow>
           )}

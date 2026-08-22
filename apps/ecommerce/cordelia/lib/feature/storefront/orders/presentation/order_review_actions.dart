@@ -36,19 +36,33 @@ mixin OrderReviewActions<T extends BaseScreen> on BaseScreenState<T> {
     await showRateOrderSheet(
       initialRating: order.rating,
       initialText: order.reviewText,
-      // Resolves null (success) without waiting, which keeps this sheet
-      // behaving exactly as it did: it closes on submit, and a failure
-      // surfaces on the screen behind it through `OrdersLoaded.rateFailed`,
-      // where it is visible. Awaiting the outcome the way the review sheets
-      // do needs a bloc that always answers, and `_onRated` deliberately
-      // returns without emitting for a stale tap on an order that has left
-      // the list.
-      onSubmit: (rating, text) async {
-        bloc.add(
-          OrdersEvent.rated(orderId: order.id, rating: rating, text: text),
-        );
-        return null;
-      },
+      onSubmit: (rating, text) => _submitRating(bloc, order.id, rating, text),
     );
+  }
+
+  /// Dispatches the rating and resolves to its failure message, or null once
+  /// it landed — so the sheet keeps what the shopper wrote when it fails,
+  /// instead of closing and losing it behind a snackbar.
+  ///
+  /// Subscribing before dispatching, not after: `add` is synchronous and the
+  /// handler's first `emit` can land in the same turn. `_onRated` answers on
+  /// every path, including the stale-tap guard, so this cannot hang — and
+  /// the one path it cannot answer from (a list that never loaded) is
+  /// refused here before anything is dispatched.
+  Future<String?> _submitRating(
+    OrdersBloc bloc,
+    String orderId,
+    int rating,
+    String text,
+  ) async {
+    if (bloc.state is! OrdersLoaded) return ValueConst.orderRatingFailedMessage;
+
+    final settled = bloc.stream.first;
+    bloc.add(OrdersEvent.rated(orderId: orderId, rating: rating, text: text));
+    final state = await settled;
+
+    return state is OrdersLoaded && state.rateFailed
+        ? ValueConst.orderRatingFailedMessage
+        : null;
   }
 }

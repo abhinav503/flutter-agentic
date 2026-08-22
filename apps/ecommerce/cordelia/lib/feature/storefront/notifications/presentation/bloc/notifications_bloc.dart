@@ -71,7 +71,8 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
       GetNotificationsParams(storeId: _storeId),
     );
     result.fold(
-      (failure) => emit(NotificationsState.error(message: failure.shopperMessage)),
+      (failure) =>
+          emit(NotificationsState.error(message: failure.shopperMessage)),
       (sections) {
         emit(NotificationsState.loaded(sections: sections));
         _acknowledge(sections);

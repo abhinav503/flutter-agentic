@@ -310,7 +310,7 @@
   "graviaOrdersPageTitle": "Commandes",
   "graviaUpcomingTabLabel": "En cours",
   "graviaPastTabLabel": "Passées",
-  "graviaPendingStatusLabel": "En attente",
+  "graviaPendingStatusLabel": "Passée",
   "graviaInProcessStatusLabel": "En livraison",
   "graviaDeliveredStatusLabel": "Livrée",
   "graviaCancelledStatusLabel": "Annulée",

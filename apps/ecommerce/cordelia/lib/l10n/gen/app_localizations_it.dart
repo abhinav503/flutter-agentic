@@ -1119,7 +1119,7 @@ class AppLocalizationsIt extends AppLocalizations {
   String get graviaPastTabLabel => 'Passati';
 
   @override
-  String get graviaPendingStatusLabel => 'In attesa';
+  String get graviaPendingStatusLabel => 'Effettuato';
 
   @override
   String get graviaInProcessStatusLabel => 'In consegna';

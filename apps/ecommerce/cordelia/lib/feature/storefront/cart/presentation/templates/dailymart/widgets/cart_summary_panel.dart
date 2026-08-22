@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../coupon_input.dart';
+
 import 'package:core/core/extensions/num_extensions.dart';
 import 'package:core/core/theme/app_colors_extension.dart';
 import 'package:core/core/theme/app_radius.dart';
@@ -185,29 +187,25 @@ class _CouponRow extends StatefulWidget {
   State<_CouponRow> createState() => _CouponRowState();
 }
 
-class _CouponRowState extends State<_CouponRow> {
-  final TextEditingController _code = TextEditingController();
+class _CouponRowState extends State<_CouponRow> with CouponInput {
+  @override
+  CouponState get couponState => widget.couponState;
 
   @override
-  void dispose() {
-    _code.dispose();
-    super.dispose();
-  }
+  ValueChanged<String> get onApplyCoupon => widget.onApply;
+
+  @override
+  VoidCallback get onRemoveCoupon => widget.onRemove;
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
 
-    final applied = switch (widget.couponState) {
-      CouponApplied(:final coupon) => coupon,
-      _ => null,
-    };
-    final errorMessage = switch (widget.couponState) {
-      CouponFailed(:final message) => message,
-      _ => null,
-    };
-    final applying = widget.couponState is CouponApplying;
+    // Read into locals so the null checks below promote — a getter can't.
+    final applied = appliedCoupon;
+    final errorMessage = couponError;
+    final applying = isApplyingCoupon;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -240,7 +238,7 @@ class _CouponRowState extends State<_CouponRow> {
                     // inputDecorationTheme injects the pack's input border
                     // even into a collapsed decoration.
                     : TextField(
-                        controller: _code,
+                        controller: codeController,
                         enabled: !applying,
                         textCapitalization: TextCapitalization.characters,
                         style: DailyMartTextStyleConst.bodySmSemibold(
@@ -257,7 +255,7 @@ class _CouponRowState extends State<_CouponRow> {
                             tt,
                           ).copyWith(color: cs.onSurfaceVariant),
                         ),
-                        onSubmitted: widget.onApply,
+                        onSubmitted: (_) => applyCoupon(),
                         // Same dismissal rule AppTextField bakes in — tapping
                         // outside drops focus and the keyboard.
                         onTapOutside: (_) =>
@@ -268,12 +266,7 @@ class _CouponRowState extends State<_CouponRow> {
                 const LoadingDots()
               else
                 GestureDetector(
-                  onTap: applied != null
-                      ? () {
-                          _code.clear();
-                          widget.onRemove();
-                        }
-                      : () => widget.onApply(_code.text),
+                  onTap: applied != null ? removeCoupon : applyCoupon,
                   child: Text(
                     applied != null
                         ? DailyMartValueConst.couponRemoveLabel

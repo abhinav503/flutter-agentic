@@ -3,9 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import 'package:core/core/theme/app_colors_extension.dart';
-import 'package:core/core/theme/app_shapes_extension.dart';
 import 'package:core/core/theme/app_spacing.dart';
-import 'package:core/core/ui/atoms/sheet_handle.dart';
 import 'package:core/core/ui/atoms/button.dart';
 import 'package:core/core/ui/atoms/concentric_circles.dart';
 import 'package:core/core/ui/atoms/loading_dots.dart';
@@ -64,79 +62,67 @@ class _VerifyEmailSheetContentState extends State<VerifyEmailSheetContent> {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
-    final shapes = context.appShapes;
 
+    // Only the body: `showVerifyEmailSheet` presents this through
+    // `AppBottomSheet.show`, which owns the surface, the radius, the handle
+    // and both bottom insets. The PopScope stays — this step is not
+    // dismissible, and back must not close it either.
     return PopScope(
       canPop: false,
-      child: Container(
-        decoration: BoxDecoration(
-          color: cs.surface,
-          borderRadius: BorderRadius.vertical(
-            top: Radius.circular(shapes.sheetRadius),
-          ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.xl4,
+          AppSpacing.base,
+          AppSpacing.xl4,
+          AppSpacing.xl2,
         ),
-        child: SafeArea(
-          top: false,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(
-              AppSpacing.xl4,
-              AppSpacing.xs2,
-              AppSpacing.xl4,
-              AppSpacing.xl2,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _PendingIcon(cs: cs),
+            const SizedBox(height: AppSpacing.xl4),
+            Text(
+              ValueConst.verifyEmailTitle,
+              textAlign: TextAlign.center,
+              style: CordeliaTextStyleConst.displayXsBold(
+                tt,
+              ).copyWith(color: cs.onSurface),
             ),
-            child: Column(
+            const SizedBox(height: AppSpacing.base),
+            Text(
+              ValueConst.verifyEmailSubtitle(widget.email),
+              textAlign: TextAlign.center,
+              style: CordeliaTextStyleConst.textSmRegular(
+                tt,
+              ).copyWith(color: context.appColors.onSheetMuted),
+            ),
+            const SizedBox(height: AppSpacing.xl2),
+            Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                SheetHandle(
-                  color: context.appColors.sheetHairline,
-                  bottomSpacing: AppSpacing.xl4,
-                ),
-                _PendingIcon(cs: cs),
-                const SizedBox(height: AppSpacing.xl4),
+                LoadingDots(color: cs.primary),
+                const SizedBox(width: AppSpacing.xs2),
                 Text(
-                  ValueConst.verifyEmailTitle,
-                  textAlign: TextAlign.center,
-                  style: CordeliaTextStyleConst.displayXsBold(
-                    tt,
-                  ).copyWith(color: cs.onSurface),
-                ),
-                const SizedBox(height: AppSpacing.base),
-                Text(
-                  ValueConst.verifyEmailSubtitle(widget.email),
-                  textAlign: TextAlign.center,
+                  ValueConst.verifyEmailChecking,
                   style: CordeliaTextStyleConst.textSmRegular(
                     tt,
-                  ).copyWith(color: context.appColors.onSheetMuted),
-                ),
-                const SizedBox(height: AppSpacing.xl2),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    LoadingDots(color: cs.primary),
-                    const SizedBox(width: AppSpacing.xs2),
-                    Text(
-                      ValueConst.verifyEmailChecking,
-                      style: CordeliaTextStyleConst.textSmRegular(
-                        tt,
-                      ).copyWith(color: cs.onSurfaceVariant),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: AppSpacing.xl2),
-                AppButton(
-                  label: _cooldownSeconds > 0
-                      ? '${ValueConst.resendEmailLabel} (${_cooldownSeconds}s)'
-                      : ValueConst.resendEmailLabel,
-                  variant: AppButtonVariant.text,
-                  size: AppButtonSize.small,
-                  onTap: _cooldownSeconds > 0 ? null : _handleResend,
-                  labelStyle: CordeliaTextStyleConst.textSmMedium(
-                    tt,
-                  ).copyWith(color: cs.primary),
+                  ).copyWith(color: cs.onSurfaceVariant),
                 ),
               ],
             ),
-          ),
+            const SizedBox(height: AppSpacing.xl2),
+            AppButton(
+              label: _cooldownSeconds > 0
+                  ? '${ValueConst.resendEmailLabel} (${_cooldownSeconds}s)'
+                  : ValueConst.resendEmailLabel,
+              variant: AppButtonVariant.text,
+              size: AppButtonSize.small,
+              onTap: _cooldownSeconds > 0 ? null : _handleResend,
+              labelStyle: CordeliaTextStyleConst.textSmMedium(
+                tt,
+              ).copyWith(color: cs.primary),
+            ),
+          ],
         ),
       ),
     );

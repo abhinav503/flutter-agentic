@@ -185,5 +185,4 @@ class ScreenBody extends StatelessWidget {
         ? SingleChildScrollView(padding: padding, child: content)
         : Padding(padding: padding, child: content);
   }
-
 }

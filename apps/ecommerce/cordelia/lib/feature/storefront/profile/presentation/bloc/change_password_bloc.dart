@@ -38,7 +38,8 @@ class ChangePasswordBloc
       ),
     );
     result.fold(
-      (failure) => emit(ChangePasswordState.error(message: failure.shopperMessage)),
+      (failure) =>
+          emit(ChangePasswordState.error(message: failure.shopperMessage)),
       (_) => emit(const ChangePasswordState.success()),
     );
   }

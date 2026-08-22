@@ -310,7 +310,7 @@
   "graviaOrdersPageTitle": "Pedidos",
   "graviaUpcomingTabLabel": "Activos",
   "graviaPastTabLabel": "Anteriores",
-  "graviaPendingStatusLabel": "Pendiente",
+  "graviaPendingStatusLabel": "Realizado",
   "graviaInProcessStatusLabel": "En camino",
   "graviaDeliveredStatusLabel": "Entregado",
   "graviaCancelledStatusLabel": "Cancelado",

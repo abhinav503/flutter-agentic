@@ -95,11 +95,7 @@ class _TrackOrderScreenState extends BaseScreenState<TrackOrderScreen>
 
   @override
   Widget body(BuildContext context) => BlocConsumer<OrdersBloc, OrdersState>(
-    listener: (context, state) {
-      if (state case OrdersLoaded(rateFailed: true)) {
-        showSnackBar(ValueConst.orderRatingFailedMessage);
-      }
-    },
+    listener: (context, state) {},
     // The routed order is a snapshot; once the list has loaded, its copy is
     // the one carrying a rating saved from this screen.
     builder: (context, state) =>
