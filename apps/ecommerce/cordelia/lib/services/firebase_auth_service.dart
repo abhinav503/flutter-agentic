@@ -47,6 +47,38 @@ class FirebaseAuthService {
     }
   }
 
+  /// Stands in for [currentUser] when there is no Firebase app to ask —
+  /// which, per [currentUser]'s own note, is every widget test. Without it a
+  /// test can only ever exercise the signed-out half of a screen, because
+  /// "no initialized Firebase app" and "nobody is signed in" are the same
+  /// answer.
+  @visibleForTesting
+  static bool? debugSignedIn;
+
+  /// The single answer to "is anyone signed in" — `SignInGateX.isSignedIn`
+  /// and the notification router both read it, so the question can't be
+  /// asked two slightly different ways.
+  bool get isSignedIn => debugSignedIn ?? currentUser != null;
+
+  /// Emits whenever *who* is signed in changes — a sign-in, a sign-out, or a
+  /// session ending. What anything derived from the account (the profile)
+  /// should rebuild from, instead of every screen that can reach a Login
+  /// remembering to tell it.
+  ///
+  /// Distinct from [sessionExpired], which is a one-shot *navigation* signal
+  /// and deliberately ignores a manual logout. This is the data signal, and
+  /// wants every change.
+  ///
+  /// Empty when there is no Firebase app — web and widget tests — for the
+  /// same reason [currentUser] answers null there.
+  Stream<User?> get authStateChanges {
+    try {
+      return FirebaseAuth.instance.authStateChanges();
+    } on FirebaseException {
+      return const Stream<User?>.empty();
+    }
+  }
+
   Future<UserCredential> signUp({
     required String email,
     required String password,

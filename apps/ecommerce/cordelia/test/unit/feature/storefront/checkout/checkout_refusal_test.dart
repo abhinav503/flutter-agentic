@@ -2,6 +2,7 @@ import 'package:core/core/formatting/app_format.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:cordelia/enums/checkout_refusal_code.dart';
 import 'package:cordelia/enums/product_unit_type.dart';
 import 'package:cordelia/feature/storefront/cart/domain/entities/cart_item_entity.dart';
 import 'package:cordelia/feature/storefront/home/domain/entities/product_entity.dart';
@@ -109,6 +110,66 @@ void main() {
 
     expect(result, isNotNull);
     expect(result!.message, isNot(contains('Coupon expired')));
+  });
+
+  test('an unserviceable address is its own refusal, not a stock one', () {
+    // The server refuses this from both checkout endpoints. Before it was
+    // recognised the shopper got the server's English (or, when the payment
+    // had already been taken and refunded, a generic "couldn't be placed"
+    // that hid the reason) and the screen re-read the cart as if a product
+    // had moved.
+    final result = source.refusalFrom(
+      refusal({
+        'error': 'This store does not deliver to 560001',
+        'code': 'unserviceable_address',
+      }, 409),
+      [apples],
+    );
+
+    expect(result, isNotNull);
+    expect(result!.code, CheckoutRefusalCode.unserviceableAddress);
+    expect(result.message, isNot(contains('560001')));
+  });
+
+  test('a refunded unserviceable address still names the reason', () {
+    final result = source.refusalFrom(
+      refusal({
+        'error': 'This store does not deliver there',
+        'code': 'unserviceable_address',
+        'refunded': true,
+      }, 409),
+      [apples],
+    )!;
+    final plain = source.refusalFrom(
+      refusal({'code': 'unserviceable_address'}, 409),
+      [apples],
+    )!.message;
+
+    expect(result.message, startsWith(plain));
+    expect(result.message.length, greaterThan(plain.length));
+  });
+
+  test('the code survives to the screen', () {
+    expect(
+      source.refusalFrom(
+        refusal({
+          'code': 'insufficient_stock',
+          'productId': 'p1',
+          'available': 0,
+        }, 409),
+        [apples],
+      )!.code,
+      CheckoutRefusalCode.insufficientStock,
+    );
+    // A named-but-unknown code must not crash a checkout; it loses the
+    // tailored reaction, nothing more.
+    expect(
+      source.refusalFrom(
+        refusal({'code': 'something_new', 'refunded': true}, 409),
+        [apples],
+      )!.code,
+      CheckoutRefusalCode.other,
+    );
   });
 
   test('an ordinary error falls through to the usual Dio mapping', () {

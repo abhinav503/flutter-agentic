@@ -25,6 +25,12 @@ class FavouritesCubit extends Cubit<FavouritesState> {
   // favourites are currently loaded, same reasoning as CartCubit._storeId.
   String? _storeId;
 
+  // Bumped by every local mutation and by [reset], so a hydrate that was
+  // already in flight can tell its result is no longer wanted — same guard
+  // CartCubit keeps, and for the same reason: the account can change under
+  // an unfinished fetch.
+  int _revision = 0;
+
   FavouritesCubit({
     required GetFavouritesUseCase getFavouritesUseCase,
     required AddFavouriteUseCase addFavouriteUseCase,
@@ -50,7 +56,9 @@ class FavouritesCubit extends Cubit<FavouritesState> {
       // Switching stores — the previous store's favourites don't apply here.
       emit(const FavouritesState(isLoading: true, items: []));
     }
+    final revision = _revision;
     final result = await _getFavourites(GetFavouritesParams(storeId: storeId));
+    if (_revision != revision || _storeId != storeId) return;
     result.fold(
       (failure) => emit(FavouritesState(isLoading: false, items: state.items)),
       (products) => emit(FavouritesState(isLoading: false, items: products)),
@@ -69,6 +77,7 @@ class FavouritesCubit extends Cubit<FavouritesState> {
   }
 
   void _emitAndPersistAdd(ProductEntity product) {
+    _revision++;
     emit(FavouritesState(isLoading: false, items: [...state.items, product]));
     final storeId = _storeId;
     if (storeId != null) {
@@ -81,6 +90,7 @@ class FavouritesCubit extends Cubit<FavouritesState> {
   }
 
   void _emitAndPersistRemove(String productId) {
+    _revision++;
     emit(
       FavouritesState(
         isLoading: false,
@@ -99,6 +109,14 @@ class FavouritesCubit extends Cubit<FavouritesState> {
 
   /// Local-only reset for sign-out — same reasoning as `CartCubit.reset`:
   /// the signed-out user's server-side favourites survive untouched for
-  /// their next sign-in, this only drops this device's in-memory copy.
-  void reset() => emit(const FavouritesState(isLoading: false, items: []));
+  /// their next sign-in, this only drops this device's in-memory copy. The
+  /// revision bump and forgotten store are that method's invariants too: a
+  /// hydrate still in flight must not paint the previous account's hearts
+  /// back on, and a later toggle must not persist against a store this
+  /// device is no longer signed into.
+  void reset() {
+    _revision++;
+    _storeId = null;
+    emit(const FavouritesState(isLoading: false, items: []));
+  }
 }

@@ -46,7 +46,7 @@ abstract class StorefrontShellPage extends BasePage {
 /// store-visit cart/favourites hydration, and the surface backdrop. Each
 /// template keeps only its own tab roster, chrome, and body switch.
 mixin StorefrontShellState<T extends StorefrontShellPage> on BasePageState<T> {
-  late int currentTab = widget.initialTab;
+  late int currentTab;
 
   /// The store this shell renders. Captured **once**, not read from the
   /// app-level [ActiveStoreCubit] on every build — a shell belongs to one
@@ -64,6 +64,7 @@ mixin StorefrontShellState<T extends StorefrontShellPage> on BasePageState<T> {
   @override
   void initState() {
     super.initState();
+    currentTab = openableTab(widget.initialTab);
     storeId = context.read<ActiveStoreCubit>().state!.storeId;
     // A coupon is priced against one store's cart — entering a storefront
     // (fresh shell per visit) always starts without one, so the previous
@@ -76,16 +77,43 @@ mixin StorefrontShellState<T extends StorefrontShellPage> on BasePageState<T> {
     if (context.isSignedIn) {
       context.read<CartCubit>().hydrate(storeId);
       context.read<FavouritesCubit>().hydrate(storeId);
+      return;
     }
+    // Nothing is hydrating, so nothing will clear `FavouritesCubit`'s
+    // opening `isLoading: true` — it exists so a shopper landing on the
+    // Wishlist tab sees a skeleton rather than a premature "nothing here",
+    // and a skeleton with no fetch behind it shimmers for the whole visit.
+    // [openableTab] keeps a guest off that tab; this makes the state honest
+    // even if something reaches it another way.
+    context.read<CartCubit>().reset();
+    context.read<FavouritesCubit>().reset();
   }
 
   @override
   void didUpdateWidget(covariant T oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.initialTab != oldWidget.initialTab) {
-      setState(() => currentTab = widget.initialTab);
+      setState(() => currentTab = openableTab(widget.initialTab));
     }
   }
+
+  /// [tab], or Home when a guest is being aimed at a tab that needs an
+  /// account.
+  ///
+  /// [onTabSelected] puts Login in front of a *tap*, but `initialTab`
+  /// arrives from a route — a tab jump ("Track Your Order"), a deep link, a
+  /// notification — and lands on the tab directly, gate and all skipped.
+  /// Every caller today aims at a tab the sender was already signed in for,
+  /// so this closes the shape of the hole rather than a live bug: one
+  /// future caller is all it would take, and what a guest would get is a
+  /// screen with nothing on it (Orders/Profile paint their signed-out state
+  /// as a skeleton, and the Wishlist's never stops).
+  ///
+  /// Home rather than Login, because nobody asked for a login here — the
+  /// shopper asked for this store.
+  @protected
+  int openableTab(int tab) =>
+      signedInOnlyTabs.contains(tab) && !context.isSignedIn ? 0 : tab;
 
   /// The open store's id, or null in the window where the app-level store
   /// was lost — a hot reload in debug (see `StorefrontPage.reassemble`), or

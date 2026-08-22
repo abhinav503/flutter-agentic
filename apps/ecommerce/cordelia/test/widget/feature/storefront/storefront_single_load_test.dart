@@ -22,6 +22,7 @@ import 'package:cordelia/feature/storefront/template/store_language.dart';
 import 'package:cordelia/feature/storefront/template/storefront_template.dart';
 import 'package:cordelia/l10n/active_locale_controller.dart';
 import 'package:cordelia/l10n/active_locale_scope.dart';
+import 'package:cordelia/services/firebase_auth_service.dart';
 import 'package:cordelia/theme/active_theme_controller.dart';
 import 'package:cordelia/theme/active_theme_scope.dart';
 import 'package:core/core/di/core_injection.dart';
@@ -144,6 +145,11 @@ void main() {
     // Warm-start cache: without this the second test in a run would seed from
     // the first's result and skip the fetch being counted.
     HomeBloc.resetCache();
+    // The bag and the wishlist are the signed-in shopper's own, so the shell
+    // only fetches them for one. There is no Firebase app in a test to say
+    // so — hence the seam.
+    FirebaseAuthService.debugSignedIn = true;
+    addTearDown(() => FirebaseAuthService.debugSignedIn = null);
   });
 
   testWidgets(
@@ -259,4 +265,154 @@ void main() {
       );
     },
   );
+
+  testWidgets('a guest fetches neither cart nor favourites, and is not left '
+      'holding an unresolvable loading state', (tester) async {
+    FirebaseAuthService.debugSignedIn = false;
+
+    final activeTheme = ActiveThemeController(AppThemeConfig.defaults);
+    final activeLocale = ActiveLocaleController();
+    final activeStore = ActiveStoreCubit();
+    final favourites = FavouritesCubit(
+      getFavouritesUseCase: getFavourites,
+      addFavouriteUseCase: _FakeAddFavouriteUseCase(),
+      removeFavouriteUseCase: _FakeRemoveFavouriteUseCase(),
+    );
+    addTearDown(activeTheme.dispose);
+    addTearDown(activeLocale.dispose);
+    addTearDown(activeStore.close);
+
+    await tester.pumpWidget(
+      MultiBlocProvider(
+        providers: [
+          BlocProvider(
+            create: (_) => CartCubit(
+              getCartUseCase: getCart,
+              saveCartUseCase: _FakeSaveCartUseCase(),
+            ),
+          ),
+          BlocProvider(
+            create: (_) => CouponCubit(
+              validateCouponUseCase: _FakeValidateCouponUseCase(),
+            ),
+          ),
+          BlocProvider.value(value: favourites),
+          BlocProvider.value(value: activeStore),
+        ],
+        child: ActiveThemeScope(
+          controller: activeTheme,
+          child: ActiveLocaleScope(
+            controller: activeLocale,
+            child: MaterialApp(
+              theme: AppTheme.fromConfig(AppThemeConfig.defaults),
+              home: const _DiscoveryStub(),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    tester
+        .state<NavigatorState>(find.byType(Navigator))
+        .push(
+          MaterialPageRoute<void>(
+            builder: (_) => const StorefrontPage(store: _store),
+          ),
+        );
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 2));
+    await tester.pump(const Duration(seconds: 2));
+
+    expect(getCart.calls, 0, reason: 'a guest has no server-side bag to read');
+    expect(
+      getFavourites.calls,
+      0,
+      reason: 'a guest has no server-side wishlist to read',
+    );
+    // `FavouritesCubit` opens in its loading state so the Wishlist tab shows
+    // a skeleton rather than a premature "nothing here". No hydration runs
+    // for a guest, so nothing would ever end it. Not reachable today — the
+    // Wishlist tab is gated and `openableTab` keeps a guest off it even via
+    // `initialTab` — this pins the state itself as honest, so reaching it
+    // some other way can't produce a skeleton that never stops.
+    expect(
+      favourites.state.isLoading,
+      isFalse,
+      reason: 'a guest wishlist must settle, not shimmer for the whole visit',
+    );
+  });
+
+  testWidgets('a guest aimed at a gated tab lands on Home instead', (
+    tester,
+  ) async {
+    FirebaseAuthService.debugSignedIn = false;
+
+    final activeTheme = ActiveThemeController(AppThemeConfig.defaults);
+    final activeLocale = ActiveLocaleController();
+    final activeStore = ActiveStoreCubit();
+    addTearDown(activeTheme.dispose);
+    addTearDown(activeLocale.dispose);
+    addTearDown(activeStore.close);
+
+    await tester.pumpWidget(
+      MultiBlocProvider(
+        providers: [
+          BlocProvider(
+            create: (_) => CartCubit(
+              getCartUseCase: getCart,
+              saveCartUseCase: _FakeSaveCartUseCase(),
+            ),
+          ),
+          BlocProvider(
+            create: (_) => CouponCubit(
+              validateCouponUseCase: _FakeValidateCouponUseCase(),
+            ),
+          ),
+          BlocProvider(
+            create: (_) => FavouritesCubit(
+              getFavouritesUseCase: getFavourites,
+              addFavouriteUseCase: _FakeAddFavouriteUseCase(),
+              removeFavouriteUseCase: _FakeRemoveFavouriteUseCase(),
+            ),
+          ),
+          BlocProvider.value(value: activeStore),
+        ],
+        child: ActiveThemeScope(
+          controller: activeTheme,
+          child: ActiveLocaleScope(
+            controller: activeLocale,
+            child: MaterialApp(
+              theme: AppTheme.fromConfig(AppThemeConfig.defaults),
+              home: const _DiscoveryStub(),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    // `onTabSelected` gates a *tap*; `initialTab` arrives from a route and
+    // used to skip that entirely, landing a guest on gravia's Wishlist tab —
+    // whose skeleton has no fetch behind it, so it shimmered forever and
+    // hung any `pumpAndSettle` on it.
+    tester
+        .state<NavigatorState>(find.byType(Navigator))
+        .push(
+          MaterialPageRoute<void>(
+            builder: (_) => const StorefrontPage(
+              store: _store,
+              initialTab: ShellPage.favouriteTabIndex,
+            ),
+          ),
+        );
+    await tester.pumpAndSettle();
+
+    expect(tester.takeException(), isNull);
+    expect(
+      // ignore: avoid_dynamic_calls
+      (tester.state(find.byType(ShellPage)) as dynamic).currentTab,
+      ShellPage.homeTabIndex,
+      reason: 'a guest cannot be dropped onto a tab that needs an account',
+    );
+    expect(getHome.calls, 1, reason: 'the Home tab it fell back to loaded');
+  });
 }

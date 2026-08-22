@@ -153,8 +153,6 @@ abstract final class GraviaValueConst {
   static String get requiredFieldErrorMessage =>
       L10n.current.graviaRequiredFieldErrorMessage;
   static String get useMyLocationLabel => L10n.current.graviaUseMyLocationLabel;
-  static String get locationUnavailableMessage =>
-      L10n.current.graviaLocationUnavailableMessage;
 
   // Data values, not copy — what the picklist stores on the address doc, so
   // they stay locale-independent English. (City stopped being a picklist

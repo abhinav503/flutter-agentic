@@ -38,6 +38,14 @@ extension FieldValidationX on String {
 
   bool get isValidEmail => _emailPattern.hasMatch(trim());
 
+  /// An email address as it should be stored and sent — trimmed, and lower
+  /// cased so `Sam@Example.com` and `sam@example.com` are one account
+  /// rather than two. Addresses are case-insensitive in practice (the
+  /// domain by spec, the mailbox by every provider that matters), and a
+  /// keyboard that auto-capitalises the first letter otherwise decides
+  /// which one a shopper signed up with.
+  String get asEmailAddress => trim().toLowerCase();
+
   /// Digit count ignoring separators/spaces — for phone-number length checks
   /// (`'+91 98765-43210'.digitCount == 12`).
   int get digitCount => replaceAll(_nonDigit, '').length;

@@ -1,3 +1,6 @@
+import 'package:core/core/error/failure.dart';
+
+import 'package:cordelia/enums/checkout_refusal_code.dart';
 import 'package:cordelia/feature/storefront/orders/domain/entities/order_entity.dart';
 import 'package:cordelia/feature/storefront/orders/domain/entities/payment_result_entity.dart';
 import 'package:cordelia/feature/storefront/orders/domain/usecase/create_order_usecase.dart';
@@ -69,13 +72,13 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
       ),
     );
     await intentResult.fold(
-      (failure) async => _emitFailure(emit, failure.message, event),
+      (failure) async => _emitFailure(emit, failure, event),
       (intent) async {
         final paymentResult = await _processPayment(
           ProcessPaymentParams(intent: intent),
         );
         await paymentResult.fold(
-          (failure) async => _emitFailure(emit, failure.message, event),
+          (failure) async => _emitFailure(emit, failure, event),
           (payment) async => _placeOrder(event, payment, emit),
         );
       },
@@ -97,18 +100,25 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
       ),
     );
     result.fold(
-      (failure) => _emitFailure(emit, failure.message, event),
+      (failure) => _emitFailure(emit, failure, event),
       (order) => emit(CheckoutState.success(order: order)),
     );
   }
 
+  /// The one place a [Failure] becomes a screen-facing state. A refusal the
+  /// server named keeps that name here, parsed once, so no screen re-reads
+  /// a wire string.
   void _emitFailure(
     Emitter<CheckoutState> emit,
-    String message,
+    Failure failure,
     CheckoutSubmitted event,
   ) => emit(
     CheckoutState.failure(
-      message: message,
+      message: failure.message,
+      code: switch (failure) {
+        RefusedFailure(:final code) => code.toCheckoutRefusalCode(),
+        _ => CheckoutRefusalCode.other,
+      },
       items: event.items,
       addressId: event.addressId,
       couponCode: event.couponCode,

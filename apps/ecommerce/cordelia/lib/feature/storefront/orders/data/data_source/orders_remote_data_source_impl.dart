@@ -1,5 +1,6 @@
 import 'package:cordelia/constants/api_constants.dart';
 import 'package:cordelia/constants/value_const.dart';
+import 'package:cordelia/enums/checkout_refusal_code.dart';
 import 'package:cordelia/feature/storefront/cart/domain/entities/cart_item_entity.dart';
 import 'package:cordelia/services/firebase_auth_service.dart';
 import 'package:dio/dio.dart';
@@ -117,23 +118,40 @@ class OrdersRemoteDataSourceImpl implements OrdersRemoteDataSource {
     final body = e.response?.data;
     if (body is! Map) return null;
     final refunded = body['refunded'] == true;
-    final reason = _stockReason(body, items);
+    final code = (body['code'] as String?).toCheckoutRefusalCode();
+    final reason = _reasonFor(code, body, items);
     if (reason == null && !refunded) return null;
     // Two sentences, joined: the reason, then the money. Concatenation
     // rather than one key per combination — both halves are whole sentences
     // in every locale, and the refund note is the same one whatever refused.
     final base = reason ?? ValueConst.checkoutFailedMessage;
     return CheckoutRefusedException(
+      code,
       refunded ? '$base ${ValueConst.paymentRefundedNote}' : base,
     );
   }
 
-  /// The stock half: null unless the server named `insufficient_stock` *and*
-  /// the product is one this cart knows by name — a message about "a
-  /// product" helps nobody, so an unresolvable id falls back to the generic
-  /// wording rather than printing an id.
+  /// The localized half, or null for a code with no wording of its own —
+  /// which still refuses when the money moved, on [ValueConst
+  /// .checkoutFailedMessage] plus the refund note.
+  String? _reasonFor(
+    CheckoutRefusalCode code,
+    Map<dynamic, dynamic> body,
+    List<CartItemEntity> items,
+  ) => switch (code) {
+    CheckoutRefusalCode.insufficientStock => _stockReason(body, items),
+    // The app pre-checks serviceability before it lets checkout start, so
+    // reaching this means the store's areas changed under the shopper —
+    // rare, and the same sentence the pre-check would have shown.
+    CheckoutRefusalCode.unserviceableAddress =>
+      ValueConst.deliveryUnavailableMessage,
+    CheckoutRefusalCode.other => null,
+  };
+
+  /// The stock half: null unless the product is one this cart knows by name
+  /// — a message about "a product" helps nobody, so an unresolvable id falls
+  /// back to the generic wording rather than printing an id.
   String? _stockReason(Map<dynamic, dynamic> body, List<CartItemEntity> items) {
-    if (body['code'] != 'insufficient_stock') return null;
     final productId = body['productId'];
     final line = items
         .where((item) => item.product.id == productId)

@@ -7,7 +7,7 @@ import 'package:cordelia/feature/storefront/active_store/presentation/cubit/acti
 import 'package:cordelia/feature/storefront/cart/presentation/cubit/cart_cubit.dart';
 import 'package:cordelia/feature/storefront/favourites/presentation/cubit/favourites_cubit.dart';
 import 'package:cordelia/feature/storefront/home/domain/entities/product_entity.dart';
-import 'package:cordelia/feature/storefront/profile/presentation/bloc/profile_bloc.dart';
+import 'package:cordelia/feature/storefront/reviews/presentation/bloc/product_reviews_bloc.dart';
 import 'package:cordelia/services/firebase_auth_service.dart';
 
 /// The account gate every signed-in-only action runs through.
@@ -23,7 +23,7 @@ import 'package:cordelia/services/firebase_auth_service.dart';
 /// shopper lands back on the exact product they were looking at rather than
 /// on discovery, and no return-path has to be encoded in a route.
 extension SignInGateX on BuildContext {
-  bool get isSignedIn => FirebaseAuthService.instance.currentUser != null;
+  bool get isSignedIn => FirebaseAuthService.instance.isSignedIn;
 
   /// True if the shopper has an account by the time this resolves — already
   /// signed in, or signed in through the pushed Login flow. False means they
@@ -43,8 +43,29 @@ extension SignInGateX on BuildContext {
       read<CartCubit>().hydrate(storeId);
       read<FavouritesCubit>().hydrate(storeId);
     }
-    _refreshProfile();
+    // The profile needs no nudge from here: `ProfileBloc` follows
+    // `FirebaseAuthService.authStateChanges` itself. It used to be told,
+    // and that only worked when the gate happened to be called from below
+    // its provider — which the gated Profile tab, called from the shell's
+    // own page context, is not.
+    _refreshReviews();
     return true;
+  }
+
+  /// Reviews were seeded from the product-details payload, which was fetched
+  /// without a token and so knows nothing about who this account has
+  /// blocked. Re-fetching is the only way those authors disappear; the bloc
+  /// ignores a re-seed by design, so the gate asks for the fetch.
+  ///
+  /// Guarded because there isn't always one above: only a screen showing
+  /// reviews (Product Details) provides this bloc, and a gate fires from
+  /// plenty of screens that don't.
+  void _refreshReviews() {
+    try {
+      read<ProductReviewsBloc>().add(const ProductReviewsEvent.refreshed());
+    } on ProviderNotFoundException {
+      // Not on a screen that shows reviews.
+    }
   }
 }
 
@@ -70,29 +91,16 @@ extension GuestActionsX on BuildContext {
     double? originalUnitPrice,
   }) async {
     if (!await requireSignIn() || !mounted) return false;
-    read<CartCubit>().addToCart(
-      product,
-      quantity,
-      sizeValue: sizeValue,
-      unitPrice: unitPrice,
-      originalUnitPrice: originalUnitPrice,
-    );
-    return true;
-  }
-
-  /// The header that was showing "Guest" a moment ago has a name now. The
-  /// bloc settled on `signedOut` when this screen mounted and has no reason
-  /// of its own to look again, so the gate tells it.
-  ///
-  /// Guarded because there isn't always one above: the shell and discovery
-  /// both provide a [ProfileBloc], but a route pushed over them (Product
-  /// Details) sits outside that subtree, and a gate fires there too.
-  void _refreshProfile() {
-    try {
-      read<ProfileBloc>().add(const ProfileEvent.started());
-    } on ProviderNotFoundException {
-      // Nothing above this context is showing a profile — nothing to do.
-    }
+    // Zero means the line was already holding everything that's left, so
+    // there is nothing to confirm — see `CartCubit.addToCart`.
+    return read<CartCubit>().addToCart(
+          product,
+          quantity,
+          sizeValue: sizeValue,
+          unitPrice: unitPrice,
+          originalUnitPrice: originalUnitPrice,
+        ) >
+        0;
   }
 
   /// A route that only means something with an account behind it — the bag,

@@ -137,8 +137,8 @@ class _CartScreenState extends BaseScreenState<CartScreen>
             switch (state) {
               case CheckoutSuccess():
                 _onOrderPlaced();
-              case CheckoutFailure(:final message):
-                onCheckoutFailed(message);
+              case CheckoutFailure(:final message, :final code):
+                onCheckoutFailed(message, code);
               case CheckoutIdle() || CheckoutSubmitting():
                 break;
             }

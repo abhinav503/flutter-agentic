@@ -1,4 +1,6 @@
 import 'package:core/core/error/failure.dart';
+import 'package:core/core/services/location/location_service.dart'
+    show LocationFailureReason;
 import 'package:core/core/usecase/usecase.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -45,6 +47,10 @@ class AddressLookupBloc extends Bloc<AddressLookupEvent, AddressLookupState> {
         AddressLookupState.error(
           message: failure.message,
           isLocation: failure is LocationFailure,
+          reason: switch (failure) {
+            LocationFailure(:final reason) => reason,
+            _ => null,
+          },
         ),
       ),
       (address) => emit(AddressLookupState.prefillReady(address: address)),

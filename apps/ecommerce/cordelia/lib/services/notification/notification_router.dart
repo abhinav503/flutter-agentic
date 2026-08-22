@@ -35,23 +35,39 @@ class NotificationRouter {
   /// storefront page and needs the session opened first.
   static const _appLevelRoutes = {AppRoutes.discovery, AppRoutes.search};
 
-  /// Destinations that are somebody's own and 401 without an account. A
-  /// signed-out device still receives platform-wide pushes, and since the
-  /// app browses without an account it can now be open when one is tapped —
-  /// so the tap has to land somewhere that works. It opens the store the
-  /// notification was about and stops there, rather than pushing a page
-  /// that would fail or a login form nobody asked for.
-  static const _signedInOnlyRoutes = {
-    AppRoutes.notifications,
-    AppRoutes.orders,
-    AppRoutes.trackOrder,
-    AppRoutes.cart,
-    AppRoutes.wishlist,
+  /// What a signed-out device may be sent to. An allowlist, not a list of
+  /// exclusions: a signed-out device still receives platform-wide pushes,
+  /// and since the app browses without an account it can be open when one
+  /// is tapped — so the tap has to land somewhere that works. Everything
+  /// else is somebody's own page (a bag, an order) or needs a typed `extra`
+  /// a notification has no way to carry (Checkout, Address Form, Edit
+  /// Profile), and would 401 or crash. Those open the store the
+  /// notification was about and stop there, rather than pushing a page that
+  /// fails or a login form nobody asked for.
+  ///
+  /// Naming what *works* rather than what doesn't is the point: a route
+  /// added later is refused until someone decides it is safe, instead of
+  /// silently inheriting a pass.
+  static const _guestRoutes = {
+    AppRoutes.discovery,
+    AppRoutes.search,
+    AppRoutes.storefront,
+    AppRoutes.support,
+    AppRoutes.termsAndConditions,
+    AppRoutes.privacyPolicy,
   };
 
+  /// The two guest-openable routes that carry an id in the path, so they
+  /// can't be matched by equality.
+  static const _guestRoutePrefixes = [
+    '/product-details/',
+    '/category-details/',
+  ];
+
   static bool _canOpen(String path) =>
-      !_signedInOnlyRoutes.contains(path) ||
-      FirebaseAuthService.instance.currentUser != null;
+      FirebaseAuthService.instance.isSignedIn ||
+      _guestRoutes.contains(path) ||
+      _guestRoutePrefixes.any(path.startsWith);
 
   static Future<void> route(NotificationPayload payload) async {
     if (payload.type == NotificationType.normal) return;

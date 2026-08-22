@@ -1,3 +1,4 @@
+import 'package:cordelia/enums/checkout_refusal_code.dart';
 import 'package:cordelia/feature/storefront/cart/domain/entities/cart_item_entity.dart';
 
 import '../../domain/entities/payment_result_entity.dart';
@@ -6,13 +7,18 @@ import '../models/payment_intent_model.dart';
 
 /// A checkout the server turned down for a reason it tagged with a
 /// machine-readable `code`, re-written on this side in the shopper's own
-/// language. Carries only the finished message — `BaseRepository` maps any
-/// non-Dio throw to `Failure.unexpected(message: e.toString())`, which is how
-/// it reaches the BLoC — same mechanism as `CouponRejectedException`.
+/// language.
+///
+/// Carries the [code] as well as the finished [message]: the words tell the
+/// shopper what happened, the code tells the screen what to *do* about it
+/// (re-read the cart for a stock refusal, point at the address for an
+/// unserviceable one). `OrdersRepositoryImpl` maps it to `Failure.refused`,
+/// which is what carries both across the layer boundary.
 class CheckoutRefusedException implements Exception {
+  final CheckoutRefusalCode code;
   final String message;
 
-  const CheckoutRefusedException(this.message);
+  const CheckoutRefusedException(this.code, this.message);
 
   @override
   String toString() => message;

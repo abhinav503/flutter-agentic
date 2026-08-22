@@ -1,3 +1,4 @@
+import 'package:cordelia/enums/checkout_refusal_code.dart';
 import 'package:cordelia/feature/storefront/cart/domain/entities/cart_item_entity.dart';
 import 'package:core/core/base/base_repository.dart';
 import 'package:core/core/error/failure.dart';
@@ -28,13 +29,17 @@ class OrdersRepositoryImpl with BaseRepository implements OrdersRepository {
     String addressId, {
     String couponCode = '',
   }) => handleRequest(() async {
-    final model = await _dataSource.createPayment(
-      storeId,
-      items,
-      addressId,
-      couponCode: couponCode,
-    );
-    return right(model.toEntity());
+    try {
+      final model = await _dataSource.createPayment(
+        storeId,
+        items,
+        addressId,
+        couponCode: couponCode,
+      );
+      return right(model.toEntity());
+    } on CheckoutRefusedException catch (e) {
+      return left(_refusal(e));
+    }
   });
 
   @override
@@ -45,14 +50,18 @@ class OrdersRepositoryImpl with BaseRepository implements OrdersRepository {
     PaymentResultEntity? payment,
     String couponCode = '',
   }) => handleRequest(() async {
-    final model = await _dataSource.createOrder(
-      storeId,
-      items,
-      addressId,
-      payment: payment,
-      couponCode: couponCode,
-    );
-    return right(model.toEntity());
+    try {
+      final model = await _dataSource.createOrder(
+        storeId,
+        items,
+        addressId,
+        payment: payment,
+        couponCode: couponCode,
+      );
+      return right(model.toEntity());
+    } on CheckoutRefusedException catch (e) {
+      return left(_refusal(e));
+    }
   });
 
   @override
@@ -74,4 +83,12 @@ class OrdersRepositoryImpl with BaseRepository implements OrdersRepository {
     final model = await _dataSource.rateOrder(storeId, orderId, rating, text);
     return right(model.toEntity());
   });
+
+  /// Named refusals keep their name across the boundary. Without this they
+  /// fall to `BaseRepository`'s generic catch as
+  /// `Failure.unexpected(e.toString())`, which leaves the screen holding a
+  /// sentence it can only print — no way to tell "the cart moved" from
+  /// "we don't deliver there".
+  Failure _refusal(CheckoutRefusedException e) =>
+      Failure.refused(code: e.code.wireValue, message: e.message);
 }

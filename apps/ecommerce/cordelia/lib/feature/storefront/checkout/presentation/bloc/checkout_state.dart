@@ -16,10 +16,16 @@ sealed class CheckoutState with _$CheckoutState {
   /// attempt submitted — a retry re-dispatches with these, same "error
   /// carries retry context" convention as every other `*Error` state in
   /// this app.
+  ///
+  /// [code] is *why*, when the server named it: [message] is what the
+  /// shopper reads, the code is what the screen acts on. Anything the
+  /// server didn't name — a network drop, a cancelled payment sheet —
+  /// arrives as [CheckoutRefusalCode.other].
   const factory CheckoutState.failure({
     required String message,
     required List<CartItemEntity> items,
     required String addressId,
+    @Default(CheckoutRefusalCode.other) CheckoutRefusalCode code,
     @Default('') String couponCode,
   }) = CheckoutFailure;
 }

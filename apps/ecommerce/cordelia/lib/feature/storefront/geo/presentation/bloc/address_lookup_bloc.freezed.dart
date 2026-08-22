@@ -386,14 +386,14 @@ return error(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  idle,TResult Function()?  locating,TResult Function( GeoAddressEntity address)?  prefillReady,TResult Function( PincodeInfoEntity info)?  pincodeReady,TResult Function( String message,  bool isLocation)?  error,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  idle,TResult Function()?  locating,TResult Function( GeoAddressEntity address)?  prefillReady,TResult Function( PincodeInfoEntity info)?  pincodeReady,TResult Function( String message,  bool isLocation,  LocationFailureReason? reason)?  error,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case AddressLookupIdle() when idle != null:
 return idle();case AddressLookupLocating() when locating != null:
 return locating();case AddressLookupPrefillReady() when prefillReady != null:
 return prefillReady(_that.address);case AddressLookupPincodeReady() when pincodeReady != null:
 return pincodeReady(_that.info);case AddressLookupError() when error != null:
-return error(_that.message,_that.isLocation);case _:
+return error(_that.message,_that.isLocation,_that.reason);case _:
   return orElse();
 
 }
@@ -411,14 +411,14 @@ return error(_that.message,_that.isLocation);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  idle,required TResult Function()  locating,required TResult Function( GeoAddressEntity address)  prefillReady,required TResult Function( PincodeInfoEntity info)  pincodeReady,required TResult Function( String message,  bool isLocation)  error,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  idle,required TResult Function()  locating,required TResult Function( GeoAddressEntity address)  prefillReady,required TResult Function( PincodeInfoEntity info)  pincodeReady,required TResult Function( String message,  bool isLocation,  LocationFailureReason? reason)  error,}) {final _that = this;
 switch (_that) {
 case AddressLookupIdle():
 return idle();case AddressLookupLocating():
 return locating();case AddressLookupPrefillReady():
 return prefillReady(_that.address);case AddressLookupPincodeReady():
 return pincodeReady(_that.info);case AddressLookupError():
-return error(_that.message,_that.isLocation);}
+return error(_that.message,_that.isLocation,_that.reason);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -432,14 +432,14 @@ return error(_that.message,_that.isLocation);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  idle,TResult? Function()?  locating,TResult? Function( GeoAddressEntity address)?  prefillReady,TResult? Function( PincodeInfoEntity info)?  pincodeReady,TResult? Function( String message,  bool isLocation)?  error,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  idle,TResult? Function()?  locating,TResult? Function( GeoAddressEntity address)?  prefillReady,TResult? Function( PincodeInfoEntity info)?  pincodeReady,TResult? Function( String message,  bool isLocation,  LocationFailureReason? reason)?  error,}) {final _that = this;
 switch (_that) {
 case AddressLookupIdle() when idle != null:
 return idle();case AddressLookupLocating() when locating != null:
 return locating();case AddressLookupPrefillReady() when prefillReady != null:
 return prefillReady(_that.address);case AddressLookupPincodeReady() when pincodeReady != null:
 return pincodeReady(_that.info);case AddressLookupError() when error != null:
-return error(_that.message,_that.isLocation);case _:
+return error(_that.message,_that.isLocation,_that.reason);case _:
   return null;
 
 }
@@ -647,11 +647,12 @@ as PincodeInfoEntity,
 
 
 class AddressLookupError implements AddressLookupState {
-  const AddressLookupError({required this.message, required this.isLocation});
+  const AddressLookupError({required this.message, required this.isLocation, this.reason});
   
 
  final  String message;
  final  bool isLocation;
+ final  LocationFailureReason? reason;
 
 /// Create a copy of AddressLookupState
 /// with the given fields replaced by the non-null parameter values.
@@ -663,16 +664,16 @@ $AddressLookupErrorCopyWith<AddressLookupError> get copyWith => _$AddressLookupE
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AddressLookupError&&(identical(other.message, message) || other.message == message)&&(identical(other.isLocation, isLocation) || other.isLocation == isLocation));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AddressLookupError&&(identical(other.message, message) || other.message == message)&&(identical(other.isLocation, isLocation) || other.isLocation == isLocation)&&(identical(other.reason, reason) || other.reason == reason));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,message,isLocation);
+int get hashCode => Object.hash(runtimeType,message,isLocation,reason);
 
 @override
 String toString() {
-  return 'AddressLookupState.error(message: $message, isLocation: $isLocation)';
+  return 'AddressLookupState.error(message: $message, isLocation: $isLocation, reason: $reason)';
 }
 
 
@@ -683,7 +684,7 @@ abstract mixin class $AddressLookupErrorCopyWith<$Res> implements $AddressLookup
   factory $AddressLookupErrorCopyWith(AddressLookupError value, $Res Function(AddressLookupError) _then) = _$AddressLookupErrorCopyWithImpl;
 @useResult
 $Res call({
- String message, bool isLocation
+ String message, bool isLocation, LocationFailureReason? reason
 });
 
 
@@ -700,11 +701,12 @@ class _$AddressLookupErrorCopyWithImpl<$Res>
 
 /// Create a copy of AddressLookupState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? message = null,Object? isLocation = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? message = null,Object? isLocation = null,Object? reason = freezed,}) {
   return _then(AddressLookupError(
 message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
 as String,isLocation: null == isLocation ? _self.isLocation : isLocation // ignore: cast_nullable_to_non_nullable
-as bool,
+as bool,reason: freezed == reason ? _self.reason : reason // ignore: cast_nullable_to_non_nullable
+as LocationFailureReason?,
   ));
 }
 

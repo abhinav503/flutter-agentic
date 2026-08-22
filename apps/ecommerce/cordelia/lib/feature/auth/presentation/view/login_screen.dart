@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:core/core/base/base_screen.dart';
+import 'package:core/core/extensions/string_extensions.dart';
 import 'package:core/core/mixins/textfield_validations.dart';
 import 'package:cordelia/utils/localized_validations.dart';
 import 'package:core/core/theme/app_spacing.dart';
@@ -71,7 +72,7 @@ class _LoginScreenState extends BaseScreenState<LoginScreen>
     if (!_validate()) return;
     context.read<AuthBloc>().add(
       AuthEvent.loginRequested(
-        email: _emailController.text.trim(),
+        email: _emailController.text.asEmailAddress,
         password: _passwordController.text,
       ),
     );
@@ -88,7 +89,9 @@ class _LoginScreenState extends BaseScreenState<LoginScreen>
       return;
     }
     context.read<AuthBloc>().add(
-      AuthEvent.forgotPasswordRequested(email: _emailController.text.trim()),
+      AuthEvent.forgotPasswordRequested(
+        email: _emailController.text.asEmailAddress,
+      ),
     );
   }
 

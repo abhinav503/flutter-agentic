@@ -86,7 +86,7 @@ extension FailurePatterns on Failure {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( NetworkFailure value)?  network,TResult Function( ServerFailure value)?  server,TResult Function( UnexpectedFailure value)?  unexpected,TResult Function( PaymentFailure value)?  payment,TResult Function( LocationFailure value)?  location,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( NetworkFailure value)?  network,TResult Function( ServerFailure value)?  server,TResult Function( UnexpectedFailure value)?  unexpected,TResult Function( PaymentFailure value)?  payment,TResult Function( LocationFailure value)?  location,TResult Function( RefusedFailure value)?  refused,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case NetworkFailure() when network != null:
@@ -94,7 +94,8 @@ return network(_that);case ServerFailure() when server != null:
 return server(_that);case UnexpectedFailure() when unexpected != null:
 return unexpected(_that);case PaymentFailure() when payment != null:
 return payment(_that);case LocationFailure() when location != null:
-return location(_that);case _:
+return location(_that);case RefusedFailure() when refused != null:
+return refused(_that);case _:
   return orElse();
 
 }
@@ -112,7 +113,7 @@ return location(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( NetworkFailure value)  network,required TResult Function( ServerFailure value)  server,required TResult Function( UnexpectedFailure value)  unexpected,required TResult Function( PaymentFailure value)  payment,required TResult Function( LocationFailure value)  location,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( NetworkFailure value)  network,required TResult Function( ServerFailure value)  server,required TResult Function( UnexpectedFailure value)  unexpected,required TResult Function( PaymentFailure value)  payment,required TResult Function( LocationFailure value)  location,required TResult Function( RefusedFailure value)  refused,}){
 final _that = this;
 switch (_that) {
 case NetworkFailure():
@@ -120,7 +121,8 @@ return network(_that);case ServerFailure():
 return server(_that);case UnexpectedFailure():
 return unexpected(_that);case PaymentFailure():
 return payment(_that);case LocationFailure():
-return location(_that);}
+return location(_that);case RefusedFailure():
+return refused(_that);}
 }
 /// A variant of `map` that fallback to returning `null`.
 ///
@@ -134,7 +136,7 @@ return location(_that);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( NetworkFailure value)?  network,TResult? Function( ServerFailure value)?  server,TResult? Function( UnexpectedFailure value)?  unexpected,TResult? Function( PaymentFailure value)?  payment,TResult? Function( LocationFailure value)?  location,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( NetworkFailure value)?  network,TResult? Function( ServerFailure value)?  server,TResult? Function( UnexpectedFailure value)?  unexpected,TResult? Function( PaymentFailure value)?  payment,TResult? Function( LocationFailure value)?  location,TResult? Function( RefusedFailure value)?  refused,}){
 final _that = this;
 switch (_that) {
 case NetworkFailure() when network != null:
@@ -142,7 +144,8 @@ return network(_that);case ServerFailure() when server != null:
 return server(_that);case UnexpectedFailure() when unexpected != null:
 return unexpected(_that);case PaymentFailure() when payment != null:
 return payment(_that);case LocationFailure() when location != null:
-return location(_that);case _:
+return location(_that);case RefusedFailure() when refused != null:
+return refused(_that);case _:
   return null;
 
 }
@@ -159,14 +162,15 @@ return location(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String message)?  network,TResult Function( int statusCode,  String message)?  server,TResult Function( String message)?  unexpected,TResult Function( String message,  bool cancelled)?  payment,TResult Function( String message)?  location,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String message)?  network,TResult Function( int statusCode,  String message)?  server,TResult Function( String message)?  unexpected,TResult Function( String message,  bool cancelled)?  payment,TResult Function( String message,  LocationFailureReason? reason)?  location,TResult Function( String code,  String message)?  refused,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case NetworkFailure() when network != null:
 return network(_that.message);case ServerFailure() when server != null:
 return server(_that.statusCode,_that.message);case UnexpectedFailure() when unexpected != null:
 return unexpected(_that.message);case PaymentFailure() when payment != null:
 return payment(_that.message,_that.cancelled);case LocationFailure() when location != null:
-return location(_that.message);case _:
+return location(_that.message,_that.reason);case RefusedFailure() when refused != null:
+return refused(_that.code,_that.message);case _:
   return orElse();
 
 }
@@ -184,14 +188,15 @@ return location(_that.message);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String message)  network,required TResult Function( int statusCode,  String message)  server,required TResult Function( String message)  unexpected,required TResult Function( String message,  bool cancelled)  payment,required TResult Function( String message)  location,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String message)  network,required TResult Function( int statusCode,  String message)  server,required TResult Function( String message)  unexpected,required TResult Function( String message,  bool cancelled)  payment,required TResult Function( String message,  LocationFailureReason? reason)  location,required TResult Function( String code,  String message)  refused,}) {final _that = this;
 switch (_that) {
 case NetworkFailure():
 return network(_that.message);case ServerFailure():
 return server(_that.statusCode,_that.message);case UnexpectedFailure():
 return unexpected(_that.message);case PaymentFailure():
 return payment(_that.message,_that.cancelled);case LocationFailure():
-return location(_that.message);}
+return location(_that.message,_that.reason);case RefusedFailure():
+return refused(_that.code,_that.message);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -205,14 +210,15 @@ return location(_that.message);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String message)?  network,TResult? Function( int statusCode,  String message)?  server,TResult? Function( String message)?  unexpected,TResult? Function( String message,  bool cancelled)?  payment,TResult? Function( String message)?  location,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String message)?  network,TResult? Function( int statusCode,  String message)?  server,TResult? Function( String message)?  unexpected,TResult? Function( String message,  bool cancelled)?  payment,TResult? Function( String message,  LocationFailureReason? reason)?  location,TResult? Function( String code,  String message)?  refused,}) {final _that = this;
 switch (_that) {
 case NetworkFailure() when network != null:
 return network(_that.message);case ServerFailure() when server != null:
 return server(_that.statusCode,_that.message);case UnexpectedFailure() when unexpected != null:
 return unexpected(_that.message);case PaymentFailure() when payment != null:
 return payment(_that.message,_that.cancelled);case LocationFailure() when location != null:
-return location(_that.message);case _:
+return location(_that.message,_that.reason);case RefusedFailure() when refused != null:
+return refused(_that.code,_that.message);case _:
   return null;
 
 }
@@ -492,10 +498,11 @@ as bool,
 
 
 class LocationFailure implements Failure {
-  const LocationFailure({required this.message});
+  const LocationFailure({required this.message, this.reason});
   
 
 @override final  String message;
+ final  LocationFailureReason? reason;
 
 /// Create a copy of Failure
 /// with the given fields replaced by the non-null parameter values.
@@ -507,16 +514,16 @@ $LocationFailureCopyWith<LocationFailure> get copyWith => _$LocationFailureCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is LocationFailure&&(identical(other.message, message) || other.message == message));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is LocationFailure&&(identical(other.message, message) || other.message == message)&&(identical(other.reason, reason) || other.reason == reason));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,message);
+int get hashCode => Object.hash(runtimeType,message,reason);
 
 @override
 String toString() {
-  return 'Failure.location(message: $message)';
+  return 'Failure.location(message: $message, reason: $reason)';
 }
 
 
@@ -527,7 +534,7 @@ abstract mixin class $LocationFailureCopyWith<$Res> implements $FailureCopyWith<
   factory $LocationFailureCopyWith(LocationFailure value, $Res Function(LocationFailure) _then) = _$LocationFailureCopyWithImpl;
 @override @useResult
 $Res call({
- String message
+ String message, LocationFailureReason? reason
 });
 
 
@@ -544,9 +551,78 @@ class _$LocationFailureCopyWithImpl<$Res>
 
 /// Create a copy of Failure
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? message = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? message = null,Object? reason = freezed,}) {
   return _then(LocationFailure(
 message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
+as String,reason: freezed == reason ? _self.reason : reason // ignore: cast_nullable_to_non_nullable
+as LocationFailureReason?,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class RefusedFailure implements Failure {
+  const RefusedFailure({required this.code, required this.message});
+  
+
+ final  String code;
+@override final  String message;
+
+/// Create a copy of Failure
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$RefusedFailureCopyWith<RefusedFailure> get copyWith => _$RefusedFailureCopyWithImpl<RefusedFailure>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is RefusedFailure&&(identical(other.code, code) || other.code == code)&&(identical(other.message, message) || other.message == message));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,code,message);
+
+@override
+String toString() {
+  return 'Failure.refused(code: $code, message: $message)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $RefusedFailureCopyWith<$Res> implements $FailureCopyWith<$Res> {
+  factory $RefusedFailureCopyWith(RefusedFailure value, $Res Function(RefusedFailure) _then) = _$RefusedFailureCopyWithImpl;
+@override @useResult
+$Res call({
+ String code, String message
+});
+
+
+
+
+}
+/// @nodoc
+class _$RefusedFailureCopyWithImpl<$Res>
+    implements $RefusedFailureCopyWith<$Res> {
+  _$RefusedFailureCopyWithImpl(this._self, this._then);
+
+  final RefusedFailure _self;
+  final $Res Function(RefusedFailure) _then;
+
+/// Create a copy of Failure
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? code = null,Object? message = null,}) {
+  return _then(RefusedFailure(
+code: null == code ? _self.code : code // ignore: cast_nullable_to_non_nullable
+as String,message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
 as String,
   ));
 }

@@ -90,7 +90,14 @@ class CartCubit extends Cubit<List<CartItemEntity>> {
   /// variant's size and prices; cards and sheets pass nothing, which lands
   /// on the product's existing line if it has one (see [_lineIndex]) or
   /// starts a base-pack line.
-  void addToCart(
+  /// Returns how much actually went in — [quantity], or less once the line
+  /// hits the product's stock, or zero when it was already there. A picker
+  /// only knows the product's total stock, not what this cart is already
+  /// holding of it, so "3 left" plus "3 already in the bag" would otherwise
+  /// build a line of 6 that the server refuses at payment. Callers that
+  /// confirm the add ("Added to cart") check the result rather than promise
+  /// something that didn't happen.
+  int addToCart(
     ProductEntity product,
     int quantity, {
     double? sizeValue,
@@ -98,31 +105,53 @@ class CartCubit extends Cubit<List<CartItemEntity>> {
     double? originalUnitPrice,
   }) {
     final index = _lineIndex(product.id, sizeValue);
+    final existing = index == -1 ? 0 : state[index].quantity;
+    final added = _addable(product, existing, quantity);
+    if (added == 0) return 0;
+
     if (index == -1) {
       _emitAndPersist([
         ...state,
         CartItemEntity(
           product: product,
-          quantity: quantity,
+          quantity: added,
           sizeValue: sizeValue,
           unitPrice: unitPrice,
           originalUnitPrice: originalUnitPrice,
         ),
       ]);
-      return;
+      return added;
     }
     _emitAndPersist([
       for (var i = 0; i < state.length; i++)
         if (i == index)
-          state[i].copyWith(quantity: state[i].quantity + quantity)
+          state[i].copyWith(quantity: existing + added)
         else
           state[i],
     ]);
+    return added;
+  }
+
+  /// How much of [wanted] fits on top of [existing]. Unknown stock is
+  /// unbounded, matching `ProductEntity.purchaseLimit` — refusing a sale
+  /// because the backend didn't say is worse than the rare oversell. A
+  /// sold-out product has no limit to express either; nothing is addable,
+  /// and every pack disables its add control, so this only ever sees it as
+  /// a race and lets the server have the final word.
+  int _addable(ProductEntity product, int existing, int wanted) {
+    final limit = product.purchaseLimit;
+    if (limit == null) return wanted;
+    final room = limit - existing;
+    return room <= 0 ? 0 : (wanted < room ? wanted : room);
   }
 
   void incrementQuantity(String productId, {double? sizeValue}) {
     final index = _lineIndex(productId, sizeValue);
     if (index == -1) return;
+    // Same ceiling as [addToCart]: a row already at (or past, after the
+    // store cut its stock) what's left doesn't grow.
+    final line = state[index];
+    if (_addable(line.product, line.quantity, 1) == 0) return;
     _emitAndPersist([
       for (var i = 0; i < state.length; i++)
         if (i == index)
@@ -179,7 +208,18 @@ class CartCubit extends Cubit<List<CartItemEntity>> {
   /// the signed-out user's server-side cart should survive untouched for
   /// their next sign-in, this is just dropping this device's in-memory copy
   /// so the next signed-in account doesn't briefly see a stranger's cart.
-  void reset() => emit(const []);
+  ///
+  /// Bumps the revision and forgets the store for the same reason [hydrate]
+  /// tracks them: a fetch that was already in flight when the session ended
+  /// would otherwise pass its own staleness check and put the previous
+  /// account's lines back on a signed-out device. Forgetting the store also
+  /// stops [refresh] firing a tokenless `GET /cart` for every Cart a guest
+  /// opens afterwards.
+  void reset() {
+    _revision++;
+    _storeId = null;
+    emit(const []);
+  }
 
   void _emitAndPersist(List<CartItemEntity> items) {
     _revision++;

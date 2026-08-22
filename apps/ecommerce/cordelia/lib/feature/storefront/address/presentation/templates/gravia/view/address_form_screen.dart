@@ -21,6 +21,7 @@ import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/blocks/collapsing_header_sheet.dart';
 
 import '../../../../../geo/presentation/bloc/address_lookup_bloc.dart';
+import '../../../../../geo/presentation/location_failure_message.dart';
 import '../../../../domain/entities/address_entity.dart';
 import '../../../address_form_fields.dart';
 
@@ -105,9 +106,8 @@ class _AddressFormScreenState extends BaseScreenState<AddressFormScreen>
       listener: (context, state) => switch (state) {
         AddressLookupPrefillReady(:final address) => prefill(address),
         AddressLookupPincodeReady(:final info) => prefillPincode(info),
-        AddressLookupError(:final message, :final isLocation) => showSnackBar(
-          isLocation ? GraviaValueConst.locationUnavailableMessage : message,
-        ),
+        AddressLookupError(:final message, :final isLocation, :final reason) =>
+          showSnackBar(isLocation ? locationFailureMessage(reason) : message),
         _ => null,
       },
       builder: (context, state) => _form(context, state),

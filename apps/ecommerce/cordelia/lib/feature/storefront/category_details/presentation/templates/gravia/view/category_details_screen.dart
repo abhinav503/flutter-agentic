@@ -45,9 +45,8 @@ class CategoryDetailsScreen extends BaseScreen {
 
 class _CategoryDetailsScreenState
     extends BaseScreenState<CategoryDetailsScreen> {
-  Future<void> _addToCart(ProductEntity product, int quantity) async {
-    context.addToCartOrSignIn(product, quantity);
-  }
+  Future<void> _addToCart(ProductEntity product, int quantity) =>
+      context.addToCartOrSignIn(product, quantity);
 
   void _openProductDetails(ProductEntity product) => context.push(
     AppRoutes.productDetailsPath(product.id),
@@ -193,8 +192,10 @@ class _CategoryDetailsScreenState
                 : CartStatusBar(
                     itemCount: items.itemCount,
                     grandTotal: items.grandTotal,
-                    onTap: () =>
-                        context.push(AppRoutes.cart, extra: widget.storeId),
+                    onTap: () => context.pushIfSignedIn(
+                      AppRoutes.cart,
+                      extra: widget.storeId,
+                    ),
                     onClear: () => context.read<CartCubit>().clear(),
                   ),
           ),

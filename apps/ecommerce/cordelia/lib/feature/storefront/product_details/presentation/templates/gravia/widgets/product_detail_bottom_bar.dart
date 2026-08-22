@@ -1,4 +1,5 @@
 import 'package:cordelia/constants/app_routes.dart';
+import 'package:cordelia/feature/auth/presentation/sign_in_gate.dart';
 import 'package:cordelia/constants/value_const.dart';
 import 'package:cordelia/feature/storefront/cart/domain/entities/cart_item_entity.dart';
 import 'package:cordelia/feature/storefront/cart/presentation/cubit/cart_cubit.dart';
@@ -12,7 +13,6 @@ import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/button.dart';
 import 'package:core/core/ui/blocks/docked_bar.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 
 /// [DockedBar] for Product Details: a quantity stepper next to the primary
 /// CTA whose label live-updates with the line total for the chosen quantity.
@@ -52,7 +52,8 @@ class ProductDetailBottomBar extends StatelessWidget {
               : CartStatusBar(
                   itemCount: items.itemCount,
                   grandTotal: items.grandTotal,
-                  onTap: () => context.push(AppRoutes.cart, extra: storeId),
+                  onTap: () =>
+                      context.pushIfSignedIn(AppRoutes.cart, extra: storeId),
                   onClear: () => context.read<CartCubit>().clear(),
                 ),
         ),

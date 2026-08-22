@@ -8,6 +8,7 @@ import 'package:cordelia/constants/app_routes.dart';
 import 'package:cordelia/constants/value_const.dart';
 import 'package:cordelia/feature/auth/presentation/sign_in_gate.dart';
 import 'package:cordelia/feature/storefront/address/presentation/address_pref_keys.dart';
+import 'package:cordelia/feature/storefront/geo/presentation/location_failure_message.dart';
 
 /// The "selected delivery address" label a storefront Home header shows —
 /// read from prefs on mount, refreshed after the Select Address screen pops.
@@ -83,17 +84,10 @@ mixin SelectedAddressLabelState<T extends StatefulWidget> on State<T> {
         // A fix with no name behind it — the geocoder had nothing, which is
         // ordinary on a device with no network or no Play services.
         setState(() => locatingNearby = false);
-        showLocationMessage(ValueConst.locationNoAddressMessage);
+        showLocationMessage(locationFailureMessage(null));
       case LocationUnavailable(:final reason):
         setState(() => locatingNearby = false);
-        showLocationMessage(switch (reason) {
-          LocationFailureReason.serviceDisabled =>
-            ValueConst.locationServiceOffMessage,
-          LocationFailureReason.permissionDenied =>
-            ValueConst.locationPermissionDeniedMessage,
-          LocationFailureReason.unavailable =>
-            ValueConst.locationUnavailableMessage,
-        });
+        showLocationMessage(locationFailureMessage(reason));
     }
   }
 

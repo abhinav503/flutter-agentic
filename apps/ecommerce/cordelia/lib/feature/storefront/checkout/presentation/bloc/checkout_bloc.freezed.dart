@@ -410,13 +410,13 @@ return failure(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  idle,TResult Function()?  submitting,TResult Function( OrderEntity order)?  success,TResult Function( String message,  List<CartItemEntity> items,  String addressId,  String couponCode)?  failure,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  idle,TResult Function()?  submitting,TResult Function( OrderEntity order)?  success,TResult Function( String message,  List<CartItemEntity> items,  String addressId,  CheckoutRefusalCode code,  String couponCode)?  failure,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case CheckoutIdle() when idle != null:
 return idle();case CheckoutSubmitting() when submitting != null:
 return submitting();case CheckoutSuccess() when success != null:
 return success(_that.order);case CheckoutFailure() when failure != null:
-return failure(_that.message,_that.items,_that.addressId,_that.couponCode);case _:
+return failure(_that.message,_that.items,_that.addressId,_that.code,_that.couponCode);case _:
   return orElse();
 
 }
@@ -434,13 +434,13 @@ return failure(_that.message,_that.items,_that.addressId,_that.couponCode);case 
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  idle,required TResult Function()  submitting,required TResult Function( OrderEntity order)  success,required TResult Function( String message,  List<CartItemEntity> items,  String addressId,  String couponCode)  failure,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  idle,required TResult Function()  submitting,required TResult Function( OrderEntity order)  success,required TResult Function( String message,  List<CartItemEntity> items,  String addressId,  CheckoutRefusalCode code,  String couponCode)  failure,}) {final _that = this;
 switch (_that) {
 case CheckoutIdle():
 return idle();case CheckoutSubmitting():
 return submitting();case CheckoutSuccess():
 return success(_that.order);case CheckoutFailure():
-return failure(_that.message,_that.items,_that.addressId,_that.couponCode);}
+return failure(_that.message,_that.items,_that.addressId,_that.code,_that.couponCode);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -454,13 +454,13 @@ return failure(_that.message,_that.items,_that.addressId,_that.couponCode);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  idle,TResult? Function()?  submitting,TResult? Function( OrderEntity order)?  success,TResult? Function( String message,  List<CartItemEntity> items,  String addressId,  String couponCode)?  failure,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  idle,TResult? Function()?  submitting,TResult? Function( OrderEntity order)?  success,TResult? Function( String message,  List<CartItemEntity> items,  String addressId,  CheckoutRefusalCode code,  String couponCode)?  failure,}) {final _that = this;
 switch (_that) {
 case CheckoutIdle() when idle != null:
 return idle();case CheckoutSubmitting() when submitting != null:
 return submitting();case CheckoutSuccess() when success != null:
 return success(_that.order);case CheckoutFailure() when failure != null:
-return failure(_that.message,_that.items,_that.addressId,_that.couponCode);case _:
+return failure(_that.message,_that.items,_that.addressId,_that.code,_that.couponCode);case _:
   return null;
 
 }
@@ -620,7 +620,7 @@ as OrderEntity,
 
 
 class CheckoutFailure with DiagnosticableTreeMixin implements CheckoutState {
-  const CheckoutFailure({required this.message, required final  List<CartItemEntity> items, required this.addressId, this.couponCode = ''}): _items = items;
+  const CheckoutFailure({required this.message, required final  List<CartItemEntity> items, required this.addressId, this.code = CheckoutRefusalCode.other, this.couponCode = ''}): _items = items;
   
 
  final  String message;
@@ -632,6 +632,7 @@ class CheckoutFailure with DiagnosticableTreeMixin implements CheckoutState {
 }
 
  final  String addressId;
+@JsonKey() final  CheckoutRefusalCode code;
 @JsonKey() final  String couponCode;
 
 /// Create a copy of CheckoutState
@@ -645,21 +646,21 @@ $CheckoutFailureCopyWith<CheckoutFailure> get copyWith => _$CheckoutFailureCopyW
 void debugFillProperties(DiagnosticPropertiesBuilder properties) {
   properties
     ..add(DiagnosticsProperty('type', 'CheckoutState.failure'))
-    ..add(DiagnosticsProperty('message', message))..add(DiagnosticsProperty('items', items))..add(DiagnosticsProperty('addressId', addressId))..add(DiagnosticsProperty('couponCode', couponCode));
+    ..add(DiagnosticsProperty('message', message))..add(DiagnosticsProperty('items', items))..add(DiagnosticsProperty('addressId', addressId))..add(DiagnosticsProperty('code', code))..add(DiagnosticsProperty('couponCode', couponCode));
 }
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is CheckoutFailure&&(identical(other.message, message) || other.message == message)&&const DeepCollectionEquality().equals(other._items, _items)&&(identical(other.addressId, addressId) || other.addressId == addressId)&&(identical(other.couponCode, couponCode) || other.couponCode == couponCode));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CheckoutFailure&&(identical(other.message, message) || other.message == message)&&const DeepCollectionEquality().equals(other._items, _items)&&(identical(other.addressId, addressId) || other.addressId == addressId)&&(identical(other.code, code) || other.code == code)&&(identical(other.couponCode, couponCode) || other.couponCode == couponCode));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,message,const DeepCollectionEquality().hash(_items),addressId,couponCode);
+int get hashCode => Object.hash(runtimeType,message,const DeepCollectionEquality().hash(_items),addressId,code,couponCode);
 
 @override
 String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
-  return 'CheckoutState.failure(message: $message, items: $items, addressId: $addressId, couponCode: $couponCode)';
+  return 'CheckoutState.failure(message: $message, items: $items, addressId: $addressId, code: $code, couponCode: $couponCode)';
 }
 
 
@@ -670,7 +671,7 @@ abstract mixin class $CheckoutFailureCopyWith<$Res> implements $CheckoutStateCop
   factory $CheckoutFailureCopyWith(CheckoutFailure value, $Res Function(CheckoutFailure) _then) = _$CheckoutFailureCopyWithImpl;
 @useResult
 $Res call({
- String message, List<CartItemEntity> items, String addressId, String couponCode
+ String message, List<CartItemEntity> items, String addressId, CheckoutRefusalCode code, String couponCode
 });
 
 
@@ -687,12 +688,13 @@ class _$CheckoutFailureCopyWithImpl<$Res>
 
 /// Create a copy of CheckoutState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? message = null,Object? items = null,Object? addressId = null,Object? couponCode = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? message = null,Object? items = null,Object? addressId = null,Object? code = null,Object? couponCode = null,}) {
   return _then(CheckoutFailure(
 message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
 as String,items: null == items ? _self._items : items // ignore: cast_nullable_to_non_nullable
 as List<CartItemEntity>,addressId: null == addressId ? _self.addressId : addressId // ignore: cast_nullable_to_non_nullable
-as String,couponCode: null == couponCode ? _self.couponCode : couponCode // ignore: cast_nullable_to_non_nullable
+as String,code: null == code ? _self.code : code // ignore: cast_nullable_to_non_nullable
+as CheckoutRefusalCode,couponCode: null == couponCode ? _self.couponCode : couponCode // ignore: cast_nullable_to_non_nullable
 as String,
   ));
 }

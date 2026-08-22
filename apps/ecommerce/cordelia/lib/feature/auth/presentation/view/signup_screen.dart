@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:core/core/base/base_screen.dart';
+import 'package:core/core/extensions/string_extensions.dart';
 import 'package:core/core/mixins/textfield_validations.dart';
 import 'package:cordelia/utils/localized_validations.dart';
 import 'package:core/core/theme/app_spacing.dart';
@@ -86,7 +87,7 @@ class _SignupScreenState extends BaseScreenState<SignupScreen>
     context.read<AuthBloc>().add(
       AuthEvent.signUpRequested(
         name: _nameController.text.trim(),
-        email: _emailController.text.trim(),
+        email: _emailController.text.asEmailAddress,
         mobile: _mobileController.text.trim(),
         password: _passwordController.text,
       ),

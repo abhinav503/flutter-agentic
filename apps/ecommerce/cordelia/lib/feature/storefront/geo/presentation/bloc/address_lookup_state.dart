@@ -19,11 +19,17 @@ sealed class AddressLookupState with _$AddressLookupState {
     required PincodeInfoEntity info,
   }) = AddressLookupPincodeReady;
 
-  /// [isLocation] picks the pack's own localized copy over [message], which
-  /// is technical. Only location can fail loudly now: a pincode miss is
-  /// silent by design.
+  /// [isLocation] picks localized copy over [message], which is technical.
+  /// Only location can fail loudly now: a pincode miss is silent by design.
+  ///
+  /// [reason] is what the device said, and picks *which* line —
+  /// `locationFailureMessage` turns it into words. Null alongside
+  /// [isLocation] means the fix worked and only the geocode came back
+  /// empty; null with [isLocation] false means this wasn't a location
+  /// failure at all, and [message] is shown as-is.
   const factory AddressLookupState.error({
     required String message,
     required bool isLocation,
+    LocationFailureReason? reason,
   }) = AddressLookupError;
 }

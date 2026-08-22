@@ -20,11 +20,20 @@ class GeoRepositoryImpl with BaseRepository implements GeoRepository {
         final location = await LocationService.instance.currentPlace();
         switch (location) {
           case LocationUnavailable(:final reason):
-            return left(Failure.location(message: 'Device location: $reason'));
+            // The words are the screen's job (see `locationFailureMessage`) —
+            // `message` stays technical context, and `reason` is what a
+            // localized line is actually chosen from.
+            return left(
+              Failure.location(
+                message: 'Device location: ${reason.name}',
+                reason: reason,
+              ),
+            );
           case LocationSuccess(hasPlace: false):
             // A fix the geocoder had no name for — ordinary with no network
             // or no Play services. Nothing to prefill, so say so rather than
-            // handing the form six empty fields.
+            // handing the form six empty fields. No `reason`: the device did
+            // its part.
             return left(
               const Failure.location(message: 'No address at this location'),
             );

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/button.dart';
 
 import 'package:cordelia/constants/app_routes.dart';
+import 'package:cordelia/feature/auth/presentation/sign_in_gate.dart';
 import 'package:cordelia/constants/value_const.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_dimen_const.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_image_const.dart';
@@ -71,6 +71,8 @@ class DailyMartProductDetailBottomBar extends StatelessWidget {
     );
   }
 
+  // Gated like every other route into the bag: this disc is on screen
+  // whether or not there's an account behind it.
   void _openCart(BuildContext context) =>
-      context.push(AppRoutes.cart, extra: storeId);
+      context.pushIfSignedIn(AppRoutes.cart, extra: storeId);
 }

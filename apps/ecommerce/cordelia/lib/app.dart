@@ -96,6 +96,7 @@ import 'package:core/core/theme/theme_mode_controller.dart';
 import 'package:core/core/theme/theme_mode_scope.dart';
 
 import 'constants/app_routes.dart';
+import 'theme/app_brand_theme.dart';
 import 'constants/value_const.dart';
 import 'di/injection_container.dart';
 import 'feature/auth/presentation/sign_out.dart';
@@ -161,7 +162,10 @@ final _router = GoRouter(
       path: AppRoutes.onboarding,
       builder: (context, _) => const OnboardingPage(),
     ),
-    GoRoute(path: AppRoutes.login, builder: (context, _) => const LoginPage()),
+    GoRoute(
+      path: AppRoutes.login,
+      builder: (context, _) => const AppBrandTheme(child: LoginPage()),
+    ),
     GoRoute(
       path: AppRoutes.signup,
       // Fade, same reasoning as gravia's own Login/Signup — they share the
@@ -176,7 +180,7 @@ final _router = GoRouter(
               opacity: CurveTween(curve: Curves.easeInOut).animate(animation),
               child: child,
             ),
-        child: const SignupPage(),
+        child: const AppBrandTheme(child: SignupPage()),
       ),
     ),
     GoRoute(
@@ -244,18 +248,14 @@ final _router = GoRouter(
           key: state.pageKey,
           transitionDuration: const Duration(milliseconds: 350),
           reverseTransitionDuration: const Duration(milliseconds: 300),
-          transitionsBuilder:
-              (context, animation, secondaryAnimation, child) =>
-                  FadeTransition(
-                    opacity: CurveTween(
-                      curve: Curves.easeInOut,
-                    ).animate(animation),
-                    child: child,
-                  ),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+              FadeTransition(
+                opacity: CurveTween(curve: Curves.easeInOut).animate(animation),
+                child: child,
+              ),
           child: StorefrontTemplateSwitch(
             gravia: (_) => gravia_support.SupportPage(channels: channels),
-            dailymart: (_) =>
-                dailymart_support.SupportPage(channels: channels),
+            dailymart: (_) => dailymart_support.SupportPage(channels: channels),
             grofast: (_) => grofast_support.SupportPage(channels: channels),
           ),
         );

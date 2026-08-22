@@ -150,7 +150,10 @@ class _CheckoutScreenState extends BaseScreenState<CheckoutScreen>
       child: BlocConsumer<CheckoutBloc, CheckoutState>(
         listener: (context, state) => switch (state) {
           CheckoutSuccess() => _onOrderPlaced(),
-          CheckoutFailure(:final message) => onCheckoutFailed(message),
+          CheckoutFailure(:final message, :final code) => onCheckoutFailed(
+            message,
+            code,
+          ),
           CheckoutIdle() || CheckoutSubmitting() => null,
         },
         builder: (context, state) => GrofastScreenBody(
