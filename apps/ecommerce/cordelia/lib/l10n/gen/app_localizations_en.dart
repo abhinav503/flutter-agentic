@@ -492,9 +492,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'This removes your rating from the product\'s average. You can write a new one any time.';
 
   @override
-  String get reviewSignedOutMessage => 'Sign in to review this product.';
-
-  @override
   String get verifiedPurchaseLabel => 'Verified purchase';
 
   @override
@@ -538,10 +535,29 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reportReviewSuccessMessage => 'Thanks — the store has been told.';
 
   @override
-  String get reportReviewSignedOutMessage => 'Sign in to report a review.';
+  String get unratedLabel => 'No ratings yet';
 
   @override
-  String get unratedLabel => 'No ratings yet';
+  String get guestLabel => 'Guest';
+
+  @override
+  String get locationLocatingLabel => 'Locating…';
+
+  @override
+  String get locationNoAddressMessage =>
+      'Couldn\'t find a postcode for where you are.';
+
+  @override
+  String get locationServiceOffMessage =>
+      'Location is switched off on this device.';
+
+  @override
+  String get locationPermissionDeniedMessage =>
+      'Location permission is off — turn it on in Settings to see what\'s near you.';
+
+  @override
+  String get locationUnavailableMessage =>
+      'Couldn\'t get your location. Try again.';
 
   @override
   String get outOfStockLabel => 'Out of Stock';
@@ -940,12 +956,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get graviaLocationUnavailableMessage =>
       'Couldn\'t get your location. Check location permission and try again.';
-
-  @override
-  String get graviaAddressSearchLabel => 'Search Address';
-
-  @override
-  String get graviaAddressSearchHint => 'Search area, street, landmark…';
 
   @override
   String get graviaProfilePageTitle => 'Profile';

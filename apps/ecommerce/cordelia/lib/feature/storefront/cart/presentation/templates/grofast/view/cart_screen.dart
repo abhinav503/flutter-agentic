@@ -11,10 +11,13 @@ import 'package:core/core/ui/atoms/svg_image.dart';
 import 'package:core/core/ui/blocks/ecommerce/price_breakdown.dart';
 import 'package:core/core/ui/molecules/swipe_to_delete_row.dart';
 
-import 'package:cordelia/feature/storefront/active_store/presentation/active_store_capture.dart';
 import 'package:cordelia/constants/app_routes.dart';
 import 'package:cordelia/constants/value_const.dart';
 import 'package:cordelia/enums/product_unit_type.dart';
+import 'package:cordelia/feature/auth/presentation/sign_in_gate.dart';
+import 'package:cordelia/feature/home/domain/entities/store_delivery_entity.dart';
+import 'package:cordelia/feature/storefront/active_store/presentation/active_store_capture.dart';
+import 'package:cordelia/feature/storefront/active_store/presentation/cubit/active_store_cubit.dart';
 import 'package:cordelia/feature/storefront/address/presentation/templates/grofast/widgets/address_picker_sheet.dart';
 import 'package:cordelia/feature/storefront/cart/domain/entities/cart_item_entity.dart';
 import 'package:cordelia/feature/storefront/favourites/presentation/cubit/favourites_cubit.dart';
@@ -23,13 +26,11 @@ import 'package:cordelia/templates/grofast/constants/grofast_image_const.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_text_style_const.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_value_const.dart';
 import 'package:cordelia/templates/grofast/widgets/grofast_line_item_row.dart';
-import 'package:cordelia/templates/grofast/widgets/grofast_product_card.dart';
 import 'package:cordelia/templates/grofast/widgets/grofast_primary_button.dart';
+import 'package:cordelia/templates/grofast/widgets/grofast_product_card.dart';
 import 'package:cordelia/templates/grofast/widgets/grofast_promo_code_row.dart';
 import 'package:cordelia/templates/grofast/widgets/grofast_screen_body.dart';
 import 'package:cordelia/templates/grofast/widgets/grofast_state_views.dart';
-import 'package:cordelia/feature/storefront/active_store/presentation/cubit/active_store_cubit.dart';
-import 'package:cordelia/feature/home/domain/entities/store_delivery_entity.dart';
 
 import '../../../cart_availability.dart';
 import '../../../cubit/cart_cubit.dart';
@@ -247,8 +248,7 @@ class _BagContent extends StatelessWidget {
               topTrailing: GrofastFavouriteHeart(
                 size: GrofastDimenConst.lineItemHeartSize,
                 isFavourite: favourites.any((p) => p.id == item.product.id),
-                onTap: () =>
-                    context.read<FavouritesCubit>().toggle(item.product),
+                onTap: () => context.toggleFavouriteOrSignIn(item.product),
               ),
               trailing: GrofastQuantityStepper(
                 quantity: item.quantity,

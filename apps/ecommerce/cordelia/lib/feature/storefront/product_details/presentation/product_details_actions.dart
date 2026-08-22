@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:cordelia/constants/app_routes.dart';
-import 'package:cordelia/feature/storefront/cart/presentation/cubit/cart_cubit.dart';
+import 'package:cordelia/feature/auth/presentation/sign_in_gate.dart';
 
 import '../../home/domain/entities/product_entity.dart';
 import '../domain/entities/product_detail_entity.dart';
@@ -44,19 +44,22 @@ mixin ProductDetailsActions<T extends StatefulWidget> on State<T> {
       ? null
       : detail.sizeVariants[effectiveSizeIndex(detail)];
 
-  void addToCart(ProductEntity product, int qty) =>
-      context.read<CartCubit>().addToCart(product, qty);
+  Future<bool> addToCart(ProductEntity product, int qty) =>
+      context.addToCartOrSignIn(product, qty);
 
   /// Add-to-cart for the details CTA — carries the selected size so the cart
   /// line is priced by its variant; a size-less product adds the base pack,
   /// same as a card's quick-add.
-  void addSelectedToCart(ProductDetailEntity detail, int qty) {
+  ///
+  /// False when a guest backed out of the gate — the caller's "added"
+  /// snackbar and quantity reset both hang off this, so neither fires for
+  /// a line that never went in.
+  Future<bool> addSelectedToCart(ProductDetailEntity detail, int qty) {
     final variant = selectedVariant(detail);
     if (variant == null) {
-      addToCart(detail.product, qty);
-      return;
+      return addToCart(detail.product, qty);
     }
-    context.read<CartCubit>().addToCart(
+    return context.addToCartOrSignIn(
       detail.product,
       qty,
       sizeValue: variant.value,

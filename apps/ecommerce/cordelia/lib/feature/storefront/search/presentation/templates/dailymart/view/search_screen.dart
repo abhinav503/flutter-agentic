@@ -9,13 +9,13 @@ import 'package:core/core/ui/atoms/loading_dots.dart';
 import 'package:core/core/ui/molecules/empty_state.dart';
 import 'package:core/core/ui/molecules/error_view.dart';
 
+import 'package:cordelia/feature/auth/presentation/sign_in_gate.dart';
 import 'package:cordelia/constants/app_routes.dart';
 import 'package:cordelia/constants/image_const.dart';
 import 'package:cordelia/enums/recent_search_type.dart';
 import 'package:cordelia/feature/storefront/cart/presentation/cubit/cart_cubit.dart';
 import 'package:cordelia/feature/storefront/cart/domain/entities/cart_item_entity.dart';
 import 'package:cordelia/feature/storefront/cart/presentation/templates/dailymart/widgets/cart_status_bar.dart';
-import 'package:cordelia/feature/storefront/favourites/presentation/cubit/favourites_cubit.dart';
 // Cross-feature reuse, not duplication — Search's product grid is the same
 // composition and data shape as Home's Popular Products.
 import 'package:cordelia/feature/storefront/home/presentation/templates/dailymart/widgets/home_popular_products_grid.dart';
@@ -97,8 +97,8 @@ class _SearchScreenState extends BaseScreenState<SearchScreen> {
     context.pop();
   }
 
-  void _addToCart(ProductEntity product, int quantity) {
-    context.read<CartCubit>().addToCart(product, quantity);
+  Future<void> _addToCart(ProductEntity product, int quantity) async {
+    if (!await context.addToCartOrSignIn(product, quantity) || !mounted) return;
     showSnackBar(
       DailyMartValueConst.addedToCartMessage(product.name, quantity),
     );
@@ -107,7 +107,8 @@ class _SearchScreenState extends BaseScreenState<SearchScreen> {
   void _showAddToCartSheet(ProductEntity product) =>
       showDailyMartAddToCartSheet(product: product, onAddToCart: _addToCart);
 
-  void _openCart() => context.push(AppRoutes.cart, extra: widget.storeId);
+  void _openCart() =>
+      context.pushIfSignedIn(AppRoutes.cart, extra: widget.storeId);
 
   void _openProductDetails(ProductEntity product) => context.push(
     AppRoutes.productDetailsPath(product.id),
@@ -326,7 +327,7 @@ class _SearchScreenState extends BaseScreenState<SearchScreen> {
           onAddToCart: _showAddToCartSheet,
           onProductTap: _openProductDetails,
           onFavouriteToggle: (product) =>
-              context.read<FavouritesCubit>().toggle(product),
+              context.toggleFavouriteOrSignIn(product),
         ),
       ],
     ),

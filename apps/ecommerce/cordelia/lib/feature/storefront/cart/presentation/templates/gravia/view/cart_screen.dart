@@ -1,3 +1,4 @@
+import 'package:cordelia/feature/auth/presentation/sign_in_gate.dart';
 import 'package:cordelia/constants/app_routes.dart';
 import 'package:cordelia/feature/storefront/active_store/presentation/cubit/active_store_cubit.dart';
 import 'package:cordelia/feature/storefront/address/domain/entities/address_entity.dart';
@@ -108,7 +109,7 @@ class _CartScreenState extends BaseScreenState<CartScreen>
   }
 
   void _addToCart(ProductEntity product, int quantity) {
-    context.read<CartCubit>().addToCart(product, quantity);
+    context.addToCartOrSignIn(product, quantity);
   }
 
   void _openProductDetails(ProductEntity product) => context.push(

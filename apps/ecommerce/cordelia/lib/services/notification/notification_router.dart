@@ -10,6 +10,7 @@ import 'package:cordelia/feature/home/domain/usecase/get_store_usecase.dart';
 import 'package:cordelia/feature/storefront/active_store/domain/entities/active_store_entity.dart';
 import 'package:cordelia/feature/storefront/active_store/presentation/cubit/active_store_cubit.dart';
 import 'package:cordelia/feature/storefront/presentation/view/storefront_page.dart';
+import 'package:cordelia/services/firebase_auth_service.dart';
 
 import 'notification_navigator.dart';
 import 'notification_payload.dart';
@@ -34,6 +35,24 @@ class NotificationRouter {
   /// storefront page and needs the session opened first.
   static const _appLevelRoutes = {AppRoutes.discovery, AppRoutes.search};
 
+  /// Destinations that are somebody's own and 401 without an account. A
+  /// signed-out device still receives platform-wide pushes, and since the
+  /// app browses without an account it can now be open when one is tapped —
+  /// so the tap has to land somewhere that works. It opens the store the
+  /// notification was about and stops there, rather than pushing a page
+  /// that would fail or a login form nobody asked for.
+  static const _signedInOnlyRoutes = {
+    AppRoutes.notifications,
+    AppRoutes.orders,
+    AppRoutes.trackOrder,
+    AppRoutes.cart,
+    AppRoutes.wishlist,
+  };
+
+  static bool _canOpen(String path) =>
+      !_signedInOnlyRoutes.contains(path) ||
+      FirebaseAuthService.instance.currentUser != null;
+
   static Future<void> route(NotificationPayload payload) async {
     if (payload.type == NotificationType.normal) return;
 
@@ -45,7 +64,11 @@ class NotificationRouter {
 
     final storeId = payload.storeId;
     if (storeId == null || storeId.isEmpty) {
-      _go(_appLevelRoutes.contains(path) ? path : AppRoutes.discovery);
+      _go(
+        _appLevelRoutes.contains(path) && _canOpen(path)
+            ? path
+            : AppRoutes.discovery,
+      );
       return;
     }
 
@@ -53,7 +76,7 @@ class NotificationRouter {
     // re-mounting the storefront, which would reset the shell to its home
     // tab and drop whatever the shopper had pushed above it.
     if (_activeStoreId() == storeId) {
-      _push(path);
+      if (_canOpen(path)) _push(path);
       return;
     }
 
@@ -70,7 +93,7 @@ class NotificationRouter {
     );
 
     // Home is where `go` already landed; anything else is a page above it.
-    if (_appLevelRoutes.contains(path)) return;
+    if (_appLevelRoutes.contains(path) || !_canOpen(path)) return;
 
     // Deferred one frame: `go` only schedules the rebuild, and the page being
     // pushed reads the [ActiveStoreCubit] that `StorefrontPage` seeds in the

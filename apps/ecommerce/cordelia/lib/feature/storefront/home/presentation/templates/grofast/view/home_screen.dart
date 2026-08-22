@@ -6,14 +6,13 @@ import 'package:go_router/go_router.dart';
 import 'package:core/core/base/base_screen.dart';
 import 'package:core/core/theme/app_spacing.dart';
 
-import 'package:cordelia/feature/storefront/active_store/presentation/active_store_capture.dart';
 import 'package:cordelia/constants/app_routes.dart';
 import 'package:cordelia/enums/banner_target_type.dart';
+import 'package:cordelia/feature/auth/presentation/sign_in_gate.dart';
+import 'package:cordelia/feature/storefront/active_store/presentation/active_store_capture.dart';
 import 'package:cordelia/feature/storefront/active_store/presentation/cubit/active_store_cubit.dart';
 import 'package:cordelia/feature/storefront/address/presentation/selected_address_label.dart';
 import 'package:cordelia/feature/storefront/address/presentation/templates/grofast/widgets/address_picker_sheet.dart';
-import 'package:cordelia/feature/storefront/cart/presentation/cubit/cart_cubit.dart';
-import 'package:cordelia/feature/storefront/favourites/presentation/cubit/favourites_cubit.dart';
 import 'package:cordelia/feature/storefront/home/domain/entities/banner_entity.dart';
 import 'package:cordelia/feature/storefront/home/domain/entities/category_entity.dart';
 import 'package:cordelia/feature/storefront/home/domain/entities/product_entity.dart';
@@ -49,12 +48,16 @@ class HomeScreen extends BaseScreen {
 
 class _HomeScreenState extends BaseScreenState<HomeScreen>
     with SelectedAddressLabelState, ActiveStoreCapture {
+  @override
+  void showLocationMessage(String message) => showSnackBar(message);
+
   String get _addressLabel =>
-      selectedAddressLabel ?? GrofastValueConst.noLocationSelectedLabel;
+      headerLocationLabel ?? GrofastValueConst.noLocationSelectedLabel;
 
   /// This pack picks addresses in the kit's Select Location sheet, not the
   /// routed page the shared mixin pushes — same commit, same pref re-read.
-  Future<void> _openAddressPicker() async {
+  @override
+  Future<void> openAddressPicker() async {
     await showGrofastAddressPicker(this);
     if (!mounted) return;
     setState(loadSelectedAddressLabel);
@@ -70,7 +73,7 @@ class _HomeScreenState extends BaseScreenState<HomeScreen>
 
   void _openSearch() => context.push(AppRoutes.search, extra: storeId);
 
-  void _openNotifications() => context.push(AppRoutes.notifications);
+  void _openNotifications() => context.pushIfSignedIn(AppRoutes.notifications);
 
   /// A banner links to a product or a category by id — or to nothing, in
   /// which case the card passes a null `onTap` and this is never reached.
@@ -95,8 +98,8 @@ class _HomeScreenState extends BaseScreenState<HomeScreen>
 
   /// The card's corner **+** adds one unit straight to the bag — this pack
   /// has no quantity sheet on a card; that lives on Product Details.
-  void _addToBag(ProductEntity product) {
-    context.read<CartCubit>().addToCart(product, 1);
+  Future<void> _addToBag(ProductEntity product) async {
+    if (!await context.addToCartOrSignIn(product, 1) || !mounted) return;
     showSnackBar(GrofastValueConst.addedToBagMessage(product.name, 1));
   }
 
@@ -127,7 +130,7 @@ class _HomeScreenState extends BaseScreenState<HomeScreen>
             children: [
               GrofastHomeHeader(
                 addressLabel: _addressLabel,
-                onLocationTap: _openAddressPicker,
+                onLocationTap: onLocationTapped,
                 onNotificationTap: _openNotifications,
               ),
               const SizedBox(height: AppSpacing.xl2),
@@ -164,7 +167,7 @@ class _HomeScreenState extends BaseScreenState<HomeScreen>
                 onBannerTap: (banner) => _openBanner(banner, home),
                 onAddToBag: _addToBag,
                 onFavouriteToggle: (product) =>
-                    context.read<FavouritesCubit>().toggle(product),
+                    context.toggleFavouriteOrSignIn(product),
                 onSeeAllCategories: widget.onSeeAllCategories,
               ),
             },

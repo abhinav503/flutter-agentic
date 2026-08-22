@@ -7,13 +7,12 @@ import 'package:core/core/base/base_screen.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/molecules/error_view.dart';
 
-import 'package:cordelia/feature/storefront/active_store/presentation/active_store_capture.dart';
 import 'package:cordelia/constants/app_routes.dart';
 import 'package:cordelia/enums/banner_target_type.dart';
+import 'package:cordelia/feature/auth/presentation/sign_in_gate.dart';
+import 'package:cordelia/feature/storefront/active_store/presentation/active_store_capture.dart';
 import 'package:cordelia/feature/storefront/active_store/presentation/cubit/active_store_cubit.dart';
 import 'package:cordelia/feature/storefront/address/presentation/selected_address_label.dart';
-import 'package:cordelia/feature/storefront/cart/presentation/cubit/cart_cubit.dart';
-import 'package:cordelia/feature/storefront/favourites/presentation/cubit/favourites_cubit.dart';
 import 'package:cordelia/feature/storefront/home/domain/entities/banner_entity.dart';
 import 'package:cordelia/feature/storefront/home/domain/entities/category_entity.dart';
 import 'package:cordelia/feature/storefront/home/domain/entities/product_entity.dart';
@@ -78,8 +77,8 @@ class _HomeScreenState extends BaseScreenState<HomeScreen>
     }
   }
 
-  void _addToCart(ProductEntity product, int quantity) {
-    context.read<CartCubit>().addToCart(product, quantity);
+  Future<void> _addToCart(ProductEntity product, int quantity) async {
+    if (!await context.addToCartOrSignIn(product, quantity) || !mounted) return;
     showSnackBar(
       DailyMartValueConst.addedToCartMessage(product.name, quantity),
     );
@@ -117,7 +116,7 @@ class _HomeScreenState extends BaseScreenState<HomeScreen>
           builder: (context, state) => DailyMartScreenBody(
             headerRow: DailyMartHomeHeader(
               addressLabel: _addressLabel,
-              onLocationTap: openSelectAddress,
+              onLocationTap: onLocationTapped,
               onNotificationTap: _openNotifications,
               onSearchTap: _openSearch,
               storeId: storeId,
@@ -144,7 +143,7 @@ class _HomeScreenState extends BaseScreenState<HomeScreen>
                 onBannerTap: (banner) => _openBanner(banner, home),
                 onAddToCart: _showAddToCartSheet,
                 onFavouriteToggle: (product) =>
-                    context.read<FavouritesCubit>().toggle(product),
+                    context.toggleFavouriteOrSignIn(product),
               ),
             },
           ),
@@ -153,10 +152,13 @@ class _HomeScreenState extends BaseScreenState<HomeScreen>
     );
   }
 
-  String get _addressLabel =>
-      selectedAddressLabel ?? DailyMartValueConst.noLocationSelectedLabel;
+  @override
+  void showLocationMessage(String message) => showSnackBar(message);
 
-  void _openNotifications() => context.push(AppRoutes.notifications);
+  String get _addressLabel =>
+      headerLocationLabel ?? DailyMartValueConst.noLocationSelectedLabel;
+
+  void _openNotifications() => context.pushIfSignedIn(AppRoutes.notifications);
 
   void _openSearch() => context.push(AppRoutes.search, extra: storeId);
 }

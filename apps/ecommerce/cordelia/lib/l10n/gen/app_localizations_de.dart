@@ -493,10 +493,6 @@ class AppLocalizationsDe extends AppLocalizations {
       'Dadurch wird Ihre Bewertung aus dem Durchschnitt des Produkts entfernt. Sie können jederzeit eine neue schreiben.';
 
   @override
-  String get reviewSignedOutMessage =>
-      'Melden Sie sich an, um dieses Produkt zu bewerten.';
-
-  @override
   String get verifiedPurchaseLabel => 'Verifizierter Kauf';
 
   @override
@@ -541,11 +537,29 @@ class AppLocalizationsDe extends AppLocalizations {
   String get reportReviewSuccessMessage => 'Danke – der Shop wurde informiert.';
 
   @override
-  String get reportReviewSignedOutMessage =>
-      'Melden Sie sich an, um eine Bewertung zu melden.';
+  String get unratedLabel => 'Noch keine Bewertungen';
 
   @override
-  String get unratedLabel => 'Noch keine Bewertungen';
+  String get guestLabel => 'Gast';
+
+  @override
+  String get locationLocatingLabel => 'Standort wird ermittelt…';
+
+  @override
+  String get locationNoAddressMessage =>
+      'Für Ihren Standort wurde keine Postleitzahl gefunden.';
+
+  @override
+  String get locationServiceOffMessage =>
+      'Die Standortdienste sind auf diesem Gerät ausgeschaltet.';
+
+  @override
+  String get locationPermissionDeniedMessage =>
+      'Die Standortberechtigung ist aus — schalten Sie sie in den Einstellungen ein, um zu sehen, was in der Nähe ist.';
+
+  @override
+  String get locationUnavailableMessage =>
+      'Ihr Standort konnte nicht ermittelt werden. Bitte erneut versuchen.';
 
   @override
   String get outOfStockLabel => 'Nicht auf Lager';
@@ -945,13 +959,6 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get graviaLocationUnavailableMessage =>
       'Standort konnte nicht ermittelt werden. Prüfen Sie die Standortberechtigung und versuchen Sie es erneut.';
-
-  @override
-  String get graviaAddressSearchLabel => 'Adresse suchen';
-
-  @override
-  String get graviaAddressSearchHint =>
-      'Ort, Straße, Orientierungspunkt suchen…';
 
   @override
   String get graviaProfilePageTitle => 'Profil';

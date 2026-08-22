@@ -1,3 +1,4 @@
+import 'package:cordelia/feature/auth/presentation/sign_in_gate.dart';
 import 'package:cordelia/constants/app_routes.dart';
 import 'package:cordelia/enums/product_price_filter.dart';
 import 'package:cordelia/enums/product_sort_option.dart';
@@ -45,7 +46,7 @@ class CategoryDetailsScreen extends BaseScreen {
 class _CategoryDetailsScreenState
     extends BaseScreenState<CategoryDetailsScreen> {
   Future<void> _addToCart(ProductEntity product, int quantity) async {
-    context.read<CartCubit>().addToCart(product, quantity);
+    context.addToCartOrSignIn(product, quantity);
   }
 
   void _openProductDetails(ProductEntity product) => context.push(

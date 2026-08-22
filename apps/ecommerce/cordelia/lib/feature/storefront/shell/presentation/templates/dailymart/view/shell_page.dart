@@ -90,6 +90,15 @@ class _ShellPageState extends BasePageState<ShellPage>
 
   /// This pack has no app bar on any screen: every screen builds its own
   /// header row as the first item of its scroll view (spec sheet §8).
+  // Bag/wishlist/orders/profile are the shopper's own; home and browse
+  // stay open to a guest.
+  @override
+  Set<int> get signedInOnlyTabs => const {
+    ShellPage.wishlistTabIndex,
+    ShellPage.cartTabIndex,
+    ShellPage.profileTabIndex,
+  };
+
   @override
   PreferredSizeWidget? buildAppBar(BuildContext context) => null;
 

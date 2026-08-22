@@ -7,8 +7,7 @@ import 'package:core/core/base/base_screen.dart';
 import 'package:core/core/theme/app_spacing.dart';
 
 import 'package:cordelia/constants/app_routes.dart';
-import 'package:cordelia/feature/storefront/cart/presentation/cubit/cart_cubit.dart';
-import 'package:cordelia/feature/storefront/favourites/presentation/cubit/favourites_cubit.dart';
+import 'package:cordelia/feature/auth/presentation/sign_in_gate.dart';
 import 'package:cordelia/feature/storefront/home/domain/entities/product_entity.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_image_const.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_text_style_const.dart';
@@ -55,8 +54,8 @@ class _CategoryDetailsScreenState
 
   void _openSearch() => context.push(AppRoutes.search, extra: widget.storeId);
 
-  void _addToBag(ProductEntity product) {
-    context.read<CartCubit>().addToCart(product, 1);
+  Future<void> _addToBag(ProductEntity product) async {
+    if (!await context.addToCartOrSignIn(product, 1) || !mounted) return;
     showSnackBar(GrofastValueConst.addedToBagMessage(product.name, 1));
   }
 
@@ -148,7 +147,7 @@ class _CategoryDetailsScreenState
                   onProductTap: _openProductDetails,
                   onAddToBag: _addToBag,
                   onFavouriteToggle: (product) =>
-                      context.read<FavouritesCubit>().toggle(product),
+                      context.toggleFavouriteOrSignIn(product),
                 ),
               },
             ),

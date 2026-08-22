@@ -6,9 +6,9 @@ import 'package:go_router/go_router.dart';
 import 'package:core/core/base/base_screen.dart';
 import 'package:core/core/theme/app_spacing.dart';
 
-import 'package:cordelia/feature/storefront/active_store/presentation/active_store_capture.dart';
 import 'package:cordelia/constants/app_routes.dart';
-import 'package:cordelia/feature/storefront/cart/presentation/cubit/cart_cubit.dart';
+import 'package:cordelia/feature/auth/presentation/sign_in_gate.dart';
+import 'package:cordelia/feature/storefront/active_store/presentation/active_store_capture.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_text_style_const.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_value_const.dart';
 import 'package:cordelia/templates/grofast/widgets/grofast_product_grid.dart';
@@ -37,8 +37,8 @@ class FavouritesScreen extends BaseScreen {
 
 class _FavouritesScreenState extends BaseScreenState<FavouritesScreen>
     with ActiveStoreCapture {
-  void _addToBag(ProductEntity product) {
-    context.read<CartCubit>().addToCart(product, 1);
+  Future<void> _addToBag(ProductEntity product) async {
+    if (!await context.addToCartOrSignIn(product, 1) || !mounted) return;
     showSnackBar(GrofastValueConst.addedToBagMessage(product.name, 1));
   }
 
@@ -82,7 +82,7 @@ class _FavouritesScreenState extends BaseScreenState<FavouritesScreen>
                       onAdd: _addToBag,
                       onProductTap: _openProductDetails,
                       onFavouriteToggle: (product) =>
-                          context.read<FavouritesCubit>().toggle(product),
+                          context.toggleFavouriteOrSignIn(product),
                     ),
                   ],
                 ),

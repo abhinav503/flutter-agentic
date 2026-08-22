@@ -1,8 +1,7 @@
+import 'package:cordelia/feature/auth/presentation/sign_in_gate.dart';
 import 'package:cordelia/feature/storefront/active_store/presentation/active_store_capture.dart';
 import 'package:cordelia/constants/app_routes.dart';
 import 'package:cordelia/feature/storefront/address/presentation/selected_address_label.dart';
-import 'package:cordelia/feature/storefront/cart/presentation/cubit/cart_cubit.dart';
-import 'package:cordelia/feature/storefront/favourites/presentation/cubit/favourites_cubit.dart';
 import 'package:cordelia/feature/storefront/home/domain/entities/category_entity.dart';
 import 'package:cordelia/feature/storefront/home/domain/entities/product_entity.dart';
 import 'package:cordelia/feature/storefront/home/presentation/templates/gravia/widgets/home_hero_header.dart';
@@ -42,8 +41,11 @@ class HomeScreen extends BaseScreen {
 
 class _HomeScreenState extends BaseScreenState<HomeScreen>
     with SelectedAddressLabelState, ActiveStoreCapture {
+  @override
+  void showLocationMessage(String message) => showSnackBar(message);
+
   void _addToCart(ProductEntity product, int quantity) {
-    context.read<CartCubit>().addToCart(product, quantity);
+    context.addToCartOrSignIn(product, quantity);
   }
 
   void _openProductDetails(ProductEntity product) =>
@@ -83,9 +85,10 @@ class _HomeScreenState extends BaseScreenState<HomeScreen>
         header: HomeHeroHeader(
           storeId: storeId,
           addressLabel:
-              selectedAddressLabel ?? GraviaValueConst.noLocationSelectedLabel,
-          onLocationTap: openSelectAddress,
-          onNotificationTap: () => context.push(AppRoutes.notifications),
+              headerLocationLabel ?? GraviaValueConst.noLocationSelectedLabel,
+          onLocationTap: onLocationTapped,
+          onNotificationTap: () =>
+              context.pushIfSignedIn(AppRoutes.notifications),
           onSearchTap: () => context.push(AppRoutes.search, extra: storeId),
         ),
         body: GraviaSwitcher(
@@ -106,7 +109,7 @@ class _HomeScreenState extends BaseScreenState<HomeScreen>
               onAddToCart: _addToCart,
               onQuickAdd: _showAddToCartSheet,
               onFavouriteToggle: (product) =>
-                  context.read<FavouritesCubit>().toggle(product),
+                  context.toggleFavouriteOrSignIn(product),
               onProductTap: _openProductDetails,
               onCategoryTap: _openCategoryDetails,
               onSeeAllCategories: () => context.go(

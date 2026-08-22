@@ -89,7 +89,10 @@ class _DiscoveryScreenState extends BaseScreenState<DiscoveryScreen> {
       builder: (context, state) => DiscoveryHeader(
         profile: switch (state) {
           ProfileLoaded(:final profile) => profile,
-          ProfileLoading() || ProfileError() => null,
+          // A guest has no name to greet, same as a profile that
+          // hasn't arrived — the header already writes the generic
+          // greeting from null.
+          ProfileLoading() || ProfileSignedOut() || ProfileError() => null,
         },
         searchController: _searchController,
         onQueryChanged: (query) => context.read<DiscoveryBloc>().add(

@@ -375,12 +375,25 @@ abstract final class ValueConst {
       L10n.current.reviewDeleteConfirmTitle;
   static String get reviewDeleteConfirmMessage =>
       L10n.current.reviewDeleteConfirmMessage;
-  static String get reviewSignedOutMessage =>
-      L10n.current.reviewSignedOutMessage;
   static String get verifiedPurchaseLabel => L10n.current.verifiedPurchaseLabel;
   static String get reviewsEmptyTitle => L10n.current.reviewsEmptyTitle;
   static String get reviewsEmptySubtitle => L10n.current.reviewsEmptySubtitle;
   static String get unratedLabel => L10n.current.unratedLabel;
+
+  /// What a shopper with no account is called where a name would go.
+  static String get guestLabel => L10n.current.guestLabel;
+
+  // ── Locating the shopper. App-level: one device capability behind every
+  // pack's location row, and the failures read the same in all of them.
+  static String get locationLocatingLabel => L10n.current.locationLocatingLabel;
+  static String get locationNoAddressMessage =>
+      L10n.current.locationNoAddressMessage;
+  static String get locationServiceOffMessage =>
+      L10n.current.locationServiceOffMessage;
+  static String get locationPermissionDeniedMessage =>
+      L10n.current.locationPermissionDeniedMessage;
+  static String get locationUnavailableMessage =>
+      L10n.current.locationUnavailableMessage;
 
   // ── Reporting a review. App-level for the same reason the reviews copy
   // above is: one shared moderation flow behind every pack's chrome.
@@ -402,8 +415,6 @@ abstract final class ValueConst {
       L10n.current.reportReviewMissingReasonMessage;
   static String get reportReviewSuccessMessage =>
       L10n.current.reportReviewSuccessMessage;
-  static String get reportReviewSignedOutMessage =>
-      L10n.current.reportReviewSignedOutMessage;
 
   // ── Stock. App-level, not pack-level: the same two strings serve
   // every template, and a sold-out product reads the same in all of

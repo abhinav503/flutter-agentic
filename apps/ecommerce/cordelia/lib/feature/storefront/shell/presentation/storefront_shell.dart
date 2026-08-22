@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:core/core/base/base_page.dart';
 import 'package:core/core/ui/atoms/svg_image.dart';
 
+import 'package:cordelia/feature/auth/presentation/sign_in_gate.dart';
 import 'package:cordelia/feature/storefront/active_store/presentation/cubit/active_store_cubit.dart';
 import 'package:cordelia/feature/storefront/cart/presentation/cubit/cart_cubit.dart';
 import 'package:cordelia/feature/storefront/cart/presentation/cubit/coupon_cubit.dart';
@@ -63,18 +64,19 @@ mixin StorefrontShellState<T extends StorefrontShellPage> on BasePageState<T> {
   @override
   void initState() {
     super.initState();
-    // The shell is only reached once a session is confirmed (Splash routes
-    // signed-out users to Login first), so this is the earliest safe place
-    // to load the signed-in shopper's persisted cart and favourites — once
-    // per store visit (a fresh shell per StorefrontPage mount), not on
-    // every tab switch.
     storeId = context.read<ActiveStoreCubit>().state!.storeId;
-    context.read<CartCubit>().hydrate(storeId);
     // A coupon is priced against one store's cart — entering a storefront
     // (fresh shell per visit) always starts without one, so the previous
     // store's discount can't leak into this one's totals.
     context.read<CouponCubit>().reset();
-    context.read<FavouritesCubit>().hydrate(storeId);
+    // Both are the signed-in shopper's own, keyed on the verified token's
+    // uid, so a guest has nothing to load — and asking would be a 401 per
+    // store visit. `SignInGateX.requireSignIn` hydrates them at the moment
+    // an account appears, which is the only other way into this state.
+    if (context.isSignedIn) {
+      context.read<CartCubit>().hydrate(storeId);
+      context.read<FavouritesCubit>().hydrate(storeId);
+    }
   }
 
   @override
@@ -93,8 +95,21 @@ mixin StorefrontShellState<T extends StorefrontShellPage> on BasePageState<T> {
   /// on every subsequent frame.
   String? get activeStoreId => context.read<ActiveStoreCubit>().state?.storeId;
 
-  /// `BottomNavBar.onTap`.
-  void onTabSelected(int index) => setState(() => currentTab = index);
+  /// Tabs that need an account, by this template's own indices. Home and
+  /// browse-style tabs stay open to a guest; a bag, a wishlist, an order
+  /// history and a profile are all somebody's, so they gate.
+  Set<int> get signedInOnlyTabs => const {};
+
+  /// `BottomNavBar.onTap`. Gated tabs put Login in front of the switch, and
+  /// a shopper who backs out of it stays on the tab they were reading —
+  /// switching first and showing an empty "sign in" panel would strand them
+  /// somewhere they never chose to go.
+  Future<void> onTabSelected(int index) async {
+    if (signedInOnlyTabs.contains(index) && !await context.requireSignIn()) {
+      return;
+    }
+    if (mounted) setState(() => currentTab = index);
+  }
 
   /// Explicit rather than Scaffold's implicit default — each tab paints its
   /// own canvas, and this is the colour behind them (and behind an

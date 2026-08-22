@@ -934,12 +934,6 @@ abstract class AppLocalizations {
   /// **'This removes your rating from the product\'s average. You can write a new one any time.'**
   String get reviewDeleteConfirmMessage;
 
-  /// No description provided for @reviewSignedOutMessage.
-  ///
-  /// In en, this message translates to:
-  /// **'Sign in to review this product.'**
-  String get reviewSignedOutMessage;
-
   /// No description provided for @verifiedPurchaseLabel.
   ///
   /// In en, this message translates to:
@@ -1024,17 +1018,47 @@ abstract class AppLocalizations {
   /// **'Thanks — the store has been told.'**
   String get reportReviewSuccessMessage;
 
-  /// No description provided for @reportReviewSignedOutMessage.
-  ///
-  /// In en, this message translates to:
-  /// **'Sign in to report a review.'**
-  String get reportReviewSignedOutMessage;
-
   /// No description provided for @unratedLabel.
   ///
   /// In en, this message translates to:
   /// **'No ratings yet'**
   String get unratedLabel;
+
+  /// No description provided for @guestLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Guest'**
+  String get guestLabel;
+
+  /// No description provided for @locationLocatingLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Locating…'**
+  String get locationLocatingLabel;
+
+  /// No description provided for @locationNoAddressMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t find a postcode for where you are.'**
+  String get locationNoAddressMessage;
+
+  /// No description provided for @locationServiceOffMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Location is switched off on this device.'**
+  String get locationServiceOffMessage;
+
+  /// No description provided for @locationPermissionDeniedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Location permission is off — turn it on in Settings to see what\'s near you.'**
+  String get locationPermissionDeniedMessage;
+
+  /// No description provided for @locationUnavailableMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t get your location. Try again.'**
+  String get locationUnavailableMessage;
 
   /// No description provided for @outOfStockLabel.
   ///
@@ -1659,18 +1683,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Couldn\'t get your location. Check location permission and try again.'**
   String get graviaLocationUnavailableMessage;
-
-  /// No description provided for @graviaAddressSearchLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Search Address'**
-  String get graviaAddressSearchLabel;
-
-  /// No description provided for @graviaAddressSearchHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Search area, street, landmark…'**
-  String get graviaAddressSearchHint;
 
   /// No description provided for @graviaProfilePageTitle.
   ///

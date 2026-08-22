@@ -490,10 +490,6 @@ class AppLocalizationsHi extends AppLocalizations {
       'इससे आपकी रेटिंग उत्पाद के औसत से हट जाएगी। आप कभी भी नई समीक्षा लिख सकते हैं।';
 
   @override
-  String get reviewSignedOutMessage =>
-      'इस उत्पाद की समीक्षा करने के लिए साइन इन करें।';
-
-  @override
   String get verifiedPurchaseLabel => 'सत्यापित ख़रीद';
 
   @override
@@ -538,11 +534,28 @@ class AppLocalizationsHi extends AppLocalizations {
       'धन्यवाद — स्टोर को बता दिया गया है।';
 
   @override
-  String get reportReviewSignedOutMessage =>
-      'समीक्षा की रिपोर्ट करने के लिए साइन इन करें।';
+  String get unratedLabel => 'अभी कोई रेटिंग नहीं';
 
   @override
-  String get unratedLabel => 'अभी कोई रेटिंग नहीं';
+  String get guestLabel => 'अतिथि';
+
+  @override
+  String get locationLocatingLabel => 'लोकेशन ढूँढ रहे हैं…';
+
+  @override
+  String get locationNoAddressMessage =>
+      'आप जहाँ हैं वहाँ का पिनकोड नहीं मिला।';
+
+  @override
+  String get locationServiceOffMessage => 'इस डिवाइस पर लोकेशन बंद है।';
+
+  @override
+  String get locationPermissionDeniedMessage =>
+      'लोकेशन की अनुमति बंद है — आसपास देखने के लिए इसे सेटिंग्स में चालू करें।';
+
+  @override
+  String get locationUnavailableMessage =>
+      'आपकी लोकेशन नहीं मिल सकी। फिर से कोशिश करें।';
 
   @override
   String get outOfStockLabel => 'स्टॉक में नहीं';
@@ -941,12 +954,6 @@ class AppLocalizationsHi extends AppLocalizations {
   @override
   String get graviaLocationUnavailableMessage =>
       'आपका स्थान प्राप्त नहीं हो सका। लोकेशन अनुमति जाँचें और दोबारा प्रयास करें।';
-
-  @override
-  String get graviaAddressSearchLabel => 'पता खोजें';
-
-  @override
-  String get graviaAddressSearchHint => 'क्षेत्र, गली, लैंडमार्क खोजें…';
 
   @override
   String get graviaProfilePageTitle => 'प्रोफ़ाइल';

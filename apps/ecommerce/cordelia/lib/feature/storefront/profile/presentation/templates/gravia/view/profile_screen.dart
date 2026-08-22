@@ -87,7 +87,10 @@ class _ProfileScreenState extends BaseScreenState<ProfileScreen>
         },
         builder: (context, state) => GraviaSwitcher(
           child: switch (state) {
-            ProfileLoading() => const CollapsingHeaderSheet(
+            // Unreachable: the Profile tab is gated on an account. Shares
+            // the skeleton rather than inventing a branch nobody sees.
+            ProfileLoading() ||
+            ProfileSignedOut() => const CollapsingHeaderSheet(
               key: ValueKey('loading'),
               initialHeaderHeight: GraviaDimenConst.headerHeightIdentity,
               header: ProfileSkeletonHeader(),
@@ -234,7 +237,7 @@ class _ProfileScreenState extends BaseScreenState<ProfileScreen>
                         title: GraviaValueConst.logoutTitle,
                         message: GraviaValueConst.logoutConfirmMessage,
                         confirmLabel: GraviaValueConst.logoutLabel,
-                        onConfirm: () => signOutAndReturnToLogin(context),
+                        onConfirm: () => signOutAndReturnToDiscovery(context),
                       ),
                     ),
                     // Last row on purpose: the most destructive action sits

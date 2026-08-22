@@ -90,7 +90,6 @@ import 'package:cordelia/feature/storefront/template/storefront_template_switch.
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:core/core/services/shared_pref_service/shared_preference_service.dart';
 import 'package:core/core/theme/app_theme.dart';
 import 'package:core/core/theme/app_theme_config.dart';
 import 'package:core/core/theme/theme_mode_controller.dart';
@@ -99,35 +98,33 @@ import 'package:core/core/theme/theme_mode_scope.dart';
 import 'constants/app_routes.dart';
 import 'constants/value_const.dart';
 import 'di/injection_container.dart';
-import 'feature/auth/presentation/bloc/auth_bloc.dart'
-    show kPendingEmailVerificationPrefKey;
+import 'feature/auth/presentation/sign_out.dart';
 import 'feature/auth/presentation/view/login_page.dart';
 import 'feature/auth/presentation/view/signup_page.dart';
-import 'feature/legal/presentation/view/legal_document_content.dart';
 // Same per-template prefixing as Notifications/Cart above — the legal
 // document screen is app-level copy rendered in the active store's pack.
 import 'feature/legal/presentation/templates/dailymart/view/legal_document_page.dart'
     as dailymart_legal;
-import 'feature/legal/presentation/templates/grofast/view/legal_document_page.dart'
-    as grofast_legal;
 import 'feature/legal/presentation/templates/gravia/view/legal_document_page.dart'
     as gravia_legal;
-import 'feature/support/presentation/templates/dailymart/view/support_page.dart'
-    as dailymart_support;
-import 'feature/support/presentation/templates/grofast/view/support_page.dart'
-    as grofast_support;
-import 'feature/support/presentation/templates/gravia/view/support_page.dart'
-    as gravia_support;
-import 'feature/support/presentation/view/support_channels.dart';
+import 'feature/legal/presentation/templates/grofast/view/legal_document_page.dart'
+    as grofast_legal;
+import 'feature/legal/presentation/view/legal_document_content.dart';
 import 'feature/onboarding/presentation/view/onboarding_page.dart';
 import 'feature/splash/presentation/view/splash_page.dart';
 import 'feature/storefront/active_store/presentation/cubit/active_store_cubit.dart';
 import 'feature/storefront/presentation/view/storefront_page.dart';
+import 'feature/support/presentation/templates/dailymart/view/support_page.dart'
+    as dailymart_support;
+import 'feature/support/presentation/templates/gravia/view/support_page.dart'
+    as gravia_support;
+import 'feature/support/presentation/templates/grofast/view/support_page.dart'
+    as grofast_support;
+import 'feature/support/presentation/view/support_channels.dart';
 import 'l10n/active_locale_controller.dart';
 import 'l10n/active_locale_scope.dart';
 import 'l10n/gen/app_localizations.dart';
 import 'services/firebase_auth_service.dart';
-import 'services/user_profile_cache_service.dart';
 import 'theme/active_theme_controller.dart';
 import 'services/notification/notification_navigator.dart';
 import 'theme/active_theme_scope.dart';
@@ -622,15 +619,17 @@ class _SessionExpiredGuardState extends State<_SessionExpiredGuard> {
   }
 
   Future<void> _handleExpired() async {
-    await UserProfileCacheService.instance.clear();
-    await SharedPreferenceService.instance.setBool(
-      kPendingEmailVerificationPrefKey,
-      false,
-    );
+    // `endSession` has already signed out of Firebase by the time this
+    // fires, so the app is a guest from here — which is exactly why the
+    // rest of the account's device state has to go with it.
+    if (mounted) await forgetAccountLocalState(context);
     _scaffoldMessengerKey.currentState?.showSnackBar(
       SnackBar(content: Text(ValueConst.sessionExpiredMessage)),
     );
-    _router.go(AppRoutes.login);
+    // Discovery, not Login: an expired session drops the shopper to the
+    // browsing tier rather than out of the app, and the snackbar above says
+    // why. The next gated action puts Login in front of them.
+    _router.go(AppRoutes.discovery);
   }
 
   @override

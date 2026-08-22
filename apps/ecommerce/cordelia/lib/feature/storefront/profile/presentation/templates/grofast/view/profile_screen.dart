@@ -74,7 +74,7 @@ class _ProfileScreenState extends BaseScreenState<ProfileScreen>
     title: GrofastValueConst.logOutTitle,
     message: GrofastValueConst.logOutConfirmMessage,
     confirmLabel: GrofastValueConst.logOutLabel,
-    onConfirm: () => signOutAndReturnToLogin(context),
+    onConfirm: () => signOutAndReturnToDiscovery(context),
   );
 
   @override
@@ -105,7 +105,9 @@ class _ProfileScreenState extends BaseScreenState<ProfileScreen>
             bottomInset: GrofastDimenConst.navScrollInset(context),
             body: GrofastSwitcher(
               child: switch (state) {
-                ProfileLoading() => const GrofastProfileSkeletonBody(),
+                // Unreachable: the Account tab is gated on an account.
+                ProfileLoading() ||
+                ProfileSignedOut() => const GrofastProfileSkeletonBody(),
                 ProfileError(:final message) => GrofastErrorView(
                   message: message,
                   onRetry: () => context.read<ProfileBloc>().add(

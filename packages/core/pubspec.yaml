@@ -32,6 +32,11 @@ dependencies:
   # LocationService (device GPS; ships a web implementation, so no
   # conditional import needed)
   geolocator: ^14.0.2
+  # …and turning that fix into a place name, on the device's own geocoder
+  # (Android's Geocoder, iOS's CLGeocoder). No key, no quota and no server
+  # round trip, which is what lets a signed-out shopper use it. No web
+  # implementation, so LocationService guards the call with kIsWeb.
+  geocoding: ^4.0.0
 
   # Functional error handling (Failure / Either across layer boundaries)
   fpdart: ^1.1.0

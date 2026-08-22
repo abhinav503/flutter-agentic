@@ -9,8 +9,7 @@ import 'package:core/core/theme/app_spacing.dart';
 
 import 'package:cordelia/constants/app_routes.dart';
 import 'package:cordelia/enums/recent_search_type.dart';
-import 'package:cordelia/feature/storefront/cart/presentation/cubit/cart_cubit.dart';
-import 'package:cordelia/feature/storefront/favourites/presentation/cubit/favourites_cubit.dart';
+import 'package:cordelia/feature/auth/presentation/sign_in_gate.dart';
 import 'package:cordelia/feature/storefront/home/domain/entities/category_entity.dart';
 import 'package:cordelia/feature/storefront/home/domain/entities/product_entity.dart';
 import 'package:cordelia/feature/storefront/search/domain/entities/recent_search_entity.dart';
@@ -96,8 +95,8 @@ class _SearchScreenState extends BaseScreenState<SearchScreen> {
     ),
   };
 
-  void _addToBag(ProductEntity product) {
-    context.read<CartCubit>().addToCart(product, 1);
+  Future<void> _addToBag(ProductEntity product) async {
+    if (!await context.addToCartOrSignIn(product, 1) || !mounted) return;
     showSnackBar(GrofastValueConst.addedToBagMessage(product.name, 1));
   }
 
@@ -171,7 +170,7 @@ class _SearchScreenState extends BaseScreenState<SearchScreen> {
                 onCategoryTap: _openCategoryDetails,
                 onAddToBag: _addToBag,
                 onFavouriteToggle: (product) =>
-                    context.read<FavouritesCubit>().toggle(product),
+                    context.toggleFavouriteOrSignIn(product),
               ),
               // A non-empty query with neither results nor an error yet —
               // the debounce window before the fetch starts.

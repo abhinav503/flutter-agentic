@@ -10,7 +10,6 @@ import 'package:cordelia/constants/app_routes.dart';
 import 'package:cordelia/constants/image_const.dart';
 import 'package:cordelia/constants/value_const.dart';
 import 'package:cordelia/feature/onboarding/presentation/view/onboarding_page.dart';
-import 'package:cordelia/services/firebase_auth_service.dart';
 
 class SplashPage extends BasePage {
   const SplashPage({super.key});
@@ -34,14 +33,16 @@ class _SplashPageState extends BasePageState<SplashPage> {
         context.go(AppRoutes.onboarding);
         return;
       }
-      // Signed-in always means home (the store-discovery screen), verified
-      // or not — a user who is signed in but still unverified genuinely has
-      // a session, so sending them to Login would be confusing. HomePage's
-      // own AuthBloc.started() (the same resume check Login/Signup use)
-      // detects the still-pending case and re-opens the persistent verify
-      // sheet on top of discovery.
-      final isSignedIn = FirebaseAuthService.instance.currentUser != null;
-      context.go(isSignedIn ? AppRoutes.discovery : AppRoutes.login);
+      // Discovery either way. Browsing needs no account — a signed-out
+      // shopper reaches stores, products, search and reviews, and meets the
+      // sign-in gate only at the first thing that writes something of theirs
+      // (see SignInGateX). A marketplace whose proposition is "discover
+      // stores" cannot open with a signup form in front of that promise.
+      //
+      // Signed in but unverified still lands here too: they genuinely have a
+      // session, and DiscoveryPage's own AuthBloc.started() (the same resume
+      // check Login/Signup use) re-opens the persistent verify sheet on top.
+      context.go(AppRoutes.discovery);
     });
   }
 

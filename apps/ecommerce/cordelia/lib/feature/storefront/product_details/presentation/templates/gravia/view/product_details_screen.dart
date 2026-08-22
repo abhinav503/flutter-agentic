@@ -1,3 +1,4 @@
+import 'package:cordelia/feature/auth/presentation/sign_in_gate.dart';
 import 'package:cordelia/constants/value_const.dart';
 import 'package:cordelia/enums/product_unit_type.dart';
 import 'package:cordelia/feature/storefront/cart/presentation/quantity_selection.dart';
@@ -212,7 +213,7 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
                 asset: isFavourite
                     ? GraviaImageConst.favouriteFilled
                     : GraviaImageConst.navFavourite,
-                onTap: () => context.read<FavouritesCubit>().toggle(product),
+                onTap: () => context.toggleFavouriteOrSignIn(product),
               ),
             ),
             body: Padding(

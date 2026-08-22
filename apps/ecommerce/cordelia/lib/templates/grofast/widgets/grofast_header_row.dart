@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 
 import 'package:core/core/theme/app_radius.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/svg_image.dart';
 
 import 'package:cordelia/constants/app_routes.dart';
+import 'package:cordelia/feature/auth/presentation/sign_in_gate.dart';
 import 'package:cordelia/feature/storefront/cart/presentation/cubit/cart_cubit.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_color_const.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_dimen_const.dart';
@@ -142,7 +142,7 @@ class GrofastBagAction extends StatelessWidget {
   Widget build(BuildContext context) => GrofastHeaderAction(
     asset: GrofastImageConst.navBag,
     showDot: context.watch<CartCubit>().state.isNotEmpty,
-    onTap: () => context.push(AppRoutes.cart, extra: storeId),
+    onTap: () => context.pushIfSignedIn(AppRoutes.cart, extra: storeId),
     tooltip: GrofastValueConst.bagTitle,
   );
 }

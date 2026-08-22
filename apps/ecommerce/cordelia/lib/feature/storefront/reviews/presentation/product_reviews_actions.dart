@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:core/core/base/base_screen.dart';
 
 import 'package:cordelia/constants/value_const.dart';
+import 'package:cordelia/feature/auth/presentation/sign_in_gate.dart';
 import 'package:cordelia/services/firebase_auth_service.dart';
 
 import '../../product_details/presentation/bloc/product_details_bloc.dart';
@@ -36,25 +37,18 @@ mixin ProductReviewsActions<T extends BaseScreen> on BaseScreenState<T> {
   /// apart from everyone else's in a loaded list.
   String? get currentUid => FirebaseAuthService.instance.currentUser?.uid;
 
-  /// The write CTA's entry point. A signed-out shopper is told to sign in
-  /// rather than shown a sheet whose submit would 401 — the reviews *list*
-  /// stays readable either way, since reading needs no account.
+  /// The write CTA's entry point. A guest meets Login first and comes back
+  /// to this product — the reviews *list* stays readable either way, since
+  /// reading needs no account.
   Future<void> writeReview(ReviewEntity? existing) async {
-    if (currentUid == null) {
-      showSnackBar(ValueConst.reviewSignedOutMessage);
-      return;
-    }
+    if (!await context.requireSignIn() || !mounted) return;
     await showWriteReviewSheet(existing);
   }
 
   /// The report CTA's entry point, the mirror of [writeReview]: reporting
-  /// is a write, so a signed-out shopper is told to sign in rather than
-  /// shown a sheet whose submit would 401.
+  /// is a write, so a guest meets the same gate.
   Future<void> reportReview(ReviewEntity review) async {
-    if (currentUid == null) {
-      showSnackBar(ValueConst.reportReviewSignedOutMessage);
-      return;
-    }
+    if (!await context.requireSignIn() || !mounted) return;
     await showReportReviewSheet(review);
   }
 

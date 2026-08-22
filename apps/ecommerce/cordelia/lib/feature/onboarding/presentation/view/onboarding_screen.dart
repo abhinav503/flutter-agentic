@@ -116,7 +116,9 @@ class _OnboardingScreenState extends BaseScreenState<OnboardingScreen> {
       kHasSeenOnboardingPrefKey,
       true,
     );
-    if (mounted) context.go(AppRoutes.login);
+    // Discovery, not Login: onboarding sells the app, and the next thing a
+    // shopper should see is the stores it is about, not a form.
+    if (mounted) context.go(AppRoutes.discovery);
   }
 
   // Sheet content is driven by screen state (_currentPage) — just a Text

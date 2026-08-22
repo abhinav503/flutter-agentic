@@ -5,6 +5,7 @@ import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/shimmer_box.dart';
 
 import 'package:cordelia/constants/image_const.dart';
+import 'package:cordelia/constants/value_const.dart';
 import 'package:cordelia/feature/storefront/profile/presentation/bloc/profile_bloc.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_dimen_const.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_image_const.dart';
@@ -123,6 +124,14 @@ class _Identity extends StatelessWidget {
               profile.name,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
+              style: DailyMartTextStyleConst.bodyMdSemibold(
+                tt,
+              ).copyWith(color: cs.onSurface),
+            ),
+            // A guest has a settled answer, so it gets text rather than a
+            // placeholder that would shimmer for the whole session.
+            ProfileSignedOut() => Text(
+              ValueConst.guestLabel,
               style: DailyMartTextStyleConst.bodyMdSemibold(
                 tt,
               ).copyWith(color: cs.onSurface),

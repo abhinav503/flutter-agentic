@@ -98,7 +98,7 @@ class _SignupScreenState extends BaseScreenState<SignupScreen>
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) => switch (state) {
         AuthAwaitingVerification(:final email) => _openVerifySheet(email),
-        AuthAuthenticated() => _closeSheetAndGoToDiscovery(),
+        AuthAuthenticated() => _completeAuth(),
         AuthError(:final message) => showSnackBar(message),
         _ => null,
       },
@@ -251,11 +251,20 @@ class _SignupScreenState extends BaseScreenState<SignupScreen>
     _sheetOpen = false;
   }
 
-  void _closeSheetAndGoToDiscovery() {
+  /// Two ways in, so two ways out. Opened as a *gate* over something the
+  /// shopper was already doing (tapping Add to cart, the Bag tab, Write a
+  /// review), this pops with `true` and they resume exactly where they were.
+  /// Opened as the app's own entry point — from Onboarding, or from Sign
+  /// out — there is nothing beneath it, so it lands on discovery.
+  void _completeAuth() {
     if (_sheetOpen && Navigator.of(context).canPop()) {
       Navigator.of(context).pop();
       _sheetOpen = false;
     }
-    context.go(AppRoutes.discovery);
+    if (context.canPop()) {
+      context.pop(true);
+    } else {
+      context.go(AppRoutes.discovery);
+    }
   }
 }

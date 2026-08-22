@@ -1,3 +1,4 @@
+import 'package:cordelia/feature/auth/presentation/sign_in_gate.dart';
 import 'package:cordelia/feature/storefront/favourites/presentation/cubit/favourites_cubit.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_text_style_const.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_value_const.dart';
@@ -53,8 +54,7 @@ class ProductDetailSimilarProducts extends StatelessWidget {
         onQuickAdd: () => onQuickAdd(products[i]),
         onTap: () => onProductTap(products[i]),
         isFavourite: favourites.any((p) => p.id == products[i].id),
-        onFavouriteToggle: () =>
-            context.read<FavouritesCubit>().toggle(products[i]),
+        onFavouriteToggle: () => context.toggleFavouriteOrSignIn(products[i]),
       ),
     );
   }

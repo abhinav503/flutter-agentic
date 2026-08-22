@@ -12,10 +12,10 @@ import 'package:cordelia/constants/app_routes.dart';
 import 'package:cordelia/constants/image_const.dart';
 import 'package:cordelia/enums/product_price_filter.dart';
 import 'package:cordelia/enums/product_sort_option.dart';
+import 'package:cordelia/feature/auth/presentation/sign_in_gate.dart';
 import 'package:cordelia/feature/storefront/cart/domain/entities/cart_item_entity.dart';
 import 'package:cordelia/feature/storefront/cart/presentation/cubit/cart_cubit.dart';
 import 'package:cordelia/feature/storefront/cart/presentation/templates/dailymart/widgets/cart_status_bar.dart';
-import 'package:cordelia/feature/storefront/favourites/presentation/cubit/favourites_cubit.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_dimen_const.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_text_style_const.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_value_const.dart';
@@ -65,8 +65,8 @@ class CategoryDetailsScreen extends BaseScreen {
 
 class _CategoryDetailsScreenState
     extends BaseScreenState<CategoryDetailsScreen> {
-  void _addToCart(ProductEntity product, int quantity) {
-    context.read<CartCubit>().addToCart(product, quantity);
+  Future<void> _addToCart(ProductEntity product, int quantity) async {
+    if (!await context.addToCartOrSignIn(product, quantity) || !mounted) return;
     showSnackBar(
       DailyMartValueConst.addedToCartMessage(product.name, quantity),
     );
@@ -82,7 +82,8 @@ class _CategoryDetailsScreenState
 
   void _openSearch() => context.push(AppRoutes.search, extra: widget.storeId);
 
-  void _openCart() => context.push(AppRoutes.cart, extra: widget.storeId);
+  void _openCart() =>
+      context.pushIfSignedIn(AppRoutes.cart, extra: widget.storeId);
 
   /// Both exits of the sheet (Reset and Apply) land here — Reset simply
   /// commits the defaults, so one path covers clearing and committing.
@@ -346,7 +347,7 @@ class _LoadedBody extends StatelessWidget {
               onAdd: onAdd,
               onProductTap: onProductTap,
               onFavouriteToggle: (product) =>
-                  context.read<FavouritesCubit>().toggle(product),
+                  context.toggleFavouriteOrSignIn(product),
             ),
         ],
       ),

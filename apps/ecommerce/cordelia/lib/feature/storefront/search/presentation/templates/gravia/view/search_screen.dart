@@ -1,6 +1,6 @@
+import 'package:cordelia/feature/auth/presentation/sign_in_gate.dart';
 import 'package:cordelia/constants/app_routes.dart';
 import 'package:cordelia/enums/recent_search_type.dart';
-import 'package:cordelia/feature/storefront/favourites/presentation/cubit/favourites_cubit.dart';
 import 'package:cordelia/feature/storefront/home/presentation/templates/gravia/widgets/home_popular_items_section.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_dimen_const.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_value_const.dart';
@@ -236,7 +236,7 @@ class _SearchScreenState extends BaseScreenState<SearchScreen> {
         onAddToCart: _addToCart,
         onQuickAdd: _showAddToCartSheet,
         onFavouriteToggle: (product) =>
-            context.read<FavouritesCubit>().toggle(product),
+            context.toggleFavouriteOrSignIn(product),
         onProductTap: _openProductDetails,
       ),
     ],

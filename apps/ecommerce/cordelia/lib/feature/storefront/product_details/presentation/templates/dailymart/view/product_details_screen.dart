@@ -17,6 +17,7 @@ import 'package:core/core/ui/molecules/skeleton_rows.dart';
 import 'package:cordelia/constants/app_routes.dart';
 import 'package:cordelia/constants/value_const.dart';
 import 'package:cordelia/enums/product_unit_type.dart';
+import 'package:cordelia/feature/auth/presentation/sign_in_gate.dart';
 import 'package:cordelia/feature/storefront/cart/presentation/quantity_selection.dart';
 import 'package:cordelia/feature/storefront/favourites/presentation/cubit/favourites_cubit.dart';
 import 'package:cordelia/feature/storefront/home/domain/entities/product_entity.dart';
@@ -215,7 +216,7 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
                 ? DailyMartImageConst.heartFilled
                 : DailyMartImageConst.heart,
             foregroundColor: isFavourite ? cs.primary : null,
-            onTap: () => context.read<FavouritesCubit>().toggle(product),
+            onTap: () => context.toggleFavouriteOrSignIn(product),
           ),
           body: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -342,7 +343,7 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
                   onAdd: (related) => _addToCart(related, 1),
                   onProductTap: openProductDetails,
                   onFavouriteToggle: (related) =>
-                      context.read<FavouritesCubit>().toggle(related),
+                      context.toggleFavouriteOrSignIn(related),
                 ),
               ],
             ],
@@ -363,8 +364,10 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
           child: DailyMartProductDetailBottomBar(
             storeId: widget.storeId,
             soldOut: product.isOutOfStock,
-            onAddToCart: () {
-              addSelectedToCart(detail, quantity);
+            onAddToCart: () async {
+              if (!await addSelectedToCart(detail, quantity) || !mounted) {
+                return;
+              }
               showSnackBar(
                 DailyMartValueConst.addedToCartMessage(product.name, quantity),
               );

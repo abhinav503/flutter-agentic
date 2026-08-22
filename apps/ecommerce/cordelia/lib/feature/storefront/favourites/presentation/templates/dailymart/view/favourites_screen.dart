@@ -9,8 +9,8 @@ import 'package:core/core/ui/atoms/button.dart';
 import 'package:core/core/ui/molecules/empty_state.dart';
 
 import 'package:cordelia/constants/app_routes.dart';
+import 'package:cordelia/feature/auth/presentation/sign_in_gate.dart';
 import 'package:cordelia/feature/storefront/active_store/presentation/cubit/active_store_cubit.dart';
-import 'package:cordelia/feature/storefront/cart/presentation/cubit/cart_cubit.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_value_const.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_header_row.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_product_grid.dart';
@@ -47,8 +47,8 @@ class FavouritesScreen extends BaseScreen {
 }
 
 class _FavouritesScreenState extends BaseScreenState<FavouritesScreen> {
-  void _addToCart(ProductEntity product, int quantity) {
-    context.read<CartCubit>().addToCart(product, quantity);
+  Future<void> _addToCart(ProductEntity product, int quantity) async {
+    if (!await context.addToCartOrSignIn(product, quantity) || !mounted) return;
     showSnackBar(
       DailyMartValueConst.addedToCartMessage(product.name, quantity),
     );
@@ -120,7 +120,7 @@ class _FavouritesScreenState extends BaseScreenState<FavouritesScreen> {
                           onAdd: _showAddToCartSheet,
                           onProductTap: _openProductDetails,
                           onFavouriteToggle: (product) =>
-                              context.read<FavouritesCubit>().toggle(product),
+                              context.toggleFavouriteOrSignIn(product),
                         ),
                       ),
               ),

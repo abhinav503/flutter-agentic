@@ -494,10 +494,6 @@ class AppLocalizationsEs extends AppLocalizations {
       'Esto retira tu valoración de la media del producto. Puedes escribir otra cuando quieras.';
 
   @override
-  String get reviewSignedOutMessage =>
-      'Inicia sesión para opinar sobre este producto.';
-
-  @override
   String get verifiedPurchaseLabel => 'Compra verificada';
 
   @override
@@ -543,11 +539,29 @@ class AppLocalizationsEs extends AppLocalizations {
       'Gracias, hemos avisado a la tienda.';
 
   @override
-  String get reportReviewSignedOutMessage =>
-      'Inicia sesión para denunciar una reseña.';
+  String get unratedLabel => 'Aún no hay valoraciones';
 
   @override
-  String get unratedLabel => 'Aún no hay valoraciones';
+  String get guestLabel => 'Invitado';
+
+  @override
+  String get locationLocatingLabel => 'Localizando…';
+
+  @override
+  String get locationNoAddressMessage =>
+      'No se encontró ningún código postal para tu ubicación.';
+
+  @override
+  String get locationServiceOffMessage =>
+      'La ubicación está desactivada en este dispositivo.';
+
+  @override
+  String get locationPermissionDeniedMessage =>
+      'El permiso de ubicación está desactivado: actívalo en Ajustes para ver qué hay cerca.';
+
+  @override
+  String get locationUnavailableMessage =>
+      'No se pudo obtener tu ubicación. Inténtalo de nuevo.';
 
   @override
   String get outOfStockLabel => 'Agotado';
@@ -945,13 +959,6 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get graviaLocationUnavailableMessage =>
       'No se pudo obtener tu ubicación. Comprueba el permiso de ubicación e inténtalo de nuevo.';
-
-  @override
-  String get graviaAddressSearchLabel => 'Buscar dirección';
-
-  @override
-  String get graviaAddressSearchHint =>
-      'Busca zona, calle, punto de referencia…';
 
   @override
   String get graviaProfilePageTitle => 'Perfil';

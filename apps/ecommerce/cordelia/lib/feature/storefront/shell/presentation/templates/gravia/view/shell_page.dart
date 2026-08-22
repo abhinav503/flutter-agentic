@@ -1,5 +1,6 @@
 import 'package:cordelia/constants/app_routes.dart';
 import 'package:cordelia/constants/value_const.dart';
+import 'package:cordelia/feature/auth/presentation/sign_in_gate.dart';
 import 'package:cordelia/feature/storefront/cart/domain/entities/cart_item_entity.dart';
 import 'package:cordelia/feature/storefront/cart/presentation/cubit/cart_cubit.dart';
 import 'package:cordelia/feature/storefront/cart/presentation/templates/gravia/widgets/cart_status_bar.dart';
@@ -28,7 +29,6 @@ import 'package:core/core/ui/blocks/bottom_nav_bar.dart';
 import 'package:core/core/ui/blocks/docked_bar_overlap.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 
 class ShellPage extends StorefrontShellPage {
   // Nav-tab indices — public so any route outside the shell can request a
@@ -73,6 +73,15 @@ class _ShellPageState extends BasePageState<ShellPage>
       label: GraviaValueConst.navProfile,
     ),
   ];
+
+  // Bag/wishlist/orders/profile are the shopper's own; home and browse
+  // stay open to a guest.
+  @override
+  Set<int> get signedInOnlyTabs => const {
+    ShellPage.favouriteTabIndex,
+    ShellPage.ordersTabIndex,
+    ShellPage.profileTabIndex,
+  };
 
   @override
   PreferredSizeWidget? buildAppBar(BuildContext context) {
@@ -166,7 +175,8 @@ class _ShellPageState extends BasePageState<ShellPage>
             : CartStatusBar(
                 itemCount: items.itemCount,
                 grandTotal: items.grandTotal,
-                onTap: () => context.push(AppRoutes.cart, extra: storeId),
+                onTap: () =>
+                    context.pushIfSignedIn(AppRoutes.cart, extra: storeId),
                 onClear: () => showGraviaConfirmSheet(
                   context: context,
                   title: GraviaValueConst.clearCartTitle,

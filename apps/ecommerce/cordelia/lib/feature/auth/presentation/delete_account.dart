@@ -10,7 +10,7 @@ import 'package:cordelia/feature/auth/domain/usecase/delete_account_usecase.dart
 import 'sign_out.dart';
 
 /// Closes the account and lands back on Login, the terminal counterpart to
-/// [signOutAndReturnToLogin] — which it reuses, because a deleted account
+/// [signOutAndReturnToDiscovery] — which it reuses, because a deleted account
 /// needs the same local teardown a sign-out does (profile cache, verify-sheet
 /// flag, per-account cubits) on top of the server-side delete.
 ///
@@ -28,7 +28,7 @@ Future<String?> deleteAccountAndReturnToLogin(BuildContext context) async {
   if (failure != null) return failure;
 
   if (!context.mounted) return null;
-  await signOutAndReturnToLogin(context);
+  await signOutAndReturnToDiscovery(context);
   return null;
 }
 

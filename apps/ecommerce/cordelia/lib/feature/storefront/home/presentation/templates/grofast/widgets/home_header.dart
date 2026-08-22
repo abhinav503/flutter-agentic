@@ -5,6 +5,7 @@ import 'package:core/core/theme/app_radius.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/shimmer_box.dart';
 
+import 'package:cordelia/constants/image_const.dart';
 import 'package:cordelia/feature/storefront/profile/presentation/bloc/profile_bloc.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_dimen_const.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_image_const.dart';
@@ -112,6 +113,16 @@ class _Avatar extends StatelessWidget {
         ProfileLoaded(:final profile) => CordeliaAvatarImage(
           profile: profile,
           size: GrofastDimenConst.headerControlHeight,
+        ),
+        // A guest gets the default portrait: there is no photo coming, and
+        // a shimmer that never resolves reads as a stuck screen.
+        ProfileSignedOut() => ClipOval(
+          child: Image.asset(
+            ImageConst.profileDefault,
+            width: GrofastDimenConst.headerControlHeight,
+            height: GrofastDimenConst.headerControlHeight,
+            fit: BoxFit.cover,
+          ),
         ),
         // Loading *and* error hold the same disc: a failed profile fetch
         // shouldn't leave a hole where the avatar goes, and the header has

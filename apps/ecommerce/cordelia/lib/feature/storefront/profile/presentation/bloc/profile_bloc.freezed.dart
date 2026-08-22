@@ -313,11 +313,12 @@ extension ProfileStatePatterns on ProfileState {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( ProfileLoading value)?  loading,TResult Function( ProfileLoaded value)?  loaded,TResult Function( ProfileError value)?  error,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( ProfileLoading value)?  loading,TResult Function( ProfileSignedOut value)?  signedOut,TResult Function( ProfileLoaded value)?  loaded,TResult Function( ProfileError value)?  error,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case ProfileLoading() when loading != null:
-return loading(_that);case ProfileLoaded() when loaded != null:
+return loading(_that);case ProfileSignedOut() when signedOut != null:
+return signedOut(_that);case ProfileLoaded() when loaded != null:
 return loaded(_that);case ProfileError() when error != null:
 return error(_that);case _:
   return orElse();
@@ -337,11 +338,12 @@ return error(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( ProfileLoading value)  loading,required TResult Function( ProfileLoaded value)  loaded,required TResult Function( ProfileError value)  error,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( ProfileLoading value)  loading,required TResult Function( ProfileSignedOut value)  signedOut,required TResult Function( ProfileLoaded value)  loaded,required TResult Function( ProfileError value)  error,}){
 final _that = this;
 switch (_that) {
 case ProfileLoading():
-return loading(_that);case ProfileLoaded():
+return loading(_that);case ProfileSignedOut():
+return signedOut(_that);case ProfileLoaded():
 return loaded(_that);case ProfileError():
 return error(_that);}
 }
@@ -357,11 +359,12 @@ return error(_that);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( ProfileLoading value)?  loading,TResult? Function( ProfileLoaded value)?  loaded,TResult? Function( ProfileError value)?  error,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( ProfileLoading value)?  loading,TResult? Function( ProfileSignedOut value)?  signedOut,TResult? Function( ProfileLoaded value)?  loaded,TResult? Function( ProfileError value)?  error,}){
 final _that = this;
 switch (_that) {
 case ProfileLoading() when loading != null:
-return loading(_that);case ProfileLoaded() when loaded != null:
+return loading(_that);case ProfileSignedOut() when signedOut != null:
+return signedOut(_that);case ProfileLoaded() when loaded != null:
 return loaded(_that);case ProfileError() when error != null:
 return error(_that);case _:
   return null;
@@ -380,10 +383,11 @@ return error(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loading,TResult Function( ProfileEntity profile)?  loaded,TResult Function( String message)?  error,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loading,TResult Function()?  signedOut,TResult Function( ProfileEntity profile)?  loaded,TResult Function( String message)?  error,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case ProfileLoading() when loading != null:
-return loading();case ProfileLoaded() when loaded != null:
+return loading();case ProfileSignedOut() when signedOut != null:
+return signedOut();case ProfileLoaded() when loaded != null:
 return loaded(_that.profile);case ProfileError() when error != null:
 return error(_that.message);case _:
   return orElse();
@@ -403,10 +407,11 @@ return error(_that.message);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loading,required TResult Function( ProfileEntity profile)  loaded,required TResult Function( String message)  error,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loading,required TResult Function()  signedOut,required TResult Function( ProfileEntity profile)  loaded,required TResult Function( String message)  error,}) {final _that = this;
 switch (_that) {
 case ProfileLoading():
-return loading();case ProfileLoaded():
+return loading();case ProfileSignedOut():
+return signedOut();case ProfileLoaded():
 return loaded(_that.profile);case ProfileError():
 return error(_that.message);}
 }
@@ -422,10 +427,11 @@ return error(_that.message);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loading,TResult? Function( ProfileEntity profile)?  loaded,TResult? Function( String message)?  error,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loading,TResult? Function()?  signedOut,TResult? Function( ProfileEntity profile)?  loaded,TResult? Function( String message)?  error,}) {final _that = this;
 switch (_that) {
 case ProfileLoading() when loading != null:
-return loading();case ProfileLoaded() when loaded != null:
+return loading();case ProfileSignedOut() when signedOut != null:
+return signedOut();case ProfileLoaded() when loaded != null:
 return loaded(_that.profile);case ProfileError() when error != null:
 return error(_that.message);case _:
   return null;
@@ -459,6 +465,38 @@ int get hashCode => runtimeType.hashCode;
 @override
 String toString() {
   return 'ProfileState.loading()';
+}
+
+
+}
+
+
+
+
+/// @nodoc
+
+
+class ProfileSignedOut implements ProfileState {
+  const ProfileSignedOut();
+  
+
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProfileSignedOut);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+  return 'ProfileState.signedOut()';
 }
 
 

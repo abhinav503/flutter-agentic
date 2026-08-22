@@ -94,7 +94,8 @@ class _ProfileScreenState extends BaseScreenState<ProfileScreen>
             },
             builder: (context, state) => DailyMartTopSwitcher(
               child: switch (state) {
-                ProfileLoading() => const _Page(
+                // Unreachable: the Profile tab is gated on an account.
+                ProfileLoading() || ProfileSignedOut() => const _Page(
                   key: ValueKey('loading'),
                   body: DailyMartProfileSkeletonBody(),
                 ),
@@ -213,7 +214,8 @@ class _ProfileScreenState extends BaseScreenState<ProfileScreen>
                               title: DailyMartValueConst.logoutTitle,
                               message: DailyMartValueConst.logoutConfirmMessage,
                               confirmLabel: DailyMartValueConst.logoutLabel,
-                              onConfirm: () => signOutAndReturnToLogin(context),
+                              onConfirm: () =>
+                                  signOutAndReturnToDiscovery(context),
                             ),
                           ),
                           // Last row on purpose: the most destructive action

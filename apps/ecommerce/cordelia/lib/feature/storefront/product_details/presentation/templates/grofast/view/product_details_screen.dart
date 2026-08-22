@@ -8,21 +8,22 @@ import 'package:core/core/ui/atoms/network_image.dart';
 import 'package:core/core/ui/atoms/shimmer_box.dart';
 import 'package:core/core/ui/molecules/skeleton_rows.dart';
 
+import 'package:cordelia/constants/value_const.dart';
 import 'package:cordelia/enums/product_unit_type.dart';
+import 'package:cordelia/feature/auth/presentation/sign_in_gate.dart';
 import 'package:cordelia/feature/storefront/cart/presentation/quantity_selection.dart';
 import 'package:cordelia/feature/storefront/favourites/presentation/cubit/favourites_cubit.dart';
 import 'package:cordelia/feature/storefront/home/domain/entities/product_entity.dart';
 import 'package:cordelia/feature/storefront/product_details/domain/entities/product_detail_entity.dart';
 import 'package:cordelia/feature/storefront/product_details/domain/entities/size_variant_entity.dart';
-import 'package:cordelia/constants/value_const.dart';
 import 'package:cordelia/feature/storefront/product_details/presentation/product_details_actions.dart';
 import 'package:cordelia/feature/storefront/reviews/domain/entities/product_reviews_entity.dart';
 import 'package:cordelia/feature/storefront/reviews/domain/entities/review_entity.dart';
 import 'package:cordelia/feature/storefront/reviews/presentation/bloc/product_reviews_bloc.dart';
 import 'package:cordelia/feature/storefront/reviews/presentation/product_reviews_actions.dart';
 import 'package:cordelia/feature/storefront/reviews/presentation/templates/grofast/widgets/product_reviews_section.dart';
-import 'package:cordelia/feature/storefront/reviews/presentation/templates/grofast/widgets/write_review_sheet_content.dart';
 import 'package:cordelia/feature/storefront/reviews/presentation/templates/grofast/widgets/report_review_sheet_content.dart';
+import 'package:cordelia/feature/storefront/reviews/presentation/templates/grofast/widgets/write_review_sheet_content.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_color_const.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_dimen_const.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_text_style_const.dart';
@@ -119,8 +120,8 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
         },
       );
 
-  void _addToBag(ProductDetailEntity detail) {
-    addSelectedToCart(detail, quantity);
+  Future<void> _addToBag(ProductDetailEntity detail) async {
+    if (!await addSelectedToCart(detail, quantity) || !mounted) return;
     showSnackBar(
       GrofastValueConst.addedToBagMessage(detail.product.name, quantity),
     );
@@ -263,7 +264,7 @@ class _DetailsContent extends StatelessWidget {
                 imageUrl: product.imageUrl,
                 isFavourite: isFavourite,
                 onFavouriteToggle: () =>
-                    context.read<FavouritesCubit>().toggle(product),
+                    context.toggleFavouriteOrSignIn(product),
               ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(
@@ -422,7 +423,7 @@ class _DetailsContent extends StatelessWidget {
                         onAdd: onSimilarAdd,
                         onProductTap: onSimilarTap,
                         onFavouriteToggle: (p) =>
-                            context.read<FavouritesCubit>().toggle(p),
+                            context.toggleFavouriteOrSignIn(p),
                       ),
                     ],
                   ],

@@ -1,6 +1,6 @@
+import 'package:cordelia/feature/auth/presentation/sign_in_gate.dart';
 import 'package:cordelia/constants/app_routes.dart';
 import 'package:cordelia/feature/storefront/active_store/presentation/cubit/active_store_cubit.dart';
-import 'package:cordelia/feature/storefront/cart/presentation/cubit/cart_cubit.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_dimen_const.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_value_const.dart';
 import 'package:cordelia/templates/gravia/widgets/gravia_product_grid.dart';
@@ -35,7 +35,7 @@ class FavouritesScreen extends BaseScreen {
 
 class _FavouritesScreenState extends BaseScreenState<FavouritesScreen> {
   void _addToCart(ProductEntity product, int quantity) =>
-      context.read<CartCubit>().addToCart(product, quantity);
+      context.addToCartOrSignIn(product, quantity);
 
   void _openProductDetails(ProductEntity product) => context.push(
     AppRoutes.productDetailsPath(product.id),
@@ -89,7 +89,7 @@ class _FavouritesScreenState extends BaseScreenState<FavouritesScreen> {
                         // toggling always removes.
                         isFavourite: (_) => true,
                         onFavouriteToggle: (product) =>
-                            context.read<FavouritesCubit>().toggle(product),
+                            context.toggleFavouriteOrSignIn(product),
                       ),
               ),
             ),
