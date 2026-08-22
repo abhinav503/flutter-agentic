@@ -101,8 +101,8 @@ class AddressCard extends StatelessWidget {
                     AppSvgImage.asset(
                       GraviaImageConst.calling,
                       color: blackOrWhite,
-                      width: 14,
-                      height: 14,
+                      width: AppSpacing.md,
+                      height: AppSpacing.md,
                     ),
                     const SizedBox(width: AppSpacing.xs3),
                     Text(
@@ -128,8 +128,8 @@ class AddressCard extends StatelessWidget {
               leadingIcon: AppSvgImage.asset(
                 GraviaImageConst.editRectangle,
                 color: blackOrWhite,
-                width: 20,
-                height: 20,
+                width: AppSpacing.xl2,
+                height: AppSpacing.xl2,
               ),
               onTap: onEdit,
             ),
@@ -139,8 +139,8 @@ class AddressCard extends StatelessWidget {
               leadingIcon: AppSvgImage.asset(
                 GraviaImageConst.trash,
                 color: GraviaColorConst.error500,
-                width: 20,
-                height: 20,
+                width: AppSpacing.xl2,
+                height: AppSpacing.xl2,
               ),
               onTap: onDelete,
             ),

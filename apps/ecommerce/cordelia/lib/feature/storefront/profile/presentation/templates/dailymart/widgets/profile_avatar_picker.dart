@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import 'package:core/core/theme/app_radius.dart';
 import 'package:core/core/ui/atoms/svg_image.dart';
+import 'package:core/core/theme/app_spacing.dart';
 
 import 'package:cordelia/templates/dailymart/constants/dailymart_dimen_const.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_image_const.dart';
@@ -61,8 +62,8 @@ class ProfileAvatarPicker extends StatelessWidget {
                 child: AppSvgImage.asset(
                   DailyMartImageConst.pencil,
                   color: cs.onPrimary,
-                  width: 18,
-                  height: 18,
+                  width: AppSpacing.xl,
+                  height: AppSpacing.xl,
                 ),
               ),
             ),

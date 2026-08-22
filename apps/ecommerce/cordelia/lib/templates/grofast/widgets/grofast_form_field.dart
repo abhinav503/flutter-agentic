@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'package:core/core/theme/app_shapes_extension.dart';
 import 'package:core/core/theme/app_spacing.dart';
+import 'package:core/core/ui/atoms/text_field.dart';
+import 'package:core/core/ui/molecules/picker_field.dart';
 
 import 'package:cordelia/templates/grofast/constants/grofast_color_const.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_dimen_const.dart';
@@ -11,9 +13,9 @@ import 'package:cordelia/templates/grofast/constants/grofast_text_style_const.da
 /// 50px filled input at radius 18, sharing the search bar's ink-at-6% fill so
 /// every input in the app reads as one control family.
 ///
-/// Not core's `AppTextField`: that atom draws an outlined field with a
-/// floating label, while this pack fills its inputs and stacks the label
-/// above them.
+/// Core's [AppTextField] with this pack's spec passed in — the atom stacks
+/// its label above the box and takes a fill, so the only pack-specific
+/// things left here are the colours, the typography and the two metrics.
 class GrofastFormField extends StatelessWidget {
   final String label;
   final String? hint;
@@ -53,88 +55,55 @@ class GrofastFormField extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
-    final radius = BorderRadius.circular(context.appShapes.inputRadius);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(
-            left: GrofastDimenConst.fieldLabelInset,
-          ),
-          child: Text(
-            label,
-            style: GrofastTextStyleConst.bodySmall(
-              tt,
-            ).copyWith(color: cs.onSurfaceVariant),
-          ),
-        ),
-        const SizedBox(height: AppSpacing.xs),
-        TextField(
-          controller: controller,
-          keyboardType: keyboardType,
-          obscureText: obscureText,
-          onChanged: onChanged,
-          enabled: enabled,
-          maxLines: obscureText ? 1 : maxLines,
-          cursorColor: cs.primary,
-          style: GrofastTextStyleConst.bodyMedium(
-            tt,
-          ).copyWith(color: enabled ? cs.onSurface : cs.onSurfaceVariant),
-          decoration: InputDecoration(
-            hintText: hint,
-            errorText: errorText,
-            hintStyle: GrofastTextStyleConst.placeholder(
-              tt,
-            ).copyWith(color: cs.onSurface.withValues(alpha: 0.4)),
-            filled: true,
-            fillColor: cs.fieldFill,
-            suffixIcon: suffix,
-            // A fixed height only works for a single line; a multi-line
-            // field grows instead.
-            constraints: maxLines == 1
-                ? const BoxConstraints(
-                    minHeight: GrofastDimenConst.controlHeight,
-                  )
-                : null,
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.lg,
-              vertical: AppSpacing.base,
-            ),
-            border: OutlineInputBorder(
-              borderRadius: radius,
-              borderSide: BorderSide.none,
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: radius,
-              borderSide: BorderSide.none,
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: radius,
-              borderSide: BorderSide(color: cs.primary),
-            ),
-            errorBorder: OutlineInputBorder(
-              borderRadius: radius,
-              borderSide: BorderSide(color: cs.error),
-            ),
-            focusedErrorBorder: OutlineInputBorder(
-              borderRadius: radius,
-              borderSide: BorderSide(color: cs.error),
-            ),
-            errorStyle: GrofastTextStyleConst.bodySmall(
-              tt,
-            ).copyWith(color: cs.error),
-          ),
-        ),
-      ],
+    return AppTextField(
+      controller: controller,
+      label: label,
+      hint: hint,
+      keyboardType: keyboardType ?? TextInputType.text,
+      obscureText: obscureText,
+      maxLines: obscureText ? 1 : maxLines,
+      onChanged: onChanged,
+      suffix: suffix,
+      errorText: errorText,
+      state: !enabled
+          ? AppTextFieldState.disabled
+          : errorText != null
+          ? AppTextFieldState.error
+          : AppTextFieldState.idle,
+      // Filled, not outlined: the box only draws an edge when it has focus
+      // or an error, which the atom handles from these two colours.
+      showBorder: false,
+      fillColor: cs.fieldFill,
+      focusedBorderColor: cs.primary,
+      cursorColor: cs.primary,
+      labelStyle: GrofastTextStyleConst.bodySmall(
+        tt,
+      ).copyWith(color: cs.onSurfaceVariant),
+      labelPadding: const EdgeInsets.only(
+        left: GrofastDimenConst.fieldLabelInset,
+      ),
+      labelSpacing: AppSpacing.xs,
+      textColor: enabled ? cs.onSurface : cs.onSurfaceVariant,
+      hintStyle: GrofastTextStyleConst.placeholder(
+        tt,
+      ).copyWith(color: cs.onSurface.withValues(alpha: 0.4)),
+      errorStyle: GrofastTextStyleConst.bodySmall(tt).copyWith(color: cs.error),
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.lg,
+        vertical: AppSpacing.base,
+      ),
+      // A fixed height only works for a single line; a multi-line field
+      // grows instead.
+      height: maxLines == 1 ? GrofastDimenConst.controlHeight : null,
     );
   }
 }
 
 /// A field-shaped **button** that opens a picklist sheet — the City and
-/// Country rows on the address form. Same fill, height and radius as
-/// [GrofastFormField] so the form reads as one column of controls, with a
-/// chevron standing in for the caret.
+/// Country rows on the address form. Core's [AppPickerField] carrying the
+/// same fill, height and radius as [GrofastFormField], so the form reads as
+/// one column of controls with a chevron standing in for the caret.
 class GrofastDropdownField extends StatelessWidget {
   final String label;
   final String hint;
@@ -155,60 +124,36 @@ class GrofastDropdownField extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
-    final radius = BorderRadius.circular(context.appShapes.inputRadius);
-    final isEmpty = value.isEmpty;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(
-            left: GrofastDimenConst.fieldLabelInset,
-          ),
-          child: Text(
-            label,
-            style: GrofastTextStyleConst.bodySmall(
-              tt,
-            ).copyWith(color: cs.onSurfaceVariant),
-          ),
-        ),
-        const SizedBox(height: AppSpacing.xs),
-        Material(
-          color: cs.fieldFill,
-          borderRadius: radius,
-          child: InkWell(
-            onTap: onTap,
-            borderRadius: radius,
-            child: Container(
-              height: GrofastDimenConst.controlHeight,
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      isEmpty ? hint : value,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: isEmpty
-                          ? GrofastTextStyleConst.placeholder(tt).copyWith(
-                              color: cs.onSurface.withValues(alpha: 0.4),
-                            )
-                          : GrofastTextStyleConst.bodyMedium(
-                              tt,
-                            ).copyWith(color: cs.onSurface),
-                    ),
-                  ),
-                  Icon(
-                    Icons.keyboard_arrow_down_rounded,
-                    size: AppSpacing.xl4,
-                    color: cs.onSurfaceVariant,
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ],
+    return AppPickerField(
+      label: label,
+      value: value,
+      hint: hint,
+      onTap: onTap,
+      labelStyle: GrofastTextStyleConst.bodySmall(
+        tt,
+      ).copyWith(color: cs.onSurfaceVariant),
+      labelPadding: const EdgeInsets.only(
+        left: GrofastDimenConst.fieldLabelInset,
+      ),
+      labelSpacing: AppSpacing.xs,
+      valueStyle: GrofastTextStyleConst.bodyMedium(
+        tt,
+      ).copyWith(color: cs.onSurface),
+      hintStyle: GrofastTextStyleConst.placeholder(
+        tt,
+      ).copyWith(color: cs.onSurface.withValues(alpha: 0.4)),
+      fillColor: cs.fieldFill,
+      borderRadius: BorderRadius.circular(context.appShapes.inputRadius),
+      height: GrofastDimenConst.controlHeight,
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+      // Matches the typed field beside it, which ripples.
+      splashOnTap: true,
+      trailing: Icon(
+        Icons.keyboard_arrow_down_rounded,
+        size: AppSpacing.xl4,
+        color: cs.onSurfaceVariant,
+      ),
     );
   }
 }

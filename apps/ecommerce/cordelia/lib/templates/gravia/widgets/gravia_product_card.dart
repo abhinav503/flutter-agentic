@@ -91,8 +91,8 @@ class GraviaProductCard extends StatelessWidget {
   /// re-inline the same size/colour recipe.
   static Widget metaIcon(String asset) => AppSvgImage.asset(
     asset,
-    width: 14,
-    height: 14,
+    width: AppSpacing.md,
+    height: AppSpacing.md,
     color: GraviaColorConst.gray500,
   );
 

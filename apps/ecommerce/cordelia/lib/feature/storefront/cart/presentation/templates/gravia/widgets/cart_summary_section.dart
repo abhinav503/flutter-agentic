@@ -93,8 +93,8 @@ class _CartSummarySectionState extends State<CartSummarySection> {
                 AppSvgImage.asset(
                   GraviaImageConst.gift,
                   color: isDark ? cs.onPrimary : GraviaColorConst.gray900,
-                  width: 20,
-                  height: 20,
+                  width: AppSpacing.xl2,
+                  height: AppSpacing.xl2,
                 ),
                 const SizedBox(width: AppSpacing.xs),
                 Expanded(

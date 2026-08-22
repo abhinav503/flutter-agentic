@@ -117,8 +117,8 @@ class _SupportScreenState extends BaseScreenState<SupportScreen> {
                   trailing: AppSvgImage.asset(
                     GraviaImageConst.directionRight,
                     color: cs.onSurfaceVariant,
-                    width: 18,
-                    height: 18,
+                    width: AppSpacing.xl,
+                    height: AppSpacing.xl,
                   ),
                   onTap: () => context.openSupportChannel(channel),
                 ),

@@ -79,8 +79,8 @@ class CartStatusBar extends StatelessWidget {
               child: AppSvgImage.asset(
                 GraviaImageConst.cart,
                 color: cs.onSurface,
-                width: 20,
-                height: 20,
+                width: AppSpacing.xl2,
+                height: AppSpacing.xl2,
               ),
             ),
             const SizedBox(width: AppSpacing.base),
@@ -179,8 +179,8 @@ class _ClearCartButton extends StatelessWidget {
             child: AppSvgImage.asset(
               GraviaImageConst.trash,
               color: GraviaColorConst.error500,
-              width: 20,
-              height: 20,
+              width: AppSpacing.xl2,
+              height: AppSpacing.xl2,
             ),
           ),
         ),

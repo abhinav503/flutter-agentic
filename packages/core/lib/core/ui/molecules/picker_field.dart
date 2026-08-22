@@ -54,6 +54,12 @@ class AppPickerField extends StatelessWidget {
   final double? height;
   final EdgeInsetsGeometry? padding;
 
+  /// Ripple the box on tap, clipped to its radius. Off by default — a
+  /// bordered trigger in a form usually reads better without one, and an
+  /// `InkWell` needs a `Material` ancestor to paint at all. Packs whose
+  /// typed fields ripple turn it on so the picked one matches them.
+  final bool splashOnTap;
+
   const AppPickerField({
     super.key,
     required this.label,
@@ -72,6 +78,7 @@ class AppPickerField extends StatelessWidget {
     this.borderRadius,
     this.height,
     this.padding,
+    this.splashOnTap = false,
   });
 
   @override
@@ -94,9 +101,10 @@ class AppPickerField extends StatelessWidget {
           ),
         ),
         SizedBox(height: labelSpacing ?? AppSpacing.xs3),
-        GestureDetector(
+        _Tappable(
           onTap: onTap,
-          behavior: HitTestBehavior.opaque,
+          splash: splashOnTap,
+          radius: radius,
           child: Container(
             height: height,
             padding:
@@ -144,4 +152,30 @@ class AppPickerField extends StatelessWidget {
       ],
     );
   }
+
+}
+
+/// The box's tap target: an ink ripple where the pack asks for one, a plain
+/// opaque hit test otherwise.
+class _Tappable extends StatelessWidget {
+  final VoidCallback onTap;
+  final bool splash;
+  final BorderRadius radius;
+  final Widget child;
+
+  const _Tappable({
+    required this.onTap,
+    required this.splash,
+    required this.radius,
+    required this.child,
+  });
+
+  @override
+  Widget build(BuildContext context) => splash
+      ? InkWell(onTap: onTap, borderRadius: radius, child: child)
+      : GestureDetector(
+          onTap: onTap,
+          behavior: HitTestBehavior.opaque,
+          child: child,
+        );
 }

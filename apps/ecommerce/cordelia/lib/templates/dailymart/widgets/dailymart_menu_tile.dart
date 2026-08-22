@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:core/core/theme/app_radius.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/svg_image.dart';
+import 'package:core/core/ui/molecules/icon_info_row.dart';
 
 import 'package:cordelia/templates/dailymart/constants/dailymart_dimen_const.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_image_const.dart';
@@ -87,9 +88,7 @@ class DailyMartMenuTile extends StatelessWidget {
           // A subtitled row is sized by its content instead: pinning the
           // kit's height would clip the second line, and the strip is the
           // same shape either way.
-          height: subtitle == null
-              ? DailyMartDimenConst.menuRowHeight
-              : null,
+          height: subtitle == null ? DailyMartDimenConst.menuRowHeight : null,
           constraints: const BoxConstraints(
             minHeight: DailyMartDimenConst.menuRowHeight,
           ),
@@ -101,44 +100,30 @@ class DailyMartMenuTile extends StatelessWidget {
             border: Border.all(color: cs.outline),
             borderRadius: AppRadius.lg,
           ),
-          child: Row(
-            children: [
-              leading,
-              const SizedBox(width: AppSpacing.xs),
-              Expanded(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      label,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: DailyMartTextStyleConst.bodySmMedium(
-                        tt,
-                      ).copyWith(color: cs.onSurface),
-                    ),
-                    if (subtitle != null)
-                      Text(
-                        subtitle!,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: DailyMartTextStyleConst.bodyXsMedium(
-                          tt,
-                        ).copyWith(color: cs.onSurfaceVariant),
-                      ),
-                  ],
+          child: IconInfoRow(
+            leading: leading,
+            title: label,
+            titleMaxLines: 1,
+            titleStyle: DailyMartTextStyleConst.bodySmMedium(
+              tt,
+            ).copyWith(color: cs.onSurface),
+            subtitle: subtitle,
+            subtitleMaxLines: 1,
+            subtitleStyle: DailyMartTextStyleConst.bodyXsMedium(
+              tt,
+            ).copyWith(color: cs.onSurfaceVariant),
+            // The kit stacks the two lines with no gap between them.
+            lineGap: 0,
+            gap: AppSpacing.xs,
+            trailingGap: AppSpacing.xs,
+            trailing:
+                trailing ??
+                AppSvgImage.asset(
+                  DailyMartImageConst.chevronRight,
+                  color: cs.onSurfaceVariant,
+                  width: _chevronSize,
+                  height: _chevronSize,
                 ),
-              ),
-              const SizedBox(width: AppSpacing.xs),
-              trailing ??
-                  AppSvgImage.asset(
-                    DailyMartImageConst.chevronRight,
-                    color: cs.onSurfaceVariant,
-                    width: _chevronSize,
-                    height: _chevronSize,
-                  ),
-            ],
           ),
         ),
       ),

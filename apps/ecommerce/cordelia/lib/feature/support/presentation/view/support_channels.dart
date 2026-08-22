@@ -71,10 +71,7 @@ class SupportChannels {
   /// finding it.
   final String versionLabel;
 
-  const SupportChannels._({
-    required this.sections,
-    required this.versionLabel,
-  });
+  const SupportChannels._({required this.sections, required this.versionLabel});
 
   /// Builds the channels for [store], or for CordeliaApps alone when there
   /// is no storefront open.

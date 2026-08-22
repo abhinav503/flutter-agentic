@@ -98,7 +98,7 @@ class _HomeHeroHeaderState extends State<HomeHeroHeader> {
                           Icon(
                             Icons.keyboard_arrow_down_rounded,
                             color: cs.onPrimary,
-                            size: 18,
+                            size: AppSpacing.xl,
                           ),
                         ],
                       ),

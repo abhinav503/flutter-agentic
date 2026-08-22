@@ -96,7 +96,7 @@ class _ClearButton extends StatelessWidget {
           ),
           child: Icon(
             Icons.close_rounded,
-            size: 20,
+            size: AppSpacing.xl2,
             color: cs.onSurfaceVariant,
           ),
         ),

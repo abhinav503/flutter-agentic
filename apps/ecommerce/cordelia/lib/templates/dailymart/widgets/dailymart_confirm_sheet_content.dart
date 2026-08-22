@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:core/core/theme/app_spacing.dart';
+import 'package:core/core/ui/molecules/confirm_sheet_body.dart';
 
 import 'package:cordelia/templates/dailymart/constants/dailymart_text_style_const.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_value_const.dart';
@@ -35,42 +36,29 @@ class DailyMartConfirmSheetContent extends StatelessWidget {
 
     // No SafeArea — the chromeless AppBottomSheet presenting this
     // (`showDailyMartConfirmSheet`) already pads the bottom device inset.
-    return Padding(
+    return ConfirmSheetBody(
+      title: title,
+      message: message,
+      titleStyle: DailyMartTextStyleConst.headingH5(
+        tt,
+      ).copyWith(color: cs.onSurface),
+      messageStyle: DailyMartTextStyleConst.bodySmRegular(
+        tt,
+      ).copyWith(color: cs.onSurfaceVariant),
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.lg,
         AppSpacing.xl4,
         AppSpacing.lg,
         AppSpacing.lg,
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            title,
-            textAlign: TextAlign.center,
-            style: DailyMartTextStyleConst.headingH5(
-              tt,
-            ).copyWith(color: cs.onSurface),
-          ),
-          const SizedBox(height: AppSpacing.xs),
-          Text(
-            message,
-            textAlign: TextAlign.center,
-            style: DailyMartTextStyleConst.bodySmRegular(
-              tt,
-            ).copyWith(color: cs.onSurfaceVariant),
-          ),
-          const SizedBox(height: AppSpacing.xl4),
-          DailyMartActionPair(
-            cancelLabel: DailyMartValueConst.cancelLabel,
-            confirmLabel: confirmLabel,
-            onCancel: () => Navigator.of(context).pop(),
-            onConfirm: () {
-              Navigator.of(context).pop();
-              onConfirm();
-            },
-          ),
-        ],
+      actions: DailyMartActionPair(
+        cancelLabel: DailyMartValueConst.cancelLabel,
+        confirmLabel: confirmLabel,
+        onCancel: () => Navigator.of(context).pop(),
+        onConfirm: () {
+          Navigator.of(context).pop();
+          onConfirm();
+        },
       ),
     );
   }

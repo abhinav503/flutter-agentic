@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:core/core/theme/app_spacing.dart';
+import 'package:core/core/ui/molecules/confirm_sheet_body.dart';
 
 import 'package:cordelia/templates/gravia/constants/gravia_text_style_const.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_value_const.dart';
@@ -30,43 +31,38 @@ class GraviaConfirmSheetContent extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
 
-    return Padding(
+    return ConfirmSheetBody(
+      message: message,
+      // A plain sentence, not a dialog — this pack's sheet carries its title
+      // in the chrome above, so the body reads left like body copy.
+      textAlign: TextAlign.start,
+      messageStyle: GraviaTextStyleConst.textSmRegular(
+        tt,
+      ).copyWith(color: cs.onSurfaceVariant),
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.lg,
         AppSpacing.base,
         AppSpacing.lg,
         AppSpacing.lg,
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            message,
-            style: GraviaTextStyleConst.textSmRegular(
-              tt,
-            ).copyWith(color: cs.onSurfaceVariant),
-          ),
-          const SizedBox(height: AppSpacing.xl2),
-          GraviaActionPair(
-            left: GraviaAction(
-              label: GraviaValueConst.cancel,
-              kind: GraviaActionKind.secondary,
-              // Same neutral black/white Cancel outline as the Add to Cart
-              // sheet, not core's default primary-coloured secondary text.
-              labelColor: cs.onSurface,
-              onTap: () => Navigator.of(context).pop(),
-            ),
-            right: GraviaAction(
-              label: confirmLabel,
-              kind: GraviaActionKind.tintedError,
-              onTap: () {
-                onConfirm();
-                Navigator.of(context).pop();
-              },
-            ),
-          ),
-        ],
+      actionsGap: AppSpacing.xl2,
+      actions: GraviaActionPair(
+        left: GraviaAction(
+          label: GraviaValueConst.cancel,
+          kind: GraviaActionKind.secondary,
+          // Same neutral black/white Cancel outline as the Add to Cart
+          // sheet, not core's default primary-coloured secondary text.
+          labelColor: cs.onSurface,
+          onTap: () => Navigator.of(context).pop(),
+        ),
+        right: GraviaAction(
+          label: confirmLabel,
+          kind: GraviaActionKind.tintedError,
+          onTap: () {
+            onConfirm();
+            Navigator.of(context).pop();
+          },
+        ),
       ),
     );
   }

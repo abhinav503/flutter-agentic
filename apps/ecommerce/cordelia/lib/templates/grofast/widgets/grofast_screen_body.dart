@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:core/core/theme/app_spacing.dart';
+import 'package:core/core/ui/atoms/bottom_fade.dart';
 
 import 'package:cordelia/templates/grofast/constants/grofast_dimen_const.dart';
 
@@ -207,6 +208,11 @@ class GrofastBottomFade extends StatelessWidget {
   /// gradient runs the fade's whole length and lands exactly on the band.
   final bool carriesFloatingAction;
 
+  /// Where the fade stops being solid, measured from the bottom up. 0.45 is
+  /// the kit's 55%-from-the-top crossover read the way [BottomFade] states
+  /// it; over a dock there is no solid stretch at all.
+  static const double _floatingSolidUntil = 0.45;
+
   const GrofastBottomFade({
     super.key,
     this.height = GrofastDimenConst.bottomFadeHeight,
@@ -218,23 +224,9 @@ class GrofastBottomFade extends StatelessWidget {
   }) : carriesFloatingAction = false;
 
   @override
-  Widget build(BuildContext context) {
-    final surface = Theme.of(context).colorScheme.surface;
-
-    return IgnorePointer(
-      child: Container(
-        height: carriesFloatingAction
-            ? height + MediaQuery.paddingOf(context).bottom
-            : height,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [surface.withValues(alpha: 0), surface],
-            stops: carriesFloatingAction ? const [0, 0.55] : const [0, 1],
-          ),
-        ),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => BottomFade(
+    height: height,
+    solidUntil: carriesFloatingAction ? _floatingSolidUntil : 0,
+    payBottomInset: carriesFloatingAction,
+  );
 }

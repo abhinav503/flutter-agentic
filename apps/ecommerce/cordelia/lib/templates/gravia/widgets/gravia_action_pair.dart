@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/button.dart';
+import 'package:core/core/ui/blocks/action_pair.dart';
 
 import 'package:cordelia/templates/gravia/constants/gravia_dimen_const.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_text_style_const.dart';
@@ -44,12 +45,9 @@ class GraviaActionPair extends StatelessWidget {
   const GraviaActionPair({super.key, required this.left, required this.right});
 
   @override
-  Widget build(BuildContext context) => Row(
-    children: [
-      Expanded(child: GraviaActionButton(action: left)),
-      const SizedBox(width: AppSpacing.base),
-      Expanded(child: GraviaActionButton(action: right)),
-    ],
+  Widget build(BuildContext context) => ActionPair(
+    first: GraviaActionButton(action: left),
+    second: GraviaActionButton(action: right),
   );
 }
 

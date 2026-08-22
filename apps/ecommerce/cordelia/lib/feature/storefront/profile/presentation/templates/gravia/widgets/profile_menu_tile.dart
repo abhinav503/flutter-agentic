@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import 'package:core/core/ui/atoms/svg_image.dart';
 import 'package:core/core/ui/molecules/menu_tile.dart';
+import 'package:core/core/theme/app_spacing.dart';
 
 /// Gravia's Profile menu row — core's [AppMenuTile] with the pack's spec
 /// baked in: Gray/50-light / Gray/950-dark icon circle, Text/md/medium
@@ -47,8 +48,8 @@ class ProfileMenuTile extends StatelessWidget {
       chevron: AppSvgImage.asset(
         GraviaImageConst.directionRight,
         color: cs.onSurfaceVariant,
-        width: 18,
-        height: 18,
+        width: AppSpacing.xl,
+        height: AppSpacing.xl,
       ),
     );
   }

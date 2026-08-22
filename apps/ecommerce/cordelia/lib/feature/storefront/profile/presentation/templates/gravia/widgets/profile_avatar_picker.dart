@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import 'package:core/core/theme/app_colors_extension.dart';
 import 'package:core/core/ui/atoms/svg_image.dart';
+import 'package:core/core/theme/app_spacing.dart';
 
 import '../../../../domain/entities/profile_entity.dart';
 
@@ -54,8 +55,8 @@ class ProfileAvatarPicker extends StatelessWidget {
             child: AppSvgImage.asset(
               GraviaImageConst.camera,
               color: onOverlay,
-              width: 18,
-              height: 18,
+              width: AppSpacing.xl,
+              height: AppSpacing.xl,
             ),
           ),
         ],

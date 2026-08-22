@@ -182,7 +182,7 @@ class _StepDisc extends StatelessWidget {
       child: AppSvgImage.asset(
         DailyMartImageConst.check,
         color: cs.onPrimary,
-        width: 12,
+        width: AppSpacing.base,
         height: 9,
       ),
     );

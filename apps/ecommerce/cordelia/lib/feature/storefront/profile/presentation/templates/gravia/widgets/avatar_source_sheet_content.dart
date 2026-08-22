@@ -2,79 +2,48 @@ import 'package:cordelia/enums/avatar_source.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_image_const.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_value_const.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/svg_image.dart';
+import 'package:core/core/ui/molecules/action_sheet_body.dart';
 
 /// Two-row action sheet — "Take Photo" / "Choose from Gallery" — opened from
 /// Edit Profile's avatar camera badge. An action list, not a selection list,
-/// so this stays a plain widget rather than a `RadioOptionsSheetContent`
+/// so this is an [AppActionSheetBody] rather than a `RadioOptionsSheetContent`
 /// (which shows a currently-`selected` value; there isn't one here).
 class AvatarSourceSheetContent extends StatelessWidget {
   const AvatarSourceSheetContent({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    final cs = Theme.of(context).colorScheme;
+
+    Widget glyph(String asset) => AppSvgImage.asset(
+      asset,
+      color: cs.onSurface,
+      width: AppSpacing.xl2,
+      height: AppSpacing.xl2,
+    );
+
+    return AppActionSheetBody<AvatarSource>(
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.lg,
         AppSpacing.base,
         AppSpacing.lg,
         AppSpacing.lg,
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _row(
-            context,
-            icon: AppSvgImage.asset(
-              GraviaImageConst.camera,
-              color: Theme.of(context).colorScheme.onSurface,
-              width: 20,
-              height: 20,
-            ),
-            label: GraviaValueConst.takePhotoLabel,
-            source: AvatarSource.camera,
-          ),
-          _row(
-            context,
-            icon: AppSvgImage.asset(
-              GraviaImageConst.folderGallery,
-              color: Theme.of(context).colorScheme.onSurface,
-              width: 20,
-              height: 20,
-            ),
-            label: GraviaValueConst.chooseFromGalleryLabel,
-            source: AvatarSource.gallery,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _row(
-    BuildContext context, {
-    required Widget icon,
-    required String label,
-    required AvatarSource source,
-  }) {
-    final cs = Theme.of(context).colorScheme;
-    final tt = Theme.of(context).textTheme;
-
-    return GestureDetector(
-      onTap: () => context.pop(source),
-      behavior: HitTestBehavior.opaque,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
-        child: Row(
-          children: [
-            icon,
-            const SizedBox(width: AppSpacing.base),
-            Text(label, style: tt.bodyLarge!.copyWith(color: cs.onSurface)),
-          ],
+      actions: [
+        AppSheetAction(
+          label: GraviaValueConst.takePhotoLabel,
+          value: AvatarSource.camera,
+          leading: glyph(GraviaImageConst.camera),
         ),
-      ),
+        AppSheetAction(
+          label: GraviaValueConst.chooseFromGalleryLabel,
+          value: AvatarSource.gallery,
+          leading: glyph(GraviaImageConst.folderGallery),
+        ),
+      ],
     );
   }
 }

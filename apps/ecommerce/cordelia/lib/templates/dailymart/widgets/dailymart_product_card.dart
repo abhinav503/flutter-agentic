@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:core/core/extensions/num_extensions.dart';
 import 'package:core/core/theme/app_shapes_extension.dart';
 import 'package:core/core/theme/app_spacing.dart';
+import 'package:core/core/ui/atoms/surface_card.dart';
 import 'package:core/core/ui/atoms/network_image.dart';
 import 'package:core/core/ui/atoms/svg_image.dart';
 
@@ -59,87 +60,78 @@ class DailyMartProductCard extends StatelessWidget {
     final shapes = context.appShapes;
     final soldOut = product.isOutOfStock;
 
-    // Shadow on the outer box, surface inside it: a `boxShadow` declared on a
-    // child of the Material paints *after* the white fill, so the two have to
-    // be in this order. Shadow, not a lighter fill — on the mint canvas there
-    // is nothing lighter than white to step up to (spec sheet §6).
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(shapes.cardRadius),
-        boxShadow: DailyMartElevation.card,
-      ),
-      child: Material(
-        color: cs.surface,
-        borderRadius: BorderRadius.circular(shapes.cardRadius),
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(shapes.cardRadius),
-          child: Padding(
-            // The image well insets 2px inside the card, which is why its
-            // own radius is 2 less than the card's.
-            padding: const EdgeInsets.fromLTRB(
-              AppSpacing.xs4,
-              AppSpacing.xs4,
-              AppSpacing.xs4,
-              AppSpacing.xs2,
+    // Shadow, not a lighter fill — on the mint canvas there is nothing
+    // lighter than white to step up to (spec sheet §6). The shadow-under-fill
+    // ordering it needs is [AppSurfaceCard]'s whole reason for existing.
+    return AppSurfaceCard(
+      color: cs.surface,
+      borderRadius: BorderRadius.circular(shapes.cardRadius),
+      shadows: DailyMartElevation.card,
+      onTap: onTap,
+      // The kit's price row can overhang; the card never clipped before.
+      clipBehavior: Clip.none,
+      child: Padding(
+        // The image well insets 2px inside the card, which is why its
+        // own radius is 2 less than the card's.
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.xs4,
+          AppSpacing.xs4,
+          AppSpacing.xs4,
+          AppSpacing.xs2,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _ImageWell(
+              product: product,
+              isFavourite: isFavourite,
+              onFavouriteToggle: onFavouriteToggle,
+              radius: shapes.cardRadius - AppSpacing.xs4,
+              soldOut: soldOut,
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _ImageWell(
-                  product: product,
-                  isFavourite: isFavourite,
-                  onFavouriteToggle: onFavouriteToggle,
-                  radius: shapes.cardRadius - AppSpacing.xs4,
-                  soldOut: soldOut,
-                ),
-                const SizedBox(height: AppSpacing.sm),
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.xs2,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
+            const SizedBox(height: AppSpacing.sm),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs2),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
                     children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  product.name,
-                                  style: DailyMartTextStyleConst.bodySmSemibold(
-                                    tt,
-                                  ).copyWith(color: cs.onSurface),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                const SizedBox(height: AppSpacing.xs4),
-                                Text(
-                                  product.price.asPrice,
-                                  style: DailyMartTextStyleConst.bodySmSemibold(
-                                    tt,
-                                  ).copyWith(color: cs.onSurface),
-                                ),
-                              ],
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              product.name,
+                              style: DailyMartTextStyleConst.bodySmSemibold(
+                                tt,
+                              ).copyWith(color: cs.onSurface),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                          ),
-                          const SizedBox(width: AppSpacing.xs),
-                          _AddButton(onTap: soldOut ? null : onAdd),
-                        ],
+                            const SizedBox(height: AppSpacing.xs4),
+                            Text(
+                              product.price.asPrice,
+                              style: DailyMartTextStyleConst.bodySmSemibold(
+                                tt,
+                              ).copyWith(color: cs.onSurface),
+                            ),
+                          ],
+                        ),
                       ),
-                      const SizedBox(height: AppSpacing.xs3),
-                      _RatingRow(product: product),
+                      const SizedBox(width: AppSpacing.xs),
+                      _AddButton(onTap: soldOut ? null : onAdd),
                     ],
                   ),
-                ),
-              ],
+                  const SizedBox(height: AppSpacing.xs3),
+                  _RatingRow(product: product),
+                ],
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );

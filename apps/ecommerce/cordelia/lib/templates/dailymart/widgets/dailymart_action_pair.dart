@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:core/core/theme/app_spacing.dart';
+import 'package:core/core/ui/blocks/action_pair.dart';
 
 import 'dailymart_outline_button.dart';
 import 'dailymart_primary_button.dart';
@@ -24,15 +25,9 @@ class DailyMartActionPair extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) => Row(
-    children: [
-      Expanded(
-        child: DailyMartOutlineButton(label: cancelLabel, onTap: onCancel),
-      ),
-      const SizedBox(width: AppSpacing.lg),
-      Expanded(
-        child: DailyMartPrimaryButton(label: confirmLabel, onTap: onConfirm),
-      ),
-    ],
+  Widget build(BuildContext context) => ActionPair(
+    gap: AppSpacing.lg,
+    first: DailyMartOutlineButton(label: cancelLabel, onTap: onCancel),
+    second: DailyMartPrimaryButton(label: confirmLabel, onTap: onConfirm),
   );
 }

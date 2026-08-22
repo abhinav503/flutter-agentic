@@ -133,8 +133,8 @@ class _AddressScreenState extends BaseScreenState<AddressScreen> {
     leadingIcon: AppSvgImage.asset(
       GraviaImageConst.plus,
       color: cs.primary,
-      width: 24,
-      height: 24,
+      width: AppSpacing.xl4,
+      height: AppSpacing.xl4,
     ),
     onTap: () => _openAddressForm(null),
   );

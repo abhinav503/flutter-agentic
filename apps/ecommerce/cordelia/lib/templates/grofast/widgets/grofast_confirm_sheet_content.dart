@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:core/core/theme/app_radius.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/button.dart';
+import 'package:core/core/ui/molecules/confirm_sheet_body.dart';
 
 import 'package:cordelia/templates/grofast/constants/grofast_dimen_const.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_text_style_const.dart';
@@ -38,30 +39,26 @@ class GrofastConfirmSheetContent extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
 
-    return Padding(
+    return ConfirmSheetBody(
+      title: title,
+      message: message,
+      titleStyle: GrofastTextStyleConst.subheadBold(tt),
+      messageStyle: GrofastTextStyleConst.bodyMedium(
+        tt,
+      ).copyWith(color: cs.onSurfaceVariant),
       padding: const EdgeInsets.fromLTRB(
         GrofastDimenConst.screenGutter,
         GrofastSheetMetrics.contentTop,
         GrofastDimenConst.screenGutter,
         AppSpacing.lg,
       ),
-      child: Column(
+      // Stacked, not a pair: the destructive action is the **outlined**
+      // button and the safe one is the gradient, because in this pack the
+      // gradient means "affirmative" and would read as encouragement on a
+      // deletion.
+      actions: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            title,
-            textAlign: TextAlign.center,
-            style: GrofastTextStyleConst.subheadBold(tt),
-          ),
-          const SizedBox(height: AppSpacing.xs),
-          Text(
-            message,
-            textAlign: TextAlign.center,
-            style: GrofastTextStyleConst.bodyMedium(
-              tt,
-            ).copyWith(color: cs.onSurfaceVariant),
-          ),
-          const SizedBox(height: AppSpacing.xl4),
           AppButton(
             label: confirmLabel,
             variant: AppButtonVariant.secondary,

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:core/core/theme/app_radius.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/svg_image.dart';
+import 'package:core/core/ui/molecules/picker_field.dart';
 
 import 'package:cordelia/templates/dailymart/constants/dailymart_dimen_const.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_image_const.dart';
@@ -37,54 +38,31 @@ class DailyMartDropdownField extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          label,
-          style: DailyMartTextStyleConst.bodySmMedium(
-            tt,
-          ).copyWith(color: cs.onSurface),
+    return AppPickerField(
+      label: label,
+      value: value,
+      onTap: onTap,
+      labelStyle: DailyMartTextStyleConst.bodySmMedium(
+        tt,
+      ).copyWith(color: cs.onSurface),
+      labelSpacing: AppSpacing.xs,
+      valueStyle: DailyMartTextStyleConst.bodySmRegular(
+        tt,
+      ).copyWith(color: cs.onSurface),
+      borderRadius: AppRadius.lg,
+      height: DailyMartDimenConst.formFieldHeight,
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.base),
+      // Matches the pack's typed field, which ripples.
+      splashOnTap: true,
+      trailing: RotatedBox(
+        quarterTurns: 1,
+        child: AppSvgImage.asset(
+          DailyMartImageConst.chevronRight,
+          color: cs.onSurfaceVariant,
+          width: AppSpacing.xl2,
+          height: AppSpacing.xl2,
         ),
-        const SizedBox(height: AppSpacing.xs),
-        InkWell(
-          onTap: onTap,
-          borderRadius: AppRadius.lg,
-          child: Container(
-            height: DailyMartDimenConst.formFieldHeight,
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.base),
-            decoration: BoxDecoration(
-              border: Border.all(color: cs.outline),
-              borderRadius: AppRadius.lg,
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    value,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: DailyMartTextStyleConst.bodySmRegular(
-                      tt,
-                    ).copyWith(color: cs.onSurface),
-                  ),
-                ),
-                const SizedBox(width: AppSpacing.xs),
-                RotatedBox(
-                  quarterTurns: 1,
-                  child: AppSvgImage.asset(
-                    DailyMartImageConst.chevronRight,
-                    color: cs.onSurfaceVariant,
-                    width: AppSpacing.xl2,
-                    height: AppSpacing.xl2,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
+      ),
     );
   }
 }

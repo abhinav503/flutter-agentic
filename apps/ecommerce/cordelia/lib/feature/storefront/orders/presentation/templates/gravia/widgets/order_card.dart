@@ -220,7 +220,7 @@ class _RefundNote extends StatelessWidget {
       children: [
         Icon(
           isFailed ? Icons.error_outline : Icons.check_circle_outline,
-          size: 16,
+          size: AppSpacing.lg,
           color: isFailed ? cs.error : GraviaColorConst.gray500,
         ),
         const SizedBox(width: AppSpacing.xs2),

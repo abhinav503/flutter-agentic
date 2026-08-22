@@ -19,6 +19,11 @@ class IconInfoRow extends StatelessWidget {
   /// notification-feed usage, where copy wraps).
   final int? titleMaxLines;
 
+  /// The same cap for the subtitle. A settings row that prints an address or
+  /// a phone number under its label wants one line; a feed row that explains
+  /// itself wants none.
+  final int? subtitleMaxLines;
+
   /// Rendered after the text column. Non-interactive by itself — give it
   /// its own handler, or set [onTap] for whole-row taps.
   final Widget? trailing;
@@ -48,6 +53,7 @@ class IconInfoRow extends StatelessWidget {
     this.titleStyle,
     this.subtitleStyle,
     this.titleMaxLines,
+    this.subtitleMaxLines,
     this.trailing,
     this.onTap,
     this.padding,
@@ -69,6 +75,11 @@ class IconInfoRow extends StatelessWidget {
         SizedBox(width: gap),
         Expanded(
           child: Column(
+            // Min, so a row pinned to a fixed height (a kit's menu strip)
+            // centres its text block instead of pinning it to the top.
+            // Unbounded rows are unaffected — a flex under infinite
+            // constraints is min-sized either way.
+            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
@@ -85,6 +96,10 @@ class IconInfoRow extends StatelessWidget {
                   style:
                       subtitleStyle ??
                       tt.bodySmall!.copyWith(color: cs.onSurfaceVariant),
+                  maxLines: subtitleMaxLines,
+                  overflow: subtitleMaxLines == null
+                      ? null
+                      : TextOverflow.ellipsis,
                 ),
               ],
             ],

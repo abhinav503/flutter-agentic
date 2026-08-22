@@ -97,7 +97,7 @@ class DailyMartSearchResultsSection extends StatelessWidget {
             trailing: DailyMartIconDisc(
               asset: DailyMartImageConst.plus,
               onTap: product.isOutOfStock ? null : () => onAdd(product),
-              size: 24,
+              size: AppSpacing.xl4,
               iconSize: 14,
               backgroundColor: product.isOutOfStock
                   ? cs.onSurface.withValues(alpha: 0.12)

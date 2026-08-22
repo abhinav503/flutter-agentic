@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/svg_image.dart';
+import 'package:core/core/ui/molecules/icon_info_row.dart';
 
 import 'package:cordelia/templates/grofast/constants/grofast_dimen_const.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_text_style_const.dart';
@@ -83,51 +84,40 @@ class GrofastMenuTile extends StatelessWidget {
               horizontal: AppSpacing.xl2,
               vertical: AppSpacing.xs,
             ),
-            child: Row(
-              children: [
-                asset != null
-                    ? AppSvgImage.asset(
-                        asset!,
-                        width: AppSpacing.xl4,
-                        height: AppSpacing.xl4,
-                        color: glyphColor,
-                      )
-                    : Icon(icon, size: AppSpacing.xl4, color: glyphColor),
-                const SizedBox(width: AppSpacing.lg),
-                Expanded(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        label,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: GrofastTextStyleConst.bodyMedium(
-                          tt,
-                        ).copyWith(color: cs.onSurfaceVariant),
-                      ),
-                      if (subtitle != null)
-                        Text(
-                          subtitle!,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: GrofastTextStyleConst.bodySmall(
-                            tt,
-                          ).copyWith(color: cs.onSurfaceVariant),
-                        ),
-                    ],
-                  ),
-                ),
-                if (trailing != null)
-                  trailing!
-                else if (showChevron)
-                  Icon(
-                    Icons.chevron_right_rounded,
-                    size: AppSpacing.xl4,
-                    color: cs.onSurfaceVariant,
-                  ),
-              ],
+            child: IconInfoRow(
+              leading: asset != null
+                  ? AppSvgImage.asset(
+                      asset!,
+                      width: AppSpacing.xl4,
+                      height: AppSpacing.xl4,
+                      color: glyphColor,
+                    )
+                  : Icon(icon, size: AppSpacing.xl4, color: glyphColor),
+              gap: AppSpacing.lg,
+              // The kit butts the chevron against the text column — the
+              // Expanded already holds them apart.
+              trailingGap: 0,
+              title: label,
+              titleMaxLines: 1,
+              titleStyle: GrofastTextStyleConst.bodyMedium(
+                tt,
+              ).copyWith(color: cs.onSurfaceVariant),
+              subtitle: subtitle,
+              subtitleMaxLines: 1,
+              subtitleStyle: GrofastTextStyleConst.bodySmall(
+                tt,
+              ).copyWith(color: cs.onSurfaceVariant),
+              // The kit stacks the two lines with no gap between them.
+              lineGap: 0,
+              trailing:
+                  trailing ??
+                  (showChevron
+                      ? Icon(
+                          Icons.chevron_right_rounded,
+                          size: AppSpacing.xl4,
+                          color: cs.onSurfaceVariant,
+                        )
+                      : null),
             ),
           ),
         ),

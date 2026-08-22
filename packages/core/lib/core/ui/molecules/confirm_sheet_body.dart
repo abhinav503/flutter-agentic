@@ -29,6 +29,11 @@ class ConfirmSheetBody extends StatelessWidget {
   /// Gap between the text block and [actions].
   final double actionsGap;
 
+  /// How the title and message read. Centred is the common case; a pack
+  /// whose sheet is a plain sentence rather than a dialog sets
+  /// [TextAlign.start].
+  final TextAlign textAlign;
+
   const ConfirmSheetBody({
     super.key,
     this.title,
@@ -44,6 +49,7 @@ class ConfirmSheetBody extends StatelessWidget {
     ),
     this.titleGap = AppSpacing.xs,
     this.actionsGap = AppSpacing.xl4,
+    this.textAlign = TextAlign.center,
   });
 
   @override
@@ -60,7 +66,7 @@ class ConfirmSheetBody extends StatelessWidget {
           if (title != null) ...[
             Text(
               title!,
-              textAlign: TextAlign.center,
+              textAlign: textAlign,
               style:
                   titleStyle ?? tt.titleMedium!.copyWith(color: cs.onSurface),
             ),
@@ -68,7 +74,7 @@ class ConfirmSheetBody extends StatelessWidget {
           ],
           Text(
             message,
-            textAlign: TextAlign.center,
+            textAlign: textAlign,
             style:
                 messageStyle ??
                 tt.bodyMedium!.copyWith(color: cs.onSurfaceVariant),

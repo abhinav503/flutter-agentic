@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:core/core/theme/app_radius.dart';
 import 'package:core/core/theme/app_spacing.dart';
+import 'package:core/core/ui/molecules/picker_field.dart';
 
 import 'package:cordelia/templates/gravia/constants/gravia_color_const.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_text_style_const.dart';
@@ -37,46 +38,20 @@ class GraviaDropdownField extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          label,
-          style: GraviaTextStyleConst.textSmRegular(
-            tt,
-          ).copyWith(color: GraviaColorConst.gray500),
-        ),
-        const SizedBox(height: AppSpacing.xs),
-        GestureDetector(
-          onTap: onTap,
-          behavior: HitTestBehavior.opaque,
-          child: Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.base,
-              vertical: AppSpacing.sm,
-            ),
-            decoration: BoxDecoration(
-              border: Border.all(color: cs.outline),
-              borderRadius: AppRadius.xl,
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    value,
-                    style: tt.bodyMedium!.copyWith(color: cs.onSurface),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                Icon(trailingIcon, color: cs.onSurfaceVariant),
-              ],
-            ),
-          ),
-        ),
-      ],
+    return AppPickerField(
+      label: label,
+      value: value,
+      onTap: onTap,
+      labelStyle: GraviaTextStyleConst.textSmRegular(
+        tt,
+      ).copyWith(color: GraviaColorConst.gray500),
+      labelSpacing: AppSpacing.xs,
+      borderRadius: AppRadius.xl,
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.base,
+        vertical: AppSpacing.sm,
+      ),
+      trailing: Icon(trailingIcon, color: cs.onSurfaceVariant),
     );
   }
 }
