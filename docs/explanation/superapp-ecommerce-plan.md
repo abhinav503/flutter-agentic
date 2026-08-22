@@ -4785,8 +4785,8 @@ grid serializer's omissions made it look like they might not.
 If go-live means "a stranger's first order does not go wrong in a way we cannot
 answer for", it is the first three: **stock visibility, a support channel, and
 letting people browse before signing up**. (Stock visibility and the support
-channel both closed on 2026-08-21 — see their own sections; the login wall is
-the one still open.) Each is small relative to what is
+channel both closed on 2026-08-21, the login wall on 2026-08-22 — see their
+own sections. All three are shipped.) Each was small relative to what is
 already built, each is bounded, and each shows up on day one rather than at
 scale. The delivery-agent track is the larger hole but it is a whole app, and
 its absence degrades gracefully as long as order volume stays inside what a
@@ -5290,3 +5290,172 @@ inventory and the traps are now `docs/how-to/android-api-key-restrictions.md`.
 Left open by this: `com.flutteragentic.gravia` shares the same key and is on
 none of the rows, so gravia's next Android build hits the same wall;
 `com.example.entries` is a leftover client in the Firebase project.
+
+---
+
+## Alcohol and tobacco, banned platform-wide — DONE (2026-08-22)
+
+Not a legal rule — a platform one. The App Store age-rating questionnaire is
+answered **None** for "Alcohol, Tobacco, or Drug Use or References", and that
+answer is only true while the catalogs behind the app are. One store listing
+beer puts every store's app at risk, so the ban is ours and applies wherever
+the seller is licensed.
+
+`admin/src/lib/restricted-products.ts` is one list and one matcher: whole-word
+matching over accent-folded, script-aware normalised text, covering all six
+storefront languages, because a Hindi store types `बीयर` and an English-only
+list would leave the rule switched off for five of the six.
+
+The two escape hatches are the reason it is usable. `EXEMPT_PHRASES` clears
+goods that legitimately contain a term (wine vinegar in four languages, root
+beer, cigarette lighter, isopropyl alcohol); `NEGATORS` clear a whole category
+when the text declares itself free of it, because "non-alcoholic" rarely sits
+beside the word it qualifies ("Beer, 0% alcohol").
+
+Enforced in three places, and only the last of them actually holds: the
+product form and the CSV importer refuse on save, so an owner learns the rule
+on the product that broke it; and `getStoreReadiness` gains a seventh check,
+**server-side**, so a store cannot be submitted for review while its catalog
+carries any. Product writes go straight from the browser via the client SDK,
+so the first two are guardrails, not locks. Not a *preview* blocker — an owner
+tidying up can still walk their own store.
+
+`npm run verify:restricted-products` pins the matcher and sweeps all 725
+products across the seven market seed catalogs. That sweep is what caught the
+three false positives the list would otherwise have shipped with: **Britannia
+Bourbon** (a biscuit — `bourbon` dropped, the drink is still caught by
+whisky/whiskey), **Appy Fizz**'s "iconic champagne-style bottle", and
+**Vinaigre de vin blanc**, where the exempt list only knew "wine vinegar" in
+English.
+
+Written up for owners in `/terms` §6 and the Products / CSV / publish docs.
+
+---
+
+## Reporting a review, and blocking its author — DONE (2026-08-22)
+
+App Store Review Guideline 1.2 asks a UGC app for four things: content
+filtering, **a way to report offensive content**, **a way to block the person
+who posted it**, and published contact info. Two were already there (owner
+moderation in the console, `support@cordeliaapps.com`); the missing two were
+the likeliest reason a submission would be rejected.
+
+**Reporting** writes `…/reviews/{uid}/reports/{reporterUid}` and the review's
+`reportCount` in one transaction — the same discipline the rating aggregates
+keep. Keying the report by the *reporter* means re-reporting edits rather than
+inflates, so the count is distinct complainants, which is what makes it worth
+sorting by. Reports survive an edit, or the way to launder a reported review
+would be to edit it. Reporting your own is refused.
+
+**Blocking** writes `users/{uid}/blockedShoppers/{blockedUid}` server-side, so
+it survives a reinstall and follows the shopper to a second device. Both
+review read paths take an *optional* token (`optionalAuthedUid`) and drop that
+reader's blocked authors; the rating summary is untouched, because blocking
+hides an author from one person rather than un-rating the product.
+
+One action rather than two surfaces: the report sheet carries a
+checked-by-default "Also hide reviews from this shopper", because a reader who
+has had enough of someone should not have to find a second control. All three
+templates ship it over one shared `ReportReviewForm`, the split
+`WriteReviewForm` already established. Twelve strings across six locales — the
+parity gate caught the French `?` needing U+00A0, exactly the trap
+`add-language-pack.md` warns about.
+
+The console sorts reported reviews first, badges them **Reported ×N**, and
+gains **Keep** beside Delete — the owner's "I have read the complaints and the
+review stays", which clears them so the queue stops re-asking. Deleting a
+review now sweeps its reports subcollection (Firestore keeps one alive after
+its parent doc is gone), and account deletion takes `blockedShoppers`.
+
+---
+
+## Browsing without an account — DONE (2026-08-22)
+
+The last of the readiness scan's minimum three, and the only one that was a
+product decision rather than a gap. `splash_page.dart` sent everyone without a
+session to `/login`, so a marketplace whose whole proposition is *discover
+stores* opened with a signup form in front of that promise.
+
+The browsing layer needed no work — `home`, `categories`, `category_details`
+and `product_details` send no token at all, discovery already used
+`_optionalAuth()`, and search's token was already optional. The wall was one
+redirect.
+
+`SignInGateX.requireSignIn` **pushes** Login rather than `go`-ing to it, so
+returning is the navigator popping: the shopper lands back on the exact
+product they were reading, and no return path has to be encoded in a route.
+Login and Signup pop `true` when something is beneath them and fall back to
+Discovery when nothing is, so the same two screens serve both roles.
+
+Gated: add to cart, favourite, the bag/wishlist/orders/profile tabs, the cart
+and notification routes, and writing or reporting a review. Add-to-cart and
+favourite go through one extension each rather than 30 edited call sites, so a
+new screen cannot forget the gate. Tabs are a `signedInOnlyTabs` set each
+template declares in its own indices; backing out of Login leaves the shopper
+on the tab they were reading rather than on an empty panel they never chose.
+
+**Five bugs this introduced, all found by review and fixed:**
+
+- A guest's cart was never hydrated, so the first add-to-cart after signing in
+  would have persisted a one-item cart over whatever was on the server. The
+  gate hydrates cart and favourites the moment an account appears.
+- `ProfileBloc` had no way to say "there is no profile", so a guest sat in
+  `loading` and every header shimmered forever. `ProfileState.signedOut` now
+  exists and the exhaustive switch found all four consumers — dailymart's name
+  line prints "Guest", grofast's avatar the default portrait.
+- "Added to cart" fired *while* the gate opened Login underneath it. The
+  gated helpers now return whether the line actually went in, and all eight
+  confirmation sites await it.
+- `ProductDetailsRemoteDataSourceImpl` sent no token, so the blocked-author
+  filter never applied to the reviews the details payload seeds — the block
+  held on the reviews endpoint and silently not on the copy Product Details
+  opened with.
+- A signed-out device still receives platform-wide pushes, and the app can now
+  be open when one is tapped. `NotificationRouter` would have pushed
+  `/notifications`, which 401s; it now knows which destinations are somebody's
+  own and opens the store instead.
+
+**And one asymmetry it exposed:** session expiry cleared only the profile
+cache while sign-out cleared five things. Survivable while expiry parked on
+Login; once it drops to Discovery, the previous account's bag count, wishlist
+hearts and recent stores are on screen for whoever is holding the phone. Both
+paths now share `forgetAccountLocalState()` — which also clears the selected
+delivery address, something *neither* path had ever done, so a second account
+on one device inherited the first's address in the header.
+
+---
+
+## Ola Maps removed for the device's own geocoder — DONE (2026-08-22)
+
+`OLA_MAPS_API_KEY` was never set in Vercel — the 2026-08-05 note that a key
+was still pending (Krutrim gates credential creation behind Autopay) was never
+resolved. So `olaApiKey()` threw on every call and **`/api/geo/reverse` and
+`/api/geo/autocomplete` had returned 502 since the day they shipped**: "use my
+location" on the address form and place autocomplete have never worked in
+production. Ola is also India-only, and this app sells in seven markets.
+
+Reverse geocoding is now **on-device**. `LocationService.currentPlace()` in
+core does the permission dance and the fix (geolocator), then the platform's
+own geocoder (`geocoding` package → Android's `Geocoder`, iOS's `CLGeocoder`).
+No key, no quota, works everywhere — and needs no account, which is the only
+reason a signed-out shopper can use it at all, since every `/api/geo` route is
+token-authed. `LocationSuccess` carries the platform's flat placemark fields
+rather than any app's address shape, so core stays a device service.
+`kIsWeb`-guarded; the web build was verified.
+
+**Place autocomplete is dropped, not replaced.** The device geocoder does
+coordinates→address, not search, and every autocomplete service worth using
+wants a billed API key. Gravia's address search field, `PlaceSuggestion`
+(entity/model/use case), `ReverseGeocodeUseCase`, `GeoAddressModel` and the
+bloc's `queryChanged`/`suggestionSelected` all went with it. India Post's
+pincode → city/state stays, because that is data a phone cannot answer for
+itself.
+
+The same capability gave the storefront header a guest affordance: tapping the
+location row signed out asks the device and prints the postcode. **The
+permission prompt fires on the tap, never at launch** — an unasked-for
+location dialog on first open is one of the surest ways to lose an install.
+The located postcode is held in state and never written to
+`kSelectedAddressLabelPrefKey`: it is a hint about where the phone is, not an
+address anyone confirmed, and persisting it would make checkout think one had
+been chosen.

@@ -104,8 +104,8 @@ abstract final class ValueConst {
   static String get resendEmailLabel => L10n.current.resendEmailLabel;
 
   // ── Legal (Terms & Conditions / Privacy Policy) ────────────────────────────
-  // T&C body is still placeholder copy (needs a real content pass); the
-  // privacy sections are real and translated.
+  // Both bodies are real, translated copy — the T&C content pass landed
+  // 2026-08-06 and this comment outlived it by two weeks.
   static String get termsAndConditionsLabel =>
       L10n.current.termsAndConditionsLabel;
   static String get privacyPolicyLabel => L10n.current.privacyPolicyLabel;
