@@ -571,13 +571,13 @@ return error(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loading,TResult Function( ProductReviewsEntity reviews,  bool afterWrite,  bool afterReport)?  loaded,TResult Function( ProductReviewsEntity? reviews)?  submitting,TResult Function( String message,  ProductReviewsEntity? reviews)?  error,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loading,TResult Function( ProductReviewsEntity reviews,  bool afterWrite,  bool afterReport)?  loaded,TResult Function( ProductReviewsEntity? reviews)?  submitting,TResult Function( String message,  ProductReviewsEntity? reviews,  bool shownInSheet)?  error,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case ProductReviewsLoading() when loading != null:
 return loading();case ProductReviewsLoaded() when loaded != null:
 return loaded(_that.reviews,_that.afterWrite,_that.afterReport);case ProductReviewsSubmitting() when submitting != null:
 return submitting(_that.reviews);case ProductReviewsError() when error != null:
-return error(_that.message,_that.reviews);case _:
+return error(_that.message,_that.reviews,_that.shownInSheet);case _:
   return orElse();
 
 }
@@ -595,13 +595,13 @@ return error(_that.message,_that.reviews);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loading,required TResult Function( ProductReviewsEntity reviews,  bool afterWrite,  bool afterReport)  loaded,required TResult Function( ProductReviewsEntity? reviews)  submitting,required TResult Function( String message,  ProductReviewsEntity? reviews)  error,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loading,required TResult Function( ProductReviewsEntity reviews,  bool afterWrite,  bool afterReport)  loaded,required TResult Function( ProductReviewsEntity? reviews)  submitting,required TResult Function( String message,  ProductReviewsEntity? reviews,  bool shownInSheet)  error,}) {final _that = this;
 switch (_that) {
 case ProductReviewsLoading():
 return loading();case ProductReviewsLoaded():
 return loaded(_that.reviews,_that.afterWrite,_that.afterReport);case ProductReviewsSubmitting():
 return submitting(_that.reviews);case ProductReviewsError():
-return error(_that.message,_that.reviews);}
+return error(_that.message,_that.reviews,_that.shownInSheet);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -615,13 +615,13 @@ return error(_that.message,_that.reviews);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loading,TResult? Function( ProductReviewsEntity reviews,  bool afterWrite,  bool afterReport)?  loaded,TResult? Function( ProductReviewsEntity? reviews)?  submitting,TResult? Function( String message,  ProductReviewsEntity? reviews)?  error,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loading,TResult? Function( ProductReviewsEntity reviews,  bool afterWrite,  bool afterReport)?  loaded,TResult? Function( ProductReviewsEntity? reviews)?  submitting,TResult? Function( String message,  ProductReviewsEntity? reviews,  bool shownInSheet)?  error,}) {final _that = this;
 switch (_that) {
 case ProductReviewsLoading() when loading != null:
 return loading();case ProductReviewsLoaded() when loaded != null:
 return loaded(_that.reviews,_that.afterWrite,_that.afterReport);case ProductReviewsSubmitting() when submitting != null:
 return submitting(_that.reviews);case ProductReviewsError() when error != null:
-return error(_that.message,_that.reviews);case _:
+return error(_that.message,_that.reviews,_that.shownInSheet);case _:
   return null;
 
 }
@@ -801,11 +801,12 @@ as ProductReviewsEntity?,
 
 
 class ProductReviewsError implements ProductReviewsState {
-  const ProductReviewsError({required this.message, this.reviews});
+  const ProductReviewsError({required this.message, this.reviews, this.shownInSheet = false});
   
 
  final  String message;
  final  ProductReviewsEntity? reviews;
+@JsonKey() final  bool shownInSheet;
 
 /// Create a copy of ProductReviewsState
 /// with the given fields replaced by the non-null parameter values.
@@ -817,16 +818,16 @@ $ProductReviewsErrorCopyWith<ProductReviewsError> get copyWith => _$ProductRevie
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProductReviewsError&&(identical(other.message, message) || other.message == message)&&(identical(other.reviews, reviews) || other.reviews == reviews));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProductReviewsError&&(identical(other.message, message) || other.message == message)&&(identical(other.reviews, reviews) || other.reviews == reviews)&&(identical(other.shownInSheet, shownInSheet) || other.shownInSheet == shownInSheet));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,message,reviews);
+int get hashCode => Object.hash(runtimeType,message,reviews,shownInSheet);
 
 @override
 String toString() {
-  return 'ProductReviewsState.error(message: $message, reviews: $reviews)';
+  return 'ProductReviewsState.error(message: $message, reviews: $reviews, shownInSheet: $shownInSheet)';
 }
 
 
@@ -837,7 +838,7 @@ abstract mixin class $ProductReviewsErrorCopyWith<$Res> implements $ProductRevie
   factory $ProductReviewsErrorCopyWith(ProductReviewsError value, $Res Function(ProductReviewsError) _then) = _$ProductReviewsErrorCopyWithImpl;
 @useResult
 $Res call({
- String message, ProductReviewsEntity? reviews
+ String message, ProductReviewsEntity? reviews, bool shownInSheet
 });
 
 
@@ -854,11 +855,12 @@ class _$ProductReviewsErrorCopyWithImpl<$Res>
 
 /// Create a copy of ProductReviewsState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? message = null,Object? reviews = freezed,}) {
+@pragma('vm:prefer-inline') $Res call({Object? message = null,Object? reviews = freezed,Object? shownInSheet = null,}) {
   return _then(ProductReviewsError(
 message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
 as String,reviews: freezed == reviews ? _self.reviews : reviews // ignore: cast_nullable_to_non_nullable
-as ProductReviewsEntity?,
+as ProductReviewsEntity?,shownInSheet: null == shownInSheet ? _self.shownInSheet : shownInSheet // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 

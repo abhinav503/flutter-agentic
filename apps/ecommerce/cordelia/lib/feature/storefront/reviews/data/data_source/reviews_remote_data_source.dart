@@ -1,4 +1,4 @@
-import '../../domain/entities/review_report_reason.dart';
+import 'package:cordelia/enums/review_report_reason.dart';
 import '../models/product_reviews_model.dart';
 import '../models/review_model.dart';
 

@@ -1,7 +1,11 @@
-/// A structured address resolved from coordinates or a picked suggestion —
-/// exactly the fields the Add/Edit Address form can prefill, nothing more.
+/// A structured address resolved from coordinates — exactly the fields the
+/// Add/Edit Address form can prefill, nothing more.
+///
+/// Deliberately has no `*Model` pair, unlike every entity that crosses the
+/// wire: this one is built on the device, from the platform's own geocoder
+/// (`LocationService`). There is no JSON to parse and no payload to send, so
+/// a DTO would exist only to satisfy the shape.
 class GeoAddressEntity {
-  final String formatted;
   final String addressLine;
   final String city;
   final String state;
@@ -11,7 +15,6 @@ class GeoAddressEntity {
   final double? longitude;
 
   const GeoAddressEntity({
-    required this.formatted,
     required this.addressLine,
     required this.city,
     required this.state,

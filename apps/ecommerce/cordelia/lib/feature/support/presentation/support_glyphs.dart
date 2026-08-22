@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'support_channels.dart';
+import 'package:cordelia/feature/support/presentation/support_channels.dart';
 
 /// The glyph a support row leads with.
 ///

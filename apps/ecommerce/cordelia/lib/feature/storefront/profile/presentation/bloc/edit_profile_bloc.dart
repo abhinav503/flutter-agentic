@@ -1,6 +1,7 @@
 import 'package:cordelia/constants/value_const.dart';
 import 'package:cordelia/feature/auth/domain/entities/user_entity.dart';
 import 'package:cordelia/feature/auth/domain/usecase/update_profile_usecase.dart';
+import 'package:cordelia/utils/failure_message.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -45,7 +46,7 @@ class EditProfileBloc extends Bloc<EditProfileEvent, EditProfileState> {
     result.fold(
       (failure) => emit(
         EditProfileState.error(
-          message: failure.message,
+          message: failure.shopperMessage,
           name: event.name,
           mobile: event.mobile,
           avatarBytes: event.avatarBytes,

@@ -11,7 +11,7 @@ import 'package:cordelia/templates/dailymart/constants/dailymart_dimen_const.dar
 import 'package:cordelia/templates/dailymart/constants/dailymart_text_style_const.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_header_row.dart';
 
-import '../../../view/legal_document_content.dart';
+import 'package:cordelia/feature/legal/presentation/legal_document_content.dart';
 
 /// `dailymart` template's legal document (kit frame `50 Privacy & Policy`),
 /// serving both Privacy Policy and Terms & Conditions — a white sheet with

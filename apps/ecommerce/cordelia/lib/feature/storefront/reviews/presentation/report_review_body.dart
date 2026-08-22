@@ -6,7 +6,7 @@ import 'package:core/core/ui/molecules/radio_group.dart';
 
 import 'package:cordelia/constants/value_const.dart';
 
-import '../domain/entities/review_report_reason.dart';
+import 'package:cordelia/enums/review_report_reason.dart';
 import 'report_review_form.dart';
 
 /// The report sheet's body, shared by every template — prompt, the reason
@@ -37,6 +37,11 @@ class ReportReviewBody extends StatelessWidget {
   /// just above the CTA that produced it, in `cs.error`.
   final String? errorMessage;
 
+  /// True while the write is in the air. Taps on [submit] are absorbed
+  /// rather than the control being restyled: each pack draws its own CTA,
+  /// and a disabled look imposed from here would not be its own.
+  final bool isSubmitting;
+
   /// Content inset. Zero for a pack whose sheet chrome already pads.
   final EdgeInsetsGeometry padding;
 
@@ -51,6 +56,7 @@ class ReportReviewBody extends StatelessWidget {
     required this.optionLabelStyle,
     required this.blockLabelStyle,
     this.errorMessage,
+    this.isSubmitting = false,
     this.padding = EdgeInsets.zero,
   });
 
@@ -99,7 +105,7 @@ class ReportReviewBody extends StatelessWidget {
           ),
         ],
         const SizedBox(height: AppSpacing.xl2),
-        submit,
+        AbsorbPointer(absorbing: isSubmitting, child: submit),
       ],
     ),
   );

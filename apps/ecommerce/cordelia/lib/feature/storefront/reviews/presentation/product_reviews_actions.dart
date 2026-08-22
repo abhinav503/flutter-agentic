@@ -12,7 +12,7 @@ import 'package:cordelia/di/injection_container.dart';
 import '../../product_details/presentation/bloc/product_details_bloc.dart';
 import '../domain/entities/product_reviews_entity.dart';
 import '../domain/entities/review_entity.dart';
-import '../domain/entities/review_report_reason.dart';
+import 'package:cordelia/enums/review_report_reason.dart';
 import 'bloc/product_reviews_bloc.dart';
 
 /// The reviews behaviour every template's Product Details repeats
@@ -54,18 +54,42 @@ mixin ProductReviewsActions<T extends BaseScreen> on BaseScreenState<T> {
     await showReportReviewSheet(review);
   }
 
-  void submitReport(String reviewUid, ReviewReportReason reason, bool block) =>
-      context.read<ProductReviewsBloc>().add(
-        ProductReviewsEvent.reported(
-          reviewUid: reviewUid,
-          reason: reason,
-          block: block,
-        ),
-      );
+  Future<String?> submitReport(
+    String reviewUid,
+    ReviewReportReason reason,
+    bool block,
+  ) => _dispatchAndAwait(
+    ProductReviewsEvent.reported(
+      reviewUid: reviewUid,
+      reason: reason,
+      block: block,
+    ),
+  );
 
-  void submitReview(int rating, String text) => context
-      .read<ProductReviewsBloc>()
-      .add(ProductReviewsEvent.submitted(rating: rating, text: text));
+  Future<String?> submitReview(int rating, String text) => _dispatchAndAwait(
+    ProductReviewsEvent.submitted(rating: rating, text: text),
+  );
+
+  /// Dispatches a write and resolves to its failure message, or null once it
+  /// landed — the contract the sheets need to decide whether to close.
+  ///
+  /// Subscribing *before* dispatching, not after: `add` is synchronous and
+  /// the handler's first `emit` can land in the same turn, which a later
+  /// listener would miss and then wait forever for.
+  ///
+  /// Both write handlers always settle — `submitting` first, then `loaded`
+  /// or `error` — so this can't hang. A handler that could decline to emit
+  /// would need a different signal (see `OrderReviewActions`, whose bloc
+  /// can).
+  Future<String?> _dispatchAndAwait(ProductReviewsEvent event) async {
+    final bloc = context.read<ProductReviewsBloc>();
+    final settled = bloc.stream.firstWhere(
+      (state) => state is! ProductReviewsSubmitting,
+    );
+    bloc.add(event);
+    final state = await settled;
+    return state is ProductReviewsError ? state.message : null;
+  }
 
   Future<void> confirmDeleteReview() => showDeleteReviewSheet(
     onConfirm: () => context.read<ProductReviewsBloc>().add(
@@ -89,8 +113,15 @@ mixin ProductReviewsActions<T extends BaseScreen> on BaseScreenState<T> {
   /// is reading; the pill just updates in place when the response lands.
   void handleReviewsState(ProductReviewsState state) {
     switch (state) {
-      case ProductReviewsError(:final message):
+      // A sheet that is still open prints its own failure inline, keeping
+      // what the shopper typed. Snackbarring it too would put a duplicate
+      // under the modal barrier — unseen while it matters, and stale by the
+      // time the sheet closes.
+      case ProductReviewsError(:final message, :final shownInSheet)
+          when !shownInSheet:
         showSnackBar(message);
+      case ProductReviewsError():
+        break;
       case ProductReviewsLoaded(:final afterWrite) when afterWrite:
         _refreshProduct();
       // Nothing to refresh — a report changes no rating. The shopper is

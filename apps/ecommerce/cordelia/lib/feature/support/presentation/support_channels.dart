@@ -10,7 +10,7 @@ import 'package:core/core/auth/auth_session.dart';
 
 import 'package:cordelia/di/injection_container.dart';
 
-import 'support_message.dart';
+import 'package:cordelia/feature/support/presentation/support_message.dart';
 
 /// What a support row does when tapped — the packs use this to pick a glyph,
 /// and [SupportLauncher] to pick a fallback when nothing can open the URI.

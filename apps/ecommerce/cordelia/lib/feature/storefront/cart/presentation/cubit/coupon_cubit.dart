@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:cordelia/utils/failure_message.dart';
 
 import '../../domain/entities/applied_coupon_entity.dart';
 import '../../domain/entities/cart_item_entity.dart';
@@ -57,7 +58,7 @@ class CouponCubit extends Cubit<CouponState> {
       ValidateCouponParams(storeId: storeId, code: trimmed, items: items),
     );
     result.fold(
-      (failure) => emit(CouponFailed(message: failure.message, code: trimmed)),
+      (failure) => emit(CouponFailed(message: failure.shopperMessage, code: trimmed)),
       (coupon) => emit(CouponApplied(coupon: coupon)),
     );
   }

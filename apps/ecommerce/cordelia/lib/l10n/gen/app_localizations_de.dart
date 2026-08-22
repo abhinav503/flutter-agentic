@@ -9,6 +9,10 @@ class AppLocalizationsDe extends AppLocalizations {
   AppLocalizationsDe([String locale = 'de']) : super(locale);
 
   @override
+  String get noConnectionMessage =>
+      'Keine Internetverbindung. Prüfe deine Verbindung und versuche es erneut.';
+
+  @override
   String get languageSheetTitle => 'Sprache';
 
   @override
@@ -69,15 +73,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get continueLabel => 'Weiter';
-
-  @override
-  String get orLoginWith => 'Oder anmelden mit';
-
-  @override
-  String get continueWithGoogle => 'Mit Google fortfahren';
-
-  @override
-  String get continueWithApple => 'Mit Apple fortfahren';
 
   @override
   String get byContinuingAgree => 'Wenn Sie fortfahren, akzeptieren Sie unsere';
@@ -322,10 +317,6 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get deleteAccountConfirmMessage =>
       'Dadurch werden Ihr Profil, Ihre Adressen, Ihr Warenkorb, Ihre Merkliste und Ihre Bewertungen in allen Shops dauerhaft gelöscht. Bereits aufgegebene Bestellungen bleiben als Verkaufsbelege bei den jeweiligen Shops. Dieser Schritt kann nicht widerrufen werden.';
-
-  @override
-  String get deleteAccountFailedMessage =>
-      'Ihr Konto konnte nicht gelöscht werden. Bitte erneut versuchen.';
 
   @override
   String get profileLoadErrorMessage =>
@@ -955,10 +946,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get graviaUseMyLocationLabel => 'Meinen Standort verwenden';
-
-  @override
-  String get graviaLocationUnavailableMessage =>
-      'Standort konnte nicht ermittelt werden. Prüfen Sie die Standortberechtigung und versuchen Sie es erneut.';
 
   @override
   String get graviaProfilePageTitle => 'Profil';
@@ -2681,9 +2668,6 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get validationPasswordsDontMatch =>
       'Die Passwörter stimmen nicht überein.';
-
-  @override
-  String get retryButton => 'Erneut versuchen';
 
   @override
   String get notificationsSectionToday => 'Heute';

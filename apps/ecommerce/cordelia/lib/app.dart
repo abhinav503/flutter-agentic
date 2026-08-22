@@ -113,7 +113,7 @@ import 'feature/legal/presentation/templates/gravia/view/legal_document_page.dar
     as gravia_legal;
 import 'feature/legal/presentation/templates/grofast/view/legal_document_page.dart'
     as grofast_legal;
-import 'feature/legal/presentation/view/legal_document_content.dart';
+import 'package:cordelia/feature/legal/presentation/legal_document_content.dart';
 import 'feature/onboarding/presentation/view/onboarding_page.dart';
 import 'feature/splash/presentation/view/splash_page.dart';
 import 'feature/storefront/active_store/presentation/cubit/active_store_cubit.dart';
@@ -124,7 +124,7 @@ import 'feature/support/presentation/templates/gravia/view/support_page.dart'
     as gravia_support;
 import 'feature/support/presentation/templates/grofast/view/support_page.dart'
     as grofast_support;
-import 'feature/support/presentation/view/support_channels.dart';
+import 'package:cordelia/feature/support/presentation/support_channels.dart';
 import 'l10n/active_locale_controller.dart';
 import 'l10n/active_locale_scope.dart';
 import 'l10n/gen/app_localizations.dart';
@@ -614,7 +614,9 @@ class _SessionExpiredGuardState extends State<_SessionExpiredGuard> {
   @override
   void initState() {
     super.initState();
-    _expirations = sl<AuthSession>().expirations.listen((_) => _handleExpired());
+    _expirations = sl<AuthSession>().expirations.listen(
+      (_) => _handleExpired(),
+    );
   }
 
   @override

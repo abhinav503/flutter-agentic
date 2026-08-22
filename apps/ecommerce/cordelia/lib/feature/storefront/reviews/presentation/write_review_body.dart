@@ -34,6 +34,11 @@ class WriteReviewBody extends StatelessWidget {
   /// just above the CTA that produced it, in `cs.error`.
   final String? errorMessage;
 
+  /// True while the write is in the air. Taps on [submit] are absorbed
+  /// rather than the control being restyled: each pack draws its own CTA,
+  /// and a disabled look imposed from here would not be its own.
+  final bool isSubmitting;
+
   /// Content inset. Zero for a pack whose sheet chrome already pads.
   final EdgeInsetsGeometry padding;
 
@@ -46,6 +51,7 @@ class WriteReviewBody extends StatelessWidget {
     required this.promptStyle,
     this.starColor,
     this.errorMessage,
+    this.isSubmitting = false,
     this.padding = EdgeInsets.zero,
   });
 
@@ -75,7 +81,7 @@ class WriteReviewBody extends StatelessWidget {
           ),
         ],
         const SizedBox(height: AppSpacing.xl2),
-        submit,
+        AbsorbPointer(absorbing: isSubmitting, child: submit),
       ],
     ),
   );

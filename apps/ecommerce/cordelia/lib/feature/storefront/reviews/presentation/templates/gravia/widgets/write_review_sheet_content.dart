@@ -32,7 +32,7 @@ class GraviaWriteReviewSheetContent extends StatefulWidget {
   final String? textLabel;
   final String? textHint;
 
-  final void Function(int rating, String text) onSubmit;
+  final Future<String?> Function(int rating, String text) onSubmit;
 
   const GraviaWriteReviewSheetContent({
     super.key,
@@ -58,7 +58,8 @@ class _GraviaWriteReviewSheetContentState
   String get initialText => widget.initialText;
 
   @override
-  void Function(int rating, String text) get onSubmit => widget.onSubmit;
+  Future<String?> Function(int rating, String text) get onSubmit =>
+      widget.onSubmit;
 
   @override
   String get missingRatingMessage => ValueConst.reviewMissingRatingMessage;
@@ -72,6 +73,7 @@ class _GraviaWriteReviewSheetContentState
       rating: rating,
       onRatingChanged: selectRating,
       errorMessage: formError,
+      isSubmitting: submitting,
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.lg,
         AppSpacing.base,

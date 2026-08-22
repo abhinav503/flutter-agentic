@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:cordelia/utils/failure_message.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'package:core/core/base/bloc_cache.dart';
@@ -50,7 +51,7 @@ class CategoriesBloc extends Bloc<CategoriesEvent, CategoriesState> {
           );
         case CategoriesLoading():
         case CategoriesError():
-          emit(CategoriesState.error(message: failure.message));
+          emit(CategoriesState.error(message: failure.shopperMessage));
       }
     }, (categories) => _emitLoaded(categories, emit));
   }

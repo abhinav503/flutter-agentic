@@ -106,6 +106,12 @@ abstract class AppLocalizations {
     Locale('it'),
   ];
 
+  /// Shown wherever a request failed because the device could not reach the network at all — the one failure whose technical text (Dio's host-lookup error) must never reach a shopper.
+  ///
+  /// In en, this message translates to:
+  /// **'No internet connection. Check your network and try again.'**
+  String get noConnectionMessage;
+
   /// No description provided for @languageSheetTitle.
   ///
   /// In en, this message translates to:
@@ -207,24 +213,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Continue'**
   String get continueLabel;
-
-  /// No description provided for @orLoginWith.
-  ///
-  /// In en, this message translates to:
-  /// **'Or Login with'**
-  String get orLoginWith;
-
-  /// No description provided for @continueWithGoogle.
-  ///
-  /// In en, this message translates to:
-  /// **'Continue with Google'**
-  String get continueWithGoogle;
-
-  /// No description provided for @continueWithApple.
-  ///
-  /// In en, this message translates to:
-  /// **'Continue with Apple'**
-  String get continueWithApple;
 
   /// No description provided for @byContinuingAgree.
   ///
@@ -651,12 +639,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This permanently deletes your profile, addresses, cart, wishlist and reviews across every store. Orders you have already placed stay with those stores as their sales records. This cannot be undone.'**
   String get deleteAccountConfirmMessage;
-
-  /// No description provided for @deleteAccountFailedMessage.
-  ///
-  /// In en, this message translates to:
-  /// **'Could not delete your account. Please try again.'**
-  String get deleteAccountFailedMessage;
 
   /// No description provided for @profileLoadErrorMessage.
   ///
@@ -1677,12 +1659,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Use my location'**
   String get graviaUseMyLocationLabel;
-
-  /// No description provided for @graviaLocationUnavailableMessage.
-  ///
-  /// In en, this message translates to:
-  /// **'Couldn\'t get your location. Check location permission and try again.'**
-  String get graviaLocationUnavailableMessage;
 
   /// No description provided for @graviaProfilePageTitle.
   ///
@@ -4773,12 +4749,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Passwords do not match.'**
   String get validationPasswordsDontMatch;
-
-  /// No description provided for @retryButton.
-  ///
-  /// In en, this message translates to:
-  /// **'Retry'**
-  String get retryButton;
 
   /// Heading over notifications received today, on the Notifications screen. Grouped client-side so the heading is translated — the server sends only timestamps.
   ///

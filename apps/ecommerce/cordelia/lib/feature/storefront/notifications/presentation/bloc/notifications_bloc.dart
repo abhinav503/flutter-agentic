@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'package:cordelia/services/notification/firebase_messaging_service.dart';
+import 'package:cordelia/utils/failure_message.dart';
 
 import '../../domain/entities/notification_section_entity.dart';
 import '../../domain/usecase/get_notifications_usecase.dart';
@@ -70,7 +71,7 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
       GetNotificationsParams(storeId: _storeId),
     );
     result.fold(
-      (failure) => emit(NotificationsState.error(message: failure.message)),
+      (failure) => emit(NotificationsState.error(message: failure.shopperMessage)),
       (sections) {
         emit(NotificationsState.loaded(sections: sections));
         _acknowledge(sections);

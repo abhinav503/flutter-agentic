@@ -11,7 +11,7 @@ import 'package:cordelia/templates/gravia/constants/gravia_dimen_const.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_text_style_const.dart';
 import 'package:cordelia/templates/gravia/widgets/gravia_hero_header.dart';
 
-import '../../../view/legal_document_content.dart';
+import 'package:cordelia/feature/legal/presentation/legal_document_content.dart';
 
 /// Static, no-BLoC screen for a legal document (Terms & Conditions, Privacy
 /// Policy) — same coloured-header + white-sheet shape as every other pushed

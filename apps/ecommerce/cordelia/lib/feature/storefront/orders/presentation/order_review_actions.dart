@@ -21,7 +21,7 @@ mixin OrderReviewActions<T extends BaseScreen> on BaseScreenState<T> {
   Future<void> showRateOrderSheet({
     required int initialRating,
     required String initialText,
-    required void Function(int rating, String text) onSubmit,
+    required Future<String?> Function(int rating, String text) onSubmit,
   });
 
   /// Opens the sheet for [order] and dispatches its result. Refuses an order
@@ -36,9 +36,19 @@ mixin OrderReviewActions<T extends BaseScreen> on BaseScreenState<T> {
     await showRateOrderSheet(
       initialRating: order.rating,
       initialText: order.reviewText,
-      onSubmit: (rating, text) => bloc.add(
-        OrdersEvent.rated(orderId: order.id, rating: rating, text: text),
-      ),
+      // Resolves null (success) without waiting, which keeps this sheet
+      // behaving exactly as it did: it closes on submit, and a failure
+      // surfaces on the screen behind it through `OrdersLoaded.rateFailed`,
+      // where it is visible. Awaiting the outcome the way the review sheets
+      // do needs a bloc that always answers, and `_onRated` deliberately
+      // returns without emitting for a stale tap on an order that has left
+      // the list.
+      onSubmit: (rating, text) async {
+        bloc.add(
+          OrdersEvent.rated(orderId: order.id, rating: rating, text: text),
+        );
+        return null;
+      },
     );
   }
 }

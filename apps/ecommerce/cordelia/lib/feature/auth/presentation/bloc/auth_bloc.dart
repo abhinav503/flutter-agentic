@@ -9,6 +9,7 @@ import 'package:core/core/services/shared_pref_service/shared_preference_service
 import 'package:core/core/usecase/usecase.dart';
 
 import 'package:cordelia/constants/value_const.dart';
+import 'package:cordelia/utils/failure_message.dart';
 
 import '../../domain/entities/user_entity.dart';
 import '../../domain/usecase/check_email_verified_usecase.dart';
@@ -119,7 +120,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       ),
     );
     await result.fold(
-      (failure) async => emit(AuthState.error(message: failure.message)),
+      (failure) async => emit(AuthState.error(message: failure.shopperMessage)),
       (user) async {
         if (_bypassesVerification(user.email)) {
           await SharedPreferenceService.instance.setBool(
@@ -148,7 +149,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
     await result.fold(
       (failure) async {
-        emit(AuthState.error(message: failure.message));
+        emit(AuthState.error(message: failure.shopperMessage));
       },
       (user) async {
         if (user.emailVerified || _bypassesVerification(user.email)) {
@@ -172,7 +173,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     // Only react on failure (e.g. Firebase rate-limits it) — the sheet's own
     // cooldown already reflects a successful resend, nothing else to emit.
     result.fold(
-      (failure) => emit(AuthState.error(message: failure.message)),
+      (failure) => emit(AuthState.error(message: failure.shopperMessage)),
       (_) {},
     );
   }
@@ -210,7 +211,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
     result.fold(
       (failure) =>
-          emit(AuthState.error(message: failure.message, attempt: attempt)),
+          emit(AuthState.error(message: failure.shopperMessage, attempt: attempt)),
       (_) => emit(
         AuthState.passwordResetEmailSent(email: event.email, attempt: attempt),
       ),

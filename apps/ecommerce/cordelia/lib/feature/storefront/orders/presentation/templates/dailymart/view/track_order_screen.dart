@@ -17,7 +17,7 @@ import 'package:cordelia/templates/dailymart/widgets/dailymart_outline_button.da
 import 'package:cordelia/templates/dailymart/widgets/dailymart_section_header.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_sheet.dart';
 
-import 'package:cordelia/feature/support/presentation/view/support_order_link.dart';
+import 'package:cordelia/feature/support/presentation/support_order_link.dart';
 import 'package:cordelia/constants/value_const.dart';
 
 import '../../../../../reviews/presentation/templates/dailymart/widgets/write_review_sheet_content.dart';
@@ -79,7 +79,7 @@ class _TrackOrderScreenState extends BaseScreenState<TrackOrderScreen>
   Future<void> showRateOrderSheet({
     required int initialRating,
     required String initialText,
-    required void Function(int rating, String text) onSubmit,
+    required Future<String?> Function(int rating, String text) onSubmit,
   }) => showDailyMartSheet<void>(
     title: ValueConst.rateOrderSheetTitle,
     child: DailyMartWriteReviewSheetContent(

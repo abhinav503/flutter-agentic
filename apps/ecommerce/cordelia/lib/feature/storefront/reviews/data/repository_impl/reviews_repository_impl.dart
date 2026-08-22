@@ -4,7 +4,7 @@ import 'package:fpdart/fpdart.dart';
 
 import '../../domain/entities/product_reviews_entity.dart';
 import '../../domain/entities/review_entity.dart';
-import '../../domain/entities/review_report_reason.dart';
+import 'package:cordelia/enums/review_report_reason.dart';
 import '../../domain/repository/reviews_repository.dart';
 import '../data_source/reviews_remote_data_source.dart';
 

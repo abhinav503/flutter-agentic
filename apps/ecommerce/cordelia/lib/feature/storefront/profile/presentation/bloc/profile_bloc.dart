@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:cordelia/utils/failure_message.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -69,7 +70,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     _uid = _session.currentUid;
     final result = await _getProfile(const NoParams());
     result.fold(
-      (failure) => emit(ProfileState.error(message: failure.message)),
+      (failure) => emit(ProfileState.error(message: failure.shopperMessage)),
       (profile) => emit(ProfileState.loaded(profile: profile)),
     );
   }

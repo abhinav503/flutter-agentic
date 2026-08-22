@@ -2,7 +2,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../domain/entities/product_reviews_entity.dart';
-import '../../domain/entities/review_report_reason.dart';
+import 'package:cordelia/enums/review_report_reason.dart';
+import 'package:cordelia/utils/failure_message.dart';
 import '../../domain/usecase/delete_my_review_usecase.dart';
 import '../../domain/usecase/get_product_reviews_usecase.dart';
 import '../../domain/usecase/report_review_usecase.dart';
@@ -92,8 +93,11 @@ class ProductReviewsBloc
     await result.fold(
       (failure) async => emit(
         ProductReviewsState.error(
-          message: failure.message,
+          message: failure.shopperMessage,
           reviews: state.reviewsOrNull,
+          // The composer is still open behind this and renders the message
+          // itself, so the shopper keeps what they typed.
+          shownInSheet: true,
         ),
       ),
       (_) => _reload(emit, afterWrite: true),
@@ -112,7 +116,7 @@ class ProductReviewsBloc
     await result.fold(
       (failure) async => emit(
         ProductReviewsState.error(
-          message: failure.message,
+          message: failure.shopperMessage,
           reviews: state.reviewsOrNull,
         ),
       ),
@@ -138,8 +142,10 @@ class ProductReviewsBloc
     await result.fold(
       (failure) async => emit(
         ProductReviewsState.error(
-          message: failure.message,
+          message: failure.shopperMessage,
           reviews: state.reviewsOrNull,
+          // The report sheet is still open and prints this itself.
+          shownInSheet: true,
         ),
       ),
       // Reloaded rather than left alone: a report that also blocked the
@@ -162,7 +168,7 @@ class ProductReviewsBloc
     result.fold(
       (failure) => emit(
         ProductReviewsState.error(
-          message: failure.message,
+          message: failure.shopperMessage,
           reviews: state.reviewsOrNull,
         ),
       ),

@@ -6,6 +6,7 @@ import 'package:core/core/base/bloc_cache.dart';
 import 'package:core/core/error/failure.dart';
 
 import 'package:cordelia/utils/event_transformers.dart';
+import 'package:cordelia/utils/failure_message.dart';
 
 import '../../domain/entities/recent_search_entity.dart';
 import '../../domain/entities/search_entity.dart';
@@ -81,7 +82,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
           emit(loaded.copyWith(refreshFailed: true));
         case SearchLoading():
         case SearchError():
-          emit(SearchState.error(message: failure.message));
+          emit(SearchState.error(message: failure.shopperMessage));
       }
     }, (search) => _emitFreshSearch(search, emit));
   }
@@ -145,7 +146,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
               (failure) => _emitView(
                 current.copyWith(
                   searching: false,
-                  resultsError: failure.message,
+                  resultsError: failure.shopperMessage,
                 ),
                 emit,
               ),

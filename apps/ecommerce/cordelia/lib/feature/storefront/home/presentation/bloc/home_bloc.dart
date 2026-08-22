@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:cordelia/utils/failure_message.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'package:core/core/base/bloc_cache.dart';
@@ -48,7 +49,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
           emit(HomeState.loaded(home: home, refreshFailed: true));
         case HomeLoading():
         case HomeError():
-          emit(HomeState.error(message: failure.message));
+          emit(HomeState.error(message: failure.shopperMessage));
       }
     }, (home) => _emitLoaded(home, emit));
   }

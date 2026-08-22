@@ -5,7 +5,7 @@ import 'package:core/core/base/base_screen.dart';
 
 import 'package:cordelia/constants/value_const.dart';
 
-import 'support_channels.dart';
+import 'package:cordelia/feature/support/presentation/support_channels.dart';
 
 /// Opens a [SupportChannel], and makes sure the shopper is left holding the
 /// address either way.

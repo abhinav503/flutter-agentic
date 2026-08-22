@@ -1,13 +1,11 @@
 import 'dart:async';
 
-import 'package:core/core/error/failure.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:fpdart/fpdart.dart';
+
+import '../../../../helpers/fake_storefront_use_cases.dart';
 
 import 'package:cordelia/enums/product_unit_type.dart';
 import 'package:cordelia/feature/storefront/cart/domain/entities/cart_item_entity.dart';
-import 'package:cordelia/feature/storefront/cart/domain/usecase/get_cart_usecase.dart';
-import 'package:cordelia/feature/storefront/cart/domain/usecase/save_cart_usecase.dart';
 import 'package:cordelia/feature/storefront/cart/presentation/cubit/cart_cubit.dart';
 import 'package:cordelia/feature/storefront/home/domain/entities/product_entity.dart';
 
@@ -15,28 +13,6 @@ import 'package:cordelia/feature/storefront/home/domain/entities/product_entity.
 /// already holding of it — so "3 left" plus "3 already in the bag" built a
 /// line of 6 that the server refused at payment. The ceiling belongs at the
 /// one place every add goes through.
-class _FakeGetCartUseCase implements GetCartUseCase {
-  List<CartItemEntity> result = const [];
-  int calls = 0;
-  Completer<List<CartItemEntity>>? gate;
-
-  @override
-  Future<Either<Failure, List<CartItemEntity>>> call(
-    GetCartParams params,
-  ) async {
-    calls++;
-    final pending = gate;
-    if (pending != null) return right(await pending.future);
-    return right(result);
-  }
-}
-
-class _FakeSaveCartUseCase implements SaveCartUseCase {
-  @override
-  Future<Either<Failure, List<CartItemEntity>>> call(
-    SaveCartParams params,
-  ) async => right(params.items);
-}
 
 ProductEntity _product({int? stock}) => ProductEntity(
   id: 'p1',
@@ -54,13 +30,13 @@ ProductEntity _product({int? stock}) => ProductEntity(
 
 void main() {
   late CartCubit cubit;
-  late _FakeGetCartUseCase getCart;
+  late FakeGetCartUseCase getCart;
 
   setUp(() {
-    getCart = _FakeGetCartUseCase();
+    getCart = FakeGetCartUseCase();
     cubit = CartCubit(
       getCartUseCase: getCart,
-      saveCartUseCase: _FakeSaveCartUseCase(),
+      saveCartUseCase: FakeSaveCartUseCase(),
     );
   });
 

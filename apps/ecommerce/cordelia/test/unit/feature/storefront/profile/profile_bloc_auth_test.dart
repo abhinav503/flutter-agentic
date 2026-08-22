@@ -1,10 +1,7 @@
-import 'package:core/core/error/failure.dart';
-import 'package:core/core/usecase/usecase.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:fpdart/fpdart.dart';
 
-import 'package:cordelia/feature/storefront/profile/domain/entities/profile_entity.dart';
-import 'package:cordelia/feature/storefront/profile/domain/usecase/get_profile_usecase.dart';
+import '../../../../helpers/fake_storefront_use_cases.dart';
+
 import 'package:cordelia/feature/storefront/profile/presentation/bloc/profile_bloc.dart';
 import '../../../../helpers/fake_auth_session.dart';
 
@@ -16,27 +13,11 @@ import '../../../../helpers/fake_auth_session.dart';
 /// The bloc follows the account itself now, so there is nothing to reach in
 /// and tell. These pin the two halves of that: a guest settles rather than
 /// shimmers, and `started` fetches once an account exists.
-class _FakeGetProfileUseCase implements GetProfileUseCase {
-  int calls = 0;
-
-  @override
-  Future<Either<Failure, ProfileEntity>> call(NoParams params) async {
-    calls++;
-    return right(
-      const ProfileEntity(
-        name: 'Sam',
-        email: 'sam@example.com',
-        phone: '',
-        avatarUrl: '',
-      ),
-    );
-  }
-}
 
 void main() {
-  late _FakeGetProfileUseCase getProfile;
+  late FakeGetProfileUseCase getProfile;
 
-  setUp(() => getProfile = _FakeGetProfileUseCase());
+  setUp(() => getProfile = FakeGetProfileUseCase());
 
   ProfileBloc blocFor(FakeAuthSession session) {
     final bloc = ProfileBloc(

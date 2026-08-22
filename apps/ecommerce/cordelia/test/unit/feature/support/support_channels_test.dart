@@ -5,23 +5,24 @@ import 'package:cordelia/feature/storefront/active_store/domain/entities/active_
 import 'package:cordelia/feature/storefront/template/store_currency.dart';
 import 'package:cordelia/feature/storefront/template/store_language.dart';
 import 'package:cordelia/feature/storefront/template/storefront_template.dart';
-import 'package:cordelia/feature/support/presentation/view/support_channels.dart';
-import 'package:cordelia/feature/support/presentation/view/support_message.dart';
+import 'package:cordelia/feature/support/presentation/support_channels.dart';
+import 'package:cordelia/feature/support/presentation/support_message.dart';
 
 /// The rule the three packs must not each re-decide: which channels a shopper
 /// is offered, and what the message they open already says.
 ///
 /// The screens are three; this is one. If a pack ever renders a section this
 /// file does not produce, the support surface has forked.
-ActiveStoreEntity _store({StoreSupportEntity support = StoreSupportEntity.none}) =>
-    ActiveStoreEntity(
-      storeId: 'store-1',
-      storeName: 'Fresh Mart',
-      templateId: StorefrontTemplate.gravia,
-      language: StoreLanguage.en,
-      currency: StoreCurrency.inr,
-      support: support,
-    );
+ActiveStoreEntity _store({
+  StoreSupportEntity support = StoreSupportEntity.none,
+}) => ActiveStoreEntity(
+  storeId: 'store-1',
+  storeName: 'Fresh Mart',
+  templateId: StorefrontTemplate.gravia,
+  language: StoreLanguage.en,
+  currency: StoreCurrency.inr,
+  support: support,
+);
 
 void main() {
   group('sections', () {
@@ -148,19 +149,25 @@ void main() {
     });
 
     test('a dialable tel: keeps only + and digits', () {
-      expect(SupportMessage.tel('+91 98765-43210').toString(), 'tel:+919876543210');
+      expect(
+        SupportMessage.tel('+91 98765-43210').toString(),
+        'tel:+919876543210',
+      );
     });
 
-    test('a missing account email drops its line rather than printing blank', () {
-      final body = bodyOf(
-        SupportMessage(
-          store: _store(),
-          accountEmail: '',
-          orderId: '',
-          version: '',
-        ).mailtoPlatform(),
-      );
-      expect(body, isNot(contains('Account:')));
-    });
+    test(
+      'a missing account email drops its line rather than printing blank',
+      () {
+        final body = bodyOf(
+          SupportMessage(
+            store: _store(),
+            accountEmail: '',
+            orderId: '',
+            version: '',
+          ).mailtoPlatform(),
+        );
+        expect(body, isNot(contains('Account:')));
+      },
+    );
   });
 }

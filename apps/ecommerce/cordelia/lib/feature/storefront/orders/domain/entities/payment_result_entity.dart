@@ -8,6 +8,10 @@
 /// signature at all — the server re-fetches the PaymentIntent and asserts it
 /// really reached `succeeded` for the amount it was created with. Neither
 /// provider is trusted on the client's word; they just prove it differently.
+/// No `*Model` pair, and deliberately: this is assembled from a native
+/// payment SDK's success callback, not decoded from a response body. What
+/// *is* sent to the server (`paymentOrderId`/`paymentId`/`paymentSignature`)
+/// is written straight into the order request by the data source.
 class PaymentResultEntity {
   /// The intent the payment was made against — a Razorpay `order_…` or a
   /// Stripe `pi_…`.

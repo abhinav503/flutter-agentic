@@ -30,7 +30,7 @@ class GrofastWriteReviewSheetContent extends StatefulWidget {
   final String? textLabel;
   final String? textHint;
 
-  final void Function(int rating, String text) onSubmit;
+  final Future<String?> Function(int rating, String text) onSubmit;
 
   const GrofastWriteReviewSheetContent({
     super.key,
@@ -56,7 +56,8 @@ class _GrofastWriteReviewSheetContentState
   String get initialText => widget.initialText;
 
   @override
-  void Function(int rating, String text) get onSubmit => widget.onSubmit;
+  Future<String?> Function(int rating, String text) get onSubmit =>
+      widget.onSubmit;
 
   @override
   String get missingRatingMessage => ValueConst.reviewMissingRatingMessage;
@@ -70,6 +71,7 @@ class _GrofastWriteReviewSheetContentState
       rating: rating,
       onRatingChanged: selectRating,
       errorMessage: formError,
+      isSubmitting: submitting,
       promptStyle: GrofastTextStyleConst.bodySmall(
         tt,
       ).copyWith(color: cs.onSurfaceVariant),

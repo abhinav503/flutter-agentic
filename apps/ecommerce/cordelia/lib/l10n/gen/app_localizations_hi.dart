@@ -9,6 +9,10 @@ class AppLocalizationsHi extends AppLocalizations {
   AppLocalizationsHi([String locale = 'hi']) : super(locale);
 
   @override
+  String get noConnectionMessage =>
+      'इंटरनेट कनेक्शन नहीं है। अपना नेटवर्क जांचें और दोबारा कोशिश करें।';
+
+  @override
   String get languageSheetTitle => 'भाषा';
 
   @override
@@ -69,15 +73,6 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get continueLabel => 'आगे बढ़ें';
-
-  @override
-  String get orLoginWith => 'या इससे लॉग इन करें';
-
-  @override
-  String get continueWithGoogle => 'Google से जारी रखें';
-
-  @override
-  String get continueWithApple => 'Apple से जारी रखें';
 
   @override
   String get byContinuingAgree => 'जारी रखने पर, आप सहमत होते हैं हमारी';
@@ -322,10 +317,6 @@ class AppLocalizationsHi extends AppLocalizations {
   @override
   String get deleteAccountConfirmMessage =>
       'इससे हर स्टोर पर आपकी प्रोफ़ाइल, पते, कार्ट, विशलिस्ट और समीक्षाएँ स्थायी रूप से हट जाएँगी। आपके पहले से दिए गए ऑर्डर उन स्टोर्स के बिक्री रिकॉर्ड के रूप में बने रहेंगे। इसे पूर्ववत नहीं किया जा सकता।';
-
-  @override
-  String get deleteAccountFailedMessage =>
-      'आपका खाता नहीं हटाया जा सका। कृपया दोबारा प्रयास करें।';
 
   @override
   String get profileLoadErrorMessage =>
@@ -950,10 +941,6 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get graviaUseMyLocationLabel => 'मेरा स्थान इस्तेमाल करें';
-
-  @override
-  String get graviaLocationUnavailableMessage =>
-      'आपका स्थान प्राप्त नहीं हो सका। लोकेशन अनुमति जाँचें और दोबारा प्रयास करें।';
 
   @override
   String get graviaProfilePageTitle => 'प्रोफ़ाइल';
@@ -2660,9 +2647,6 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get validationPasswordsDontMatch => 'पासवर्ड मेल नहीं खाते।';
-
-  @override
-  String get retryButton => 'फिर से कोशिश करें';
 
   @override
   String get notificationsSectionToday => 'आज';

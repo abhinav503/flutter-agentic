@@ -1,5 +1,6 @@
 import 'package:cordelia/feature/storefront/home/domain/entities/product_entity.dart';
 import 'package:cordelia/feature/storefront/home/domain/usecase/get_home_usecase.dart';
+import 'package:cordelia/utils/failure_message.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 part 'cart_bloc.freezed.dart';
@@ -23,7 +24,7 @@ class CartBloc extends Bloc<CartEvent, CartState> {
   Future<void> _onStarted(CartStarted event, Emitter<CartState> emit) async {
     final result = await _getHome(GetHomeParams(storeId: storeId));
     result.fold(
-      (failure) => emit(CartState.error(message: failure.message)),
+      (failure) => emit(CartState.error(message: failure.shopperMessage)),
       (home) => emit(CartState.loaded(suggestions: home.popularProducts)),
     );
   }

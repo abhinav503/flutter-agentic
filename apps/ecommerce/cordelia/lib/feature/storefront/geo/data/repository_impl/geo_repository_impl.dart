@@ -46,11 +46,9 @@ class GeoRepositoryImpl with BaseRepository implements GeoRepository {
             :final country,
             :final latitude,
             :final longitude,
-            :final formattedAddress,
           ):
             return right(
               GeoAddressEntity(
-                formatted: formattedAddress,
                 // The street and whatever sits under the city — the two the
                 // shopper would write on the first line themselves.
                 addressLine: [

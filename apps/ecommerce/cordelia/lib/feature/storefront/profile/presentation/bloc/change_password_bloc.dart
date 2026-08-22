@@ -1,5 +1,6 @@
 import 'package:cordelia/constants/value_const.dart';
 import 'package:cordelia/feature/auth/domain/usecase/change_password_usecase.dart';
+import 'package:cordelia/utils/failure_message.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -37,7 +38,7 @@ class ChangePasswordBloc
       ),
     );
     result.fold(
-      (failure) => emit(ChangePasswordState.error(message: failure.message)),
+      (failure) => emit(ChangePasswordState.error(message: failure.shopperMessage)),
       (_) => emit(const ChangePasswordState.success()),
     );
   }

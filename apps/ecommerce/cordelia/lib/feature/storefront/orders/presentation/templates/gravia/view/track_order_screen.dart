@@ -12,7 +12,7 @@ import 'package:core/core/ui/blocks/collapsing_header_sheet.dart';
 import 'package:core/core/ui/blocks/ecommerce/price_breakdown.dart';
 
 import 'package:cordelia/constants/value_const.dart';
-import 'package:cordelia/feature/support/presentation/view/support_order_link.dart';
+import 'package:cordelia/feature/support/presentation/support_order_link.dart';
 import 'package:cordelia/enums/order_status.dart';
 import 'package:cordelia/feature/storefront/address/domain/entities/address_entity.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_color_const.dart';
@@ -66,7 +66,7 @@ class _TrackOrderScreenState extends BaseScreenState<TrackOrderScreen>
   Future<void> showRateOrderSheet({
     required int initialRating,
     required String initialText,
-    required void Function(int rating, String text) onSubmit,
+    required Future<String?> Function(int rating, String text) onSubmit,
   }) => showGraviaSheet<void>(
     title: ValueConst.rateOrderSheetTitle,
     child: GraviaWriteReviewSheetContent(

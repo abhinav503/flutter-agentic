@@ -42,7 +42,7 @@ class _OrdersScreenState extends BaseScreenState<OrdersScreen>
   Future<void> showRateOrderSheet({
     required int initialRating,
     required String initialText,
-    required void Function(int rating, String text) onSubmit,
+    required Future<String?> Function(int rating, String text) onSubmit,
   }) => showGraviaSheet<void>(
     title: ValueConst.rateOrderSheetTitle,
     child: GraviaWriteReviewSheetContent(

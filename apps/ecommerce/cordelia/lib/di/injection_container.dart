@@ -300,7 +300,7 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton(() => UpdateAddressUseCase(sl()));
   sl.registerLazySingleton(() => DeleteAddressUseCase(sl()));
 
-  // ── Storefront: Geo (user-scoped address-form lookups via /api/geo/*) ───
+  // ── Storefront: Geo (user-scoped address-form lookups via /api/geo/pincode) ───
   sl.registerLazySingleton<GeoRemoteDataSource>(
     () => const GeoRemoteDataSourceImpl(),
   );

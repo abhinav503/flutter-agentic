@@ -21,7 +21,11 @@ mixin WriteReviewForm<T extends StatefulWidget> on State<T> {
   int get initialRating;
   String get initialText;
 
-  void Function(int rating, String text) get onSubmit;
+  /// Performs the write and resolves to the failure message, or null once
+  /// it landed. A `Future` rather than fire-and-forget so the sheet can stay
+  /// open when it fails: the shopper's words are in this widget, and popping
+  /// first threw them away and then told them it hadn't worked.
+  Future<String?> Function(int rating, String text) get onSubmit;
 
   /// Shown when submit is tapped with no star picked.
   String get missingRatingMessage;
@@ -42,6 +46,10 @@ mixin WriteReviewForm<T extends StatefulWidget> on State<T> {
 
   bool get hasRating => rating > 0;
 
+  /// True while the write is in the air — the body absorbs taps on the CTA
+  /// so a slow network can't post the same review twice.
+  bool submitting = false;
+
   @override
   void dispose() {
     reviewController.dispose();
@@ -56,12 +64,25 @@ mixin WriteReviewForm<T extends StatefulWidget> on State<T> {
   /// Validates, hands the review to the host, and closes the sheet. The text
   /// is optional — a star-only review is a real review — but the rating
   /// isn't: without it there is nothing to average.
-  void submitReview() {
+  Future<void> submitReview() async {
     if (!hasRating) {
       setState(() => formError = missingRatingMessage);
       return;
     }
-    onSubmit(rating, reviewController.text.trim());
+    setState(() {
+      submitting = true;
+      formError = null;
+    });
+
+    final failure = await onSubmit(rating, reviewController.text.trim());
+    if (!mounted) return;
+    if (failure != null) {
+      setState(() {
+        submitting = false;
+        formError = failure;
+      });
+      return;
+    }
     Navigator.of(context).pop();
   }
 }

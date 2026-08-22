@@ -2,6 +2,7 @@ import 'package:cordelia/enums/order_status.dart';
 import 'package:cordelia/enums/orders_filter_period.dart';
 import 'package:cordelia/enums/orders_status_filter.dart';
 import 'package:cordelia/enums/orders_tab.dart';
+import 'package:cordelia/utils/failure_message.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -72,7 +73,7 @@ class OrdersBloc extends Bloc<OrdersEvent, OrdersState> {
             emit(loaded.copyWith(refreshFailed: true));
           case OrdersLoading():
           case OrdersError():
-            emit(OrdersState.error(message: failure.message));
+            emit(OrdersState.error(message: failure.shopperMessage));
         }
       },
       (orders) {

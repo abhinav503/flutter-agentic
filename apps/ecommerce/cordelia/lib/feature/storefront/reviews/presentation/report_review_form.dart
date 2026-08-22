@@ -2,7 +2,7 @@ import 'package:flutter/widgets.dart';
 
 import 'package:cordelia/constants/value_const.dart';
 
-import '../domain/entities/review_report_reason.dart';
+import 'package:cordelia/enums/review_report_reason.dart';
 
 /// Everything a report sheet does that isn't pack chrome — which reason is
 /// picked, whether to hide the author too, the "pick a reason" gate, and
@@ -12,7 +12,10 @@ import '../domain/entities/review_report_reason.dart';
 /// [onSubmit] and the screen that opened it dispatches. Each template
 /// renders its own body over this, so the behaviour can't drift per pack.
 mixin ReportReviewForm<T extends StatefulWidget> on State<T> {
-  void Function(ReviewReportReason reason, bool block) get onSubmit;
+  /// Files the report and resolves to the failure message, or null once it
+  /// landed — same contract as `WriteReviewForm.onSubmit`, so a failure
+  /// leaves the sheet up with the reason still picked.
+  Future<String?> Function(ReviewReportReason reason, bool block) get onSubmit;
 
   /// The gate's complaint, or null while there is nothing to say.
   ///
@@ -32,6 +35,9 @@ mixin ReportReviewForm<T extends StatefulWidget> on State<T> {
   /// otherwise — the opposite default makes the common case two taps.
   bool block = true;
 
+  /// True while the report is in the air; the body absorbs taps on the CTA.
+  bool submitting = false;
+
   void selectReason(ReviewReportReason value) => setState(() {
     reason = value;
     formError = null;
@@ -39,13 +45,26 @@ mixin ReportReviewForm<T extends StatefulWidget> on State<T> {
 
   void toggleBlock(bool value) => setState(() => block = value);
 
-  void submitReport() {
+  Future<void> submitReport() async {
     final picked = reason;
     if (picked == null) {
       setState(() => formError = ValueConst.reportReviewMissingReasonMessage);
       return;
     }
-    onSubmit(picked, block);
+    setState(() {
+      submitting = true;
+      formError = null;
+    });
+
+    final failure = await onSubmit(picked, block);
+    if (!mounted) return;
+    if (failure != null) {
+      setState(() {
+        submitting = false;
+        formError = failure;
+      });
+      return;
+    }
     Navigator.of(context).pop();
   }
 }

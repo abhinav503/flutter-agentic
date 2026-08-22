@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:cordelia/utils/failure_message.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../domain/entities/product_detail_entity.dart';
@@ -51,7 +52,7 @@ class ProductDetailsBloc
       if (silent) return;
       emit(
         ProductDetailsState.error(
-          message: failure.message,
+          message: failure.shopperMessage,
           storeId: storeId,
           productId: productId,
         ),

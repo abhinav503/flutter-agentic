@@ -11,6 +11,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'package:cordelia/feature/storefront/cart/domain/entities/cart_item_entity.dart';
+import 'package:cordelia/utils/failure_message.dart';
 
 part 'checkout_bloc.freezed.dart';
 part 'checkout_event.dart';
@@ -114,7 +115,7 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
     CheckoutSubmitted event,
   ) => emit(
     CheckoutState.failure(
-      message: failure.message,
+      message: failure.shopperMessage,
       code: switch (failure) {
         RefusedFailure(:final code) => code.toCheckoutRefusalCode(),
         _ => CheckoutRefusalCode.other,

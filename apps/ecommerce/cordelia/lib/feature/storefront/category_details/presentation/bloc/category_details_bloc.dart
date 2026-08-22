@@ -1,5 +1,6 @@
 import 'package:cordelia/enums/product_price_filter.dart';
 import 'package:cordelia/enums/product_sort_option.dart';
+import 'package:cordelia/utils/failure_message.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import '../../../home/domain/entities/product_entity.dart';
@@ -36,7 +37,7 @@ class CategoryDetailsBloc
     result.fold(
       (failure) => emit(
         CategoryDetailsState.error(
-          message: failure.message,
+          message: failure.shopperMessage,
           storeId: event.storeId,
           categoryId: event.categoryId,
           categoryName: event.categoryName,

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:cordelia/utils/failure_message.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -89,7 +90,7 @@ class AddressBloc extends Bloc<AddressEvent, AddressState> {
           );
         case AddressLoading():
         case AddressError():
-          emit(AddressState.error(message: failure.message));
+          emit(AddressState.error(message: failure.shopperMessage));
       }
     }, (addresses) => _emitAddresses(addresses, emit));
   }

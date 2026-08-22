@@ -10,9 +10,9 @@ import 'package:cordelia/templates/dailymart/constants/dailymart_text_style_cons
 import 'package:cordelia/templates/dailymart/widgets/dailymart_menu_tile.dart';
 import 'package:cordelia/templates/dailymart/widgets/dailymart_screen_body.dart';
 
-import '../../../view/support_channels.dart';
-import '../../../view/support_glyphs.dart';
-import '../../../view/support_launcher.dart';
+import 'package:cordelia/feature/support/presentation/support_channels.dart';
+import 'package:cordelia/feature/support/presentation/support_glyphs.dart';
+import 'package:cordelia/feature/support/presentation/support_launcher.dart';
 
 /// `dailymart`'s Help & Support — the store's contact, CordeliaApps beneath
 /// it, and the refunds policy, as the pack's bordered strips under its

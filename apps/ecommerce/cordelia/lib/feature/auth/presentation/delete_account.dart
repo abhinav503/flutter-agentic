@@ -9,7 +9,7 @@ import 'package:cordelia/feature/auth/domain/usecase/delete_account_usecase.dart
 
 import 'sign_out.dart';
 
-/// Closes the account and lands back on Login, the terminal counterpart to
+/// Closes the account and lands back on Discovery, the terminal counterpart to
 /// [signOutAndReturnToDiscovery] — which it reuses, because a deleted account
 /// needs the same local teardown a sign-out does (profile cache, verify-sheet
 /// flag, per-account cubits) on top of the server-side delete.
@@ -21,7 +21,7 @@ import 'sign_out.dart';
 ///
 /// Called from each pack's Profile row behind its own confirm sheet; the
 /// sheet is what gates the tap, this only performs it.
-Future<String?> deleteAccountAndReturnToLogin(BuildContext context) async {
+Future<String?> deleteAccountAndReturnToDiscovery(BuildContext context) async {
   final result = await sl<DeleteAccountUseCase>()(const NoParams());
 
   final failure = result.fold((f) => f.message, (_) => null);
@@ -48,7 +48,7 @@ mixin DeleteAccountAction<T extends BaseScreen> on BaseScreenState<T> {
     if (_deleting) return;
     setState(() => _deleting = true);
 
-    final failure = await deleteAccountAndReturnToLogin(context);
+    final failure = await deleteAccountAndReturnToDiscovery(context);
     // Success navigates to Login and disposes this screen, so there is
     // nothing left to unset — and calling setState here would throw.
     if (!mounted) return;

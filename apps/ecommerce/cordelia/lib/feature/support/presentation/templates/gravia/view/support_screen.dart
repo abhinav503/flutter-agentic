@@ -16,9 +16,9 @@ import 'package:cordelia/templates/gravia/constants/gravia_image_const.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_text_style_const.dart';
 import 'package:cordelia/templates/gravia/widgets/gravia_hero_header.dart';
 
-import '../../../view/support_channels.dart';
-import '../../../view/support_glyphs.dart';
-import '../../../view/support_launcher.dart';
+import 'package:cordelia/feature/support/presentation/support_channels.dart';
+import 'package:cordelia/feature/support/presentation/support_glyphs.dart';
+import 'package:cordelia/feature/support/presentation/support_launcher.dart';
 
 /// `gravia`'s Help & Support — the store's own contact, CordeliaApps
 /// underneath it, and the refunds policy, in the pack's coloured-header +

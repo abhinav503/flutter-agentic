@@ -1,4 +1,5 @@
 import 'package:core/core/error/failure.dart';
+import 'package:cordelia/utils/failure_message.dart';
 import 'package:core/core/services/location/location_service.dart'
     show LocationFailureReason;
 import 'package:core/core/usecase/usecase.dart';
@@ -45,7 +46,7 @@ class AddressLookupBloc extends Bloc<AddressLookupEvent, AddressLookupState> {
     result.fold(
       (failure) => emit(
         AddressLookupState.error(
-          message: failure.message,
+          message: failure.shopperMessage,
           isLocation: failure is LocationFailure,
           reason: switch (failure) {
             LocationFailure(:final reason) => reason,

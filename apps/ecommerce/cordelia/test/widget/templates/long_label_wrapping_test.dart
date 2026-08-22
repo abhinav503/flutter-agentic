@@ -229,9 +229,7 @@ void main() {
       );
     });
 
-    testWidgets('dailymart fits the subtitle inside the strip', (
-      tester,
-    ) async {
+    testWidgets('dailymart fits the subtitle inside the strip', (tester) async {
       await tester.pumpWidget(
         host(
           const SizedBox(

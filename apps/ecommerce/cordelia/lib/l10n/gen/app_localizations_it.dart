@@ -9,6 +9,10 @@ class AppLocalizationsIt extends AppLocalizations {
   AppLocalizationsIt([String locale = 'it']) : super(locale);
 
   @override
+  String get noConnectionMessage =>
+      'Nessuna connessione a Internet. Controlla la rete e riprova.';
+
+  @override
   String get languageSheetTitle => 'Lingua';
 
   @override
@@ -69,15 +73,6 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get continueLabel => 'Continua';
-
-  @override
-  String get orLoginWith => 'Oppure accedi con';
-
-  @override
-  String get continueWithGoogle => 'Continua con Google';
-
-  @override
-  String get continueWithApple => 'Continua con Apple';
 
   @override
   String get byContinuingAgree => 'Continuando, accetti i nostri';
@@ -323,10 +318,6 @@ class AppLocalizationsIt extends AppLocalizations {
   @override
   String get deleteAccountConfirmMessage =>
       'Questa operazione elimina definitivamente il tuo profilo, gli indirizzi, il carrello, i preferiti e le recensioni in tutti i negozi. Gli ordini che hai già effettuato restano ai rispettivi negozi come documenti di vendita. L\'operazione non può essere annullata.';
-
-  @override
-  String get deleteAccountFailedMessage =>
-      'Non è stato possibile eliminare il tuo account. Riprova.';
 
   @override
   String get profileLoadErrorMessage =>
@@ -957,10 +948,6 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get graviaUseMyLocationLabel => 'Usa la mia posizione';
-
-  @override
-  String get graviaLocationUnavailableMessage =>
-      'Impossibile rilevare la tua posizione. Controlla le autorizzazioni e riprova.';
 
   @override
   String get graviaProfilePageTitle => 'Profilo';
@@ -2684,9 +2671,6 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get validationPasswordsDontMatch => 'Le password non corrispondono.';
-
-  @override
-  String get retryButton => 'Riprova';
 
   @override
   String get notificationsSectionToday => 'Oggi';

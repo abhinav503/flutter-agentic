@@ -3,6 +3,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'package:cordelia/enums/store_filter.dart';
 import 'package:cordelia/utils/event_transformers.dart';
+import 'package:cordelia/utils/failure_message.dart';
 
 import '../../domain/entities/store_entity.dart';
 import '../../domain/usecase/get_stores_usecase.dart';
@@ -85,7 +86,7 @@ class DiscoveryBloc extends Bloc<DiscoveryEvent, DiscoveryState> {
     final result = await _getStores(GetStoresParams(query: query));
     result.fold(
       (failure) =>
-          emit(DiscoveryState.error(message: failure.message, query: query)),
+          emit(DiscoveryState.error(message: failure.shopperMessage, query: query)),
       (stores) => emit(
         stores.isEmpty
             ? DiscoveryState.empty(query: query)

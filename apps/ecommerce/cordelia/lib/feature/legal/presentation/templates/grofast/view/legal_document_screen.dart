@@ -8,7 +8,7 @@ import 'package:core/core/theme/app_spacing.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_text_style_const.dart';
 import 'package:cordelia/templates/grofast/widgets/grofast_screen_body.dart';
 
-import '../../../view/legal_document_content.dart';
+import 'package:cordelia/feature/legal/presentation/legal_document_content.dart';
 
 /// `grofast` template's render of the app-level legal copy (kit frame
 /// `178:2819`) — the shared [LegalDocumentContent] set in the pack's type,

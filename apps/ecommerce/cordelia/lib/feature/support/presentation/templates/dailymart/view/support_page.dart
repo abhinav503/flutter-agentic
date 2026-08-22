@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:core/core/base/base_page.dart';
 
-import '../../../view/support_channels.dart';
+import 'package:cordelia/feature/support/presentation/support_channels.dart';
 import 'support_screen.dart';
 
 class SupportPage extends BasePage {

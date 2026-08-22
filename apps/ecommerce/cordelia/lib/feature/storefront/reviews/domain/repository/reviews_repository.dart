@@ -3,7 +3,7 @@ import 'package:fpdart/fpdart.dart';
 
 import '../entities/product_reviews_entity.dart';
 import '../entities/review_entity.dart';
-import '../entities/review_report_reason.dart';
+import 'package:cordelia/enums/review_report_reason.dart';
 
 abstract interface class ReviewsRepository {
   Future<Either<Failure, ProductReviewsEntity>> getProductReviews(

@@ -2,7 +2,7 @@ import 'package:core/core/error/failure.dart';
 import 'package:core/core/usecase/usecase.dart';
 import 'package:fpdart/fpdart.dart';
 
-import '../entities/review_report_reason.dart';
+import 'package:cordelia/enums/review_report_reason.dart';
 import '../repository/reviews_repository.dart';
 
 class ReportReviewParams {

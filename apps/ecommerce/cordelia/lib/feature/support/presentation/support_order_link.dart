@@ -6,8 +6,8 @@ import 'package:core/core/theme/app_spacing.dart';
 import 'package:cordelia/constants/app_routes.dart';
 import 'package:cordelia/constants/value_const.dart';
 
-import 'support_channels.dart';
-import 'support_glyphs.dart';
+import 'package:cordelia/feature/support/presentation/support_channels.dart';
+import 'package:cordelia/feature/support/presentation/support_glyphs.dart';
 
 /// "Need help with this order?" — the entry that carries the order number
 /// into the support message, so a shopper never has to find and retype it.

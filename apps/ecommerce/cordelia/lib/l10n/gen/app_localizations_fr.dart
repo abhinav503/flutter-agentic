@@ -9,6 +9,10 @@ class AppLocalizationsFr extends AppLocalizations {
   AppLocalizationsFr([String locale = 'fr']) : super(locale);
 
   @override
+  String get noConnectionMessage =>
+      'Pas de connexion Internet. Vérifiez votre réseau et réessayez.';
+
+  @override
   String get languageSheetTitle => 'Langue';
 
   @override
@@ -69,15 +73,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get continueLabel => 'Continuer';
-
-  @override
-  String get orLoginWith => 'Ou connectez-vous avec';
-
-  @override
-  String get continueWithGoogle => 'Continuer avec Google';
-
-  @override
-  String get continueWithApple => 'Continuer avec Apple';
 
   @override
   String get byContinuingAgree => 'En continuant, vous acceptez nos';
@@ -324,10 +319,6 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get deleteAccountConfirmMessage =>
       'Cette action supprime définitivement votre profil, vos adresses, votre panier, vos favoris et vos avis dans toutes les boutiques. Les commandes que vous avez déjà passées restent chez ces boutiques comme justificatifs de vente. Cette action est irréversible.';
-
-  @override
-  String get deleteAccountFailedMessage =>
-      'Impossible de supprimer votre compte. Veuillez réessayer.';
 
   @override
   String get profileLoadErrorMessage =>
@@ -958,10 +949,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get graviaUseMyLocationLabel => 'Utiliser ma position';
-
-  @override
-  String get graviaLocationUnavailableMessage =>
-      'Impossible d\'obtenir votre position. Vérifiez l\'autorisation de localisation et réessayez.';
 
   @override
   String get graviaProfilePageTitle => 'Profil';
@@ -2695,9 +2682,6 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get validationPasswordsDontMatch =>
       'Les mots de passe ne correspondent pas.';
-
-  @override
-  String get retryButton => 'Réessayer';
 
   @override
   String get notificationsSectionToday => 'Aujourd\'hui';

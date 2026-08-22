@@ -6,7 +6,7 @@ import 'package:cordelia/constants/value_const.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_text_style_const.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_value_const.dart';
 import 'package:cordelia/templates/gravia/widgets/gravia_action_pair.dart';
-import '../../../../domain/entities/review_report_reason.dart';
+import 'package:cordelia/enums/review_report_reason.dart';
 import '../../../report_review_body.dart';
 import '../../../report_review_form.dart';
 
@@ -17,7 +17,8 @@ import '../../../report_review_form.dart';
 /// Composed from recipes the pack already owns: no kit draws a reporting
 /// frame, because none of them drew reviews either.
 class GraviaReportReviewSheetContent extends StatefulWidget {
-  final void Function(ReviewReportReason reason, bool block) onSubmit;
+  final Future<String?> Function(ReviewReportReason reason, bool block)
+  onSubmit;
 
   const GraviaReportReviewSheetContent({super.key, required this.onSubmit});
 
@@ -30,8 +31,8 @@ class _GraviaReportReviewSheetContentState
     extends State<GraviaReportReviewSheetContent>
     with ReportReviewForm {
   @override
-  void Function(ReviewReportReason reason, bool block) get onSubmit =>
-      widget.onSubmit;
+  Future<String?> Function(ReviewReportReason reason, bool block)
+  get onSubmit => widget.onSubmit;
 
   @override
   Widget build(BuildContext context) {
@@ -44,6 +45,7 @@ class _GraviaReportReviewSheetContentState
       block: block,
       onBlockChanged: toggleBlock,
       errorMessage: formError,
+      isSubmitting: submitting,
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.lg,
         AppSpacing.base,

@@ -16,7 +16,7 @@ import 'package:cordelia/enums/order_status.dart';
 import '../../../order_timeline_steps.dart';
 import 'package:cordelia/feature/storefront/orders/domain/entities/order_entity.dart';
 import 'package:cordelia/feature/storefront/orders/domain/entities/order_line_item_entity.dart';
-import 'package:cordelia/feature/support/presentation/view/support_order_link.dart';
+import 'package:cordelia/feature/support/presentation/support_order_link.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_color_const.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_dimen_const.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_text_style_const.dart';
@@ -63,7 +63,7 @@ class _TrackOrderScreenState extends BaseScreenState<TrackOrderScreen>
   Future<void> showRateOrderSheet({
     required int initialRating,
     required String initialText,
-    required void Function(int rating, String text) onSubmit,
+    required Future<String?> Function(int rating, String text) onSubmit,
   }) => showGrofastSheet<void>(
     title: ValueConst.rateOrderSheetTitle,
     child: GrofastWriteReviewSheetContent(

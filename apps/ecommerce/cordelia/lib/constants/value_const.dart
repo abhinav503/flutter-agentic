@@ -13,10 +13,6 @@ import 'package:cordelia/l10n/l10n.dart';
 abstract final class ValueConst {
   static const appTitle = 'CordeliaApps';
 
-  // ── Splash wordmark — the leading 'C' is the brand icon SVG (see
-  // SplashPage), not literal text; this is everything after it.
-  static const splashWordmarkText = 'ordelia Apps';
-
   // ── Onboarding (3-slide first-launch carousel) ────────────────────────────
   static const onboardingTitle1 = 'Discover Stores You\'ll Love';
   static const onboardingSubtitle1 =
@@ -44,9 +40,6 @@ abstract final class ValueConst {
   static String passwordResetEmailSentMessage(String email) =>
       L10n.current.passwordResetEmailSentMessage(email);
   static String get continueLabel => L10n.current.continueLabel;
-  static String get orLoginWith => L10n.current.orLoginWith;
-  static String get continueWithGoogle => L10n.current.continueWithGoogle;
-  static String get continueWithApple => L10n.current.continueWithApple;
   static String get byContinuingAgree => L10n.current.byContinuingAgree;
   static String get termsOfServiceAndPrivacyPolicy =>
       L10n.current.termsOfServiceAndPrivacyPolicy;
@@ -171,7 +164,6 @@ abstract final class ValueConst {
       L10n.current.privacyPolicySection4Body;
 
   // ── Store discovery (feature/home) — app chrome, English-only ──────────
-  static const discoveryTitle = 'Find your store';
   static const discoverySearchHint = 'Search stores';
   static const discoverySearchClearLabel = 'Clear search';
   static const discoveryEmptyTitle = 'No stores found';
@@ -186,9 +178,6 @@ abstract final class ValueConst {
   static const discoveryFilterAll = 'All';
   static const discoveryNotPublishedBadge = 'Not published yet';
   static const discoveryFilterEmpty = 'No stores match this filter.';
-  static const discoveryOwnerDraftHint =
-      'Only you can see this store. Publish it from the admin console to open '
-      'it to shoppers.';
 
   // Greeting halves are separate so the name can be omitted entirely before
   // the profile resolves — a placeholder name would flash and then change.
@@ -214,8 +203,6 @@ abstract final class ValueConst {
   static String get deleteAccountTitle => L10n.current.deleteAccountTitle;
   static String get deleteAccountConfirmMessage =>
       L10n.current.deleteAccountConfirmMessage;
-  static String get deleteAccountFailedMessage =>
-      L10n.current.deleteAccountFailedMessage;
 
   static String get profileLoadErrorMessage =>
       L10n.current.profileLoadErrorMessage;
@@ -431,6 +418,9 @@ abstract final class ValueConst {
       L10n.current.productSoldOutMessage(name);
   static String productStockReducedMessage(String name) =>
       L10n.current.productStockReducedMessage(name);
+  /// The one failure whose own text must never be shown — see
+  /// `FailureMessageX.shopperMessage`.
+  static String get noConnectionMessage => L10n.current.noConnectionMessage;
   static String get checkoutFailedMessage => L10n.current.checkoutFailedMessage;
   static String get paymentRefundedNote => L10n.current.paymentRefundedNote;
 

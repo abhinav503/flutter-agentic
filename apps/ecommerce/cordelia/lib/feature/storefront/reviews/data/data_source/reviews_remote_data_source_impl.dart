@@ -3,7 +3,7 @@ import 'package:cordelia/services/firebase_auth_service.dart';
 import 'package:dio/dio.dart';
 import 'package:core/core/network/http_service.dart';
 
-import '../../domain/entities/review_report_reason.dart';
+import 'package:cordelia/enums/review_report_reason.dart';
 import '../models/product_reviews_model.dart';
 import '../models/review_model.dart';
 import 'reviews_remote_data_source.dart';

@@ -10,9 +10,9 @@ import 'package:cordelia/templates/grofast/constants/grofast_text_style_const.da
 import 'package:cordelia/templates/grofast/widgets/grofast_menu_tile.dart';
 import 'package:cordelia/templates/grofast/widgets/grofast_screen_body.dart';
 
-import '../../../view/support_channels.dart';
-import '../../../view/support_glyphs.dart';
-import '../../../view/support_launcher.dart';
+import 'package:cordelia/feature/support/presentation/support_channels.dart';
+import 'package:cordelia/feature/support/presentation/support_glyphs.dart';
+import 'package:cordelia/feature/support/presentation/support_launcher.dart';
 
 /// `grofast`'s Help & Support — the store's contact, CordeliaApps beneath it,
 /// and the refunds policy, as the pack's filled menu cards under its standard

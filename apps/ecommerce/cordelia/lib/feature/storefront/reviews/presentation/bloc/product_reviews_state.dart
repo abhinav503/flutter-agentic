@@ -29,9 +29,16 @@ sealed class ProductReviewsState with _$ProductReviewsState {
   /// Carries the last-known list too: a failed write must not blank out the
   /// reviews the shopper was reading. The bloc holds storeId/productId
   /// itself, so retrying needs nothing from the state.
+  ///
+  /// [shownInSheet] means a still-open sheet is already printing [message]
+  /// inline, so the screen must not snackbar it as well — a snackbar under
+  /// a modal barrier is invisible while it matters and stale by the time it
+  /// isn't. True for a failed write or report, false for anything the
+  /// shopper is watching the screen for.
   const factory ProductReviewsState.error({
     required String message,
     ProductReviewsEntity? reviews,
+    @Default(false) bool shownInSheet,
   }) = ProductReviewsError;
 }
 
