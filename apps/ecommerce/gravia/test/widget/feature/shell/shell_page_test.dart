@@ -12,11 +12,43 @@ import 'package:gravia/feature/favourites/presentation/cubit/favourites_cubit.da
 import 'package:gravia/feature/shell/presentation/view/shell_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:gravia/feature/cart/domain/repository/cart_repository.dart';
+import 'package:gravia/feature/categories/domain/repository/categories_repository.dart';
+import 'package:gravia/feature/favourites/domain/repository/favourites_repository.dart';
+import 'package:gravia/feature/home/domain/repository/home_repository.dart';
+import 'package:gravia/feature/orders/domain/repository/orders_repository.dart';
+import 'package:gravia/feature/profile/domain/repository/profile_repository.dart';
+
+import '../../../helpers/fake_cart_repository.dart';
+import '../../../helpers/fake_categories_repository.dart';
+import '../../../helpers/fake_favourites_repository.dart';
+import '../../../helpers/fake_home_repository.dart';
+import '../../../helpers/fake_orders_repository.dart';
+import '../../../helpers/fake_profile_repository.dart';
+
+/// Replaces a real registration with a fake, after `initDependencies` has
+/// wired the graph — the use cases stay real, only what they read changes.
+void _fake<T extends Object>(T fake) {
+  if (sl.isRegistered<T>()) sl.unregister<T>();
+  sl.registerLazySingleton<T>(() => fake);
+}
+
 void main() {
   setUp(() async {
     SharedPreferences.setMockInitialValues({});
     await sl.reset();
     await initDependencies();
+    // Then swap every repository the shell's tabs reach for a fake. Without
+    // this the tabs run the real data sources against the live API — the
+    // tests were making actual HTTP calls, and started failing the day that
+    // store stopped answering. No test may touch the network; the fakes are
+    // the boundary.
+    _fake<HomeRepository>(FakeHomeRepository());
+    _fake<CategoriesRepository>(FakeCategoriesRepository());
+    _fake<OrdersRepository>(FakeOrdersRepository());
+    _fake<ProfileRepository>(FakeProfileRepository());
+    _fake<CartRepository>(FakeCartRepository());
+    _fake<FavouritesRepository>(FakeFavouritesRepository());
   });
 
   // `rootBundle` caches loaded asset strings on its own global singleton,
@@ -35,26 +67,24 @@ void main() {
   // CartCubit and FavouritesCubit are likewise provided above the router in
   // production; the shell's cart status bar and Home's product cards read
   // them unconditionally, and ShellPage.initState hydrates both.
-  Widget buildSubject({int initialTab = ShellPage.homeTabIndex}) =>
-      MaterialApp(
-        theme: AppTheme.fromConfig(AppThemeConfig.defaults),
-        home: MultiBlocProvider(
-          providers: [
-            BlocProvider(
-              create: (_) =>
-                  CartCubit(getCartUseCase: sl(), saveCartUseCase: sl()),
-            ),
-            BlocProvider(
-              create: (_) => FavouritesCubit(
-                getFavouritesUseCase: sl(),
-                addFavouriteUseCase: sl(),
-                removeFavouriteUseCase: sl(),
-              ),
-            ),
-          ],
-          child: ShellPage(initialTab: initialTab),
+  Widget buildSubject({int initialTab = ShellPage.homeTabIndex}) => MaterialApp(
+    theme: AppTheme.fromConfig(AppThemeConfig.defaults),
+    home: MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (_) => CartCubit(getCartUseCase: sl(), saveCartUseCase: sl()),
         ),
-      );
+        BlocProvider(
+          create: (_) => FavouritesCubit(
+            getFavouritesUseCase: sl(),
+            addFavouriteUseCase: sl(),
+            removeFavouriteUseCase: sl(),
+          ),
+        ),
+      ],
+      child: ShellPage(initialTab: initialTab),
+    ),
+  );
 
   // The Home tab renders real AppNetworkImage/Image.network calls plus a
   // LoadingIndicator with an indeterminate (never-settling) animation, so
@@ -62,8 +92,17 @@ void main() {
   // enough for the local-asset load and the test HttpClient's fast image
   // error responses to resolve.
   Future<void> settleHome(WidgetTester tester) async {
+    // Several bounded frames rather than one. A tab that resolves its bloc
+    // asynchronously and then swaps state through an AnimatedSwitcher
+    // (Orders) needs three things to happen in order: the future settles,
+    // the rebuild starts the cross-fade, and the fade runs out. Only then
+    // is the outgoing child torn down — and until it is, a header rendered
+    // in *both* branches (the segmented tab bar) is in the tree twice, so
+    // `findsOneWidget` sees two.
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 500));
+    for (var i = 0; i < 3; i++) {
+      await tester.pump(const Duration(milliseconds: 500));
+    }
   }
 
   testWidgets('shows the home tab first, loaded with storefront data', (
@@ -103,25 +142,20 @@ void main() {
     expect(find.text(ValueConst.changePasswordLabel), findsOneWidget);
   });
 
-  testWidgets(
-    'reacts to initialTab changing on an already-mounted shell '
-    '(the context.go(extra: …) "Track Your Order" path)',
-    (tester) async {
-      // Same State persists across this pumpWidget — ShellPage stays
-      // mounted underneath a route pushed on top of it in the real app
-      // (e.g. Cart), so `context.go('/home', extra: newTab)` updates this
-      // same State via didUpdateWidget rather than creating a new one. A
-      // `late` field read once in initState would miss this entirely —
-      // this test is what catches that regression.
-      await tester.pumpWidget(buildSubject());
-      await settleHome(tester);
-      expect(find.text(ValueConst.allCategoriesTitle), findsOneWidget);
+  testWidgets('reacts to initialTab changing on an already-mounted shell '
+      '(the context.go(extra: …) "Track Your Order" path)', (tester) async {
+    // Same State persists across this pumpWidget — ShellPage stays
+    // mounted underneath a route pushed on top of it in the real app
+    // (e.g. Cart), so `context.go('/home', extra: newTab)` updates this
+    // same State via didUpdateWidget rather than creating a new one. A
+    // `late` field read once in initState would miss this entirely —
+    // this test is what catches that regression.
+    await tester.pumpWidget(buildSubject());
+    await settleHome(tester);
+    expect(find.text(ValueConst.allCategoriesTitle), findsOneWidget);
 
-      await tester.pumpWidget(
-        buildSubject(initialTab: ShellPage.ordersTabIndex),
-      );
-      await settleHome(tester);
-      expect(find.text(ValueConst.upcomingTabLabel), findsOneWidget);
-    },
-  );
+    await tester.pumpWidget(buildSubject(initialTab: ShellPage.ordersTabIndex));
+    await settleHome(tester);
+    expect(find.text(ValueConst.upcomingTabLabel), findsOneWidget);
+  });
 }

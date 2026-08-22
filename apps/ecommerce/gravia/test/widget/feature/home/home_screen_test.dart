@@ -9,6 +9,7 @@ import 'package:core/core/theme/app_theme.dart';
 import 'package:core/core/theme/app_theme_config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:gravia/constants/value_const.dart';
+import 'package:gravia/feature/home/presentation/widgets/home_skeleton_body.dart';
 import 'package:gravia/feature/favourites/domain/usecase/add_favourite_usecase.dart';
 import 'package:gravia/feature/favourites/domain/usecase/get_favourites_usecase.dart';
 import 'package:gravia/feature/favourites/domain/usecase/remove_favourite_usecase.dart';
@@ -90,7 +91,9 @@ void main() {
     ],
   );
 
-  testWidgets('shows a loading indicator while loading', (tester) async {
+  testWidgets('shows the skeleton, not a spinner, while loading', (
+    tester,
+  ) async {
     whenListen(
       bloc,
       const Stream<HomeState>.empty(),
@@ -99,7 +102,10 @@ void main() {
 
     await tester.pumpWidget(_wrap(bloc, favouritesCubit));
 
-    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    // A skeleton mirroring the loaded layout, so the page doesn't jump when
+    // real data replaces it — this pack has no spinners on a screen body.
+    expect(find.byType(HomeSkeletonBody), findsOneWidget);
+    expect(find.byType(CircularProgressIndicator), findsNothing);
   });
 
   testWidgets('renders categories and popular items once loaded', (
