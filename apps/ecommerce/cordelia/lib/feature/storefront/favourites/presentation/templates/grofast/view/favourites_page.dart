@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import 'package:core/core/base/base_page.dart';
-import 'package:cordelia/feature/storefront/presentation/chromeless_page.dart';
 
 import 'favourites_screen.dart';
 
@@ -18,7 +17,7 @@ class FavouritesPage extends BasePage {
 }
 
 class _FavouritesPageState extends BasePageState<FavouritesPage>
-    with ChromelessStorefrontPage {
+    with ChromelessPage {
   @override
   Widget buildBody(BuildContext context) => const FavouritesScreen();
 }

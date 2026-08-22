@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import 'package:core/core/base/base_page.dart';
-import 'package:cordelia/feature/storefront/presentation/chromeless_page.dart';
 
 import '../../../../domain/entities/address_entity.dart';
 import 'address_form_screen.dart';
@@ -17,7 +16,7 @@ class AddressFormPage extends BasePage {
 }
 
 class _AddressFormPageState extends BasePageState<AddressFormPage>
-    with ChromelessStorefrontPage {
+    with ChromelessPage {
   @override
   Widget buildBody(BuildContext context) =>
       AddressFormScreen(address: widget.address);

@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:core/core/base/base_page.dart';
 import 'package:cordelia/feature/storefront/active_store/presentation/active_store_capture.dart';
-import 'package:cordelia/feature/storefront/presentation/chromeless_page.dart';
 
 import 'package:cordelia/di/injection_container.dart';
 import 'package:cordelia/feature/storefront/address/domain/entities/address_entity.dart';
@@ -25,7 +24,7 @@ class CheckoutPage extends BasePage {
 }
 
 class _CheckoutPageState extends BasePageState<CheckoutPage>
-    with ChromelessStorefrontPage, ActiveStoreCapture {
+    with ChromelessPage, ActiveStoreCapture {
   /// `!`: this route is only pushed from inside a storefront, which seeds the
   /// cubit before any of its screens can render — the same assumption every
   /// other pushed storefront route makes (see `StorefrontTemplateSwitch`).

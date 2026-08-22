@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:core/core/base/base_page.dart';
-import 'package:cordelia/feature/storefront/presentation/chromeless_page.dart';
 
 import 'cart_screen.dart';
 
@@ -20,8 +19,7 @@ class CartPage extends BasePage {
   State<CartPage> createState() => _CartPageState();
 }
 
-class _CartPageState extends BasePageState<CartPage>
-    with ChromelessStorefrontPage {
+class _CartPageState extends BasePageState<CartPage> with ChromelessPage {
   @override
   Widget buildBody(BuildContext context) =>
       CartScreen(onBack: () => context.pop());

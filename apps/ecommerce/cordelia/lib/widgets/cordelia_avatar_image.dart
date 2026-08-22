@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart' show Uint8List;
 import 'package:flutter/material.dart';
 
-import 'package:core/core/ui/atoms/network_image.dart';
+import 'package:core/core/ui/atoms/avatar_image.dart';
 
 import 'package:cordelia/constants/image_const.dart';
 import 'package:cordelia/feature/storefront/profile/domain/entities/profile_entity.dart';
@@ -36,23 +36,11 @@ class CordeliaAvatarImage extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    final bytes = pickedBytes ?? profile.avatarBytes;
-
-    return ClipOval(
-      child: SizedBox(
-        width: size,
-        height: size,
-        child: bytes != null
-            ? Image.memory(bytes, width: size, height: size, fit: fit)
-            : AppNetworkImage(
-                url: profile.avatarUrl,
-                width: size,
-                height: size,
-                fit: fit,
-                assetPlaceholder: ImageConst.profileDefault,
-              ),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => AppAvatarImage(
+    url: profile.avatarUrl,
+    bytes: pickedBytes ?? profile.avatarBytes,
+    size: size,
+    fit: fit,
+    assetPlaceholder: ImageConst.profileDefault,
+  );
 }

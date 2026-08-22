@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:core/core/base/base_page.dart';
-import 'package:cordelia/feature/storefront/presentation/chromeless_page.dart';
 
 import 'package:cordelia/di/injection_container.dart';
 
@@ -16,8 +15,7 @@ class AddressPage extends BasePage {
   State<AddressPage> createState() => _AddressPageState();
 }
 
-class _AddressPageState extends BasePageState<AddressPage>
-    with ChromelessStorefrontPage {
+class _AddressPageState extends BasePageState<AddressPage> with ChromelessPage {
   @override
   Widget buildBody(BuildContext context) => BlocProvider(
     create: (_) => AddressBloc(

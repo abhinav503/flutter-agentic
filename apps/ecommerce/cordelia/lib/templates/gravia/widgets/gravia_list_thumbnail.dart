@@ -14,8 +14,10 @@ class GraviaListThumbnail extends StatelessWidget {
   const GraviaListThumbnail({super.key, required this.url, required this.size});
 
   @override
-  Widget build(BuildContext context) => ClipRRect(
+  Widget build(BuildContext context) => AppNetworkImage(
+    url: url,
+    width: size,
+    height: size,
     borderRadius: AppRadius.lg,
-    child: AppNetworkImage(url: url, width: size, height: size),
   );
 }

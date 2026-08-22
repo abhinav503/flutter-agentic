@@ -26,6 +26,11 @@ class AppNetworkImage extends StatelessWidget {
   /// a user-provided URL exists.
   final String? assetPlaceholder;
 
+  /// Clips the image (and its loading/error states) to these corners. Saves
+  /// every list row wrapping this in its own `ClipRRect` — a thumbnail is
+  /// rounded far more often than it is square.
+  final BorderRadius? borderRadius;
+
   const AppNetworkImage({
     super.key,
     required this.url,
@@ -33,6 +38,7 @@ class AppNetworkImage extends StatelessWidget {
     this.width,
     this.height,
     this.assetPlaceholder,
+    this.borderRadius,
   });
 
   /// A stable, licence-free placeholder for screens that don't have real
@@ -57,6 +63,13 @@ class AppNetworkImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final radius = borderRadius;
+    return radius == null
+        ? _image(context)
+        : ClipRRect(borderRadius: radius, child: _image(context));
+  }
+
+  Widget _image(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final placeholder = assetPlaceholder;
 

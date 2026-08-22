@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:core/core/base/base_page.dart';
-import 'package:cordelia/feature/storefront/presentation/chromeless_page.dart';
 import 'package:core/core/base/base_screen.dart';
 import 'package:core/core/mixins/textfield_validations.dart';
 import 'package:cordelia/utils/localized_validations.dart';
@@ -38,7 +37,7 @@ class AddressFormPage extends BasePage {
 }
 
 class _AddressFormPageState extends BasePageState<AddressFormPage>
-    with ChromelessStorefrontPage {
+    with ChromelessPage {
   @override
   Widget buildBody(BuildContext context) =>
       _AddressFormScreen(address: widget.address);

@@ -1,3 +1,4 @@
+import 'package:core/core/ui/atoms/avatar_image.dart';
 import 'package:core/core/ui/atoms/badge.dart';
 import 'package:core/core/ui/atoms/bottom_fade.dart';
 import 'package:core/core/ui/atoms/button.dart';
@@ -19,6 +20,7 @@ import 'package:core/core/ui/atoms/loading_indicator.dart';
 import 'package:core/core/ui/atoms/network_image.dart';
 import 'package:core/core/ui/atoms/page_indicator.dart';
 import 'package:core/core/ui/atoms/radio_dot.dart';
+import 'package:core/core/ui/atoms/rating_distribution_bar.dart';
 import 'package:core/core/ui/atoms/rating_stars.dart';
 import 'package:core/core/ui/atoms/sheet_handle.dart';
 import 'package:core/core/ui/atoms/shimmer_box.dart';
@@ -345,6 +347,51 @@ WidgetbookCategory atomsCategory() {
         (context) => showcase(context, const [
           Variant('Unselected', AppRadioDot(selected: false)),
           Variant('Selected', AppRadioDot(selected: true)),
+        ]),
+      ),
+      allVariants(
+        'AppAvatarImage',
+        (context) => showcase(context, [
+          const Variant(
+            'Photo',
+            AppAvatarImage(
+              url: 'https://picsum.photos/seed/avatar/96',
+              size: 64,
+            ),
+          ),
+          Variant(
+            'No photo, glyph fallback',
+            AppAvatarImage(
+              url: '',
+              size: 64,
+              fallback: AppIconCircle(
+                size: 64,
+                color: Theme.of(context).colorScheme.surfaceContainer,
+                child: Icon(
+                  Icons.person_rounded,
+                  size: 32,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ),
+          ),
+        ]),
+      ),
+      allVariants(
+        'RatingDistributionBar',
+        (context) => showcase(context, const [
+          Variant(
+            'Full',
+            SizedBox(width: 200, child: RatingDistributionBar(share: 1)),
+          ),
+          Variant(
+            'Part',
+            SizedBox(width: 200, child: RatingDistributionBar(share: 0.42)),
+          ),
+          Variant(
+            'Empty',
+            SizedBox(width: 200, child: RatingDistributionBar(share: 0)),
+          ),
         ]),
       ),
       allVariants(

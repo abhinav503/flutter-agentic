@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:core/core/base/base_page.dart';
-import 'package:cordelia/feature/storefront/presentation/chromeless_page.dart';
 
 import 'package:cordelia/di/injection_container.dart';
 
@@ -20,8 +19,7 @@ class SearchPage extends BasePage {
   State<SearchPage> createState() => _SearchPageState();
 }
 
-class _SearchPageState extends BasePageState<SearchPage>
-    with ChromelessStorefrontPage {
+class _SearchPageState extends BasePageState<SearchPage> with ChromelessPage {
   @override
   Widget buildBody(BuildContext context) => BlocProvider(
     create: (_) => SearchBloc(

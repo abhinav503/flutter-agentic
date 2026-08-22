@@ -142,8 +142,7 @@ class _ShellPageState extends BasePageState<ShellPage>
       ShellPage.homeTabIndex => homeBlocProvider(
         storeId: storeId,
         child: HomeScreen(
-          onSeeAllCategories: () =>
-              onTabSelected(ShellPage.categoriesTabIndex),
+          onSeeAllCategories: () => onTabSelected(ShellPage.categoriesTabIndex),
         ),
       ),
       ShellPage.categoriesTabIndex => categoriesBlocProvider(

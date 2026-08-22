@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 
 import 'package:core/core/theme/app_colors_extension.dart';
 import 'package:core/core/extensions/num_extensions.dart';
-import 'package:core/core/theme/app_radius.dart';
 import 'package:core/core/theme/app_shapes_extension.dart';
 import 'package:core/core/theme/app_spacing.dart';
 import 'package:core/core/ui/atoms/svg_image.dart';
 import 'package:core/core/ui/molecules/empty_state.dart';
+import 'package:core/core/ui/atoms/rating_distribution_bar.dart';
 
 import 'package:cordelia/constants/value_const.dart';
 import 'package:cordelia/templates/dailymart/constants/dailymart_color_const.dart';
@@ -203,25 +203,13 @@ class _StarBarRow extends StatelessWidget {
           ),
         ),
         const SizedBox(width: AppSpacing.xs),
-        Stack(
-          children: [
-            Container(
-              width: _barWidth,
-              height: _barHeight,
-              decoration: BoxDecoration(
-                color: cs.surfaceContainerHighest,
-                borderRadius: AppRadius.full,
-              ),
-            ),
-            Container(
-              width: _barWidth * fill,
-              height: _barHeight,
-              decoration: const BoxDecoration(
-                color: DailyMartColorConst.reviewAmber,
-                borderRadius: AppRadius.full,
-              ),
-            ),
-          ],
+        SizedBox(
+          width: _barWidth,
+          child: RatingDistributionBar(
+            share: fill,
+            height: _barHeight,
+            color: DailyMartColorConst.reviewAmber,
+          ),
         ),
       ],
     );

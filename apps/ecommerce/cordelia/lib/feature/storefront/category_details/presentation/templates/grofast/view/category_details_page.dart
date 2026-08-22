@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import 'package:core/core/base/base_page.dart';
-import 'package:cordelia/feature/storefront/presentation/chromeless_page.dart';
 
 import '../../../bloc/category_details_bloc_provider.dart';
 import 'category_details_screen.dart';
@@ -23,7 +22,7 @@ class CategoryDetailsPage extends BasePage {
 }
 
 class _CategoryDetailsPageState extends BasePageState<CategoryDetailsPage>
-    with ChromelessStorefrontPage {
+    with ChromelessPage {
   @override
   Widget buildBody(BuildContext context) => categoryDetailsBlocProvider(
     storeId: widget.storeId,

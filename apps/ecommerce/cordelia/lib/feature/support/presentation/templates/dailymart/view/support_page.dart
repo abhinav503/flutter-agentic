@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import 'package:core/core/base/base_page.dart';
-import 'package:cordelia/feature/storefront/presentation/chromeless_page.dart';
 
 import '../../../view/support_channels.dart';
 import 'support_screen.dart';
@@ -15,8 +14,7 @@ class SupportPage extends BasePage {
   State<SupportPage> createState() => _SupportPageState();
 }
 
-class _SupportPageState extends BasePageState<SupportPage>
-    with ChromelessStorefrontPage {
+class _SupportPageState extends BasePageState<SupportPage> with ChromelessPage {
   @override
   Widget buildBody(BuildContext context) =>
       SupportScreen(channels: widget.channels);

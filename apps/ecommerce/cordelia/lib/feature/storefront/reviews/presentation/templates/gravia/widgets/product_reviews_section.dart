@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'package:core/core/theme/app_colors_extension.dart';
 import 'package:core/core/extensions/num_extensions.dart';
-import 'package:core/core/theme/app_radius.dart';
 import 'package:core/core/theme/app_spacing.dart';
+import 'package:core/core/ui/atoms/rating_distribution_bar.dart';
 import 'package:core/core/ui/atoms/rating_stars.dart';
 import 'package:core/core/ui/molecules/empty_state.dart';
 
@@ -158,8 +158,6 @@ class _StarBar extends StatelessWidget {
   final int star;
   final double share;
 
-  static const double _height = 6;
-
   const _StarBar({required this.star, required this.share});
 
   @override
@@ -176,24 +174,10 @@ class _StarBar extends StatelessWidget {
           ).copyWith(color: cs.onSurfaceVariant),
         ),
         const SizedBox(width: AppSpacing.xs2),
-        Expanded(
-          // The track is width-driven, so the fill is a fraction of it
-          // rather than a fixed pixel width — the row has to survive both
-          // phone widths and the histogram sitting beside a long average.
-          child: ClipRRect(
-            borderRadius: AppRadius.full,
-            child: LinearProgressIndicator(
-              value: share,
-              minHeight: _height,
-              backgroundColor: cs.surfaceContainerHighest,
-              // The same amber the stars above it use — a rating histogram
-              // in the brand colour would read as a progress bar.
-              valueColor: const AlwaysStoppedAnimation(
-                RatingStars.defaultStarColor,
-              ),
-            ),
-          ),
-        ),
+        // Width-driven, so the fill is a fraction of the track rather than a
+        // fixed pixel width — the row has to survive both phone widths and
+        // the histogram sitting beside a long average.
+        Expanded(child: RatingDistributionBar(share: share)),
       ],
     );
   }

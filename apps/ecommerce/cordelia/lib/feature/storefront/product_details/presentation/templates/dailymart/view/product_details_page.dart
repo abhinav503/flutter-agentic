@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import 'package:core/core/base/base_page.dart';
-import 'package:cordelia/feature/storefront/presentation/chromeless_page.dart';
 
 import '../../../../../reviews/presentation/bloc/product_reviews_bloc_provider.dart';
 import '../../../bloc/product_details_bloc_provider.dart';
@@ -24,7 +23,7 @@ class ProductDetailsPage extends BasePage {
 }
 
 class _ProductDetailsPageState extends BasePageState<ProductDetailsPage>
-    with ChromelessStorefrontPage {
+    with ChromelessPage {
   @override
   // The reviews bloc wraps the screen, not just the reviews section: the
   // write sheet is opened from the screen's own state, which has to be under

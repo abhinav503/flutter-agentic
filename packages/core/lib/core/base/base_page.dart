@@ -69,3 +69,25 @@ abstract class BasePageState<T extends BasePage> extends State<T> {
     );
   }
 }
+
+/// A page with no app bar, on an explicit surface backdrop.
+///
+/// The chrome pairing for a screen that draws its own header — a hero
+/// canvas, or a header row as the first item of its scroll view — which is
+/// most of a style-packed app. The backdrop is explicit rather than the
+/// `Scaffold` default because it is also the colour behind overscroll, and
+/// a screen painting its own canvas over a different one shows the seam
+/// when it bounces.
+///
+/// ```dart
+/// class _SearchPageState extends BasePageState<SearchPage>
+///     with ChromelessPage {}
+/// ```
+mixin ChromelessPage<T extends BasePage> on BasePageState<T> {
+  @override
+  PreferredSizeWidget? buildAppBar(BuildContext context) => null;
+
+  @override
+  Color? backgroundColor(BuildContext context) =>
+      Theme.of(context).colorScheme.surface;
+}

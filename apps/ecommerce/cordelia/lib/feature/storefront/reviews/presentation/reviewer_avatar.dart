@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:core/core/ui/atoms/icon_circle.dart';
-import 'package:core/core/ui/atoms/network_image.dart';
+import 'package:core/core/ui/atoms/avatar_image.dart';
 
 /// A reviewer's profile photo, or a neutral person glyph when they have
 /// none — most shoppers never set one, so the fallback is the common case,
@@ -24,8 +24,10 @@ class ReviewerAvatar extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
 
-    if (avatarUrl.isEmpty) {
-      return AppIconCircle(
+    return AppAvatarImage(
+      url: avatarUrl,
+      size: size,
+      fallback: AppIconCircle(
         size: size,
         color: cs.surfaceContainer,
         child: Icon(
@@ -35,15 +37,6 @@ class ReviewerAvatar extends StatelessWidget {
           size: size / 2,
           color: cs.onSurfaceVariant,
         ),
-      );
-    }
-
-    return ClipOval(
-      child: AppNetworkImage(
-        url: avatarUrl,
-        width: size,
-        height: size,
-        fit: BoxFit.cover,
       ),
     );
   }

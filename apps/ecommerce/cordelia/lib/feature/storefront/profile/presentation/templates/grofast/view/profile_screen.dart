@@ -54,8 +54,19 @@ class _ProfileScreenState extends BaseScreenState<ProfileScreen>
     onConfirm: deleteAccount,
   );
 
-  void _openEditProfile(ProfileEntity profile) =>
-      context.push(AppRoutes.editProfile, extra: profile);
+  /// Pushes the Edit Profile form prefilled from [profile]; if it returned a
+  /// result (Cancel/back pops with none), dispatches it into this screen's
+  /// own `ProfileBloc` so the header updates without a re-fetch — the same
+  /// shape gravia and dailymart use. Without it this pack showed the old
+  /// name and photo until something else re-fetched the profile.
+  Future<void> _openEditProfile(ProfileEntity profile) async {
+    final result = await context.push<ProfileEntity>(
+      AppRoutes.editProfile,
+      extra: profile,
+    );
+    if (result == null || !mounted) return;
+    context.read<ProfileBloc>().add(ProfileEvent.saved(profile: result));
+  }
 
   /// The shopper's per-store language override — persists the pick and
   /// applies the locale in one tap (see [StoreLanguageSwitchX]).
