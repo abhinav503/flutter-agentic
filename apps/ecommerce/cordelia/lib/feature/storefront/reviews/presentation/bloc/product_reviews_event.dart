@@ -19,4 +19,13 @@ sealed class ProductReviewsEvent with _$ProductReviewsEvent {
   }) = ProductReviewsSubmitted;
 
   const factory ProductReviewsEvent.mineDeleted() = ProductReviewsMineDeleted;
+
+  /// Flags someone else's review for the store owner. [block] also hides
+  /// that author's reviews from this shopper, which is why this reloads the
+  /// list rather than just firing and forgetting.
+  const factory ProductReviewsEvent.reported({
+    required String reviewUid,
+    required ReviewReportReason reason,
+    required bool block,
+  }) = ProductReviewsReported;
 }

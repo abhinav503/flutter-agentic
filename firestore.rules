@@ -42,6 +42,15 @@ service cloud.firestore {
         allow read, write: if isOwner(uid);
       }
 
+      // Shoppers this shopper has chosen not to see reviews from, doc id =
+      // the blocked uid. Server-only rather than owner-writable like the
+      // cart: the same API call that files a report applies the block, and
+      // the review-read paths consult it server-side, so the client never
+      // needs to hold or edit the list.
+      match /blockedShoppers/{blockedUid} {
+        allow read, write: if false;
+      }
+
       // Read receipts, doc id = the notification's id. Server-only, unlike
       // the cart above: the same token-verified API call that serves the feed
       // marks it read, so letting the client write here would give a
@@ -127,6 +136,16 @@ service cloud.firestore {
         match /reviews/{uid} {
           allow read: if true;
           allow write: if false;
+
+          // Who reported this review, doc id = the reporter's uid. Denied to
+          // everyone: the report API (Admin SDK) writes it alongside the
+          // review's reportCount in one transaction, and it is the one part
+          // of a review that must NOT be world-readable — a public report
+          // list would name the shopper who complained to the shopper they
+          // complained about.
+          match /reports/{reporterUid} {
+            allow read, write: if false;
+          }
         }
       }
 

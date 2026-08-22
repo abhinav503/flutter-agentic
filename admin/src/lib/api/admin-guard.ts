@@ -99,6 +99,26 @@ export async function requireAuthedUser(
   }
 }
 
+// The uid behind an OPTIONAL bearer token, or null. For routes that are
+// public but render differently for a signed-in caller — today, hiding the
+// reviews of shoppers the reader has blocked. A missing, malformed or
+// expired token is null rather than a 401: the response is still valid
+// without one, and failing the whole read because a token aged out would
+// blank a product page.
+export async function optionalAuthedUid(
+  request: Request,
+): Promise<string | null> {
+  const match = (request.headers.get("authorization") ?? "").match(
+    /^Bearer (.+)$/,
+  );
+  if (!match) return null;
+  try {
+    return (await adminAuth.verifyIdToken(match[1])).uid;
+  } catch {
+    return null;
+  }
+}
+
 // Verifies the bearer token and returns the uid plus its `storeIds` custom
 // claim (empty array when absent) — for routes that must branch on role
 // WITHOUT the legacy-admin Firestore backfill `requireStoreOwner` does.

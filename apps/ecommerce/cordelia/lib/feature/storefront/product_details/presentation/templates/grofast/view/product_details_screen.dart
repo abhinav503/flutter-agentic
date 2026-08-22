@@ -22,6 +22,7 @@ import 'package:cordelia/feature/storefront/reviews/presentation/bloc/product_re
 import 'package:cordelia/feature/storefront/reviews/presentation/product_reviews_actions.dart';
 import 'package:cordelia/feature/storefront/reviews/presentation/templates/grofast/widgets/product_reviews_section.dart';
 import 'package:cordelia/feature/storefront/reviews/presentation/templates/grofast/widgets/write_review_sheet_content.dart';
+import 'package:cordelia/feature/storefront/reviews/presentation/templates/grofast/widgets/report_review_sheet_content.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_color_const.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_dimen_const.dart';
 import 'package:cordelia/templates/grofast/constants/grofast_text_style_const.dart';
@@ -75,6 +76,16 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
       );
 
   @override
+  Future<void> showReportReviewSheet(ReviewEntity review) =>
+      showGrofastSheet<void>(
+        title: ValueConst.reportReviewSheetTitle,
+        child: GrofastReportReviewSheetContent(
+          onSubmit: (reason, block) => submitReport(review.uid, reason, block),
+          onMessage: showSnackBar,
+        ),
+      );
+
+  @override
   Future<void> showDeleteReviewSheet({required VoidCallback onConfirm}) =>
       showGrofastConfirmSheet(
         context: context,
@@ -103,6 +114,7 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
                 ? null
                 : () => writeReview(reviews.mine(currentUid)),
             onDeleteReview: state.isSubmitting ? null : confirmDeleteReview,
+            onReportReview: state.isSubmitting ? null : reportReview,
           );
         },
       );

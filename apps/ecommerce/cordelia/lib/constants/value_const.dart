@@ -382,6 +382,29 @@ abstract final class ValueConst {
   static String get reviewsEmptySubtitle => L10n.current.reviewsEmptySubtitle;
   static String get unratedLabel => L10n.current.unratedLabel;
 
+  // ── Reporting a review. App-level for the same reason the reviews copy
+  // above is: one shared moderation flow behind every pack's chrome.
+  static String get reportReviewLabel => L10n.current.reportReviewLabel;
+  static String get reportReviewSheetTitle =>
+      L10n.current.reportReviewSheetTitle;
+  static String get reportReviewPrompt => L10n.current.reportReviewPrompt;
+  static String get reportReasonOffensive => L10n.current.reportReasonOffensive;
+  static String get reportReasonSpam => L10n.current.reportReasonSpam;
+  static String get reportReasonIrrelevant =>
+      L10n.current.reportReasonIrrelevant;
+  static String get reportReasonPersonalInfo =>
+      L10n.current.reportReasonPersonalInfo;
+  static String get reportReviewBlockLabel =>
+      L10n.current.reportReviewBlockLabel;
+  static String get reportReviewSubmitLabel =>
+      L10n.current.reportReviewSubmitLabel;
+  static String get reportReviewMissingReasonMessage =>
+      L10n.current.reportReviewMissingReasonMessage;
+  static String get reportReviewSuccessMessage =>
+      L10n.current.reportReviewSuccessMessage;
+  static String get reportReviewSignedOutMessage =>
+      L10n.current.reportReviewSignedOutMessage;
+
   // ── Stock. App-level, not pack-level: the same two strings serve
   // every template, and a sold-out product reads the same in all of
   // them.

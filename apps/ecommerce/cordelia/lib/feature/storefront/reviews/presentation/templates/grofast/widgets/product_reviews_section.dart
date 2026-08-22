@@ -34,6 +34,10 @@ class GrofastProductReviewsSection extends StatelessWidget {
   final VoidCallback? onWriteReview;
   final VoidCallback? onDeleteReview;
 
+  /// Someone else's review — the reader flags it for the store owner. Null
+  /// while a write is in flight, same as the two above.
+  final void Function(ReviewEntity review)? onReportReview;
+
   /// The signed-in shopper, so their own review offers edit/delete.
   final String? currentUid;
 
@@ -42,6 +46,7 @@ class GrofastProductReviewsSection extends StatelessWidget {
     required this.reviews,
     required this.onWriteReview,
     required this.onDeleteReview,
+    required this.onReportReview,
     required this.currentUid,
   });
 
@@ -83,6 +88,11 @@ class GrofastProductReviewsSection extends StatelessWidget {
             // Only the shopper's own row carries a delete — everyone else's
             // is moderated from the admin console, not from here.
             onDelete: review.uid == currentUid ? onDeleteReview : null,
+            // The other side of the same slot: your own review offers
+            // delete, everyone else's offers report.
+            onReport: review.uid == currentUid
+                ? null
+                : () => onReportReview?.call(review),
           ),
         ],
       ],
@@ -186,10 +196,15 @@ class _StarBar extends StatelessWidget {
 class _ReviewRow extends StatelessWidget {
   final ReviewEntity review;
   final VoidCallback? onDelete;
+  final VoidCallback? onReport;
 
   static const double _avatarSize = 40;
 
-  const _ReviewRow({required this.review, required this.onDelete});
+  const _ReviewRow({
+    required this.review,
+    required this.onDelete,
+    required this.onReport,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -244,7 +259,9 @@ class _ReviewRow extends StatelessWidget {
             ).copyWith(color: cs.onSurfaceVariant),
           ),
         ],
-        if (review.verifiedPurchase || onDelete != null) ...[
+        if (review.verifiedPurchase ||
+            onDelete != null ||
+            onReport != null) ...[
           const SizedBox(height: AppSpacing.sm),
           Row(
             children: [
@@ -264,6 +281,18 @@ class _ReviewRow extends StatelessWidget {
                     style: GrofastTextStyleConst.bodySmall(
                       tt,
                     ).copyWith(color: cs.error),
+                  ),
+                ),
+              // Muted rather than error-coloured: reporting is a quiet
+              // affordance a reader looks for, not one the row advertises.
+              if (onReport != null)
+                GestureDetector(
+                  onTap: onReport,
+                  child: Text(
+                    ValueConst.reportReviewLabel,
+                    style: GrofastTextStyleConst.bodySmall(
+                      tt,
+                    ).copyWith(color: cs.onSurfaceVariant),
                   ),
                 ),
             ],

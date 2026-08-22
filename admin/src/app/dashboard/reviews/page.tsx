@@ -8,6 +8,7 @@ import {
   fetchStoreReviews,
   fetchStoreOrderReviews,
   deleteStoreReview,
+  dismissStoreReviewReports,
   type StoreOrderReview,
   type StoreReview,
 } from "@/lib/reviews-dashboard";
@@ -53,6 +54,9 @@ export default function ReviewsPage() {
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState<StoreReview | null>(null);
   const [removing, setRemoving] = useState(false);
+  // Which row's reports are being cleared, by its (productId, uid) key —
+  // one at a time, so only that button shows the pending state.
+  const [dismissing, setDismissing] = useState<string | null>(null);
 
   // Re-runs on every switch, so each list is fetched only when it's actually
   // being looked at — the order list reads the whole orders collection, and
@@ -85,6 +89,20 @@ export default function ReviewsPage() {
   }, [storeId, user, kind]);
 
   if (!storeId) return null;
+
+  // Reported reviews lead the list, newest complaint first; everything else
+  // keeps the route's newest-first order behind them. A moderation queue
+  // that buries the thing needing moderation on page three is a queue in
+  // name only.
+  const sortedReviews = [...reviews].sort((a, b) => {
+    if (a.reportCount !== b.reportCount) {
+      if (a.reportCount === 0) return 1;
+      if (b.reportCount === 0) return -1;
+      return b.lastReportedAt.localeCompare(a.lastReportedAt);
+    }
+    return 0;
+  });
+  const reportedCount = reviews.filter((r) => r.reportCount > 0).length;
 
   // The button path, deliberately separate from the mount effect above: it
   // may flip `loading` synchronously, which an effect body may not.
@@ -136,6 +154,37 @@ export default function ReviewsPage() {
     }
   }
 
+  async function dismissReports(review: StoreReview) {
+    if (!user || !storeId) return;
+    const key = `${review.productId}-${review.uid}`;
+    setDismissing(key);
+    try {
+      const token = await user.getIdToken();
+      await dismissStoreReviewReports(
+        storeId,
+        review.productId,
+        review.uid,
+        token,
+      );
+      // Cleared locally for the same reason delete is: the list isn't live,
+      // and refetching to move one row is a round trip for nothing.
+      setReviews((prev) =>
+        prev.map((r) =>
+          r.uid === review.uid && r.productId === review.productId
+            ? { ...r, reportCount: 0, lastReportedAt: "" }
+            : r,
+        ),
+      );
+      toast.success("Reports dismissed — the review stays");
+    } catch (e) {
+      toast.error(
+        e instanceof Error ? e.message : "Could not dismiss the reports",
+      );
+    } finally {
+      setDismissing(null);
+    }
+  }
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-start justify-between gap-4">
@@ -143,7 +192,9 @@ export default function ReviewsPage() {
           <h1 className="text-lg font-semibold">Reviews</h1>
           <p className="text-sm text-muted-foreground">
             {kind === "product"
-              ? "Product reviews from shoppers, most recent first. Deleting one updates that product's rating."
+              ? reportedCount > 0
+                ? `${reportedCount} reported ${reportedCount === 1 ? "review needs" : "reviews need"} a decision — they're at the top. Delete one and that product's rating is recalculated.`
+                : "Product reviews from shoppers, most recent first. Deleting one updates that product's rating."
               : "How shoppers rated their deliveries, most recently rated first. Private feedback — it isn't shown anywhere in the storefront."}
           </p>
         </div>
@@ -189,7 +240,7 @@ export default function ReviewsPage() {
               <TableHead>Customer</TableHead>
               <TableHead className="w-32">Rating</TableHead>
               <TableHead>Review</TableHead>
-              <TableHead className="w-24 text-right">Actions</TableHead>
+              <TableHead className="w-36 text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -213,7 +264,7 @@ export default function ReviewsPage() {
                 </TableCell>
               </TableRow>
             )}
-            {reviews.map((review) => (
+            {sortedReviews.map((review) => (
               <TableRow key={`${review.productId}-${review.uid}`}>
                 <TableCell className="whitespace-nowrap text-muted-foreground">
                   {new Date(review.createdAt).toLocaleDateString()}
@@ -245,9 +296,32 @@ export default function ReviewsPage() {
                   <StarRow rating={review.rating} />
                 </TableCell>
                 <TableCell className="max-w-md text-sm text-muted-foreground">
+                  {review.reportCount > 0 && (
+                    <Badge variant="destructive" className="mb-1">
+                      Reported
+                      {review.reportCount > 1 && ` ×${review.reportCount}`}
+                    </Badge>
+                  )}
                   {review.text || <span className="italic">Rating only</span>}
                 </TableCell>
                 <TableCell className="text-right">
+                  {/* Only on a reported row: "Keep" is an answer to a
+                      complaint, and offering it on a review nobody has
+                      questioned would read as an action with no effect. */}
+                  {review.reportCount > 0 && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => dismissReports(review)}
+                      disabled={
+                        dismissing === `${review.productId}-${review.uid}`
+                      }
+                    >
+                      {dismissing === `${review.productId}-${review.uid}`
+                        ? "Keeping…"
+                        : "Keep"}
+                    </Button>
+                  )}
                   <Button
                     variant="ghost"
                     size="sm"

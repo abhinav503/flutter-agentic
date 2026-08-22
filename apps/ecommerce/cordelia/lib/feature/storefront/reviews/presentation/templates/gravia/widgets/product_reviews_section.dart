@@ -32,6 +32,10 @@ class GraviaProductReviewsSection extends StatelessWidget {
   final VoidCallback? onWriteReview;
   final VoidCallback? onDeleteReview;
 
+  /// Someone else's review — the reader flags it for the store owner. Null
+  /// while a write is in flight, same as the two above.
+  final void Function(ReviewEntity review)? onReportReview;
+
   /// The signed-in shopper, so their own review offers edit/delete.
   final String? currentUid;
 
@@ -40,6 +44,7 @@ class GraviaProductReviewsSection extends StatelessWidget {
     required this.reviews,
     required this.onWriteReview,
     required this.onDeleteReview,
+    required this.onReportReview,
     required this.currentUid,
   });
 
@@ -84,9 +89,13 @@ class GraviaProductReviewsSection extends StatelessWidget {
           const SizedBox(height: AppSpacing.lg),
           _ReviewRow(
             review: review,
-            // Only the shopper's own row carries a delete — everyone else's
-            // is moderated from the admin console, not from here.
+            // Only the shopper's own row carries a delete. Everyone else's
+            // carries a report instead — the store owner moderates from the
+            // console, and this is how they hear about it.
             onDelete: review.uid == currentUid ? onDeleteReview : null,
+            onReport: review.uid == currentUid
+                ? null
+                : () => onReportReview?.call(review),
           ),
         ],
       ],
@@ -193,10 +202,15 @@ class _StarBar extends StatelessWidget {
 class _ReviewRow extends StatelessWidget {
   final ReviewEntity review;
   final VoidCallback? onDelete;
+  final VoidCallback? onReport;
 
   static const double _avatarSize = 40;
 
-  const _ReviewRow({required this.review, required this.onDelete});
+  const _ReviewRow({
+    required this.review,
+    required this.onDelete,
+    required this.onReport,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -248,6 +262,18 @@ class _ReviewRow extends StatelessWidget {
                   style: GraviaTextStyleConst.textXsRegular(
                     tt,
                   ).copyWith(color: cs.error),
+                ),
+              ),
+            // Muted rather than error-coloured: reporting is a quiet
+            // affordance a reader looks for, not one the row advertises.
+            if (onReport != null)
+              GestureDetector(
+                onTap: onReport,
+                child: Text(
+                  ValueConst.reportReviewLabel,
+                  style: GraviaTextStyleConst.textXsRegular(
+                    tt,
+                  ).copyWith(color: cs.onSurfaceVariant),
                 ),
               ),
           ],

@@ -55,14 +55,15 @@ extension ProductReviewsEventPatterns on ProductReviewsEvent {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( ProductReviewsSeeded value)?  seeded,TResult Function( ProductReviewsRefreshed value)?  refreshed,TResult Function( ProductReviewsSubmitted value)?  submitted,TResult Function( ProductReviewsMineDeleted value)?  mineDeleted,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( ProductReviewsSeeded value)?  seeded,TResult Function( ProductReviewsRefreshed value)?  refreshed,TResult Function( ProductReviewsSubmitted value)?  submitted,TResult Function( ProductReviewsMineDeleted value)?  mineDeleted,TResult Function( ProductReviewsReported value)?  reported,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case ProductReviewsSeeded() when seeded != null:
 return seeded(_that);case ProductReviewsRefreshed() when refreshed != null:
 return refreshed(_that);case ProductReviewsSubmitted() when submitted != null:
 return submitted(_that);case ProductReviewsMineDeleted() when mineDeleted != null:
-return mineDeleted(_that);case _:
+return mineDeleted(_that);case ProductReviewsReported() when reported != null:
+return reported(_that);case _:
   return orElse();
 
 }
@@ -80,14 +81,15 @@ return mineDeleted(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( ProductReviewsSeeded value)  seeded,required TResult Function( ProductReviewsRefreshed value)  refreshed,required TResult Function( ProductReviewsSubmitted value)  submitted,required TResult Function( ProductReviewsMineDeleted value)  mineDeleted,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( ProductReviewsSeeded value)  seeded,required TResult Function( ProductReviewsRefreshed value)  refreshed,required TResult Function( ProductReviewsSubmitted value)  submitted,required TResult Function( ProductReviewsMineDeleted value)  mineDeleted,required TResult Function( ProductReviewsReported value)  reported,}){
 final _that = this;
 switch (_that) {
 case ProductReviewsSeeded():
 return seeded(_that);case ProductReviewsRefreshed():
 return refreshed(_that);case ProductReviewsSubmitted():
 return submitted(_that);case ProductReviewsMineDeleted():
-return mineDeleted(_that);}
+return mineDeleted(_that);case ProductReviewsReported():
+return reported(_that);}
 }
 /// A variant of `map` that fallback to returning `null`.
 ///
@@ -101,14 +103,15 @@ return mineDeleted(_that);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( ProductReviewsSeeded value)?  seeded,TResult? Function( ProductReviewsRefreshed value)?  refreshed,TResult? Function( ProductReviewsSubmitted value)?  submitted,TResult? Function( ProductReviewsMineDeleted value)?  mineDeleted,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( ProductReviewsSeeded value)?  seeded,TResult? Function( ProductReviewsRefreshed value)?  refreshed,TResult? Function( ProductReviewsSubmitted value)?  submitted,TResult? Function( ProductReviewsMineDeleted value)?  mineDeleted,TResult? Function( ProductReviewsReported value)?  reported,}){
 final _that = this;
 switch (_that) {
 case ProductReviewsSeeded() when seeded != null:
 return seeded(_that);case ProductReviewsRefreshed() when refreshed != null:
 return refreshed(_that);case ProductReviewsSubmitted() when submitted != null:
 return submitted(_that);case ProductReviewsMineDeleted() when mineDeleted != null:
-return mineDeleted(_that);case _:
+return mineDeleted(_that);case ProductReviewsReported() when reported != null:
+return reported(_that);case _:
   return null;
 
 }
@@ -125,13 +128,14 @@ return mineDeleted(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( ProductReviewsEntity reviews)?  seeded,TResult Function()?  refreshed,TResult Function( int rating,  String text)?  submitted,TResult Function()?  mineDeleted,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( ProductReviewsEntity reviews)?  seeded,TResult Function()?  refreshed,TResult Function( int rating,  String text)?  submitted,TResult Function()?  mineDeleted,TResult Function( String reviewUid,  ReviewReportReason reason,  bool block)?  reported,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case ProductReviewsSeeded() when seeded != null:
 return seeded(_that.reviews);case ProductReviewsRefreshed() when refreshed != null:
 return refreshed();case ProductReviewsSubmitted() when submitted != null:
 return submitted(_that.rating,_that.text);case ProductReviewsMineDeleted() when mineDeleted != null:
-return mineDeleted();case _:
+return mineDeleted();case ProductReviewsReported() when reported != null:
+return reported(_that.reviewUid,_that.reason,_that.block);case _:
   return orElse();
 
 }
@@ -149,13 +153,14 @@ return mineDeleted();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( ProductReviewsEntity reviews)  seeded,required TResult Function()  refreshed,required TResult Function( int rating,  String text)  submitted,required TResult Function()  mineDeleted,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( ProductReviewsEntity reviews)  seeded,required TResult Function()  refreshed,required TResult Function( int rating,  String text)  submitted,required TResult Function()  mineDeleted,required TResult Function( String reviewUid,  ReviewReportReason reason,  bool block)  reported,}) {final _that = this;
 switch (_that) {
 case ProductReviewsSeeded():
 return seeded(_that.reviews);case ProductReviewsRefreshed():
 return refreshed();case ProductReviewsSubmitted():
 return submitted(_that.rating,_that.text);case ProductReviewsMineDeleted():
-return mineDeleted();}
+return mineDeleted();case ProductReviewsReported():
+return reported(_that.reviewUid,_that.reason,_that.block);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -169,13 +174,14 @@ return mineDeleted();}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( ProductReviewsEntity reviews)?  seeded,TResult? Function()?  refreshed,TResult? Function( int rating,  String text)?  submitted,TResult? Function()?  mineDeleted,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( ProductReviewsEntity reviews)?  seeded,TResult? Function()?  refreshed,TResult? Function( int rating,  String text)?  submitted,TResult? Function()?  mineDeleted,TResult? Function( String reviewUid,  ReviewReportReason reason,  bool block)?  reported,}) {final _that = this;
 switch (_that) {
 case ProductReviewsSeeded() when seeded != null:
 return seeded(_that.reviews);case ProductReviewsRefreshed() when refreshed != null:
 return refreshed();case ProductReviewsSubmitted() when submitted != null:
 return submitted(_that.rating,_that.text);case ProductReviewsMineDeleted() when mineDeleted != null:
-return mineDeleted();case _:
+return mineDeleted();case ProductReviewsReported() when reported != null:
+return reported(_that.reviewUid,_that.reason,_that.block);case _:
   return null;
 
 }
@@ -382,6 +388,76 @@ String toString() {
 
 
 /// @nodoc
+
+
+class ProductReviewsReported implements ProductReviewsEvent {
+  const ProductReviewsReported({required this.reviewUid, required this.reason, required this.block});
+  
+
+ final  String reviewUid;
+ final  ReviewReportReason reason;
+ final  bool block;
+
+/// Create a copy of ProductReviewsEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$ProductReviewsReportedCopyWith<ProductReviewsReported> get copyWith => _$ProductReviewsReportedCopyWithImpl<ProductReviewsReported>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProductReviewsReported&&(identical(other.reviewUid, reviewUid) || other.reviewUid == reviewUid)&&(identical(other.reason, reason) || other.reason == reason)&&(identical(other.block, block) || other.block == block));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,reviewUid,reason,block);
+
+@override
+String toString() {
+  return 'ProductReviewsEvent.reported(reviewUid: $reviewUid, reason: $reason, block: $block)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $ProductReviewsReportedCopyWith<$Res> implements $ProductReviewsEventCopyWith<$Res> {
+  factory $ProductReviewsReportedCopyWith(ProductReviewsReported value, $Res Function(ProductReviewsReported) _then) = _$ProductReviewsReportedCopyWithImpl;
+@useResult
+$Res call({
+ String reviewUid, ReviewReportReason reason, bool block
+});
+
+
+
+
+}
+/// @nodoc
+class _$ProductReviewsReportedCopyWithImpl<$Res>
+    implements $ProductReviewsReportedCopyWith<$Res> {
+  _$ProductReviewsReportedCopyWithImpl(this._self, this._then);
+
+  final ProductReviewsReported _self;
+  final $Res Function(ProductReviewsReported) _then;
+
+/// Create a copy of ProductReviewsEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? reviewUid = null,Object? reason = null,Object? block = null,}) {
+  return _then(ProductReviewsReported(
+reviewUid: null == reviewUid ? _self.reviewUid : reviewUid // ignore: cast_nullable_to_non_nullable
+as String,reason: null == reason ? _self.reason : reason // ignore: cast_nullable_to_non_nullable
+as ReviewReportReason,block: null == block ? _self.block : block // ignore: cast_nullable_to_non_nullable
+as bool,
+  ));
+}
+
+
+}
+
+/// @nodoc
 mixin _$ProductReviewsState {
 
 
@@ -495,11 +571,11 @@ return error(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loading,TResult Function( ProductReviewsEntity reviews,  bool afterWrite)?  loaded,TResult Function( ProductReviewsEntity? reviews)?  submitting,TResult Function( String message,  ProductReviewsEntity? reviews)?  error,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loading,TResult Function( ProductReviewsEntity reviews,  bool afterWrite,  bool afterReport)?  loaded,TResult Function( ProductReviewsEntity? reviews)?  submitting,TResult Function( String message,  ProductReviewsEntity? reviews)?  error,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case ProductReviewsLoading() when loading != null:
 return loading();case ProductReviewsLoaded() when loaded != null:
-return loaded(_that.reviews,_that.afterWrite);case ProductReviewsSubmitting() when submitting != null:
+return loaded(_that.reviews,_that.afterWrite,_that.afterReport);case ProductReviewsSubmitting() when submitting != null:
 return submitting(_that.reviews);case ProductReviewsError() when error != null:
 return error(_that.message,_that.reviews);case _:
   return orElse();
@@ -519,11 +595,11 @@ return error(_that.message,_that.reviews);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loading,required TResult Function( ProductReviewsEntity reviews,  bool afterWrite)  loaded,required TResult Function( ProductReviewsEntity? reviews)  submitting,required TResult Function( String message,  ProductReviewsEntity? reviews)  error,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loading,required TResult Function( ProductReviewsEntity reviews,  bool afterWrite,  bool afterReport)  loaded,required TResult Function( ProductReviewsEntity? reviews)  submitting,required TResult Function( String message,  ProductReviewsEntity? reviews)  error,}) {final _that = this;
 switch (_that) {
 case ProductReviewsLoading():
 return loading();case ProductReviewsLoaded():
-return loaded(_that.reviews,_that.afterWrite);case ProductReviewsSubmitting():
+return loaded(_that.reviews,_that.afterWrite,_that.afterReport);case ProductReviewsSubmitting():
 return submitting(_that.reviews);case ProductReviewsError():
 return error(_that.message,_that.reviews);}
 }
@@ -539,11 +615,11 @@ return error(_that.message,_that.reviews);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loading,TResult? Function( ProductReviewsEntity reviews,  bool afterWrite)?  loaded,TResult? Function( ProductReviewsEntity? reviews)?  submitting,TResult? Function( String message,  ProductReviewsEntity? reviews)?  error,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loading,TResult? Function( ProductReviewsEntity reviews,  bool afterWrite,  bool afterReport)?  loaded,TResult? Function( ProductReviewsEntity? reviews)?  submitting,TResult? Function( String message,  ProductReviewsEntity? reviews)?  error,}) {final _that = this;
 switch (_that) {
 case ProductReviewsLoading() when loading != null:
 return loading();case ProductReviewsLoaded() when loaded != null:
-return loaded(_that.reviews,_that.afterWrite);case ProductReviewsSubmitting() when submitting != null:
+return loaded(_that.reviews,_that.afterWrite,_that.afterReport);case ProductReviewsSubmitting() when submitting != null:
 return submitting(_that.reviews);case ProductReviewsError() when error != null:
 return error(_that.message,_that.reviews);case _:
   return null;
@@ -589,11 +665,12 @@ String toString() {
 
 
 class ProductReviewsLoaded implements ProductReviewsState {
-  const ProductReviewsLoaded({required this.reviews, this.afterWrite = false});
+  const ProductReviewsLoaded({required this.reviews, this.afterWrite = false, this.afterReport = false});
   
 
  final  ProductReviewsEntity reviews;
 @JsonKey() final  bool afterWrite;
+@JsonKey() final  bool afterReport;
 
 /// Create a copy of ProductReviewsState
 /// with the given fields replaced by the non-null parameter values.
@@ -605,16 +682,16 @@ $ProductReviewsLoadedCopyWith<ProductReviewsLoaded> get copyWith => _$ProductRev
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProductReviewsLoaded&&(identical(other.reviews, reviews) || other.reviews == reviews)&&(identical(other.afterWrite, afterWrite) || other.afterWrite == afterWrite));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ProductReviewsLoaded&&(identical(other.reviews, reviews) || other.reviews == reviews)&&(identical(other.afterWrite, afterWrite) || other.afterWrite == afterWrite)&&(identical(other.afterReport, afterReport) || other.afterReport == afterReport));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,reviews,afterWrite);
+int get hashCode => Object.hash(runtimeType,reviews,afterWrite,afterReport);
 
 @override
 String toString() {
-  return 'ProductReviewsState.loaded(reviews: $reviews, afterWrite: $afterWrite)';
+  return 'ProductReviewsState.loaded(reviews: $reviews, afterWrite: $afterWrite, afterReport: $afterReport)';
 }
 
 
@@ -625,7 +702,7 @@ abstract mixin class $ProductReviewsLoadedCopyWith<$Res> implements $ProductRevi
   factory $ProductReviewsLoadedCopyWith(ProductReviewsLoaded value, $Res Function(ProductReviewsLoaded) _then) = _$ProductReviewsLoadedCopyWithImpl;
 @useResult
 $Res call({
- ProductReviewsEntity reviews, bool afterWrite
+ ProductReviewsEntity reviews, bool afterWrite, bool afterReport
 });
 
 
@@ -642,10 +719,11 @@ class _$ProductReviewsLoadedCopyWithImpl<$Res>
 
 /// Create a copy of ProductReviewsState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? reviews = null,Object? afterWrite = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? reviews = null,Object? afterWrite = null,Object? afterReport = null,}) {
   return _then(ProductReviewsLoaded(
 reviews: null == reviews ? _self.reviews : reviews // ignore: cast_nullable_to_non_nullable
 as ProductReviewsEntity,afterWrite: null == afterWrite ? _self.afterWrite : afterWrite // ignore: cast_nullable_to_non_nullable
+as bool,afterReport: null == afterReport ? _self.afterReport : afterReport // ignore: cast_nullable_to_non_nullable
 as bool,
   ));
 }

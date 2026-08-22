@@ -504,6 +504,44 @@ class AppLocalizationsHi extends AppLocalizations {
       'इस उत्पाद को रेट करने वाले पहले व्यक्ति बनें और दूसरे ख़रीदारों की मदद करें।';
 
   @override
+  String get reportReviewLabel => 'रिपोर्ट';
+
+  @override
+  String get reportReviewSheetTitle => 'इस समीक्षा की रिपोर्ट करें';
+
+  @override
+  String get reportReviewPrompt => 'आप इसकी रिपोर्ट क्यों कर रहे हैं?';
+
+  @override
+  String get reportReasonOffensive => 'आपत्तिजनक या अपमानजनक';
+
+  @override
+  String get reportReasonSpam => 'स्पैम या विज्ञापन';
+
+  @override
+  String get reportReasonIrrelevant => 'इस उत्पाद के बारे में नहीं';
+
+  @override
+  String get reportReasonPersonalInfo => 'निजी जानकारी साझा करती है';
+
+  @override
+  String get reportReviewBlockLabel => 'इस ग्राहक की समीक्षाएँ भी छिपाएँ';
+
+  @override
+  String get reportReviewSubmitLabel => 'रिपोर्ट भेजें';
+
+  @override
+  String get reportReviewMissingReasonMessage => 'पहले एक कारण चुनें।';
+
+  @override
+  String get reportReviewSuccessMessage =>
+      'धन्यवाद — स्टोर को बता दिया गया है।';
+
+  @override
+  String get reportReviewSignedOutMessage =>
+      'समीक्षा की रिपोर्ट करने के लिए साइन इन करें।';
+
+  @override
   String get unratedLabel => 'अभी कोई रेटिंग नहीं';
 
   @override

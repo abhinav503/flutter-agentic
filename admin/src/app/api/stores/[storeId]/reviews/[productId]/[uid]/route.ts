@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { deleteReview } from "@/lib/reviews";
+import { deleteReview, dismissReviewReports } from "@/lib/reviews";
 import {
   ForbiddenError,
   requireStoreOwner,
@@ -34,5 +34,32 @@ export async function DELETE(
   }
 
   await deleteReview(storeId, productId, uid);
+  return NextResponse.json({ ok: true });
+}
+
+// The other half of moderation: the owner has read the complaints and the
+// review is fine. Clears them and leaves the review standing, so the
+// moderation list doesn't keep re-presenting a decision already made.
+export async function POST(
+  request: Request,
+  {
+    params,
+  }: { params: Promise<{ storeId: string; productId: string; uid: string }> },
+) {
+  const { storeId, productId, uid } = await params;
+
+  try {
+    await requireStoreOwner(request, storeId);
+  } catch (e) {
+    if (e instanceof UnauthorizedError) {
+      return NextResponse.json({ error: e.message }, { status: 401 });
+    }
+    if (e instanceof ForbiddenError) {
+      return NextResponse.json({ error: e.message }, { status: 403 });
+    }
+    throw e;
+  }
+
+  await dismissReviewReports(storeId, productId, uid);
   return NextResponse.json({ ok: true });
 }

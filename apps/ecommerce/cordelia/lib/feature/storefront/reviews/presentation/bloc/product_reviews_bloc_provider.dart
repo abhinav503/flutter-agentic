@@ -25,6 +25,7 @@ BlocProvider<ProductReviewsBloc> productReviewsBlocProvider({
     getProductReviewsUseCase: sl(),
     submitProductReviewUseCase: sl(),
     deleteMyReviewUseCase: sl(),
+    reportReviewUseCase: sl(),
     storeId: storeId,
     productId: productId,
   ),

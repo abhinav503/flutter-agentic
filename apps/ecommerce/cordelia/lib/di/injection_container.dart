@@ -105,6 +105,7 @@ import '../feature/storefront/reviews/data/repository_impl/reviews_repository_im
 import '../feature/storefront/reviews/domain/repository/reviews_repository.dart';
 import '../feature/storefront/reviews/domain/usecase/delete_my_review_usecase.dart';
 import '../feature/storefront/reviews/domain/usecase/get_product_reviews_usecase.dart';
+import '../feature/storefront/reviews/domain/usecase/report_review_usecase.dart';
 import '../feature/storefront/reviews/domain/usecase/submit_product_review_usecase.dart';
 import '../feature/storefront/profile/data/data_source/profile_remote_data_source.dart';
 import '../feature/storefront/profile/data/data_source/profile_remote_data_source_impl.dart';
@@ -262,6 +263,7 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton(() => GetProductReviewsUseCase(sl()));
   sl.registerLazySingleton(() => SubmitProductReviewUseCase(sl()));
   sl.registerLazySingleton(() => DeleteMyReviewUseCase(sl()));
+  sl.registerLazySingleton(() => ReportReviewUseCase(sl()));
 
   // ── Storefront: Categories (storeId-scoped catalog) ─────────────────────
   sl.registerLazySingleton<CategoriesRemoteDataSource>(

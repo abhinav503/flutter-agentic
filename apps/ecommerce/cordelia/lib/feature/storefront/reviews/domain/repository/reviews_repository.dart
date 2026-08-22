@@ -3,6 +3,7 @@ import 'package:fpdart/fpdart.dart';
 
 import '../entities/product_reviews_entity.dart';
 import '../entities/review_entity.dart';
+import '../entities/review_report_reason.dart';
 
 abstract interface class ReviewsRepository {
   Future<Either<Failure, ProductReviewsEntity>> getProductReviews(
@@ -27,4 +28,16 @@ abstract interface class ReviewsRepository {
     String storeId,
     String productId,
   );
+
+  /// Flags someone else's review for the store owner, and optionally hides
+  /// that author's reviews from this shopper from now on. Resolves to
+  /// nothing: the caller reloads, which is also what makes a blocked
+  /// author's reviews disappear from the list on screen.
+  Future<Either<Failure, void>> reportReview({
+    required String storeId,
+    required String productId,
+    required String reviewUid,
+    required ReviewReportReason reason,
+    required bool block,
+  });
 }

@@ -506,6 +506,45 @@ class AppLocalizationsIt extends AppLocalizations {
       'Sii il primo a valutare questo prodotto e aiuta gli altri clienti a decidere.';
 
   @override
+  String get reportReviewLabel => 'Segnala';
+
+  @override
+  String get reportReviewSheetTitle => 'Segnala questa recensione';
+
+  @override
+  String get reportReviewPrompt => 'Perché la segnali?';
+
+  @override
+  String get reportReasonOffensive => 'Offensiva o abusiva';
+
+  @override
+  String get reportReasonSpam => 'Spam o pubblicità';
+
+  @override
+  String get reportReasonIrrelevant => 'Non riguarda questo prodotto';
+
+  @override
+  String get reportReasonPersonalInfo => 'Contiene dati personali';
+
+  @override
+  String get reportReviewBlockLabel =>
+      'Nascondi anche le recensioni di questo cliente';
+
+  @override
+  String get reportReviewSubmitLabel => 'Invia segnalazione';
+
+  @override
+  String get reportReviewMissingReasonMessage => 'Scegli prima un motivo.';
+
+  @override
+  String get reportReviewSuccessMessage =>
+      'Grazie, il negozio è stato avvisato.';
+
+  @override
+  String get reportReviewSignedOutMessage =>
+      'Accedi per segnalare una recensione.';
+
+  @override
   String get unratedLabel => 'Nessuna valutazione';
 
   @override

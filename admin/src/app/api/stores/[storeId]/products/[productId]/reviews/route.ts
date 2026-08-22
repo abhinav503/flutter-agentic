@@ -10,7 +10,12 @@ import {
   serializeRatingSummary,
   serializeReview,
 } from "@/lib/api/serializers";
-import { requireAuthedUser, UnauthorizedError } from "@/lib/api/admin-guard";
+import {
+  optionalAuthedUid,
+  requireAuthedUser,
+  UnauthorizedError,
+} from "@/lib/api/admin-guard";
+import { filterBlockedAuthors } from "@/lib/blocked-shoppers";
 
 // A product's reviews. Reading is public (the catalog is world-readable and
 // a rating is part of a product's public face); writing needs a verified
@@ -26,7 +31,7 @@ import { requireAuthedUser, UnauthorizedError } from "@/lib/api/admin-guard";
 const PAGE_LIMIT = 50;
 
 export async function GET(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ storeId: string; productId: string }> },
 ) {
   const { storeId, productId } = await params;
@@ -38,7 +43,14 @@ export async function GET(
     return NextResponse.json({ error: "Product not found" }, { status: 404 });
   }
 
-  const reviews = await getReviews(storeId, productId, PAGE_LIMIT);
+  const [allReviews, viewerUid] = await Promise.all([
+    getReviews(storeId, productId, PAGE_LIMIT),
+    optionalAuthedUid(request),
+  ]);
+  // Reviews by shoppers this reader has blocked are dropped from the list
+  // they read, and only from theirs. The summary is unchanged — see the
+  // product-details route for why.
+  const reviews = await filterBlockedAuthors(allReviews, viewerUid);
   // `rating` is the same key (and shape) the product-details payload uses
   // for this summary — one name for one concept across both routes.
   return NextResponse.json({

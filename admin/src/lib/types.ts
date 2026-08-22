@@ -152,7 +152,37 @@ export type Review = {
   verifiedPurchase: boolean;
   createdAt: string;
   updatedAt: string;
+  // How many *different* shoppers have reported this review (one report per
+  // shopper — the report doc is keyed by the reporter's uid). Denormalized
+  // onto the review so the moderation list can sort by it without reading
+  // every review's reports subcollection, and moved in the same transaction
+  // as the report itself for the same reason the rating aggregates are.
+  reportCount: number;
+  // Empty until the first report. Drives "newest complaint first" in the
+  // console without a second sort key.
+  lastReportedAt: string;
 };
+
+// One shopper's report of one review. Lives at
+// `…/reviews/{reviewUid}/reports/{reporterUid}`, so re-reporting overwrites
+// rather than inflating the count.
+export type ReviewReport = {
+  reporterUid: string;
+  reason: ReviewReportReason;
+  createdAt: string;
+};
+
+// Fixed set rather than free text: a shopper picks one in a sheet, the
+// console groups by it, and there is no free-form field for someone to write
+// abuse into while reporting abuse.
+export const REVIEW_REPORT_REASONS = [
+  "offensive",
+  "spam",
+  "irrelevant",
+  "personalInfo",
+] as const;
+
+export type ReviewReportReason = (typeof REVIEW_REPORT_REASONS)[number];
 
 // A merchandising banner for a storefront template's promo carousel (today
 // dailymart's DailyMartHomePromoCarousel). Unlike Category/Product this has

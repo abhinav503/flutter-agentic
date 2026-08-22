@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { optionalAuthedUid } from "@/lib/api/admin-guard";
+import { filterBlockedAuthors } from "@/lib/blocked-shoppers";
 import { getBrands } from "@/lib/brands";
 import { getCategories } from "@/lib/categories";
 import { getProduct, getProducts } from "@/lib/products";
@@ -28,7 +30,7 @@ const REVIEW_PREVIEW_LIMIT = 10;
 // resolves the first one that still exists and returns null otherwise —
 // nothing else in the payload names a category.
 export async function GET(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ storeId: string; productId: string }> },
 ) {
   const { storeId, productId } = await params;
@@ -37,12 +39,17 @@ export async function GET(
     return NextResponse.json({ error: "Product not found" }, { status: 404 });
   }
 
-  const [allProducts, categories, brands, reviews] = await Promise.all([
-    getProducts(storeId),
-    getCategories(storeId),
-    getBrands(storeId),
-    getReviews(storeId, productId, REVIEW_PREVIEW_LIMIT),
-  ]);
+  const [allProducts, categories, brands, allReviews, viewerUid] =
+    await Promise.all([
+      getProducts(storeId),
+      getCategories(storeId),
+      getBrands(storeId),
+      getReviews(storeId, productId, REVIEW_PREVIEW_LIMIT),
+      optionalAuthedUid(request),
+    ]);
+  // The rating summary above still counts every review — blocking hides an
+  // author from one reader, it does not un-rate the product.
+  const reviews = await filterBlockedAuthors(allReviews, viewerUid);
   const similarProducts = allProducts
     .filter(
       (p) =>

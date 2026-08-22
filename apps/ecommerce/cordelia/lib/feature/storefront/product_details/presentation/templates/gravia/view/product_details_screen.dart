@@ -34,6 +34,7 @@ import '../../../../../reviews/presentation/bloc/product_reviews_bloc.dart';
 import '../../../../../reviews/presentation/product_reviews_actions.dart';
 import '../../../../../reviews/presentation/templates/gravia/widgets/product_reviews_section.dart';
 import '../../../../../reviews/presentation/templates/gravia/widgets/write_review_sheet_content.dart';
+import '../../../../../reviews/presentation/templates/gravia/widgets/report_review_sheet_content.dart';
 import '../../../../domain/entities/product_detail_entity.dart';
 import '../../../bloc/product_details_bloc.dart';
 import '../../../product_details_actions.dart';
@@ -73,6 +74,16 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
       );
 
   @override
+  Future<void> showReportReviewSheet(ReviewEntity review) =>
+      showGraviaSheet<void>(
+        title: ValueConst.reportReviewSheetTitle,
+        child: GraviaReportReviewSheetContent(
+          onSubmit: (reason, block) => submitReport(review.uid, reason, block),
+          onMessage: showSnackBar,
+        ),
+      );
+
+  @override
   Future<void> showDeleteReviewSheet({required VoidCallback onConfirm}) =>
       showGraviaConfirmSheet(
         context: context,
@@ -102,6 +113,7 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
                 ? null
                 : () => writeReview(reviews.mine(currentUid)),
             onDeleteReview: state.isSubmitting ? null : confirmDeleteReview,
+            onReportReview: state.isSubmitting ? null : reportReview,
           );
         },
       );

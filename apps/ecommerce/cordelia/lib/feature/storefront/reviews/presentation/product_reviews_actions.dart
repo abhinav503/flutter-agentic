@@ -9,6 +9,7 @@ import 'package:cordelia/services/firebase_auth_service.dart';
 import '../../product_details/presentation/bloc/product_details_bloc.dart';
 import '../domain/entities/product_reviews_entity.dart';
 import '../domain/entities/review_entity.dart';
+import '../domain/entities/review_report_reason.dart';
 import 'bloc/product_reviews_bloc.dart';
 
 /// The reviews behaviour every template's Product Details repeats
@@ -27,6 +28,10 @@ mixin ProductReviewsActions<T extends BaseScreen> on BaseScreenState<T> {
   /// The pack's own confirm sheet for removing the shopper's own review.
   Future<void> showDeleteReviewSheet({required VoidCallback onConfirm});
 
+  /// The pack's own report sheet for someone *else's* review.
+  /// Implementations hand [submitReport] to their sheet body.
+  Future<void> showReportReviewSheet(ReviewEntity review);
+
   /// The signed-in shopper's uid, or null — what tells their own review
   /// apart from everyone else's in a loaded list.
   String? get currentUid => FirebaseAuthService.instance.currentUser?.uid;
@@ -41,6 +46,26 @@ mixin ProductReviewsActions<T extends BaseScreen> on BaseScreenState<T> {
     }
     await showWriteReviewSheet(existing);
   }
+
+  /// The report CTA's entry point, the mirror of [writeReview]: reporting
+  /// is a write, so a signed-out shopper is told to sign in rather than
+  /// shown a sheet whose submit would 401.
+  Future<void> reportReview(ReviewEntity review) async {
+    if (currentUid == null) {
+      showSnackBar(ValueConst.reportReviewSignedOutMessage);
+      return;
+    }
+    await showReportReviewSheet(review);
+  }
+
+  void submitReport(String reviewUid, ReviewReportReason reason, bool block) =>
+      context.read<ProductReviewsBloc>().add(
+        ProductReviewsEvent.reported(
+          reviewUid: reviewUid,
+          reason: reason,
+          block: block,
+        ),
+      );
 
   void submitReview(int rating, String text) => context
       .read<ProductReviewsBloc>()
@@ -72,6 +97,11 @@ mixin ProductReviewsActions<T extends BaseScreen> on BaseScreenState<T> {
         showSnackBar(message);
       case ProductReviewsLoaded(:final afterWrite) when afterWrite:
         _refreshProduct();
+      // Nothing to refresh — a report changes no rating. The shopper is
+      // told their complaint landed, because the review stays on screen
+      // until the owner acts and silence would read as a failure.
+      case ProductReviewsLoaded(:final afterReport) when afterReport:
+        showSnackBar(ValueConst.reportReviewSuccessMessage);
       case ProductReviewsLoading():
       case ProductReviewsSubmitting():
       case ProductReviewsLoaded():

@@ -79,6 +79,14 @@ abstract final class ApiConstants {
   static String productReviewsPath(String storeId, String productId) =>
       '${productDetailsPath(storeId, productId)}/reviews';
 
+  /// Reporting someone else's review, and optionally blocking its author.
+  /// [reviewUid] is the author's uid — a review's id is who wrote it.
+  static String reportReviewPath(
+    String storeId,
+    String productId,
+    String reviewUid,
+  ) => '${productReviewsPath(storeId, productId)}/$reviewUid/report';
+
   /// Store-agnostic like [usersPath]; token-authed (no userId param).
   static String get addressesPath => '$baseUrl/users/addresses';
 

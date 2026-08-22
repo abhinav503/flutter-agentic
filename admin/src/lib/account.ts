@@ -33,6 +33,9 @@ const USER_SUBCOLLECTIONS = [
   // store's copy of the order itself is what survives, not their inbox.
   "notifications",
   "notificationReads",
+  // Who this shopper chose not to see reviews from. Their list, about them,
+  // and meaningless once the account is gone.
+  "blockedShoppers",
 ];
 
 async function deleteSubcollection(

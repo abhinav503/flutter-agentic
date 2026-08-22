@@ -505,6 +505,42 @@ class AppLocalizationsEn extends AppLocalizations {
       'Be the first to rate this product and help other shoppers decide.';
 
   @override
+  String get reportReviewLabel => 'Report';
+
+  @override
+  String get reportReviewSheetTitle => 'Report this review';
+
+  @override
+  String get reportReviewPrompt => 'Why are you reporting it?';
+
+  @override
+  String get reportReasonOffensive => 'Offensive or abusive';
+
+  @override
+  String get reportReasonSpam => 'Spam or advertising';
+
+  @override
+  String get reportReasonIrrelevant => 'Not about this product';
+
+  @override
+  String get reportReasonPersonalInfo => 'Shares personal information';
+
+  @override
+  String get reportReviewBlockLabel => 'Also hide reviews from this shopper';
+
+  @override
+  String get reportReviewSubmitLabel => 'Send report';
+
+  @override
+  String get reportReviewMissingReasonMessage => 'Pick a reason first.';
+
+  @override
+  String get reportReviewSuccessMessage => 'Thanks — the store has been told.';
+
+  @override
+  String get reportReviewSignedOutMessage => 'Sign in to report a review.';
+
+  @override
   String get unratedLabel => 'No ratings yet';
 
   @override

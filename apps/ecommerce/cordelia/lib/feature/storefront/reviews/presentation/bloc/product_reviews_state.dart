@@ -9,9 +9,14 @@ sealed class ProductReviewsState with _$ProductReviewsState {
   /// beside its name lives on the product doc, not in this list. It rides on
   /// the state (rather than the screen remembering a write was in flight)
   /// so the bloc stays the one thing that knows what just happened.
+  /// [afterReport] marks the reload that followed a report. Separate from
+  /// [afterWrite] because the two ask for different things: a write changes
+  /// the product's rating and needs it refreshed, a report changes neither
+  /// and only needs the shopper thanked.
   const factory ProductReviewsState.loaded({
     required ProductReviewsEntity reviews,
     @Default(false) bool afterWrite,
+    @Default(false) bool afterReport,
   }) = ProductReviewsLoaded;
 
   /// A write is in flight. Carries the list that was on screen when it

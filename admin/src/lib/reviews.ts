@@ -4,8 +4,11 @@ import {
   EMPTY_RATING_BUCKETS,
   MAX_RATING,
   MIN_RATING,
+  REVIEW_REPORT_REASONS,
   type RatingBuckets,
   type Review,
+  type ReviewReport,
+  type ReviewReportReason,
 } from "./types";
 
 // The one place product reviews are written. Every write moves the product
@@ -57,6 +60,10 @@ function mapReview(
     createdAt,
     // An edit sets updatedAt; a review never edited reads back as posted.
     updatedAt: (data.updatedAt as string) ?? createdAt,
+    // Absent on every review written before reporting existed, which reads
+    // correctly as "nobody has complained".
+    reportCount: (data.reportCount as number) ?? 0,
+    lastReportedAt: (data.lastReportedAt as string) ?? "",
   };
 }
 
@@ -196,6 +203,11 @@ export async function saveReview(
       // when the shopper first reviewed, not by their last typo fix.
       createdAt: existing?.createdAt || now,
       updatedAt: now,
+      // Reports survive an edit. Otherwise the way to launder a reported
+      // review would be to edit it — the owner dismisses a report, the
+      // author doesn't.
+      reportCount: existing?.reportCount ?? 0,
+      lastReportedAt: existing?.lastReportedAt ?? "",
     };
 
     tx.set(rRef, review);
@@ -254,6 +266,95 @@ export async function deleteReview(
       ratingBuckets: buckets,
     });
   });
+
+  // Firestore keeps a subcollection alive after its parent doc is gone, so
+  // an un-swept reports collection would be orphaned data about a review
+  // nobody can read. Outside the transaction because it is a query.
+  const reports = await reportsRef(storeId, productId, uid).get();
+  await Promise.all(reports.docs.map((d) => d.ref.delete()));
+}
+
+function reportsRef(storeId: string, productId: string, uid: string) {
+  return reviewRef(storeId, productId, uid).collection("reports");
+}
+
+export function isReviewReportReason(
+  value: unknown,
+): value is ReviewReportReason {
+  return REVIEW_REPORT_REASONS.includes(value as ReviewReportReason);
+}
+
+// A shopper reports someone else's review. Required by App Store Review
+// Guideline 1.2: an app carrying user-generated content has to give readers
+// a way to flag it, and the store owner a way to act on it.
+//
+// The report doc is keyed by the REPORTER's uid, so reporting twice edits
+// one report instead of inflating the count — `reportCount` is therefore a
+// count of distinct complainants, which is what makes it worth sorting by.
+// Both writes move in one transaction for the same reason the rating
+// aggregates do: a count that can drift from the docs behind it is worse
+// than no count.
+//
+// Reporting your own review is refused. It is never a real action, and
+// allowing it would let an author manufacture the appearance of a dispute.
+export async function reportReview(
+  reporterUid: string,
+  storeId: string,
+  productId: string,
+  reviewUid: string,
+  reason: ReviewReportReason,
+): Promise<number> {
+  if (reporterUid === reviewUid) {
+    throw new ReviewError("You cannot report your own review");
+  }
+
+  const rRef = reviewRef(storeId, productId, reviewUid);
+  const reportRef = reportsRef(storeId, productId, reviewUid).doc(reporterUid);
+
+  return adminDb.runTransaction(async (tx) => {
+    const [reviewSnap, existingReport] = await Promise.all([
+      tx.get(rRef),
+      tx.get(reportRef),
+    ]);
+    if (!reviewSnap.exists) {
+      throw new ReviewError("Review not found");
+    }
+
+    const now = new Date().toISOString();
+    const report: ReviewReport = {
+      reporterUid,
+      reason,
+      createdAt: now,
+    };
+    tx.set(reportRef, report);
+
+    // Only a first-time reporter moves the count. Changing your mind about
+    // the reason is an edit, not a second complaint.
+    const current = (reviewSnap.data()?.reportCount as number) ?? 0;
+    const count = existingReport.exists ? current : current + 1;
+    tx.update(rRef, { reportCount: count, lastReportedAt: now });
+    return count;
+  });
+}
+
+// The store owner's "this review is fine" — clears the complaints and
+// leaves the review standing. The counterpart to deleting it.
+//
+// Reports are removed rather than marked handled: keeping them would mean
+// the same review re-surfaces at the top of the list forever, and a shopper
+// who reports it again should still be heard.
+export async function dismissReviewReports(
+  storeId: string,
+  productId: string,
+  uid: string,
+): Promise<void> {
+  const snap = await reportsRef(storeId, productId, uid).get();
+  await Promise.all(snap.docs.map((d) => d.ref.delete()));
+  await reviewRef(storeId, productId, uid)
+    .update({ reportCount: 0, lastReportedAt: "" })
+    // The review may have been deleted between the console rendering the
+    // row and the owner clicking; the reports are gone either way.
+    .catch(() => {});
 }
 
 // Newest first. `limit` bounds the page a product-details payload carries;

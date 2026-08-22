@@ -2,8 +2,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../domain/entities/product_reviews_entity.dart';
+import '../../domain/entities/review_report_reason.dart';
 import '../../domain/usecase/delete_my_review_usecase.dart';
 import '../../domain/usecase/get_product_reviews_usecase.dart';
+import '../../domain/usecase/report_review_usecase.dart';
 import '../../domain/usecase/submit_product_review_usecase.dart';
 
 part 'product_reviews_bloc.freezed.dart';
@@ -24,6 +26,7 @@ class ProductReviewsBloc
   final GetProductReviewsUseCase _getProductReviews;
   final SubmitProductReviewUseCase _submitReview;
   final DeleteMyReviewUseCase _deleteMyReview;
+  final ReportReviewUseCase _reportReview;
 
   /// The product this bloc reviews, held here so no state has to carry it
   /// for a retry (same shape as CartBloc/CheckoutBloc's storeId).
@@ -34,16 +37,19 @@ class ProductReviewsBloc
     required GetProductReviewsUseCase getProductReviewsUseCase,
     required SubmitProductReviewUseCase submitProductReviewUseCase,
     required DeleteMyReviewUseCase deleteMyReviewUseCase,
+    required ReportReviewUseCase reportReviewUseCase,
     required this.storeId,
     required this.productId,
   }) : _getProductReviews = getProductReviewsUseCase,
        _submitReview = submitProductReviewUseCase,
        _deleteMyReview = deleteMyReviewUseCase,
+       _reportReview = reportReviewUseCase,
        super(const ProductReviewsState.loading()) {
     on<ProductReviewsSeeded>(_onSeeded);
     on<ProductReviewsRefreshed>(_onRefreshed);
     on<ProductReviewsSubmitted>(_onSubmitted);
     on<ProductReviewsMineDeleted>(_onMineDeleted);
+    on<ProductReviewsReported>(_onReported);
   }
 
   void _onSeeded(
@@ -114,11 +120,41 @@ class ProductReviewsBloc
     );
   }
 
+  Future<void> _onReported(
+    ProductReviewsReported event,
+    Emitter<ProductReviewsState> emit,
+  ) async {
+    emit(ProductReviewsState.submitting(reviews: state.reviewsOrNull));
+
+    final result = await _reportReview(
+      ReportReviewParams(
+        storeId: storeId,
+        productId: productId,
+        reviewUid: event.reviewUid,
+        reason: event.reason,
+        block: event.block,
+      ),
+    );
+    await result.fold(
+      (failure) async => emit(
+        ProductReviewsState.error(
+          message: failure.message,
+          reviews: state.reviewsOrNull,
+        ),
+      ),
+      // Reloaded rather than left alone: a report that also blocked the
+      // author has to take their reviews off the screen, and the server is
+      // what decides which those are.
+      (_) => _reload(emit, afterReport: true),
+    );
+  }
+
   // Shared by every path that needs the canonical list back — a private
   // method rather than a re-dispatched event, per the BLoC conventions.
   Future<void> _reload(
     Emitter<ProductReviewsState> emit, {
     bool afterWrite = false,
+    bool afterReport = false,
   }) async {
     final result = await _getProductReviews(
       GetProductReviewsParams(storeId: storeId, productId: productId),
@@ -131,7 +167,11 @@ class ProductReviewsBloc
         ),
       ),
       (reviews) => emit(
-        ProductReviewsState.loaded(reviews: reviews, afterWrite: afterWrite),
+        ProductReviewsState.loaded(
+          reviews: reviews,
+          afterWrite: afterWrite,
+          afterReport: afterReport,
+        ),
       ),
     );
   }

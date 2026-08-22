@@ -41,6 +41,7 @@ import '../../../../../reviews/presentation/bloc/product_reviews_bloc.dart';
 import '../../../../../reviews/presentation/product_reviews_actions.dart';
 import '../../../../../reviews/presentation/templates/dailymart/widgets/product_reviews_section.dart';
 import '../../../../../reviews/presentation/templates/dailymart/widgets/write_review_sheet_content.dart';
+import '../../../../../reviews/presentation/templates/dailymart/widgets/report_review_sheet_content.dart';
 import '../../../../domain/entities/product_detail_entity.dart';
 import '../../../../domain/entities/size_variant_entity.dart';
 import '../../../bloc/product_details_bloc.dart';
@@ -77,6 +78,16 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
           initialRating: existing?.rating ?? 0,
           initialText: existing?.text ?? '',
           onSubmit: submitReview,
+          onMessage: showSnackBar,
+        ),
+      );
+
+  @override
+  Future<void> showReportReviewSheet(ReviewEntity review) =>
+      showDailyMartSheet<void>(
+        title: ValueConst.reportReviewSheetTitle,
+        child: DailyMartReportReviewSheetContent(
+          onSubmit: (reason, block) => submitReport(review.uid, reason, block),
           onMessage: showSnackBar,
         ),
       );
@@ -120,6 +131,7 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
             ? null
             : () => writeReview(reviews.mine(currentUid)),
         onDeleteReview: state.isSubmitting ? null : confirmDeleteReview,
+        onReportReview: state.isSubmitting ? null : reportReview,
       );
     },
   );

@@ -21,6 +21,10 @@ export type StoreReview = {
   verifiedPurchase: boolean;
   createdAt: string;
   updatedAt: string;
+  // How many distinct shoppers reported this review. Drives the "Reported"
+  // filter and pushes the row to the top of the list.
+  reportCount: number;
+  lastReportedAt: string;
 };
 
 type ReviewResponse = {
@@ -34,6 +38,8 @@ type ReviewResponse = {
   verified_purchase: boolean;
   created_at: string;
   updated_at: string;
+  report_count?: number;
+  last_reported_at?: string;
 };
 
 function toStoreReview(r: ReviewResponse): StoreReview {
@@ -48,6 +54,8 @@ function toStoreReview(r: ReviewResponse): StoreReview {
     verifiedPurchase: r.verified_purchase,
     createdAt: r.created_at,
     updatedAt: r.updated_at,
+    reportCount: r.report_count ?? 0,
+    lastReportedAt: r.last_reported_at ?? "",
   };
 }
 
@@ -128,5 +136,23 @@ export async function deleteStoreReview(
   if (!res.ok) {
     const body = (await res.json().catch(() => ({}))) as { error?: string };
     throw new Error(body.error ?? "Could not delete review");
+  }
+}
+
+// "I've read the complaints and the review stays." Clears the reports so the
+// row stops leading the list; the review itself is untouched.
+export async function dismissStoreReviewReports(
+  storeId: string,
+  productId: string,
+  uid: string,
+  token: string,
+): Promise<void> {
+  const res = await fetch(
+    `/api/stores/${storeId}/reviews/${productId}/${uid}`,
+    { method: "POST", headers: { Authorization: `Bearer ${token}` } },
+  );
+  if (!res.ok) {
+    const body = (await res.json().catch(() => ({}))) as { error?: string };
+    throw new Error(body.error ?? "Could not dismiss the reports");
   }
 }

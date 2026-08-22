@@ -4,6 +4,7 @@ import 'package:fpdart/fpdart.dart';
 
 import '../../domain/entities/product_reviews_entity.dart';
 import '../../domain/entities/review_entity.dart';
+import '../../domain/entities/review_report_reason.dart';
 import '../../domain/repository/reviews_repository.dart';
 import '../data_source/reviews_remote_data_source.dart';
 
@@ -43,6 +44,24 @@ class ReviewsRepositoryImpl with BaseRepository implements ReviewsRepository {
     String productId,
   ) => handleRequest(() async {
     await _dataSource.deleteMyReview(storeId, productId);
+    return right(null);
+  });
+
+  @override
+  Future<Either<Failure, void>> reportReview({
+    required String storeId,
+    required String productId,
+    required String reviewUid,
+    required ReviewReportReason reason,
+    required bool block,
+  }) => handleRequest(() async {
+    await _dataSource.reportReview(
+      storeId: storeId,
+      productId: productId,
+      reviewUid: reviewUid,
+      reason: reason,
+      block: block,
+    );
     return right(null);
   });
 }

@@ -958,6 +958,78 @@ abstract class AppLocalizations {
   /// **'Be the first to rate this product and help other shoppers decide.'**
   String get reviewsEmptySubtitle;
 
+  /// No description provided for @reportReviewLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Report'**
+  String get reportReviewLabel;
+
+  /// No description provided for @reportReviewSheetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Report this review'**
+  String get reportReviewSheetTitle;
+
+  /// No description provided for @reportReviewPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Why are you reporting it?'**
+  String get reportReviewPrompt;
+
+  /// No description provided for @reportReasonOffensive.
+  ///
+  /// In en, this message translates to:
+  /// **'Offensive or abusive'**
+  String get reportReasonOffensive;
+
+  /// No description provided for @reportReasonSpam.
+  ///
+  /// In en, this message translates to:
+  /// **'Spam or advertising'**
+  String get reportReasonSpam;
+
+  /// No description provided for @reportReasonIrrelevant.
+  ///
+  /// In en, this message translates to:
+  /// **'Not about this product'**
+  String get reportReasonIrrelevant;
+
+  /// No description provided for @reportReasonPersonalInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Shares personal information'**
+  String get reportReasonPersonalInfo;
+
+  /// No description provided for @reportReviewBlockLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Also hide reviews from this shopper'**
+  String get reportReviewBlockLabel;
+
+  /// No description provided for @reportReviewSubmitLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Send report'**
+  String get reportReviewSubmitLabel;
+
+  /// No description provided for @reportReviewMissingReasonMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a reason first.'**
+  String get reportReviewMissingReasonMessage;
+
+  /// No description provided for @reportReviewSuccessMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Thanks — the store has been told.'**
+  String get reportReviewSuccessMessage;
+
+  /// No description provided for @reportReviewSignedOutMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to report a review.'**
+  String get reportReviewSignedOutMessage;
+
   /// No description provided for @unratedLabel.
   ///
   /// In en, this message translates to:

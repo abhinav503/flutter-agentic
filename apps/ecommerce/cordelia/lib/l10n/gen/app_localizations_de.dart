@@ -507,6 +507,44 @@ class AppLocalizationsDe extends AppLocalizations {
       'Bewerten Sie dieses Produkt als Erste oder Erster und helfen Sie anderen bei der Entscheidung.';
 
   @override
+  String get reportReviewLabel => 'Melden';
+
+  @override
+  String get reportReviewSheetTitle => 'Diese Bewertung melden';
+
+  @override
+  String get reportReviewPrompt => 'Warum melden Sie sie?';
+
+  @override
+  String get reportReasonOffensive => 'Beleidigend oder verletzend';
+
+  @override
+  String get reportReasonSpam => 'Spam oder Werbung';
+
+  @override
+  String get reportReasonIrrelevant => 'Nicht zu diesem Produkt';
+
+  @override
+  String get reportReasonPersonalInfo => 'Enthält persönliche Daten';
+
+  @override
+  String get reportReviewBlockLabel => 'Bewertungen dieses Kunden ausblenden';
+
+  @override
+  String get reportReviewSubmitLabel => 'Meldung senden';
+
+  @override
+  String get reportReviewMissingReasonMessage =>
+      'Bitte wählen Sie zuerst einen Grund.';
+
+  @override
+  String get reportReviewSuccessMessage => 'Danke – der Shop wurde informiert.';
+
+  @override
+  String get reportReviewSignedOutMessage =>
+      'Melden Sie sich an, um eine Bewertung zu melden.';
+
+  @override
   String get unratedLabel => 'Noch keine Bewertungen';
 
   @override

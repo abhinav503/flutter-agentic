@@ -63,6 +63,11 @@ export async function GET(
       // "" when the product has since been deleted — the row still shows the
       // review so the owner can clear it out.
       product_name: names.get(r.productId) ?? "",
+      // Owner-only, and deliberately not on serializeReview: how many
+      // shoppers complained is moderation state, not part of a review's
+      // public face.
+      report_count: r.reportCount,
+      last_reported_at: r.lastReportedAt,
     })),
   });
 }
