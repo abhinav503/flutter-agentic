@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { authorizeWrite, parseEntity, unknownEntity } from "@/lib/api/v1/catalog-route";
+import { authorizeWrite, parseEntity, tracedRoute, unknownEntity } from "@/lib/api/v1/catalog-route";
 import { consumeRateLimit } from "@/lib/api/rate-limit";
 import { IMPORT_FORMATS, ImportError, runImport, type ImportFormat } from "@/lib/api/v1/import";
 
@@ -57,6 +57,7 @@ export async function POST(
   const auth = await authorizeWrite(request, storeId, 0);
   if ("response" in auth) return auth.response;
 
+  return tracedRoute(`POST import`, storeId, auth.actor, async () => {
   try {
     const report = await runImport(
       storeId,
@@ -64,9 +65,6 @@ export async function POST(
       { entity, format, commit, createMissing, tagsAsCategories },
       auth.actor.uid,
     );
-    // Rows are only known once parsed (a quoted description spans lines), so
-    // the write budget is charged after the fact — a commit that went
-    // through counts; the next oversized one waits.
     if (commit) {
       try {
         consumeRateLimit(
@@ -84,4 +82,5 @@ export async function POST(
     }
     throw e;
   }
+  }, { format, entity, commit });
 }

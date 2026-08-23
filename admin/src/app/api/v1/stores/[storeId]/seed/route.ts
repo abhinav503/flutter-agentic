@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { FieldValue } from "firebase-admin/firestore";
 import { adminDb } from "@/lib/firebase-admin";
-import { authorizeWrite } from "@/lib/api/v1/catalog-route";
+import { authorizeWrite, tracedRoute } from "@/lib/api/v1/catalog-route";
 import { buildSeedDocs } from "@/lib/seed/seed-grocery";
 import { SEED_MARKETS, type SeedMarket } from "@/lib/seed/seed-markets";
 
@@ -26,14 +26,16 @@ export async function POST(
   const auth = await authorizeWrite(request, storeId, docs.length);
   if ("response" in auth) return auth.response;
 
-  const batch = adminDb.batch();
-  for (const d of docs) {
-    batch.set(store.collection(d.collection).doc(d.id), {
-      ...d.data,
-      createdAt: FieldValue.serverTimestamp(),
-      updatedBy: auth.actor.uid,
-    });
-  }
-  await batch.commit();
-  return NextResponse.json({ market, ...result }, { status: 201 });
+  return tracedRoute("POST seed", storeId, auth.actor, async () => {
+    const batch = adminDb.batch();
+    for (const d of docs) {
+      batch.set(store.collection(d.collection).doc(d.id), {
+        ...d.data,
+        createdAt: FieldValue.serverTimestamp(),
+        updatedBy: auth.actor.uid,
+      });
+    }
+    await batch.commit();
+    return NextResponse.json({ market, ...result }, { status: 201 });
+  }, { market });
 }

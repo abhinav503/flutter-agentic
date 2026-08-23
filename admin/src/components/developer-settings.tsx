@@ -40,6 +40,15 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
+type Connection = {
+  client_id: string;
+  client_name: string;
+  scopes: ApiTokenScope[];
+  store_ids: string[];
+  connected_at: string;
+  last_used_at: string;
+};
+
 // The wire shape of GET /api/v1/stores/{id}/tokens (serializeApiToken).
 type TokenRow = {
   id: string;
@@ -54,6 +63,232 @@ type TokenRow = {
 // exactly once, in the dialog that created it — after that only its prefix
 // exists anywhere, so the list can't leak what the server never kept.
 export function DeveloperSettings({ storeId }: { storeId: string }) {
+  return (
+    <div className="space-y-6">
+      <ConnectedApps />
+      <ApiTokens storeId={storeId} />
+      <ApiActivity storeId={storeId} />
+    </div>
+  );
+}
+
+type Usage = {
+  lastCallAt: string;
+  lastOperation: string;
+  lastClient: string;
+  totalCalls: number;
+  totalErrors: number;
+  days: {
+    day: string;
+    totalCalls: number;
+    totalErrors: number;
+    calls: Record<string, number>;
+    byClient: Record<string, number>;
+  }[];
+};
+
+// What connected apps and tokens did to this store — the last 30 days,
+// per day, with the operations and callers. Read from the tallies the
+// API writes beside every call (lib/api/telemetry.ts).
+function ApiActivity({ storeId }: { storeId: string }) {
+  const { user } = useAuth();
+  const [usage, setUsage] = useState<Usage | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    let active = true;
+    (async () => {
+      const idToken = await user.getIdToken();
+      const res = await fetch(`/api/v1/stores/${storeId}/usage`, {
+        headers: { Authorization: `Bearer ${idToken}` },
+      });
+      if (active && res.ok) setUsage((await res.json()) as Usage);
+    })();
+    return () => {
+      active = false;
+    };
+  }, [user, storeId]);
+
+  const top = (m: Record<string, number>, n = 4) =>
+    Object.entries(m)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, n)
+      .map(([k, v]) => `${k} ×${v}`)
+      .join(", ");
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>API activity</CardTitle>
+        <CardDescription>
+          Every call a connected app or token made to this store, by day.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        {usage === null ? (
+          <p className="text-sm text-muted-foreground">Loading…</p>
+        ) : usage.totalCalls === 0 ? (
+          <p className="text-sm text-muted-foreground">No API calls yet.</p>
+        ) : (
+          <div className="space-y-3">
+            <p className="text-sm">
+              <strong>{usage.totalCalls}</strong> calls
+              {usage.totalErrors > 0 && (
+                <>
+                  , <strong className="text-destructive">{usage.totalErrors}</strong> failed
+                </>
+              )}
+              {usage.lastCallAt && (
+                <span className="text-muted-foreground">
+                  {" · "}last: {usage.lastOperation} by {usage.lastClient.replace(/^[a-z]+:/, "")}{" "}
+                  {new Date(usage.lastCallAt).toLocaleString()}
+                </span>
+              )}
+            </p>
+            <ul className="divide-y divide-border rounded-md border border-border text-sm">
+              {usage.days.map((d) => (
+                <li key={d.day} className="grid gap-1 p-3 sm:grid-cols-[7rem_1fr]">
+                  <span className="font-medium">{d.day}</span>
+                  <span className="text-muted-foreground">
+                    {d.totalCalls} call{d.totalCalls === 1 ? "" : "s"}
+                    {d.totalErrors > 0 && `, ${d.totalErrors} failed`}
+                    {" — "}
+                    {top(d.calls)}
+                    {Object.keys(d.byClient).length > 0 && (
+                      <> · by {top(d.byClient, 3).replace(/(oauth|token|owner):/g, "")}</>
+                    )}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+// Apps connected through OAuth — claude.ai, Claude Code, Cursor, ChatGPT —
+// account-wide, since a consent covers the stores the owner ticked.
+function ConnectedApps() {
+  const { user } = useAuth();
+  const [apps, setApps] = useState<Connection[] | null>(null);
+  const [disconnecting, setDisconnecting] = useState<Connection | null>(null);
+
+  const load = useCallback(async () => {
+    if (!user) return null;
+    const idToken = await user.getIdToken();
+    const res = await fetch("/api/oauth/connections", {
+      headers: { Authorization: `Bearer ${idToken}` },
+    });
+    return res.ok ? ((await res.json()) as { connections: Connection[] }).connections : [];
+  }, [user]);
+
+  useEffect(() => {
+    let active = true;
+    load().then((rows) => {
+      if (active && rows) setApps(rows);
+    });
+    return () => {
+      active = false;
+    };
+  }, [load]);
+
+  async function disconnect(app: Connection) {
+    if (!user) return;
+    const idToken = await user.getIdToken();
+    const res = await fetch(`/api/oauth/connections?client_id=${encodeURIComponent(app.client_id)}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${idToken}` },
+    });
+    if (res.ok) {
+      toast.success(`Disconnected ${app.client_name}`);
+      const rows = await load();
+      if (rows) setApps(rows);
+    } else {
+      toast.error("Could not disconnect");
+    }
+    setDisconnecting(null);
+  }
+
+  const mcpUrl = typeof window !== "undefined" ? `${window.location.origin}/api/mcp` : "";
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Connected apps</CardTitle>
+        <CardDescription>
+          Let an AI assistant manage your store by talking to it. In claude.ai
+          go to Settings → Connectors → Add custom connector and paste{" "}
+          <code className="rounded bg-muted px-1">{mcpUrl}</code>; in Claude
+          Code run{" "}
+          <code className="rounded bg-muted px-1">
+            claude mcp add --transport http cordelia {mcpUrl}
+          </code>
+          . You&apos;ll sign in here and choose which stores it may touch.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {apps === null ? (
+          <p className="text-sm text-muted-foreground">Loading…</p>
+        ) : apps.length === 0 ? (
+          <p className="text-sm text-muted-foreground">Nothing connected yet.</p>
+        ) : (
+          <ul className="divide-y divide-border rounded-md border border-border">
+            {apps.map((app) => (
+              <li key={app.client_id} className="flex items-center gap-4 p-3">
+                <div className="min-w-0 flex-1">
+                  <span className="font-medium">{app.client_name}</span>
+                  <div className="mt-1 flex flex-wrap gap-1">
+                    {app.scopes.map((s) => (
+                      <Badge key={s} variant="secondary">
+                        {s}
+                      </Badge>
+                    ))}
+                  </div>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {app.store_ids.length} store{app.store_ids.length === 1 ? "" : "s"} · Connected{" "}
+                    {app.connected_at ? new Date(app.connected_at).toLocaleDateString() : "—"} ·{" "}
+                    {app.last_used_at ? `Last used ${new Date(app.last_used_at).toLocaleString()}` : "Never used"}
+                  </p>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-destructive"
+                  onClick={() => setDisconnecting(app)}
+                >
+                  Disconnect
+                </Button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </CardContent>
+      <AlertDialog open={!!disconnecting} onOpenChange={(open) => !open && setDisconnecting(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Disconnect {disconnecting?.client_name}?</AlertDialogTitle>
+            <AlertDialogDescription>
+              It loses access immediately. You can connect it again any time from that app.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => disconnecting && disconnect(disconnecting)}
+            >
+              Disconnect
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </Card>
+  );
+}
+
+function ApiTokens({ storeId }: { storeId: string }) {
   const { user } = useAuth();
   const [tokens, setTokens] = useState<TokenRow[] | null>(null);
   const [creating, setCreating] = useState(false);

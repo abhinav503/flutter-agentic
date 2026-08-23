@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { guardErrorResponse, requireStoreAccess } from "@/lib/api/admin-guard";
+import { guardErrorResponse, requireStoreAccess, type StoreActor } from "@/lib/api/admin-guard";
+import { tracedRoute } from "@/lib/api/v1/catalog-route";
 import { submitStoreForReview, SubmitError } from "@/lib/store-publish";
 
 // POST — submit the store for review. Owner or a token with store:publish.
@@ -10,20 +11,23 @@ export async function POST(
   { params }: { params: Promise<{ storeId: string }> },
 ) {
   const { storeId } = await params;
+  let actor: StoreActor;
   try {
-    await requireStoreAccess(request, storeId, "store:publish");
+    actor = await requireStoreAccess(request, storeId, "store:publish");
   } catch (e) {
     return guardErrorResponse(e);
   }
-  try {
-    return NextResponse.json(await submitStoreForReview(storeId));
-  } catch (e) {
-    if (e instanceof SubmitError) {
-      return NextResponse.json(
-        { error: e.message, ...(e.checks.length ? { checks: e.checks } : {}) },
-        { status: e.status },
-      );
+  return tracedRoute("POST publish", storeId, actor, async () => {
+    try {
+      return NextResponse.json(await submitStoreForReview(storeId));
+    } catch (e) {
+      if (e instanceof SubmitError) {
+        return NextResponse.json(
+          { error: e.message, ...(e.checks.length ? { checks: e.checks } : {}) },
+          { status: e.status },
+        );
+      }
+      throw e;
     }
-    throw e;
-  }
+  });
 }

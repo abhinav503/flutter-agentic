@@ -5,6 +5,7 @@ import {
   type StoreActor,
 } from "@/lib/api/admin-guard";
 import { consumeRateLimit, RateLimitError } from "@/lib/api/rate-limit";
+import { traced } from "@/lib/api/telemetry";
 import {
   CATALOG_ENTITIES,
   MAX_UPSERT_ROWS,
@@ -47,6 +48,24 @@ export async function authorizeWrite(
     }
     return { response: guardErrorResponse(e) };
   }
+}
+
+// Runs a v1 handler body under one telemetry event, with the outcome read
+// off the Response it returns.
+export function tracedRoute(
+  operation: string,
+  storeId: string,
+  actor: StoreActor,
+  fn: () => Promise<Response>,
+  meta?: Record<string, string | number | boolean>,
+): Promise<Response> {
+  const client =
+    actor.kind === "owner" ? "owner" : actor.kind === "token" ? actor.tokenId.slice(0, 8) : actor.tokenId.slice(0, 8);
+  return traced(
+    { surface: "v1", operation, storeId, actor: { kind: actor.kind, uid: actor.uid, client }, meta },
+    fn,
+    (res) => ({ ok: res.status < 400, status: res.status }),
+  );
 }
 
 export function tooManyRows(count: number) {

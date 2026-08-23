@@ -26,6 +26,26 @@ const nextConfig: NextConfig = {
   //
   // Temporary (307), not permanent: a 308 is cached by browsers indefinitely,
   // which would make reinstating either route as a real page painful.
+  // The OAuth discovery documents live at the RFC-mandated /.well-known
+  // paths, which the app router can't serve from a dot-prefixed folder —
+  // so they are routes under /api/oauth/metadata, rewritten here.
+  async rewrites() {
+    return [
+      {
+        source: "/.well-known/oauth-authorization-server",
+        destination: "/api/oauth/metadata/authorization-server",
+      },
+      {
+        source: "/.well-known/oauth-protected-resource",
+        destination: "/api/oauth/metadata/protected-resource",
+      },
+      {
+        source: "/.well-known/oauth-protected-resource/api/mcp",
+        destination: "/api/oauth/metadata/protected-resource",
+      },
+    ];
+  },
+
   async redirects() {
     return [
       { source: "/login", destination: "/", permanent: false },

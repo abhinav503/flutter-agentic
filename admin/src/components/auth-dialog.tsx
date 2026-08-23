@@ -50,7 +50,15 @@ export function useAuthDialog() {
  * pre-opened; both now redirect to `/` (see next.config.ts) precisely because
  * that is the same thing by another route.
  */
-export function AuthDialogProvider({ children }: { children: ReactNode }) {
+export function AuthDialogProvider({
+  children,
+  stayOnPage = false,
+}: {
+  children: ReactNode;
+  // Keep the signed-in owner on the current page instead of sending them
+  // to the dashboard — for a page that is itself the destination.
+  stayOnPage?: boolean;
+}) {
   const [mode, setMode] = useState<AuthMode | null>(null);
 
   const openAuth = useCallback((next: AuthMode) => setMode(next), []);
@@ -62,6 +70,7 @@ export function AuthDialogProvider({ children }: { children: ReactNode }) {
         mode={mode}
         onModeChange={setMode}
         onClose={() => setMode(null)}
+        stayOnPage={stayOnPage}
       />
     </AuthDialogContext.Provider>
   );
@@ -69,10 +78,12 @@ export function AuthDialogProvider({ children }: { children: ReactNode }) {
 
 function AuthDialog({
   mode,
+  stayOnPage,
   onModeChange,
   onClose,
 }: {
   mode: AuthMode | null;
+  stayOnPage: boolean;
   onModeChange: (mode: AuthMode) => void;
   onClose: () => void;
 }) {
@@ -111,12 +122,18 @@ function AuthDialog({
         await signIn(email, password);
       }
       close();
-      // replace, not push. RedirectIfSignedIn reacts to the same auth change
-      // and also navigates here; two pushes would stack duplicate history
-      // entries, so Back would land on /dashboard again. Both being replaces
-      // makes the pair idempotent whichever wins the race — and Back should
-      // not return to the marketing page you just signed in from anyway.
-      router.replace("/dashboard");
+      // The marketing page sends a freshly signed-in owner to the dashboard.
+      // A page that needs the owner signed in *where they are* — the OAuth
+      // consent screen, which must stay put to finish the flow — opts out.
+      if (!stayOnPage) {
+        // replace, not push. RedirectIfSignedIn reacts to the same auth
+        // change and also navigates here; two pushes would stack duplicate
+        // history entries, so Back would land on /dashboard again. Both
+        // being replaces makes the pair idempotent whichever wins the race
+        // — and Back should not return to the marketing page you just
+        // signed in from anyway.
+        router.replace("/dashboard");
+      }
     } catch (err) {
       setError(authErrorMessage(err));
     } finally {

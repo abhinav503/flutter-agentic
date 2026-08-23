@@ -5,6 +5,7 @@ import {
   authorizeWrite,
   parseEntity,
   tooManyRows,
+  tracedRoute,
   unknownEntity,
 } from "@/lib/api/v1/catalog-route";
 
@@ -19,9 +20,11 @@ export async function GET(request: Request, { params }: Params) {
   if (!entity) return unknownEntity(rawEntity);
   const auth = await authorizeWrite(request, storeId, 0);
   if ("response" in auth) return auth.response;
-  const catalog = await loadCatalog(storeId);
-  const items = [...catalog[entity].values()].map((r) => serializeCatalogRecord(entity, r));
-  return NextResponse.json({ items });
+  return tracedRoute(`GET ${entity}`, storeId, auth.actor, async () => {
+    const catalog = await loadCatalog(storeId);
+    const items = [...catalog[entity].values()].map((r) => serializeCatalogRecord(entity, r));
+    return NextResponse.json({ items });
+  });
 }
 
 // POST — one record. Same upsert semantics as PUT with a single item; 201
@@ -36,20 +39,22 @@ export async function POST(request: Request, { params }: Params) {
   if (!body || typeof body !== "object" || Array.isArray(body)) {
     return NextResponse.json({ error: "Body must be a JSON object" }, { status: 400 });
   }
-  const { results } = await upsertCatalog(storeId, entity, [body], {
-    dryRun: false,
-    actorUid: auth.actor.uid,
+  return tracedRoute(`POST ${entity}`, storeId, auth.actor, async () => {
+    const { results } = await upsertCatalog(storeId, entity, [body], {
+      dryRun: false,
+      actorUid: auth.actor.uid,
+    });
+    const result = results[0];
+    if (result.action === "error") {
+      return NextResponse.json({ error: result.errors[0], errors: result.errors }, { status: 422 });
+    }
+    const catalog = await loadCatalog(storeId);
+    const record = catalog[entity].get(result.id);
+    return NextResponse.json(
+      { id: result.id, action: result.action, record: record ? serializeCatalogRecord(entity, record) : null },
+      { status: result.action === "created" ? 201 : 200 },
+    );
   });
-  const result = results[0];
-  if (result.action === "error") {
-    return NextResponse.json({ error: result.errors[0], errors: result.errors }, { status: 422 });
-  }
-  const catalog = await loadCatalog(storeId);
-  const record = catalog[entity].get(result.id);
-  return NextResponse.json(
-    { id: result.id, action: result.action, record: record ? serializeCatalogRecord(entity, record) : null },
-    { status: result.action === "created" ? 201 : 200 },
-  );
 }
 
 // PUT — bulk upsert. `{ items: [...], dry_run?: true }`. Dry-run validates
@@ -68,9 +73,17 @@ export async function PUT(request: Request, { params }: Params) {
   const dryRun = body.dry_run === true;
   const auth = await authorizeWrite(request, storeId, dryRun ? 0 : items.length);
   if ("response" in auth) return auth.response;
-  const outcome = await upsertCatalog(storeId, entity, items, {
-    dryRun,
-    actorUid: auth.actor.uid,
-  });
-  return NextResponse.json({ dry_run: dryRun, ...outcome });
+  return tracedRoute(
+    `PUT ${entity}`,
+    storeId,
+    auth.actor,
+    async () => {
+      const outcome = await upsertCatalog(storeId, entity, items, {
+        dryRun,
+        actorUid: auth.actor.uid,
+      });
+      return NextResponse.json({ dry_run: dryRun, ...outcome });
+    },
+    { rows: items.length, dry_run: dryRun },
+  );
 }

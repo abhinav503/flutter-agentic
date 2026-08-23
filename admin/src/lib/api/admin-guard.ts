@@ -1,4 +1,5 @@
 import { isApiToken, verifyApiToken } from "@/lib/api-tokens";
+import { isOAuthAccessToken, verifyOAuthAccessToken } from "@/lib/oauth";
 import type { ApiTokenScope } from "@/lib/api-token-scopes";
 import { adminAuth, adminDb } from "@/lib/firebase-admin";
 
@@ -171,7 +172,10 @@ export async function optionalAuthedUser(
 // owner's, or the uid that minted the token — what an audit field records.
 export type StoreActor =
   | { kind: "owner"; uid: string }
-  | { kind: "token"; uid: string; tokenId: string; scopes: ApiTokenScope[] };
+  | { kind: "token"; uid: string; tokenId: string; scopes: ApiTokenScope[] }
+  // An OAuth grant an MCP host holds for an owner — account-wide, listing
+  // the stores the owner consented to.
+  | { kind: "oauth"; uid: string; tokenId: string; scopes: ApiTokenScope[]; storeIds: string[] };
 
 // The one guard every v1 store route uses. A bearer that looks like an API
 // token (`cord_live_…`) is checked as one — hash lookup, store match, scope
@@ -186,6 +190,17 @@ export async function requireStoreAccess(
   const bearer = (request.headers.get("authorization") ?? "").match(
     /^Bearer (.+)$/,
   )?.[1];
+  if (bearer && isOAuthAccessToken(bearer)) {
+    const grant = await verifyOAuthAccessToken(bearer);
+    if (!grant) throw new UnauthorizedError("Expired or revoked access token");
+    if (!grant.storeIds.includes(storeId)) {
+      throw new ForbiddenError("This connection was not granted access to that store");
+    }
+    if (!grant.scopes.includes(scope)) {
+      throw new ForbiddenError(`This connection lacks the ${scope} scope`);
+    }
+    return { kind: "oauth", uid: grant.uid, tokenId: grant.tokenId, scopes: grant.scopes, storeIds: grant.storeIds };
+  }
   if (bearer && isApiToken(bearer)) {
     const token = await verifyApiToken(bearer);
     if (!token) throw new UnauthorizedError("Unknown or revoked API token");
