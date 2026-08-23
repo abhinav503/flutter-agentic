@@ -1,6 +1,6 @@
 # Programmable store publishing — Catalog API → MCP → CLI → platform imports
 
-> Status: Phase 0 in progress (2026-08-23). Target sellers: developers/agencies and merchants with an existing catalog. Kirana/small grocers are not a focus.
+> Status: Phase 0 done (tasks 1–7; task 8 open), Phase 1 live (2026-08-23). Target sellers: developers/agencies and merchants with an existing catalog. Kirana/small grocers are not a focus.
 
 ## Context
 
@@ -58,6 +58,16 @@ Read-time upgrade: `sizeVariants` → `optionNames:["Size"]` + one variant per s
 6. **Console cutover** — forms + dialog → routes; `firestore.rules` tightened.
 7. **Publish via token** — `submit` accepts `store:publish`; `readiness` alias; live payment-key validation on save.
 8. **Flutter option pickers** — dailymart/grofast Product Details, attribute spec list in all three packs.
+
+## Status (2026-08-23)
+
+- **Phase 0** — done except task 8 (Flutter option pickers): v2 product model with per-variant stock through checkout, store tokens, v1 catalog API, CSV + Shopify import, console cutover (rules tightened), live payment-key validation, publish/readiness by token.
+- **Phase 1** — live: remote MCP server at `https://cordeliaapps.com/api/mcp` with an OAuth 2.1 server in the console (verified from a claude.ai custom connector), telemetry (log lines + `apiUsage` tallies + Developers tab panel), docs category "AI assistants & API", `/llms.txt`, `/developers`. Decisions: stdio wrapper **dropped** (chat hosts are the audience); Claude Code plugin only if the repo goes public.
+- **Launch-day todo (deliberately unpublished until the store is live)**:
+  1. MCP Registry — DNS TXT is already on the apex (verified 2026-08-23); run the publish in `admin/mcp-registry/README.md`.
+  2. Free directories: mcpmarket.com, claudemarketplaces.com, skillsclaude.org, lobehub.com/skills, glama.ai — same copy as `server.json`.
+  3. Optional: Anthropic Connectors directory (needs a Team/Enterprise Claude org + review) and the official Claude Code plugin marketplace.
+  4. Attach a Vercel log drain (Axiom / Better Stack free tier) if log history beyond Firestore tallies is wanted.
 
 ## Recommended approach (in dependency order)
 
