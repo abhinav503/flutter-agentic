@@ -140,6 +140,18 @@ these are recorded rather than looked up again each time.
 | Upload key (`upload`) | `BA:73:9B:65:8C:28:27:C7:BF:EA:35:13:F4:C7:12:C1:0A:44:5E:E5` |
 | Debug keystore | `52:EE:29:C8:B5:20:AF:C3:A5:86:FA:B1:60:49:C3:52:B5:21:5F:5A` |
 
+SHA-256 of the same certs — what **Firebase App Check (Play Integrity)**
+verifies against. All four are on the Firebase app (Project settings →
+cordelia (android) → SHA certificate fingerprints) as of 2026-08-24; the two
+Play ones are the *Classical* and *Post-quantum* cards of the current App
+signing key (Play Console → Setup → App signing), copied from there.
+
+| Source | SHA-256 |
+|---|---|
+| Play App signing key (classical + post-quantum) | the two cards on the App signing page |
+| Upload key (`upload`) | `72:E2:E5:DD:2C:75:55:2D:EF:9E:B4:48:83:D8:10:0F:76:E3:AF:A2:76:83:91:7D:F5:D5:28:AF:93:4F:06:97` |
+| Debug keystore | `CD:69:54:77:94:DA:2E:F1:F8:43:E5:D5:AB:9C:C4:8A:F2:59:DE:CA:C8:E6:AA:FB:C1:6E:94:B3:DB:51:CF:97` |
+
 Known gap: `com.flutteragentic.gravia` shares this key and is on none of these
 rows, so its Android builds will hit the same error the next time one runs.
 `com.example.entries` is a leftover client in the Firebase project and should

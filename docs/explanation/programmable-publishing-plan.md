@@ -70,6 +70,7 @@ Read-time upgrade: `sizeVariants` → `optionNames:["Size"]` + one variant per s
   4. Attach a Vercel log drain (Axiom / Better Stack free tier) if log history beyond Firestore tallies is wanted.
   5. `/api/mcp` for humans: a friendlier 401 body naming the connect guide, and a redirect to `/mcp` when the request is a browser (`Accept: text/html`, no bearer) — hosts always send `application/json, text/event-stream`, so the protocol is untouched.
   6. Release the app (`1.0.4+6` → `1.0.5+7`): per-variant cart rows and the option pickers only exist in the tree until then.
+  7. App Check enforcement (Firebase → App Check → APIs → Enforce for Auth, Storage, Firestore) once the release carrying the SDK is the only build installed; providers and fingerprints are registered, the SDK ships unenforced. Debug tokens per simulator/emulator live in App Check → Apps → Manage debug tokens.
 
 ## Abuse hardening (2026-08-24)
 

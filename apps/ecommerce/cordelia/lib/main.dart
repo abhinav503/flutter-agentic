@@ -10,6 +10,7 @@ import 'package:core/core/theme/app_theme_config.dart';
 import 'app.dart';
 import 'di/injection_container.dart';
 import 'firebase_options.dart';
+import 'services/app_check_service.dart';
 import 'services/crash_reporter_service.dart';
 
 /// Runs in its own isolate when a push arrives with the app backgrounded or
@@ -40,6 +41,11 @@ void main() async {
 
   final config = await _loadThemeConfig();
   await initDependencies();
+  // After the preferences service (initDependencies) and before any Firebase
+  // call that needs an attestation — Auth, Storage, the FCM token are all
+  // made from widgets, so this is still ahead of every one. See
+  // AppCheckService for providers and enforcement.
+  if (!kIsWeb) await AppCheckService.instance.activate();
 
   runApp(App(themeConfig: config));
 }

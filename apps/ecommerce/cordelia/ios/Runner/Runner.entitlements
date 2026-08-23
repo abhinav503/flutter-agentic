@@ -4,5 +4,10 @@
 <dict>
 	<key>aps-environment</key>
 	<string>development</string>
+	<!-- Firebase App Check's App Attest provider. "development" here, like
+	     aps-environment above: Xcode rewrites both to "production" when it
+	     signs a distribution build. -->
+	<key>com.apple.developer.devicecheck.appattest-environment</key>
+	<string>development</string>
 </dict>
 </plist>
