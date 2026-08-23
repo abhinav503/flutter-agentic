@@ -69,6 +69,7 @@ class CouponsRemoteDataSourceImpl implements CouponsRemoteDataSource {
               (item) => {
                 'productId': item.product.id,
                 'quantity': item.quantity,
+                if (item.variantId != null) 'variantId': item.variantId,
                 if (item.sizeValue != null) 'sizeValue': item.sizeValue,
               },
             )

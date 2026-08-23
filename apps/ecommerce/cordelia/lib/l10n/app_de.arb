@@ -157,6 +157,7 @@
   "locationPermissionDeniedMessage": "Die Standortberechtigung ist aus — schalten Sie sie in den Einstellungen ein, um zu sehen, was in der Nähe ist.",
   "locationUnavailableMessage": "Ihr Standort konnte nicht ermittelt werden. Bitte erneut versuchen.",
   "outOfStockLabel": "Nicht auf Lager",
+  "cartLineSubtitle": "{pack} · {availability}",
   "onlyNLeftLabel": "{count, plural, one{Nur noch 1 verfügbar} other{Nur noch {count} verfügbar}}",
   "cartUnavailableItemsMessage": "Einige Artikel in Ihrem Warenkorb sind nicht mehr verfügbar. Bitte aktualisieren Sie Ihren Warenkorb, um fortzufahren.",
   "productSoldOutMessage": "{name} ist gerade ausverkauft. Bitte aktualisieren Sie Ihren Warenkorb.",

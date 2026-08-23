@@ -558,6 +558,11 @@ class AppLocalizationsEs extends AppLocalizations {
   String get outOfStockLabel => 'Agotado';
 
   @override
+  String cartLineSubtitle(String pack, String availability) {
+    return '$pack · $availability';
+  }
+
+  @override
   String onlyNLeftLabel(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,

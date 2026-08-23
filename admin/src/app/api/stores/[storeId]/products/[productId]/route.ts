@@ -63,7 +63,7 @@ export async function GET(
 
   return NextResponse.json({
     product: serializeProduct(product),
-    images: product.imageUrl ? [product.imageUrl] : [],
+    images: product.images,
     description: product.description,
     // size_options stays alongside size_variants until every template's
     // "Select QTY" row reads per-variant pricing — same values, old shape.

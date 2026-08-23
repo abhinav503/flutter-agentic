@@ -13,7 +13,6 @@ import 'package:core/core/ui/molecules/swipe_to_delete_row.dart';
 
 import 'package:cordelia/constants/app_routes.dart';
 import 'package:cordelia/constants/value_const.dart';
-import 'package:cordelia/enums/product_unit_type.dart';
 import 'package:cordelia/feature/auth/presentation/sign_in_gate.dart';
 import 'package:cordelia/feature/home/domain/entities/store_delivery_entity.dart';
 import 'package:cordelia/feature/storefront/active_store/presentation/active_store_capture.dart';
@@ -225,18 +224,16 @@ class _BagContent extends StatelessWidget {
             // Keyed by line, not product — the same product can sit in the
             // bag twice in two pack sizes; sizeValue scopes every control to
             // this exact line.
-            lineKey: '${item.product.id}-${item.sizeValue}',
-            onDelete: () =>
-                cart.removeItem(item.product.id, sizeValue: item.sizeValue),
+            lineKey: '${item.product.id}-${item.variantId ?? item.sizeValue}',
+            onDelete: () => cart.removeItem(
+              item.product.id,
+              sizeValue: item.sizeValue,
+              variantId: item.variantId,
+            ),
             child: GrofastLineItemRow(
               imageUrl: item.product.imageUrl,
               name: item.product.name,
-              // The row's one subtitle slot goes to why this line can't be
-              // bought, when it can't — the pack size no longer decides
-              // anything at that point.
-              subtitle:
-                  item.availabilityLabel ??
-                  item.product.unitType.format(item.effectiveSizeValue),
+              subtitle: item.subtitle,
               subtitleColor: item.isUnavailable
                   ? Theme.of(context).colorScheme.error
                   : null,
@@ -256,12 +253,14 @@ class _BagContent extends StatelessWidget {
                     ? () => cart.incrementQuantity(
                         item.product.id,
                         sizeValue: item.sizeValue,
+                        variantId: item.variantId,
                       )
                     : null,
                 onDecrement: item.quantity > 1
                     ? () => cart.decrementQuantity(
                         item.product.id,
                         sizeValue: item.sizeValue,
+                        variantId: item.variantId,
                       )
                     : null,
               ),

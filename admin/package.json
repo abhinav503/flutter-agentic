@@ -10,6 +10,7 @@
     "test:webhook": "node scripts/test-refund-webhook.mjs",
     "seed:templates": "node --env-file=.env.local scripts/seed-templates.mjs",
     "verify:import-csv": "tsx --env-file=.env.local scripts/verify-import-csv.ts",
+    "verify:product-model": "tsx scripts/verify-product-model.ts",
     "verify:seed-images": "node scripts/verify-seed-images.mjs",
     "verify:seed-bands": "node scripts/verify-seed-bands.mjs",
     "verify:seed-refs": "node scripts/verify-seed-refs.mjs",

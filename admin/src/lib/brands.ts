@@ -24,6 +24,7 @@ function mapBrandDoc(d: QueryDocumentSnapshot): Brand {
     id: d.id,
     name: (d.data().name as string) ?? "",
     logoUrl: (d.data().logoUrl as string) ?? "",
+    externalId: (d.data().externalId as string) ?? "",
     createdAtMs:
       (d.data().createdAt as Timestamp | null | undefined)?.toMillis() ?? 0,
   };

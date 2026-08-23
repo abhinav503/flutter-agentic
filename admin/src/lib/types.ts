@@ -29,6 +29,12 @@ export type Category = {
   // "Snacks & Drinks", "Grocery & Kitchen") — CategoryGroupEntity in gravia.
   // Free text so an admin can introduce a new group without a schema change.
   groupName: string;
+  // "" = a top-level category; otherwise the id of the category this one
+  // sits under (Shopify's taxonomy is a tree: Apparel › Clothing › Shirts).
+  // Depth is not enforced beyond what the form lets an admin build.
+  parentId: string;
+  // See Variant.externalId. "" = none.
+  externalId: string;
   // Millis from the doc's createdAt serverTimestamp — what the dashboard's
   // "newest first" sort orders by. 0 = the doc predates the field, or the
   // snapshot is latency-compensated and the pending serverTimestamp is still
@@ -46,46 +52,107 @@ export type Brand = {
   id: string;
   name: string;
   logoUrl: string;
+  // See Variant.externalId. "" = none.
+  externalId: string;
   // See Category.createdAtMs.
   createdAtMs: number;
 };
 
-// One selectable package size on the product page's "Select QTY" row, with
-// its own price — 500g is not just 2× the 250g chip visually, it has a real
-// price the cart will charge. originalPrice ≥ price; discount is derived per
-// variant (computeDiscountPercentage), never stored. Stock deliberately stays
-// product-level until order lines carry a variant — per-variant stock with
-// nothing decrementing it would be fiction.
+// One sellable unit of a product. A simple product (a bag of rice, a book)
+// has no variants and is its own single unit; a product with choices (Size ×
+// Colour, pack size, storage) has one Variant per combination, each with
+// the price and stock the cart will actually charge and decrement.
+// `options` is aligned positionally to Product.optionNames — a variant of a
+// product whose optionNames are ["Size","Colour"] carries ["M","Red"].
+export type Variant = {
+  id: string;
+  // The id the source system knows this unit by (a Shopify variant id, an
+  // ERP SKU row) — what a re-import matches on, so a rename can't duplicate.
+  externalId: string;
+  sku: string;
+  barcode: string;
+  options: string[];
+  price: number;
+  originalPrice: number;
+  stock: number;
+  // Shopify's "continue selling when out of stock" — a made-to-order or
+  // drop-shipped unit whose stock count is not a sales limit.
+  sellWhenOutOfStock: boolean;
+  // "" = the product's own images.
+  imageUrl: string;
+  // The numeric pack size this variant stood for in the pre-v2 schema
+  // (sizeVariants[].value, in the product's unitType) — kept so an order line
+  // placed against a size keeps formatting its weight label. 0 = not a pack.
+  packSize: number;
+};
+
+// Pre-v2 pack-size pricing (sizeVariants) — a single numeric axis in the
+// product's unitType. Still read (and upgraded to Variants on load), still
+// written beside `variants` so storefront builds that predate v2 keep their
+// "Select QTY" row. Never the source of truth once a doc carries `variants`.
 export type SizeVariant = {
   value: number;
   price: number;
   originalPrice: number;
 };
 
+// Free-form product facts a storefront renders as a spec list ("Material:
+// Cotton", "Pack size: 500 g", "Prep time: 10 min"). Checkout never reads
+// them — anything a price or stock decision depends on is a Variant field.
+export type ProductAttributes = Record<string, string>;
+
+// Every source platform caps a product at three option axes, and a picker
+// past three rows stops being a picker.
+export const MAX_OPTION_AXES = 3;
+
 export type Product = {
   id: string;
   name: string;
+  // images[0]; kept as its own field because every grid/card reader and the
+  // Flutter ProductModel read `image` as one URL.
   imageUrl: string;
+  images: string[];
+  // See Variant.externalId — the product-level identity for the source
+  // system (a Shopify handle, a Woo product id). "" = none.
+  externalId: string;
+  // For a simple product these are the unit's own codes; a product with
+  // variants carries them per variant and leaves these "".
+  sku: string;
+  barcode: string;
+  // With variants: the cheapest variant's price/originalPrice and the sum of
+  // variant stock, recomputed on every save (see deriveProductSummary) so a
+  // grid reads one number. Without variants: the product's own.
   price: number;
   originalPrice: number;
   discountPercentage: number;
+  // Legacy grocery pack fields — optional since v2; a non-grocery product
+  // leaves unitValue 0. Storefront cards still print "500 g" from them, and
+  // the import keeps accepting them, so they are stored rather than folded
+  // into attributes (where "Pack size" would be copy, not data).
   unitValue: number;
   unitType: UnitType;
   prepTime: string;
   description: string;
   stock: number;
+  // [] = a simple product with no choices. Max MAX_OPTION_AXES; the order is
+  // the order pickers render them.
+  optionNames: string[];
+  variants: Variant[];
+  attributes: ProductAttributes;
+  // Read-derived, never stored: true once the doc carries v2 `variants`,
+  // whose stock counts are each their own. False on a legacy doc, whose
+  // upgraded pack variants are views over one product-level count — and
+  // whose own pack (unitValue at price) is still a sellable unit a line
+  // with no selection means.
+  stockPerVariant: boolean;
   categoryIds: string[];
   // The product's brand doc id, or "" for unbranded. Id-only — name/logo
   // resolve from the brands collection at read time (see Brand above).
   brandId: string;
-  // Selectable package sizes shown on gravia's Product Details "Select QTY"
-  // row, in unitType's base unit (e.g. [250, 500, 1000] for grams). Empty =
-  // the product has no size picker. Kept in sync with sizeVariants (it's
-  // always the variants' values) so storefronts reading the old field keep
-  // working until they adopt per-variant pricing.
+  // Pre-v2 pack-size shape, both derived from `variants` on every save
+  // (the variants with a packSize, as the storefront's "Select QTY" row
+  // still reads them). Never edited directly.
   sizeOptions: number[];
-  // sizeOptions with real per-size pricing — the source of truth the form
-  // edits; sizeOptions is derived from it on every save.
   sizeVariants: SizeVariant[];
   // Real curation flag for the storefront's "popular products" rail —
   // without this, that endpoint would have to fake it by returning
@@ -226,8 +293,12 @@ export type Banner = {
 export type CartItem = {
   productId: string;
   quantity: number;
-  // The selected package size (a sizeVariants value), absent for the
-  // product's base pack — line identity in a cart is (productId, sizeValue).
+  // The chosen variant (v2). Line identity in a cart is (productId,
+  // variantId); absent on a simple product's line.
+  variantId?: string;
+  // Pre-v2 selector — a pack size (sizeVariants value) — still accepted
+  // from older app builds and resolved to the variant carrying that
+  // packSize. A line carries one or the other, never both meaningfully.
   sizeValue?: number;
 };
 
@@ -558,7 +629,13 @@ export type OrderLineItem = {
   image: string;
   price: number;
   quantity: number;
+  // The pack sold ("500 g"), or for a non-pack variant its label ("M /
+  // Red") — the one slot every order screen already prints.
   weight: string;
+  // "" on orders placed before variants, and on a simple product's line.
+  // What cancel restocks against, so it is snapshotted like the rest.
+  variantId: string;
+  variantLabel: string;
 };
 
 // The delivery address is snapshotted onto the order at placement time (same

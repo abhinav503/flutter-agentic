@@ -10,6 +10,9 @@ _CartItemModel _$CartItemModelFromJson(Map<String, dynamic> json) =>
     _CartItemModel(
       product: ProductModel.fromJson(json['product'] as Map<String, dynamic>),
       quantity: (json['quantity'] as num).toInt(),
+      variantId: json['variant_id'] as String? ?? '',
+      variantLabel: json['variant_label'] as String? ?? '',
+      available: (json['available'] as num?)?.toInt(),
       sizeValue: (json['size_value'] as num?)?.toDouble(),
       unitPrice: (json['unit_price'] as num?)?.toDouble(),
       originalUnitPrice: (json['original_unit_price'] as num?)?.toDouble(),
@@ -19,6 +22,9 @@ Map<String, dynamic> _$CartItemModelToJson(_CartItemModel instance) =>
     <String, dynamic>{
       'product': instance.product,
       'quantity': instance.quantity,
+      'variant_id': instance.variantId,
+      'variant_label': instance.variantLabel,
+      'available': instance.available,
       'size_value': instance.sizeValue,
       'unit_price': instance.unitPrice,
       'original_unit_price': instance.originalUnitPrice,

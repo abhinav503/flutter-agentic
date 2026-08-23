@@ -11,7 +11,15 @@ import {
   mapCouponData,
   type CouponLine,
 } from "./coupon-engine";
-import { resolveLinePricing } from "./products";
+import {
+  applyStock,
+  formatPackSize,
+  resolveLine,
+  upgradeProductData,
+  variantLabel,
+  type ResolvedLinePricing,
+  type StockRequest,
+} from "./product-model";
 import {
   DeliveryUnserviceableError,
   deliveryFeeFor,
@@ -28,7 +36,6 @@ import {
   type OrderStatus,
   type OrderStatusChange,
   type RefundStatus,
-  type SizeVariant,
   type UnitType,
 } from "./types";
 
@@ -36,35 +43,101 @@ import {
 // bloat every order payload the dashboard and the app load.
 const MAX_REVIEW_TEXT_LENGTH = 2000;
 
-// sizeValue selects one of the product's sizeVariants (absent = base pack) —
-// only the size travels; the server resolves its price, never the client.
+// variantId (v2) or sizeValue (pre-v2 pack size) selects the unit — only
+// the selection travels; the server resolves its price, never the client.
 export type CreateOrderItemInput = {
   productId: string;
   quantity: number;
+  variantId?: string;
   sizeValue?: number;
 };
 
 // The pricing fields resolveLinePricing needs, off a raw product doc —
 // orders run on the Admin SDK, so there's no mapProductDoc here.
 function pricingFields(data: FirebaseFirestore.DocumentData) {
-  return {
-    price: (data.price as number) ?? 0,
-    originalPrice: (data.originalPrice as number) ?? 0,
-    unitValue: (data.unitValue as number) ?? 0,
-    sizeVariants: (data.sizeVariants as SizeVariant[]) ?? [],
-  };
+  const { price, originalPrice, unitValue, variants, stockPerVariant } =
+    upgradeProductData(data);
+  return { price, originalPrice, unitValue, variants, stockPerVariant };
 }
 
-// Stock is product-level while variants share it, and a cart can now hold
-// several lines of one product (different sizes) — check and decrement the
-// summed quantity per product, not per line, or the second line's write
-// would clobber the first's.
-function quantityByProduct(items: { productId: string; quantity: number }[]) {
-  const totals = new Map<string, number>();
-  for (const item of items) {
-    totals.set(item.productId, (totals.get(item.productId) ?? 0) + item.quantity);
+// Stock moves once per product doc, with every line of that product folded
+// in — a second update on the same doc inside a transaction would clobber
+// the first and silently restore the earlier line's stock.
+function stockRequestsByProduct(
+  lines: { productId: string; variantId: string | null; quantity: number }[],
+) {
+  const byProduct = new Map<string, StockRequest[]>();
+  for (const line of lines) {
+    const list = byProduct.get(line.productId) ?? [];
+    list.push({ variantId: line.variantId, quantity: line.quantity });
+    byProduct.set(line.productId, list);
   }
-  return totals;
+  return byProduct;
+}
+
+type ResolvedOrderLine = {
+  input: CreateOrderItemInput;
+  data: FirebaseFirestore.DocumentData;
+  pricing: ResolvedLinePricing;
+};
+
+// Resolves each requested line against its live doc — existence and the
+// chosen unit — and checks the stock every product would need, as one
+// planned write per product. Shared by the quote and the transaction so a
+// cart that quotes can't then fail to place for a reason the quote could
+// have seen.
+function resolveOrderLines(
+  requestedItems: CreateOrderItemInput[],
+  snaps: FirebaseFirestore.DocumentSnapshot[],
+): { lines: ResolvedOrderLine[]; stockUpdates: Map<string, Record<string, unknown>> } {
+  const lines: ResolvedOrderLine[] = [];
+  const dataByProduct = new Map<string, FirebaseFirestore.DocumentData>();
+  for (let i = 0; i < requestedItems.length; i++) {
+    const input = requestedItems[i];
+    const snap = snaps[i];
+    if (!snap.exists) {
+      throw new OrderCreationError(`Product not found: ${input.productId}`, input.productId);
+    }
+    const data = snap.data()!;
+    dataByProduct.set(input.productId, data);
+    const pricing = resolveLine(pricingFields(data), {
+      variantId: input.variantId,
+      sizeValue: input.sizeValue,
+    });
+    if (!pricing) {
+      throw new OrderCreationError(
+        `The selected option of ${(data.name as string) ?? input.productId} is no longer available`,
+        input.productId,
+        undefined,
+        input.variantId ?? null,
+        "variant_unavailable",
+      );
+    }
+    lines.push({ input, data, pricing });
+  }
+
+  const stockUpdates = new Map<string, Record<string, unknown>>();
+  const requests = stockRequestsByProduct(
+    lines.map((l) => ({
+      productId: l.input.productId,
+      variantId: l.pricing.variant?.id ?? null,
+      quantity: l.input.quantity,
+    })),
+  );
+  for (const [productId, productRequests] of requests) {
+    const data = dataByProduct.get(productId)!;
+    const result = applyStock(data, productRequests, -1);
+    if ("refusal" in result) {
+      throw new OrderCreationError(
+        `Insufficient stock for ${(data.name as string) ?? productId}`,
+        productId,
+        result.refusal.available,
+        result.refusal.variantId,
+      );
+    }
+    stockUpdates.set(productId, result.update);
+  }
+  return { lines, stockUpdates };
 }
 
 // Thrown for any client-input problem (unknown product, insufficient
@@ -77,6 +150,10 @@ export class OrderCreationError extends Error {
     // Units actually left, set only on a stock refusal — which makes it the
     // discriminator too, since no other cause has one.
     public readonly available?: number,
+    // The variant the refusal is about (null = the product's own unit), so
+    // the app corrects the right cart row when a product has several.
+    public readonly variantId: string | null = null,
+    public readonly code: "variant_unavailable" | null = null,
   ) {
     super(message);
   }
@@ -96,8 +173,14 @@ export function orderErrorBody(err: OrderCreationError) {
     error: err.message,
     productId: err.productId,
     ...(err.isInsufficientStock
-      ? { code: "insufficient_stock" as const, available: err.available }
-      : {}),
+      ? {
+          code: "insufficient_stock" as const,
+          available: err.available,
+          variantId: err.variantId,
+        }
+      : err.code
+        ? { code: err.code, variantId: err.variantId }
+        : {}),
   };
 }
 
@@ -119,25 +202,23 @@ function generateOtp(): string {
   return String(Math.floor(1000 + Math.random() * 9000));
 }
 
-// Mirrors ProductUnitTypeX.format in gravia (lib/enums/product_unit_type.dart)
-// — rolls up to kg/L past 1000, pieces never roll up — so an order's
-// snapshotted `weight` copy reads the same as the product page did.
-function formatWeight(unitValue: number, unitType: UnitType): string {
-  if (unitType === "pcs") return `${unitValue.toFixed(0)} pcs`;
-  const large = unitType === "g" ? "kg" : "L";
-  if (unitValue < 1000) return `${unitValue.toFixed(0)} ${unitType}`;
-  const rolled = unitValue / 1000;
-  const isWhole = rolled === Math.round(rolled);
-  return `${isWhole ? rolled.toFixed(0) : rolled.toFixed(1)} ${large}`;
-}
-
 function toOrder(id: string, data: FirebaseFirestore.DocumentData): Order {
   const placedAt = (data.placedAt as string) ?? "";
   return {
     id,
     uid: data.uid as string,
     storeId: data.storeId as string,
-    items: (data.items as OrderLineItem[]) ?? [],
+    items: ((data.items as Partial<OrderLineItem>[]) ?? []).map((item) => ({
+      productId: item.productId ?? "",
+      productName: item.productName ?? "",
+      image: item.image ?? "",
+      price: item.price ?? 0,
+      quantity: item.quantity ?? 0,
+      weight: item.weight ?? "",
+      // Orders placed before variants carry neither.
+      variantId: item.variantId ?? "",
+      variantLabel: item.variantLabel ?? "",
+    })),
     // Orders placed before delivery addresses existed have no snapshot —
     // fall back to an empty address so serializeOrder/older docs don't throw.
     deliveryAddress: (data.deliveryAddress as Address) ?? EMPTY_ADDRESS,
@@ -216,27 +297,11 @@ export async function priceCart(
   const snaps = await Promise.all(
     requestedItems.map((item) => productDocRef(storeId, item.productId).get()),
   );
-
-  const requiredStock = quantityByProduct(requestedItems);
-  let total = 0;
-  for (let i = 0; i < requestedItems.length; i++) {
-    const { productId, quantity, sizeValue } = requestedItems[i];
-    const snap = snaps[i];
-    if (!snap.exists) {
-      throw new OrderCreationError(`Product not found: ${productId}`, productId);
-    }
-    const data = snap.data()!;
-    const stock = (data.stock as number) ?? 0;
-    if (stock < requiredStock.get(productId)!) {
-      throw new OrderCreationError(
-        `Insufficient stock for ${(data.name as string) ?? productId}`,
-        productId,
-        stock,
-      );
-    }
-    total += resolveLinePricing(pricingFields(data), sizeValue).price * quantity;
-  }
-  return total;
+  const { lines } = resolveOrderLines(requestedItems, snaps);
+  return lines.reduce(
+    (total, line) => total + line.pricing.price * line.input.quantity,
+    0,
+  );
 }
 
 export async function createOrder(
@@ -304,45 +369,31 @@ export async function createOrder(
       ? await tx.get(couponRedemptionRef(storeId, foundCoupon.ref.id, uid))
       : null;
 
-    const requiredStock = quantityByProduct(requestedItems);
+    const { lines, stockUpdates } = resolveOrderLines(requestedItems, productSnaps);
     const lineItems: OrderLineItem[] = [];
     const couponLines: CouponLine[] = [];
     let total = 0;
-    // Decrement each product once, by its summed quantity — a second
-    // tx.update on the same doc would overwrite the first, silently
-    // restoring the earlier line's stock.
-    const decremented = new Set<string>();
 
-    for (let i = 0; i < requestedItems.length; i++) {
-      const { productId, quantity, sizeValue } = requestedItems[i];
-      const snap = productSnaps[i];
-      if (!snap.exists) {
-        throw new OrderCreationError(`Product not found: ${productId}`, productId);
-      }
-
-      const data = snap.data()!;
-      const stock = (data.stock as number) ?? 0;
-      const required = requiredStock.get(productId)!;
-      if (stock < required) {
-        throw new OrderCreationError(
-          `Insufficient stock for ${(data.name as string) ?? productId}`,
-          productId,
-          stock,
-        );
-      }
-
-      const pricing = resolveLinePricing(pricingFields(data), sizeValue);
+    for (const { input, data, pricing } of lines) {
+      const { productId, quantity } = input;
       const unitType = (data.unitType as UnitType) ?? "g";
+      const variant = pricing.variant;
+      const label = variant ? variantLabel(variant) : "";
 
       lineItems.push({
         productId,
         productName: (data.name as string) ?? "",
-        image: (data.imageUrl as string) ?? "",
+        image: variant?.imageUrl || ((data.imageUrl as string) ?? ""),
         price: pricing.price,
         quantity,
-        // The pack actually sold — the selected size's label when the line
-        // carried one, the product's own otherwise.
-        weight: formatWeight(pricing.packSize, unitType),
+        // The pack actually sold when the unit is one; otherwise the
+        // variant's label, since that is what distinguishes the line.
+        weight:
+          pricing.packSize > 0
+            ? formatPackSize(pricing.packSize, unitType)
+            : label,
+        variantId: variant?.id ?? "",
+        variantLabel: label,
       });
       total += pricing.price * quantity;
       couponLines.push({
@@ -350,10 +401,12 @@ export async function createOrder(
         categoryIds: (data.categoryIds as string[]) ?? [],
         lineTotal: pricing.price * quantity,
       });
-
-      if (!decremented.has(productId)) {
-        decremented.add(productId);
-        tx.update(productRefs[i], { stock: stock - required });
+    }
+    for (let i = 0; i < requestedItems.length; i++) {
+      const update = stockUpdates.get(requestedItems[i].productId);
+      if (update) {
+        tx.update(productRefs[i], update);
+        stockUpdates.delete(requestedItems[i].productId);
       }
     }
 
@@ -567,7 +620,13 @@ export async function cancelOrder(orderId: string): Promise<Order> {
     // transactions require reads before writes), then increment. Summed per
     // product: an order can hold several lines of one product (different
     // sizes), and a second update on the same doc would overwrite the first.
-    const restockByProduct = quantityByProduct(order.items);
+    const restockByProduct = stockRequestsByProduct(
+      order.items.map((item) => ({
+        productId: item.productId,
+        variantId: item.variantId || null,
+        quantity: item.quantity,
+      })),
+    );
     const productIds = [...restockByProduct.keys()];
     const productRefs = productIds.map((productId) =>
       productDocRef(order.storeId, productId),
@@ -591,10 +650,14 @@ export async function cancelOrder(orderId: string): Promise<Order> {
       // A product deleted since the order was placed simply isn't restocked —
       // there's no doc to increment, and re-creating it would be wrong.
       if (!productSnap.exists) continue;
-      const stock = (productSnap.data()!.stock as number) ?? 0;
-      tx.update(productRefs[i], {
-        stock: stock + restockByProduct.get(productIds[i])!,
-      });
+      // A variant removed since the order was placed can't take its units
+      // back; the line is skipped the same way a deleted product is.
+      const result = applyStock(
+        productSnap.data()!,
+        restockByProduct.get(productIds[i])!,
+        1,
+      );
+      if ("update" in result) tx.update(productRefs[i], result.update);
     }
 
     return {

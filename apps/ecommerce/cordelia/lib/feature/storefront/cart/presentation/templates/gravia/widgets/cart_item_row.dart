@@ -1,4 +1,3 @@
-import 'package:cordelia/enums/product_unit_type.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_text_style_const.dart';
 import 'package:cordelia/templates/gravia/widgets/gravia_list_thumbnail.dart';
 import 'package:cordelia/templates/gravia/widgets/gravia_quantity_stepper.dart';
@@ -53,11 +52,10 @@ class CartItemRow extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
               Text(
-                // The row has one subtitle slot: an unbuyable line spends it
-                // on why, since which pack size it holds no longer decides
-                // anything. Otherwise it's the pack this line actually holds
-                // — the size chosen on Product Details, or the base pack.
-                unavailable ?? product.unitType.format(item.effectiveSizeValue),
+                // The unit this line holds, and beside it why it can't be
+                // bought when it can't — the unit stays, since "out of
+                // stock" of *which* size is what the shopper has to fix.
+                item.subtitle,
                 style: GraviaTextStyleConst.textSmRegular(tt).copyWith(
                   color: unavailable == null ? cs.onSurfaceVariant : cs.error,
                 ),

@@ -875,10 +875,15 @@ class OrdersLoaded implements OrdersState {
 /// True for one emission after a cancel request fails and its optimistic
 /// update is rolled back — the listener surfaces a snackbar.
 @JsonKey() final  bool cancelFailed;
-/// True for one emission after rating an order fails. The list is
-/// untouched in that case (the rating is written straight through, not
-/// optimistically — there is nothing to roll back), so this is purely
-/// the listener's cue to toast.
+/// True for one emission after rating an order fails, including a stale
+/// tap on one that has left the list. The list is untouched either way
+/// (the rating is written straight through, not optimistically — there
+/// is nothing to roll back).
+///
+/// Read by the *sheet*, not a screen listener: it stays open on a
+/// failure and prints the reason itself, keeping what the shopper wrote.
+/// A snackbar behind an open modal is invisible while it matters, and
+/// the sheet is the only way to reach this event.
 @JsonKey() final  bool rateFailed;
 
 /// Create a copy of OrdersState

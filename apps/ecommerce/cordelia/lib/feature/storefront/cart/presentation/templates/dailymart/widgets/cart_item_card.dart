@@ -36,7 +36,7 @@ class DailyMartCartItemCard extends StatelessWidget {
     return SwipeToDeleteRow(
       // Keyed by line, not product — the same product can sit in the cart
       // twice in two pack sizes, and duplicate keys would confuse dismissal.
-      itemKey: '${item.product.id}-${item.sizeValue}',
+      itemKey: '${item.product.id}-${item.variantId ?? item.sizeValue}',
       onDelete: onRemove,
       borderRadius: BorderRadius.circular(context.appShapes.cardRadius),
       icon: AppSvgImage.asset(DailyMartImageConst.delete),
@@ -48,6 +48,7 @@ class DailyMartCartItemCard extends StatelessWidget {
         onIncrement: onIncrement,
         onDecrement: onDecrement,
         unavailableLabel: item.availabilityLabel,
+        subtitle: item.subtitle,
       ),
     );
   }

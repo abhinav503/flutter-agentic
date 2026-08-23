@@ -556,6 +556,11 @@ class AppLocalizationsDe extends AppLocalizations {
   String get outOfStockLabel => 'Nicht auf Lager';
 
   @override
+  String cartLineSubtitle(String pack, String availability) {
+    return '$pack · $availability';
+  }
+
+  @override
   String onlyNLeftLabel(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,

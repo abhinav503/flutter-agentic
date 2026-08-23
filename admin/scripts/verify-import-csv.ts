@@ -170,19 +170,19 @@ check("products/excel: BOM+CRLF+case+reorder parses", [messages(excel), excel.wr
 const badProducts = buildProductPlan(
   [
     PH,
-    ",10,,1,g,1,,,,,,,",              // no name
-    "A,0,,1,g,1,,,,,,,",              // price 0
-    "B,10,5,1,g,1,,,,,,,",            // original below price
-    "C,10,,0,g,1,,,,,,,",             // unit_value 0
-    "D,10,,1,kg,1,,,,,,,",            // bad unit_type
-    "E,10,,1,g,1.5,,,,,,,",           // fractional stock
-    "F,10,,1,g,-1,,,,,,,",            // negative stock
-    "G,10,,1,g,1,,,,Beverges,,,",     // unknown category
-    "H,10,,1,g,1,,,,,Nestle,,",       // unknown brand
-    "I,10,,1,g,1,,,,,,maybe,",        // bad boolean
-    "J,10,,1,g,1,,,,,,,nope",         // unknown id
-    "K,10,,1,g,1,,,,,,,",
-    "K,11,,1,g,1,,,,,,,",             // duplicate
+    ",10,,1,g,1,,,,,,,,,,",              // no name
+    "A,0,,1,g,1,,,,,,,,,,",              // price 0
+    "B,10,5,1,g,1,,,,,,,,,,",            // original below price
+    "C,10,,abc,g,1,,,,,,,,,,",           // unit_value not a number
+    "D,10,,1,kg,1,,,,,,,,,,",            // bad unit_type
+    "E,10,,1,g,1.5,,,,,,,,,,",           // fractional stock
+    "F,10,,1,g,-1,,,,,,,,,,",            // negative stock
+    "G,10,,1,g,1,,,,Beverges,,,,,,",     // unknown category
+    "H,10,,1,g,1,,,,,Nestle,,,,,",       // unknown brand
+    "I,10,,1,g,1,,,,,,maybe,,,,",        // bad boolean
+    "J,10,,1,g,1,,,,,,,,,,nope",         // unknown id
+    "K,10,,1,g,1,,,,,,,,,,",
+    "K,11,,1,g,1,,,,,,,,,,",             // duplicate
   ].join("\n"),
   stocked,
 );
@@ -191,22 +191,37 @@ check("products: only K planned", badProducts.writes.map((w) => w.name), ["K"]);
 check("products: line numbers are 1-based incl. header", badProducts.errors[0].line, 2);
 check("products: duplicate names the first line", badProducts.errors[11].message.includes("line 13"), true);
 
+// v2: a non-packaged product leaves unit_value/unit_type blank.
+const unpackaged = buildProductPlan(`${PH}\nTee,499,,,,3,,,,,,,TEE-M,8901234567890,shopify-tee,`, stocked);
+check(
+  "products: blank unit fields accepted, codes carried",
+  [
+    messages(unpackaged),
+    unpackaged.writes[0]?.data.unitValue,
+    unpackaged.writes[0]?.data.unitType,
+    unpackaged.writes[0]?.data.sku,
+    unpackaged.writes[0]?.data.barcode,
+    unpackaged.writes[0]?.data.externalId,
+  ],
+  [[], 0, "g", "TEE-M", "8901234567890", "shopify-tee"],
+);
+
 const noPrice = buildProductPlan("name,unit_value,unit_type,stock\nX,1,g,1\n", stocked);
 check("products: missing column rejected wholesale", [noPrice.writes.length, noPrice.errors.length, noPrice.errors[0].message.includes("price")], [0, 1, true]);
 
-const money = buildProductPlan(`${PH}\nY,"₹1,299.00","₹1,499.00",1,pcs,5,,,,,,,`, stocked);
+const money = buildProductPlan(`${PH}\nY,"₹1,299.00","₹1,499.00",1,pcs,5,,,,,,,,,,`, stocked);
 check("products: currency glyph + separators parsed", [messages(money), money.writes[0]?.data.price, money.writes[0]?.data.originalPrice], [[], 1299, 1499]);
 
-const byId = buildProductPlan(`${PH}\nRenamed Salt,30,,1000,g,5,,,,,,,p1`, stocked);
+const byId = buildProductPlan(`${PH}\nRenamed Salt,30,,1000,g,5,,,,,,,,,,p1`, stocked);
 check("products: id column beats name match", [byId.writes[0]?.kind, byId.writes[0]?.id, byId.writes[0]?.data.name], ["update", "p1", "Renamed Salt"]);
 
-const casing = buildProductPlan(`${PH}\n  tata SALT ,30,,1000,g,5,,,,  grocery & KITCHEN ,  tata  ,,`, stocked);
+const casing = buildProductPlan(`${PH}\n  tata SALT ,30,,1000,g,5,,,,  grocery & KITCHEN ,  tata  ,,,,,`, stocked);
 check("products: case-insensitive product/category/brand match", [messages(casing), casing.writes[0]?.kind, casing.writes[0]?.data.categoryIds, casing.writes[0]?.data.brandId], [[], "update", ["c2"], "b2"]);
 
-const multi = buildProductPlan(`${PH}\nZ,10,,1,g,1,,,,Dairy & Eggs|Fruits & Vegetables,,,`, stocked);
+const multi = buildProductPlan(`${PH}\nZ,10,,1,g,1,,,,Dairy & Eggs|Fruits & Vegetables,,,,,,`, stocked);
 check("products: multi-category split on |", multi.writes[0]?.data.categoryIds, ["c1", "c3"]);
 
-const freshStore = buildProductPlan(`${PH}\nSugar,55,,1000,g,10,,,,,,,\nRice,80,,5000,g,4,,,,Grains,,,`, bare);
+const freshStore = buildProductPlan(`${PH}\nSugar,55,,1000,g,10,,,,,,,,,,\nRice,80,,5000,g,4,,,,Grains,,,,,,`, bare);
 check("products: empty store imports the uncategorised row", [freshStore.writes.length, freshStore.writes[0]?.data.categoryIds], [1, []]);
 check("products: empty store fails the categorised row actionably", [freshStore.errors.length, freshStore.errors[0]?.message.includes("Categories page")], [1, true]);
 
@@ -221,6 +236,21 @@ const cats = buildCategoryPlan(
     "Ghost,,,badid",                    // unknown id
   ].join("\n"),
   stocked,
+);
+// v2: parent must already exist in the store; a category can't parent itself.
+const tree = buildCategoryPlan(
+  [
+    "name,parent,external_id,id",
+    "Milk,Dairy & Eggs,shopify-milk,",      // under an existing category
+    "Cheese,Nowhere,,",                     // unknown parent
+    "Dairy & Eggs,Dairy & Eggs,,c1",        // self-parent
+  ].join("\n"),
+  stocked,
+);
+check(
+  "categories: parent resolved by name, unknown and self refused",
+  [tree.writes.map((w) => [w.name, w.data.parentId, w.data.externalId]), tree.errors.map((e) => e.name)],
+  [[["Milk", "c1", "shopify-milk"]], ["Cheese", "Dairy & Eggs"]],
 );
 // The all-blank row is skipped, not rejected — a spacer or trailing newline
 // is a spreadsheet artefact, not something the owner meant to import.

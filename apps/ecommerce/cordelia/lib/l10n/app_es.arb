@@ -157,6 +157,7 @@
   "locationPermissionDeniedMessage": "El permiso de ubicación está desactivado: actívalo en Ajustes para ver qué hay cerca.",
   "locationUnavailableMessage": "No se pudo obtener tu ubicación. Inténtalo de nuevo.",
   "outOfStockLabel": "Agotado",
+  "cartLineSubtitle": "{pack} · {availability}",
   "onlyNLeftLabel": "{count, plural, one{Solo queda 1} other{Solo quedan {count}}}",
   "cartUnavailableItemsMessage": "Algunos artículos de tu carrito ya no están disponibles. Actualiza el carrito para continuar.",
   "productSoldOutMessage": "{name} se acaba de agotar. Actualiza el carrito para continuar.",

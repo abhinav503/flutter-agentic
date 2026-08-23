@@ -9,6 +9,7 @@ import type {
   Review,
   SizeVariant,
   Store,
+  Variant,
 } from "@/lib/types";
 import type { FeedNotification } from "@/lib/notifications-feed";
 import { computeDiscountPercentage } from "@/lib/products";
@@ -19,7 +20,8 @@ import { computeDiscountPercentage } from "@/lib/products";
 // API needs zero model changes, only a data-source-impl swap.
 
 export function serializeCategory(c: Category) {
-  return { id: c.id, name: c.name, image: c.imageUrl };
+  // parent_id "" = top level. Extra key pre-tree clients ignore.
+  return { id: c.id, name: c.name, image: c.imageUrl, parent_id: c.parentId };
 }
 
 // Matches AddressModel.fromJson() in gravia (feature/address/data/models/).
@@ -77,6 +79,32 @@ export function serializeProduct(p: Product, isFavourite = false) {
     // instead of after. Sent on every product payload — a card, a grid cell
     // and a cart line all need it, and it rides on the doc they already read.
     stock: p.stock,
+    // v2 (general product model). Every key below is additive — a storefront
+    // build that predates it keeps reading image/price/stock above, which
+    // are derived from the same variants.
+    images: p.images,
+    sku: p.sku,
+    barcode: p.barcode,
+    external_id: p.externalId,
+    option_names: p.optionNames,
+    variants: p.variants.map(serializeVariant),
+    attributes: p.attributes,
+  };
+}
+
+export function serializeVariant(v: Variant) {
+  return {
+    id: v.id,
+    sku: v.sku,
+    barcode: v.barcode,
+    options: v.options,
+    price: v.price,
+    original_price: v.originalPrice,
+    discount_percentage: computeDiscountPercentage(v.price, v.originalPrice),
+    stock: v.stock,
+    sell_when_out_of_stock: v.sellWhenOutOfStock,
+    image: v.imageUrl,
+    pack_size: v.packSize,
   };
 }
 
@@ -193,6 +221,9 @@ export function serializeOrder(o: Order) {
     items: o.items.map((item) => ({
       product_name: item.productName,
       weight: item.weight,
+      // "" on pre-variant orders and simple products' lines.
+      variant_id: item.variantId,
+      variant_label: item.variantLabel,
       image: item.image,
       price: item.price,
       quantity: item.quantity,

@@ -1,5 +1,5 @@
 import { adminDb } from "./firebase-admin";
-import { getProducts, resolveLinePricing } from "./products";
+import { getProducts, resolveLine } from "./products";
 import type { Coupon, CouponScope, CouponType } from "./types";
 
 // The one place coupon rules are decided. The validate route (the shopper's
@@ -213,7 +213,12 @@ export async function previewCoupon(
   storeId: string,
   uid: string,
   code: string,
-  items: { productId: string; quantity: number; sizeValue?: number }[],
+  items: {
+    productId: string;
+    quantity: number;
+    variantId?: string;
+    sizeValue?: number;
+  }[],
 ): Promise<PricedCoupon> {
   const found = await findCouponByCode(storeId, code);
   if (!found) throw new CouponError("Invalid coupon code");
@@ -226,11 +231,18 @@ export async function previewCoupon(
   for (const item of items) {
     const product = products.find((p) => p.id === item.productId);
     if (!product) continue;
+    // A selection the product no longer has drops out too — the order
+    // transaction will refuse it with a proper code; a preview isn't where
+    // that is surfaced.
+    const pricing = resolveLine(product, {
+      variantId: item.variantId,
+      sizeValue: item.sizeValue,
+    });
+    if (!pricing) continue;
     lines.push({
       productId: product.id,
       categoryIds: product.categoryIds,
-      lineTotal:
-        resolveLinePricing(product, item.sizeValue).price * item.quantity,
+      lineTotal: pricing.price * item.quantity,
     });
   }
 

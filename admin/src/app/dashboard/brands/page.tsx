@@ -8,6 +8,7 @@ import type { Brand } from "@/lib/types";
 import { matchesSearch } from "@/lib/search";
 import { applySort, compareText, type Comparator } from "@/lib/sort";
 import { ImageUploadField } from "@/components/image-upload-field";
+import { ExternalIdField } from "@/components/external-id-field";
 import { SearchField } from "@/components/search-field";
 import {
   SortableTableHead,
@@ -196,13 +197,18 @@ function BrandDialog({
 }) {
   const [name, setName] = useState(brand?.name ?? "");
   const [logoUrl, setLogoUrl] = useState(brand?.logoUrl ?? "");
+  const [externalId, setExternalId] = useState(brand?.externalId ?? "");
   const [submitting, setSubmitting] = useState(false);
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
     setSubmitting(true);
     try {
-      const data = { name: name.trim(), logoUrl: logoUrl.trim() };
+      const data = {
+        name: name.trim(),
+        logoUrl: logoUrl.trim(),
+        externalId: externalId.trim(),
+      };
       if (brand) {
         await updateBrand(storeId, brand.id, data);
         toast.success("Brand updated");
@@ -242,6 +248,11 @@ function BrandDialog({
             kind="brands"
             value={logoUrl}
             onChange={setLogoUrl}
+          />
+          <ExternalIdField
+            id="brand-external-id"
+            value={externalId}
+            onChange={setExternalId}
           />
           <DialogFooter>
             <Button type="submit" disabled={submitting || !name.trim()}>

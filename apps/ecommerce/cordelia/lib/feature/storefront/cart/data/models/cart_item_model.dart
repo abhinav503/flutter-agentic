@@ -19,6 +19,11 @@ abstract class CartItemModel with _$CartItemModel {
   const factory CartItemModel({
     required ProductModel product,
     required int quantity,
+    // Absent ("" from the server, or missing from a pre-variant backend) =
+    // a simple product's line.
+    @JsonKey(name: 'variant_id') @Default('') String variantId,
+    @JsonKey(name: 'variant_label') @Default('') String variantLabel,
+    int? available,
     // All three absent for a base-pack line (and on every pre-variant
     // response) — the entity falls back to the product's own price/size.
     @JsonKey(name: 'size_value') double? sizeValue,
@@ -32,6 +37,9 @@ abstract class CartItemModel with _$CartItemModel {
   factory CartItemModel.fromEntity(CartItemEntity e) => CartItemModel(
     product: ProductModel.fromEntity(e.product),
     quantity: e.quantity,
+    variantId: e.variantId ?? '',
+    variantLabel: e.variantLabel,
+    available: e.available,
     sizeValue: e.sizeValue,
     unitPrice: e.unitPrice,
     originalUnitPrice: e.originalUnitPrice,
@@ -40,6 +48,9 @@ abstract class CartItemModel with _$CartItemModel {
   CartItemEntity toEntity() => CartItemEntity(
     product: product.toEntity(),
     quantity: quantity,
+    variantId: variantId.isEmpty ? null : variantId,
+    variantLabel: variantLabel,
+    available: available,
     sizeValue: sizeValue,
     unitPrice: unitPrice,
     originalUnitPrice: originalUnitPrice,

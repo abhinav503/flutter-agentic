@@ -15,7 +15,9 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$CartItemModel {
 
- ProductModel get product; int get quantity;// All three absent for a base-pack line (and on every pre-variant
+ ProductModel get product; int get quantity;// Absent ("" from the server, or missing from a pre-variant backend) =
+// a simple product's line.
+@JsonKey(name: 'variant_id') String get variantId;@JsonKey(name: 'variant_label') String get variantLabel; int? get available;// All three absent for a base-pack line (and on every pre-variant
 // response) — the entity falls back to the product's own price/size.
 @JsonKey(name: 'size_value') double? get sizeValue;@JsonKey(name: 'unit_price') double? get unitPrice;@JsonKey(name: 'original_unit_price') double? get originalUnitPrice;
 /// Create a copy of CartItemModel
@@ -30,16 +32,16 @@ $CartItemModelCopyWith<CartItemModel> get copyWith => _$CartItemModelCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is CartItemModel&&(identical(other.product, product) || other.product == product)&&(identical(other.quantity, quantity) || other.quantity == quantity)&&(identical(other.sizeValue, sizeValue) || other.sizeValue == sizeValue)&&(identical(other.unitPrice, unitPrice) || other.unitPrice == unitPrice)&&(identical(other.originalUnitPrice, originalUnitPrice) || other.originalUnitPrice == originalUnitPrice));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is CartItemModel&&(identical(other.product, product) || other.product == product)&&(identical(other.quantity, quantity) || other.quantity == quantity)&&(identical(other.variantId, variantId) || other.variantId == variantId)&&(identical(other.variantLabel, variantLabel) || other.variantLabel == variantLabel)&&(identical(other.available, available) || other.available == available)&&(identical(other.sizeValue, sizeValue) || other.sizeValue == sizeValue)&&(identical(other.unitPrice, unitPrice) || other.unitPrice == unitPrice)&&(identical(other.originalUnitPrice, originalUnitPrice) || other.originalUnitPrice == originalUnitPrice));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,product,quantity,sizeValue,unitPrice,originalUnitPrice);
+int get hashCode => Object.hash(runtimeType,product,quantity,variantId,variantLabel,available,sizeValue,unitPrice,originalUnitPrice);
 
 @override
 String toString() {
-  return 'CartItemModel(product: $product, quantity: $quantity, sizeValue: $sizeValue, unitPrice: $unitPrice, originalUnitPrice: $originalUnitPrice)';
+  return 'CartItemModel(product: $product, quantity: $quantity, variantId: $variantId, variantLabel: $variantLabel, available: $available, sizeValue: $sizeValue, unitPrice: $unitPrice, originalUnitPrice: $originalUnitPrice)';
 }
 
 
@@ -50,7 +52,7 @@ abstract mixin class $CartItemModelCopyWith<$Res>  {
   factory $CartItemModelCopyWith(CartItemModel value, $Res Function(CartItemModel) _then) = _$CartItemModelCopyWithImpl;
 @useResult
 $Res call({
- ProductModel product, int quantity,@JsonKey(name: 'size_value') double? sizeValue,@JsonKey(name: 'unit_price') double? unitPrice,@JsonKey(name: 'original_unit_price') double? originalUnitPrice
+ ProductModel product, int quantity,@JsonKey(name: 'variant_id') String variantId,@JsonKey(name: 'variant_label') String variantLabel, int? available,@JsonKey(name: 'size_value') double? sizeValue,@JsonKey(name: 'unit_price') double? unitPrice,@JsonKey(name: 'original_unit_price') double? originalUnitPrice
 });
 
 
@@ -67,11 +69,14 @@ class _$CartItemModelCopyWithImpl<$Res>
 
 /// Create a copy of CartItemModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? product = null,Object? quantity = null,Object? sizeValue = freezed,Object? unitPrice = freezed,Object? originalUnitPrice = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? product = null,Object? quantity = null,Object? variantId = null,Object? variantLabel = null,Object? available = freezed,Object? sizeValue = freezed,Object? unitPrice = freezed,Object? originalUnitPrice = freezed,}) {
   return _then(_self.copyWith(
 product: null == product ? _self.product : product // ignore: cast_nullable_to_non_nullable
 as ProductModel,quantity: null == quantity ? _self.quantity : quantity // ignore: cast_nullable_to_non_nullable
-as int,sizeValue: freezed == sizeValue ? _self.sizeValue : sizeValue // ignore: cast_nullable_to_non_nullable
+as int,variantId: null == variantId ? _self.variantId : variantId // ignore: cast_nullable_to_non_nullable
+as String,variantLabel: null == variantLabel ? _self.variantLabel : variantLabel // ignore: cast_nullable_to_non_nullable
+as String,available: freezed == available ? _self.available : available // ignore: cast_nullable_to_non_nullable
+as int?,sizeValue: freezed == sizeValue ? _self.sizeValue : sizeValue // ignore: cast_nullable_to_non_nullable
 as double?,unitPrice: freezed == unitPrice ? _self.unitPrice : unitPrice // ignore: cast_nullable_to_non_nullable
 as double?,originalUnitPrice: freezed == originalUnitPrice ? _self.originalUnitPrice : originalUnitPrice // ignore: cast_nullable_to_non_nullable
 as double?,
@@ -168,10 +173,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( ProductModel product,  int quantity, @JsonKey(name: 'size_value')  double? sizeValue, @JsonKey(name: 'unit_price')  double? unitPrice, @JsonKey(name: 'original_unit_price')  double? originalUnitPrice)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( ProductModel product,  int quantity, @JsonKey(name: 'variant_id')  String variantId, @JsonKey(name: 'variant_label')  String variantLabel,  int? available, @JsonKey(name: 'size_value')  double? sizeValue, @JsonKey(name: 'unit_price')  double? unitPrice, @JsonKey(name: 'original_unit_price')  double? originalUnitPrice)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _CartItemModel() when $default != null:
-return $default(_that.product,_that.quantity,_that.sizeValue,_that.unitPrice,_that.originalUnitPrice);case _:
+return $default(_that.product,_that.quantity,_that.variantId,_that.variantLabel,_that.available,_that.sizeValue,_that.unitPrice,_that.originalUnitPrice);case _:
   return orElse();
 
 }
@@ -189,10 +194,10 @@ return $default(_that.product,_that.quantity,_that.sizeValue,_that.unitPrice,_th
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( ProductModel product,  int quantity, @JsonKey(name: 'size_value')  double? sizeValue, @JsonKey(name: 'unit_price')  double? unitPrice, @JsonKey(name: 'original_unit_price')  double? originalUnitPrice)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( ProductModel product,  int quantity, @JsonKey(name: 'variant_id')  String variantId, @JsonKey(name: 'variant_label')  String variantLabel,  int? available, @JsonKey(name: 'size_value')  double? sizeValue, @JsonKey(name: 'unit_price')  double? unitPrice, @JsonKey(name: 'original_unit_price')  double? originalUnitPrice)  $default,) {final _that = this;
 switch (_that) {
 case _CartItemModel():
-return $default(_that.product,_that.quantity,_that.sizeValue,_that.unitPrice,_that.originalUnitPrice);case _:
+return $default(_that.product,_that.quantity,_that.variantId,_that.variantLabel,_that.available,_that.sizeValue,_that.unitPrice,_that.originalUnitPrice);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -209,10 +214,10 @@ return $default(_that.product,_that.quantity,_that.sizeValue,_that.unitPrice,_th
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( ProductModel product,  int quantity, @JsonKey(name: 'size_value')  double? sizeValue, @JsonKey(name: 'unit_price')  double? unitPrice, @JsonKey(name: 'original_unit_price')  double? originalUnitPrice)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( ProductModel product,  int quantity, @JsonKey(name: 'variant_id')  String variantId, @JsonKey(name: 'variant_label')  String variantLabel,  int? available, @JsonKey(name: 'size_value')  double? sizeValue, @JsonKey(name: 'unit_price')  double? unitPrice, @JsonKey(name: 'original_unit_price')  double? originalUnitPrice)?  $default,) {final _that = this;
 switch (_that) {
 case _CartItemModel() when $default != null:
-return $default(_that.product,_that.quantity,_that.sizeValue,_that.unitPrice,_that.originalUnitPrice);case _:
+return $default(_that.product,_that.quantity,_that.variantId,_that.variantLabel,_that.available,_that.sizeValue,_that.unitPrice,_that.originalUnitPrice);case _:
   return null;
 
 }
@@ -224,11 +229,16 @@ return $default(_that.product,_that.quantity,_that.sizeValue,_that.unitPrice,_th
 @JsonSerializable()
 
 class _CartItemModel extends CartItemModel {
-  const _CartItemModel({required this.product, required this.quantity, @JsonKey(name: 'size_value') this.sizeValue, @JsonKey(name: 'unit_price') this.unitPrice, @JsonKey(name: 'original_unit_price') this.originalUnitPrice}): super._();
+  const _CartItemModel({required this.product, required this.quantity, @JsonKey(name: 'variant_id') this.variantId = '', @JsonKey(name: 'variant_label') this.variantLabel = '', this.available, @JsonKey(name: 'size_value') this.sizeValue, @JsonKey(name: 'unit_price') this.unitPrice, @JsonKey(name: 'original_unit_price') this.originalUnitPrice}): super._();
   factory _CartItemModel.fromJson(Map<String, dynamic> json) => _$CartItemModelFromJson(json);
 
 @override final  ProductModel product;
 @override final  int quantity;
+// Absent ("" from the server, or missing from a pre-variant backend) =
+// a simple product's line.
+@override@JsonKey(name: 'variant_id') final  String variantId;
+@override@JsonKey(name: 'variant_label') final  String variantLabel;
+@override final  int? available;
 // All three absent for a base-pack line (and on every pre-variant
 // response) — the entity falls back to the product's own price/size.
 @override@JsonKey(name: 'size_value') final  double? sizeValue;
@@ -248,16 +258,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CartItemModel&&(identical(other.product, product) || other.product == product)&&(identical(other.quantity, quantity) || other.quantity == quantity)&&(identical(other.sizeValue, sizeValue) || other.sizeValue == sizeValue)&&(identical(other.unitPrice, unitPrice) || other.unitPrice == unitPrice)&&(identical(other.originalUnitPrice, originalUnitPrice) || other.originalUnitPrice == originalUnitPrice));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CartItemModel&&(identical(other.product, product) || other.product == product)&&(identical(other.quantity, quantity) || other.quantity == quantity)&&(identical(other.variantId, variantId) || other.variantId == variantId)&&(identical(other.variantLabel, variantLabel) || other.variantLabel == variantLabel)&&(identical(other.available, available) || other.available == available)&&(identical(other.sizeValue, sizeValue) || other.sizeValue == sizeValue)&&(identical(other.unitPrice, unitPrice) || other.unitPrice == unitPrice)&&(identical(other.originalUnitPrice, originalUnitPrice) || other.originalUnitPrice == originalUnitPrice));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,product,quantity,sizeValue,unitPrice,originalUnitPrice);
+int get hashCode => Object.hash(runtimeType,product,quantity,variantId,variantLabel,available,sizeValue,unitPrice,originalUnitPrice);
 
 @override
 String toString() {
-  return 'CartItemModel(product: $product, quantity: $quantity, sizeValue: $sizeValue, unitPrice: $unitPrice, originalUnitPrice: $originalUnitPrice)';
+  return 'CartItemModel(product: $product, quantity: $quantity, variantId: $variantId, variantLabel: $variantLabel, available: $available, sizeValue: $sizeValue, unitPrice: $unitPrice, originalUnitPrice: $originalUnitPrice)';
 }
 
 
@@ -268,7 +278,7 @@ abstract mixin class _$CartItemModelCopyWith<$Res> implements $CartItemModelCopy
   factory _$CartItemModelCopyWith(_CartItemModel value, $Res Function(_CartItemModel) _then) = __$CartItemModelCopyWithImpl;
 @override @useResult
 $Res call({
- ProductModel product, int quantity,@JsonKey(name: 'size_value') double? sizeValue,@JsonKey(name: 'unit_price') double? unitPrice,@JsonKey(name: 'original_unit_price') double? originalUnitPrice
+ ProductModel product, int quantity,@JsonKey(name: 'variant_id') String variantId,@JsonKey(name: 'variant_label') String variantLabel, int? available,@JsonKey(name: 'size_value') double? sizeValue,@JsonKey(name: 'unit_price') double? unitPrice,@JsonKey(name: 'original_unit_price') double? originalUnitPrice
 });
 
 
@@ -285,11 +295,14 @@ class __$CartItemModelCopyWithImpl<$Res>
 
 /// Create a copy of CartItemModel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? product = null,Object? quantity = null,Object? sizeValue = freezed,Object? unitPrice = freezed,Object? originalUnitPrice = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? product = null,Object? quantity = null,Object? variantId = null,Object? variantLabel = null,Object? available = freezed,Object? sizeValue = freezed,Object? unitPrice = freezed,Object? originalUnitPrice = freezed,}) {
   return _then(_CartItemModel(
 product: null == product ? _self.product : product // ignore: cast_nullable_to_non_nullable
 as ProductModel,quantity: null == quantity ? _self.quantity : quantity // ignore: cast_nullable_to_non_nullable
-as int,sizeValue: freezed == sizeValue ? _self.sizeValue : sizeValue // ignore: cast_nullable_to_non_nullable
+as int,variantId: null == variantId ? _self.variantId : variantId // ignore: cast_nullable_to_non_nullable
+as String,variantLabel: null == variantLabel ? _self.variantLabel : variantLabel // ignore: cast_nullable_to_non_nullable
+as String,available: freezed == available ? _self.available : available // ignore: cast_nullable_to_non_nullable
+as int?,sizeValue: freezed == sizeValue ? _self.sizeValue : sizeValue // ignore: cast_nullable_to_non_nullable
 as double?,unitPrice: freezed == unitPrice ? _self.unitPrice : unitPrice // ignore: cast_nullable_to_non_nullable
 as double?,originalUnitPrice: freezed == originalUnitPrice ? _self.originalUnitPrice : originalUnitPrice // ignore: cast_nullable_to_non_nullable
 as double?,

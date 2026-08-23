@@ -100,13 +100,22 @@ class CartCubit extends Cubit<List<CartItemEntity>> {
   int addToCart(
     ProductEntity product,
     int quantity, {
+    String? variantId,
+    String variantLabel = '',
+    int? available,
     double? sizeValue,
     double? unitPrice,
     double? originalUnitPrice,
   }) {
-    final index = _lineIndex(product.id, sizeValue);
+    final index = _lineIndex(product.id, sizeValue, variantId: variantId);
     final existing = index == -1 ? 0 : state[index].quantity;
-    final added = _addable(product, existing, quantity);
+    final added = _addable(
+      index == -1
+          ? available ?? product.purchaseLimit
+          : state[index].stockLimit,
+      existing,
+      quantity,
+    );
     if (added == 0) return 0;
 
     if (index == -1) {
@@ -115,6 +124,9 @@ class CartCubit extends Cubit<List<CartItemEntity>> {
         CartItemEntity(
           product: product,
           quantity: added,
+          variantId: variantId,
+          variantLabel: variantLabel,
+          available: available,
           sizeValue: sizeValue,
           unitPrice: unitPrice,
           originalUnitPrice: originalUnitPrice,
@@ -138,20 +150,23 @@ class CartCubit extends Cubit<List<CartItemEntity>> {
   /// sold-out product has no limit to express either; nothing is addable,
   /// and every pack disables its add control, so this only ever sees it as
   /// a race and lets the server have the final word.
-  int _addable(ProductEntity product, int existing, int wanted) {
-    final limit = product.purchaseLimit;
+  int _addable(int? limit, int existing, int wanted) {
     if (limit == null) return wanted;
     final room = limit - existing;
     return room <= 0 ? 0 : (wanted < room ? wanted : room);
   }
 
-  void incrementQuantity(String productId, {double? sizeValue}) {
-    final index = _lineIndex(productId, sizeValue);
+  void incrementQuantity(
+    String productId, {
+    double? sizeValue,
+    String? variantId,
+  }) {
+    final index = _lineIndex(productId, sizeValue, variantId: variantId);
     if (index == -1) return;
     // Same ceiling as [addToCart]: a row already at (or past, after the
     // store cut its stock) what's left doesn't grow.
     final line = state[index];
-    if (_addable(line.product, line.quantity, 1) == 0) return;
+    if (_addable(line.stockLimit, line.quantity, 1) == 0) return;
     _emitAndPersist([
       for (var i = 0; i < state.length; i++)
         if (i == index)
@@ -161,8 +176,12 @@ class CartCubit extends Cubit<List<CartItemEntity>> {
     ]);
   }
 
-  void decrementQuantity(String productId, {double? sizeValue}) {
-    final index = _lineIndex(productId, sizeValue);
+  void decrementQuantity(
+    String productId, {
+    double? sizeValue,
+    String? variantId,
+  }) {
+    final index = _lineIndex(productId, sizeValue, variantId: variantId);
     if (index == -1) return;
     if (state[index].quantity <= 1) {
       _emitAndPersist([
@@ -180,8 +199,8 @@ class CartCubit extends Cubit<List<CartItemEntity>> {
     ]);
   }
 
-  void removeItem(String productId, {double? sizeValue}) {
-    final index = _lineIndex(productId, sizeValue);
+  void removeItem(String productId, {double? sizeValue, String? variantId}) {
+    final index = _lineIndex(productId, sizeValue, variantId: variantId);
     if (index == -1) return;
     _emitAndPersist([
       for (var i = 0; i < state.length; i++)
@@ -194,11 +213,11 @@ class CartCubit extends Cubit<List<CartItemEntity>> {
   /// steppers outside Product Details don't know about sizes — "this
   /// product's line" is what they mean, and without the fallback a card's +
   /// on a variant-only product would grow a phantom base-pack line beside it.
-  int _lineIndex(String productId, double? sizeValue) {
+  int _lineIndex(String productId, double? sizeValue, {String? variantId}) {
     final exact = state.indexWhere(
-      (item) => item.matchesLine(productId, sizeValue),
+      (item) => item.matchesLine(productId, sizeValue, variantId: variantId),
     );
-    if (exact != -1 || sizeValue != null) return exact;
+    if (exact != -1 || sizeValue != null || variantId != null) return exact;
     return state.indexWhere((item) => item.product.id == productId);
   }
 

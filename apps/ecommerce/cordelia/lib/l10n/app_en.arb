@@ -266,6 +266,11 @@
   "locationPermissionDeniedMessage": "Location permission is off — turn it on in Settings to see what's near you.",
   "locationUnavailableMessage": "Couldn't get your location. Try again.",
   "outOfStockLabel": "Out of Stock",
+  "cartLineSubtitle": "{pack} · {availability}",
+  "@cartLineSubtitle": {
+    "description": "A cart row's subtitle when the line can't be bought: the unit it holds (a pack size or variant label) and why. The connector is copy; keep the pack first so rows align.",
+    "placeholders": {"pack": {"type": "String"}, "availability": {"type": "String"}}
+  },
   "onlyNLeftLabel": "{count, plural, one{Only 1 left} other{Only {count} left}}",
   "@onlyNLeftLabel": {
     "description": "Cart-row warning when the line holds more units than the store has left. Sits in a narrow subtitle slot beside the product name — keep it short.",

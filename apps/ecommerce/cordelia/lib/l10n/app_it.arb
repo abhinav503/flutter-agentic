@@ -157,6 +157,7 @@
   "locationPermissionDeniedMessage": "Il permesso di localizzazione è disattivato: attivalo nelle Impostazioni per vedere cosa c'è vicino a te.",
   "locationUnavailableMessage": "Impossibile ottenere la tua posizione. Riprova.",
   "outOfStockLabel": "Esaurito",
+  "cartLineSubtitle": "{pack} · {availability}",
   "onlyNLeftLabel": "{count, plural, one{Ne resta solo 1} other{Ne restano solo {count}}}",
   "cartUnavailableItemsMessage": "Alcuni articoli nel tuo carrello non sono più disponibili. Aggiorna il carrello per continuare.",
   "productSoldOutMessage": "{name} è appena andato esaurito. Aggiorna il carrello per continuare.",

@@ -44,6 +44,10 @@ class DailyMartProductListTile extends StatelessWidget {
   /// product alone. A sold-out product falls back to saying so without it.
   final String? unavailableLabel;
 
+  /// The whole subtitle, when the caller already knows it (a cart line's
+  /// unit + availability). Overrides the pack-size/unavailable pair below.
+  final String? subtitle;
+
   const DailyMartProductListTile({
     super.key,
     required this.product,
@@ -54,6 +58,7 @@ class DailyMartProductListTile extends StatelessWidget {
     this.unitPrice,
     this.packSize,
     this.unavailableLabel,
+    this.subtitle,
   });
 
   @override
@@ -106,7 +111,8 @@ class DailyMartProductListTile extends StatelessWidget {
                 // bought — a cart row has one subtitle slot, and which pack
                 // of an unavailable product this is doesn't help anyone.
                 Text(
-                  unavailable ??
+                  subtitle ??
+                      unavailable ??
                       product.unitType.format(packSize ?? product.unitValue),
                   style: DailyMartTextStyleConst.bodySmRegular(tt).copyWith(
                     color: unavailable == null ? cs.onSurfaceVariant : cs.error,

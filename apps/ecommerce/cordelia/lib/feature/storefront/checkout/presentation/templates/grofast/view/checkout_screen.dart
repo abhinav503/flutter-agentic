@@ -11,7 +11,6 @@ import 'package:core/core/ui/blocks/ecommerce/price_breakdown.dart';
 
 import 'package:cordelia/feature/storefront/active_store/presentation/active_store_capture.dart';
 import 'package:cordelia/constants/app_routes.dart';
-import 'package:cordelia/enums/product_unit_type.dart';
 import 'package:cordelia/feature/storefront/address/domain/entities/address_entity.dart';
 import 'package:cordelia/feature/storefront/address/presentation/templates/grofast/widgets/address_picker_sheet.dart';
 import 'package:cordelia/feature/storefront/address/presentation/templates/grofast/widgets/grofast_address_tile.dart';
@@ -229,9 +228,7 @@ class _CheckoutForm extends StatelessWidget {
           GrofastLineItemRow(
             imageUrl: item.product.imageUrl,
             name: item.product.name,
-            subtitle:
-                item.availabilityLabel ??
-                item.product.unitType.format(item.effectiveSizeValue),
+            subtitle: item.subtitle,
             subtitleColor: item.isUnavailable ? cs.error : null,
             price: item.lineTotal,
             trailing: Text(

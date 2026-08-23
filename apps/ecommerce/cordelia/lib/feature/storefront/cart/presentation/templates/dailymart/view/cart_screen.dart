@@ -152,17 +152,20 @@ class _CartScreenState extends BaseScreenState<CartScreen>
                                       .incrementQuantity(
                                         cartItems[i].product.id,
                                         sizeValue: cartItems[i].sizeValue,
+                                        variantId: cartItems[i].variantId,
                                       )
                                 : null,
                             onDecrement: () =>
                                 context.read<CartCubit>().decrementQuantity(
                                   cartItems[i].product.id,
                                   sizeValue: cartItems[i].sizeValue,
+                                  variantId: cartItems[i].variantId,
                                 ),
                             onRemove: () {
                               context.read<CartCubit>().removeItem(
                                 cartItems[i].product.id,
                                 sizeValue: cartItems[i].sizeValue,
+                                variantId: cartItems[i].variantId,
                               );
                               showSnackBar(
                                 DailyMartValueConst.removedFromCartMessage,

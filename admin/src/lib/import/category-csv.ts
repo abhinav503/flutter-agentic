@@ -17,6 +17,8 @@ export const CATEGORY_COLUMNS: ImportColumn[] = [
   { key: "name", required: true, description: "Category name. Also the match key when `id` is blank." },
   { key: "image_url", required: false, description: "Public https URL of the category tile image." },
   { key: "group_name", required: false, description: "Section it appears under, e.g. \"Grocery & Kitchen\"." },
+  { key: "parent", required: false, description: "Name of an existing category this one sits under. Blank = top level." },
+  { key: "external_id", required: false, description: "The id your other system (Shopify, ERP) knows this category by." },
   { key: "id", required: false, description: "Existing category id. Present = update that exact category." },
 ];
 
@@ -61,6 +63,23 @@ export function buildCategoryPlan(
       }
     }
 
+    // The parent must already exist — a row can't sit under a category the
+    // same file creates three lines later, since rows write independently.
+    const parentName = get("parent");
+    let parentId = "";
+    if (parentName) {
+      const parent = byName.get(matchKey(parentName));
+      if (!parent) {
+        fail(`No category named "${parentName}" in this store to use as parent.`);
+        return;
+      }
+      if (id && parent.id === id) {
+        fail("A category can't be its own parent.");
+        return;
+      }
+      parentId = parent.id;
+    }
+
     return {
       line,
       kind,
@@ -70,6 +89,8 @@ export function buildCategoryPlan(
         name,
         imageUrl: get("image_url"),
         groupName: get("group_name") || DEFAULT_GROUP,
+        parentId,
+        externalId: get("external_id"),
       },
     };
   });
@@ -98,7 +119,9 @@ export function sampleCategoryCsv(
       category.name,
       category.imageUrl,
       category.groupName,
-      "",
+      "", // parent
+      "", // external_id
+      "", // id
     ]),
   );
 }

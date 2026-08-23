@@ -26,6 +26,8 @@ function mapCategoryDoc(d: QueryDocumentSnapshot): Category {
     name: (d.data().name as string) ?? "",
     imageUrl: (d.data().imageUrl as string) ?? "",
     groupName: (d.data().groupName as string) ?? "Uncategorized",
+    parentId: (d.data().parentId as string) ?? "",
+    externalId: (d.data().externalId as string) ?? "",
     createdAtMs:
       (d.data().createdAt as Timestamp | null | undefined)?.toMillis() ?? 0,
   };
@@ -74,4 +76,21 @@ export async function updateCategory(
 
 export async function deleteCategory(storeId: string, id: string) {
   await deleteDoc(doc(db, "stores", storeId, "categories", id));
+}
+
+// "Apparel › Clothing › Shirts" — a category's name prefixed by its
+// ancestors', for anywhere one is picked from a flat list. A cycle or a
+// dangling parentId stops the walk rather than looping.
+export function categoryPath(category: Category, all: Category[]): string {
+  const names = [category.name];
+  const seen = new Set<string>([category.id]);
+  let cursor = category;
+  while (cursor.parentId && !seen.has(cursor.parentId)) {
+    const parent = all.find((c) => c.id === cursor.parentId);
+    if (!parent) break;
+    seen.add(parent.id);
+    names.unshift(parent.name);
+    cursor = parent;
+  }
+  return names.join(" › ");
 }

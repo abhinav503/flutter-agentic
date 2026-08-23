@@ -27,8 +27,8 @@ export const PRODUCT_COLUMNS: ImportColumn[] = [
   { key: "name", required: true, description: "Product name. Also the match key when `id` is blank." },
   { key: "price", required: true, description: "What the shopper pays, in the store's currency." },
   { key: "original_price", required: false, description: "Pre-discount price. Blank = not discounted." },
-  { key: "unit_value", required: true, description: "Pack size as a number, e.g. 500." },
-  { key: "unit_type", required: true, description: "One of g, ml, pcs." },
+  { key: "unit_value", required: false, description: "Pack size as a number, e.g. 500. Blank for non-packaged goods." },
+  { key: "unit_type", required: false, description: "One of g, ml, pcs. Blank = g." },
   { key: "stock", required: true, description: "Whole number, 0 or more." },
   { key: "description", required: false, description: "Shown on Product Details." },
   { key: "prep_time", required: false, description: "Free text, e.g. \"10 mins\"." },
@@ -36,6 +36,9 @@ export const PRODUCT_COLUMNS: ImportColumn[] = [
   { key: "categories", required: false, description: "Existing category names, separated by |." },
   { key: "brand", required: false, description: "An existing brand name. Blank = unbranded." },
   { key: "is_popular", required: false, description: "true/false — feeds the storefront's popular rail." },
+  { key: "sku", required: false, description: "Your stock-keeping code." },
+  { key: "barcode", required: false, description: "EAN/UPC/ISBN." },
+  { key: "external_id", required: false, description: "The id your other system (Shopify, ERP) knows this product by." },
   { key: "id", required: false, description: "Existing product id. Present = update that exact product." },
 ];
 
@@ -87,15 +90,19 @@ export function buildProductPlan(
       return;
     }
 
-    const unitValue = parseNumber(get("unit_value"));
-    if (unitValue === null || unitValue <= 0) {
-      fail("unit_value must be a number greater than 0.");
+    // Both optional since v2 — a T-shirt has no pack size. A value that is
+    // present but not a number is still an error, not silently 0.
+    const rawUnitValue = get("unit_value");
+    const unitValue = rawUnitValue === "" ? 0 : parseNumber(rawUnitValue);
+    if (unitValue === null || unitValue < 0) {
+      fail("unit_value must be a number, 0 or more (or blank).");
       return;
     }
 
-    const unitType = get("unit_type").toLowerCase() as UnitType;
+    const rawUnitType = get("unit_type").toLowerCase();
+    const unitType = (rawUnitType === "" ? "g" : rawUnitType) as UnitType;
     if (!UNIT_TYPES.includes(unitType)) {
-      fail(`unit_type must be one of ${UNIT_TYPES.join(", ")}.`);
+      fail(`unit_type must be one of ${UNIT_TYPES.join(", ")} (or blank).`);
       return;
     }
 
@@ -164,6 +171,10 @@ export function buildProductPlan(
       data: {
         name,
         imageUrl: get("image_url"),
+        images: get("image_url") ? [get("image_url")] : [],
+        externalId: get("external_id"),
+        sku: get("sku"),
+        barcode: get("barcode"),
         price,
         originalPrice,
         discountPercentage: computeDiscountPercentage(price, originalPrice),
@@ -174,9 +185,13 @@ export function buildProductPlan(
         stock,
         categoryIds,
         brandId,
-        // Per-size pricing has no sensible flat-file shape and no v1 column.
-        // Updates merge (see importRows), so a product that already has
-        // variants keeps them — these only apply to rows creating a product.
+        // Variants have no flat-file shape in this format yet (the v1 API's
+        // import carries them). Updates merge (see importRows), so a product
+        // that already has variants keeps them — these only apply to rows
+        // creating a product.
+        optionNames: [],
+        variants: [],
+        attributes: {},
         sizeOptions: [],
         sizeVariants: [],
         isPopular,
@@ -232,6 +247,9 @@ export function sampleProductCsv(
       catalog.linkableCategories(seedCategories).join("|"),
       catalog.linkableBrand(seedBrand),
       product.isPopular ? "true" : "false",
+      "", // sku
+      "", // barcode
+      "", // external_id
       "", // id — blank, these are new products
     ];
   });

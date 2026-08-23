@@ -204,12 +204,14 @@ class _CartScreenState extends BaseScreenState<CartScreen>
                                         .incrementQuantity(
                                           cartItems[i].product.id,
                                           sizeValue: cartItems[i].sizeValue,
+                                          variantId: cartItems[i].variantId,
                                         )
                                   : null,
                               onDecrement: () =>
                                   context.read<CartCubit>().decrementQuantity(
                                     cartItems[i].product.id,
                                     sizeValue: cartItems[i].sizeValue,
+                                    variantId: cartItems[i].variantId,
                                   ),
                             ),
                           ],

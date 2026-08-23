@@ -1,5 +1,5 @@
 import 'package:cordelia/constants/value_const.dart';
-import 'package:cordelia/feature/storefront/home/domain/entities/product_entity.dart';
+import 'package:cordelia/enums/product_unit_type.dart';
 
 import '../domain/entities/cart_item_entity.dart';
 
@@ -9,10 +9,30 @@ import '../domain/entities/cart_item_entity.dart';
 /// localizations to say it in words.
 extension CartItemAvailabilityX on CartItemEntity {
   /// Null while the line is fine — a row renders its usual subtitle then.
+  /// Judged against the line's own unit ([stockLimit]): a product with
+  /// thirty units across its sizes and none of the size in this line is out
+  /// of stock here, not "30 left".
   String? get availabilityLabel {
-    if (product.isOutOfStock) return ValueConst.outOfStockLabel;
-    if (exceedsStock) return ValueConst.onlyNLeftLabel(product.stock!);
-    return null;
+    if (!isUnavailable) return null;
+    final limit = stockLimit;
+    if (limit == null || limit <= 0) return ValueConst.outOfStockLabel;
+    return ValueConst.onlyNLeftLabel(limit);
+  }
+
+  /// What this line holds — the server's variant label ("500 ml", "M / Red")
+  /// once synced, the pack size formatted locally until then.
+  String get lineLabel => variantLabel.isNotEmpty
+      ? variantLabel
+      : product.unitType.format(effectiveSizeValue);
+
+  /// The row's one subtitle: the unit, and beside it why it can't be bought
+  /// when it can't. The unit stays visible either way — a shopper fixing
+  /// "Out of stock" needs to know *which* size that is.
+  String get subtitle {
+    final availability = availabilityLabel;
+    return availability == null
+        ? lineLabel
+        : ValueConst.cartLineSubtitle(lineLabel, availability);
   }
 }
 

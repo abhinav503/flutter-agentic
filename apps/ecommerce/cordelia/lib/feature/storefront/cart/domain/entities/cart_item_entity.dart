@@ -1,10 +1,25 @@
 import 'package:cordelia/feature/storefront/home/domain/entities/product_entity.dart';
 
-/// One cart line — identified by (product, [sizeValue]), not product alone:
-/// the same product in two package sizes is two lines with two prices.
+/// One cart line — identified by (product, [variantId]), not product alone:
+/// the same product in two sizes or colours is two lines with two prices.
 class CartItemEntity {
   final ProductEntity product;
   final int quantity;
+
+  /// The chosen variant, or null for a simple product's line. Assigned by
+  /// the server on every sync (a pack size picked locally resolves to the
+  /// variant carrying it), so a line that was added by [sizeValue] still
+  /// comes back identified this way.
+  final String? variantId;
+
+  /// "500 g", "M / Red" — what tells this line apart from the product's
+  /// other lines. Empty for a simple product.
+  final String variantLabel;
+
+  /// Units this line can still buy — the variant's own stock when the
+  /// product tracks stock per variant, the product's otherwise; null when
+  /// the server said nothing (sells) or the unit sells past zero.
+  final int? available;
 
   /// The selected package size, or null for the base pack
   /// ([ProductEntity.unitValue] at [ProductEntity.price]) — the shape every
@@ -20,6 +35,9 @@ class CartItemEntity {
   const CartItemEntity({
     required this.product,
     required this.quantity,
+    this.variantId,
+    this.variantLabel = '',
+    this.available,
     this.sizeValue,
     this.unitPrice,
     this.originalUnitPrice,
@@ -28,13 +46,24 @@ class CartItemEntity {
   CartItemEntity copyWith({int? quantity}) => CartItemEntity(
     product: product,
     quantity: quantity ?? this.quantity,
+    variantId: variantId,
+    variantLabel: variantLabel,
+    available: available,
     sizeValue: sizeValue,
     unitPrice: unitPrice,
     originalUnitPrice: originalUnitPrice,
   );
 
-  bool matchesLine(String productId, double? sizeValue) =>
-      product.id == productId && this.sizeValue == sizeValue;
+  /// A variant id is the exact identity when the caller has one; a pack
+  /// size is the pre-variant way of naming the same line, still what the
+  /// size chips pass.
+  bool matchesLine(String productId, double? sizeValue, {String? variantId}) {
+    if (product.id != productId) return false;
+    if (variantId != null && this.variantId != null) {
+      return this.variantId == variantId;
+    }
+    return this.sizeValue == sizeValue;
+  }
 }
 
 extension CartItemX on CartItemEntity {
@@ -49,23 +78,27 @@ extension CartItemX on CartItemEntity {
 
   double get lineTotal => effectiveUnitPrice * quantity;
 
-  /// This line asks for more than the store has left. Stock is
-  /// product-level, so a sized line is checked against the same number as a
-  /// base-pack one — which is also how the server checks it.
+  /// What the server will check this line against: the variant's own
+  /// count once it has been synced, the product's until then.
+  int? get stockLimit => available ?? product.stock;
+
+  /// This line asks for more than the store has left of its unit.
   bool get exceedsStock {
-    final stock = product.stock;
+    final stock = stockLimit;
     return stock != null && quantity > stock;
   }
 
   /// True once the line can't be bought as it stands — sold out, or more
   /// units than remain. What blocks checkout, and what a row flags.
-  bool get isUnavailable => product.isOutOfStock || exceedsStock;
+  bool get isUnavailable =>
+      (available == null ? product.isOutOfStock : available! <= 0) ||
+      exceedsStock;
 
   /// Whether a row's **+** does anything — false once the line already holds
   /// everything the store has left. A stepper takes this as its enable
   /// condition, the mirror of its floor of 1 on the other side.
   bool get canAddMore {
-    final stock = product.stock;
+    final stock = stockLimit;
     return stock == null || quantity < stock;
   }
 }

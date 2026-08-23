@@ -5,7 +5,13 @@ import {
   writeBatch,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { computeDiscountPercentage, type ProductInput } from "@/lib/products";
+import {
+  computeDiscountPercentage,
+  finaliseProductInput,
+  type ProductInput,
+} from "@/lib/products";
+import { formatPackSize, packSizeVariantId } from "@/lib/product-model";
+import type { Variant } from "@/lib/types";
 import { SEED_MARKET_CATALOGS, type SeedMarket } from "./seed-markets";
 
 // Writes one market's bundled grocery catalog into a store through the client
@@ -69,6 +75,8 @@ export async function seedGroceryData(
       name: category.name,
       imageUrl: category.imageUrl,
       groupName: category.groupName,
+      parentId: "",
+      externalId: "",
       createdAt: serverTimestamp(),
     });
     step("categories");
@@ -80,6 +88,7 @@ export async function seedGroceryData(
     brandIds.set(brand.slug, brandRef.id);
     batch.set(brandRef, {
       name: brand.name,
+      externalId: "",
       logoUrl: brand.logoUrl,
       createdAt: serverTimestamp(),
     });
@@ -91,17 +100,32 @@ export async function seedGroceryData(
     const productRef = ref("products");
     productIds.set(product.slug, productRef.id);
     const originalPrice = product.originalPrice ?? product.price;
-    const sizeVariants = (product.sizeVariants ?? []).map((variant) => ({
-      value: variant.value,
+    // Seed pack sizes become v2 variants on a single "Size" axis. Each pack
+    // carries the product's stock count — per-variant stock is real now, and
+    // a sample store with every pack in stock is the useful default.
+    const variants: Variant[] = (product.sizeVariants ?? []).map((variant) => ({
+      id: packSizeVariantId(variant.value),
+      externalId: "",
+      sku: "",
+      barcode: "",
+      options: [formatPackSize(variant.value, product.unitType)],
       price: variant.price,
       originalPrice: variant.originalPrice ?? variant.price,
+      stock: product.stock,
+      sellWhenOutOfStock: false,
+      imageUrl: "",
+      packSize: variant.value,
     }));
-    // Built as a ProductInput so the seeder can never drift from what the
-    // product form writes (derived discount, sizeOptions from variants,
-    // rating aggregates absent).
-    const payload: ProductInput = {
+    // Built as a ProductInput and finalised exactly as the product form's
+    // writes are, so the seeder can never drift from it (derived summary,
+    // sizeOptions from variants, rating aggregates absent).
+    const payload: ProductInput = finaliseProductInput({
       name: product.name,
       imageUrl: product.imageUrl,
+      images: product.imageUrl ? [product.imageUrl] : [],
+      externalId: "",
+      sku: "",
+      barcode: "",
       price: product.price,
       originalPrice,
       discountPercentage: computeDiscountPercentage(
@@ -117,10 +141,13 @@ export async function seedGroceryData(
         .map((slug) => categoryIds.get(slug))
         .filter((id): id is string => !!id),
       brandId: product.brandSlug ? (brandIds.get(product.brandSlug) ?? "") : "",
-      sizeOptions: sizeVariants.map((variant) => variant.value),
-      sizeVariants,
+      optionNames: variants.length > 0 ? ["Size"] : [],
+      variants,
+      attributes: {},
+      sizeOptions: [],
+      sizeVariants: [],
       isPopular: product.isPopular ?? false,
-    };
+    });
     batch.set(productRef, { ...payload, createdAt: serverTimestamp() });
     step("products");
   }

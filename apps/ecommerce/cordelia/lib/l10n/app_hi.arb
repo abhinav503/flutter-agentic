@@ -157,6 +157,7 @@
   "locationPermissionDeniedMessage": "लोकेशन की अनुमति बंद है — आसपास देखने के लिए इसे सेटिंग्स में चालू करें।",
   "locationUnavailableMessage": "आपकी लोकेशन नहीं मिल सकी। फिर से कोशिश करें।",
   "outOfStockLabel": "स्टॉक में नहीं",
+  "cartLineSubtitle": "{pack} · {availability}",
   "onlyNLeftLabel": "{count, plural, one{सिर्फ़ 1 बचा है} other{सिर्फ़ {count} बचे हैं}}",
   "cartUnavailableItemsMessage": "आपकी कार्ट में कुछ आइटम अब उपलब्ध नहीं हैं। जारी रखने के लिए कार्ट अपडेट करें।",
   "productSoldOutMessage": "{name} अभी-अभी बिक गया। जारी रखने के लिए कार्ट अपडेट करें।",

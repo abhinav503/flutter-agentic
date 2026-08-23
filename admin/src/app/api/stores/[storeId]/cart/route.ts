@@ -1,26 +1,59 @@
 import { NextResponse } from "next/server";
 import { getCartItems, saveCartItems } from "@/lib/cart";
-import { getProduct, resolveLinePricing } from "@/lib/products";
+import { getProduct } from "@/lib/products";
+import { availableFor, resolveLine, variantLabel } from "@/lib/product-model";
 import { serializeProduct } from "@/lib/api/serializers";
 import { requireAuthedUser, UnauthorizedError } from "@/lib/api/admin-guard";
 import type { CartItem, Product } from "@/lib/types";
 
-// One joined line of the GET/PUT response. A sized line carries its resolved
-// per-pack prices (size_value/unit_price/original_unit_price); a base-pack
-// line omits them and the client falls back to the product's own price —
-// same convention as the Flutter CartItemModel.
+// One joined line of the GET/PUT response. Every line carries what it
+// resolved to: the variant (id + label, or none for a simple product), the
+// per-unit prices the cart will charge, and `available` — the units this
+// line can still buy (the variant's own stock on a v2 product, the
+// product's otherwise; null = unlimited). size_value rides along for app
+// builds that still identify a line by pack size.
 function serializeCartLine(product: Product, item: CartItem) {
+  const pricing = resolveLine(product, {
+    variantId: item.variantId,
+    sizeValue: item.sizeValue,
+  });
+  // A selection the product no longer offers: the line shows the product at
+  // its own price and no variant — the checkout refusal, not the cart join,
+  // is where "this option is gone" is reported with a code.
+  const variant = pricing?.variant ?? null;
   const line: Record<string, unknown> = {
     product: serializeProduct(product),
     quantity: item.quantity,
+    variant_id: variant?.id ?? "",
+    variant_label: variant ? variantLabel(variant) : "",
+    available: availableFor(product, variant),
   };
-  if (item.sizeValue && item.sizeValue > 0) {
-    const pricing = resolveLinePricing(product, item.sizeValue);
-    line.size_value = item.sizeValue;
+  if (pricing && variant) {
     line.unit_price = pricing.price;
     line.original_unit_price = pricing.originalPrice;
+    if (variant.packSize > 0) line.size_value = variant.packSize;
   }
   return line;
+}
+
+// Only the selection and the count are stored — never a price, never a
+// label; those are re-resolved from the live catalog on every read.
+function normaliseCartItems(raw: unknown): CartItem[] | null {
+  if (!Array.isArray(raw)) return null;
+  const items: CartItem[] = [];
+  for (const entry of raw) {
+    if (!entry || typeof entry !== "object") return null;
+    const e = entry as Record<string, unknown>;
+    const productId = typeof e.productId === "string" ? e.productId : "";
+    const quantity = Math.trunc(Number(e.quantity));
+    if (!productId || !Number.isFinite(quantity) || quantity <= 0) return null;
+    const item: CartItem = { productId, quantity };
+    if (typeof e.variantId === "string" && e.variantId !== "") item.variantId = e.variantId;
+    const sizeValue = Number(e.sizeValue);
+    if (!item.variantId && Number.isFinite(sizeValue) && sizeValue > 0) item.sizeValue = sizeValue;
+    items.push(item);
+  }
+  return items;
 }
 
 // The shopper's own cart. The uid always comes off a verified Firebase ID
@@ -71,10 +104,13 @@ export async function PUT(
   }
 
   const body = await request.json();
-  const items = body.items as CartItem[] | undefined;
+  const items = normaliseCartItems(body.items);
 
-  if (!Array.isArray(items)) {
-    return NextResponse.json({ error: "items must be an array" }, { status: 400 });
+  if (!items) {
+    return NextResponse.json(
+      { error: "items must be an array of { productId, quantity, variantId? }" },
+      { status: 400 },
+    );
   }
 
   await saveCartItems(uid, storeId, items);

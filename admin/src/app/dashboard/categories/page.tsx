@@ -13,6 +13,15 @@ import type { Category } from "@/lib/types";
 import { matchesSearch } from "@/lib/search";
 import { applySort, compareText, type Comparator } from "@/lib/sort";
 import { ImageUploadField } from "@/components/image-upload-field";
+import { ExternalIdField } from "@/components/external-id-field";
+import { categoryPath } from "@/lib/categories";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { SearchField } from "@/components/search-field";
 import { ImportCsvDialog } from "@/components/import-csv-dialog";
 import { importContext } from "@/lib/import/import-context";
@@ -148,7 +157,14 @@ export default function CategoriesPage() {
                   <div className="size-10 rounded-md bg-muted" />
                 )}
               </TableCell>
-              <TableCell className="font-medium">{category.name}</TableCell>
+              <TableCell className="font-medium">
+                {category.parentId ? (
+                  <span className="text-muted-foreground">
+                    {categoryPath(category, categories).slice(0, -category.name.length)}
+                  </span>
+                ) : null}
+                {category.name}
+              </TableCell>
               <TableCell className="text-muted-foreground">{category.groupName}</TableCell>
               <TableCell className="text-right">
                 <Button variant="ghost" size="sm" onClick={() => setEditing(category)}>
@@ -197,6 +213,7 @@ export default function CategoriesPage() {
         <CategoryDialog
           storeId={storeId}
           category={editing === "new" ? null : editing}
+          categories={categories}
           existingGroupNames={[...new Set(categories.map((c) => c.groupName))]}
           onClose={() => setEditing(null)}
         />
@@ -236,21 +253,43 @@ export default function CategoriesPage() {
   );
 }
 
+// Select refuses "" as an item value, so "no parent" needs its own token.
+const NO_PARENT = "__none__";
+
+function isDescendantOf(c: Category, ancestorId: string, all: Category[]): boolean {
+  let cursor: Category | undefined = c;
+  const seen = new Set<string>();
+  while (cursor && cursor.parentId && !seen.has(cursor.id)) {
+    if (cursor.parentId === ancestorId) return true;
+    seen.add(cursor.id);
+    cursor = all.find((x) => x.id === cursor!.parentId);
+  }
+  return false;
+}
+
 function CategoryDialog({
   storeId,
   category,
+  categories,
   existingGroupNames,
   onClose,
 }: {
   storeId: string;
   category: Category | null;
+  categories: Category[];
   existingGroupNames: string[];
   onClose: () => void;
 }) {
   const [name, setName] = useState(category?.name ?? "");
   const [imageUrl, setImageUrl] = useState(category?.imageUrl ?? "");
   const [groupName, setGroupName] = useState(category?.groupName ?? "");
+  const [parentId, setParentId] = useState(category?.parentId || NO_PARENT);
+  const [externalId, setExternalId] = useState(category?.externalId ?? "");
   const [submitting, setSubmitting] = useState(false);
+  // A category can't sit under itself or under one of its own descendants.
+  const parentChoices = categories.filter(
+    (c) => !category || (c.id !== category.id && !isDescendantOf(c, category.id, categories)),
+  );
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
@@ -260,6 +299,8 @@ function CategoryDialog({
         name: name.trim(),
         imageUrl: imageUrl.trim(),
         groupName: groupName.trim(),
+        parentId: parentId === NO_PARENT ? "" : parentId,
+        externalId: externalId.trim(),
       };
       if (category) {
         await updateCategory(storeId, category.id, data);
@@ -317,6 +358,27 @@ function CategoryDialog({
               ))}
             </datalist>
           </div>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="category-parent">Parent category</Label>
+            <Select value={parentId} onValueChange={setParentId}>
+              <SelectTrigger id="category-parent">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={NO_PARENT}>None (top level)</SelectItem>
+                {parentChoices.map((c) => (
+                  <SelectItem key={c.id} value={c.id}>
+                    {categoryPath(c, categories)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <ExternalIdField
+            id="category-external-id"
+            value={externalId}
+            onChange={setExternalId}
+          />
           <DialogFooter>
             <Button type="submit" disabled={submitting || !name.trim() || !groupName.trim()}>
               {submitting ? "Saving…" : "Save"}

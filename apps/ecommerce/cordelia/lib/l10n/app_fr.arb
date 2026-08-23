@@ -157,6 +157,7 @@
   "locationPermissionDeniedMessage": "L'autorisation de localisation est désactivée — activez-la dans les Réglages pour voir ce qui est près de vous.",
   "locationUnavailableMessage": "Impossible d'obtenir votre position. Réessayez.",
   "outOfStockLabel": "Rupture de stock",
+  "cartLineSubtitle": "{pack} · {availability}",
   "onlyNLeftLabel": "{count, plural, one{Plus qu'1 en stock} other{Plus que {count} en stock}}",
   "cartUnavailableItemsMessage": "Certains articles de votre panier ne sont plus disponibles. Modifiez votre panier pour continuer.",
   "productSoldOutMessage": "{name} vient d'être épuisé. Modifiez votre panier pour continuer.",

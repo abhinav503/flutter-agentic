@@ -1048,6 +1048,12 @@ abstract class AppLocalizations {
   /// **'Out of Stock'**
   String get outOfStockLabel;
 
+  /// A cart row's subtitle when the line can't be bought: the unit it holds (a pack size or variant label) and why. The connector is copy; keep the pack first so rows align.
+  ///
+  /// In en, this message translates to:
+  /// **'{pack} · {availability}'**
+  String cartLineSubtitle(String pack, String availability);
+
   /// Cart-row warning when the line holds more units than the store has left. Sits in a narrow subtitle slot beside the product name — keep it short.
   ///
   /// In en, this message translates to:

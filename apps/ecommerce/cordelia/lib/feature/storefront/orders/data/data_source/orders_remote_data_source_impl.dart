@@ -204,6 +204,7 @@ class OrdersRemoteDataSourceImpl implements OrdersRemoteDataSource {
           // The server prices the line from this size's live variant — only
           // the size travels, never a client price. Omitted for a base-pack
           // line.
+          if (item.variantId != null) 'variantId': item.variantId,
           if (item.sizeValue != null) 'sizeValue': item.sizeValue,
         },
       )

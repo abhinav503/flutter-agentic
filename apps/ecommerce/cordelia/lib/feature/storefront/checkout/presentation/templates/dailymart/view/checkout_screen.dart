@@ -237,6 +237,7 @@ class _Form extends StatelessWidget {
               packSize: items[i].effectiveSizeValue,
               showStepper: false,
               unavailableLabel: items[i].availabilityLabel,
+              subtitle: items[i].subtitle,
             ),
           ],
         ],
