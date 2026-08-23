@@ -15,7 +15,7 @@ import 'package:cordelia/feature/storefront/cart/presentation/quantity_selection
 import 'package:cordelia/feature/storefront/favourites/presentation/cubit/favourites_cubit.dart';
 import 'package:cordelia/feature/storefront/home/domain/entities/product_entity.dart';
 import 'package:cordelia/feature/storefront/product_details/domain/entities/product_detail_entity.dart';
-import 'package:cordelia/feature/storefront/product_details/domain/entities/size_variant_entity.dart';
+import 'package:cordelia/feature/storefront/product_details/presentation/widgets/product_attributes_list.dart';
 import 'package:cordelia/feature/storefront/product_details/presentation/product_details_actions.dart';
 import 'package:cordelia/feature/storefront/reviews/domain/entities/product_reviews_entity.dart';
 import 'package:cordelia/feature/storefront/reviews/domain/entities/review_entity.dart';
@@ -182,10 +182,18 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
               detail: detail,
               storeId: widget.storeId,
               quantity: quantity,
-              variant: selectedVariant(detail),
-              selectedSizeIndex: effectiveSizeIndex(detail),
-              onSelectSize: selectSize,
-              onIncrement: incrementQuantityUpTo(detail.product.purchaseLimit),
+              unitPrice: unitPrice(detail),
+              packLabel: packLabel(
+                detail,
+                detail.product.unitType.pricePerLabel,
+              ),
+              lowStock: isSelectedLowStock(detail)
+                  ? selectedStock(detail)
+                  : null,
+              soldOut: isSelectedOutOfStock(detail),
+              axes: optionAxes(detail),
+              onSelectOption: selectOption,
+              onIncrement: incrementQuantityUpTo(selectedPurchaseLimit(detail)),
               onDecrement: decrementQuantity,
               onAddToBag: () => _addToBag(detail),
               onSimilarTap: openProductDetails,
@@ -209,12 +217,17 @@ class _DetailsContent extends StatelessWidget {
   final String storeId;
   final int quantity;
 
-  /// The selected size (null = no size picker) with the state/callback the
-  /// host's `ProductDetailsActions` mixin owns — price and the chip row
-  /// follow it.
-  final SizeVariantEntity? variant;
-  final int selectedSizeIndex;
-  final ValueChanged<int> onSelectSize;
+  /// What the selected variant resolves to — the host's
+  /// `ProductDetailsActions` mixin owns the selection; price, the pack label,
+  /// the stock badge, the dock and the chip rows all follow it.
+  final double unitPrice;
+  final String packLabel;
+
+  /// Units left when running low, else null.
+  final int? lowStock;
+  final bool soldOut;
+  final List<OptionAxis> axes;
+  final void Function(int axis, String value) onSelectOption;
 
   /// Null at the product's remaining stock, same as [onDecrement] at 1.
   final VoidCallback? onIncrement;
@@ -231,9 +244,12 @@ class _DetailsContent extends StatelessWidget {
     required this.detail,
     required this.storeId,
     required this.quantity,
-    required this.variant,
-    required this.selectedSizeIndex,
-    required this.onSelectSize,
+    required this.unitPrice,
+    required this.packLabel,
+    required this.lowStock,
+    required this.soldOut,
+    required this.axes,
+    required this.onSelectOption,
     required this.onIncrement,
     required this.onDecrement,
     required this.onAddToBag,
@@ -309,11 +325,9 @@ class _DetailsContent extends StatelessWidget {
                               // what a product *is*; running out is the one
                               // fact on it that changes by the minute, so it
                               // leads.
-                              if (product.isLowStock)
+                              if (lowStock case final left?)
                                 GrofastBadge.outlined(
-                                  label: ValueConst.onlyNLeftLabel(
-                                    product.stock!,
-                                  ),
+                                  label: ValueConst.onlyNLeftLabel(left),
                                   leading: Icon(
                                     Icons.inventory_2_outlined,
                                     size: GrofastDimenConst.badgeLeadingSize,
@@ -359,31 +373,34 @@ class _DetailsContent extends StatelessWidget {
                         ),
                         const SizedBox(width: AppSpacing.lg),
                         GrofastPrice(
-                          value: variant?.price ?? product.price,
-                          unit: product.unitType.pricePerLabel(
-                            variant?.value ?? product.unitValue,
-                          ),
+                          value: unitPrice,
+                          unit: packLabel,
                           scale: GrofastDimenConst.detailPriceScale,
                         ),
                       ],
                     ),
                     // Kit deviation (recorded in the spec sheet): the kit has
-                    // no size picker — the pack's single-select chip row
-                    // carries the sizes, each priced by its own variant.
-                    if (detail.sizeVariants.isNotEmpty) ...[
+                    // no option picker — the pack's single-select chip row
+                    // carries one row per axis (Size, Colour, a pack size),
+                    // each unit priced and stocked on its own.
+                    for (final axis in axes) ...[
                       const SizedBox(height: AppSpacing.xl4),
                       Text(
-                        GrofastValueConst.selectSizeTitle,
+                        GrofastValueConst.selectOptionTitle(axis.name),
                         style: GrofastTextStyleConst.sectionBold(tt),
                       ),
                       const SizedBox(height: AppSpacing.sm),
                       GrofastChipRow(
-                        labels: [
-                          for (final v in detail.sizeVariants)
-                            product.unitType.format(v.value),
-                        ],
-                        selectedIndex: selectedSizeIndex,
-                        onSelected: onSelectSize,
+                        labels: [for (final v in axis.values) v.value],
+                        selectedIndex: axis.values.indexWhere(
+                          (v) => v.selected,
+                        ),
+                        unavailable: {
+                          for (var i = 0; i < axis.values.length; i++)
+                            if (!axis.values[i].available) i,
+                        },
+                        onSelected: (i) =>
+                            onSelectOption(axis.index, axis.values[i].value),
                       ),
                     ],
                     const SizedBox(height: AppSpacing.xl4),
@@ -397,6 +414,17 @@ class _DetailsContent extends StatelessWidget {
                           ? GrofastValueConst.noDescriptionLabel
                           : detail.description,
                       style: GrofastTextStyleConst.bodyRelaxed(
+                        tt,
+                      ).copyWith(color: cs.onSurfaceVariant),
+                    ),
+                    if (product.attributes.isNotEmpty)
+                      const SizedBox(height: AppSpacing.sm),
+                    ProductAttributesList(
+                      attributes: product.attributes,
+                      keyStyle: GrofastTextStyleConst.bodySmall(
+                        tt,
+                      ).copyWith(color: cs.onSurface),
+                      valueStyle: GrofastTextStyleConst.bodyRelaxed(
                         tt,
                       ).copyWith(color: cs.onSurfaceVariant),
                     ),
@@ -441,7 +469,7 @@ class _DetailsContent extends StatelessWidget {
             onIncrement: onIncrement,
             onDecrement: onDecrement,
             onAddToBag: onAddToBag,
-            soldOut: product.isOutOfStock,
+            soldOut: soldOut,
           ),
         ),
         // Pinned over the scrolling hero, not inside it — every back-button

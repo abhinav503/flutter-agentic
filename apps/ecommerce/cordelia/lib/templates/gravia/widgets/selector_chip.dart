@@ -21,11 +21,17 @@ class SelectorChip extends StatelessWidget {
   final bool selected;
   final VoidCallback? onTap;
 
+  /// No unit exists for this value with the other options as picked (or
+  /// it is sold out) — drawn dimmed. Still tappable: picking it re-resolves
+  /// the other rows to a unit that does exist.
+  final bool unavailable;
+
   const SelectorChip({
     super.key,
     required this.label,
     required this.selected,
     this.onTap,
+    this.unavailable = false,
   });
 
   @override
@@ -51,9 +57,16 @@ class SelectorChip extends StatelessWidget {
       selectedBackgroundColor: context.appColors.tintedPrimaryFill,
       // Same base style for both states — only the colour differs — so the
       // chip's footprint doesn't change size when selection toggles.
-      labelStyle: GraviaTextStyleConst.badgeLabel(
-        tt,
-      ).copyWith(color: selected ? cs.primary : cs.onSurface),
+      labelStyle: GraviaTextStyleConst.badgeLabel(tt).copyWith(
+        color: selected
+            ? cs.primary
+            : unavailable
+            ? cs.onSurfaceVariant
+            : cs.onSurface,
+        decoration: unavailable && !selected
+            ? TextDecoration.lineThrough
+            : null,
+      ),
     );
   }
 }

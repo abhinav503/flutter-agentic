@@ -560,12 +560,17 @@ why they are field-shaped (10 px, bordered) rather than menu-shaped.
 - **Product Details' size row and brand line (kit deviations).** The kit's
   frames `22`/`23` predate both features. The brand renders as a
   bodyXsMedium `onSurfaceVariant` line above the name (only when the
-  product has one). Below the price row, a "Select Size" label over a
-  horizontal row of `DailyMartFilterChip`s — My Orders' status-chip recipe
-  reused as a single-select — carries the sizes; the price label
-  (`₹X /pack`) follows the selected chip, and Add To Cart carries the
-  selection into the cart line, which then shows that pack size and
-  per-size price on the Cart's item cards and Checkout's Order List.
+  product has one). Below the price row, one "Select {option}" label per
+  option axis (Size, Colour, a pack size) over a horizontal row of
+  `DailyMartFilterChip`s — My Orders' status-chip recipe reused as a
+  single-select — carries the values; a value with no sellable unit given
+  the other picks is struck through but still tappable (picking it
+  re-resolves the other rows). The price label (`₹X /pack`), "Only N
+  left", the stepper ceiling and the CTA all follow the selected variant,
+  and Add To Cart carries it into the cart line as a `variantId`, which
+  then shows that unit's label and price on the Cart's item cards and
+  Checkout's Order List. The product's `attributes` render as a spec list
+  under the Descriptions tab.
 - **Delete Account** closes the Profile menu, under Log out, on the kit's
   own `delete.svg`. Required by both app stores of any app with sign-up
   (App Store Review Guideline 5.1.1(v)), so it is not a pack decision; the

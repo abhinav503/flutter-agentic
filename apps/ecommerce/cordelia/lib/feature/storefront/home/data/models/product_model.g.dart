@@ -21,6 +21,23 @@ _ProductModel _$ProductModelFromJson(Map<String, dynamic> json) =>
       ratingAverage: (json['rating_average'] as num?)?.toDouble() ?? 0.0,
       reviewCount: (json['review_count'] as num?)?.toInt() ?? 0,
       stock: (json['stock'] as num?)?.toInt(),
+      optionNames:
+          (json['option_names'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          const <String>[],
+      variants:
+          (json['variants'] as List<dynamic>?)
+              ?.map(
+                (e) => ProductVariantModel.fromJson(e as Map<String, dynamic>),
+              )
+              .toList() ??
+          const <ProductVariantModel>[],
+      attributes:
+          (json['attributes'] as Map<String, dynamic>?)?.map(
+            (k, e) => MapEntry(k, e as String),
+          ) ??
+          const <String, String>{},
     );
 
 Map<String, dynamic> _$ProductModelToJson(_ProductModel instance) =>
@@ -38,4 +55,7 @@ Map<String, dynamic> _$ProductModelToJson(_ProductModel instance) =>
       'rating_average': instance.ratingAverage,
       'review_count': instance.reviewCount,
       'stock': instance.stock,
+      'option_names': instance.optionNames,
+      'variants': instance.variants,
+      'attributes': instance.attributes,
     };

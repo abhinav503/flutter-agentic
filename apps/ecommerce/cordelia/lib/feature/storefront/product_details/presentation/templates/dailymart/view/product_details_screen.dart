@@ -45,9 +45,9 @@ import '../../../../../reviews/presentation/templates/dailymart/widgets/product_
 import '../../../../../reviews/presentation/templates/dailymart/widgets/write_review_sheet_content.dart';
 import '../../../../../reviews/presentation/templates/dailymart/widgets/report_review_sheet_content.dart';
 import '../../../../domain/entities/product_detail_entity.dart';
-import '../../../../domain/entities/size_variant_entity.dart';
 import '../../../bloc/product_details_bloc.dart';
 import '../../../product_details_actions.dart';
+import '../../../widgets/product_attributes_list.dart';
 import '../widgets/product_detail_bottom_bar.dart';
 import '../widgets/product_detail_skeleton_body.dart';
 
@@ -196,7 +196,10 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
     final tt = Theme.of(context).textTheme;
     final hairline = context.appColors.dockedHairline;
     final product = detail.product;
-    final variant = selectedVariant(detail);
+    // Price, pack label, stock and the stepper's ceiling all follow the
+    // selected variant, so a chip tap can't leave any of them on another
+    // unit's numbers.
+    final soldOut = isSelectedOutOfStock(detail);
     final favouritesCubit = context.watch<FavouritesCubit>();
     final isFavourite = favouritesCubit.isFavourite(product.id);
 
@@ -258,35 +261,41 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
               Row(
                 children: [
                   Expanded(
-                    child: _PriceLabel(product: product, variant: variant),
+                    child: _PriceLabel(
+                      price: unitPrice(detail),
+                      packLabel: packLabel(detail, product.unitType.format),
+                    ),
                   ),
                   // Between the price and the stepper, which is where the
                   // shopper is looking as they decide how many to take.
-                  if (product.isLowStock) ...[
+                  if (isSelectedLowStock(detail)) ...[
                     Text(
-                      ValueConst.onlyNLeftLabel(product.stock!),
+                      ValueConst.onlyNLeftLabel(selectedStock(detail)!),
                       style: DailyMartTextStyleConst.bodyXsSemibold(
                         tt,
                       ).copyWith(color: cs.error),
                     ),
                     const SizedBox(width: AppSpacing.base),
                   ],
-                  if (product.isInStock)
+                  if (!soldOut)
                     DailyMartQuantityStepper(
                       value: quantity,
                       onDecrement: decrementQuantity,
-                      onIncrement: incrementQuantityUpTo(product.purchaseLimit),
+                      onIncrement: incrementQuantityUpTo(
+                        selectedPurchaseLimit(detail),
+                      ),
                     ),
                 ],
               ),
               // Kit deviation (recorded in the spec sheet): the kit has no
-              // size picker; the row reuses My Orders' filter-chip recipe so
-              // the selected size — which now carries its own price — is a
+              // option picker; one row per option axis (Size, Colour, a
+              // pack size) reuses My Orders' filter-chip recipe so the
+              // selected unit — which carries its own price and stock — is a
               // real choice, not decoration.
-              if (detail.sizeVariants.isNotEmpty) ...[
+              for (final axis in optionAxes(detail)) ...[
                 const SizedBox(height: AppSpacing.lg),
                 Text(
-                  DailyMartValueConst.selectSizeLabel,
+                  DailyMartValueConst.selectOptionLabel(axis.name),
                   style: DailyMartTextStyleConst.bodyMdSemibold(
                     tt,
                   ).copyWith(color: cs.onSurface),
@@ -296,14 +305,14 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
                   scrollDirection: Axis.horizontal,
                   child: Row(
                     children: [
-                      for (var i = 0; i < detail.sizeVariants.length; i++) ...[
+                      for (var i = 0; i < axis.values.length; i++) ...[
                         if (i > 0) const SizedBox(width: AppSpacing.base),
                         DailyMartFilterChip(
-                          label: product.unitType.format(
-                            detail.sizeVariants[i].value,
-                          ),
-                          selected: i == effectiveSizeIndex(detail),
-                          onTap: () => selectSize(i),
+                          label: axis.values[i].value,
+                          selected: axis.values[i].selected,
+                          unavailable: !axis.values[i].available,
+                          onTap: () =>
+                              selectOption(axis.index, axis.values[i].value),
                         ),
                       ],
                     ],
@@ -328,6 +337,7 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
                     : _DescriptionText(
                         key: const ValueKey('description'),
                         description: detail.description,
+                        attributes: product.attributes,
                       ),
               ),
               if (detail.similarProducts.isNotEmpty) ...[
@@ -362,7 +372,7 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
           bottom: MediaQuery.paddingOf(context).bottom + AppSpacing.lg,
           child: DailyMartProductDetailBottomBar(
             storeId: widget.storeId,
-            soldOut: product.isOutOfStock,
+            soldOut: soldOut,
             onAddToCart: () async {
               if (!await addSelectedToCart(detail, quantity) || !mounted) {
                 return;
@@ -503,13 +513,12 @@ class _RatingPill extends StatelessWidget {
 }
 
 class _PriceLabel extends StatelessWidget {
-  final ProductEntity product;
+  /// The selected unit's price and the pack label beside it — a size, or
+  /// the variant's own label when it isn't a pack.
+  final double price;
+  final String packLabel;
 
-  /// The selected size — price and the per-pack suffix follow it; null (no
-  /// size picker) falls back to the product's base pack.
-  final SizeVariantEntity? variant;
-
-  const _PriceLabel({required this.product, this.variant});
+  const _PriceLabel({required this.price, required this.packLabel});
 
   @override
   Widget build(BuildContext context) {
@@ -520,15 +529,13 @@ class _PriceLabel extends StatelessWidget {
       TextSpan(
         children: [
           TextSpan(
-            text: (variant?.price ?? product.price).asPrice,
+            text: price.asPrice,
             style: DailyMartTextStyleConst.bodyLgSemibold(
               tt,
             ).copyWith(color: cs.onSurface),
           ),
           TextSpan(
-            text: DailyMartValueConst.perUnitSuffix(
-              product.unitType.format(variant?.value ?? product.unitValue),
-            ),
+            text: DailyMartValueConst.perUnitSuffix(packLabel),
             style: DailyMartTextStyleConst.bodySmSemibold(
               tt,
             ).copyWith(color: cs.onSurface),
@@ -616,21 +623,37 @@ class _Tab extends StatelessWidget {
 
 class _DescriptionText extends StatelessWidget {
   final String description;
+  final Map<String, String> attributes;
 
-  const _DescriptionText({super.key, required this.description});
+  const _DescriptionText({
+    super.key,
+    required this.description,
+    this.attributes = const {},
+  });
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
+    final body = DailyMartTextStyleConst.bodySmRegular(
+      tt,
+    ).copyWith(color: cs.onSurface);
 
     return SizedBox(
       width: double.infinity,
-      child: Text(
-        description,
-        style: DailyMartTextStyleConst.bodySmRegular(
-          tt,
-        ).copyWith(color: cs.onSurface),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(description, style: body),
+          if (attributes.isNotEmpty) const SizedBox(height: AppSpacing.sm),
+          ProductAttributesList(
+            attributes: attributes,
+            keyStyle: DailyMartTextStyleConst.bodySmSemibold(
+              tt,
+            ).copyWith(color: cs.onSurfaceVariant),
+            valueStyle: body,
+          ),
+        ],
       ),
     );
   }

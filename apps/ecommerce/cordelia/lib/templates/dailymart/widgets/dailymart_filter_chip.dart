@@ -19,11 +19,17 @@ class DailyMartFilterChip extends StatelessWidget {
   final bool selected;
   final VoidCallback onTap;
 
+  /// No unit exists for this value with the other options as picked (or it
+  /// is sold out) — drawn struck through. Still tappable: picking it
+  /// re-resolves the other rows to a unit that does exist.
+  final bool unavailable;
+
   const DailyMartFilterChip({
     super.key,
     required this.label,
     required this.selected,
     required this.onTap,
+    this.unavailable = false,
   });
 
   @override
@@ -49,9 +55,12 @@ class DailyMartFilterChip extends StatelessWidget {
           ),
           child: Text(
             label,
-            style: DailyMartTextStyleConst.bodySmMedium(
-              tt,
-            ).copyWith(color: selected ? cs.onPrimary : cs.onSurfaceVariant),
+            style: DailyMartTextStyleConst.bodySmMedium(tt).copyWith(
+              color: selected ? cs.onPrimary : cs.onSurfaceVariant,
+              decoration: unavailable && !selected
+                  ? TextDecoration.lineThrough
+                  : null,
+            ),
           ),
         ),
       ),

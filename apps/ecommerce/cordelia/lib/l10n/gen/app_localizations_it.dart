@@ -794,6 +794,11 @@ class AppLocalizationsIt extends AppLocalizations {
   String get graviaProductDetailsTitle => 'Dettagli prodotto';
 
   @override
+  String selectOptionLabel(String option) {
+    return 'Scegli $option';
+  }
+
+  @override
   String get graviaSelectQtyLabel => 'Seleziona quantità';
 
   @override

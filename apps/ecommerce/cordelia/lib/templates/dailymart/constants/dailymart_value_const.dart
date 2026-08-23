@@ -115,6 +115,8 @@ abstract final class DailyMartValueConst {
   static String get relatedProductsTitle =>
       L10n.current.dailymartRelatedProductsTitle;
   static String get selectSizeLabel => L10n.current.dailymartSelectSizeLabel;
+  static String selectOptionLabel(String option) =>
+      L10n.current.selectOptionLabel(option);
   static String get productDetailsLoadErrorMessage =>
       L10n.current.dailymartProductDetailsLoadErrorMessage;
   // Wordless ('/kg'), so no arb key.

@@ -1366,6 +1366,12 @@ abstract class AppLocalizations {
   /// **'Product Details'**
   String get graviaProductDetailsTitle;
 
+  /// Heading of one option row on Product Details, naming the axis the merchant defined (Size, Colour, Pack). The name is merchant data and is not translated.
+  ///
+  /// In en, this message translates to:
+  /// **'Select {option}'**
+  String selectOptionLabel(String option);
+
   /// No description provided for @graviaSelectQtyLabel.
   ///
   /// In en, this message translates to:

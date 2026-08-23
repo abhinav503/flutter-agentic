@@ -92,6 +92,8 @@ abstract final class GrofastValueConst {
       L10n.current.grofastProductDetailsTitle;
   static String get descriptionTitle => L10n.current.grofastDescriptionTitle;
   static String get selectSizeTitle => L10n.current.grofastSelectSizeTitle;
+  static String selectOptionTitle(String option) =>
+      L10n.current.selectOptionLabel(option);
   static String get addToBag => L10n.current.grofastAddToBag;
   static String get productDetailsLoadErrorMessage =>
       L10n.current.grofastProductDetailsLoadErrorMessage;

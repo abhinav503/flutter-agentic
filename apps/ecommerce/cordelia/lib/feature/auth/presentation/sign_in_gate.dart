@@ -88,6 +88,9 @@ extension GuestActionsX on BuildContext {
   Future<bool> addToCartOrSignIn(
     ProductEntity product,
     int quantity, {
+    String? variantId,
+    String variantLabel = '',
+    int? available,
     double? sizeValue,
     double? unitPrice,
     double? originalUnitPrice,
@@ -98,6 +101,9 @@ extension GuestActionsX on BuildContext {
     return read<CartCubit>().addToCart(
           product,
           quantity,
+          variantId: variantId,
+          variantLabel: variantLabel,
+          available: available,
           sizeValue: sizeValue,
           unitPrice: unitPrice,
           originalUnitPrice: originalUnitPrice,

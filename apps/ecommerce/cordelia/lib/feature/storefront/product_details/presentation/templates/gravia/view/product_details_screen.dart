@@ -1,6 +1,5 @@
 import 'package:cordelia/feature/auth/presentation/sign_in_gate.dart';
 import 'package:cordelia/constants/value_const.dart';
-import 'package:cordelia/enums/product_unit_type.dart';
 import 'package:cordelia/feature/storefront/cart/presentation/quantity_selection.dart';
 import 'package:cordelia/feature/storefront/favourites/presentation/cubit/favourites_cubit.dart';
 import 'package:cordelia/templates/gravia/constants/gravia_image_const.dart';
@@ -175,14 +174,15 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
 
   Widget _buildLoaded(BuildContext context, ProductDetailEntity detail) {
     final product = detail.product;
-    // Everything priced on this screen follows the selected size — the price
-    // row, the discount meta chip, and the bottom bar all read the variant,
-    // so a chip tap can't leave any of them showing the base pack's numbers.
-    final variant = selectedVariant(detail);
-    final unitPrice = variant?.price ?? product.price;
-    final originalUnitPrice = variant?.originalPrice ?? product.originalPrice;
-    final discountPercentage =
-        variant?.discountPercentage ?? product.discountPercentage;
+    // Everything priced on this screen follows the selected variant — the
+    // price row, the discount meta chip, the stock label and the bottom bar
+    // all read it, so a chip tap can't leave any of them showing another
+    // unit's numbers.
+    final unitPrice = this.unitPrice(detail);
+    final originalUnitPrice = this.originalUnitPrice(detail);
+    final discountPercentage = this.discountPercentage(detail);
+    final lowStock = isSelectedLowStock(detail);
+    final soldOut = isSelectedOutOfStock(detail);
     final cs = Theme.of(context).colorScheme;
     final tt = Theme.of(context).textTheme;
     final isFavourite = context.watch<FavouritesCubit>().isFavourite(
@@ -259,12 +259,14 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
                       // Third here, unlike the card's two: the details page
                       // has the full width to spend, so running low is added
                       // to the row rather than taking the discount's place.
-                      if (product.isLowStock)
+                      if (lowStock)
                         ProductCardMeta(
                           icon: GraviaProductCard.metaIcon(
                             GraviaImageConst.flash,
                           ),
-                          label: ValueConst.onlyNLeftLabel(product.stock!),
+                          label: ValueConst.onlyNLeftLabel(
+                            selectedStock(detail)!,
+                          ),
                           labelColor: cs.error,
                         ),
                     ],
@@ -293,43 +295,42 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
                       ),
                     ],
                   ),
-                  // "Select QTY" only renders when the product actually has
-                  // package sizes (admin-driven) — an empty list means no size
-                  // picker, not an orphaned heading between two dividers.
-                  if (detail.sizeVariants.isNotEmpty) ...[
+                  // One "Select …" row per option axis (Size, Colour, a
+                  // pack size) — only when the product actually has choices;
+                  // a simple product shows no orphaned heading between two
+                  // dividers.
+                  for (final axis in optionAxes(detail)) ...[
                     const SizedBox(height: AppSpacing.xl2),
                     Divider(color: hairlineColor, height: 1, thickness: 1),
                     const SizedBox(height: AppSpacing.xl2),
                     Text(
-                      GraviaValueConst.selectQtyLabel,
+                      GraviaValueConst.selectOptionLabel(axis.name),
                       style: GraviaTextStyleConst.textLgBold(
                         tt,
                       ).copyWith(color: cs.onSurface),
                     ),
                     const SizedBox(height: AppSpacing.base),
-                    Row(
+                    Wrap(
+                      spacing: AppSpacing.base,
+                      runSpacing: AppSpacing.sm,
                       children: [
-                        for (
-                          var i = 0;
-                          i < detail.sizeVariants.length;
-                          i++
-                        ) ...[
-                          if (i > 0) const SizedBox(width: AppSpacing.base),
+                        for (final value in axis.values)
                           SelectorChip(
-                            label: product.unitType.format(
-                              detail.sizeVariants[i].value,
-                            ),
-                            selected: i == effectiveSizeIndex(detail),
-                            onTap: () => selectSize(i),
+                            label: value.value,
+                            selected: value.selected,
+                            unavailable: !value.available,
+                            onTap: () => selectOption(axis.index, value.value),
                           ),
-                        ],
                       ],
                     ),
                   ],
                   const SizedBox(height: AppSpacing.xl2),
                   Divider(color: hairlineColor, height: 1, thickness: 1),
                   const SizedBox(height: AppSpacing.xl2),
-                  ProductDetailKeyInfo(description: detail.description),
+                  ProductDetailKeyInfo(
+                    description: detail.description,
+                    attributes: product.attributes,
+                  ),
                   const SizedBox(height: AppSpacing.xl2),
                   Divider(color: hairlineColor, height: 1, thickness: 1),
                   const SizedBox(height: AppSpacing.xl2),
@@ -350,9 +351,9 @@ class _ProductDetailsScreenState extends BaseScreenState<ProductDetailsScreen>
           storeId: widget.storeId,
           quantity: quantity,
           unitPrice: unitPrice,
-          onIncrement: incrementQuantityUpTo(product.purchaseLimit),
+          onIncrement: incrementQuantityUpTo(selectedPurchaseLimit(detail)),
           onDecrement: decrementQuantity,
-          soldOut: product.isOutOfStock,
+          soldOut: soldOut,
           onAddToCart: () {
             addSelectedToCart(detail, quantity);
             resetQuantity();

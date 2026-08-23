@@ -210,6 +210,7 @@
   "graviaSearchNoResultsTitle": "No se han encontrado resultados",
   "graviaSearchNoResultsSubtitle": "Nada coincide con \"{query}\". Prueba con otra palabra.",
   "graviaProductDetailsTitle": "Detalles del producto",
+  "selectOptionLabel": "Elige {option}",
   "graviaSelectQtyLabel": "Elegir cantidad",
   "graviaKeyInformationTitle": "Información clave",
   "graviaReadMore": "Leer más",

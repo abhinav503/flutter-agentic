@@ -210,6 +210,7 @@
   "graviaSearchNoResultsTitle": "कोई परिणाम नहीं मिला",
   "graviaSearchNoResultsSubtitle": "\"{query}\" से कुछ मेल नहीं खाता। कोई दूसरा शब्द आज़माएँ।",
   "graviaProductDetailsTitle": "उत्पाद विवरण",
+  "selectOptionLabel": "{option} चुनें",
   "graviaSelectQtyLabel": "मात्रा चुनें",
   "graviaKeyInformationTitle": "मुख्य जानकारी",
   "graviaReadMore": "और पढ़ें",

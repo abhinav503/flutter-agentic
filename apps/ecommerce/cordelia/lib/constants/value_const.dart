@@ -407,6 +407,8 @@ abstract final class ValueConst {
   // every template, and a sold-out product reads the same in all of
   // them.
   static String get outOfStockLabel => L10n.current.outOfStockLabel;
+  static String selectOptionLabel(String option) =>
+      L10n.current.selectOptionLabel(option);
   static String onlyNLeftLabel(int count) => L10n.current.onlyNLeftLabel(count);
   static String cartLineSubtitle(String pack, String availability) =>
       L10n.current.cartLineSubtitle(pack, availability);

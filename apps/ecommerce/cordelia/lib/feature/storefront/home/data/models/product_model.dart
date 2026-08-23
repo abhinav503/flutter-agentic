@@ -3,6 +3,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:cordelia/enums/product_unit_type.dart';
 
 import '../../domain/entities/product_entity.dart';
+import 'product_variant_model.dart';
 
 part 'product_model.freezed.dart';
 part 'product_model.g.dart';
@@ -35,6 +36,13 @@ abstract class ProductModel with _$ProductModel {
     // an older API, so unknown stays unknown and sells — see
     // ProductEntityStockX.
     int? stock,
+    // Defaulted, not required: a backend (or mock fixture) that predates
+    // variants answers without these, which is a simple product.
+    @JsonKey(name: 'option_names')
+    @Default(<String>[])
+    List<String> optionNames,
+    @Default(<ProductVariantModel>[]) List<ProductVariantModel> variants,
+    @Default(<String, String>{}) Map<String, String> attributes,
   }) = _ProductModel;
 
   factory ProductModel.fromJson(Map<String, dynamic> json) =>
@@ -54,6 +62,9 @@ abstract class ProductModel with _$ProductModel {
     ratingAverage: e.ratingAverage,
     reviewCount: e.reviewCount,
     stock: e.stock,
+    optionNames: e.optionNames,
+    variants: e.variants.map(ProductVariantModel.fromEntity).toList(),
+    attributes: e.attributes,
   );
 
   ProductEntity toEntity() => ProductEntity(
@@ -70,5 +81,8 @@ abstract class ProductModel with _$ProductModel {
     ratingAverage: ratingAverage,
     reviewCount: reviewCount,
     stock: stock,
+    optionNames: optionNames,
+    variants: variants.map((v) => v.toEntity()).toList(),
+    attributes: attributes,
   );
 }

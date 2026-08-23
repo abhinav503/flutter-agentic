@@ -1,5 +1,7 @@
 import 'package:cordelia/enums/product_unit_type.dart';
 
+import 'product_variant_entity.dart';
+
 class ProductEntity {
   final String id;
   final String name;
@@ -29,6 +31,16 @@ class ProductEntity {
   /// Null is deliberately *not* zero — see [ProductEntityStockX].
   final int? stock;
 
+  /// The choices a shopper makes to pick a unit — ["Size", "Colour"] — and
+  /// the units themselves. Both empty for a simple product. A backend that
+  /// predates variants answers without them, which reads as simple.
+  final List<String> optionNames;
+  final List<ProductVariantEntity> variants;
+
+  /// Facts shown as a spec list on the product page ("Material: Cotton").
+  /// Never read by checkout.
+  final Map<String, String> attributes;
+
   const ProductEntity({
     required this.id,
     required this.name,
@@ -43,7 +55,26 @@ class ProductEntity {
     this.ratingAverage = 0,
     this.reviewCount = 0,
     this.stock,
+    this.optionNames = const [],
+    this.variants = const [],
+    this.attributes = const {},
   });
+}
+
+extension ProductEntityVariantsX on ProductEntity {
+  bool get hasVariants => optionNames.isNotEmpty && variants.isNotEmpty;
+
+  /// The distinct values of one option axis, in the order variants list
+  /// them — what a chip row renders.
+  List<String> optionValues(int axis) {
+    final seen = <String>[];
+    for (final v in variants) {
+      if (axis < v.options.length && !seen.contains(v.options[axis])) {
+        seen.add(v.options[axis]);
+      }
+    }
+    return seen;
+  }
 }
 
 extension ProductEntityRatingX on ProductEntity {

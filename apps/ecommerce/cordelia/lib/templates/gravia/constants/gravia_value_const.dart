@@ -79,6 +79,8 @@ abstract final class GraviaValueConst {
   static String get productDetailsTitle =>
       L10n.current.graviaProductDetailsTitle;
   static String get selectQtyLabel => L10n.current.graviaSelectQtyLabel;
+  static String selectOptionLabel(String option) =>
+      L10n.current.selectOptionLabel(option);
   static String get keyInformationTitle =>
       L10n.current.graviaKeyInformationTitle;
   static String get readMore => L10n.current.graviaReadMore;

@@ -4,6 +4,8 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:core/core/theme/app_spacing.dart';
 
+import '../../../widgets/product_attributes_list.dart';
+
 /// "Key Information" section: bold heading + a description that truncates
 /// to [maxLines] with an inline "Read More"/"Read Less" toggle appended
 /// directly to the last visible line (not a separate button below the
@@ -14,11 +16,13 @@ import 'package:core/core/theme/app_spacing.dart';
 class ProductDetailKeyInfo extends StatefulWidget {
   final String description;
   final int maxLines;
+  final Map<String, String> attributes;
 
   const ProductDetailKeyInfo({
     super.key,
     required this.description,
     this.maxLines = 3,
+    this.attributes = const {},
   });
 
   @override
@@ -77,6 +81,13 @@ class _ProductDetailKeyInfoState extends State<ProductDetailKeyInfo> {
               overflow: TextOverflow.clip,
             ),
           ),
+        ProductAttributesList(
+          attributes: widget.attributes,
+          keyStyle: GraviaTextStyleConst.textMdRegular(
+            tt,
+          ).copyWith(color: cs.onSurfaceVariant),
+          valueStyle: bodyStyle,
+        ),
       ],
     );
   }

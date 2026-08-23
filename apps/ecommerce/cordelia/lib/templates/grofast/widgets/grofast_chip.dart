@@ -25,11 +25,17 @@ class GrofastChip extends StatelessWidget {
   final VoidCallback onTap;
   final bool big;
 
+  /// No unit exists for this value with the other options as picked (or it
+  /// is sold out) — drawn struck through. Still tappable: picking it
+  /// re-resolves the other rows to a unit that does exist.
+  final bool unavailable;
+
   const GrofastChip({
     super.key,
     required this.label,
     required this.selected,
     required this.onTap,
+    this.unavailable = false,
   }) : big = false;
 
   const GrofastChip.big({
@@ -37,6 +43,7 @@ class GrofastChip extends StatelessWidget {
     required this.label,
     required this.selected,
     required this.onTap,
+    this.unavailable = false,
   }) : big = true;
 
   @override
@@ -76,7 +83,12 @@ class GrofastChip extends StatelessWidget {
               (big
                       ? GrofastTextStyleConst.chipMedium(tt)
                       : GrofastTextStyleConst.bodySmall(tt))
-                  .copyWith(color: selected ? activeInk : cs.onSurfaceVariant),
+                  .copyWith(
+                    color: selected ? activeInk : cs.onSurfaceVariant,
+                    decoration: unavailable && !selected
+                        ? TextDecoration.lineThrough
+                        : null,
+                  ),
         ),
       ),
     );
@@ -159,12 +171,16 @@ class GrofastChipRow extends StatelessWidget {
   /// Renders each chip as [GrofastChip.big] — the list-screen size.
   final bool big;
 
+  /// Indices drawn as unavailable (see [GrofastChip.unavailable]).
+  final Set<int> unavailable;
+
   const GrofastChipRow({
     super.key,
     required this.labels,
     required this.selectedIndex,
     required this.onSelected,
     this.big = false,
+    this.unavailable = const {},
   });
 
   @override
@@ -180,11 +196,13 @@ class GrofastChipRow extends StatelessWidget {
               ? GrofastChip.big(
                   label: labels[i],
                   selected: i == selectedIndex,
+                  unavailable: unavailable.contains(i),
                   onTap: () => onSelected(i),
                 )
               : GrofastChip(
                   label: labels[i],
                   selected: i == selectedIndex,
+                  unavailable: unavailable.contains(i),
                   onTap: () => onSelected(i),
                 ),
         ],
