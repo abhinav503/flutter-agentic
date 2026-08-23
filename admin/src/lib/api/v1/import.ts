@@ -17,8 +17,11 @@ import { MAX_UPSERT_ROWS, upsertCatalog, type CatalogEntity, type WriteResult } 
 //   woocommerce — the built-in Products → Export CSV: variable parents
 //              with `variation` rows keyed by Parent SKU, attributes as
 //              axes, "A > B" category paths
+//   meta     — a Meta Commerce Manager / WhatsApp Business catalog feed:
+//              one row per item, `item_group_id` grouping variants with
+//              size/color/material/pattern as axes, "9.99 INR" prices
 
-export const IMPORT_FORMATS = ["cordelia", "shopify", "woocommerce"] as const;
+export const IMPORT_FORMATS = ["cordelia", "shopify", "woocommerce", "meta"] as const;
 export type ImportFormat = (typeof IMPORT_FORMATS)[number];
 
 type Raw = Record<string, unknown>;
@@ -580,6 +583,168 @@ function wooProducts(
 
 const isHttps = (u: string) => /^https:\/\/\S+$/.test(u);
 
+// --- meta / whatsapp catalog format ---------------------------------------
+
+// Meta's feed vocabulary (catalog reference): id, title, description,
+// availability, price "9.99 USD", link, image_link, additional_image_link,
+// brand, item_group_id, the variant axes size/color/material/pattern,
+// product_type ("A > B > C"), google_product_category, sale_price,
+// inventory / quantity_to_sell_on_facebook, status, gtin.
+const META_AXES = ["size", "color", "material", "pattern"] as const;
+
+function hasMetaHeaders(headers: string[]): boolean {
+  return headers.includes("id") && headers.includes("title") && headers.includes("price");
+}
+
+// "1,299.00 INR" → 1299; the currency is the store's, not the file's.
+function metaAmount(cell: string): string {
+  const m = cell.trim().match(/^([0-9][0-9.,]*)\s*[A-Z]{3}$/) ?? cell.trim().match(/^([0-9][0-9.,]*)$/);
+  return m ? m[1].replace(/,/g, "") : "";
+}
+
+function metaProducts(
+  rows: Row[],
+): { items: Raw[]; skipped: ImportReport["skipped"]; notes: string[]; categoryPaths: string[][] } {
+  const skipped: ImportReport["skipped"] = [];
+  const notes = new Set<string>();
+  const categoryPaths: string[][] = [];
+  const seenPaths = new Set<string>();
+  let currencySeen = "";
+
+  type Entry = { row: Row; line: number };
+  const groups = new Map<string, Entry[]>();
+  const order: string[] = [];
+  rows.forEach((row, i) => {
+    if (isBlank(row)) return;
+    const line = i + 2;
+    const id = get(row, "id");
+    const title = get(row, "title");
+    if (!id || !title) {
+      skipped.push({ line, reason: "Row has no id or title." });
+      return;
+    }
+    const status = get(row, "status").toLowerCase();
+    const visibility = get(row, "visibility").toLowerCase();
+    if (status === "archived" || status === "staging" || visibility === "hidden") {
+      skipped.push({ line, reason: `"${title}" is ${status || visibility} in the catalog — only published, visible items import.` });
+      return;
+    }
+    if (get(row, "availability").toLowerCase() === "discontinued") {
+      skipped.push({ line, reason: `"${title}" is discontinued.` });
+      return;
+    }
+    const cur = get(row, "price").trim().match(/[A-Z]{3}$/)?.[0];
+    if (cur) currencySeen = currencySeen && currencySeen !== cur ? "mixed" : cur;
+    const key = get(row, "item_group_id") || `item:${id}`;
+    if (!groups.has(key)) {
+      groups.set(key, []);
+      order.push(key);
+    }
+    groups.get(key)!.push({ row, line });
+  });
+
+  const categoriesOf = (row: Row): string[] => {
+    // product_type is the merchant's own taxonomy; google_product_category
+    // is Google's. The merchant's wins; its leaf is the category, the path
+    // above it becomes the tree.
+    const raw = get(row, "product_type") || get(row, "google_product_category");
+    if (!raw) return [];
+    const path = raw.split(">").map((s) => s.trim()).filter(Boolean);
+    const k = path.join(" > ");
+    if (!seenPaths.has(k)) {
+      seenPaths.add(k);
+      categoryPaths.push(path);
+    }
+    return [path[path.length - 1]];
+  };
+  const stockOf = (row: Row): { stock: number | undefined; sell: boolean | undefined } => {
+    const qty = get(row, "quantity_to_sell_on_facebook") || get(row, "inventory");
+    const availability = get(row, "availability").toLowerCase();
+    if (availability === "out of stock") return { stock: 0, sell: undefined };
+    if (availability === "available for order" || availability === "preorder") return { stock: qty ? Math.max(0, Number(qty) || 0) : 0, sell: true };
+    if (qty !== "") return { stock: Math.max(0, Number(qty) || 0), sell: undefined };
+    notes.add('Items marked "in stock" with no inventory count were set to 999 — adjust in the console.');
+    return { stock: 999, sell: undefined };
+  };
+  const imagesOf = (row: Row) =>
+    [get(row, "image_link"), ...splitList(get(row, "additional_image_link"))].filter(isHttps);
+  const attributesOf = (row: Row, skip: Set<string>) => {
+    const attrs: Raw = {};
+    for (const key of ["material", "pattern", "condition", "gender", "age_group"] as const) {
+      const v = get(row, key);
+      if (v && !skip.has(key) && !(key === "condition" && v.toLowerCase() === "new")) attrs[key[0].toUpperCase() + key.slice(1).replace("_", " ")] = v;
+    }
+    return attrs;
+  };
+
+  const items: Raw[] = [];
+  for (const key of order) {
+    const entries = groups.get(key)!;
+    const first = entries[0].row;
+    const categories = categoriesOf(first);
+    if (categories.length === 0) {
+      categories.push(FALLBACK_CATEGORY);
+      notes.add(`Items with no product_type were filed under "${FALLBACK_CATEGORY}".`);
+    }
+    const base: Raw = {
+      external_id: get(first, "item_group_id") || get(first, "id"),
+      name: get(first, "title"),
+      description: stripHtml(get(first, "rich_text_description") || get(first, "description")),
+      images: imagesOf(first),
+      categories,
+      brand: get(first, "brand") || undefined,
+    };
+    const isGroup = entries.length > 1 || get(first, "item_group_id") !== "";
+    // Axes: the variant fields that actually differ across the group's
+    // items, in Meta's canonical order. A field with one value on every
+    // item ("cotton" throughout) is a fact, not a choice — it goes to the
+    // spec list instead.
+    const axes = isGroup
+      ? META_AXES.filter((a) => new Set(entries.map((e) => get(e.row, a))).size > 1)
+      : [];
+    if (axes.length === 0) {
+      const row = first;
+      const { stock, sell } = stockOf(row);
+      items.push({
+        ...base,
+        sku: get(row, "mpn") || undefined,
+        barcode: get(row, "gtin") || undefined,
+        price: metaAmount(get(row, "sale_price")) || metaAmount(get(row, "price")),
+        original_price: get(row, "sale_price") ? metaAmount(get(row, "price")) : undefined,
+        stock,
+        ...(sell ? { sell_when_out_of_stock: true } : {}),
+        attributes: attributesOf(row, new Set()),
+      });
+      continue;
+    }
+    items.push({
+      ...base,
+      option_names: axes.map((a) => a[0].toUpperCase() + a.slice(1)),
+      variants: entries.map(({ row }) => {
+        const { stock, sell } = stockOf(row);
+        return {
+          external_id: get(row, "id"),
+          sku: get(row, "mpn") || undefined,
+          barcode: get(row, "gtin") || undefined,
+          options: axes.map((a) => get(row, a) || "Any"),
+          price: metaAmount(get(row, "sale_price")) || metaAmount(get(row, "price")),
+          original_price: get(row, "sale_price") ? metaAmount(get(row, "price")) : undefined,
+          stock,
+          sell_when_out_of_stock: sell,
+          image: get(row, "image_link") || undefined,
+        };
+      }),
+      attributes: attributesOf(first, new Set(axes)),
+    });
+  }
+  if (currencySeen === "mixed") {
+    notes.add("Prices carry more than one currency; amounts were imported as-is in the store's currency.");
+  } else if (currencySeen) {
+    notes.add(`Prices were in ${currencySeen}; amounts were imported as-is in the store's currency.`);
+  }
+  return { items, skipped, notes: [...notes], categoryPaths };
+}
+
 // --- the import itself ------------------------------------------------------
 
 function referencedNames(items: Raw[], key: "categories" | "brand"): string[] {
@@ -611,6 +776,13 @@ export function adaptCsv(
       throw new ImportError("This doesn't look like a Shopify products export (no Handle / Price columns).");
     }
     return { ...shopifyProducts(rows, opts), rowCount };
+  }
+  if (opts.format === "meta") {
+    if (opts.entity !== "products") throw new ImportError("The Meta catalog format carries products only.");
+    if (!hasMetaHeaders(headers)) {
+      throw new ImportError("This doesn't look like a Meta / WhatsApp catalog feed (no id / title / price columns).");
+    }
+    return { ...metaProducts(rows), rowCount };
   }
   if (opts.format === "woocommerce") {
     if (opts.entity !== "products") throw new ImportError("The WooCommerce format carries products only.");

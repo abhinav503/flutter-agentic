@@ -6,6 +6,7 @@ import { IMPORT_FORMATS, ImportError, runImport, type ImportFormat } from "@/lib
 // POST a CSV. Two request shapes, one behaviour:
 //   Content-Type: text/csv  with the file as the body and the options as
 //                           query params (?entity=products&format=shopify&commit=true)
+//                           format: cordelia | shopify | woocommerce | meta
 //   Content-Type: application/json  { csv, entity, format, commit, ... }
 // Dry run unless commit=true — the response is the plan either way.
 export async function POST(

@@ -244,7 +244,7 @@ export function buildMcpServer(actor: McpActor): McpServer {
     "import_csv",
     {
       title: "Import a CSV",
-      description: "Import products (or categories/brands/coupons/banners) from CSV text. format \"shopify\" takes a Shopify products_export.csv (either header dialect), \"woocommerce\" a WooCommerce Products → Export CSV (variable products, category paths), both creating missing categories/brands; \"cordelia\" takes our own columns. Always dry_run=true first: the plan lists per-row results, skipped rows and what was derived. rehost_images copies each product's image URLs into the store so they outlive the source.",
+      description: "Import products (or categories/brands/coupons/banners) from CSV text. format \"shopify\" takes a Shopify products_export.csv (either header dialect), \"woocommerce\" a WooCommerce Products → Export CSV (variable products, category paths), \"meta\" a Meta Commerce Manager / WhatsApp Business catalog feed (item_group_id variants, product_type paths) — all three creating missing categories/brands; \"cordelia\" takes our own columns. Always dry_run=true first: the plan lists per-row results, skipped rows and what was derived. rehost_images copies each product's image URLs into the store so they outlive the source.",
       inputSchema: {
         store_id: storeId,
         csv: z.string().describe("The file contents."),

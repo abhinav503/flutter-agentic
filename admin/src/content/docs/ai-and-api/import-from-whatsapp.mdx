@@ -1,0 +1,53 @@
+---
+title: Move a WhatsApp Business or Facebook shop catalog to CordeliaApps
+description: The catalog behind a WhatsApp Business, Facebook or Instagram shop is a Meta Commerce Manager feed — export it as CSV and import it as-is, with variants, categories and stock coming across.
+sidebarTitle: Import from WhatsApp / Meta
+order: 4
+---
+
+If you sell through a WhatsApp Business catalog, or a Facebook or Instagram
+shop, your products live in **Meta Commerce Manager**. Its feed is a CSV that
+CordeliaApps reads directly.
+
+## Get the file
+
+- **You uploaded a feed** — it's the file you maintain (Commerce Manager →
+  Catalog → Data sources). Use it as-is.
+- **You built the catalog by hand in WhatsApp / Commerce Manager** — Commerce
+  Manager → Catalog → Items → **Export** (or **Download** from the items
+  list) gives you the same column layout.
+
+## Import it
+
+- **In the console** — **Products → Import**, set *File format* to
+  **WhatsApp / Meta catalog feed**, choose the file. You'll see the plan before
+  anything is written.
+- **Through an AI assistant** — attach the file and say *"import this
+  WhatsApp catalog into &lt;store&gt;"*.
+
+## What maps to what
+
+| Meta feed | CordeliaApps |
+| --- | --- |
+| `id` / `item_group_id` | `external_id` — items sharing an `item_group_id` become **one product** with variants; re-importing updates instead of duplicating |
+| `title`, `description` / `rich_text_description` | Name, description |
+| `price` (`9.99 INR`) / `sale_price` | Sale price is what's charged, the list price becomes the struck-through price. Amounts are taken as-is in your store's currency |
+| `availability` | `in stock` sells, `out of stock` is sold out, `available for order` sells past zero; `discontinued` items are skipped |
+| `inventory` / `quantity_to_sell_on_facebook` | Stock. In stock with no count gets **999** and is flagged |
+| `image_link` + `additional_image_link` | The product's gallery |
+| `brand` | Brand — created if missing |
+| `product_type` (`Kitchen > Bottles`), else `google_product_category` | A category **tree**; the product goes in the leaf |
+| `size`, `color`, `material`, `pattern` | Option axes — but only the ones that actually differ within a group; a value that's the same on every item is shown as a detail instead |
+| `gtin`, `mpn` | Barcode, SKU |
+| `condition` (not *new*), `gender`, `age_group` | The product's details list |
+
+## What's skipped, and told to you
+
+- Items with `status: archived` / `staging` or `visibility: hidden`.
+- `discontinued` items.
+- Items whose name or description names an **alcohol or tobacco** product.
+
+## Not carried over
+
+`link` (the old shop URL), sale-price date ranges, Google categories beyond
+the path, custom labels, shipping and tax fields.

@@ -268,6 +268,23 @@ check("woocommerce: untracked stock flagged", woo.notes.some((n) => n.includes("
 const wooPlan = planCatalog("products", woo.items, snapshotFrom({ products: [], categories: ["Clothing", "Hoodies", "Tshirts", "Accessories"].map((name, n) => ({ id: `wc${n}`, name, parentId: n ? "wc0" : "", externalId: "" }) as unknown as Category), brands: [] }), newId);
 check("woocommerce: every product validates against the created tree", [wooPlan.filter((p) => "errors" in p).length, wooPlan.length], [0, 14]);
 
+// ── 5. Meta / WhatsApp catalog fixture ─────────────────────────────────────
+const meta = adaptCsv(readFileSync(join(__dirname, "..", "fixtures", "meta-catalog", "meta_catalog_feed.csv"), "utf8"), { entity: "products", format: "meta", tagsAsCategories: false });
+check("meta: 7 rows → 4 products, archived item skipped", [meta.items.length, meta.skipped.map((s) => s.line)], [4, [7]]);
+const shirt = meta.items.find((i) => i.external_id === "FB1234_shirts") ?? {};
+check(
+  "meta: item_group_id → one product; only fields that differ become axes, constants become details",
+  [shirt.option_names, (shirt.variants as { options: string[]; price: string; original_price?: string; stock: number }[] | undefined)?.map((v) => [v.options, v.price, v.original_price ?? null, v.stock]), shirt.attributes, shirt.brand, (shirt.images as string[]).length],
+  [["Size", "Color"], [[["small", "blue"], "4.99", "9.99", 200], [["medium", "blue"], "9.99", null, 150], [["small", "red"], "9.99", null, 0]], { Material: "cotton" }, "Facebook", 3],
+);
+const bottle = meta.items.find((i) => i.external_id === "FB_product_2001") ?? {};
+check("meta: \"1,299.00 INR\" parses; sale price charged; gtin → barcode; product_type leaf → category", [bottle.price, bottle.original_price, bottle.barcode, bottle.categories], ["999.00", "1299.00", "8901234567890", ["Bottles"]]);
+const tote = meta.items.find((i) => i.external_id === "FB_product_2002") ?? {};
+check("meta: available for order → sells past zero", [tote.stock, tote.sell_when_out_of_stock], [0, true]);
+check("meta: product_type paths become a tree", meta.categoryPaths, [["Apparel & Accessories", "Clothing", "Shirts"], ["Kitchen", "Bottles"], ["Accessories", "Bags"], ["Drinks"]]);
+const metaPlan = planCatalog("products", meta.items, snapshotFrom({ products: [], categories: ["Shirts", "Bottles", "Bags", "Drinks"].map((name, n) => ({ id: `m${n}`, name, parentId: "", externalId: "" }) as unknown as Category), brands: [{ id: "mb0", name: "Facebook", externalId: "" } as unknown as Brand, { id: "mb1", name: "Hydro", externalId: "" } as unknown as Brand] }), newId);
+check("meta: everything validates except the beer, refused by the restricted list", [metaPlan.filter((p) => !("errors" in p)).length, metaPlan.flatMap((p) => ("errors" in p ? p.errors : [])).some((e) => e.includes("beer"))], [3, true]);
+
 const modern = adaptCsv(
   ["Title,URL handle,Description,Vendor,Type,Option1 name,Option1 value,Price,Inventory quantity,Product image URL", "Mug,mug,A mug,Acme,Kitchen,Title,Default Title,9.5,4,https://x/mug.png"].join("\n"),
   { entity: "products", format: "shopify", tagsAsCategories: false },

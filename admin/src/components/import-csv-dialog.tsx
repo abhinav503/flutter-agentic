@@ -36,6 +36,7 @@ const FORMAT_LABELS: Record<ImportFormat, string> = {
   cordelia: "Cordelia CSV (the sample below)",
   shopify: "Shopify products export",
   woocommerce: "WooCommerce products export",
+  meta: "WhatsApp / Meta catalog feed",
 };
 
 /**
@@ -181,6 +182,15 @@ export function ImportCsvDialog({
                   each product&apos;s Type its category (created if missing);
                   variants, galleries and stock come across. Draft and archived
                   products are skipped.
+                </p>
+              )}
+              {format === "meta" && (
+                <p className="text-xs text-muted-foreground">
+                  The CSV feed behind a WhatsApp Business or Facebook/Instagram
+                  shop catalog (Commerce Manager → Catalog → Data sources).
+                  Items sharing an item_group_id become one product with
+                  size/colour variants; product_type paths become categories.
+                  Archived and discontinued items are skipped.
                 </p>
               )}
               {format === "woocommerce" && (

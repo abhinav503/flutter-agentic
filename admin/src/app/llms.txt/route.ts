@@ -21,7 +21,7 @@ export async function GET() {
     "",
     "## HTTP API",
     "",
-    `- Base: ${SITE_URL}/api/v1/stores/{storeId} — products, categories, brands, coupons, banners (GET/POST/PUT/PATCH/DELETE), import (CSV, Shopify or WooCommerce export, dry run by default), images, seed, readiness, publish`,
+    `- Base: ${SITE_URL}/api/v1/stores/{storeId} — products, categories, brands, coupons, banners (GET/POST/PUT/PATCH/DELETE), import (CSV, Shopify, WooCommerce or WhatsApp/Meta catalog export, dry run by default), images, seed, readiness, publish`,
     `- Auth: Authorization: Bearer cord_live_… (store token from Settings → Developers), scopes catalog:write, store:publish, orders:read`,
     "",
     "## Docs",
