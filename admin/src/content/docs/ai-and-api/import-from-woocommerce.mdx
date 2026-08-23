@@ -1,0 +1,55 @@
+---
+title: Move a WooCommerce catalog to CordeliaApps
+description: Export your products from WooCommerce and import the file as-is — variable products become variants, category paths a category tree, sale prices the selling price; nothing is written until you've seen the plan.
+sidebarTitle: Import from WooCommerce
+order: 3
+---
+
+WooCommerce's built-in export is the one file most WordPress stores already
+know how to make. Import it unchanged.
+
+## Export from WooCommerce
+
+WordPress admin → **Products → Export** → leave *all columns* and *all
+product types* selected → **Generate CSV**. You'll get `wc-product-export-….csv`.
+
+## Import it
+
+Either:
+
+- **In the console** — **Products → Import**, set *File format* to
+  **WooCommerce products export**, choose the file. You'll see the plan before
+  anything is written.
+- **Through an AI assistant** — attach the file and say *"import this
+  WooCommerce export into &lt;store&gt;"*.
+
+Both go through the same importer, with the same rules.
+
+## What maps to what
+
+| WooCommerce | CordeliaApps |
+| --- | --- |
+| SKU (or ID) | `external_id` — re-importing updates instead of duplicating |
+| Name, Description / Short description | Name, description (HTML stripped) |
+| Categories (`Clothing > Tshirts`) | A category **tree** — each level created under its parent if missing; the product goes in the leaf |
+| Tags | Optionally categories too |
+| Brands (if your store has the Brands column) | Brand — created if missing |
+| Regular price / Sale price | Sale price is what's charged, regular becomes the struck-through price |
+| Stock / In stock? | Stock. A product marked in stock with no count gets **999** and is flagged — set the real number |
+| Images (comma-separated) | The product's gallery, first image on the card |
+| `variable` product + its `variation` rows | A product with options. Each attribute becomes an option axis; an attribute left blank ("Any") on every variation is dropped |
+| Attributes on a simple product (Color: Blue) | The product's details list |
+
+## What's skipped, and told to you
+
+- Drafts and private products (`Published` 0 / -1).
+- **Grouped** and **external/affiliate** products — the store doesn't sell those itself.
+- **Virtual / downloadable** products — the storefront delivers physical goods.
+- Products whose name or description names an **alcohol or tobacco** product.
+
+Every skip is listed with the line number in the plan.
+
+## Not carried over
+
+Shipping dimensions and classes, tax settings, upsells/cross-sells, reviews
+settings, purchase notes, downloads. Orders and customers are never imported.

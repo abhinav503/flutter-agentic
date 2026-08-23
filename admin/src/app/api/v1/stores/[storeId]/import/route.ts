@@ -51,7 +51,7 @@ export async function POST(
   }
   const truthy = (v: unknown) => v === true || v === "true" || v === "1";
   const commit = truthy(options.commit);
-  const createMissing = options.create_missing === undefined ? format === "shopify" : truthy(options.create_missing);
+  const createMissing = options.create_missing === undefined ? format !== "cordelia" : truthy(options.create_missing);
   const tagsAsCategories = truthy(options.tags_as_categories);
 
   const auth = await authorizeWrite(request, storeId, 0);

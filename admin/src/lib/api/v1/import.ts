@@ -14,8 +14,11 @@ import { MAX_UPSERT_ROWS, upsertCatalog, type CatalogEntity, type WriteResult } 
 //   shopify  — products_export.csv, either header dialect (the legacy
 //              "Variant Price" / "Image Src" one and the 2024+ "Price" /
 //              "Product image URL" one)
+//   woocommerce — the built-in Products → Export CSV: variable parents
+//              with `variation` rows keyed by Parent SKU, attributes as
+//              axes, "A > B" category paths
 
-export const IMPORT_FORMATS = ["cordelia", "shopify"] as const;
+export const IMPORT_FORMATS = ["cordelia", "shopify", "woocommerce"] as const;
 export type ImportFormat = (typeof IMPORT_FORMATS)[number];
 
 type Raw = Record<string, unknown>;
@@ -373,6 +376,210 @@ function shopifyProducts(
   return { items, skipped, notes: [...notes] };
 }
 
+// --- woocommerce format ----------------------------------------------------
+
+// Products → Export from WooCommerce core. Header keys after
+// normalizeHeader: "regular_price", "in_stock?", "attribute_1_name",
+// "attribute_1_value(s)", "weight_(lbs)" …
+const WOO_ATTRIBUTE_AXES = [1, 2, 3] as const;
+
+function hasWooHeaders(headers: string[]): boolean {
+  return headers.includes("type") && headers.includes("regular_price") && headers.includes("name");
+}
+
+// "Clothing > Tshirts, Decor" → [["Clothing","Tshirts"],["Decor"]]
+function wooCategoryPaths(cell: string): string[][] {
+  return cell
+    .split(",")
+    .map((c) => c.trim())
+    .filter(Boolean)
+    .map((c) => c.split(">").map((s) => s.trim()).filter(Boolean));
+}
+
+function wooProducts(
+  rows: Row[],
+  opts: Pick<ImportOptions, "tagsAsCategories">,
+): { items: Raw[]; skipped: ImportReport["skipped"]; notes: string[]; categoryPaths: string[][] } {
+  const skipped: ImportReport["skipped"] = [];
+  const notes = new Set<string>();
+  const categoryPaths: string[][] = [];
+  const seenPaths = new Set<string>();
+  const addPaths = (cell: string) => {
+    const paths = wooCategoryPaths(cell);
+    for (const p of paths) {
+      const key = p.join(" > ");
+      if (!seenPaths.has(key)) {
+        seenPaths.add(key);
+        categoryPaths.push(p);
+      }
+    }
+    return paths.map((p) => p[p.length - 1]);
+  };
+
+  type Entry = { row: Row; line: number };
+  const parents = new Map<string, Entry>(); // by SKU and by "id:<ID>"
+  const variations = new Map<string, Entry[]>(); // by parent ref
+  const simple: Entry[] = [];
+  let untrackedStock = 0;
+
+  rows.forEach((row, i) => {
+    if (isBlank(row)) return;
+    const line = i + 2;
+    const type = get(row, "type").toLowerCase();
+    const name = get(row, "name");
+    const published = get(row, "published");
+    if (type.includes("variation")) {
+      const parent = get(row, "parent");
+      if (!parent) {
+        skipped.push({ line, reason: `"${name}" is a variation with no Parent.` });
+        return;
+      }
+      const key = parent.startsWith("id:") ? parent : parent;
+      variations.set(key, [...(variations.get(key) ?? []), { row, line }]);
+      return;
+    }
+    if (published === "0" || published === "-1") {
+      skipped.push({ line, reason: `"${name}" is ${published === "-1" ? "private" : "a draft"} in WooCommerce — only published products import.` });
+      return;
+    }
+    if (type.includes("grouped") || type.includes("external")) {
+      skipped.push({ line, reason: `"${name}" is a ${type.includes("grouped") ? "grouped" : "external/affiliate"} product — not something this store sells itself.` });
+      return;
+    }
+    if (type.includes("virtual") || type.includes("downloadable")) {
+      skipped.push({ line, reason: `"${name}" is virtual/downloadable — the storefront delivers physical goods.` });
+      return;
+    }
+    if (type.includes("variable")) {
+      const entry = { row, line };
+      const sku = get(row, "sku");
+      if (sku) parents.set(sku, entry);
+      parents.set(`id:${get(row, "id")}`, entry);
+      return;
+    }
+    simple.push({ row, line });
+  });
+
+  const priceOf = (row: Row) => {
+    const regular = get(row, "regular_price");
+    const sale = get(row, "sale_price");
+    return { price: sale || regular, original: sale ? regular : undefined };
+  };
+  const stockOf = (row: Row): { stock: number | undefined; sell: boolean | undefined } => {
+    const raw = get(row, "stock");
+    const inStock = get(row, "in_stock?");
+    if (raw !== "") return { stock: Math.max(0, Number(raw) || 0), sell: get(row, "backorders_allowed?") === "1" ? true : undefined };
+    if (inStock === "0") return { stock: 0, sell: undefined };
+    // In stock with no count: WooCommerce wasn't tracking it. The storefront
+    // needs a number to sell against, so a generous one — flagged, since
+    // the merchant should set the real count.
+    untrackedStock++;
+    return { stock: 999, sell: undefined };
+  };
+  const attributesOf = (row: Row, skipAxes: Set<string>) => {
+    const attrs: Raw = {};
+    for (const n of WOO_ATTRIBUTE_AXES) {
+      const name = get(row, `attribute_${n}_name`);
+      const value = get(row, `attribute_${n}_value(s)`);
+      if (name && value && !skipAxes.has(name)) attrs[name] = value;
+    }
+    return attrs;
+  };
+  const baseOf = (row: Row) => {
+    const images = splitList(get(row, "images")).filter(isHttps);
+    const desc = stripHtml(get(row, "description")) || stripHtml(get(row, "short_description"));
+    const categories = addPaths(get(row, "categories"));
+    const tags = splitList(get(row, "tags"));
+    if (opts.tagsAsCategories) categories.push(...tags);
+    const sku = get(row, "sku");
+    const base: Raw = {
+      external_id: sku || `wc-${get(row, "id")}`,
+      name: get(row, "name"),
+      description: desc,
+      images,
+      categories: [...new Set(categories)],
+    };
+    const brand = get(row, "brands") || get(row, "brand");
+    if (brand) base.brand = brand.split(",")[0].trim();
+    if (categories.length === 0) {
+      base.categories = [FALLBACK_CATEGORY];
+      notes.add(`Products with no category were filed under "${FALLBACK_CATEGORY}".`);
+    }
+    return base;
+  };
+
+  const items: Raw[] = [];
+  for (const { row } of simple) {
+    const { price, original } = priceOf(row);
+    const { stock, sell } = stockOf(row);
+    items.push({
+      ...baseOf(row),
+      sku: get(row, "sku") || undefined,
+      price,
+      original_price: original,
+      stock,
+      attributes: attributesOf(row, new Set()),
+    });
+  }
+
+  for (const [ref, parent] of parents) {
+    if (ref.startsWith("id:") && get(parent.row, "sku")) continue; // listed under its SKU too
+    const row = parent.row;
+    const kids = [
+      ...(variations.get(get(row, "sku")) ?? []),
+      ...(variations.get(`id:${get(row, "id")}`) ?? []),
+    ];
+    const axisNames = WOO_ATTRIBUTE_AXES.map((n) => get(row, `attribute_${n}_name`)).filter(Boolean);
+    // An axis no variation gives a value for is "any" in WooCommerce — not a
+    // choice the shopper makes, so it is dropped (V-Neck: Size blank on
+    // every variation → Colour is the only axis).
+    const usedAxes = axisNames.filter((name) =>
+      kids.some((k) => {
+        const n = WOO_ATTRIBUTE_AXES.find((x) => get(k.row, `attribute_${x}_name`) === name);
+        return n !== undefined && get(k.row, `attribute_${n}_value(s)`) !== "";
+      }),
+    );
+    if (usedAxes.length < axisNames.length) {
+      notes.add("Variation attributes left blank (\"Any\") on every variation were dropped as options.");
+    }
+    if (kids.length === 0) {
+      skipped.push({ line: parent.line, reason: `"${get(row, "name")}" is variable but has no variations in the file.` });
+      continue;
+    }
+    const variants = kids.map((k) => {
+      const { price, original } = priceOf(k.row);
+      const { stock, sell } = stockOf(k.row);
+      const options = usedAxes.map((name) => {
+        const n = WOO_ATTRIBUTE_AXES.find((x) => get(k.row, `attribute_${x}_name`) === name);
+        return n === undefined ? "Any" : get(k.row, `attribute_${n}_value(s)`) || "Any";
+      });
+      const image = splitList(get(k.row, "images")).find(isHttps);
+      return {
+        external_id: get(k.row, "sku") || `wc-${get(k.row, "id")}`,
+        sku: get(k.row, "sku") || undefined,
+        options,
+        price,
+        original_price: original,
+        stock,
+        sell_when_out_of_stock: sell,
+        image,
+      };
+    });
+    items.push({
+      ...baseOf(row),
+      option_names: usedAxes,
+      variants,
+      attributes: attributesOf(row, new Set(usedAxes)),
+    });
+  }
+  if (untrackedStock > 0) {
+    notes.add(`${untrackedStock} product${untrackedStock === 1 ? "" : "s"} had no stock count in WooCommerce ("in stock" only); set to 999 — adjust in the console.`);
+  }
+  return { items, skipped, notes: [...notes], categoryPaths };
+}
+
+const isHttps = (u: string) => /^https:\/\/\S+$/.test(u);
+
 // --- the import itself ------------------------------------------------------
 
 function referencedNames(items: Raw[], key: "categories" | "brand"): string[] {
@@ -390,7 +597,7 @@ function referencedNames(items: Raw[], key: "categories" | "brand"): string[] {
 export function adaptCsv(
   csvText: string,
   opts: Pick<ImportOptions, "entity" | "format" | "tagsAsCategories">,
-): { items: Raw[]; skipped: ImportReport["skipped"]; notes: string[]; rowCount: number } {
+): { items: Raw[]; skipped: ImportReport["skipped"]; notes: string[]; rowCount: number; categoryPaths?: string[][] } {
   if (!csvText.trim()) throw new ImportError("The file is empty.");
   const { rows, headers } = parseCsv(csvText);
   if (headers.length === 0) throw new ImportError("No header row found.");
@@ -405,6 +612,13 @@ export function adaptCsv(
     }
     return { ...shopifyProducts(rows, opts), rowCount };
   }
+  if (opts.format === "woocommerce") {
+    if (opts.entity !== "products") throw new ImportError("The WooCommerce format carries products only.");
+    if (!hasWooHeaders(headers)) {
+      throw new ImportError("This doesn't look like a WooCommerce products export (no Type / Regular price columns).");
+    }
+    return { ...wooProducts(rows, opts), rowCount };
+  }
   if (opts.entity === "products") return { ...cordeliaProducts(rows), rowCount };
   return { items: cordeliaFlat(rows), skipped: [], notes: [], rowCount };
 }
@@ -415,7 +629,7 @@ export async function runImport(
   opts: ImportOptions,
   actorUid: string,
 ): Promise<ImportReport> {
-  const { items, skipped, notes, rowCount } = adaptCsv(csvText, opts);
+  const { items, skipped, notes, rowCount, categoryPaths } = adaptCsv(csvText, opts);
 
   const createdCategories: string[] = [];
   const createdBrands: string[] = [];
@@ -423,14 +637,32 @@ export async function runImport(
     // Categories and brands the rows name: upsert by name, so existing ones
     // are touched only with what the file knows (nothing) and missing ones
     // are created. Runs before the products so the rows can resolve them.
-    const cats = referencedNames(items, "categories");
-    if (cats.length) {
-      const r = await upsertCatalog(storeId, "categories", cats.map((name) => ({ name })), {
+    // A source with category paths ("Clothing > Tshirts") creates each
+    // level under its parent, parents first, so the tree comes across.
+    const flat = referencedNames(items, "categories");
+    const catRows: Raw[] = [];
+    const seen = new Set<string>();
+    for (const path of categoryPaths ?? []) {
+      for (let depth = 0; depth < path.length; depth++) {
+        const key = path.slice(0, depth + 1).join(" > ");
+        if (seen.has(key)) continue;
+        seen.add(key);
+        catRows.push(depth === 0 ? { name: path[depth] } : { name: path[depth], parent: path[depth - 1] });
+      }
+    }
+    for (const name of flat) {
+      if (![...seen].some((k) => k.split(" > ").pop() === name)) {
+        seen.add(name);
+        catRows.push({ name });
+      }
+    }
+    if (catRows.length) {
+      const r = await upsertCatalog(storeId, "categories", catRows, {
         dryRun: !opts.commit,
         actorUid,
       });
       r.results.forEach((res, i) => {
-        if (res.action === "created") createdCategories.push(cats[i]);
+        if (res.action === "created") createdCategories.push(String(catRows[i].name));
       });
     }
     const brands = referencedNames(items, "brand");

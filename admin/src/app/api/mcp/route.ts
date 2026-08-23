@@ -32,10 +32,26 @@ async function resolveActor(request: Request): Promise<McpActor | null> {
   return null;
 }
 
+// A person who typed the URL into a browser, as opposed to an MCP host: the
+// host always asks for JSON/event-stream and never for HTML.
+function isBrowserVisit(request: Request): boolean {
+  const accept = request.headers.get("accept") ?? "";
+  return request.method === "GET" && accept.includes("text/html") && !request.headers.get("authorization");
+}
+
 function unauthorized(request: Request): Response {
-  const metadata = `${publicOrigin(request)}/.well-known/oauth-protected-resource`;
+  const origin = publicOrigin(request);
+  if (isBrowserVisit(request)) {
+    return Response.redirect(`${origin}/mcp`, 302);
+  }
+  const metadata = `${origin}/.well-known/oauth-protected-resource`;
   return Response.json(
-    { error: "unauthorized", error_description: "Connect with OAuth or send a store API token" },
+    {
+      error: "unauthorized",
+      error_description:
+        "This is the CordeliaApps MCP endpoint. Connect it from an AI assistant (claude.ai → Settings → Connectors → Add custom connector, or `claude mcp add --transport http cordelia <this URL>`) and sign in, or send a store API token as a Bearer header. Guide: " +
+        `${origin}/mcp`,
+    },
     {
       status: 401,
       headers: {

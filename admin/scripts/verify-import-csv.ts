@@ -249,6 +249,25 @@ check(
   [275, 2],
 );
 
+// ── 4. WooCommerce fixture ─────────────────────────────────────────────────
+const woo = adaptCsv(readFileSync(join(__dirname, "..", "fixtures", "woocommerce", "sample_products.csv"), "utf8"), { entity: "products", format: "woocommerce", tagsAsCategories: false });
+check("woocommerce: 25 rows → 14 products, 4 skipped with reasons", [woo.rowCount, woo.items.length, woo.skipped.length], [25, 14, 4]);
+check("woocommerce: category paths become a tree", woo.categoryPaths, [["Clothing", "Hoodies"], ["Clothing", "Tshirts"], ["Clothing", "Accessories"]]);
+const hoodie = woo.items.find((i) => i.external_id === "woo-hoodie") ?? {};
+const hoodieVariants = (hoodie.variants as { options: string[]; price: string; original_price?: string; sku?: string }[] | undefined) ?? [];
+check(
+  "woocommerce: variable product → two axes from variations, sale price as price with regular as compare-at",
+  [hoodie.option_names, hoodieVariants.map((v) => [v.options, v.price, v.original_price ?? null])],
+  [["Color", "Logo"], [[["Red", "No"], "42", "45"], [["Green", "No"], "45", null], [["Blue", "No"], "45", null], [["Blue", "Yes"], "45", null]]],
+);
+const vneck = woo.items.find((i) => i.external_id === "woo-vneck-tee") ?? {};
+check("woocommerce: an axis left blank on every variation is dropped", vneck.option_names, ["Color"]);
+const beanie = woo.items.find((i) => i.external_id === "woo-beanie") ?? {};
+check("woocommerce: simple product keeps attributes as a spec list; sale price wins", [beanie.attributes, beanie.price, beanie.original_price], [{ Color: "Red" }, "18", "20"]);
+check("woocommerce: untracked stock flagged", woo.notes.some((n) => n.includes("no stock count")), true);
+const wooPlan = planCatalog("products", woo.items, snapshotFrom({ products: [], categories: ["Clothing", "Hoodies", "Tshirts", "Accessories"].map((name, n) => ({ id: `wc${n}`, name, parentId: n ? "wc0" : "", externalId: "" }) as unknown as Category), brands: [] }), newId);
+check("woocommerce: every product validates against the created tree", [wooPlan.filter((p) => "errors" in p).length, wooPlan.length], [0, 14]);
+
 const modern = adaptCsv(
   ["Title,URL handle,Description,Vendor,Type,Option1 name,Option1 value,Price,Inventory quantity,Product image URL", "Mug,mug,A mug,Acme,Kitchen,Title,Default Title,9.5,4,https://x/mug.png"].join("\n"),
   { entity: "products", format: "shopify", tagsAsCategories: false },

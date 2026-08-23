@@ -2,7 +2,7 @@
 title: API tokens and the v1 API
 description: Call CordeliaApps from a script, a CI job or your own tool — create a store-scoped token, then read and write the catalog, import CSVs, and submit for review over HTTPS.
 sidebarTitle: API tokens & v1 API
-order: 3
+order: 4
 ---
 
 Everything the console and the AI connector do goes through one HTTP API. A
@@ -66,7 +66,7 @@ All under `https://cordeliaapps.com/api/v1/stores/{storeId}`. Entities:
 | `POST /{entity}` | One record — upsert; `201` created, `200` updated |
 | `PUT /{entity}` | Bulk upsert `{ items: [...], dry_run?: true }`, up to 2,000 rows |
 | `GET` `PATCH` `DELETE /{entity}/{id}` | One record; `PATCH` changes only the fields present |
-| `POST /import?entity=&format=&commit=` | CSV in (`text/csv`, multipart `file`, or JSON `{csv}`); dry run unless `commit=true` |
+| `POST /import?entity=&format=&commit=` | CSV in (`text/csv`, multipart `file`, or JSON `{csv}`); `format` = `cordelia` \| `shopify` \| `woocommerce`; dry run unless `commit=true` |
 | `POST /images` | `{ url, kind? }` — copies a public image into the store |
 | `POST /seed` | `{ market }` — sample grocery catalog |
 | `GET /readiness` | Status and the seven checks |

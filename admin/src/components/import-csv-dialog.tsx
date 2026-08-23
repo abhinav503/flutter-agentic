@@ -35,6 +35,7 @@ const ERRORS_SHOWN = 8;
 const FORMAT_LABELS: Record<ImportFormat, string> = {
   cordelia: "Cordelia CSV (the sample below)",
   shopify: "Shopify products export",
+  woocommerce: "WooCommerce products export",
 };
 
 /**
@@ -180,6 +181,14 @@ export function ImportCsvDialog({
                   each product&apos;s Type its category (created if missing);
                   variants, galleries and stock come across. Draft and archived
                   products are skipped.
+                </p>
+              )}
+              {format === "woocommerce" && (
+                <p className="text-xs text-muted-foreground">
+                  WooCommerce → Products → Export (all columns). Category
+                  paths become a category tree, variable products their
+                  variations, sale prices the selling price. Drafts, grouped,
+                  external and virtual products are skipped.
                 </p>
               )}
             </div>
