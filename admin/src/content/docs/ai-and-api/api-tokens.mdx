@@ -66,12 +66,26 @@ All under `https://cordeliaapps.com/api/v1/stores/{storeId}`. Entities:
 | `POST /{entity}` | One record — upsert; `201` created, `200` updated |
 | `PUT /{entity}` | Bulk upsert `{ items: [...], dry_run?: true }`, up to 2,000 rows |
 | `GET` `PATCH` `DELETE /{entity}/{id}` | One record; `PATCH` changes only the fields present |
-| `POST /import?entity=&format=&commit=` | CSV in (`text/csv`, multipart `file`, or JSON `{csv}`); `format` = `cordelia` \| `shopify` \| `woocommerce` \| `meta`; dry run unless `commit=true` |
+| `POST /import?entity=&format=&commit=` | CSV in (`text/csv`, multipart `file`, or JSON `{csv}`); `format` defaults to `auto` (detected from the header row) or name one of `cordelia` \| `shopify` \| `woocommerce` \| `meta`; dry run unless `commit=true` |
 | `POST /images` | `{ url, kind? }` — copies a public image into the store |
 | `POST /seed` | `{ market }` — sample grocery catalog |
 | `GET /readiness` | Status and the seven checks |
 | `POST /publish` | Submit for review |
+| `GET /trash` | Everything deleted in the last 30 days |
+| `POST /trash/{id}/restore` | Put a deleted record back |
 | `GET /usage` | Your API activity (owner login only) |
+
+### Guard rails
+
+- A **delete moves the record to the trash** for 30 days; restore it with
+  `POST /trash/{id}/restore`.
+- A `PUT` that would update **half or more** of a store holding 20+ records
+  answers `409 confirm_required` until you resend with `"confirm": true` —
+  so a script can't silently rewrite a whole catalog.
+- Per-store ceilings: 10,000 products, 500 categories, 1,000 brands,
+  500 coupons, 50 banners. Creates beyond the cap are refused row by row.
+- `POST /seed` only works on an empty store.
+- Around 120 requests (or 6,000 imported rows) per minute per token.
 
 ### How records match
 

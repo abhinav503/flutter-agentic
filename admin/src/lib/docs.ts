@@ -35,6 +35,13 @@ export const docCategories: DocCategory[] = [
     icon: "rocket",
   },
   {
+    slug: "ai-and-api",
+    name: "AI assistants & API",
+    description:
+      "Let Claude or ChatGPT manage your store by talking to it, bring a Shopify, WooCommerce or WhatsApp catalog over in one go, or script the API with a token.",
+    icon: "sparkles",
+  },
+  {
     slug: "store-setup",
     name: "Store setup",
     description:
@@ -73,13 +80,6 @@ export const docCategories: DocCategory[] = [
     name: "Going live",
     description: "The readiness checklist, review, and running your account day to day.",
     icon: "globe",
-  },
-  {
-    slug: "ai-and-api",
-    name: "AI assistants & API",
-    description:
-      "Let Claude or ChatGPT manage your store by talking to it, bring a Shopify, WooCommerce or WhatsApp catalog over in one go, or script the API with a token.",
-    icon: "sparkles",
   },
 ];
 

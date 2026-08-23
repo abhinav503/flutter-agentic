@@ -15,11 +15,12 @@ Add products from the **Products** page.
 | Field | Notes |
 | --- | --- |
 | **Name** | What shoppers see and search. Also the match key when importing without an id. |
-| **Image** | One photo. Uploaded and hosted for you, or a public `https` URL on import. |
+| **Images** | A gallery — the first photo is the card, the rest show on the product page. Uploaded and hosted for you, or public `https` URLs on import. |
 | **Brand** | Optional. Blank means unbranded. |
 | **Categories** | A product can belong to several. |
 | **Description** | Shown on the product details screen. |
-| **Prep time** | Free text, e.g. `10 mins`. Shown on the product card. |
+| **Details** | Facts shown as a list on the product page — *Material: Cotton*, *Prep time: 10 mins*, *Origin: India*. They never affect price or stock. |
+| **SKU / Barcode / External ID** | Optional codes. The external ID is what a re-import from Shopify, WooCommerce or your own system matches on, so a rename updates the product instead of duplicating it. |
 
 ## Price and original price
 
@@ -52,26 +53,30 @@ convert. 1 kg is `1000` + `g`; 2 litres is `2000` + `ml`.
   parsing units.
 </Callout>
 
-## Size options
+## Options and variants
 
-A product can offer several package sizes, each with **its own price**. Add
-them under **Size options** — each row is a size value plus its price and
-original price.
+A product that comes in choices — pack sizes, Size × Colour, storage tiers —
+gets **options** (up to three, e.g. *Size* and *Colour*) and one **variant**
+per combination, each with **its own price, stock, SKU and barcode**:
 
 ```text
-250 g  →  ₹60   (was ₹70)
-500 g  →  ₹110  (was ₹130)
-1000 g →  ₹200  (was ₹240)
+Size: 250 g   →  ₹60   (was ₹70)   · 12 in stock
+Size: 500 g   →  ₹110  (was ₹130)  · 4 in stock
+Size: 1000 g  →  ₹200  (was ₹240)  · sold out
 ```
 
-The storefront shows a size picker on the product details screen, and the price
-updates as the shopper switches. Leave size options empty and the product has a
-single size — which is most products.
+The storefront shows one picker row per option on the product details screen;
+the price, the stock message and the add button all follow the selected
+variant, and the cart line records exactly which one was bought. A combination
+that's sold out shows struck through.
+
+With variants, the product's own price and stock become derived: the card
+shows the cheapest variant's price, and stock is the sum. Leave options empty
+and the product is a single unit — which is most grocery products.
 
 <Callout type="tip">
-  Size options are per-size *pricing*, not per-size *stock*. Stock is one number
-  for the product as a whole. If two sizes need to run out independently, make
-  them two products.
+  Shopify and WooCommerce imports create options and variants automatically
+  from the export — see the AI assistants &amp; API guides.
 </Callout>
 
 ## Stock
@@ -99,6 +104,17 @@ what you actually have. Nothing to configure; it follows the number you set.
 
 The console's product list filters by **In stock** / **Out of stock**, which is
 the fastest way to find what needs restocking.
+
+For a product with variants, stock is **per variant** — each size or colour
+runs out on its own, and "Only 3 left" means 3 of the selected one.
+
+## Deleted something by mistake?
+
+Deleting a product moves it to the store's trash for **30 days** — the
+**Recently deleted** button on the Products page lists everything and puts a
+product back exactly as it was, with one tap. After 30 days it's gone for
+good. The same safety net covers categories, brands, coupons and banners, and
+deletions made by a connected AI assistant or the API.
 
 ## Popular
 
