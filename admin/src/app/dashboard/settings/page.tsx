@@ -43,6 +43,7 @@ import {
 } from "@/components/ui/tabs";
 import { ImageUploadField } from "@/components/image-upload-field";
 import { GenerateGroceryDataDialog } from "@/components/generate-grocery-data-dialog";
+import { DeveloperSettings } from "@/components/developer-settings";
 import { toast } from "sonner";
 
 // The store's public face in CordeliaApps discovery + which storefront
@@ -1004,6 +1005,7 @@ const TABS = [
   { value: "delivery", label: "Delivery" },
   { value: "sample-data", label: "Sample data" },
   { value: "payments", label: "Payments" },
+  { value: "developers", label: "Developers" },
   { value: "account", label: "Account" },
 ] as const;
 
@@ -1018,8 +1020,8 @@ export default function SettingsPage() {
         <h1 className="text-lg font-semibold">Settings</h1>
         <p className="text-sm text-muted-foreground">
           This store&apos;s public profile, support contact, storefront template,
-          delivery, sample data and payment account — plus the account you sign
-          in with.
+          delivery, sample data, payment account and API tokens — plus the
+          account you sign in with.
         </p>
       </div>
 
@@ -1057,6 +1059,10 @@ export default function SettingsPage() {
 
         <TabsContent value="payments" className="max-w-2xl">
           <PaymentsSettings storeId={storeId} />
+        </TabsContent>
+
+        <TabsContent value="developers" className="max-w-2xl">
+          <DeveloperSettings storeId={storeId} />
         </TabsContent>
 
         <TabsContent value="account" className="max-w-2xl">

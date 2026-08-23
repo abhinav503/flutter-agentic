@@ -1,3 +1,5 @@
+import { isApiToken, verifyApiToken } from "@/lib/api-tokens";
+import type { ApiTokenScope } from "@/lib/api-token-scopes";
 import { adminAuth, adminDb } from "@/lib/firebase-admin";
 
 export class UnauthorizedError extends Error {}
@@ -161,4 +163,52 @@ export async function optionalAuthedUser(
   } catch {
     return null;
   }
+}
+
+// Who is acting on a store through a v1 route: its owner (a Firebase ID
+// token with the store in its `storeIds` claim) or a machine holding one of
+// the store's API tokens with the scope the route needs. `uid` is the
+// owner's, or the uid that minted the token — what an audit field records.
+export type StoreActor =
+  | { kind: "owner"; uid: string }
+  | { kind: "token"; uid: string; tokenId: string; scopes: ApiTokenScope[] };
+
+// The one guard every v1 store route uses. A bearer that looks like an API
+// token (`cord_live_…`) is checked as one — hash lookup, store match, scope
+// — and is never tried as a Firebase token, so a malformed API token can't
+// fall through to a 401 that reads as "sign in". Anything else is an owner's
+// ID token, verified exactly as requireStoreOwner does.
+export async function requireStoreAccess(
+  request: Request,
+  storeId: string,
+  scope: ApiTokenScope,
+): Promise<StoreActor> {
+  const bearer = (request.headers.get("authorization") ?? "").match(
+    /^Bearer (.+)$/,
+  )?.[1];
+  if (bearer && isApiToken(bearer)) {
+    const token = await verifyApiToken(bearer);
+    if (!token) throw new UnauthorizedError("Unknown or revoked API token");
+    if (token.storeId !== storeId) {
+      throw new ForbiddenError("This API token belongs to another store");
+    }
+    if (!token.scopes.includes(scope)) {
+      throw new ForbiddenError(`This API token lacks the ${scope} scope`);
+    }
+    return { kind: "token", uid: token.createdBy, tokenId: token.id, scopes: token.scopes };
+  }
+  const uid = await requireStoreOwner(request, storeId);
+  return { kind: "owner", uid };
+}
+
+// The 401/403 a route answers with when a guard above throws, so every v1
+// route maps the two errors the same way. Rethrows anything else.
+export function guardErrorResponse(e: unknown): Response {
+  if (e instanceof UnauthorizedError) {
+    return Response.json({ error: e.message }, { status: 401 });
+  }
+  if (e instanceof ForbiddenError) {
+    return Response.json({ error: e.message }, { status: 403 });
+  }
+  throw e;
 }
