@@ -30,6 +30,7 @@ import { ImageUploadField } from "@/components/image-upload-field";
 import { SearchField } from "@/components/search-field";
 import { ColorPickerField, isHexColor } from "@/components/color-picker-field";
 import { Button } from "@/components/ui/button";
+import { RecentlyDeletedButton } from "@/components/recently-deleted-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -128,6 +129,7 @@ export default function BannersPage() {
             label="Search banners"
             placeholder="Search title or target…"
           />
+          <RecentlyDeletedButton storeId={storeId} entity="banners" entityPlural="banners" />
           <Button variant="outline" onClick={() => setImporting(true)}>
             Import CSV
           </Button>

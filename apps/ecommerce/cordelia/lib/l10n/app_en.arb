@@ -271,6 +271,13 @@
     "description": "A cart row's subtitle when the line can't be bought: the unit it holds (a pack size or variant label) and why. The connector is copy; keep the pack first so rows align.",
     "placeholders": {"pack": {"type": "String"}, "availability": {"type": "String"}}
   },
+  "updateRequiredTitle": "Update CordeliaApps",
+  "updateRequiredMessage": "This version is no longer supported. Update to keep shopping — it only takes a minute.",
+  "updateNowButton": "Update now",
+  "updateLinkCopiedMessage": "Update link copied — paste it in your browser.",
+  "@updateRequiredTitle": {"description": "Full-screen gate shown at launch when the build is below the platform's minimum version."},
+  "@updateRequiredMessage": {"description": "Body of the update gate."},
+  "@updateNowButton": {"description": "CTA on the update gate; opens the app store."},
   "onlyNLeftLabel": "{count, plural, one{Only 1 left} other{Only {count} left}}",
   "@onlyNLeftLabel": {
     "description": "Cart-row warning when the line holds more units than the store has left. Sits in a narrow subtitle slot beside the product name — keep it short.",

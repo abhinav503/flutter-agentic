@@ -119,6 +119,11 @@ import '../feature/storefront/search/domain/usecase/add_recent_search_usecase.da
 import '../feature/storefront/search/domain/usecase/get_search_usecase.dart';
 import '../feature/storefront/search/domain/usecase/remove_recent_search_usecase.dart';
 import '../feature/storefront/search/domain/usecase/search_catalog_usecase.dart';
+import '../feature/app_update/data/data_source/app_config_remote_data_source.dart';
+import '../feature/app_update/data/data_source/app_config_remote_data_source_impl.dart';
+import '../feature/app_update/data/repository_impl/app_update_repository_impl.dart';
+import '../feature/app_update/domain/repository/app_update_repository.dart';
+import '../feature/app_update/domain/usecase/get_update_requirement_usecase.dart';
 
 // Re-export the shared service locator so consumers can import `sl` from the
 // app's own DI entrypoint.
@@ -318,4 +323,13 @@ Future<void> initDependencies() async {
   );
   sl.registerLazySingleton(() => GetNotificationsUseCase(sl()));
   sl.registerLazySingleton(() => MarkNotificationsReadUseCase(sl()));
+
+  // ── App update gate (platform minimum version, read at launch) ─────────
+  sl.registerLazySingleton<AppConfigRemoteDataSource>(
+    () => const AppConfigRemoteDataSourceImpl(),
+  );
+  sl.registerLazySingleton<AppUpdateRepository>(
+    () => AppUpdateRepositoryImpl(sl()),
+  );
+  sl.registerLazySingleton(() => GetUpdateRequirementUseCase(sl()));
 }

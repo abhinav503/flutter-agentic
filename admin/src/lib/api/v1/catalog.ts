@@ -46,6 +46,29 @@ export type CatalogEntity = (typeof CATALOG_ENTITIES)[number];
 
 export const MAX_UPSERT_ROWS = 2000;
 
+// A bulk write that rewrites most of what a store has is either a
+// deliberate re-import or a mistake about to be expensive; when it comes
+// as raw rows (PUT / the MCP upsert tool, not the CSV import with its
+// dry-run-first habit) it needs `confirm: true` once the store is big
+// enough for "most of it" to mean something.
+export const BULK_CHANGE_SHARE = 0.5;
+export const BULK_CHANGE_MIN_RECORDS = 20;
+
+export function needsBulkConfirm(updates: number, existing: number): boolean {
+  return existing >= BULK_CHANGE_MIN_RECORDS && updates >= existing * BULK_CHANGE_SHARE;
+}
+
+export class BulkChangeError extends Error {
+  constructor(
+    public readonly updates: number,
+    public readonly existing: number,
+  ) {
+    super(
+      `This would update ${updates} of the store's ${existing} records. Send confirm: true to go ahead, or dry_run: true to see the plan.`,
+    );
+  }
+}
+
 // What one store may hold. Generous for any real catalog (the largest
 // fixture is 278 products), tight enough that a leaked catalog:write token
 // can't fill Firestore — and our bill — without end.
@@ -71,10 +94,16 @@ type Raw = Record<string, unknown>;
 
 // --- small parsers ----------------------------------------------------------
 
+// Text is stored as typed, minus control characters (newline and tab
+// stay): a zero-width or escape sequence in a product name is never
+// something a merchant meant, and it is what a crafted CSV would use to
+// hide instructions from a human reading it beside an assistant.
+const CONTROL_CHARS = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F\u200B-\u200F\u2028-\u202E\u2060-\u2064\uFEFF]/g;
+
 function str(v: unknown, max = MAX_TEXT): string | null {
   if (v === undefined || v === null) return "";
   if (typeof v !== "string") return null;
-  return v.trim().slice(0, max);
+  return v.replace(CONTROL_CHARS, "").trim().slice(0, max);
 }
 // Accepts "₹1,299.00" and "1299"; refuses "abc" rather than reading it as 0.
 function num(v: unknown): number | null | undefined {
@@ -826,6 +855,9 @@ export async function upsertCatalog(
     // Dry-run only: names an earlier step of the same import would have
     // created, so rows referencing them validate as they will on commit.
     assumeExisting?: { categories: string[]; brands: string[] };
+    // Raw-row callers pass the body's confirm flag; undefined = no guard
+    // (the CSV import, which always plans first).
+    confirm?: boolean;
   },
 ): Promise<{ results: WriteResult[]; created: number; updated: number; failed: number; atomic: boolean }> {
   const catalog = await loadCatalog(storeId);
@@ -859,6 +891,11 @@ export async function upsertCatalog(
       : { index: p.index, id: p.id, action: p.action },
   );
   const writes = capped.filter((p): p is Exclude<PlannedWrite, { errors: string[] }> => !("errors" in p));
+  if (!opts.dryRun && opts.confirm === false) {
+    const updates = writes.filter((w) => w.action === "updated").length;
+    const existing = catalog[entity].size;
+    if (needsBulkConfirm(updates, existing)) throw new BulkChangeError(updates, existing);
+  }
   if (!opts.dryRun) {
     for (let i = 0; i < writes.length; i += BATCH_LIMIT) {
       const batch = adminDb.batch();
@@ -891,14 +928,96 @@ export async function upsertCatalog(
   };
 }
 
+// --- trash ----------------------------------------------------------------------
+
+// A delete is a move, not a removal: the doc goes to
+// stores/{id}/trash/{entity}:{docId} with who/when, and a TTL policy on
+// `purgeAt` removes it 30 days later. Readers need no filter (the live
+// collection simply no longer has it), and a restore is a copy back. What
+// it protects against: one confused agent turn, or a leaked token, wiping
+// a catalog with nothing to undo.
+export const TRASH_RETENTION_DAYS = 30;
+
+function trashCol(storeId: string) {
+  return adminDb.collection("stores").doc(storeId).collection("trash");
+}
+
+export type TrashEntry = {
+  id: string;
+  entity: CatalogEntity;
+  docId: string;
+  name: string;
+  deletedAtMs: number;
+  deletedBy: string;
+  purgeAtMs: number;
+};
+
 export async function deleteCatalogDoc(
   storeId: string,
   entity: CatalogEntity,
   id: string,
+  actorUid = "",
 ): Promise<boolean> {
   const ref = col(storeId, entity).doc(id);
   const snap = await ref.get();
   if (!snap.exists) return false;
-  await ref.delete();
+  const data = snap.data()!;
+  const now = Date.now();
+  const batch = adminDb.batch();
+  batch.set(trashCol(storeId).doc(`${entity}:${id}`), {
+    entity,
+    docId: id,
+    name: (data.name ?? data.code ?? data.title ?? "") as string,
+    data,
+    deletedAt: FieldValue.serverTimestamp(),
+    deletedBy: actorUid,
+    purgeAt: new Date(now + TRASH_RETENTION_DAYS * 86_400_000),
+  });
+  batch.delete(ref);
+  await batch.commit();
   return true;
 }
+
+export async function listTrash(storeId: string): Promise<TrashEntry[]> {
+  const snap = await trashCol(storeId).get();
+  const ms = (v: unknown) => (v && typeof (v as { toMillis?: unknown }).toMillis === "function" ? (v as { toMillis: () => number }).toMillis() : 0);
+  return snap.docs
+    .map((d) => {
+      const x = d.data();
+      return {
+        id: d.id,
+        entity: x.entity as CatalogEntity,
+        docId: x.docId as string,
+        name: (x.name as string) ?? "",
+        deletedAtMs: ms(x.deletedAt),
+        deletedBy: (x.deletedBy as string) ?? "",
+        purgeAtMs: ms(x.purgeAt),
+      };
+    })
+    .sort((a, b) => b.deletedAtMs - a.deletedAtMs);
+}
+
+// Puts the doc back under its original id. If something else was created
+// with that id meanwhile (it can't — ids are random — but a re-import by
+// external_id may have recreated the record), the newer one wins and the
+// trash entry is left for the owner to decide.
+export async function restoreFromTrash(
+  storeId: string,
+  trashId: string,
+): Promise<{ entity: CatalogEntity; id: string } | null> {
+  const ref = trashCol(storeId).doc(trashId);
+  const snap = await ref.get();
+  if (!snap.exists) return null;
+  const x = snap.data()!;
+  const entity = x.entity as CatalogEntity;
+  const target = col(storeId, entity).doc(x.docId as string);
+  const existing = await target.get();
+  if (existing.exists) throw new TrashConflictError(`A ${entity.slice(0, -1)} with that id exists again; delete it first to restore the old one.`);
+  const batch = adminDb.batch();
+  batch.set(target, { ...(x.data as Record<string, unknown>), restoredAt: FieldValue.serverTimestamp() });
+  batch.delete(ref);
+  await batch.commit();
+  return { entity, id: x.docId as string };
+}
+
+export class TrashConflictError extends Error {}

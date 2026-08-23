@@ -27,6 +27,7 @@ import {
   useTableSort,
 } from "@/components/sortable-table-head";
 import { Button } from "@/components/ui/button";
+import { RecentlyDeletedButton } from "@/components/recently-deleted-dialog";
 import { Badge } from "@/components/ui/badge";
 import {
   Select,
@@ -212,6 +213,7 @@ export default function ProductsPage() {
             label="Search products"
             placeholder="Search name, brand, category…"
           />
+          <RecentlyDeletedButton storeId={storeId} entity="products" entityPlural="products" />
           {/* Not gated on categories the way "Add product" is: the CSV's
               `categories` column is optional, so an empty store can be
               bulk-loaded — and when a file does name categories, the import's

@@ -557,6 +557,20 @@ class AppLocalizationsHi extends AppLocalizations {
   }
 
   @override
+  String get updateRequiredTitle => 'CordeliaApps अपडेट करें';
+
+  @override
+  String get updateRequiredMessage =>
+      'यह संस्करण अब समर्थित नहीं है। खरीदारी जारी रखने के लिए अपडेट करें — बस एक मिनट लगेगा।';
+
+  @override
+  String get updateNowButton => 'अभी अपडेट करें';
+
+  @override
+  String get updateLinkCopiedMessage =>
+      'अपडेट लिंक कॉपी हो गया — इसे अपने ब्राउज़र में पेस्ट करें।';
+
+  @override
   String onlyNLeftLabel(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,

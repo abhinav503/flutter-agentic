@@ -76,7 +76,9 @@ Read-time upgrade: `sizeVariants` → `optionNames:["Size"]` + one variant per s
 
 Shipped: Firestore-backed per-IP rate limits on the unauthenticated OAuth routes (register 20/h, token 60/10 min, consent 60/10 min) and on store-token minting (30/h per owner); the consent page names the redirect host with a verified mark for known assistant hosts and a warning otherwise; image rehost refuses private/loopback/link-local/metadata addresses after DNS resolution; per-store caps (10,000 products, 500 categories, 1,000 brands, 500 coupons, 50 banners) refuse creates beyond the cap row by row; sample data only on an empty store; telemetry tallies coalesced per instance (flush at 50 events or 10 s, no per-call write to the platform doc); `format=auto` sniffs the header row and is the default for the route and the MCP tool.
 
-Still open: soft delete with a purge window and a "bulk change" confirmation for a PUT touching most of a store; App Check for the app and console; a Firestore TTL policy on `rateLimits.expiresAt` (set in the console once, no code); stripping control characters from imported text (prompt-injection hygiene).
+All of the audit is now closed (2026-08-24): deletes move to `stores/{id}/trash` (restore from the console's "Recently deleted", the API `/trash`, or the MCP `restore_record`; TTL on `purgeAt` after 30 days); a raw PUT / `upsert_records` that would update half or more of a store with ≥20 records needs `confirm: true`; control characters are stripped from every text field; App Check ships unenforced; TTL policies exist on `rateLimits.expiresAt` and `trash.purgeAt`.
+
+Minimum-version gate: `platform/appConfig` (`npm run app-config -- --android X.Y.Z --ios X.Y.Z`, empty = no gate) served by `GET /api/app-config`; the app's splash checks it and shows an "Update required" screen, failing open on any fetch/parse problem. Raise it before flipping App Check enforcement.
 
 ## Recommended approach (in dependency order)
 

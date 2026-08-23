@@ -15,7 +15,7 @@
  */
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { planCatalog, snapshotFrom, type CatalogEntity } from "@/lib/api/v1/catalog";
+import { needsBulkConfirm, planCatalog, snapshotFrom, type CatalogEntity } from "@/lib/api/v1/catalog";
 import { adaptCsv } from "@/lib/api/v1/import";
 import { PRODUCT_COLUMNS, sampleProductCsv } from "@/lib/import/product-csv";
 import { sampleCategoryCsv } from "@/lib/import/category-csv";
@@ -290,6 +290,13 @@ const modern = adaptCsv(
   { entity: "products", format: "shopify", tagsAsCategories: false },
 );
 check("shopify: 2024+ header dialect parses", [modern.items.length, modern.items[0]?.price, modern.items[0]?.categories, modern.items[0]?.images], [1, "9.5", ["Kitchen"], ["https://x/mug.png"]]);
+
+// ── 6. Bulk-change guard ───────────────────────────────────────────────────
+check(
+  "bulk guard: small stores never prompt; big stores prompt at half or more",
+  [needsBulkConfirm(7, 7), needsBulkConfirm(19, 19), needsBulkConfirm(9, 20), needsBulkConfirm(10, 20), needsBulkConfirm(120, 129)],
+  [false, false, false, true, true],
+);
 
 if (failures > 0) {
   console.error(`\n${failures} check(s) failed`);

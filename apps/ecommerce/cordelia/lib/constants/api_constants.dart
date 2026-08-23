@@ -12,6 +12,7 @@ abstract final class ApiConstants {
   /// Store discovery — GET (optionally `?q=`) lists/searches every active
   /// store. This app has no single hardcoded storeId (unlike gravia) since
   /// choosing one is the whole point of feature/home.
+  static String get appConfigPath => '$baseUrl/app-config';
   static String get storesPath => '$baseUrl/stores';
 
   static String _storeBase(String storeId) => '$baseUrl/stores/$storeId';

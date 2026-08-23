@@ -9,6 +9,7 @@
     "lint": "eslint",
     "test:webhook": "node scripts/test-refund-webhook.mjs",
     "seed:templates": "node --env-file=.env.local scripts/seed-templates.mjs",
+    "app-config": "node --env-file=.env.local scripts/set-app-config.mjs",
     "verify:import-csv": "tsx --env-file=.env.local scripts/verify-import-csv.ts",
     "verify:product-model": "tsx scripts/verify-product-model.ts",
     "verify:seed-images": "node scripts/verify-seed-images.mjs",

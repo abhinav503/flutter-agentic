@@ -564,6 +564,20 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String get updateRequiredTitle => 'Mettre à jour CordeliaApps';
+
+  @override
+  String get updateRequiredMessage =>
+      'Cette version n’est plus prise en charge. Mettez à jour pour continuer vos achats — une minute suffit.';
+
+  @override
+  String get updateNowButton => 'Mettre à jour';
+
+  @override
+  String get updateLinkCopiedMessage =>
+      'Lien de mise à jour copié — collez-le dans votre navigateur.';
+
+  @override
   String onlyNLeftLabel(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,

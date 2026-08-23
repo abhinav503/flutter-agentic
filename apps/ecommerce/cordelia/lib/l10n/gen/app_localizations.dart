@@ -1054,6 +1054,30 @@ abstract class AppLocalizations {
   /// **'{pack} · {availability}'**
   String cartLineSubtitle(String pack, String availability);
 
+  /// Full-screen gate shown at launch when the build is below the platform's minimum version.
+  ///
+  /// In en, this message translates to:
+  /// **'Update CordeliaApps'**
+  String get updateRequiredTitle;
+
+  /// Body of the update gate.
+  ///
+  /// In en, this message translates to:
+  /// **'This version is no longer supported. Update to keep shopping — it only takes a minute.'**
+  String get updateRequiredMessage;
+
+  /// CTA on the update gate; opens the app store.
+  ///
+  /// In en, this message translates to:
+  /// **'Update now'**
+  String get updateNowButton;
+
+  /// No description provided for @updateLinkCopiedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Update link copied — paste it in your browser.'**
+  String get updateLinkCopiedMessage;
+
   /// Cart-row warning when the line holds more units than the store has left. Sits in a narrow subtitle slot beside the product name — keep it short.
   ///
   /// In en, this message translates to:

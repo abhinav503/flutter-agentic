@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { upsertCatalog, MAX_UPSERT_ROWS, loadCatalog } from "@/lib/api/v1/catalog";
+import { BulkChangeError, upsertCatalog, MAX_UPSERT_ROWS, loadCatalog } from "@/lib/api/v1/catalog";
 import { serializeCatalogRecord } from "@/lib/api/v1/serializers";
 import {
   authorizeWrite,
@@ -78,11 +78,22 @@ export async function PUT(request: Request, { params }: Params) {
     storeId,
     auth.actor,
     async () => {
-      const outcome = await upsertCatalog(storeId, entity, items, {
-        dryRun,
-        actorUid: auth.actor.uid,
-      });
-      return NextResponse.json({ dry_run: dryRun, ...outcome });
+      try {
+        const outcome = await upsertCatalog(storeId, entity, items, {
+          dryRun,
+          actorUid: auth.actor.uid,
+          confirm: body.confirm === true,
+        });
+        return NextResponse.json({ dry_run: dryRun, ...outcome });
+      } catch (e) {
+        if (e instanceof BulkChangeError) {
+          return NextResponse.json(
+            { error: e.message, code: "confirm_required", updates: e.updates, existing: e.existing },
+            { status: 409 },
+          );
+        }
+        throw e;
+      }
     },
     { rows: items.length, dry_run: dryRun },
   );

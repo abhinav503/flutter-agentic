@@ -56,8 +56,9 @@ export async function DELETE(request: Request, { params }: Params) {
   const auth = await authorizeWrite(request, storeId, 1);
   if ("response" in auth) return auth.response;
   return tracedRoute(`DELETE ${entity}/id`, storeId, auth.actor, async () => {
-    const found = await deleteCatalogDoc(storeId, entity, id);
+    const found = await deleteCatalogDoc(storeId, entity, id, auth.actor.uid);
     if (!found) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    // Moved to the trash, restorable for 30 days — not gone.
     return new NextResponse(null, { status: 204 });
   });
 }

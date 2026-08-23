@@ -21,6 +21,7 @@ import {
   useTableSort,
 } from "@/components/sortable-table-head";
 import { Button } from "@/components/ui/button";
+import { RecentlyDeletedButton } from "@/components/recently-deleted-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -93,6 +94,7 @@ export default function BrandsPage() {
             label="Search brands"
             placeholder="Search name…"
           />
+          <RecentlyDeletedButton storeId={storeId} entity="brands" entityPlural="brands" />
           <Button onClick={() => setEditing("new")}>Add brand</Button>
         </div>
       </div>

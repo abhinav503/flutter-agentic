@@ -40,6 +40,7 @@ import {
   useTableSort,
 } from "@/components/sortable-table-head";
 import { Button } from "@/components/ui/button";
+import { RecentlyDeletedButton } from "@/components/recently-deleted-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -187,6 +188,7 @@ export default function CouponsPage() {
             label="Search coupons"
             placeholder="Search code or status…"
           />
+          <RecentlyDeletedButton storeId={storeId} entity="coupons" entityPlural="coupons" />
           <Button variant="outline" onClick={() => setImporting(true)}>
             Import CSV
           </Button>

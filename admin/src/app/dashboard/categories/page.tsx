@@ -35,6 +35,7 @@ import {
   useTableSort,
 } from "@/components/sortable-table-head";
 import { Button } from "@/components/ui/button";
+import { RecentlyDeletedButton } from "@/components/recently-deleted-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -113,6 +114,7 @@ export default function CategoriesPage() {
             label="Search categories"
             placeholder="Search name or group…"
           />
+          <RecentlyDeletedButton storeId={storeId} entity="categories" entityPlural="categories" />
           <Button variant="outline" onClick={() => setImporting(true)}>
             Import CSV
           </Button>

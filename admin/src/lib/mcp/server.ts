@@ -4,9 +4,14 @@ import { FieldValue } from "firebase-admin/firestore";
 import { adminDb } from "@/lib/firebase-admin";
 import type { ApiTokenScope } from "@/lib/api-token-scopes";
 import {
+  BulkChangeError,
   CATALOG_ENTITIES,
   deleteCatalogDoc,
+  listTrash,
   loadCatalog,
+  restoreFromTrash,
+  TrashConflictError,
+  TRASH_RETENTION_DAYS,
   upsertCatalog,
   MAX_UPSERT_ROWS,
 } from "@/lib/api/v1/catalog";
@@ -213,14 +218,20 @@ export function buildMcpServer(actor: McpActor): McpServer {
         entity,
         items: z.array(z.record(z.unknown())).max(MAX_UPSERT_ROWS),
         dry_run: z.boolean().default(false),
+        confirm: z.boolean().default(false).describe("Required when the items would update most of the store's records — ask the owner first."),
       },
       annotations: { readOnlyHint: false, idempotentHint: true },
     },
-    async ({ store_id, entity: ent, items, dry_run }) => {
+    async ({ store_id, entity: ent, items, dry_run, confirm }) => {
       const denied = authorize(store_id, "catalog:write");
       if (denied) return fail(denied);
-      const outcome = await upsertCatalog(store_id, ent, items, { dryRun: dry_run, actorUid: actor.uid });
-      return text({ dry_run, ...outcome });
+      try {
+        const outcome = await upsertCatalog(store_id, ent, items, { dryRun: dry_run, actorUid: actor.uid, confirm });
+        return text({ dry_run, ...outcome });
+      } catch (e) {
+        if (e instanceof BulkChangeError) return fail(e.message);
+        throw e;
+      }
     },
   );
 
@@ -228,15 +239,54 @@ export function buildMcpServer(actor: McpActor): McpServer {
     "delete_record",
     {
       title: "Delete a record",
-      description: "Permanently delete one record by id.",
+      description: "Delete one record by id. It moves to the store's trash and can be restored for 30 days (list_trash / restore_record).",
       inputSchema: { store_id: storeId, entity, id: z.string() },
       annotations: { destructiveHint: true, idempotentHint: true },
     },
     async ({ store_id, entity: ent, id }) => {
       const denied = authorize(store_id, "catalog:write");
       if (denied) return fail(denied);
-      const found = await deleteCatalogDoc(store_id, ent, id);
-      return found ? text({ deleted: id }) : fail(`No ${ent} record with id ${id}.`);
+      const found = await deleteCatalogDoc(store_id, ent, id, actor.uid);
+      return found
+        ? text({ deleted: id, note: `Moved to the trash; restorable for ${TRASH_RETENTION_DAYS} days with restore_record.` })
+        : fail(`No ${ent} record with id ${id}.`);
+    },
+  );
+
+  server.registerTool(
+    "list_trash",
+    {
+      title: "Recently deleted",
+      description: "Records deleted in the last 30 days, restorable with restore_record.",
+      inputSchema: { store_id: storeId },
+      annotations: { readOnlyHint: true },
+    },
+    async ({ store_id }) => {
+      const denied = authorize(store_id, "catalog:write");
+      if (denied) return fail(denied);
+      const entries = await listTrash(store_id);
+      return text(entries.map((t) => ({ trash_id: t.id, entity: t.entity, record_id: t.docId, name: t.name, deleted_at: new Date(t.deletedAtMs).toISOString() })));
+    },
+  );
+
+  server.registerTool(
+    "restore_record",
+    {
+      title: "Restore a deleted record",
+      description: "Puts a record from the trash back under its original id.",
+      inputSchema: { store_id: storeId, trash_id: z.string().describe("From list_trash.") },
+      annotations: { readOnlyHint: false, idempotentHint: true },
+    },
+    async ({ store_id, trash_id }) => {
+      const denied = authorize(store_id, "catalog:write");
+      if (denied) return fail(denied);
+      try {
+        const restored = await restoreFromTrash(store_id, trash_id);
+        return restored ? text({ restored }) : fail("Not in the trash.");
+      } catch (e) {
+        if (e instanceof TrashConflictError) return fail(e.message);
+        throw e;
+      }
     },
   );
 

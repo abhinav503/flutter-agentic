@@ -36,6 +36,10 @@ class AppInfoService {
   /// The build number matters as much as the version: two uploads of the
   /// same `versionName` are routine on a test track, and only the number
   /// after it distinguishes them.
+  /// X.Y.Z from pubspec, or '' when unknown — what the update gate
+  /// compares against the platform's minimum.
+  String get version => _version;
+
   String get displayVersion {
     if (_version.isEmpty) return '';
     return _buildNumber.isEmpty ? _version : '$_version ($_buildNumber)';
