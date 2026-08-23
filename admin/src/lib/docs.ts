@@ -74,6 +74,13 @@ export const docCategories: DocCategory[] = [
     description: "The readiness checklist, review, and running your account day to day.",
     icon: "globe",
   },
+  {
+    slug: "ai-and-api",
+    name: "AI assistants & API",
+    description:
+      "Let Claude or ChatGPT manage your store by talking to it, bring a Shopify catalog over in one go, or script the API with a token.",
+    icon: "sparkles",
+  },
 ];
 
 export type DocFrontmatter = {

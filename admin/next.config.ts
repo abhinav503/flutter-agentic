@@ -48,6 +48,9 @@ const nextConfig: NextConfig = {
 
   async redirects() {
     return [
+      // The developer entry point people type and agents guess.
+      { source: "/developers", destination: "/docs/ai-and-api", permanent: false },
+      { source: "/mcp", destination: "/docs/ai-and-api/connect-an-ai-assistant", permanent: false },
       { source: "/login", destination: "/", permanent: false },
       { source: "/signup", destination: "/", permanent: false },
 

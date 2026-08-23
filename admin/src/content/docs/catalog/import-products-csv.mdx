@@ -6,7 +6,8 @@ order: 4
 ---
 
 Adding products one at a time is fine for ten. For a hundred, put them in a CSV
-and import it. The importer validates the entire file before writing anything,
+and import it. Coming from Shopify? Import its export directly — see
+[Move a Shopify catalog to CordeliaApps](/docs/ai-and-api/import-from-shopify). The importer validates the entire file before writing anything,
 so a row with a bad price or an unknown brand costs you a re-upload rather than
 a half-imported catalog.
 
@@ -34,8 +35,8 @@ migration is three files in order: categories, brands, then products.
 | `name` | Yes | Product name. Also the match key when `id` is blank. |
 | `price` | Yes | What the shopper pays, in the store's currency. Must be above 0. |
 | `original_price` | No | Pre-discount price. Blank means not discounted. |
-| `unit_value` | Yes | Pack size as a number, e.g. `500`. |
-| `unit_type` | Yes | One of `g`, `ml`, `pcs`. |
+| `unit_value` | No | Pack size as a number, e.g. `500`. Leave blank for non-packaged goods. |
+| `unit_type` | No | One of `g`, `ml`, `pcs`. Blank means `g`. |
 | `stock` | Yes | A whole number, 0 or more. |
 | `description` | No | Shown on the product's details screen. |
 | `prep_time` | No | Free text, e.g. `10 mins`. |
@@ -43,7 +44,14 @@ migration is three files in order: categories, brands, then products.
 | `categories` | No | Existing category names, separated by `\|`. |
 | `brand` | No | An existing brand name. Blank means unbranded. |
 | `is_popular` | No | `true`/`false` — feeds the storefront's popular rail. |
+| `sku` | No | Your stock-keeping code. |
+| `barcode` | No | EAN / UPC / ISBN. |
+| `external_id` | No | The id another system knows this product by (a Shopify handle, an ERP code). The match key before name — see below. |
 | `id` | No | An existing product id. Present means update that exact product. |
+| `option1_name` … `option3_name` | No | For a product that comes in choices (Size, Colour): the option names. Only on the product's first row. |
+| `option1_value` … `option3_value` | No | This row's value for each option (`M`, `Red`). One row per variant, all sharing the product's `name` or `external_id`; `price`, `stock`, `sku` and `barcode` on a variant row belong to that variant. |
+| `pack_size` | No | For a pack-size variant: the size in `unit_type` units, so weight labels keep working. |
+| `attributes` | No | Details shown on the product page: `Material=Cotton\|Origin=India`. |
 
 Column order doesn't matter; the header row is matched by name. Any column not
 listed above is ignored.
@@ -60,6 +68,20 @@ Bananas (Robusta),49,59,6,pcs,40,Fruits & Vegetables,,true
 Note the third row: an empty `brand` is unbranded, and `original_price` above
 `price` is what makes a product show a discount.
 
+## A product with variants
+
+One row per variant, sharing the product's name (or `external_id`). The option
+names go on the first row; every row carries its own value, price and stock:
+
+```csv
+name,external_id,price,stock,sku,categories,option1_name,option1_value,option2_name,option2_value
+Classic Tee,tee-classic,499,3,TEE-M-RED,Clothing,Size,M,Colour,Red
+Classic Tee,tee-classic,499,5,TEE-L-RED,,,L,,Red
+Classic Tee,tee-classic,549,2,TEE-XL-RED,,,XL,,Red
+```
+
+The product's own price becomes the cheapest variant's, and its stock the sum.
+
 ## How rows are matched
 
 The importer decides create-or-update per row, and reports the split before you
@@ -70,7 +92,12 @@ commit:
     That exact product is updated. Use this when you are keeping a spreadsheet
     alongside your catalog and pushing changes back to specific products.
   </Step>
-  <Step title="If the id is blank">
+  <Step title="If the id is blank but external_id is set">
+    The row is matched on `external_id`. This is the key to use for anything
+    that lives in another system — a rename in either place still updates the
+    same product.
+  </Step>
+  <Step title="Otherwise">
     The row is matched against existing products **by name**. A match updates
     it; no match creates a new product.
   </Step>
@@ -91,7 +118,7 @@ the file is clean. The common rejections:
 - `price must be a number greater than 0` — a blank, a currency symbol, or a
   thousands separator in the cell.
 - `original_price is below price` — a discount cannot be negative.
-- `unit_type must be one of g, ml, pcs` — anything else, including `kg` and
+- `unit_type must be one of g, ml, pcs (or blank)` — anything else, including `kg` and
   `litre`. Convert the units: 1 kg is `1000` + `g`.
 - `stock must be a whole number` — decimals aren't stock.
 - A category or brand name that doesn't exist in this store.

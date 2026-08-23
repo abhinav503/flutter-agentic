@@ -1,0 +1,14 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "com.cordeliaapps/cordelia",
+  "title": "CordeliaApps",
+  "description": "Manage a CordeliaApps store from an AI assistant: import a Shopify or CSV catalog, edit products, categories, brands, coupons and banners, check publish readiness and submit the store for review.",
+  "version": "1.0.0",
+  "websiteUrl": "https://cordeliaapps.com/developers",
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://cordeliaapps.com/api/mcp"
+    }
+  ]
+}

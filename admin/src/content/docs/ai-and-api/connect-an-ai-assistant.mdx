@@ -1,0 +1,83 @@
+---
+title: Connect Claude or ChatGPT to your store
+description: Manage your CordeliaApps store by talking to an AI assistant — list what's in it, import a catalog, fix what's missing and submit it for review — with one connector URL and a login.
+sidebarTitle: Connect an AI assistant
+order: 1
+---
+
+CordeliaApps speaks **MCP** (the Model Context Protocol), the way AI assistants
+connect to outside tools. Once you connect your store, you can ask Claude or
+ChatGPT to do the things you'd otherwise click through in the console:
+*"Which of my products have no image?"*, *"Import this Shopify export"*,
+*"Is the store ready to publish?"*.
+
+It reads and writes only what you allow, only for the stores you pick, and you
+can disconnect it at any time.
+
+## The connector URL
+
+```
+https://cordeliaapps.com/api/mcp
+```
+
+That one URL is all any assistant needs. Authentication is a normal sign-in:
+the assistant sends you to CordeliaApps, you sign in with your console account,
+tick the stores it may manage, and you're done — no keys to paste.
+
+## Claude (claude.ai or the desktop app)
+
+Custom connectors need a Pro, Max, Team or Enterprise Claude plan.
+
+1. Open **Settings → Connectors → Add custom connector**.
+2. Name it `Cordelia`, paste the URL above, leave the OAuth fields empty, and **Add**.
+3. Click **Connect**. A CordeliaApps page opens: sign in, choose the stores, **Allow**.
+4. In a new chat, enable the Cordelia connector from the tools menu under the message box.
+
+## Claude Code (terminal)
+
+```bash
+claude mcp add --transport http cordelia https://cordeliaapps.com/api/mcp
+```
+
+Then run `/mcp`, pick **cordelia** and **Authenticate** — the same sign-in page
+opens in your browser.
+
+## ChatGPT
+
+Custom MCP connectors are available under **Settings → Connectors** (developer
+mode on a paid plan). Add the same URL; the sign-in flow is identical.
+
+## What it can do
+
+| Ask for | What happens |
+| --- | --- |
+| "Which stores can you manage?" | Lists the stores you granted, with status and template. |
+| "Is my store ready to publish? What's missing?" | Runs the seven readiness checks and explains each that fails. |
+| "Show me products with no image / no category / out of stock." | Reads the catalog and reports. |
+| "Here's my Shopify export — import it." | Dry-runs the file first and shows the plan (what's created, what's updated, what's skipped and why); imports only when you confirm. |
+| "Add a category *Summer* and move these products into it." | Creates and updates records. |
+| "Copy the product photos into my store." | Re-hosts images so they survive the source going away. |
+| "Submit the store for review." | Submits it, if every check passes. |
+
+It **cannot** change payment keys, the support contact or the trading address —
+those stay in **Settings** — and it cannot approve a store; a CordeliaApps
+reviewer does that after you submit.
+
+## Tips that save a round
+
+- **Name the store** when you have more than one: "…in Daily Mart".
+- For imports, **ask for a dry run first** — the assistant does this by default,
+  but saying it makes the plan the thing you're approving.
+- Deleting is a separate, confirmed step in every assistant; it won't happen
+  from an ambiguous sentence.
+
+## Disconnecting
+
+**Settings → Developers → Connected apps** lists every assistant you've connected,
+when it was last used, and a **Disconnect** button. Disconnecting takes effect
+immediately; the assistant will ask you to connect again next time.
+
+## For people who'd rather script it
+
+Everything the assistant can do is an HTTP API you can call with a store token —
+see [API tokens and the v1 API](/docs/ai-and-api/api-tokens).

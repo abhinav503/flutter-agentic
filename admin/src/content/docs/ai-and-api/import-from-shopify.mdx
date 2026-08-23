@@ -1,0 +1,64 @@
+---
+title: Move a Shopify catalog to CordeliaApps
+description: Export your products from Shopify and import the file as-is — variants, galleries, vendors and stock come across; drafts are skipped; nothing is written until you've seen the plan.
+sidebarTitle: Import from Shopify
+order: 2
+---
+
+Shopify's product export is the one file most merchants already have. Import it
+unchanged: CordeliaApps reads both the classic and the newer column names.
+
+## Export from Shopify
+
+Shopify admin → **Products** → **Export** → *All products*, *CSV for Excel,
+Numbers, or other spreadsheet programs*. You'll get `products_export.csv` (or
+several, for a large store — import them one at a time).
+
+## Import it
+
+Either:
+
+- **In the console** — **Products → Import**, set *File format* to
+  **Shopify products export**, choose the file. You'll see the plan before
+  anything is written: how many products are created or updated, which
+  categories and brands will be created, which rows are skipped and why.
+- **Through an AI assistant** — attach the file and say *"import this Shopify
+  export into &lt;store&gt;"*. It dry-runs first and shows you the same plan.
+
+Both go through the same importer, with the same rules.
+
+## What maps to what
+
+| Shopify | CordeliaApps |
+| --- | --- |
+| Handle | `external_id` — re-importing the same export updates instead of duplicating |
+| Title, Body (HTML) | Name, description (HTML stripped) |
+| Vendor | Brand — created if missing |
+| Type | Category — created if missing. With no Type, the *Product category* leaf is used; with neither, the Tags; with nothing at all, a category named **Imported** |
+| Option1–3 + variant rows | Options and variants, each with its own price, compare-at price, stock, SKU and barcode |
+| Image Src rows | The product's gallery, in position order |
+| Variant Image | The variant's own image |
+| Variant Inventory Qty / Policy | Stock; *continue selling when out of stock* is honoured |
+| Variant Grams | Pack size in grams, when present |
+
+Tags can also become categories — tick the option (or tell the assistant).
+
+## What's skipped, and told to you
+
+- Products whose **Status** isn't *active*, or that are unpublished.
+- Products whose name or description names an **alcohol or tobacco** product —
+  CordeliaApps doesn't list them. Rename or drop the row.
+
+Every skip is listed with the line number in the plan.
+
+## Photos
+
+The export holds links to Shopify's CDN. They keep working while your Shopify
+store is open. Ask the assistant to **re-host the images** (or re-import with
+*copy images* on) to keep copies in your CordeliaApps store so they don't
+disappear with the old account.
+
+## Not carried over
+
+Collections (beyond Type/Tags), metafields, SEO fields, shipping weights, tax
+codes, gift cards. Orders and customers are never imported.

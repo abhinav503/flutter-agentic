@@ -12,6 +12,7 @@ import {
   Rocket,
   Settings,
   ShoppingCart,
+  Sparkles,
   Star,
   Store,
   TrendingUp,
@@ -52,6 +53,7 @@ const icons = {
   coupon: BadgePercent,
   users: Users,
   file: FileText,
+  sparkles: Sparkles,
 } as const;
 
 export type DocIconName = keyof typeof icons;

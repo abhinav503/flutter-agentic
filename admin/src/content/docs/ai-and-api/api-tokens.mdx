@@ -1,0 +1,102 @@
+---
+title: API tokens and the v1 API
+description: Call CordeliaApps from a script, a CI job or your own tool — create a store-scoped token, then read and write the catalog, import CSVs, and submit for review over HTTPS.
+sidebarTitle: API tokens & v1 API
+order: 3
+---
+
+Everything the console and the AI connector do goes through one HTTP API. A
+**store token** lets your own code use it without a login.
+
+## Create a token
+
+**Settings → Developers → Create token.** Give it a label and pick scopes:
+
+| Scope | Allows |
+| --- | --- |
+| `catalog:write` | Read and write products, categories, brands, coupons, banners; import; re-host images; sample data |
+| `store:publish` | Read readiness and submit the store for review |
+| `orders:read` | List orders |
+
+The token is shown **once**. It's bound to that store only; an agency managing
+several stores holds one per store. Revoke it from the same page the moment it
+leaks.
+
+Send it as a bearer header:
+
+```
+Authorization: Bearer cord_live_…
+```
+
+## Quickstart
+
+```bash
+S=your_store_id
+T=cord_live_…
+B=https://cordeliaapps.com/api/v1/stores/$S
+
+# Readiness — the seven publish checks
+curl -s -H "Authorization: Bearer $T" $B/readiness
+
+# Create a product (categories and brand may be names or ids; must exist)
+curl -s -X POST $B/products -H "Authorization: Bearer $T" -H "Content-Type: application/json" -d '{
+  "name": "Tee", "external_id": "shop-1", "categories": ["Clothing"],
+  "option_names": ["Size"],
+  "variants": [{"options": ["M"], "price": 499, "stock": 3}, {"options": ["L"], "price": 499, "stock": 5}]
+}'
+
+# Dry-run a Shopify export, then commit
+curl -s -H "Authorization: Bearer $T" -H "Content-Type: text/csv" --data-binary @products_export.csv \
+  "$B/import?format=shopify"
+curl -s -H "Authorization: Bearer $T" -H "Content-Type: text/csv" --data-binary @products_export.csv \
+  "$B/import?format=shopify&commit=true"
+
+# Submit for review
+curl -s -X POST -H "Authorization: Bearer $T" $B/publish
+```
+
+## Routes
+
+All under `https://cordeliaapps.com/api/v1/stores/{storeId}`. Entities:
+`products`, `categories`, `brands`, `coupons`, `banners`.
+
+| Method & path | Does |
+| --- | --- |
+| `GET /{entity}` | The collection, in the same shape `PUT` accepts |
+| `POST /{entity}` | One record — upsert; `201` created, `200` updated |
+| `PUT /{entity}` | Bulk upsert `{ items: [...], dry_run?: true }`, up to 2,000 rows |
+| `GET` `PATCH` `DELETE /{entity}/{id}` | One record; `PATCH` changes only the fields present |
+| `POST /import?entity=&format=&commit=` | CSV in (`text/csv`, multipart `file`, or JSON `{csv}`); dry run unless `commit=true` |
+| `POST /images` | `{ url, kind? }` — copies a public image into the store |
+| `POST /seed` | `{ market }` — sample grocery catalog |
+| `GET /readiness` | Status and the seven checks |
+| `POST /publish` | Submit for review |
+| `GET /usage` | Your API activity (owner login only) |
+
+### How records match
+
+`id` → `external_id` → name (or code/title). Give everything that came from
+another system an `external_id`, and re-runs update rather than duplicate.
+
+### Product fields
+
+`name`, `description`, `images[]`, `external_id`, `sku`, `barcode`, `price`,
+`original_price`, `stock`, `unit_value`, `unit_type` (`g` | `ml` | `pcs`),
+`categories` (names or ids), `brand` (name or id), `is_popular`,
+`option_names[]` (up to 3), `variants[]` (`options[]`, `price`,
+`original_price`, `stock`, `sku`, `barcode`, `sell_when_out_of_stock`,
+`image`, `pack_size`), `attributes` (a map shown as a spec list).
+
+### Errors
+
+`401` no or bad token · `403` wrong store or missing scope · `404` unknown
+record · `413` too many rows · `422` validation, with `error` and `errors[]`
+naming each problem · `429` slow down (`Retry-After`). Bulk calls report
+per-row results instead of failing whole.
+
+## The MCP endpoint
+
+`https://cordeliaapps.com/api/mcp` serves the same capabilities to AI
+assistants over MCP, with OAuth sign-in — see
+[Connect Claude or ChatGPT](/docs/ai-and-api/connect-an-ai-assistant). A store
+token works there too, for MCP clients that would rather not do OAuth.

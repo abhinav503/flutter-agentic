@@ -37,7 +37,7 @@ export default function OAuthAuthorizePage() {
 }
 
 function Consent() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, signOutUser } = useAuth();
   const { stores, loading: storesLoading } = useStore();
   const openAuth = useAuthDialog();
   // The host's query is the whole request; it goes back to the server
@@ -164,7 +164,23 @@ function Consent() {
                       </ul>
                     )}
                   </div>
-                  <p className="text-xs text-muted-foreground">Signed in as {user.email}</p>
+                  <p className="text-xs text-muted-foreground">
+                    Signed in as {user.email}.{" "}
+                    {/* An agency laptop is often signed into a client's
+                        account; switching here beats finding the console's
+                        sign-out first. The page stays put — the host's request
+                        is still in the URL. */}
+                    <button
+                      type="button"
+                      className="underline underline-offset-2 hover:text-foreground"
+                      onClick={() => {
+                        setExcluded([]);
+                        void signOutUser();
+                      }}
+                    >
+                      Not you? Sign out
+                    </button>
+                  </p>
                   <div className="flex justify-end gap-2">
                     <Button variant="ghost" onClick={() => decide("deny")} disabled={submitting}>
                       Cancel
