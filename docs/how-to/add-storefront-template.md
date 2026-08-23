@@ -357,6 +357,15 @@ The template layer is *only* chrome — before writing any widget or screen
 behaviour, check these three shelves in order. Hand-rolling something a
 shelf already has is the #1 review finding on every port.
 
+**This shelf check is about what already exists — not about designing what
+*should* be shared.** Don't invent a shared abstraction during the first pass.
+Duplication between the new pack and the existing ones is the expected output
+of Phase 3: the pattern only becomes visible once there is a second
+implementation to compare against, and an abstraction guessed at before that
+is usually the wrong shape. Phase 5's sweep is where it resolves — that is
+the design, not a cleanup for sloppiness. Extract on the **second** screen
+that repeats a composition, not the third, and not the first.
+
 **Check for a zero-usage shelf item first.** A full review of this codebase
 found six `core/ui/` widgets that had been extracted and then never adopted —
 so the shelf *looked* bare while the shared version sat unused beside the

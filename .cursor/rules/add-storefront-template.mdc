@@ -30,7 +30,9 @@ one as a model, and `_TEMPLATE.md` as the form to fill.
 3. **Implement** — register the template (enum + `wireValue`, `StorefrontPage`
    switch, a branch in **every** `StorefrontTemplateSwitch`), build the pack kit
    to the roster, then per-feature `presentation/templates/<id>/` slices. Reuse
-   before you build. Bottom inset on **every** state branch, exhaustive
+   before you build — but only what already exists; don't invent a shared
+   abstraction on the first pass. Duplication is expected here and Phase 5
+   is where it resolves. Bottom inset on **every** state branch, exhaustive
    switches, `ValueConst`-only copy, skeletons that mirror the loaded
    structure — never a spinner.
 4. **Prove it with tests, not a device** — ship tests in the same commit.

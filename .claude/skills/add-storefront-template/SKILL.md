@@ -44,7 +44,9 @@ branch in **every** `StorefrontTemplateSwitch` in `app.dart`, theme
 assets — there is no bundled mock data any more), build the pack kit to the roster spec (screen shell
 first), then per-feature `presentation/templates/<id>/` slices. The
 guide's **"Reuse before you build"** section is the standing rule — three
-shelves checked before writing anything: (a) the warm-start `BlocCache`
+shelves checked before writing anything (for what *already exists*; don't
+invent a shared abstraction on the first pass — duplication is expected and
+Phase 5's sweep is where it resolves): (a) the warm-start `BlocCache`
 recipe (mirror the other pack's `*_page.dart` bloc wiring exactly; the
 caching lives in the shared bloc), (b) the shared-behaviour table
 (`EditProfileForm`, `ChangePasswordForm`, `AddressFormFields`,
