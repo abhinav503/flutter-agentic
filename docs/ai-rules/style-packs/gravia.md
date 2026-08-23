@@ -637,3 +637,79 @@ track swatches (`ColorConst.gray100` off, `ColorConst.success500` on).
 | Empty | `EmptyState` — icon + one-line title + one-line subtitle + next-step action |
 | Error | `ErrorView` + retry, with retry inputs carried on the error state |
 | Content swap | `AnimatedSwitcher`, 300ms (§7) |
+
+---
+
+## 15. Content states the kit doesn't draw
+
+A UI8 kit is a catalogue of happy paths: everything is in stock, someone is
+signed in, and the basket has a total. These five states have **no frame in
+the Gravia kit** and were each composed from recipes this pack already owned.
+They are contracts, not options — a pack missing them fails at checkout, at
+review, or both.
+
+> **Scope.** These live in `cordelia`'s **gravia template**
+> (`apps/ecommerce/cordelia/lib/.../templates/gravia/`). The standalone
+> `apps/ecommerce/gravia` app predates all five and carries none of them — it
+> is now the older of the two things wearing this pack's name.
+
+### 15.1 Stock and availability
+
+`ProductEntityStockX` answers the questions (`isOutOfStock`, `isLowStock`,
+`purchaseLimit`); the pack decides how each reads.
+
+| Surface | Gravia's treatment |
+|---|---|
+| Product card, sold out | Photo at `kSoldOutImageOpacity` — **faded, not veiled**: a scrim would fight the glass favourite heart sitting on it, and the action label already says why. `actionLabel` becomes "Out of Stock", `actionState: disabled`, `onAction: null` |
+| Product card, low stock | The meta row swaps the discount item for a flash-glyph "Only N left" in `cs.error`. At 184 wide the row fits **two** meta items, and "nearly gone" is the more useful of the two |
+| Quick-add disc | **Dropped, not disabled**, while sold out — a quantity picker for a product with no units left has nothing to pick |
+| Quantity control | Capped at `purchaseLimit` |
+| Cart row | Subtitle replaced by `CartItemAvailabilityX.availabilityLabel` |
+
+One trap this pack hit: `AppButton.foregroundColor`'s `onOverlay` pin is
+**dropped** while sold out. A pinned label colour outranks the disabled ink,
+so keeping it prints white text on the disabled fill.
+
+### 15.2 Delivery fee
+
+A `PriceLine` inside `PriceBreakdown`, above the total. Free renders
+`GraviaValueConst.deliveryFreeLabel` in `cs.primary`; a charged fee renders
+`.asPrice` in `cs.onSurface`. The fee comes from `delivery.feeFor(goods)` —
+never recomputed per screen, because the payment intent and the order
+transaction must agree with what this line says.
+
+Rendered in **all three** places a total appears: cart summary, checkout,
+track order.
+
+### 15.3 Help & Support
+
+`CollapsingHeaderSheet` + `IconInfoRow` rows — the pack's existing sheet and
+row silhouette, no new widget. One row per `SupportChannel` the store
+publishes (email, phone, hours), with the platform fallback underneath when
+the store publishes nothing.
+
+Two entry points: the Profile row, and a row in the **body** of Track Order
+("Need help with this order?") which pre-fills the order id, store, account
+and app version into the message.
+
+### 15.4 Reporting a review, blocking its author
+
+`report_review_sheet_content.dart` — the pack's sheet chrome over the shared
+`ReportReviewForm` mixin and `ReviewReportReason`. Reached from the overflow
+control on a review that is **not** the reader's own; the same sheet also
+blocks the author, because a reader who has had enough of someone shouldn't
+have to find a second control.
+
+Required by App Store Review Guideline 1.2 for any app carrying UGC.
+
+### 15.5 Signed out
+
+`ProfileSignedOut()` renders a bare `CollapsingHeaderSheet` — the header
+chrome with no identity in it. The branch **must exist**: without it a guest's
+Profile shimmers forever.
+
+Every write-shaped tap (bag, wishlist, order, profile, review) goes through
+`context.requireSignIn()`, which **pushes** Login so backing out returns the
+shopper to the exact product they were on. Browsing — home, categories,
+product details, search, reading reviews — needs no account and must render
+fully without one.

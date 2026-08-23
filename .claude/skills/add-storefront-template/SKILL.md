@@ -40,8 +40,8 @@ user before writing code.
 ## Phase 3 — Implement
 
 Register the template (enum + `wireValue`, `StorefrontPage` switch, a
-branch in **every** `StorefrontTemplateSwitch` in `app.dart`, theme +
-mock-data assets), build the pack kit to the roster spec (screen shell
+branch in **every** `StorefrontTemplateSwitch` in `app.dart`, theme
+assets — there is no bundled mock data any more), build the pack kit to the roster spec (screen shell
 first), then per-feature `presentation/templates/<id>/` slices. The
 guide's **"Reuse before you build"** section is the standing rule — three
 shelves checked before writing anything: (a) the warm-start `BlocCache`
@@ -66,20 +66,41 @@ tag on Category Details), and a doc comment on every core-component fork
 naming what didn't fit. Bottom inset on **every** branch, exhaustive
 switches, `ValueConst`-only copy.
 
-## Phase 4 — Review & promotion
+## Phase 4 — Prove it with tests, not a device
+
+Four cross-cutting concerns are **inherited, never rebuilt**: warm-start
+caching (`BlocCache`/`ScopedBlocCache`), failures mapped to copy once at the
+presentation boundary (never `e.toString()`; react to `Failure.refused`'s
+`code`, not its message), `CrashReporterService` (registered in `main.dart`,
+static singleton, no-op on web/debug), and notifications (real per-store data;
+the pack maps `NotificationKind` to glyphs and owns nothing else).
+
+Then ship tests **with** the pack, in the same commit — manual fakes only, no
+network, `bloc_test` `MockBloc` for widget tests, reusing
+`test/helpers/fake_storefront_use_cases.dart` and `fake_auth_session.dart`.
+A new pack owes: template dispatch + no cross-pack fall-through, warm revisit
+with no skeleton, session teardown, long-label wrapping, stock states,
+signed-out browse + gated taps, an error branch whose retry re-dispatches, and
+empty ≠ error. Remember what the fake font can prove (no overflow, `maxLines`,
+shared heights, the right widget, the right event) and what it can't (whether
+copy *fits*, spacing, colour). `make test` + `make analyze` over the **whole**
+workspace.
+
+## Phase 5 — Review & promotion
 
 Run `/review-code`, then a reusability sweep across all packs: promote
 duplicates by scope (core + gallery entry / `lib/widgets` `Cordelia*` /
-feature mixin / pack kit). Then a **contract audit** — grep for every
-mechanism the spec sheet names, since Phase 1 writes contracts before the
-screens exist and an unimplemented row fails nothing. `flutter analyze`
-clean, `make test`, and a switch test walking every surface **and
+feature mixin / pack kit), re-running Phase 4's suite after each promotion.
+Then a **contract audit** — grep for every mechanism the spec sheet names,
+since Phase 1 writes contracts before the screens exist and an unimplemented
+row fails nothing. Finish with a switch walk over every surface **and
 transition** in each template.
 
-## Phase 5 — Document
+## Phase 6 — Document
 
-Finish the spec sheet (§10–§14 + deviations), add the `design.md` §1
-catalog row, and update `superapp-ecommerce-plan.md` + `end-goal.md`
-progress.
+Finish the spec sheet (§10–§15 + deviations — **§15 is the states the kit
+never draws**: stock/availability, delivery fee, report+block on reviews,
+signed-out), add the `design.md` §1 catalog row, and update
+`superapp-ecommerce-plan.md` + `end-goal.md` progress.
 
 @docs/how-to/add-storefront-template.md

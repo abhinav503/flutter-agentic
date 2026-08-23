@@ -734,3 +734,68 @@ the second screen that repeats a styled composition, not the third.
 | Empty | `EmptyState` — icon + one-line title + one-line subtitle + a next-step action |
 | Error | `ErrorView` + retry; the retry inputs (`storeId`) ride on the error state |
 | Inline pending | `LoadingDots` |
+
+---
+
+## 15. Content states the kit doesn't draw
+
+A UI8 kit is a catalogue of happy paths: everything is in stock, someone is
+signed in, and the basket has a total. These five states have **no frame in
+the DailyMart kit** and were each composed from recipes this pack already
+owned. They are contracts, not options — a pack missing them fails at
+checkout, at review, or both.
+
+### 15.1 Stock and availability
+
+`ProductEntityStockX` answers the questions (`isOutOfStock`, `isLowStock`,
+`purchaseLimit`); the pack decides how each reads.
+
+| Surface | DailyMart's treatment |
+|---|---|
+| Product card, sold out | A `DailyMartPill` in the photo's top corner — `cs.onSurface` fill, `cs.surface` label, `bodyXsSemibold`. Photo at `kSoldOutImageOpacity`; **no scrim**, which would darken the white favourite disc beside it |
+| Product card, low stock | The same pill, `cs.error` fill / `cs.onError` label, reading "Only N left" |
+| The slot rule | **One pill, one corner.** Availability is the news when there is any, so it takes the slot rather than stacking a second pill into a 2-column grid cell — and running low **outranks the discount badge** for the same slot, since a shopper can act on "nearly gone" and the price sits right below it either way |
+| Quantity control | Capped at `purchaseLimit` |
+| Cart row | Subtitle replaced by `CartItemAvailabilityX.availabilityLabel` |
+
+### 15.2 Delivery fee
+
+A row in `cart_summary_panel.dart`'s totals block, above the grand total, and
+the equivalent line on the routed Checkout page and Track Order. The fee comes
+from the shared quote — never recomputed per screen, because the payment
+intent and the order transaction must agree with what this line says.
+
+### 15.3 Help & Support
+
+`DailyMartScreenBody` + `DailyMartMenuTile` — the pack's existing screen shell
+and bordered-strip row, no new widget. One row per `SupportChannel` the store
+publishes, with the platform fallback underneath when the store publishes
+nothing.
+
+Two entry points: the Profile row, and a row in the **body** of Track Order
+("Need help with this order?") which pre-fills the order id, store, account
+and app version into the message.
+
+### 15.4 Reporting a review, blocking its author
+
+`report_review_sheet_content.dart` — `showDailyMartSheet` chrome over the
+shared `ReportReviewForm` mixin and `ReviewReportReason`. Reached from the
+overflow control on a review that is **not** the reader's own; the same sheet
+also blocks the author, because a reader who has had enough of someone
+shouldn't have to find a second control.
+
+Required by App Store Review Guideline 1.2 for any app carrying UGC.
+
+### 15.5 Signed out
+
+`ProfileSignedOut()` shares the loading branch
+(`ProfileLoading() || ProfileSignedOut() => …`). That is safe **only because
+the Profile tab is itself gated** — a guest tapping it gets Login pushed, so
+the state is transient rather than a shimmer nobody escapes. The branch must
+still exist; without it a guest's Profile shimmers forever.
+
+Every write-shaped tap (bag, wishlist, order, profile, review) goes through
+`context.requireSignIn()`, which **pushes** Login so backing out returns the
+shopper to the exact product they were on. Browsing — home, categories,
+product details, search, reading reviews — needs no account and must render
+fully without one.

@@ -1,0 +1,1 @@
+../../docs/ai-rules/style-packs/_TEMPLATE.md

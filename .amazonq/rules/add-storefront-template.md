@@ -102,7 +102,12 @@ feature → what the template must draw):
 | Change password | `ChangePasswordBloc` + `ChangePasswordForm` mixin | route |
 | Account deletion | `DeleteAccountAction` mixin (owns the in-flight flag + the blocking overlay) → `deleteAccountAndReturnToLogin` | **Required.** The last row of Profile, behind the pack's own confirm sheet |
 | Favourites / wishlist / bookmarks | `FavouritesCubit` (app-root) | tab or route |
-| Notifications | `notifications` / `NotificationsBloc` (per-template mock) | route |
+| Stock & availability states | `ProductEntityStockX` on `ProductEntity` (`isOutOfStock`, `isLowStock`, `purchaseLimit`) + `CartItemAvailabilityX` | every product card, product details, cart row, quantity control |
+| Delivery fee | `CartQuote` / `OrderEntity.deliveryFee` | every totals panel: cart, checkout, track order |
+| Report a review / block its author | `reviews` / `ProductReviewsActions.reportReview` + `ReportReviewForm` mixin, `ReviewReportReason` | the "…" control on someone else's review |
+| Help & Support | `support` / `SupportChannel`s off the store's published contact | Profile row + a row in the body of Track Order |
+| Signed-out (guest) states | `SignInGateX.requireSignIn`, `ProfileState.signedOut` | every header, Profile, and each gated tap |
+| Notifications | `notifications` / `NotificationsBloc` — real per-store data off `notificationsPath(storeId)`, merging store + platform + personal feeds with server-side read receipts. The pack maps each `NotificationKind` to its own glyph; it does **not** own the data | route |
 | Privacy Policy + Terms & Conditions | `legal` / shared `LegalDocumentContent` | routes |
 
 **Account deletion is not optional.** Both app stores require an app that
@@ -113,6 +118,41 @@ destructive action belongs furthest from the rows a shopper opens Profile to
 use. Use the kit's own delete/trash glyph — all three existing packs export
 one — and the shared mixin, so the copy, the ordering and the busy overlay
 can't drift per template.
+
+**Four more that a kit will never draw for you.** Each shipped after the
+first three packs and each is invisible in a Figma frame, so a port that
+inventories frames alone will miss all four — and two of them are store-policy
+failures rather than gaps.
+
+- **Stock states.** A kit draws products that are in stock. Real catalogs sell
+  out, and `stock` is enforced at both checkout writes — so a pack that renders
+  no availability lets a shopper fill a bag and get refused at payment. Every
+  pack owes four treatments: a **sold-out mark** and a disabled add control on
+  the card and on Product Details, the product photo at
+  `kSoldOutImageOpacity` (one shared number — a sold-out card means the same
+  thing in every template, even though the *mark* is each pack's own), a
+  quantity control capped at `purchaseLimit`, and an unbuyable cart line
+  labelled from `CartItemAvailabilityX.availabilityLabel`
+  ("Out of Stock" / "Only N left"). Checkout refuses before an address is
+  picked, in the shopper's own language.
+- **The delivery fee renders wherever a total does.** Cart, checkout and track
+  order each show a totals panel, and the fee is computed server-side in one
+  file precisely so the payment intent and the order transaction can't
+  disagree. A panel that omits it shows a total the shopper is not charged.
+- **Reporting a review and blocking its author** — App Store Review Guideline
+  1.2 for any app carrying user-generated content, and the counterpart to the
+  write-review sheet the pack already builds. One sheet does both: a reader who
+  has had enough of someone shouldn't have to find a second control. Use the
+  pack's own overflow glyph on reviews that aren't the reader's own.
+- **Signed-out states.** The app browses without an account: discovery, home,
+  categories, products, search and reviews all render for a guest. Anything
+  that *writes* something owned by a person — bag, wishlist, order, profile,
+  review — goes through `context.requireSignIn()` and acts only if it resolves
+  true. Two consequences a pack has to draw: Profile needs a real
+  `signedOut` branch (not a shimmer that never resolves), and every header that
+  greets the shopper by name needs a signed-out form. Never `go` to Login —
+  `requireSignIn` **pushes** it, so backing out returns the shopper to the exact
+  product they were on.
 
 **Not templated — do not build:** Login/Signup/verify-email (shared
 Cordelia-brand chrome on `Cordelia*` widgets, reachable from every template
@@ -147,8 +187,9 @@ Order of work (proven by the dailymart port):
    `StorefrontPage.buildBody`'s **exhaustive** switch; a `<id>:` builder in
    **every** `StorefrontTemplateSwitch` in `app.dart` (grep for the type —
    silent fall-through to another pack is the drift this architecture
-   exists to prevent); mock data under `assets/data/templates/<id>/`
-   (notifications) + pubspec lines.
+   exists to prevent); No bundled mock data: notifications
+   became real per-store API data and `assets/data/templates/` was
+   deleted with them.
 2. **Build the pack kit** (`lib/templates/<id>/widgets/`) to the spec-sheet
    roster *before* screens — the screen shell first (the pack's
    `DailyMartScreenBody` equivalent: one scroll/padding recipe for every
@@ -451,6 +492,20 @@ the next reader wouldn't look:
   a `TextPainter` and drops the offer slot to body-small on two lines).
   Seeded/admin sentence-length banner copy is the test case the kit
   screenshot never shows.
+- **State that a kit frame can't show gets drawn anyway.** A Figma kit is a
+  catalogue of happy paths: everything is in stock, someone is signed in, and
+  the basket has a total. The four surfaces named in Phase 2 — stock,
+  delivery fee, report/block, signed-out — have no frame in any of the three
+  kits ported so far, and all three packs draw them from recipes they already
+  owned (a pill, a tag, a faded photo, an existing sheet). When a pack's kit
+  has no frame for one, that is the expected case, not a licence to skip it.
+- **A sold-out treatment belongs on the card, not only in the cart.** All three
+  packs put the mark where the shopper decides: gravia swaps its low-stock
+  meta row in beside the price, dailymart puts one pill in one corner
+  (availability outranks the discount badge for that slot), grofast stamps a
+  `_StockTag` opposite the heart. Whatever the shape, the photo fades to
+  `kSoldOutImageOpacity` and the add control is disabled — a card that looks
+  buyable and isn't is worse than one that says so.
 - **A pack widget that forks a core component says why, in its doc comment.**
   Name the core component and the specific mismatch (`AppMenuTile`'s
   silhouette is an icon circle on a bare surface; this kit's row is a filled
@@ -500,9 +555,98 @@ the next reader wouldn't look:
   default in a `const` constructor parameter (make it nullable and resolve
   at build time — the review sheet's `textLabel` lesson).
 
+### What a template inherits, and must not rebuild
+
+Four cross-cutting concerns already work app-wide. A pack **consumes** each;
+a pack that reimplements one has created a second thing to maintain and a
+second thing to drift.
+
+- **Caching.** A tab's bloc warm-starts from `BlocCache` (or `ScopedBlocCache`,
+  keyed to the store, so switching storefronts can't flash the previous one's
+  data). The shell rebuilds each tab's `BlocProvider` on every switch, so
+  without this a revisit re-runs the full loading state — see
+  `docs/how-to/design-tab-flow.md`. The pack's job is only to render the warm
+  state without a skeleton flash; the cache itself is shared.
+- **Errors.** Failures arrive as `Failure` and are turned into copy **once**,
+  at the presentation boundary. A pack never prints `e.toString()`, an HTTP
+  client's message, or an SDK exception. Where two callers must react
+  differently, the reason is machine-readable (`Failure.refused`'s `code`) —
+  read the code, don't match on the message. Every `*Error` state carries what
+  a retry needs.
+- **Crash reporting.** `CrashReporterService` is registered once in
+  `main.dart`, is a static singleton (never in GetIt), and no-ops on web and in
+  debug. A pack neither wires nor guards it. Report a *caught and handled*
+  failure through `CrashReporterService.instance` rather than swallowing it —
+  and never add a per-pack copy of the guard.
+- **Notifications.** Real per-store data, not a bundled mock. The pack maps
+  each `NotificationKind` to its own glyph and renders the centre; it owns no
+  data, no topic subscription and no tap routing — those follow the storefront
+  session and the auth state app-wide.
+
 ---
 
-## Phase 4 — Review & promotion sweep
+## Phase 4 — Prove it with tests, not a device
+
+**The pack is not done because it renders on your simulator.** A storefront is
+too many screens to walk by hand on every change, and the walk proves nothing
+the next change can't silently undo. Ship tests with the pack, in the same
+commit — this repo's conventions apply unchanged (`docs/reference/architecture.md`
+§ Testing): **manual fakes only** (no mockito/mocktail), fakes injected at the
+data-source or use-case boundary, `bloc_test`'s `MockBloc` for widget tests,
+and **no test may touch the network** (`make check-test-isolation` enforces it).
+
+Reuse `test/helpers/fake_storefront_use_cases.dart` and
+`test/helpers/fake_auth_session.dart` — a new pack should add *cases*, not a
+second set of fakes.
+
+### 4.1 What every new pack owes
+
+| Test | Shape | Existing exemplar |
+|---|---|---|
+| **Template dispatch** — a store on this id mounts *this* pack's shell, and every route pushed over it resolves to this pack's screen | widget, pump `StorefrontPage` with an `ActiveStoreEntity` carrying the new id | `test/widget/feature/storefront/storefront_page_test.dart` |
+| **No cross-pack fall-through** — no surface renders another pack's chrome | widget, assert on the pack's own widget types | same |
+| **Warm revisit** — a second visit to a cached tab shows no skeleton | widget | `storefront_single_load_test.dart` |
+| **Session teardown** — replacing one storefront with another can't clear the successor's state | widget | `storefront_tab_jump_test.dart` |
+| **Long-label wrapping** — the pack's narrow slots survive the longest real catalog name and the longest translated label | widget, per pack tile | `test/widget/templates/long_label_wrapping_test.dart` |
+| **Stock states** — sold-out and low-stock render their marks; the add control is disabled; the quantity control caps at `purchaseLimit` | widget + unit | `test/unit/feature/storefront/cart/stock_availability_test.dart` |
+| **Signed-out** — every browse surface renders with no account, and each gated tap asks for one | widget with `FakeAuthSession` | `test/unit/feature/storefront/profile/profile_bloc_auth_test.dart` |
+| **Error branch** — a failing use case renders the pack's `ErrorView` with a retry that re-dispatches | widget with a fake returning `Left` | — |
+| **Empty vs error are distinguishable** — the two branches must not render the same | widget | — |
+
+### 4.2 What a widget test can and cannot prove
+
+Widget tests render with a fallback font whose every glyph is a **square of
+the font size** — roughly double a real font's width — so text wraps far
+earlier than on a device. Any assertion comparing a short string's height
+against a long one's is meaningless.
+
+- **Survives the fake font:** no overflow exception, `maxLines` is what you
+  think, tiles in a row share a height, a box is content-sized rather than
+  clipped, the right widget is on screen, a tap dispatches the right event.
+- **Does not survive it:** whether copy actually *fits*, spacing rhythm,
+  colour, anything that is a judgement about looks.
+
+So tests are the regression net, not the design review. The visual pass in
+Phase 5 still happens — but it happens **once**, on a pack the tests already
+say is wired correctly.
+
+### 4.3 Running them
+
+```bash
+make test        # the WHOLE workspace, not just the app you touched
+make analyze     # flutter analyze at the root
+make checks      # core-adoption + test-isolation + analyze (what the hook runs)
+```
+
+Two apps in this repo accumulated failing tests precisely because only the app
+under active work was ever run. A red test anywhere is this phase failing.
+
+---
+
+
+---
+
+## Phase 5 — Review & promotion sweep
 
 1. Run the **`/review-code`** checklist over everything added.
 2. **Reusability sweep across all packs** — diff the new pack against the
@@ -538,7 +682,7 @@ the next reader wouldn't look:
    skeleton behind a comment claiming it is unreachable.
 
 3. `flutter analyze` at the repo root (must be clean) and `make test`.
-4. **Contract audit — every row of the spec sheet must have a call site.**
+6. **Contract audit — every row of the spec sheet must have a call site.**
    Phase 1 writes the contracts *before* the screens exist, so a row can
    describe behaviour nobody ever wired up, and nothing fails: the app
    compiles, the screen renders, and the doc asserts a feature that isn't
@@ -549,7 +693,7 @@ the next reader wouldn't look:
    row is rewritten to match what shipped; a contract with no
    implementation is worse than no contract, because the next reader trusts
    it.
-5. **Switch test:** open a store of each template id and walk every surface
+7. **Switch walk:** open a store of each template id and walk every surface
    in the table above — no screen may render another pack's chrome. Exercise
    the *transitions*, not just the screens: Home → Search (the field should
    fly, not fade), Home → Category Details (it should **not** fly), and each
@@ -557,7 +701,7 @@ the next reader wouldn't look:
 
 ---
 
-## Phase 5 — Document
+## Phase 6 — Document
 
 1. Finish the spec sheet (§10 signature compositions, §12 blocks used, §13
    wrapper roster with a "built" list, §14 state design), including every

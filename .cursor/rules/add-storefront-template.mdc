@@ -1,0 +1,71 @@
+---
+description: Apply when adding a new UI template (style pack / skin) to the cordelia multi-tenant storefront from a Figma kit.
+alwaysApply: false
+---
+
+Adds a **new UI template** to `apps/ecommerce/cordelia` from a **Figma kit** —
+every storefront surface rendered in the new pack over the **unchanged** shared
+`domain`/`data`/`bloc` layers. `dailymart` is the proven exemplar; `grofast`
+was the first built by this recipe.
+
+**Read `docs/how-to/add-storefront-template.md` and follow every phase.** It is
+the canonical version of this rule and carries the detail Cursor cannot inline.
+Also read the pack spec sheets in `docs/ai-rules/style-packs/` — an existing
+one as a model, and `_TEMPLATE.md` as the form to fill.
+
+## The six phases
+
+0. **Inputs** — Figma file key, lowercase template id, licence note. No Figma
+   access, no skill; never hand-transcribe from screenshots.
+1. **Kit → contracts** — sample **real screens** (never the kit's foundation
+   page, which lies). Produce the theme preset (light + dark), the theme config
+   JSON, the pack const files under `lib/templates/<id>/constants/`, and the
+   spec sheet §0–§9 **before any screen exists**. Type scale comes from the
+   kit, not from Material defaults.
+2. **Frame inventory** — bucket every frame: direct match → build from it;
+   supported surface with **no frame** → compose from the pack's own recipes,
+   never skip; frame with **no feature** behind it → discard and record the
+   deviation. Auth/splash/onboarding/discovery are shared chrome, never
+   templated. Confirm buckets and the tab set with the user before coding.
+3. **Implement** — register the template (enum + `wireValue`, `StorefrontPage`
+   switch, a branch in **every** `StorefrontTemplateSwitch`), build the pack kit
+   to the roster, then per-feature `presentation/templates/<id>/` slices. Reuse
+   before you build. Bottom inset on **every** state branch, exhaustive
+   switches, `ValueConst`-only copy, skeletons that mirror the loaded
+   structure — never a spinner.
+4. **Prove it with tests, not a device** — ship tests in the same commit.
+   Manual fakes only, no network, `bloc_test` `MockBloc`. A pack owes: template
+   dispatch + no cross-pack fall-through, warm revisit with no skeleton,
+   session teardown, long-label wrapping, stock states, signed-out browse +
+   gated taps, an error branch whose retry re-dispatches, and empty ≠ error.
+5. **Review & promotion** — `/review-code`, then promote duplicates by scope
+   (core + gallery entry / `Cordelia*` / feature mixin / pack kit), re-running
+   the tests after each promotion. Contract audit: every spec-sheet row must
+   have a call site.
+6. **Document** — finish the spec sheet through §15, add the `design.md` §1
+   catalog row, update the progress docs.
+
+## Inherited, never rebuilt
+
+Warm-start caching (`BlocCache`/`ScopedBlocCache`), failures mapped to copy
+once at the presentation boundary (never `e.toString()`; react to
+`Failure.refused`'s `code`, not its message), `CrashReporterService`
+(registered in `main.dart`, static singleton, no-op on web and debug), and
+notifications (real per-store data — the pack maps `NotificationKind` to its
+own glyphs and owns nothing else).
+
+## States the kit will not draw for you
+
+No UI kit contains these; all three packs compose them from recipes they
+already own, and two are store-policy failures rather than gaps:
+
+- **Stock and availability** — sold-out mark + disabled add control, photo at
+  `kSoldOutImageOpacity`, quantity capped at `purchaseLimit`, cart line
+  labelled from `CartItemAvailabilityX`.
+- **Delivery fee** — in **all three** totals panels (cart, checkout, track
+  order); a panel that omits it shows a total the shopper is not charged.
+- **Report a review / block its author** — App Store Guideline 1.2 for any app
+  with user-generated content. One sheet does both.
+- **Signed-out** — browsing needs no account; every *write*-shaped tap goes
+  through `context.requireSignIn()`, which **pushes** Login. `ProfileSignedOut`
+  must render, or a guest's Profile shimmers forever.

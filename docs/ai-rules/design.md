@@ -231,7 +231,17 @@ Get the shape right before touching a `TextStyle` or a colour.
    selector/chip's selected *and* unselected state resolves to the right token
    (not just whichever state you happened to screenshot), and `flutter analyze`
    is clean.
-7. **Widget tests can prove structure, not fit.** They render with a fallback
+7. **A kit draws happy paths; enumerate the states your data can be in.**
+   Every frame in a UI kit shows a product in stock, a signed-in shopper, a
+   basket with a total. Real data is out of stock, half-typed, empty,
+   permission-denied, or belongs to nobody yet. Before building a screen, list
+   the states its *data* can take and confirm the pack draws each one — the
+   ones with no frame are composed from the pack's own recipes, never skipped.
+   For cordelia's storefront packs that list is fixed and written down: stock
+   and availability, delivery fee, report/block on UGC, and signed-out — see
+   §15 of any style-pack spec sheet. A state that only exists in the kit is
+   the state that ships broken.
+8. **Widget tests can prove structure, not fit.** They render with a fallback
    font whose every glyph is a square of the font size — roughly double a real
    font's width — so text wraps far earlier than on a device and any assertion
    comparing a short string's height against a long one's is meaningless. What

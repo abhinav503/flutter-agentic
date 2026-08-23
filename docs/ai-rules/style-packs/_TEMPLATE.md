@@ -310,3 +310,55 @@ the **second** screen that repeats a styled composition, not the third.
 | Empty | `EmptyState`: icon + one-line title + one-line subtitle + next-step action |
 | Error | `ErrorView` + retry, with the retry inputs carried on the error state |
 | Inline pending | `LoadingDots` |
+
+---
+
+## 15. Content states the kit doesn't draw
+
+> A UI kit is a catalogue of happy paths: everything is in stock, someone is
+> signed in, and the basket has a total. **None of the states below will have
+> a frame in your kit.** Compose each from the recipes this pack already owns
+> — never skip one. Two of them are store-policy failures rather than gaps.
+> Delete this blockquote once the section is filled.
+
+### 15.1 Stock and availability
+
+`ProductEntityStockX` (`isOutOfStock`, `isLowStock`, `purchaseLimit`) answers
+the questions; the pack decides how each reads.
+
+| Surface | This pack's treatment |
+|---|---|
+| Product card, sold out | *(mark + photo at `kSoldOutImageOpacity`; add control disabled)* |
+| Product card, low stock | *("Only N left", `cs.error`)* |
+| Quantity control | Capped at `purchaseLimit` |
+| Cart row | Subtitle replaced by `CartItemAvailabilityX.availabilityLabel` |
+
+### 15.2 Delivery fee
+
+*(Which line, in which totals panel. Must appear in **all three** places a
+total does: cart, checkout, track order — the fee is computed server-side in
+one file so the payment intent and the order transaction can't disagree, and a
+panel that omits it shows a total the shopper is not charged.)*
+
+### 15.3 Help & Support
+
+*(Which screen shell + row widget. One row per `SupportChannel` the store
+publishes, platform fallback underneath. Two entry points: the Profile row and
+a row in the body of Track Order.)*
+
+### 15.4 Reporting a review, blocking its author
+
+*(The pack's sheet chrome over `ReportReviewForm` + `ReviewReportReason`,
+reached from the overflow control on someone else's review. One sheet does
+both. Required by App Store Review Guideline 1.2 for any app carrying UGC.)*
+
+### 15.5 Signed out
+
+*(How `ProfileSignedOut()` renders, and the signed-out form of any header that
+greets the shopper by name. The branch must exist or a guest's Profile
+shimmers forever.)*
+
+Every write-shaped tap (bag, wishlist, order, profile, review) goes through
+`context.requireSignIn()`, which **pushes** Login so backing out returns the
+shopper to where they were. Browsing needs no account and must render fully
+without one.

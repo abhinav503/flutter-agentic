@@ -568,3 +568,70 @@ behaviour, plus the matching design-gallery entry.
 Every state swaps inside `GrofastSwitcher` (core's `AppSwitcher`), and every
 branch renders inside the same shell, so the header, gutters and bottom inset
 are paid once regardless of which state is showing.
+
+---
+
+## 15. Content states the kit doesn't draw
+
+A UI8 kit is a catalogue of happy paths: everything is in stock, someone is
+signed in, and the basket has a total. These five states have **no frame in
+the GROFAST kit** and were each composed from recipes this pack already owned.
+They are contracts, not options — a pack missing them fails at checkout, at
+review, or both.
+
+### 15.1 Stock and availability
+
+`ProductEntityStockX` answers the questions (`isOutOfStock`, `isLowStock`,
+`purchaseLimit`); the pack decides how each reads.
+
+| Surface | GROFAST's treatment |
+|---|---|
+| Product card, either state | One `_StockTag`, positioned **opposite the heart** at `GrofastDimenConst.productHeartInset` — the corner the kit leaves empty. Sold out reads as a neutral stamp (`cs.onSurface`), running low as a warning (`cs.error`); both are the same tag shape |
+| Product card photo | `kSoldOutImageOpacity` while sold out |
+| Add control | Disabled while sold out |
+| Quantity control | Capped at `purchaseLimit` |
+| Cart row | Subtitle replaced by `CartItemAvailabilityX.availabilityLabel` |
+
+The staggered grid makes this worth checking twice: a tag added to the short
+first card must not push its fixed height, so measure the tag against the
+card's inner budget the way §11's copy-budget rule requires.
+
+### 15.2 Delivery fee
+
+A row in the totals block of `cart_screen.dart` and `checkout_screen.dart`,
+and on Track Order. The fee comes from the shared quote — never recomputed per
+screen, because the payment intent and the order transaction must agree with
+what this line says.
+
+### 15.3 Help & Support
+
+`GrofastScreenBody` + `GrofastMenuTile` — the pack's existing screen shell and
+row, no new widget. One row per `SupportChannel` the store publishes, with the
+platform fallback underneath when the store publishes nothing.
+
+Two entry points: the Profile row, and a row in the **body** of Track Order
+("Need help with this order?") which pre-fills the order id, store, account
+and app version into the message.
+
+### 15.4 Reporting a review, blocking its author
+
+`report_review_sheet_content.dart` — the pack's domed sheet with its floating
+handle over the shared `ReportReviewForm` mixin and `ReviewReportReason`.
+Reached from the overflow control on a review that is **not** the reader's
+own; the same sheet also blocks the author, because a reader who has had
+enough of someone shouldn't have to find a second control.
+
+Required by App Store Review Guideline 1.2 for any app carrying UGC.
+
+### 15.5 Signed out
+
+`ProfileSignedOut()` renders `GrofastProfileSkeletonBody`. That is safe **only
+because the Profile tab is itself gated** — a guest tapping it gets Login
+pushed, so the state is transient rather than a shimmer nobody escapes. The
+branch must still exist; without it a guest's Profile shimmers forever.
+
+Every write-shaped tap (bag, wishlist, order, profile, review) goes through
+`context.requireSignIn()`, which **pushes** Login so backing out returns the
+shopper to the exact product they were on. Browsing — home, categories,
+product details, search, reading reviews — needs no account and must render
+fully without one.
