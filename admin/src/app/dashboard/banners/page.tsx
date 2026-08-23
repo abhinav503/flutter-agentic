@@ -9,15 +9,15 @@ import { ImportCsvDialog } from "@/components/import-csv-dialog";
 import { importContext } from "@/lib/import/import-context";
 import {
   BANNER_COLUMNS,
-  buildBannerPlan,
   sampleBannerCsv,
 } from "@/lib/import/banner-csv";
+import { watchBanners } from "@/lib/banners";
 import {
-  watchBanners,
-  addBanner,
-  updateBanner,
-  deleteBanner,
-} from "@/lib/banners";
+  createRecord,
+  updateRecord,
+  deleteRecord,
+  bannerBody,
+} from "@/lib/catalog-api";
 import type {
   Banner,
   BannerTargetType,
@@ -232,10 +232,9 @@ export default function BannersPage() {
             return {
               entityPlural: "banners",
               entitySingular: "banner",
-              collectionName: "banners",
+              entity: "banners" as const,
               matchOn: "banner title",
               columns: BANNER_COLUMNS,
-              buildPlan: (csv: string) => buildBannerPlan(csv, ctx.catalog, banners),
               sampleCsv: () => sampleBannerCsv(ctx.seed, ctx.catalog),
               sampleLabel: ctx.sampleLabel,
               sampleSlug: ctx.sampleSlug,
@@ -276,10 +275,10 @@ export default function BannersPage() {
               onClick={async () => {
                 if (!deleting) return;
                 try {
-                  await deleteBanner(storeId, deleting.id);
+                  await deleteRecord(storeId, "banners", deleting.id);
                   toast.success("Banner deleted");
-                } catch {
-                  toast.error("Could not delete banner");
+                } catch (e) {
+                  toast.error(e instanceof Error ? e.message : "Could not delete banner");
                 } finally {
                   setDeleting(null);
                 }
@@ -359,15 +358,15 @@ function BannerDialog({
         backgroundColor,
       };
       if (banner) {
-        await updateBanner(storeId, banner.id, data);
+        await updateRecord(storeId, "banners", banner.id, bannerBody(data));
         toast.success("Banner updated");
       } else {
-        await addBanner(storeId, data);
+        await createRecord(storeId, "banners", bannerBody(data));
         toast.success("Banner added");
       }
       onClose();
-    } catch {
-      toast.error("Could not save banner");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not save banner");
     } finally {
       setSubmitting(false);
     }

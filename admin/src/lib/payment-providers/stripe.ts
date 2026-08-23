@@ -269,3 +269,39 @@ function constantTimeEquals(expected: string, actual: string): boolean {
 // failures; everything else is still in flight.
 export const REFUND_STATUS_PROCESSED = "succeeded";
 export const REFUND_STATUS_FAILED = new Set(["failed", "canceled"]);
+
+// Proves the secret works before it is stored (GET /balance is the
+// cheapest authenticated read), and that its mode matches the publishable
+// key's — a live pk_ with a test sk_ creates intents the client can never
+// confirm. Network failure is reported as such, not as "invalid".
+export async function verifyCredentials(
+  config: StorePaymentConfig,
+): Promise<{ ok: true } | { ok: false; reason: string }> {
+  let response: Response;
+  try {
+    response = await fetch(`${API}/balance`, {
+      headers: { Authorization: `Bearer ${config.keySecret}` },
+    });
+  } catch {
+    return { ok: false, reason: "Could not reach Stripe to check the keys — try again." };
+  }
+  if (response.status === 401) {
+    return { ok: false, reason: "Stripe rejected this secret key. Copy it again from Stripe → Developers → API keys." };
+  }
+  if (response.status === 403) {
+    return { ok: false, reason: "This Stripe restricted key can't read the account balance — grant it at least the permissions checkout needs (PaymentIntents write, Refunds write)." };
+  }
+  if (!response.ok) {
+    return { ok: false, reason: `Stripe answered ${response.status} while checking the keys.` };
+  }
+  const body = (await response.json().catch(() => ({}))) as { livemode?: boolean };
+  if (typeof body.livemode === "boolean" && body.livemode === config.isTest) {
+    return {
+      ok: false,
+      reason: config.isTest
+        ? "This is a live secret key but the publishable key is a test key — use keys from the same mode."
+        : "This is a test secret key but the publishable key is a live key — use keys from the same mode.",
+    };
+  }
+  return { ok: true };
+}

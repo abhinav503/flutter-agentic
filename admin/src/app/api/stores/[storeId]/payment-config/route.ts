@@ -12,7 +12,14 @@ import {
   setStorePaymentConfig,
   setStoreWebhookSecret,
 } from "@/lib/payments";
-import { providerForKeyId } from "@/lib/payment-providers/types";
+import { isTestKeyId, providerForKeyId } from "@/lib/payment-providers/types";
+import { verifyCredentials as verifyRazorpay } from "@/lib/payment-providers/razorpay";
+import { verifyCredentials as verifyStripe } from "@/lib/payment-providers/stripe";
+import type { StorePaymentConfig } from "@/lib/payment-providers/types";
+
+function verifyProviderCredentials(config: StorePaymentConfig) {
+  return config.provider === "stripe" ? verifyStripe(config) : verifyRazorpay(config);
+}
 
 // Store-owner-only. GET returns a non-secret status for the dashboard Settings
 // screen — both providers' slots plus which one is active; no secret is ever
@@ -159,6 +166,20 @@ export async function PUT(
   const secretError = validateSecretShape(provider, keyId, keySecret);
   if (secretError) {
     return NextResponse.json({ error: secretError }, { status: 400 });
+  }
+
+  // Live check against the provider before anything is stored: a typo'd or
+  // revoked secret would otherwise pass the "Payments connected" readiness
+  // check and fail first at a stranger's checkout.
+  const verified = await verifyProviderCredentials({
+    provider,
+    keyId,
+    keySecret,
+    isTest: isTestKeyId(keyId),
+    webhookSecret: "",
+  });
+  if (!verified.ok) {
+    return NextResponse.json({ error: verified.reason }, { status: 422 });
   }
 
   await setStorePaymentConfig(storeId, keyId, keySecret);

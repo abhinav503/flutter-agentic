@@ -1,15 +1,11 @@
 import {
   collection,
   doc,
-  addDoc,
-  updateDoc,
-  deleteDoc,
   getCountFromServer,
   getDocs,
   getDoc,
   query,
   where,
-  serverTimestamp,
   type QueryDocumentSnapshot,
   type Timestamp,
   type FirestoreError,
@@ -157,24 +153,5 @@ export function finaliseProductInput(data: ProductInput): ProductInput {
   };
 }
 
-export async function addProduct(storeId: string, data: ProductInput) {
-  await addDoc(productsRef(storeId), {
-    ...finaliseProductInput(data),
-    createdAt: serverTimestamp(),
-  });
-}
 
-export async function updateProduct(
-  storeId: string,
-  id: string,
-  data: ProductInput,
-) {
-  await updateDoc(doc(db, "stores", storeId, "products", id), {
-    ...finaliseProductInput(data),
-    updatedAt: serverTimestamp(),
-  });
-}
 
-export async function deleteProduct(storeId: string, id: string) {
-  await deleteDoc(doc(db, "stores", storeId, "products", id));
-}

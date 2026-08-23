@@ -1,10 +1,5 @@
 import {
   collection,
-  doc,
-  addDoc,
-  updateDoc,
-  deleteDoc,
-  serverTimestamp,
   type QueryDocumentSnapshot,
   type Timestamp,
   type FirestoreError,
@@ -52,25 +47,5 @@ export function watchCoupons(
 // transaction (Admin SDK), never the dashboard form.
 export type CouponInput = Omit<Coupon, "id" | "usedCount" | "createdAtMs">;
 
-export async function addCoupon(storeId: string, data: CouponInput) {
-  await addDoc(couponsRef(storeId), {
-    ...data,
-    usedCount: 0,
-    createdAt: serverTimestamp(),
-  });
-}
 
-export async function updateCoupon(
-  storeId: string,
-  id: string,
-  data: CouponInput,
-) {
-  await updateDoc(doc(db, "stores", storeId, "coupons", id), {
-    ...data,
-    updatedAt: serverTimestamp(),
-  });
-}
 
-export async function deleteCoupon(storeId: string, id: string) {
-  await deleteDoc(doc(db, "stores", storeId, "coupons", id));
-}

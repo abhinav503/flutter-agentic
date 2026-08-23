@@ -1,20 +1,7 @@
-import { computeDiscountPercentage, type ProductInput } from "@/lib/products";
 import type { GrocerySeed } from "@/lib/seed/seed-types";
 import {
-  findRestrictedTerms,
-  restrictedProductMessage,
-} from "@/lib/restricted-products";
-import type { UnitType } from "@/lib/types";
-import {
-  eachRow,
-  matchKey,
-  parseBoolean,
-  parseNumber,
-  readCsv,
   toCsv,
   type ImportColumn,
-  type ImportPlan,
-  type ImportRowError,
 } from "./csv-core";
 import type { StoreCatalog } from "./store-catalog";
 
@@ -40,167 +27,16 @@ export const PRODUCT_COLUMNS: ImportColumn[] = [
   { key: "barcode", required: false, description: "EAN/UPC/ISBN." },
   { key: "external_id", required: false, description: "The id your other system (Shopify, ERP) knows this product by." },
   { key: "id", required: false, description: "Existing product id. Present = update that exact product." },
+  { key: "option1_name", required: false, description: "For a product with choices: the first option (Size, Colour). One row per variant, sharing the product's name/external_id; price/stock/sku/barcode on each row are that variant's." },
+  { key: "option1_value", required: false, description: "This row's value for option 1 (M, Red)." },
+  { key: "option2_name", required: false, description: "Second option, if any." },
+  { key: "option2_value", required: false, description: "This row's value for option 2." },
+  { key: "option3_name", required: false, description: "Third option, if any." },
+  { key: "option3_value", required: false, description: "This row's value for option 3." },
+  { key: "pack_size", required: false, description: "For a pack-size variant: the size in unit_type units (500), so weight labels keep working." },
+  { key: "attributes", required: false, description: "Details shown on the product page: Material=Cotton|Origin=India." },
 ];
 
-const UNIT_TYPES: UnitType[] = ["g", "ml", "pcs"];
-
-export function buildProductPlan(
-  csvText: string,
-  catalog: StoreCatalog,
-): ImportPlan<ProductInput> {
-  const { rows, headerError } = readCsv(csvText, PRODUCT_COLUMNS);
-  if (headerError) return { writes: [], errors: [headerError], rowCount: rows.length };
-
-  const errors: ImportRowError[] = [];
-  const categoryByName = new Map(catalog.categories.map((c) => [matchKey(c.name), c.id]));
-  const brandByName = new Map(catalog.brands.map((b) => [matchKey(b.name), b.id]));
-  const productById = new Map(catalog.products.map((p) => [p.id, p]));
-  const productByName = new Map(catalog.products.map((p) => [matchKey(p.name), p]));
-
-  const writes = eachRow<ProductInput>(rows, errors, ({ line, get, fail, identify }) => {
-    const name = get("name");
-    if (!name) {
-      fail("name is required.");
-      return;
-    }
-    if (!identify(name, get("id") || name)) return;
-
-    // Same rule as the product form — a CSV is the other way a catalog gets
-    // filled, and the ban is worth nothing if one path enforces it.
-    const restricted = findRestrictedTerms(name, get("description"));
-    if (restricted.length > 0) {
-      fail(restrictedProductMessage(restricted));
-      return;
-    }
-
-    const price = parseNumber(get("price"));
-    if (price === null || price <= 0) {
-      fail("price must be a number greater than 0.");
-      return;
-    }
-
-    const rawOriginal = get("original_price");
-    const originalPrice = rawOriginal ? parseNumber(rawOriginal) : price;
-    if (originalPrice === null) {
-      fail("original_price must be a number, or blank for no discount.");
-      return;
-    }
-    if (originalPrice < price) {
-      fail("original_price is below price — a discount cannot be negative.");
-      return;
-    }
-
-    // Both optional since v2 — a T-shirt has no pack size. A value that is
-    // present but not a number is still an error, not silently 0.
-    const rawUnitValue = get("unit_value");
-    const unitValue = rawUnitValue === "" ? 0 : parseNumber(rawUnitValue);
-    if (unitValue === null || unitValue < 0) {
-      fail("unit_value must be a number, 0 or more (or blank).");
-      return;
-    }
-
-    const rawUnitType = get("unit_type").toLowerCase();
-    const unitType = (rawUnitType === "" ? "g" : rawUnitType) as UnitType;
-    if (!UNIT_TYPES.includes(unitType)) {
-      fail(`unit_type must be one of ${UNIT_TYPES.join(", ")} (or blank).`);
-      return;
-    }
-
-    const stock = parseNumber(get("stock"));
-    if (stock === null || stock < 0 || !Number.isInteger(stock)) {
-      fail("stock must be a whole number, 0 or more.");
-      return;
-    }
-
-    const isPopular = parseBoolean(get("is_popular"));
-    if (isPopular === null) {
-      fail("is_popular must be true or false (or blank).");
-      return;
-    }
-
-    // Unknown categories and brands are errors, not silent creations: a typo
-    // would otherwise quietly mint "Beverges" and split the catalog in two.
-    const categoryIds: string[] = [];
-    const unknownCategories: string[] = [];
-    for (const categoryName of get("categories").split("|").map((n) => n.trim()).filter(Boolean)) {
-      const id = categoryByName.get(matchKey(categoryName));
-      if (id) categoryIds.push(id);
-      else unknownCategories.push(categoryName);
-    }
-    if (unknownCategories.length > 0) {
-      fail(
-        `Unknown categor${unknownCategories.length > 1 ? "ies" : "y"}: ${unknownCategories.join(", ")}. Add ${unknownCategories.length > 1 ? "them" : "it"} on the Categories page first.`,
-      );
-      return;
-    }
-
-    const brandName = get("brand");
-    let brandId = "";
-    if (brandName) {
-      const id = brandByName.get(matchKey(brandName));
-      if (!id) {
-        fail(`Unknown brand: ${brandName}. Add it on the Brands page first.`);
-        return;
-      }
-      brandId = id;
-    }
-
-    const explicitId = get("id");
-    let kind: "create" | "update" = "create";
-    let id: string | undefined;
-    if (explicitId) {
-      if (!productById.has(explicitId)) {
-        fail(`No product with id ${explicitId} in this store.`);
-        return;
-      }
-      kind = "update";
-      id = explicitId;
-    } else {
-      const existing = productByName.get(matchKey(name));
-      if (existing) {
-        kind = "update";
-        id = existing.id;
-      }
-    }
-
-    return {
-      line,
-      kind,
-      id,
-      name,
-      data: {
-        name,
-        imageUrl: get("image_url"),
-        images: get("image_url") ? [get("image_url")] : [],
-        externalId: get("external_id"),
-        sku: get("sku"),
-        barcode: get("barcode"),
-        price,
-        originalPrice,
-        discountPercentage: computeDiscountPercentage(price, originalPrice),
-        unitValue,
-        unitType,
-        prepTime: get("prep_time"),
-        description: get("description"),
-        stock,
-        categoryIds,
-        brandId,
-        // Variants have no flat-file shape in this format yet (the v1 API's
-        // import carries them). Updates merge (see importRows), so a product
-        // that already has variants keeps them — these only apply to rows
-        // creating a product.
-        optionNames: [],
-        variants: [],
-        attributes: {},
-        sizeOptions: [],
-        sizeVariants: [],
-        isPopular,
-      },
-    };
-  });
-
-  return { writes, errors, rowCount: rows.length };
-}
 
 /**
  * The downloadable template, built from the store's own market seed catalog so
@@ -251,6 +87,9 @@ export function sampleProductCsv(
       "", // barcode
       "", // external_id
       "", // id — blank, these are new products
+      "", "", "", "", "", "", // option1–3 name/value — simple products
+      "", // pack_size
+      "", // attributes
     ];
   });
 

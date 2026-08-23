@@ -8,6 +8,11 @@ import {
   UnauthorizedError,
 } from "@/lib/api/admin-guard";
 import { getStoreReadiness } from "@/lib/store-readiness";
+import {
+  readinessWithPreviewFlag,
+  submitStoreForReview,
+  SubmitError,
+} from "@/lib/store-publish";
 import { normalizeStoreStatus, type StoreStatus } from "@/lib/store-status";
 
 // The store publication lifecycle, as one route with two audiences —
@@ -66,22 +71,14 @@ export async function GET(
     throw e;
   }
 
-  const snap = await adminDb.collection("stores").doc(storeId).get();
-  if (!snap.exists) {
-    return NextResponse.json({ error: "Store not found" }, { status: 404 });
+  try {
+    return NextResponse.json(await readinessWithPreviewFlag(storeId));
+  } catch (e) {
+    if (e instanceof SubmitError) {
+      return NextResponse.json({ error: e.message }, { status: e.status });
+    }
+    throw e;
   }
-
-  const readiness = await getStoreReadiness(storeId);
-  await adminDb
-    .collection("stores")
-    .doc(storeId)
-    .set({ previewReady: readiness.previewReady }, { merge: true });
-
-  return NextResponse.json({
-    status: normalizeStoreStatus(snap.data()?.status),
-    rejectionReason: (snap.data()?.rejectionReason as string) ?? "",
-    readiness,
-  });
 }
 
 export async function POST(
@@ -115,6 +112,22 @@ export async function POST(
     throw e;
   }
 
+  // The owner's transition shares its implementation with the v1 route a
+  // token calls, so the two can't drift on readiness or legal states.
+  if (action === "submit") {
+    try {
+      return NextResponse.json(await submitStoreForReview(storeId));
+    } catch (e) {
+      if (e instanceof SubmitError) {
+        return NextResponse.json(
+          { error: e.message, ...(e.checks.length ? { checks: e.checks } : {}) },
+          { status: e.status },
+        );
+      }
+      throw e;
+    }
+  }
+
   const ref = adminDb.collection("stores").doc(storeId);
   const snap = await ref.get();
   if (!snap.exists) {
@@ -133,19 +146,7 @@ export async function POST(
     );
   }
 
-  // Re-run readiness here rather than trusting whatever the dashboard last
-  // rendered: the tab could have been open since before the owner deleted
-  // their last product.
   const readiness = await getStoreReadiness(storeId);
-  if (action === "submit" && !readiness.publishReady) {
-    return NextResponse.json(
-      {
-        error: "This store isn't ready to publish yet.",
-        checks: readiness.checks.filter((c) => !c.passed),
-      },
-      { status: 422 },
-    );
-  }
 
   const patch: Record<string, unknown> = {
     status: NEXT[action],
@@ -163,9 +164,6 @@ export async function POST(
     }
     patch.rejectionReason = reason;
   }
-  // A fresh submission clears the last rejection so the owner's dashboard
-  // doesn't keep showing feedback they've already acted on.
-  if (action === "submit") patch.rejectionReason = "";
   if (action === "approve") {
     patch.rejectionReason = "";
     patch.publishedAt = FieldValue.serverTimestamp();

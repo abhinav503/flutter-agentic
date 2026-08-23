@@ -8,16 +8,15 @@ import { ImportCsvDialog } from "@/components/import-csv-dialog";
 import { importContext } from "@/lib/import/import-context";
 import {
   COUPON_COLUMNS,
-  buildCouponPlan,
   sampleCouponCsv,
 } from "@/lib/import/coupon-csv";
+import { watchCoupons, type CouponInput } from "@/lib/coupons";
 import {
-  watchCoupons,
-  addCoupon,
-  updateCoupon,
-  deleteCoupon,
-  type CouponInput,
-} from "@/lib/coupons";
+  createRecord,
+  updateRecord,
+  deleteRecord,
+  couponBody,
+} from "@/lib/catalog-api";
 import type {
   Category,
   Coupon,
@@ -286,16 +285,14 @@ export default function CouponsPage() {
             return {
               entityPlural: "coupons",
               entitySingular: "coupon",
-              collectionName: "coupons",
+              entity: "coupons" as const,
               matchOn: "coupon code",
               columns: COUPON_COLUMNS,
-              buildPlan: (csv: string) => buildCouponPlan(csv, ctx.catalog, coupons),
               sampleCsv: () => sampleCouponCsv(ctx.seed, ctx.catalog),
               sampleLabel: ctx.sampleLabel,
               sampleSlug: ctx.sampleSlug,
               // usedCount belongs to the order transaction, never the form or
               // a CSV — a create seeds it the way addCoupon does.
-              createDefaults: { usedCount: 0 },
             };
           })()}
           onClose={() => setImporting(false)}
@@ -330,10 +327,10 @@ export default function CouponsPage() {
               onClick={async () => {
                 if (!deleting) return;
                 try {
-                  await deleteCoupon(storeId, deleting.id);
+                  await deleteRecord(storeId, "coupons", deleting.id);
                   toast.success("Coupon deleted");
-                } catch {
-                  toast.error("Could not delete coupon");
+                } catch (e) {
+                  toast.error(e instanceof Error ? e.message : "Could not delete coupon");
                 } finally {
                   setDeleting(null);
                 }
@@ -442,15 +439,15 @@ function CouponDialog({
         isActive,
       };
       if (coupon) {
-        await updateCoupon(storeId, coupon.id, data);
+        await updateRecord(storeId, "coupons", coupon.id, couponBody(data));
         toast.success("Coupon updated");
       } else {
-        await addCoupon(storeId, data);
+        await createRecord(storeId, "coupons", couponBody(data));
         toast.success("Coupon added");
       }
       onClose();
-    } catch {
-      toast.error("Could not save coupon");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not save coupon");
     } finally {
       setSubmitting(false);
     }

@@ -65,9 +65,13 @@ function str(v: unknown, max = MAX_TEXT): string | null {
   if (typeof v !== "string") return null;
   return v.trim().slice(0, max);
 }
+// Accepts "₹1,299.00" and "1299"; refuses "abc" rather than reading it as 0.
 function num(v: unknown): number | null | undefined {
   if (v === undefined || v === null || v === "") return undefined;
-  const n = typeof v === "number" ? v : Number(String(v).replace(/[^0-9.-]/g, ""));
+  if (typeof v === "number") return Number.isFinite(v) ? v : null;
+  const cleaned = String(v).replace(/[^0-9.-]/g, "");
+  if (!/\d/.test(cleaned)) return null;
+  const n = Number(cleaned);
   return Number.isFinite(n) ? n : null;
 }
 function bool(v: unknown): boolean | null | undefined {
@@ -386,7 +390,6 @@ export function parseProduct(
     if ("error" in resolved) errors.push(resolved.error);
     else categoryIds = resolved.ids;
   }
-  if (categoryIds.length === 0) errors.push("At least one category is required.");
 
   let brandId = e?.brandId ?? "";
   const brandRef = str(raw.brand_id) || str(raw.brand);
@@ -560,6 +563,7 @@ export function parseCoupon(
     }
     if (unknown.length) errors.push(`Unknown ${scope}${unknown.length > 1 ? "s" : ""}: ${unknown.join(", ")}.`);
     targetIds = ids;
+    if (unknown.length) targetIds = ["__unknown__"]; // the unknown error already says it
   }
   if (scope === "store") targetIds = [];
   else if (targetIds.length === 0) errors.push(`targets is required when scope is ${scope}.`);
@@ -665,21 +669,23 @@ export function parseBanner(
 
 // --- upsert ----------------------------------------------------------------------------
 
-type Planned =
-  | { index: number; ref: FirebaseFirestore.DocumentReference; data: Raw; action: "created" | "updated" }
+export type PlannedWrite =
+  | { index: number; id: string; data: Raw; action: "created" | "updated" }
   | { index: number; id: string | null; errors: string[] };
 
-function plan(
-  storeId: string,
+// Pure: every rule, none of the I/O. `newId` mints ids for creates — the
+// route passes Firestore's, a verifier passes a counter.
+export function planCatalog(
   entity: CatalogEntity,
   rows: Raw[],
   catalog: CatalogSnapshot,
-): Planned[] {
-  const planned: Planned[] = [];
+  newId: () => string,
+): PlannedWrite[] {
+  const planned: PlannedWrite[] = [];
   // Names claimed earlier in the same body resolve to the doc that row is
   // about to create, so a file can't mint two "Tees" — and a category can
   // be referenced by a product three rows later.
-  const claimed = new Map<string, FirebaseFirestore.DocumentReference>();
+  const claimed = new Map<string, string>();
   rows.forEach((raw, index) => {
     if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
       planned.push({ index, id: null, errors: ["Each item must be an object."] });
@@ -742,15 +748,15 @@ function plan(
       ? `${entity}:ext:${externalId}`
       : `${entity}:name:${norm(String(result.data[keyName] ?? ""))}`;
     if (found) {
-      planned.push({ index, ref: col(storeId, entity).doc(found.id), data: result.data, action: "updated" });
+      planned.push({ index, id: found.id, data: result.data, action: "updated" });
       return;
     }
     if (claimed.has(key)) {
-      planned.push({ index, ref: claimed.get(key)!, data: result.data, action: "updated" });
+      planned.push({ index, id: claimed.get(key)!, data: result.data, action: "updated" });
       return;
     }
-    const ref = col(storeId, entity).doc();
-    claimed.set(key, ref);
+    const ref = { id: newId() };
+    claimed.set(key, ref.id);
     // A category created in this body is referenceable by the rows after it.
     if (entity === "categories") {
       catalog.categories.set(ref.id, {
@@ -772,9 +778,27 @@ function plan(
         createdAtMs: 0,
       });
     }
-    planned.push({ index, ref, data: result.data, action: "created" });
+    planned.push({ index, id: ref.id, data: result.data, action: "created" });
   });
   return planned;
+}
+
+// A snapshot from plain records — what a verifier builds without Firestore.
+export function snapshotFrom(input: Partial<{
+  products: Product[];
+  categories: Category[];
+  brands: Brand[];
+  coupons: Coupon[];
+  banners: Banner[];
+}>): CatalogSnapshot {
+  const toMap = <T extends { id: string }>(list?: T[]) => new Map((list ?? []).map((x) => [x.id, x]));
+  return {
+    products: toMap(input.products),
+    categories: toMap(input.categories),
+    brands: toMap(input.brands),
+    coupons: toMap(input.coupons),
+    banners: toMap(input.banners),
+  };
 }
 
 // Validates every row, then writes the valid ones in 500-doc batches. Rows
@@ -806,13 +830,13 @@ export async function upsertCatalog(
       catalog.brands.set(id, { id, name, logoUrl: "", externalId: "", createdAtMs: 0 });
     }
   }
-  const planned = plan(storeId, entity, rows, catalog);
+  const planned = planCatalog(entity, rows, catalog, () => col(storeId, entity).doc().id);
   const results: WriteResult[] = planned.map((p) =>
     "errors" in p
       ? { index: p.index, id: p.id, action: "error", errors: p.errors }
-      : { index: p.index, id: p.ref.id, action: p.action },
+      : { index: p.index, id: p.id, action: p.action },
   );
-  const writes = planned.filter((p): p is Exclude<Planned, { errors: string[] }> => !("errors" in p));
+  const writes = planned.filter((p): p is Exclude<PlannedWrite, { errors: string[] }> => !("errors" in p));
   if (!opts.dryRun) {
     for (let i = 0; i < writes.length; i += BATCH_LIMIT) {
       const batch = adminDb.batch();
@@ -820,7 +844,7 @@ export async function upsertCatalog(
         const serverOwned =
           entity === "coupons" && w.action === "created" ? { usedCount: 0 } : {};
         batch.set(
-          w.ref,
+          col(storeId, entity).doc(w.id),
           {
             ...w.data,
             ...serverOwned,

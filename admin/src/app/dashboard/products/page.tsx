@@ -6,7 +6,8 @@ import { Star } from "lucide-react";
 import { useStore } from "@/lib/store-context";
 import { watchCategories } from "@/lib/categories";
 import { watchBrands } from "@/lib/brands";
-import { watchProducts, deleteProduct } from "@/lib/products";
+import { watchProducts } from "@/lib/products";
+import { deleteRecord } from "@/lib/catalog-api";
 import type { Brand, Category, Product } from "@/lib/types";
 import { ProductDialog } from "./product-dialog";
 import { matchesSearch } from "@/lib/search";
@@ -20,11 +21,7 @@ import {
 import { SearchField } from "@/components/search-field";
 import { ImportCsvDialog } from "@/components/import-csv-dialog";
 import { importContext } from "@/lib/import/import-context";
-import {
-  PRODUCT_COLUMNS,
-  buildProductPlan,
-  sampleProductCsv,
-} from "@/lib/import/product-csv";
+import { PRODUCT_COLUMNS, sampleProductCsv } from "@/lib/import/product-csv";
 import {
   SortableTableHead,
   useTableSort,
@@ -399,13 +396,13 @@ export default function ProductsPage() {
               brands,
             });
             return {
+              entity: "products" as const,
               entityPlural: "products",
               entitySingular: "product",
-              collectionName: "products",
               matchOn: "product name",
               columns: PRODUCT_COLUMNS,
-              buildPlan: (csv: string) => buildProductPlan(csv, ctx.catalog),
               sampleCsv: () => sampleProductCsv(ctx.seed, ctx.catalog),
+              formats: ["cordelia", "shopify"] as const,
               sampleLabel: ctx.sampleLabel,
               sampleSlug: ctx.sampleSlug,
             };
@@ -427,10 +424,10 @@ export default function ProductsPage() {
               onClick={async () => {
                 if (!deleting) return;
                 try {
-                  await deleteProduct(storeId, deleting.id);
+                  await deleteRecord(storeId, "products", deleting.id);
                   toast.success("Product deleted");
-                } catch {
-                  toast.error("Could not delete product");
+                } catch (e) {
+                  toast.error(e instanceof Error ? e.message : "Could not delete product");
                 } finally {
                   setDeleting(null);
                 }

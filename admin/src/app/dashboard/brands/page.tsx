@@ -3,7 +3,13 @@
 import { useEffect, useState, type FormEvent } from "react";
 import Image from "next/image";
 import { useStore } from "@/lib/store-context";
-import { watchBrands, addBrand, updateBrand, deleteBrand } from "@/lib/brands";
+import { watchBrands } from "@/lib/brands";
+import {
+  createRecord,
+  updateRecord,
+  deleteRecord,
+  brandBody,
+} from "@/lib/catalog-api";
 import type { Brand } from "@/lib/types";
 import { matchesSearch } from "@/lib/search";
 import { applySort, compareText, type Comparator } from "@/lib/sort";
@@ -168,10 +174,10 @@ export default function BrandsPage() {
               onClick={async () => {
                 if (!deleting) return;
                 try {
-                  await deleteBrand(storeId, deleting.id);
+                  await deleteRecord(storeId, "brands", deleting.id);
                   toast.success("Brand deleted");
-                } catch {
-                  toast.error("Could not delete brand");
+                } catch (e) {
+                  toast.error(e instanceof Error ? e.message : "Could not delete brand");
                 } finally {
                   setDeleting(null);
                 }
@@ -210,15 +216,15 @@ function BrandDialog({
         externalId: externalId.trim(),
       };
       if (brand) {
-        await updateBrand(storeId, brand.id, data);
+        await updateRecord(storeId, "brands", brand.id, brandBody(data));
         toast.success("Brand updated");
       } else {
-        await addBrand(storeId, data);
+        await createRecord(storeId, "brands", brandBody(data));
         toast.success("Brand added");
       }
       onClose();
-    } catch {
-      toast.error("Could not save brand");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not save brand");
     } finally {
       setSubmitting(false);
     }

@@ -29,20 +29,7 @@ import {
   defaultSeedMarketForCurrency,
   type SeedMarket,
 } from "@/lib/seed/seed-markets";
-import {
-  seedGroceryData,
-  type SeedPhase,
-  type SeedProgress,
-} from "@/lib/seed/seed-grocery";
-
-const PHASE_LABELS: Record<SeedPhase, string> = {
-  categories: "Preparing categories…",
-  brands: "Preparing brands…",
-  products: "Preparing products…",
-  coupons: "Preparing coupons…",
-  banners: "Preparing banners…",
-  committing: "Writing to your store…",
-};
+import { seedStore } from "@/lib/catalog-api";
 
 /**
  * "Generate sample data" — seeds one market's bundled grocery catalog
@@ -68,13 +55,12 @@ export function GenerateGroceryDataDialog({
   storeId: string;
   onClose: () => void;
 }) {
-  const [progress, setProgress] = useState<SeedProgress | null>(null);
+  const [running, setRunning] = useState(false);
   const [market, setMarket] = useState<SeedMarket | null>(null);
   const [existing, setExisting] = useState<{
     products: number;
     categories: number;
   } | null>(null);
-  const running = progress !== null;
 
   // Read here rather than threaded in from the opening page — the currency
   // picks the default market, and the two counts drive the already-has-data
@@ -109,16 +95,18 @@ export function GenerateGroceryDataDialog({
 
   async function handleGenerate() {
     if (!market) return;
-    setProgress({ phase: "categories", done: 0, total: 1 });
+    setRunning(true);
     try {
-      const result = await seedGroceryData(storeId, market, setProgress);
+      const result = await seedStore(storeId, market);
       toast.success(`Sample data generated — ${result.total} items created`);
       onClose();
-    } catch {
+    } catch (e) {
       // The single batch commit is all-or-nothing, so this copy can promise
       // a clean slate.
-      toast.error("Could not generate sample data — nothing was written.");
-      setProgress(null);
+      toast.error(
+        `Could not generate sample data — nothing was written. ${e instanceof Error ? e.message : ""}`.trim(),
+      );
+      setRunning(false);
     }
   }
 
@@ -132,21 +120,12 @@ export function GenerateGroceryDataDialog({
         {running ? (
           <div className="flex flex-col gap-3 py-2">
             <p className="text-sm text-muted-foreground">
-              {PHASE_LABELS[progress.phase]}
+              Writing the catalog to your store…
             </p>
-            <div
-              role="progressbar"
-              aria-valuemin={0}
-              aria-valuemax={progress.total}
-              aria-valuenow={progress.done}
-              className="h-2 overflow-hidden rounded-full bg-muted"
-            >
-              <div
-                className="h-full rounded-full bg-primary transition-all"
-                style={{
-                  width: `${Math.round((progress.done / progress.total) * 100)}%`,
-                }}
-              />
+            {/* One server-side batch: there is no per-row progress to show,
+                only "working" — indeterminate by design. */}
+            <div role="progressbar" className="h-2 overflow-hidden rounded-full bg-muted">
+              <div className="h-full w-1/3 animate-pulse rounded-full bg-primary" />
             </div>
           </div>
         ) : (

@@ -1,11 +1,6 @@
 import {
   collection,
-  doc,
-  addDoc,
-  updateDoc,
-  deleteDoc,
   getDocs,
-  serverTimestamp,
   type QueryDocumentSnapshot,
   type Timestamp,
   type FirestoreError,
@@ -45,24 +40,5 @@ export async function getBrands(storeId: string): Promise<Brand[]> {
   return snap.docs.map(mapBrandDoc);
 }
 
-export async function addBrand(
-  storeId: string,
-  data: Omit<Brand, "id" | "createdAtMs">,
-) {
-  await addDoc(brandsRef(storeId), { ...data, createdAt: serverTimestamp() });
-}
 
-export async function updateBrand(
-  storeId: string,
-  id: string,
-  data: Omit<Brand, "id" | "createdAtMs">,
-) {
-  await updateDoc(doc(db, "stores", storeId, "brands", id), {
-    ...data,
-    updatedAt: serverTimestamp(),
-  });
-}
 
-export async function deleteBrand(storeId: string, id: string) {
-  await deleteDoc(doc(db, "stores", storeId, "brands", id));
-}

@@ -117,14 +117,20 @@ service cloud.firestore {
         allow read, write: if false;
       }
 
+      // The catalog (categories, products, brands, banners, coupons) is
+      // written only through the v1 API (Admin SDK) — the console's forms,
+      // the CSV import, the sample-data seeder, the CLI and a merchant's
+      // scripts all go through it, so one validator (restricted terms,
+      // variant shape, references that exist) guards every write and a
+      // leaked client config can write nothing. Reads stay as they were.
       match /categories/{categoryId} {
         allow read: if true;
-        allow write: if isStoreOwner(storeId);
+        allow write: if false;
       }
 
       match /products/{productId} {
         allow read: if true;
-        allow write: if isStoreOwner(storeId);
+        allow write: if false;
 
         // Product reviews, doc id = the reviewer's uid. World-readable like
         // the product they hang off — a rating is part of a product's public
@@ -155,14 +161,14 @@ service cloud.firestore {
       // access control, and the banners API is what enforces it.
       match /banners/{bannerId} {
         allow read: if true;
-        allow write: if isStoreOwner(storeId);
+        allow write: if false;
       }
 
       // Product brands ("Amul", "Tata") products reference by id — same
       // gate as the catalog above.
       match /brands/{brandId} {
         allow read: if true;
-        allow write: if isStoreOwner(storeId);
+        allow write: if false;
       }
 
       // In-app notifications this store sends its own shoppers. Not
@@ -190,7 +196,8 @@ service cloud.firestore {
       // shoppers validate a code through the token-verified API, so the
       // codes themselves never need to be listable client-side.
       match /coupons/{couponId} {
-        allow read, write: if isStoreOwner(storeId);
+        allow read: if isStoreOwner(storeId);
+        allow write: if false;
 
         // Per-shopper redemption counts, written only inside the order
         // transaction via the Admin SDK (which bypasses rules).

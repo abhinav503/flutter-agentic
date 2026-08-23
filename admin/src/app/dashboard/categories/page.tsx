@@ -3,12 +3,13 @@
 import { useEffect, useState, type FormEvent } from "react";
 import Image from "next/image";
 import { useStore } from "@/lib/store-context";
+import { watchCategories } from "@/lib/categories";
 import {
-  watchCategories,
-  addCategory,
-  updateCategory,
-  deleteCategory,
-} from "@/lib/categories";
+  createRecord,
+  updateRecord,
+  deleteRecord,
+  categoryBody,
+} from "@/lib/catalog-api";
 import type { Category } from "@/lib/types";
 import { matchesSearch } from "@/lib/search";
 import { applySort, compareText, type Comparator } from "@/lib/sort";
@@ -27,7 +28,6 @@ import { ImportCsvDialog } from "@/components/import-csv-dialog";
 import { importContext } from "@/lib/import/import-context";
 import {
   CATEGORY_COLUMNS,
-  buildCategoryPlan,
   sampleCategoryCsv,
 } from "@/lib/import/category-csv";
 import {
@@ -196,10 +196,9 @@ export default function CategoriesPage() {
             return {
               entityPlural: "categories",
               entitySingular: "category",
-              collectionName: "categories",
+              entity: "categories" as const,
               matchOn: "category name",
               columns: CATEGORY_COLUMNS,
-              buildPlan: (csv: string) => buildCategoryPlan(csv, ctx.catalog),
               sampleCsv: () => sampleCategoryCsv(ctx.seed, ctx.catalog),
               sampleLabel: ctx.sampleLabel,
               sampleSlug: ctx.sampleSlug,
@@ -235,10 +234,10 @@ export default function CategoriesPage() {
               onClick={async () => {
                 if (!deleting) return;
                 try {
-                  await deleteCategory(storeId, deleting.id);
+                  await deleteRecord(storeId, "categories", deleting.id);
                   toast.success("Category deleted");
-                } catch {
-                  toast.error("Could not delete category");
+                } catch (e) {
+                  toast.error(e instanceof Error ? e.message : "Could not delete category");
                 } finally {
                   setDeleting(null);
                 }
@@ -303,15 +302,15 @@ function CategoryDialog({
         externalId: externalId.trim(),
       };
       if (category) {
-        await updateCategory(storeId, category.id, data);
+        await updateRecord(storeId, "categories", category.id, categoryBody(data));
         toast.success("Category updated");
       } else {
-        await addCategory(storeId, data);
+        await createRecord(storeId, "categories", categoryBody(data));
         toast.success("Category added");
       }
       onClose();
-    } catch {
-      toast.error("Could not save category");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not save category");
     } finally {
       setSubmitting(false);
     }

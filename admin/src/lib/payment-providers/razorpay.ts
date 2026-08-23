@@ -258,3 +258,27 @@ function constantTimeEquals(expected: string, actual: string): boolean {
 
 // Razorpay reports a refund as "pending" (accepted, settling) or "processed".
 export const REFUND_STATUS_PROCESSED = "processed";
+
+// Proves a key pair works before it is stored: the cheapest authenticated
+// read Razorpay offers. A wrong secret answers 401, a wrong key id 400/401 —
+// either way the pair is refused at save time instead of at a shopper's
+// checkout. Network failure is reported as such, not as "invalid".
+export async function verifyCredentials(
+  config: StorePaymentConfig,
+): Promise<{ ok: true } | { ok: false; reason: string }> {
+  let response: Response;
+  try {
+    response = await fetch(`${API}/payments?count=1`, {
+      headers: { Authorization: authHeader(config) },
+    });
+  } catch {
+    return { ok: false, reason: "Could not reach Razorpay to check the keys — try again." };
+  }
+  if (response.status === 401 || response.status === 400) {
+    return { ok: false, reason: "Razorpay rejected this key id + secret. Copy both again from Razorpay → Settings → API Keys." };
+  }
+  if (!response.ok) {
+    return { ok: false, reason: `Razorpay answered ${response.status} while checking the keys.` };
+  }
+  return { ok: true };
+}

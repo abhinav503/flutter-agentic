@@ -2,12 +2,8 @@
 
 import { useState, type FormEvent } from "react";
 import { toast } from "sonner";
-import {
-  addProduct,
-  updateProduct,
-  computeDiscountPercentage,
-  type ProductInput,
-} from "@/lib/products";
+import { computeDiscountPercentage, type ProductInput } from "@/lib/products";
+import { createRecord, updateRecord, productBody } from "@/lib/catalog-api";
 import type { Brand, Category, Product, UnitType, Variant } from "@/lib/types";
 import { MAX_OPTION_AXES, UNIT_TYPE_LABELS } from "@/lib/types";
 import { categoryPath } from "@/lib/categories";
@@ -328,15 +324,15 @@ export function ProductDialog({
         isPopular,
       };
       if (product) {
-        await updateProduct(storeId, product.id, data);
+        await updateRecord(storeId, "products", product.id, productBody(data));
         toast.success("Product updated");
       } else {
-        await addProduct(storeId, data);
+        await createRecord(storeId, "products", productBody(data));
         toast.success("Product added");
       }
       onClose();
-    } catch {
-      toast.error("Could not save product");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not save product");
     } finally {
       setSubmitting(false);
     }

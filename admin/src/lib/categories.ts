@@ -1,12 +1,7 @@
 import {
   collection,
-  doc,
-  addDoc,
-  updateDoc,
-  deleteDoc,
   getCountFromServer,
   getDocs,
-  serverTimestamp,
   type QueryDocumentSnapshot,
   type Timestamp,
   type FirestoreError,
@@ -56,27 +51,8 @@ export async function countCategories(storeId: string): Promise<number> {
   return snap.data().count;
 }
 
-export async function addCategory(
-  storeId: string,
-  data: Omit<Category, "id" | "createdAtMs">,
-) {
-  await addDoc(categoriesRef(storeId), { ...data, createdAt: serverTimestamp() });
-}
 
-export async function updateCategory(
-  storeId: string,
-  id: string,
-  data: Omit<Category, "id" | "createdAtMs">,
-) {
-  await updateDoc(doc(db, "stores", storeId, "categories", id), {
-    ...data,
-    updatedAt: serverTimestamp(),
-  });
-}
 
-export async function deleteCategory(storeId: string, id: string) {
-  await deleteDoc(doc(db, "stores", storeId, "categories", id));
-}
 
 // "Apparel › Clothing › Shirts" — a category's name prefixed by its
 // ancestors', for anywhere one is picked from a flat list. A cycle or a

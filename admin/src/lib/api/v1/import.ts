@@ -385,12 +385,12 @@ function referencedNames(items: Raw[], key: "categories" | "brand"): string[] {
   return [...names];
 }
 
-export async function runImport(
-  storeId: string,
+// Pure: the file → the rows the catalog API validates, plus what the
+// adapter dropped or derived. Throws ImportError on a file it can't read.
+export function adaptCsv(
   csvText: string,
-  opts: ImportOptions,
-  actorUid: string,
-): Promise<ImportReport> {
+  opts: Pick<ImportOptions, "entity" | "format" | "tagsAsCategories">,
+): { items: Raw[]; skipped: ImportReport["skipped"]; notes: string[]; rowCount: number } {
   if (!csvText.trim()) throw new ImportError("The file is empty.");
   const { rows, headers } = parseCsv(csvText);
   if (headers.length === 0) throw new ImportError("No header row found.");
@@ -398,21 +398,24 @@ export async function runImport(
   if (rowCount > MAX_UPSERT_ROWS) {
     throw new ImportError(`The file holds ${rowCount} rows; at most ${MAX_UPSERT_ROWS} per import.`, 413);
   }
-
-  let items: Raw[];
-  let skipped: ImportReport["skipped"] = [];
-  let notes: string[] = [];
   if (opts.format === "shopify") {
     if (opts.entity !== "products") throw new ImportError("The Shopify format carries products only.");
     if (!hasShopifyHeaders(headers)) {
       throw new ImportError("This doesn't look like a Shopify products export (no Handle / Price columns).");
     }
-    ({ items, skipped, notes } = shopifyProducts(rows, opts));
-  } else if (opts.entity === "products") {
-    ({ items, skipped, notes } = cordeliaProducts(rows));
-  } else {
-    items = cordeliaFlat(rows);
+    return { ...shopifyProducts(rows, opts), rowCount };
   }
+  if (opts.entity === "products") return { ...cordeliaProducts(rows), rowCount };
+  return { items: cordeliaFlat(rows), skipped: [], notes: [], rowCount };
+}
+
+export async function runImport(
+  storeId: string,
+  csvText: string,
+  opts: ImportOptions,
+  actorUid: string,
+): Promise<ImportReport> {
+  const { items, skipped, notes, rowCount } = adaptCsv(csvText, opts);
 
   const createdCategories: string[] = [];
   const createdBrands: string[] = [];
@@ -441,9 +444,6 @@ export async function runImport(
       });
     }
     if (!opts.commit && (createdCategories.length || createdBrands.length)) {
-      // A dry run didn't create them, so the product rows that reference
-      // them would fail on "unknown category" — pass them as already
-      // known by re-running with the names the commit would create.
       notes.push(
         `Dry run: ${createdCategories.length} categor${createdCategories.length === 1 ? "y" : "ies"} and ${createdBrands.length} brand${createdBrands.length === 1 ? "" : "s"} would be created first; the product rows below were checked as if they existed.`,
       );

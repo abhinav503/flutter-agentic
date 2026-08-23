@@ -1,11 +1,6 @@
 import {
   collection,
-  doc,
-  addDoc,
-  updateDoc,
-  deleteDoc,
   getDocs,
-  serverTimestamp,
   type QueryDocumentSnapshot,
   type FirestoreError,
 } from "firebase/firestore";
@@ -57,21 +52,5 @@ export async function getBanners(storeId: string): Promise<Banner[]> {
   return snap.docs.map(mapBannerDoc).sort(bySortOrder);
 }
 
-export async function addBanner(storeId: string, data: Omit<Banner, "id">) {
-  await addDoc(bannersRef(storeId), { ...data, createdAt: serverTimestamp() });
-}
 
-export async function updateBanner(
-  storeId: string,
-  id: string,
-  data: Omit<Banner, "id">,
-) {
-  await updateDoc(doc(db, "stores", storeId, "banners", id), {
-    ...data,
-    updatedAt: serverTimestamp(),
-  });
-}
 
-export async function deleteBanner(storeId: string, id: string) {
-  await deleteDoc(doc(db, "stores", storeId, "banners", id));
-}
