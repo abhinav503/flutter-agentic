@@ -68,6 +68,8 @@ Read-time upgrade: `sizeVariants` → `optionNames:["Size"]` + one variant per s
   2. Free directories: mcpmarket.com, claudemarketplaces.com, skillsclaude.org, lobehub.com/skills, glama.ai — same copy as `server.json`.
   3. Optional: Anthropic Connectors directory (needs a Team/Enterprise Claude org + review) and the official Claude Code plugin marketplace.
   4. Attach a Vercel log drain (Axiom / Better Stack free tier) if log history beyond Firestore tallies is wanted.
+  5. `/api/mcp` for humans: a friendlier 401 body naming the connect guide, and a redirect to `/mcp` when the request is a browser (`Accept: text/html`, no bearer) — hosts always send `application/json, text/event-stream`, so the protocol is untouched.
+  6. Release the app (`1.0.4+6` → `1.0.5+7`): per-variant cart rows and the option pickers only exist in the tree until then.
 
 ## Recommended approach (in dependency order)
 
