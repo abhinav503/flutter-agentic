@@ -23,19 +23,30 @@ import { MAX_UPSERT_ROWS, upsertCatalog, type CatalogEntity, type WriteResult } 
 
 export const IMPORT_FORMATS = ["cordelia", "shopify", "woocommerce", "meta"] as const;
 export type ImportFormat = (typeof IMPORT_FORMATS)[number];
+// "auto" sniffs the header row — each source has columns no other has.
+export type ImportFormatOrAuto = ImportFormat | "auto";
+
+export function detectImportFormat(headers: string[]): ImportFormat {
+  if (hasShopifyHeaders(headers)) return "shopify";
+  if (hasWooHeaders(headers)) return "woocommerce";
+  if (headers.includes("availability") && hasMetaHeaders(headers)) return "meta";
+  return "cordelia";
+}
 
 type Raw = Record<string, unknown>;
 type Row = Record<string, string>;
 
 export type ImportOptions = {
   entity: CatalogEntity;
-  format: ImportFormat;
+  format: ImportFormatOrAuto;
   commit: boolean;
   // Create the categories and brands the rows name but the store lacks,
   // before importing the rows. Off by default for our own format (a typo
   // shouldn't mint a category); on by default for Shopify, whose Type /
   // Vendor values are the merchant's own taxonomy.
-  createMissing: boolean;
+  // Undefined = decide from the (possibly detected) format: on for every
+  // platform export, off for our own CSV.
+  createMissing?: boolean;
   // Shopify only: also turn each Tag into a category.
   tagsAsCategories: boolean;
 };
@@ -514,7 +525,9 @@ function wooProducts(
   const items: Raw[] = [];
   for (const { row } of simple) {
     const { price, original } = priceOf(row);
-    const { stock, sell } = stockOf(row);
+    // A simple product has no "sell past zero" flag; backorders on one
+    // become plain stock.
+    const { stock } = stockOf(row);
     items.push({
       ...baseOf(row),
       sku: get(row, "sku") || undefined,
@@ -762,7 +775,14 @@ function referencedNames(items: Raw[], key: "categories" | "brand"): string[] {
 export function adaptCsv(
   csvText: string,
   opts: Pick<ImportOptions, "entity" | "format" | "tagsAsCategories">,
-): { items: Raw[]; skipped: ImportReport["skipped"]; notes: string[]; rowCount: number; categoryPaths?: string[][] } {
+): {
+  items: Raw[];
+  skipped: ImportReport["skipped"];
+  notes: string[];
+  rowCount: number;
+  categoryPaths?: string[][];
+  format?: ImportFormat;
+} {
   if (!csvText.trim()) throw new ImportError("The file is empty.");
   const { rows, headers } = parseCsv(csvText);
   if (headers.length === 0) throw new ImportError("No header row found.");
@@ -776,6 +796,11 @@ export function adaptCsv(
       throw new ImportError("This doesn't look like a Shopify products export (no Handle / Price columns).");
     }
     return { ...shopifyProducts(rows, opts), rowCount };
+  }
+  if (opts.format === "auto") {
+    const detected = detectImportFormat(headers);
+    const r = adaptCsv(csvText, { ...opts, format: detected });
+    return { ...r, notes: [`Detected format: ${detected}.`, ...r.notes], format: detected };
   }
   if (opts.format === "meta") {
     if (opts.entity !== "products") throw new ImportError("The Meta catalog format carries products only.");
@@ -801,11 +826,13 @@ export async function runImport(
   opts: ImportOptions,
   actorUid: string,
 ): Promise<ImportReport> {
-  const { items, skipped, notes, rowCount, categoryPaths } = adaptCsv(csvText, opts);
+  const { items, skipped, notes, rowCount, categoryPaths, format: detected } = adaptCsv(csvText, opts);
+  const format: ImportFormat = detected ?? (opts.format === "auto" ? "cordelia" : opts.format);
 
   const createdCategories: string[] = [];
   const createdBrands: string[] = [];
-  if (opts.createMissing && opts.entity === "products") {
+  const createMissing = opts.createMissing ?? format !== "cordelia";
+  if (createMissing && opts.entity === "products") {
     // Categories and brands the rows name: upsert by name, so existing ones
     // are touched only with what the file knows (nothing) and missing ones
     // are created. Runs before the products so the rows can resolve them.
@@ -863,7 +890,7 @@ export async function runImport(
   });
 
   return {
-    format: opts.format,
+    format,
     entity: opts.entity,
     dry_run: !opts.commit,
     rows_read: rowCount,

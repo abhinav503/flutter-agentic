@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { FieldValue } from "firebase-admin/firestore";
 import { adminDb } from "@/lib/firebase-admin";
 import { authorizeWrite, tracedRoute } from "@/lib/api/v1/catalog-route";
-import { buildSeedDocs } from "@/lib/seed/seed-grocery";
+import { assertStoreEmptyForSeed, buildSeedDocs, SeedRefusedError } from "@/lib/seed/seed-grocery";
 import { SEED_MARKETS, type SeedMarket } from "@/lib/seed/seed-markets";
 
 // POST { market } — writes one market's sample grocery catalog into the
@@ -27,6 +27,12 @@ export async function POST(
   if ("response" in auth) return auth.response;
 
   return tracedRoute("POST seed", storeId, auth.actor, async () => {
+    try {
+      await assertStoreEmptyForSeed(store);
+    } catch (e) {
+      if (e instanceof SeedRefusedError) return NextResponse.json({ error: e.message }, { status: 409 });
+      throw e;
+    }
     const batch = adminDb.batch();
     for (const d of docs) {
       batch.set(store.collection(d.collection).doc(d.id), {

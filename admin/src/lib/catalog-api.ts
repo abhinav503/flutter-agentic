@@ -1,12 +1,12 @@
 import { auth } from "@/lib/firebase";
 import type { CatalogEntity } from "@/lib/api/v1/catalog";
-import type { ImportFormat, ImportReport } from "@/lib/api/v1/import";
+import type { ImportFormatOrAuto, ImportReport } from "@/lib/api/v1/import";
 import type { ProductInput } from "@/lib/products";
 import type { Banner, Brand, Category } from "@/lib/types";
 import type { CouponInput } from "@/lib/coupons";
 
 export type { CatalogEntity } from "@/lib/api/v1/catalog";
-export type { ImportFormat, ImportReport } from "@/lib/api/v1/import";
+export type { ImportFormat, ImportFormatOrAuto, ImportReport } from "@/lib/api/v1/import";
 
 // The console's client for the v1 catalog routes — the same ones the CLI
 // and a merchant's scripts use, so the console can't write anything they
@@ -97,7 +97,7 @@ export function importCsv(
   opts: {
     csv: string;
     entity: CatalogEntity;
-    format: ImportFormat;
+    format: ImportFormatOrAuto;
     commit: boolean;
     createMissing?: boolean;
   },

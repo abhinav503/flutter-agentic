@@ -14,7 +14,7 @@ import { serializeCatalogRecord } from "@/lib/api/v1/serializers";
 import { IMPORT_FORMATS, ImportError, runImport } from "@/lib/api/v1/import";
 import { ImageRehostError, rehostImage } from "@/lib/api/v1/images";
 import { readinessWithPreviewFlag, submitStoreForReview, SubmitError } from "@/lib/store-publish";
-import { buildSeedDocs } from "@/lib/seed/seed-grocery";
+import { assertStoreEmptyForSeed, buildSeedDocs, SeedRefusedError } from "@/lib/seed/seed-grocery";
 import { SEED_MARKETS } from "@/lib/seed/seed-markets";
 import { getOrdersForStore } from "@/lib/orders";
 import { serializeOrder } from "@/lib/api/serializers";
@@ -244,11 +244,11 @@ export function buildMcpServer(actor: McpActor): McpServer {
     "import_csv",
     {
       title: "Import a CSV",
-      description: "Import products (or categories/brands/coupons/banners) from CSV text. format \"shopify\" takes a Shopify products_export.csv (either header dialect), \"woocommerce\" a WooCommerce Products → Export CSV (variable products, category paths), \"meta\" a Meta Commerce Manager / WhatsApp Business catalog feed (item_group_id variants, product_type paths) — all three creating missing categories/brands; \"cordelia\" takes our own columns. Always dry_run=true first: the plan lists per-row results, skipped rows and what was derived. rehost_images copies each product's image URLs into the store so they outlive the source.",
+      description: "Import products (or categories/brands/coupons/banners) from CSV text. The format is detected from the header row by default (the plan says which); \"shopify\" takes a Shopify products_export.csv (either header dialect), \"woocommerce\" a WooCommerce Products → Export CSV (variable products, category paths), \"meta\" a Meta Commerce Manager / WhatsApp Business catalog feed (item_group_id variants, product_type paths) — all three creating missing categories/brands; \"cordelia\" takes our own columns. Always dry_run=true first: the plan lists per-row results, skipped rows and what was derived. rehost_images copies each product's image URLs into the store so they outlive the source.",
       inputSchema: {
         store_id: storeId,
         csv: z.string().describe("The file contents."),
-        format: z.enum(IMPORT_FORMATS).default("cordelia"),
+        format: z.enum(["auto", ...IMPORT_FORMATS]).default("auto").describe("auto sniffs the header row; name one only if detection picks wrong."),
         entity: entity.default("products"),
         dry_run: z.boolean().default(true),
         create_missing: z.boolean().optional().describe("Create categories/brands the rows name. Defaults to true for shopify and woocommerce, false for cordelia."),
@@ -268,7 +268,7 @@ export function buildMcpServer(actor: McpActor): McpServer {
             entity: ent,
             format,
             commit: !dry_run,
-            createMissing: create_missing ?? format !== "cordelia",
+            createMissing: create_missing,
             tagsAsCategories: tags_as_categories,
           },
           actor.uid,
@@ -341,7 +341,7 @@ export function buildMcpServer(actor: McpActor): McpServer {
     "seed_sample_data",
     {
       title: "Generate sample data",
-      description: "Write a market's sample grocery catalog (~100 products, 10 categories, brands, coupons, banners) into an empty store, for trying the app before a real catalog exists.",
+      description: "Write a market's sample grocery catalog (~100 products, 10 categories, brands, coupons, banners) into an EMPTY store, for trying the app before a real catalog exists. Refused when the store already has products or categories.",
       inputSchema: { store_id: storeId, market: z.enum(SEED_MARKETS) },
       annotations: { readOnlyHint: false, idempotentHint: false },
     },
@@ -349,6 +349,12 @@ export function buildMcpServer(actor: McpActor): McpServer {
       const denied = authorize(store_id, "catalog:write");
       if (denied) return fail(denied);
       const store = adminDb.collection("stores").doc(store_id);
+      try {
+        await assertStoreEmptyForSeed(store);
+      } catch (e) {
+        if (e instanceof SeedRefusedError) return fail(e.message);
+        throw e;
+      }
       const { docs, result } = buildSeedDocs(market, (coll) => store.collection(coll).doc().id);
       const batch = adminDb.batch();
       for (const d of docs) {

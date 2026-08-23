@@ -26,7 +26,12 @@ import {
 // answers with where to send the browser next. Nothing here can mint a
 // token: the server checks the ID token and the store ownership again.
 
-type Pending = { client_name: string; scopes: ApiTokenScope[] };
+type Pending = {
+  client_name: string;
+  scopes: ApiTokenScope[];
+  redirect_host: string;
+  known_host: boolean;
+};
 
 export default function OAuthAuthorizePage() {
   return (
@@ -111,6 +116,19 @@ function Consent() {
 
           {pending && !error && (
             <>
+              {/* Who actually receives the grant. A client may call itself
+                  anything; the redirect host is the part it can't fake. */}
+              <p
+                className={`rounded-md border px-3 py-2 text-xs ${
+                  pending.known_host
+                    ? "border-border text-muted-foreground"
+                    : "border-destructive/40 bg-destructive/5 text-destructive"
+                }`}
+              >
+                {pending.known_host ? "After you allow, you'll return to " : "Careful — this request will send your access to an unrecognised site: "}
+                <code className="font-semibold">{pending.redirect_host}</code>
+                {pending.known_host ? "." : ". Only continue if you started this from that site."}
+              </p>
               <div>
                 <p className="mb-2 text-sm font-medium">It will be able to</p>
                 <ul className="list-disc space-y-1 pl-5 text-sm text-muted-foreground">

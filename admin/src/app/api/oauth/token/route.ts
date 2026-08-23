@@ -1,10 +1,23 @@
 import { NextResponse } from "next/server";
 import { exchangeCode, OAuthError, refreshTokens } from "@/lib/oauth";
+import {
+  clientIp,
+  consumeSharedRateLimit,
+  OAUTH_TOKEN_LIMIT,
+  RateLimitError,
+  rateLimitResponse,
+} from "@/lib/api/rate-limit";
 
 // RFC 6749 token endpoint, form-encoded as the spec requires (JSON is
 // accepted too — some hosts send it). No client secret: PKCE binds the
 // code to the host that started the flow.
 export async function POST(request: Request) {
+  try {
+    await consumeSharedRateLimit(OAUTH_TOKEN_LIMIT, clientIp(request));
+  } catch (e) {
+    if (e instanceof RateLimitError) return rateLimitResponse(e);
+    throw e;
+  }
   const contentType = (request.headers.get("content-type") ?? "").split(";")[0].trim();
   let form: URLSearchParams;
   if (contentType === "application/json") {

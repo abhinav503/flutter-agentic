@@ -1,12 +1,13 @@
 import { NextResponse } from "next/server";
 import { authorizeWrite, parseEntity, tracedRoute, unknownEntity } from "@/lib/api/v1/catalog-route";
 import { consumeRateLimit } from "@/lib/api/rate-limit";
-import { IMPORT_FORMATS, ImportError, runImport, type ImportFormat } from "@/lib/api/v1/import";
+import { IMPORT_FORMATS, ImportError, runImport, type ImportFormatOrAuto } from "@/lib/api/v1/import";
 
 // POST a CSV. Two request shapes, one behaviour:
 //   Content-Type: text/csv  with the file as the body and the options as
 //                           query params (?entity=products&format=shopify&commit=true)
-//                           format: cordelia | shopify | woocommerce | meta
+//                           format: auto (default, sniffs the header) |
+//                                   cordelia | shopify | woocommerce | meta
 //   Content-Type: application/json  { csv, entity, format, commit, ... }
 // Dry run unless commit=true — the response is the plan either way.
 export async function POST(
@@ -46,13 +47,13 @@ export async function POST(
   const rawEntity = String(options.entity ?? "products");
   const entity = parseEntity(rawEntity);
   if (!entity) return unknownEntity(rawEntity);
-  const format = String(options.format ?? "cordelia") as ImportFormat;
-  if (!IMPORT_FORMATS.includes(format)) {
-    return NextResponse.json({ error: `format must be one of ${IMPORT_FORMATS.join(", ")}` }, { status: 400 });
+  const format = String(options.format ?? "auto") as ImportFormatOrAuto;
+  if (format !== "auto" && !IMPORT_FORMATS.includes(format)) {
+    return NextResponse.json({ error: `format must be auto or one of ${IMPORT_FORMATS.join(", ")}` }, { status: 400 });
   }
   const truthy = (v: unknown) => v === true || v === "true" || v === "1";
   const commit = truthy(options.commit);
-  const createMissing = options.create_missing === undefined ? format !== "cordelia" : truthy(options.create_missing);
+  const createMissing = options.create_missing === undefined ? undefined : truthy(options.create_missing);
   const tagsAsCategories = truthy(options.tags_as_categories);
 
   const auth = await authorizeWrite(request, storeId, 0);

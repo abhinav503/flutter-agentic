@@ -4,6 +4,12 @@ import {
   requireStoreOwner,
 } from "@/lib/api/admin-guard";
 import {
+  consumeSharedRateLimit,
+  RateLimitError,
+  rateLimitResponse,
+  TOKEN_MINT_LIMIT,
+} from "@/lib/api/rate-limit";
+import {
   ApiTokenError,
   createApiToken,
   listApiTokens,
@@ -38,6 +44,12 @@ export async function POST(
     uid = await requireStoreOwner(request, storeId);
   } catch (e) {
     return guardErrorResponse(e);
+  }
+  try {
+    await consumeSharedRateLimit(TOKEN_MINT_LIMIT, uid);
+  } catch (e) {
+    if (e instanceof RateLimitError) return rateLimitResponse(e);
+    throw e;
   }
   const body = await request.json().catch(() => ({}));
   const scopes = normaliseScopes(body.scopes);

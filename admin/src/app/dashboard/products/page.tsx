@@ -402,7 +402,7 @@ export default function ProductsPage() {
               matchOn: "product name",
               columns: PRODUCT_COLUMNS,
               sampleCsv: () => sampleProductCsv(ctx.seed, ctx.catalog),
-              formats: ["cordelia", "shopify", "woocommerce", "meta"] as const,
+              formats: ["auto", "cordelia", "shopify", "woocommerce", "meta"] as const,
               sampleLabel: ctx.sampleLabel,
               sampleSlug: ctx.sampleSlug,
             };

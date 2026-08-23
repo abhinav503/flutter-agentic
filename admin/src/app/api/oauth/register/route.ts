@@ -1,10 +1,25 @@
 import { NextResponse } from "next/server";
 import { OAuthError, registerClient } from "@/lib/oauth";
+import {
+  clientIp,
+  consumeSharedRateLimit,
+  OAUTH_REGISTER_LIMIT,
+  RateLimitError,
+  rateLimitResponse,
+} from "@/lib/api/rate-limit";
 
 // RFC 7591 dynamic client registration. Open, as the MCP spec expects —
 // a client id is not a secret here; the redirect allow-list and PKCE are
 // what bind a grant to the host that asked for it.
 export async function POST(request: Request) {
+  // Open by spec, but not unlimited: a client id costs a doc, and one
+  // address has no reason to mint more than a handful an hour.
+  try {
+    await consumeSharedRateLimit(OAUTH_REGISTER_LIMIT, clientIp(request));
+  } catch (e) {
+    if (e instanceof RateLimitError) return rateLimitResponse(e);
+    throw e;
+  }
   const body = await request.json().catch(() => null);
   if (!body || typeof body !== "object") {
     return NextResponse.json({ error: "invalid_request", error_description: "JSON body required" }, { status: 400 });

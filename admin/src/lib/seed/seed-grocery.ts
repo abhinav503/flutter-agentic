@@ -194,3 +194,23 @@ export function buildSeedDocs(
     },
   };
 }
+
+// Sample data is for an empty store: a second run on a stocked one would
+// double every category and product. Admin SDK count() — one read per
+// collection, whatever the catalog's size.
+export async function assertStoreEmptyForSeed(
+  store: FirebaseFirestore.DocumentReference,
+): Promise<void> {
+  const [products, categories] = await Promise.all([
+    store.collection("products").count().get(),
+    store.collection("categories").count().get(),
+  ]);
+  const n = products.data().count + categories.data().count;
+  if (n > 0) {
+    throw new SeedRefusedError(
+      `This store already has ${n} product${n === 1 ? "" : "s"}/categories — sample data is for an empty store. Delete them first, or import your own catalog instead.`,
+    );
+  }
+}
+
+export class SeedRefusedError extends Error {}

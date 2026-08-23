@@ -1,4 +1,4 @@
-import { FieldValue } from "firebase-admin/firestore";
+import { FieldValue, Timestamp } from "firebase-admin/firestore";
 import { adminDb } from "@/lib/firebase-admin";
 
 // Observability for the programmable surface (v1 routes + the MCP server),
@@ -12,6 +12,15 @@ import { adminDb } from "@/lib/firebase-admin";
 //    doc per store with the last call. Durable and cheap (a handful of
 //    increments per call), and what the console shows an owner — "Claude
 //    imported 278 products on Tuesday".
+//
+// Tallies are coalesced: increments accumulate in a per-instance buffer
+// and flush together when the buffer is old enough or full enough —
+// inside a request, never after it, since a serverless instance may be
+// frozen the moment the response is sent. A flood of calls then costs a
+// few writes per flush instead of four per call, and no single document
+// (the platform roll-up above all) takes a write per request. The price
+// is that an instance recycled mid-window loses its unflushed slice — at
+// most FLUSH_AFTER_MS of counts, which the log lines still carry.
 //
 // Recording never fails a request: a telemetry write that throws is logged
 // and swallowed.
@@ -51,6 +60,34 @@ function dayKey(d = new Date()): string {
 // but a client name might.
 const fieldSafe = (s: string) => s.replace(/[.$\[\]#/]/g, "_").slice(0, 60) || "unknown";
 
+const FLUSH_AFTER_MS = 10_000;
+const FLUSH_AT_EVENTS = 50;
+
+type Tally = {
+  calls: Record<string, number>;
+  errors: Record<string, number>;
+  byClient: Record<string, number>;
+  totalCalls: number;
+  totalErrors: number;
+  durationMs: number;
+  last?: { at: Date; operation: string; client: string; ok: boolean };
+};
+
+// Keyed by "<scope>/<day>"; the platform roll-up is one more entry.
+const pending = new Map<string, Tally>();
+let pendingEvents = 0;
+let pendingSince = 0;
+let flushing: Promise<void> | null = null;
+
+function tally(key: string): Tally {
+  let t = pending.get(key);
+  if (!t) {
+    t = { calls: {}, errors: {}, byClient: {}, totalCalls: 0, totalErrors: 0, durationMs: 0 };
+    pending.set(key, t);
+  }
+  return t;
+}
+
 export async function recordApiEvent(event: ApiEvent): Promise<void> {
   console.log(
     JSON.stringify({
@@ -61,42 +98,91 @@ export async function recordApiEvent(event: ApiEvent): Promise<void> {
     }),
   );
 
-  try {
-    const day = dayKey();
-    const op = fieldSafe(event.operation);
-    const client = fieldSafe(`${event.actor.kind}:${event.actor.client}`);
-    // Nested maps merged, not dotted field paths: an operation like
-    // "GET categories" holds a space, which a dotted path can't carry.
-    const increments: Record<string, unknown> = {
-      day,
-      calls: { [op]: FieldValue.increment(1) },
-      byClient: { [client]: FieldValue.increment(1) },
-      totalCalls: FieldValue.increment(1),
-      durationMs: FieldValue.increment(event.durationMs),
-      updatedAt: FieldValue.serverTimestamp(),
-      ...(event.ok
-        ? {}
-        : { errors: { [op]: FieldValue.increment(1) }, totalErrors: FieldValue.increment(1) }),
-    };
-    const summary = {
-      lastCallAt: FieldValue.serverTimestamp(),
-      lastOperation: event.operation,
-      lastClient: `${event.actor.kind}:${event.actor.client}`,
-      lastOk: event.ok,
-      totalCalls: FieldValue.increment(1),
-      ...(event.ok ? {} : { totalErrors: FieldValue.increment(1) }),
-    };
-    const batch = adminDb.batch();
-    for (const scope of [event.storeId ?? PLATFORM_DOC, PLATFORM_DOC]) {
-      const root = adminDb.collection("apiUsage").doc(scope);
-      batch.set(root, summary, { merge: true });
-      batch.set(root.collection("days").doc(day), increments, { merge: true });
-      if (scope === PLATFORM_DOC) break;
+  const day = dayKey();
+  const op = fieldSafe(event.operation);
+  const client = fieldSafe(`${event.actor.kind}:${event.actor.client}`);
+  for (const scope of new Set([event.storeId ?? PLATFORM_DOC, PLATFORM_DOC])) {
+    const t = tally(`${scope}/${day}`);
+    t.calls[op] = (t.calls[op] ?? 0) + 1;
+    t.byClient[client] = (t.byClient[client] ?? 0) + 1;
+    t.totalCalls++;
+    t.durationMs += event.durationMs;
+    if (!event.ok) {
+      t.errors[op] = (t.errors[op] ?? 0) + 1;
+      t.totalErrors++;
     }
-    await batch.commit();
-  } catch (e) {
-    console.error("telemetry write failed", e instanceof Error ? e.message : e);
+    t.last = {
+      at: new Date(),
+      operation: event.operation,
+      client: `${event.actor.kind}:${event.actor.client}`,
+      ok: event.ok,
+    };
   }
+  pendingEvents++;
+  if (!pendingSince) pendingSince = Date.now();
+  if (pendingEvents >= FLUSH_AT_EVENTS || Date.now() - pendingSince >= FLUSH_AFTER_MS) {
+    await flushTelemetry();
+  }
+}
+
+// Writes everything buffered so far. Safe to call at any time; concurrent
+// callers share one in-flight flush.
+export function flushTelemetry(): Promise<void> {
+  if (flushing) return flushing;
+  if (pending.size === 0) return Promise.resolve();
+  const snapshot = new Map(pending);
+  pending.clear();
+  pendingEvents = 0;
+  pendingSince = 0;
+  flushing = (async () => {
+    try {
+      const batch = adminDb.batch();
+      const inc = (m: Record<string, number>) =>
+        Object.fromEntries(Object.entries(m).map(([k, v]) => [k, FieldValue.increment(v)]));
+      for (const [key, t] of snapshot) {
+        const [scope, day] = key.split("/");
+        const root = adminDb.collection("apiUsage").doc(scope);
+        batch.set(
+          root.collection("days").doc(day),
+          {
+            day,
+            calls: inc(t.calls),
+            byClient: inc(t.byClient),
+            totalCalls: FieldValue.increment(t.totalCalls),
+            durationMs: FieldValue.increment(t.durationMs),
+            updatedAt: FieldValue.serverTimestamp(),
+            ...(t.totalErrors
+              ? { errors: inc(t.errors), totalErrors: FieldValue.increment(t.totalErrors) }
+              : {}),
+          },
+          { merge: true },
+        );
+        // The store summary answers "what happened last" in the console;
+        // the platform roll-up only needs its days, so no single document
+        // takes a write per flush across every store.
+        if (scope !== PLATFORM_DOC && t.last) {
+          batch.set(
+            root,
+            {
+              lastCallAt: Timestamp.fromDate(t.last.at),
+              lastOperation: t.last.operation,
+              lastClient: t.last.client,
+              lastOk: t.last.ok,
+              totalCalls: FieldValue.increment(t.totalCalls),
+              ...(t.totalErrors ? { totalErrors: FieldValue.increment(t.totalErrors) } : {}),
+            },
+            { merge: true },
+          );
+        }
+      }
+      await batch.commit();
+    } catch (e) {
+      console.error("telemetry flush failed", e instanceof Error ? e.message : e);
+    } finally {
+      flushing = null;
+    }
+  })();
+  return flushing;
 }
 
 // Runs `fn`, records one event around it, returns its result. Errors are

@@ -45,6 +45,17 @@ export const CATALOG_ENTITIES = [
 export type CatalogEntity = (typeof CATALOG_ENTITIES)[number];
 
 export const MAX_UPSERT_ROWS = 2000;
+
+// What one store may hold. Generous for any real catalog (the largest
+// fixture is 278 products), tight enough that a leaked catalog:write token
+// can't fill Firestore — and our bill — without end.
+export const STORE_CAPS: Record<CatalogEntity, number> = {
+  products: 10_000,
+  categories: 500,
+  brands: 1_000,
+  coupons: 500,
+  banners: 50,
+};
 const BATCH_LIMIT = 500;
 const MAX_IMAGES = 10;
 const MAX_VARIANTS = 100;
@@ -831,12 +842,23 @@ export async function upsertCatalog(
     }
   }
   const planned = planCatalog(entity, rows, catalog, () => col(storeId, entity).doc().id);
-  const results: WriteResult[] = planned.map((p) =>
+  // Creates beyond the store's cap are refused as rows, not as a whole
+  // request, so the plan shows exactly which ones won't fit.
+  const room = STORE_CAPS[entity] - catalog[entity].size;
+  let creates = 0;
+  const capped: PlannedWrite[] = planned.map((p) => {
+    if ("errors" in p || p.action !== "created") return p;
+    creates++;
+    return creates > room
+      ? { index: p.index, id: null, errors: [`This store already holds its maximum of ${STORE_CAPS[entity]} ${entity}.`] }
+      : p;
+  });
+  const results: WriteResult[] = capped.map((p) =>
     "errors" in p
       ? { index: p.index, id: p.id, action: "error", errors: p.errors }
       : { index: p.index, id: p.id, action: p.action },
   );
-  const writes = planned.filter((p): p is Exclude<PlannedWrite, { errors: string[] }> => !("errors" in p));
+  const writes = capped.filter((p): p is Exclude<PlannedWrite, { errors: string[] }> => !("errors" in p));
   if (!opts.dryRun) {
     for (let i = 0; i < writes.length; i += BATCH_LIMIT) {
       const batch = adminDb.batch();

@@ -1,4 +1,6 @@
 import { randomUUID } from "node:crypto";
+import { lookup } from "node:dns/promises";
+import { isIP } from "node:net";
 import { getStorage } from "firebase-admin/storage";
 import "@/lib/firebase-admin";
 
@@ -22,6 +24,49 @@ export class ImageRehostError extends Error {
     public readonly status: 400 | 413 | 415 | 502 = 400,
   ) {
     super(message);
+  }
+}
+
+function isPrivateAddress(ip: string): boolean {
+  const v = isIP(ip);
+  if (v === 4) {
+    const [a, b] = ip.split(".").map(Number);
+    return (
+      a === 10 ||
+      a === 127 ||
+      a === 0 ||
+      (a === 169 && b === 254) ||
+      (a === 172 && b >= 16 && b <= 31) ||
+      (a === 192 && b === 168) ||
+      (a === 100 && b >= 64 && b <= 127)
+    );
+  }
+  if (v === 6) {
+    const lower = ip.toLowerCase();
+    return (
+      lower === "::1" ||
+      lower === "::" ||
+      lower.startsWith("fc") ||
+      lower.startsWith("fd") ||
+      lower.startsWith("fe80") ||
+      lower.startsWith("::ffff:") // v4-mapped — re-check the v4 part
+    );
+  }
+  return true; // not an address at all
+}
+
+async function resolvesToPrivateAddress(hostname: string): Promise<boolean> {
+  if (hostname === "localhost" || hostname.endsWith(".localhost") || hostname.endsWith(".internal")) return true;
+  if (isIP(hostname)) return isPrivateAddress(hostname);
+  try {
+    const addresses = await lookup(hostname, { all: true });
+    if (addresses.length === 0) return true;
+    return addresses.some((a) => {
+      const mapped = a.address.toLowerCase().startsWith("::ffff:") ? a.address.slice(7) : a.address;
+      return isPrivateAddress(mapped);
+    });
+  } catch {
+    return true;
   }
 }
 
@@ -52,6 +97,14 @@ export async function rehostImage(
     throw new ImageRehostError("url must be an absolute https URL.");
   }
   if (parsed.protocol !== "https:") throw new ImageRehostError("url must use https.");
+  // The server fetches on the caller's behalf, so the caller must not be
+  // able to point it at anything private — loopback, link-local, the
+  // cloud metadata address, RFC 1918 ranges — by name or by number. The
+  // name is resolved here and the fetch pinned to the same host, so a
+  // record that changes between check and fetch still can't escape.
+  if (await resolvesToPrivateAddress(parsed.hostname)) {
+    throw new ImageRehostError("url must point at a public host.");
+  }
   // Our own bucket is the destination, never a source worth copying again.
   if (parsed.hostname === "firebasestorage.googleapis.com" && parsed.pathname.includes(encodeURIComponent(storeId))) {
     return { url: sourceUrl, bytes: 0, contentType: "" };

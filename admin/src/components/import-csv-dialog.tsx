@@ -24,7 +24,7 @@ import type { ImportColumn } from "@/lib/import/csv-core";
 import {
   importCsv,
   type CatalogEntity,
-  type ImportFormat,
+  type ImportFormatOrAuto,
   type ImportReport,
 } from "@/lib/catalog-api";
 
@@ -32,7 +32,8 @@ import {
 // log viewer; the count above it says how many more there are.
 const ERRORS_SHOWN = 8;
 
-const FORMAT_LABELS: Record<ImportFormat, string> = {
+const FORMAT_LABELS: Record<ImportFormatOrAuto, string> = {
+  auto: "Detect from the file",
   cordelia: "Cordelia CSV (the sample below)",
   shopify: "Shopify products export",
   woocommerce: "WooCommerce products export",
@@ -57,7 +58,7 @@ export type ImportSpec = {
   sampleLabel: string;
   sampleSlug: string;
   /** Products only: the file may be a platform export instead of ours. */
-  formats?: ImportFormat[];
+  formats?: ImportFormatOrAuto[];
 };
 
 /**
@@ -80,7 +81,7 @@ export function ImportCsvDialog({
   onClose: () => void;
 }) {
   const formats = spec.formats ?? ["cordelia"];
-  const [format, setFormat] = useState<ImportFormat>(formats[0]);
+  const [format, setFormat] = useState<ImportFormatOrAuto>(formats[0]);
   const [fileName, setFileName] = useState<string | null>(null);
   const [csv, setCsv] = useState<string | null>(null);
   const [plan, setPlan] = useState<ImportReport | null>(null);
@@ -98,7 +99,7 @@ export function ImportCsvDialog({
     URL.revokeObjectURL(url);
   }
 
-  async function dryRun(text: string, fmt: ImportFormat) {
+  async function dryRun(text: string, fmt: ImportFormatOrAuto) {
     setPlanning(true);
     setPlan(null);
     try {
@@ -117,7 +118,7 @@ export function ImportCsvDialog({
     await dryRun(text, format);
   }
 
-  async function handleFormat(next: ImportFormat) {
+  async function handleFormat(next: ImportFormatOrAuto) {
     setFormat(next);
     if (csv) await dryRun(csv, next);
   }
@@ -164,7 +165,7 @@ export function ImportCsvDialog({
           {formats.length > 1 && (
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="import-format">File format</Label>
-              <Select value={format} onValueChange={(v) => handleFormat(v as ImportFormat)}>
+              <Select value={format} onValueChange={(v) => handleFormat(v as ImportFormatOrAuto)}>
                 <SelectTrigger id="import-format" className="w-full sm:w-80">
                   <SelectValue />
                 </SelectTrigger>
@@ -205,7 +206,7 @@ export function ImportCsvDialog({
           )}
 
           <div className="flex flex-wrap items-center gap-2">
-            {format === "cordelia" && (
+            {(format === "cordelia" || format === "auto") && (
               <Button type="button" variant="outline" onClick={downloadSample}>
                 <Download className="size-4" />
                 Download sample ({spec.sampleLabel})
@@ -239,7 +240,7 @@ export function ImportCsvDialog({
             />
           </div>
 
-          {!plan && !planning && format === "cordelia" && (
+          {!plan && !planning && (format === "cordelia" || format === "auto") && (
             <div className="rounded-lg border border-border bg-muted/40 p-4">
               <p className="mb-2 text-sm font-medium">Expected columns</p>
               <ul className="grid gap-1 text-xs text-muted-foreground sm:grid-cols-2">
@@ -322,7 +323,7 @@ export function ImportCsvDialog({
                     {errorRows.slice(0, Math.max(0, ERRORS_SHOWN - plan.skipped.length)).map((r) => (
                       <li key={`e-${r.index}`}>
                         <span className="font-semibold">
-                          {format === "cordelia" ? `Row ${r.index + 1}` : `Product ${r.index + 1}`}
+                          {plan.format === "cordelia" ? `Row ${r.index + 1}` : `Product ${r.index + 1}`}
                         </span>{" "}
                         — {r.action === "error" ? r.errors.join(" ") : ""}
                       </li>
