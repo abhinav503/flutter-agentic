@@ -3,6 +3,14 @@
 Store-readiness checklist and step-by-step for shipping an app from this monorepo
 (`apps/<app>/`) to the Google Play Store and Apple App Store.
 
+> **Superseded for real submissions.** The steps below were written *before*
+> anything shipped, against `apps/doc_scanner`, and its checklist is still all
+> unticked. `apps/ecommerce/cordelia` has since gone through both consoles, and
+> what it actually filled in — with the answers, the limits and the traps — is
+> recorded per store in **`docs/how-to/publish-play-store.md`** and
+> **`docs/how-to/publish-app-store.md`**. Read those first; treat this doc as
+> the generic build-side primer they build on.
+
 > **Status:** planning doc. Captures everything outstanding for `apps/doc_scanner`
 > as of v1.2.0. Nothing here is wired up yet — work through it in order and check
 > items off as you go. The intent is to turn this into a repeatable `publish` skill

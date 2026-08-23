@@ -29,13 +29,13 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>Used to take a new profile photo.</string>
+	<string>Take a new photo for your CordeliaApps profile picture. The camera opens only when you tap your avatar on Edit Profile.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>Used to prefill your delivery address from your current location.</string>
+	<string>Fills in your delivery address (street, city and postcode) from where you are, only when you tap "Use current location". Never used in the background.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Used to prefill your delivery address from your current location.</string>
+	<string>Fills in your delivery address (street, city and postcode) from where you are, only when you tap "Use current location".</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Used to choose a profile photo from your library.</string>
+	<string>Choose a photo for your CordeliaApps profile picture. Your library opens only when you tap your avatar on Edit Profile.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
